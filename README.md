@@ -124,6 +124,14 @@ v == v2
 a = vivi.Vec3d(1, 0, 0)
 b = vivi.Vec3d(0, 1, 0)
 a.cross(b)
+
+
+
+import vivi
+p = vivi.Painter()
+p.set_canvas_rgb(400, 300, (1, 0, 1))
+p.draw_line((10, 10), (600, 100), 3, (0, 0, 0), [])
+p.show()
 ```
 
 

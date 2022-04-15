@@ -3,6 +3,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 #include <vivi/vivi.hpp>
 
@@ -95,7 +96,7 @@ public:
   void SetCanvas(int width, int height, const vivi::Color &color)
   { painter_->SetCanvas(width, height, color); }
 
-  void DrawLine(const vivi::Vec2d& from, const vivi::Vec2d& to,
+  void DrawLine(const vivi::Vec2d& from, const vivi::Vec2d& to, //FIXME change to linestyle
                 double line_width, const vivi::Color& color,
                 const std::vector<double> &dash_style)
   { painter_->DrawLine(from, to, line_width, color, dash_style); }
@@ -276,15 +277,20 @@ PYBIND11_MODULE(vivi, m)
 
   //-----------------------------------------------------------------------------------------
   // DRAWING
+  // * LineStyle //TODO
+
   // * Painter
   py::class_<moddef::Painter>(m, "Painter")
       .def(py::init<>())
       .def("set_canvas_rgb", &moddef::Painter::SetCanvas,
            "Initializes the canvas with the given color. This or\n"
-           "set_canvas_image must be called before anything can\n"
+           "set_canvas_image() must be called before anything can\n"
            "be drawn.", py::arg("width"), py::arg("height"),
            py::arg("color")=vivi::Color(0, 0, 0, 1))
-      .def("dummy_show", &moddef::Painter::DummyShow, "TODO - Shows the current canvas; only used for initial development!");
+//      .def("set_canvas_image")
+      .def("draw_line", &moddef::Painter::DrawLine)
+//           py::arg("from"), py::arg("to")) //TODO params!
+      .def("show", &moddef::Painter::DummyShow, "TODO - Shows the current canvas; only used for initial development!");
 
 
 #ifdef VERSION_INFO
