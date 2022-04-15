@@ -8,6 +8,10 @@ TODO vivi/drawing.hpp --> painter
 TODO
 TODO
 
+export CMAKE_GENERATOR="Unix Makefiles"
+pip install .
+or rm -r build/temp...
+
 
 cmake
 libcairo2-dev
@@ -93,4 +97,34 @@ data = pickle.dumps(c1)
 data
 c2 = pickle.loads(data)
 c2
+
+
+vivi.Vec2d(1, 2, 3)
+v = vivi.Vec2d(1, 2)
+v.x
+v.x = 3
+str(v)
+v.y
+v.z
+
+
+v2 = vivi.Vec2d(3, 4)
+v.dot(v2)
+
+v[0]
+v[1]
+v[2]
+
+import pickle
+data = pickle.dumps(v)
+vp = pickle.loads(data)
+vp == v
+v == v2
+
+a = vivi.Vec3d(1, 0, 0)
+b = vivi.Vec3d(0, 1, 0)
+a.cross(b)
 ```
+
+
+

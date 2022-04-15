@@ -4,6 +4,8 @@
 #include <cairo/cairo.h>
 
 #include <vivi/drawing.hpp>
+#include <vivi/colors.hpp>
+
 
 //TODO remove opencv dependencies!
 #include <opencv2/opencv.hpp>
@@ -12,23 +14,22 @@
 
 namespace vivi
 {
-
+//TODO remove opencv dependencies and conversion
 cairo_surface_t *Mat2Cairo(const cv::Mat &mat)
 {
-  //TODO must be UC8_3, UC8_4
   assert(mat.type() == CV_8UC3 || mat.type() == CV_8UC4);
   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, mat.cols, mat.rows);
   if (mat.channels() == 3)
   {
     cv::Mat m4;
     cv::cvtColor(mat, m4, CV_RGB2RGBA);
-    std::cout << "Is cont? " << m4.isContinuous() << " step: " << m4.step << std::endl;
+//    std::cout << "Is cont? " << m4.isContinuous() << " step: " << m4.step << std::endl;
     memcpy(cairo_image_surface_get_data(surface),
-           m4.data, 4*m4.cols*m4.rows); //TODO only if iscontiguous!
+           m4.data, 4*m4.cols*m4.rows); //TODO only valid if iscontiguous!
   }
   else
   {
-    std::cout << "Is cont? " << mat.isContinuous() << " step: " << mat.step << std::endl;
+//    std::cout << "Is cont? " << mat.isContinuous() << " step: " << mat.step << std::endl;
     memcpy(cairo_image_surface_get_data(surface),
            mat.data, 4*mat.cols*mat.rows); //TODO only if iscontiguous!
   }
@@ -116,7 +117,7 @@ public:
 
   void SetCanvas(int width, int height, const Color& color) override;
 
-  void SetCanvas(const cv::Mat &image) override
+  void SetCanvas(const cv::Mat &image) override //TODO replace by buffer (maybe stb?)
   {
     assert(image.type() == CV_8UC3 || image.type() == CV_8UC4);
     //TODO if surface_ is set, reuse memory
@@ -142,21 +143,18 @@ public:
       return cv::Mat();
   }
 
-
-  void DrawLine(const cv::Vec2d& from, const cv::Vec2d& to,
-                double line_width, const cv::Vec3d& color)
+  void DummyShow() override
   {
-    if (!surface_)
-      throw std::runtime_error("Invalid cairo surface - did you call SetCanvas() first?");
-
-    cairo_save(context_);
-    cairo_set_line_width(context_, line_width);
-    cairo_set_source_rgb(context_, color[0], color[1], color[2]);
-    cairo_move_to(context_, from[0], from[1]);
-    cairo_line_to(context_, to[0], to[1]);
-    cairo_stroke(context_);
-    cairo_restore(context_);
+    cv::Mat img = Cairo2Mat(surface_);
+    cv::imshow("Canvas", img);
+    cv::waitKey();
   }
+
+protected:
+  //TODO make linestyle class - encapsulate width, color, dash, (can be extended with cap, etc)
+  void DrawLineImpl(const Vec2d& from, const Vec2d& to,
+                    double line_width, const Color& color,
+                    const std::vector<double> &dash_style) override;
 
 private:
   cairo_surface_t *surface_;
@@ -195,6 +193,31 @@ void ImagePainter::SetCanvas(int width, int height, const Color &color)
   cairo_save(context_);
   cairo_set_source_rgba(context_, color.red, color.green, color.blue, color.alpha);
   cairo_paint(context_);
+  cairo_restore(context_);
+}
+
+void ImagePainter::DrawLineImpl(const Vec2d &from, const Vec2d &to,
+                                double line_width, const Color &color,
+                                const std::vector<double> &dash_style)
+{
+  if (!surface_)
+    throw std::runtime_error("Invalid cairo surface - did you forget to SetCanvas() first?");
+
+  cairo_save(context_);
+  // Set line style
+  cairo_set_line_width(context_, line_width);
+  cairo_set_source_rgba(context_, color.red, color.green, color.blue, color.alpha);
+  if (!dash_style.empty())
+  {
+    const double *dash = &dash_style[0];
+    cairo_set_dash(context_, dash,
+                   static_cast<int>(dash_style.size()), 0);
+  }
+  // Draw line
+  cairo_move_to(context_, from[0], from[1]);
+  cairo_line_to(context_, to[0], to[1]);
+  cairo_stroke(context_);
+  // Restore context
   cairo_restore(context_);
 }
 

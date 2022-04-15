@@ -5,11 +5,10 @@ project(vivi)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 14)
 
-#FIXME Ninja doesn't work with setup.py
-#FIXME must be set as OS.env set(CMAKE_GENERATOR "Unix Makefiles")
 
 set(VIVI_SOURCE_FILES
     src/vivi/primitives.cpp
+    src/vivi/colors.cpp
     src/vivi/drawing.cpp
 )
 
@@ -29,6 +28,7 @@ add_executable(demo2d
     examples/demo2d.cpp
 )
 
+#TODO optional - if not, fall back to stb image
 find_package(OpenCV REQUIRED)
 #TODO check interface/public/private https://stackoverflow.com/a/49538748/400948
 #TODO read https://kubasejdak.com/modern-cmake-is-like-inheritance

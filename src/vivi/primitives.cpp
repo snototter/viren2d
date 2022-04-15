@@ -1,96 +1,430 @@
 #include <sstream>
 #include <iomanip>
-#include <map>
+#include <type_traits>
+#include <stdexcept>
 
 #include <vivi/primitives.hpp>
+#include <vivi/math.hpp>
 
 namespace vivi
 {
-
-double cast_01(double v)
+//---------------------------------------------------- Templated vector class
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec()
 {
-  return saturation_cast<double>(v, 0.0, 1.0);
+  for (int i = 0; i < dim; ++i)
+    val[i] = static_cast<_Tp>(0);
+}
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec(_Tp x, _Tp y)
+{
+  if (dim != 2)
+  {
+    std::stringstream s;
+    s << "You cannot initialize " << TypeName() << " with 2 values.";
+    throw std::runtime_error(s.str());
+  }
+  val[0] = x;
+  val[1] = y;
+}
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z)
+{
+  if (dim != 3)
+  {
+    std::stringstream s;
+    s << "You cannot initialize " << TypeName() << " with 3 values.";
+    throw std::runtime_error(s.str());
+  }
+  val[0] = x;
+  val[1] = y;
+  val[2] = z;
 }
 
 
-double cast_RGB(double v)
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z, _Tp w)
 {
-  return saturation_cast<double>(v, 0.0, 255.0);
+  if (dim != 4)
+  {
+    std::stringstream s;
+    s << "You cannot initialize " << TypeName() << " with 4 values.";
+    throw std::runtime_error(s.str());
+  }
+  val[0] = x;
+  val[1] = y;
+  val[2] = z;
+  val[3] = w;
 }
 
 
-Color Color::Inverse() const
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec(const Vec<_Tp, dim>& other)
 {
-  return Color(1.0 - red, 1.0 - green, 1.0 - blue, alpha);
+  for (int i = 0; i < dim; ++i)
+    val[i] = other.val[i];
 }
 
-std::string Color::ToString() const
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::operator Vec<double, dim>() const
+{
+  Vec<double, dim> conv;
+  for (int i = 0; i < dim; ++i)
+    conv.val[i] = static_cast<double>(val[i]);
+  return conv;
+}
+
+
+template<typename _Tp, int dim>
+const _Tp& Vec<_Tp, dim>::operator[](int i) const
+{
+  if (i >= dim)
+  {
+    std::stringstream s;
+    s << "Index-out-of-bounds: cannot access ["
+      << i << "] for " << TypeName() << ".";
+    throw std::runtime_error(s.str());
+  }
+  return val[i];
+}
+
+
+template<typename _Tp, int dim>
+_Tp& Vec<_Tp, dim>::operator[](int i)
+{
+  if (i >= dim)
+  {
+    std::stringstream s;
+    s << "Index-out-of-bounds: cannot access ["
+      << i << "] for " << TypeName() << ".";
+    throw std::runtime_error(s.str());
+  }
+  return val[i];
+}
+
+
+template<typename _Tp, int dim>
+const _Tp& Vec<_Tp, dim>::x() const
+{
+  return (*this)[0];
+}
+
+
+template<typename _Tp, int dim>
+const _Tp& Vec<_Tp, dim>::y() const
+{
+  return (*this)[1];
+}
+
+
+template<typename _Tp, int dim>
+const _Tp& Vec<_Tp, dim>::z() const
+{
+  return (*this)[2];
+}
+
+
+template<typename _Tp, int dim>
+const _Tp& Vec<_Tp, dim>::w() const
+{
+  return (*this)[3];
+}
+
+
+template<typename _Tp, int dim>
+_Tp& Vec<_Tp, dim>::x()
+{
+  return (*this)[0];
+}
+
+
+template<typename _Tp, int dim>
+_Tp& Vec<_Tp, dim>::y()
+{
+  return (*this)[1];
+}
+
+
+template<typename _Tp, int dim>
+_Tp& Vec<_Tp, dim>::z()
+{
+  return (*this)[2];
+}
+
+
+template<typename _Tp, int dim>
+_Tp& Vec<_Tp, dim>::w()
+{
+  return (*this)[3];
+}
+
+
+template<typename _Tp, int dim>
+void Vec<_Tp, dim>::SetX(_Tp x)
+{
+  (*this)[0] = x;
+}
+
+
+template<typename _Tp, int dim>
+void Vec<_Tp, dim>::SetY(_Tp y)
+{
+  (*this)[1] = y;
+}
+
+
+template<typename _Tp, int dim>
+void Vec<_Tp, dim>::SetZ(_Tp z)
+{
+  (*this)[2] = z;
+}
+
+
+template<typename _Tp, int dim>
+void Vec<_Tp, dim>::SetW(_Tp w)
+{
+  (*this)[3] = w;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(const Vec<_Tp, dim>& rhs)
+{
+  for (int i = 0; i < dim; ++i)
+    val[i] += rhs[i];
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(const Vec<_Tp, dim>& rhs)
+{
+  for (int i = 0; i < dim; ++i)
+    val[i] -= rhs[i];
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator*=(double scale)
+{
+  for (int i = 0; i < dim; ++i)
+    val[i] *= scale;
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale)
+{
+  for (int i = 0; i < dim; ++i)
+    val[i] /= scale;
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+_Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other)
+{
+  _Tp s = static_cast<_Tp>(0);
+  for (int i = 0; i < dim; ++i)
+    s += val[i] * other.val[i];
+  return s;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other)
+{
+  if (dim != 3)
+    throw std::runtime_error("Cross product is only defined for 3-dim vectors!");
+  // There's actually an analog for 2d space, but I didn't need
+  // it yet: https://mathworld.wolfram.com/CrossProduct.html
+
+  return Vec<_Tp, dim>(val[1] * other.val[2] - val[2] * other.val[1],
+                       val[2] * other.val[0] - val[0] * other.val[2],
+                       val[0] * other.val[1] - val[1] * other.val[0]);
+}
+
+
+template<typename _Tp, int dim>
+double Vec<_Tp, dim>::Length() const
+{
+  double squared = 0.0;
+  for (int i = 0; i < dim; ++i)
+    squared += static_cast<double>(val[i] * val[i]);
+  return std::sqrt(squared);
+}
+
+
+template<typename _Tp, int dim>
+double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other)
+{
+  auto diff = *this - other;
+  return diff.Length();
+}
+
+
+// Typename to char lookup:
+template<typename _Tp> char VecType();
+template<> char VecType<unsigned char>() { return 'b'; }
+template<> char VecType<short>()         { return 's'; }
+template<> char VecType<int>()           { return 'i'; }
+template<> char VecType<double>()        { return 'd'; }
+
+
+template<typename _Tp, int dim>
+std::string Vec<_Tp, dim>::TypeName()
 {
   std::stringstream s;
-  s << "rgba(" << std::fixed << std::setprecision(2)
-    << red << ", " << green << ", " << blue << ", "
-    << alpha << ")";
+  s << "Vec" << dim << VecType<_Tp>();
   return s.str();
 }
 
-std::tuple<unsigned char, unsigned char, unsigned char, double>
-Color::ToRGBA() const
+
+template<typename _Tp, int dim>
+std::string Vec<_Tp, dim>::ToString() const
 {
-  return std::make_tuple(static_cast<unsigned char>(red * 255),
-        static_cast<unsigned char>(green * 255),
-        static_cast<unsigned char>(blue * 255),
-        alpha);
+  std::stringstream s;
+  s << Vec<_Tp, dim>::TypeName() << "("
+    << std::fixed << std::setprecision(2);
+  for (int i = 0; i < dim; ++i)
+  {
+    s << val[i];
+    if (i < dim -1)
+      s << ", ";
+  }
+  s << ")";
+  return s.str();
+}
+
+//---------------------------------------------------- Vector operators
+template<typename _Tp, int dim>
+bool operator==(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs)
+{
+  for (int i = 0; i < dim; ++i)
+  {
+    if (!eps_equal(lhs.val[i], rhs.val[i]))
+    {
+      return false;
+    }
+  }
+  return true;
 }
 
 
-std::string Color::ToHexString() const
+template<typename _Tp, int dim>
+bool operator!=(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs)
 {
-  std::string webcode("#000000");
-  // RGB is easier to work with
-  auto RGBa = ToRGBA();
-
-  std::map<int, char> hex {
-    {0, '0'}, {1, '1'}, {2, '2'}, {3, '3'}, {4, '4'},
-    {5, '5'}, {6, '6'}, {7, '7'}, {8, '8'}, {9, '9'},
-    {10, 'A'}, {11, 'B'}, {12, 'C'}, {13, 'D'},
-    {14, 'E'}, {15, 'F'}
-  };
-
-  // For now, tuple elements can't be accessed
-  // in a loop. So bear with the following copy&paste.
-  //
-  // Off-topic: Compiler optimizations never cease to
-  // impress me, e.g. check how these two lines are
-  // optimized (at least on x86, very likely others too)
-  // to reuse the remainder: https://stackoverflow.com/a/7070598/400948
-  int div = (int)std::get<0>(RGBa) / 16;
-  int rem = (int)std::get<0>(RGBa) % 16;
-  webcode[1] = hex[div];
-  webcode[2] = hex[rem];
-
-  div = (int)std::get<1>(RGBa) / 16;
-  rem = (int)std::get<1>(RGBa) % 16;
-  webcode[3] = hex[div];
-  webcode[4] = hex[rem];
-
-  div = (int)std::get<2>(RGBa) / 16;
-  rem = (int)std::get<2>(RGBa) % 16;
-  webcode[5] = hex[div];
-  webcode[6] = hex[rem];
-
-  return webcode;
+  return !(lhs == rhs);
 }
 
-Color rgba(double r, double g, double b, double alpha)
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> operator+(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs)
 {
-  return Color(cast_01(r), cast_01(g), cast_01(b),
-               cast_01(alpha));
+  lhs += rhs;
+  return lhs;
 }
 
-Color RGBA(double R, double G, double B, double alpha)
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs)
 {
-  return Color(cast_RGB(R/255.0), cast_RGB(G/255.0), cast_RGB(B/255.0),
-               alpha);
+  lhs -= rhs;
+  return lhs;
 }
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double scale)
+{
+  lhs *= scale;
+  return lhs;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> operator*(double scale, Vec<_Tp, dim> rhs)
+{
+  rhs *= scale;
+  return rhs;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> operator/(Vec<_Tp, dim> lhs, double scale)
+{
+  lhs /= scale;
+  return lhs;
+}
+
+
+//---------------------------------------------------- Explicit vector instantiation
+// Explicit instantiation:
+template class Vec<double, 2>;
+template class Vec<double, 3>;
+template class Vec<double, 4>;
+
+template class Vec<int, 2>;
+template class Vec<int, 3>;
+
+// Comparison Vec2d
+template bool operator==(const Vec2d& lhs, const Vec2d& rhs);
+template bool operator!=(const Vec2d& lhs, const Vec2d& rhs);
+// Arithmetic Vec2d
+template Vec2d operator+(Vec2d lhs, const Vec2d& rhs);
+template Vec2d operator-(Vec2d lhs, const Vec2d& rhs);
+template Vec2d operator*(Vec2d lhs, double scale);
+template Vec2d operator*(double scale, Vec2d rhs);
+template Vec2d operator/(Vec2d lhs, double scale);
+
+
+// Comparison Vec3d
+template bool operator==(const Vec3d& lhs, const Vec3d& rhs);
+template bool operator!=(const Vec3d& lhs, const Vec3d& rhs);
+// Arithmetic Vec3d
+template Vec3d operator+(Vec3d lhs, const Vec3d& rhs);
+template Vec3d operator-(Vec3d lhs, const Vec3d& rhs);
+template Vec3d operator*(Vec3d lhs, double scale);
+template Vec3d operator*(double scale, Vec3d rhs);
+template Vec3d operator/(Vec3d lhs, double scale);
+
+
+// Comparison Vec4d
+template bool operator==(const Vec4d& lhs, const Vec4d& rhs);
+template bool operator!=(const Vec4d& lhs, const Vec4d& rhs);
+// Arithmetic Vec4d
+template Vec4d operator+(Vec4d lhs, const Vec4d& rhs);
+template Vec4d operator-(Vec4d lhs, const Vec4d& rhs);
+template Vec4d operator*(Vec4d lhs, double scale);
+template Vec4d operator*(double scale, Vec4d rhs);
+template Vec4d operator/(Vec4d lhs, double scale);
+
+
+// Comparison Vec2i
+template bool operator==(const Vec2i& lhs, const Vec2i& rhs);
+template bool operator!=(const Vec2i& lhs, const Vec2i& rhs);
+// Arithmetic Vec2i
+template Vec2i operator+(Vec2i lhs, const Vec2i& rhs);
+template Vec2i operator-(Vec2i lhs, const Vec2i& rhs);
+template Vec2i operator*(Vec2i lhs, double scale);
+template Vec2i operator*(double scale, Vec2i rhs);
+template Vec2i operator/(Vec2i lhs, double scale);
+
+
+// Comparison Vec3i
+template bool operator==(const Vec3i& lhs, const Vec3i& rhs);
+template bool operator!=(const Vec3i& lhs, const Vec3i& rhs);
+// Arithmetic Vec3i
+template Vec3i operator+(Vec3i lhs, const Vec3i& rhs);
+template Vec3i operator-(Vec3i lhs, const Vec3i& rhs);
+template Vec3i operator*(Vec3i lhs, double scale);
+template Vec3i operator*(double scale, Vec3i rhs);
+template Vec3i operator/(Vec3i lhs, double scale);
+
+//---------------------------------------------------- TODO others
 
 } // namespace vivi

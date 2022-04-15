@@ -62,33 +62,62 @@ https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
 
 int main(int argc, char **argv)
 {
+  //------------------------------------------------------
+  vivi::Vec2d vd1(1, 2), vd2(3, 9);
+  vivi::Vec3i vi1(13, 42, -1), vi2(13,42, 0);
+  std::cout << vd1 << " == " << vd2 << ": " << (vd1 == vd2) << std::endl
+            << vd1 << " == " << vd1 << ": " << (vd1 == vd1) << std::endl
+            << vi1 << " == " << vi2 << ": " << (vi1 == vi2) << std::endl
+            << vi1 << " == " << vi1 << ": " << (vi1 == vi1) << std::endl;
+
+//  vivi::Vec3d cast = static_cast<vivi::Vec3d>(vi3);
+//  std::cout << "Casted?: " << cast << std::endl;
+  std::cout << "Arithmetic: " << vd1 << " - " << vd2 << " = " << (vd1 - vd2) << std::endl
+            << "  '+' = " << (vd1 + vd2) << std::endl
+            << "3 * " << vd1 << " = " << (3 * vd1) << " == lhs|rhs == " << (vd1 * 3) << std::endl
+            << vd1 << "/ 2 = " << (vd1 / 2) << std::endl
+            << vi1 << "/ 2 = " << (vi1 / 2) << std::endl << std::endl
+            << "Length " << vi1 << " = " << vi1.Length() << std::endl
+            << "L2 to  " << vi2 << " = " << vi1.Distance(vi2) << std::endl << std::endl;
+
+  //------------------------------------------------------
+
   vivi::Color color = vivi::RGBA(255, 0, 255);
   std::cout << color.ToString() << std::endl;
+  //------------------------------------------------------
 
   // compare image.png cv-image.png diff.png
-  cv::Mat orig = cv::imread("/home/snototter/workspace/sandbox/vivi/cpp-only/flamingo.jpg");
+  cv::Mat orig = cv::imread("../examples/flamingo.jpg");
   cv::Mat img = orig;
 
-  auto painter1 = vivi::CreateImagePainter();//vivi::ImagePainter painter1;
-  painter1->SetCanvas(img);
+  auto painter = vivi::CreateImagePainter();//vivi::ImagePainter painter1;
+  painter->SetCanvas(img);
 
 //   ImagePainter painter(painter1); // copy construct
-  auto painter = std::move(painter1);
-//  ImagePainter painter = std::move(painter1); // move constructor
-//  ImagePainter painter; painter = std::move(painter1); // move assignment
-//  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
-  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
+//  auto painter = std::move(painter1);
+////  ImagePainter painter = std::move(painter1); // move constructor
+////  ImagePainter painter; painter = std::move(painter1); // move assignment
+////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
+
+//  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
+  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
+                    10, vivi::RGBA(200, 0, 200));
+
+  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10
+                                                     , img.rows-10),
+                    6, vivi::RGBA(0, 0, 200), {20, 10});
 
 //  painter->DrawLine(cv::Vec2d(10, 10), cv::Vec2d(img.cols-10, img.rows-10), 3.9, cv::Vec3d(1, 0, 0));
 //  painter->DrawLine(cv::Vec2d(10, 10), cv::Vec2d(img.cols-10, 10), 1, cv::Vec3d(1, 0, 1));
-  img = painter->GetCanvas();
-  std::cout << "img?" << img.empty() << std::endl;
+//  img = painter->GetCanvas();
+//  std::cout << "img?" << img.empty() << std::endl;
 
-  cv::imshow("image", img);
-//  if (!painter1->Empty())
-//    cv::imshow("prev-painter", painter1->GetCanvas());
+//  cv::imshow("image", img);
+////  if (!painter1->Empty())
+////    cv::imshow("prev-painter", painter1->GetCanvas());
 
-  cv::waitKey();
+//  cv::waitKey();
+  painter->DummyShow();
   return 0;
 }
 
