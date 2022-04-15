@@ -70,6 +70,9 @@ https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
 ```
 
 
+TODO git submodule add ... libs/stb
+https://github.com/nothings/stb
+
 
 run
 ```
