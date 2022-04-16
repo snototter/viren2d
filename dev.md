@@ -40,7 +40,6 @@ TODO vivi/drawing.hpp --> painter
 TODO
 TODO
 
---> don't think that we need spdlog: remove submodule (print to stdout for dev)
 
 
 cmake
