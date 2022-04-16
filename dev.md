@@ -67,9 +67,6 @@ Image loading lightweight:
 https://stackoverflow.com/a/40812978/400948
 --> recommends https://github.com/nothings/stb
 
-Logging:
-https://github.com/gabime/spdlog
-
 Clean library with CMake
 https://github.com/robotology/how-to-export-cpp-library/blob/master/CMakeLists.txt
 

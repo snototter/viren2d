@@ -96,8 +96,8 @@ int main(int argc, char **argv)
   auto painter = vivi::CreateImagePainter();//vivi::ImagePainter painter1;
 //  painter->SetCanvas(img);
 
-  painter->SetCanvas(image_filename);
-//  painter->SetCanvas(image_buffer); FIXME FUCK IMPLEMENT
+//  painter->SetCanvas(image_filename);
+  painter->SetCanvas(image_buffer);
 //  painter->SetCanvas(600, 400, vivi::RGBA(255, 255, 255));
 
   for (int i = 0; i < 4; ++i)
@@ -108,15 +108,6 @@ int main(int argc, char **argv)
   }
   vivi::ImageBuffer canvas = painter->GetCanvas(false);
   vivi::SaveImage("canvas-stb-test.png", canvas);
-
-
-  vivi::ImageBuffer img_buffer = painter->GetCanvas(true);
-//  img_buffer.RGB2BGR(); //warning: currently, the buffer is shared!!
-//  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
-//                    CV_MAKETYPE(CV_8U, img_buffer.channels),
-//                    img_buffer.data, img_buffer.stride);
-//  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
-//  cv::waitKey();
 
 
 //  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
@@ -140,5 +131,16 @@ int main(int argc, char **argv)
 
 
   painter->DummyShow();
+
+
+  // TODO the last bit of OpenCV dependency ;-)
+  vivi::ImageBuffer img_buffer = painter->GetCanvas(true);
+  img_buffer.RGB2BGR(); //warning: currently, the buffer is shared!!
+  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
+                    CV_MAKETYPE(CV_8U, img_buffer.channels),
+                    img_buffer.data, img_buffer.stride);
+  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
+  cv::waitKey();
+
   return 0;
 }

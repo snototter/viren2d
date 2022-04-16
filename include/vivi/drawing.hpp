@@ -110,7 +110,8 @@ public:
    */
   virtual void SetCanvas(const std::string &image_filename) = 0;
 
-  //TODO setcanvas imagebuffer
+  //TODO doc - memory will be copied; image must be RGBA!
+  virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
 
 
   /**

@@ -256,6 +256,8 @@ public:
 
   void SetCanvas(const std::string &image_filename) override;
 
+  void SetCanvas(const ImageBuffer &image_buffer) override;
+
 //  void SetCanvas(const cv::Mat &image) override //TODO replace by buffer (maybe stb?)
 //  {
 //    assert(image.type() == CV_8UC3 || image.type() == CV_8UC4);
@@ -353,6 +355,14 @@ void ImagePainter::SetCanvas(const std::string &image_filename)
   // can easily plug/copy it into the Cairo surface
   ImageBuffer buffer = LoadImage(image_filename, 4);
 
+  SetCanvas(buffer);
+}
+
+void ImagePainter::SetCanvas(const ImageBuffer &image_buffer)
+{
+  if (image_buffer.channels != 4)
+    throw std::runtime_error("ImagePainter only accepts 4-channel (RGBA) images!");
+
   // Since loading from disk is already expensive, we omit trying
   // to reuse existing memory (for the sake of readable code and
   // laziness)
@@ -371,9 +381,9 @@ void ImagePainter::SetCanvas(const std::string &image_filename)
   // does not take ownership. So currently, I'm redundantly copying
   // the image data:
   surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                        buffer.width, buffer.height);
-  std::memcpy(cairo_image_surface_get_data(surface_), buffer.data,
-              4 * buffer.width * buffer.height);
+                                        image_buffer.width, image_buffer.height);
+  std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
+              4 * image_buffer.width * image_buffer.height);
   context_ = cairo_create(surface_);
   cairo_surface_mark_dirty(surface_);
 }

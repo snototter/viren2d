@@ -42,6 +42,7 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other)
       throw std::runtime_error(s.str());
     }
     std::memcpy(data, other.data, num_bytes);
+    std::cout << "ImageBuffer allocated " << num_bytes << " bytes" << std::endl; // TODO remove
   }
   else
   {
@@ -126,6 +127,8 @@ void ImageBuffer::CreateCopy(unsigned char *buffer, int width, int height,
   this->height = height;
   this->channels = channels;
   this->stride = stride;
+
+  std::cout << "ImageBuffer copied " << num_bytes << " bytes (CreateCopy)" << std::endl; // TODO remove
 }
 
 void ImageBuffer::RGB2BGR()
@@ -194,14 +197,19 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels)
   const int num_channels = (force_num_channels != STBI_default)
       ? force_num_channels : bytes_per_pixel;
 
-  //TODO run detailed valgrind checks
+
   // First, let ImageBuffer reuse the buffer (no separate memory allocation)
   ImageBuffer buffer;
   buffer.CreateSharedBuffer(data, width, height, num_channels,
                             width * num_channels);
   // Then, transfer ownership
   buffer.owns_data_ = true;
-  // So we don't need to free the stbi allocated memory anymore: stbi_image_free(data);
+  // Alternatively, we could:
+  //     buffer.CreateCopy(data, width, height, num_channels,
+  //                       width * num_channels);
+  //     stbi_image_free(data);
+  // But according to valgrind - the reuse option works as intended (i.e.
+  // not leaking memory)
   return buffer;
 }
 
