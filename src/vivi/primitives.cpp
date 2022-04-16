@@ -8,8 +8,15 @@
 #include <iostream> // TODO remove
 #include <algorithm> // std::swap
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 #include <vivi/primitives.hpp>
 #include <vivi/math.hpp>
+#include <vivi/string_utils.hpp>
 
 namespace vivi
 {
@@ -156,13 +163,92 @@ void ImageBuffer::RGB2BGR()
 void ImageBuffer::Cleanup()
 {
   if (data && owns_data_)
+  {
+    std::cout << "ImageBuffer freeing " << width*stride << " bytes" << std::endl; //TODO remove
     std::free(data);
+  }
   data = nullptr;
   owns_data_ = false;
   width = 0;
   height = 0;
   channels = 0;
   stride = 0;
+}
+
+
+ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels)
+{
+  int width, height, bytes_per_pixel;
+  // Force stb to load 4 bytes per pixel (STBI_rgb_alpha), so we
+  // can easily plug/copy it into the Cairo surface
+  unsigned char *data = stbi_load(image_filename.c_str(),
+                                  &width, &height,
+                                  &bytes_per_pixel,
+                                  force_num_channels);
+  if (!data)
+  {
+    std::stringstream s;
+    s << "Could not load image from '" << image_filename << "'!";
+    throw std::runtime_error(s.str());
+  }
+  const int num_channels = (force_num_channels != STBI_default)
+      ? force_num_channels : bytes_per_pixel;
+
+  //TODO run detailed valgrind checks
+  // First, let ImageBuffer reuse the buffer (no separate memory allocation)
+  ImageBuffer buffer;
+  buffer.CreateSharedBuffer(data, width, height, num_channels,
+                            width * num_channels);
+  // Then, transfer ownership
+  buffer.owns_data_ = true;
+  // So we don't need to free the stbi allocated memory anymore: stbi_image_free(data);
+  return buffer;
+}
+
+
+void SaveImage(const std::string &image_filename, const ImageBuffer &image)
+{
+  int stb_result = 0; // stb return code 0 indicates failure
+
+  const std::string fn_lower = strings::Lower(image_filename);
+  if (strings::EndsWith(fn_lower, ".jpg") || strings::EndsWith(fn_lower, ".jpeg"))
+  {
+    // stbi_write_jpg requires contiguous memory
+    if (image.stride != image.channels * image.width)
+    {
+      std::stringstream s;
+      s << "Cannot save JPEG because image memory is not contiguous. Expected "
+        << image.channels * image.width << " bytes per row, but image buffer has "
+        << image.stride << "!";
+      throw std::runtime_error(s.str());
+    }
+    // Default JPEG quality setting: 90%
+    stb_result = stbi_write_jpg(image_filename.c_str(),
+                                image.width, image.height,
+                                image.channels, image.data,
+                                90);
+  }
+  else
+  {
+    if (strings::EndsWith(fn_lower, ".png"))
+    {
+      stb_result = stbi_write_png(image_filename.c_str(),
+                                  image.width, image.height,
+                                  image.channels, image.data,
+                                  image.stride);
+    }
+    else
+    {
+      throw std::invalid_argument("ImageBuffer can only be saved as JPEG or PNG. File extension must be '.jpg', '.jpeg' or '.png'.");
+    }
+  }
+
+  if (stb_result == 0)
+  {
+    std::stringstream s;
+    s << "Could not save ImageBuffer to '" << image_filename << "' - unknown error!";
+    throw std::runtime_error(s.str());
+  }
 }
 
 

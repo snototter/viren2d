@@ -60,6 +60,7 @@ https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
 
 #include <vivi/vivi.hpp>
 
+
 int main(int argc, char **argv)
 {
   //------------------------------------------------------
@@ -88,37 +89,41 @@ int main(int argc, char **argv)
 
   // compare image.png cv-image.png diff.png
   std::string image_filename("../examples/flamingo.jpg");
-  cv::Mat orig = cv::imread(image_filename);
-  cv::Mat img = orig;
+  vivi::ImageBuffer image_buffer = vivi::LoadImage(image_filename, 4);
+//  cv::Mat orig = cv::imread(image_filename);
+//  cv::Mat img = orig;
 
   auto painter = vivi::CreateImagePainter();//vivi::ImagePainter painter1;
 //  painter->SetCanvas(img);
 
   painter->SetCanvas(image_filename);
+//  painter->SetCanvas(image_buffer); FIXME FUCK IMPLEMENT
 //  painter->SetCanvas(600, 400, vivi::RGBA(255, 255, 255));
 
   for (int i = 0; i < 4; ++i)
   {
-    painter->DrawRect(vivi::Rect(40 + i*100, img.rows/2, 80, 120, i*30, 30),
+    painter->DrawRect(vivi::Rect(40 + i*100, 256, 80, 120, i*30, 30),
                       vivi::LineStyle(6, vivi::colors::Indigo(0.9)),
                       vivi::colors::Cyan(0.2));
   }
-  painter->SaveCanvas("canvas-stb-test.png");
+  vivi::ImageBuffer canvas = painter->GetCanvas(false);
+  vivi::SaveImage("canvas-stb-test.png", canvas);
+
 
   vivi::ImageBuffer img_buffer = painter->GetCanvas(true);
-  img_buffer.RGB2BGR(); //warning: currently, the buffer is shared!!
-  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
-                    CV_MAKETYPE(CV_8U, img_buffer.channels),
-                    img_buffer.data, img_buffer.stride);
-  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
-  cv::waitKey();
+//  img_buffer.RGB2BGR(); //warning: currently, the buffer is shared!!
+//  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
+//                    CV_MAKETYPE(CV_8U, img_buffer.channels),
+//                    img_buffer.data, img_buffer.stride);
+//  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
+//  cv::waitKey();
 
 
 //  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
-  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
+  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(image_buffer.width-10, image_buffer.height-10),
                     vivi::LineStyle(10, vivi::colors::Maroon(0.8)));
 
-  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
+  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(image_buffer.width-10, image_buffer.height-10),
                     vivi::LineStyle(6, vivi::colors::LimeGreen(), {5, 10, 40, 10},
                                     vivi::LineStyle::Cap::Round));
 

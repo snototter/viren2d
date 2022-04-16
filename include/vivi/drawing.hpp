@@ -5,9 +5,6 @@
 #include <vector>
 #include <string>
 
-//FIXME remove opencv dependency
-#include <opencv2/core.hpp>
-
 #include <vivi/primitives.hpp>
 #include <vivi/colors.hpp>
 
@@ -94,9 +91,6 @@ public:
   virtual bool Empty() const = 0;
 
 
-  virtual void SetCanvas(const cv::Mat &image) = 0;//FIXME remove - replace by stb or buffer...
-
-
   /**
    * @brief Initializes the canvas with the given color.
    *
@@ -114,20 +108,6 @@ public:
    * any other DrawXXX calls can be performed.
    */
   virtual void SetCanvas(const std::string &image_filename) = 0;
-
-
-  /**
-   * @brief Saves the canvas to disk as either JPEG or PNG.
-   *
-   * Uses the stb/stb_image_write library for writing. Note
-   * that PNG output is not optimal (20-50% larger file size
-   * than using an optimized library).
-   * I consider writing to disk only a nice-to-have feature,
-   * thus I'm not including any other specialized third-party
-   * libraries for that.
-   */
-  virtual void SaveCanvas(const std::string &image_filename) = 0;
-
 
   // copy: true - allocates memory; false - returns the canvas buffer directly
   virtual ImageBuffer GetCanvas(bool copy) = 0;

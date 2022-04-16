@@ -11,24 +11,15 @@
 // Cairo is a C library
 #include <cairo/cairo.h>
 
-// Image handling is done with the lightweight header-only
-// stb library:
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
-
-
 #include <vivi/drawing.hpp>
 #include <vivi/colors.hpp>
 #include <vivi/math.hpp>
 #include <vivi/string_utils.hpp>
 
-
-//TODO remove opencv dependencies!
-#include <opencv2/opencv.hpp>
-//#include <opencv2/core/eigen.hpp>
-#include <opencv2/highgui.hpp>
+////TODO remove opencv dependencies!
+//#include <opencv2/opencv.hpp>
+////#include <opencv2/core/eigen.hpp>
+//#include <opencv2/highgui.hpp>
 
 namespace vivi
 {
@@ -110,32 +101,33 @@ void ApplyLineStyle(cairo_t *context, const LineStyle &line_style)
 }
 
 
-//TODO remove opencv dependencies and conversion
-cairo_surface_t *Mat2Cairo(const cv::Mat &mat)
-{
-  //TODO check stb usage: https://stackoverflow.com/a/68015791/400948
-  assert(mat.type() == CV_8UC3 || mat.type() == CV_8UC4);
-  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, mat.cols, mat.rows);
-  if (mat.channels() == 3)
-  {
-    cv::Mat m4;
-#if (CV_VERSION_MAJOR >= 4)
-    cv::cvtColor(mat, m4, cv::COLOR_RGB2RGBA);
-#else
-    cv::cvtColor(mat, m4, CV_RGB2RGBA);
-#endif
-    std::memcpy(cairo_image_surface_get_data(surface),
-                m4.data, 4*m4.cols*m4.rows); //TODO only valid if iscontiguous!
-  }
-  else
-  {
-    std::memcpy(cairo_image_surface_get_data(surface),
-                mat.data, 4*mat.cols*mat.rows); //TODO only if iscontiguous!
-  }
-  // Mark the surface dirty after directly manipulating the memory!
-  cairo_surface_mark_dirty(surface);
-  return surface;
-}
+////TODO remove opencv dependencies and conversion
+//@deprecated
+//cairo_surface_t *Mat2Cairo(const cv::Mat &mat)
+//{
+//  //TODO check stb usage: https://stackoverflow.com/a/68015791/400948
+//  assert(mat.type() == CV_8UC3 || mat.type() == CV_8UC4);
+//  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, mat.cols, mat.rows);
+//  if (mat.channels() == 3)
+//  {
+//    cv::Mat m4;
+//#if (CV_VERSION_MAJOR >= 4)
+//    cv::cvtColor(mat, m4, cv::COLOR_RGB2RGBA);
+//#else
+//    cv::cvtColor(mat, m4, CV_RGB2RGBA);
+//#endif
+//    std::memcpy(cairo_image_surface_get_data(surface),
+//                m4.data, 4*m4.cols*m4.rows); //TODO only valid if iscontiguous!
+//  }
+//  else
+//  {
+//    std::memcpy(cairo_image_surface_get_data(surface),
+//                mat.data, 4*mat.cols*mat.rows); //TODO only if iscontiguous!
+//  }
+//  // Mark the surface dirty after directly manipulating the memory!
+//  cairo_surface_mark_dirty(surface);
+//  return surface;
+//}
 
 //@deprecated
 //cv::Mat Cairo2Mat(cairo_surface_t *surface)
@@ -264,40 +256,43 @@ public:
 
   void SetCanvas(const std::string &image_filename) override;
 
-  void SaveCanvas(const std::string &image_filename) override;
-
-  void SetCanvas(const cv::Mat &image) override //TODO replace by buffer (maybe stb?)
-  {
-    assert(image.type() == CV_8UC3 || image.type() == CV_8UC4);
-    //TODO if surface_ is set, reuse memory
-    if (context_)
-    {
-      cairo_destroy(context_);
-      context_ = nullptr;
-    }
-    if (surface_)
-    {
-      cairo_surface_destroy(surface_);
-      surface_ = nullptr;
-    }
-    surface_ = Mat2Cairo(image);
-    context_ = cairo_create(surface_);
-  }
+//  void SetCanvas(const cv::Mat &image) override //TODO replace by buffer (maybe stb?)
+//  {
+//    assert(image.type() == CV_8UC3 || image.type() == CV_8UC4);
+//    //TODO if surface_ is set, reuse memory
+//    if (context_)
+//    {
+//      cairo_destroy(context_);
+//      context_ = nullptr;
+//    }
+//    if (surface_)
+//    {
+//      cairo_surface_destroy(surface_);
+//      surface_ = nullptr;
+//    }
+//    surface_ = Mat2Cairo(image);
+//    context_ = cairo_create(surface_);
+//  }
 
   ImageBuffer GetCanvas(bool copy) override;
 
   void DummyShow() override
   {
-    ImageBuffer buffer = GetCanvas(true);
-    buffer.RGB2BGR(); // OpenCV wants BGR, OpenCV gets BGR
-    cv::Mat mat(buffer.height, buffer.width,
-                CV_MAKETYPE(CV_8U, buffer.channels),
-                buffer.data, buffer.stride);
+    std::cerr << "WARNING - display functionality will be removed at any time without notice!" << std::endl;
 
-    const std::string win_title("Painter's Canvas");
-    cv::imshow(win_title, mat);
-    cv::waitKey();
-    cv::destroyWindow(win_title);
+//    ImageBuffer buffer = GetCanvas(true);
+//    buffer.RGB2BGR(); // OpenCV wants BGR, OpenCV gets BGR
+//    cv::Mat mat(buffer.height, buffer.width,
+//                CV_MAKETYPE(CV_8U, buffer.channels),
+//                buffer.data, buffer.stride);
+
+//    const std::string win_title("Painter's Canvas");
+//    cv::imshow(win_title, mat);
+//    cv::waitKey();
+//    cv::destroyWindow(win_title);
+
+    ImageBuffer buffer = GetCanvas(false);
+    SaveImage("dummy-canvas.jpg", buffer);
   }
 
   void DrawLine(const Vec2d &from, const Vec2d &to,
@@ -354,22 +349,13 @@ void ImagePainter::SetCanvas(int width, int height, const Color &color)
 
 void ImagePainter::SetCanvas(const std::string &image_filename)
 {
-  int width, height, bytes_per_pixel;
-  // Force stb to load 4 bytes per pixel (STBI_rgb_alpha), so we
+  // Force to load 4 bytes per pixel (STBI_rgb_alpha), so we
   // can easily plug/copy it into the Cairo surface
-  unsigned char *data = stbi_load(image_filename.c_str(),
-                                  &width, &height,
-                                  &bytes_per_pixel,
-                                  STBI_rgb_alpha);
-  if (!data)
-  {
-    std::stringstream s;
-    s << "Could not load image from '" << image_filename << "'!";
-    throw std::runtime_error(s.str());
-  }
+  ImageBuffer buffer = LoadImage(image_filename, 4);
 
-  // TODO if this becomes a frequently used feature, we should try to reuse memory
-  // Currently, we clean up existing memory
+  // Since loading from disk is already expensive, we omit trying
+  // to reuse existing memory (for the sake of readable code and
+  // laziness)
   if (context_)
   {
     cairo_destroy(context_);
@@ -384,67 +370,12 @@ void ImagePainter::SetCanvas(const std::string &image_filename)
   // From my understanding, cairo_image_surface_create_for_data
   // does not take ownership. So currently, I'm redundantly copying
   // the image data:
-  surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-  std::memcpy(cairo_image_surface_get_data(surface_), data, 4 * width * height);
+  surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                        buffer.width, buffer.height);
+  std::memcpy(cairo_image_surface_get_data(surface_), buffer.data,
+              4 * buffer.width * buffer.height);
   context_ = cairo_create(surface_);
   cairo_surface_mark_dirty(surface_);
-  stbi_image_free(data);
-}
-
-void ImagePainter::SaveCanvas(const std::string &image_filename)
-{
-  if (!surface_)
-    throw std::logic_error("Invalid cairo surface - did you forget to SetCanvas() first?");
-
-  // For now, we only support RGBA canvases. TL;DR: For our visualization
-  // use case, Cairo always stores 4 bytes per pixel internally (even if
-  // you use for example the RGB24 format). Thus, our ImagePainter is
-  // designed to work with RGBA images.
-  assert(cairo_image_surface_get_format(surface_) == CAIRO_FORMAT_ARGB32);
-
-  int stb_result = 0; // stb return code 0 indicates failure
-  const int width = cairo_image_surface_get_width(surface_);
-  const int height = cairo_image_surface_get_height(surface_);
-  const int stride = cairo_image_surface_get_stride(surface_);
-
-  const std::string fn_lower = strings::Lower(image_filename);
-  if (strings::EndsWith(fn_lower, ".jpg") || strings::EndsWith(fn_lower, ".jpeg"))
-  {
-    // stbi_write_jpg requires contiguous memory
-    if (stride != 4*width)
-    {
-      std::stringstream s;
-      s << "Cannot export JPEG because canvas memory is not contiguous. Requiring "
-        << 4*width << " bytes per row, but canvas has " << stride << "!";
-      throw std::runtime_error(s.str());
-    }
-    // Default JPEG quality setting: 90%
-    stb_result = stbi_write_jpg(image_filename.c_str(),
-                                width, height, 4,
-                                cairo_image_surface_get_data(surface_),
-                                90);
-  }
-  else
-  {
-    if (strings::EndsWith(fn_lower, ".png"))
-    {
-      stb_result = stbi_write_png(image_filename.c_str(),
-                                  width, height, 4,
-                                  cairo_image_surface_get_data(surface_),
-                                  stride);
-    }
-    else
-    {
-      throw std::invalid_argument("Canvas can only be saved as JPEG or PNG. File extension must be '.jpg', '.jpeg' or '.png'.");
-    }
-  }
-
-  if (stb_result == 0)
-  {
-    std::stringstream s;
-    s << "Could not save canvas to '" << image_filename << "'!";
-    throw std::runtime_error(s.str());
-  }
 }
 
 

@@ -70,7 +70,7 @@ inline void ToUpper(std::string &s)
 
 
 /** @brief Returns the string converted to upper case letters. */
-std::string Upper(const std::string &s)
+inline std::string Upper(const std::string &s)
 {
   std::string tmp(s);
   ToUpper(tmp);

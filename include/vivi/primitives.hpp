@@ -49,6 +49,23 @@ private:
   void Cleanup();
 };
 
+// 0 --> load as is
+ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=0);
+
+
+/**
+ * @brief Saves the ImageBuffer to disk as either JPEG or PNG.
+ *
+ * We use the stb/stb_image_write library for writing. Note
+ * that PNG output is not optimal (20-50% larger file size
+ * than using an optimized library).
+ * I consider writing to disk only a nice-to-have feature,
+ * thus I'm not including any other specialized third-party
+ * libraries for that.
+ */
+void SaveImage(const std::string &image_filename, const ImageBuffer &image);
+
+
 //------------------------------------------------- Vectors/Coordinates
 //TODO doc
 template<typename _Tp, int dim>
