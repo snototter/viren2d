@@ -363,6 +363,14 @@ void ImagePainter::SaveCanvas(const std::string &image_filename)
   const std::string fn_lower = strings::Lower(image_filename);
   if (strings::EndsWith(fn_lower, ".jpg") || strings::EndsWith(fn_lower, ".jpeg"))
   {
+    // stbi_write_jpg requires contiguous memory
+    if (stride != 4*width)
+    {
+      std::stringstream s;
+      s << "Cannot export JPEG because canvas memory is not contiguous. Requiring "
+        << 4*width << " bytes per row, but canvas has " << stride << "!";
+      throw std::runtime_error(s.str());
+    }
     // Default JPEG quality setting: 90%
     stb_result = stbi_write_jpg(image_filename.c_str(),
                                 width, height, 4,
