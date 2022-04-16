@@ -256,7 +256,7 @@ public:
 
   void SetCanvas(const std::string &image_filename) override;
 
-  void SetCanvas(const ImageBuffer &image_buffer, bool copy) override;
+  void SetCanvas(const ImageBuffer &image_buffer) override;
 
 //  void SetCanvas(const cv::Mat &image) override //TODO replace by buffer (maybe stb?)
 //  {
@@ -335,54 +335,52 @@ void ImagePainter::SetCanvas(const std::string &image_filename)
   // Force to load 4 bytes per pixel (STBI_rgb_alpha), so we
   // can easily plug/copy it into the Cairo surface
   ImageBuffer buffer = LoadImage(image_filename, 4);
-
-  // Loading from disk is already slow - thus, for the sake of
-  // code simplicity (not needing to keep track of the ImageBuffer),
-  // we let the canvas redundantly copy the memory:
-  SetCanvas(buffer, true);
+  SetCanvas(buffer);
 }
 
-void ImagePainter::SetCanvas(const ImageBuffer &image_buffer, bool copy)
+void ImagePainter::SetCanvas(const ImageBuffer &image_buffer)
 {
   if (image_buffer.channels != 4)
-    throw std::runtime_error("ImagePainter only accepts 4-channel (RGBA) images!");
-
-  // TODO Avoid premature optimization:
-  // Currently, we clean up previously created contexts/surfaces to
-  // avoid unnecessarily cluttering the implementation.
-  //
-  // If this becomes a bottleneck, we need to distinguish 4 scenarios:
-  // * copy true, existing data --> check if it surface can be reused (memcpy)
-  // * copy true, no surface --> malloc(surface create) + memcpy
-  // * copy false, existing data --> clean up data, reuse surface
-  // * copy false, no surface --> surface create_for_data
-  if (context_)
   {
-    cairo_destroy(context_);
-    context_ = nullptr;
+    SetCanvas(image_buffer.ToRGBA());
   }
-  if (surface_)
+  else
   {
-    cairo_surface_destroy(surface_);
-    surface_ = nullptr;
-  }
+    // TODO Avoid premature optimization:
+    // Currently, we clean up previously created contexts/surfaces to
+    // avoid unnecessarily cluttering the implementation.
+    // Then, we copy the given ImageBuffer.
+    //
+    // If this becomes a bottleneck, we need to provide a "bool copy" flag and
+    // distinguish 4 scenarios:
+    // * copy-flag true, existing data --> check if it surface can be reused (memcpy)
+    // * copy-flag true, no surface --> malloc(surface create) + memcpy
+    // * copy-flag false, existing data --> clean up data, reuse surface
+    // * copy-flag false, no surface --> surface create_for_data
+    if (context_)
+    {
+      cairo_destroy(context_);
+      context_ = nullptr;
+    }
+    if (surface_)
+    {
+      cairo_surface_destroy(surface_);
+      surface_ = nullptr;
+    }
 
-  if (copy)
-  {
     surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                           image_buffer.width, image_buffer.height);
     std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
                 4 * image_buffer.width * image_buffer.height);
+  //  {
+  //    surface_ = cairo_image_surface_create_for_data(image_buffer.data,
+  //                                                   CAIRO_FORMAT_ARGB32,
+  //                                                   image_buffer.width, image_buffer.height,
+  //                                                   image_buffer.stride);
+  //  }
+    context_ = cairo_create(surface_);
+    cairo_surface_mark_dirty(surface_);
   }
-  else
-  {
-    surface_ = cairo_image_surface_create_for_data(image_buffer.data,
-                                                   CAIRO_FORMAT_ARGB32,
-                                                   image_buffer.width, image_buffer.height,
-                                                   image_buffer.stride);
-  }
-  context_ = cairo_create(surface_);
-  cairo_surface_mark_dirty(surface_);
 }
 
 

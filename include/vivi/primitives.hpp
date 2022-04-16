@@ -11,16 +11,22 @@
 namespace vivi
 {
 //---------------------------------------------------- Image buffer
-//TODO support only RGBA
-// Idea: getcanvas returns imagebuffer via move
+/**
+ * @brief An ImageBuffer holds 8-bit images.
+ *
+ * Usage: either copy existing image data via @see CreateCopy(), or
+ *        use existing memory via @see CreateSharedBuffer(). The
+ *        latter does NOT take ownership of the memory (cleaning up
+ *        remains the caller's responsibility).
+ */
 struct ImageBuffer
 {
   unsigned char *data;
   int width;
   int height;
   int channels;
-  int stride;
-  bool owns_data_; // TODO doc: we can use a shared memory buffer (won't be cleaned up) or allocate our own (will be cleaned up)
+  int stride;    /**< Stride (number of bytes) per row. */
+  bool owns_data_; /**< Flag indicating if we own the memory (i.e. if we need to clean up). */
 
 
   ImageBuffer()
@@ -28,28 +34,81 @@ struct ImageBuffer
       owns_data_(false)
   {}
 
+  /** @brief Allocates memory to hold a W x H x CH image. */
+  ImageBuffer(int w, int h, int ch);
+
   ~ImageBuffer();
   ImageBuffer(const ImageBuffer &other); // copy c'tor
   ImageBuffer(ImageBuffer &&other) noexcept; // move c'tor
   ImageBuffer &operator=(const ImageBuffer &other); // copy assignment
   ImageBuffer &operator=(ImageBuffer &&other) noexcept; // move assignment
 
-  //will NOT take ownership - you are responsible for cleaning up the buffer
+
+  /**
+   * @brief Reuses the given image data.
+   *
+   * This ImageBuffer will point to the given image data. It will
+   * NOT take ownership.
+   */
   void CreateSharedBuffer(unsigned char *buffer, int width, int height, int channels, int stride);
 
-  // makes a 1:1 memory copy
-  void CreateCopy(unsigned char *buffer, int width, int height, int channels, int stride);
 
-  // Flips red and green in-place
-  // Useful, if you're working with OpenCV's BGR format (e.g. for displaying)
-  // Watch out if you're using a sharedbuffer!
+  /**
+   * @brief Copies the given image data.
+   */
+  void CreateCopy(unsigned char const *buffer, int width, int height, int channels, int stride);
+
+
+  /**
+   * @brief Flips the red and green components in-place.
+   *
+   * This is useful if you're working with OpenCV's BGR format images.
+   * *Watch out* if you're using an ImageBuffer initialized via
+   * @see CreateSharedBuffer().
+   */
   void RGB2BGR();
+
+
+  /** @brief Converts this image to RGB. */
+  ImageBuffer ToRGB() const;
+
+
+  /** @brief Converts this image to RGBA. */
+  ImageBuffer ToRGBA() const;
+
+
+  /** @brief Returns a readable representation. */
+  std::string ToString() const;
 
 private:
   void Cleanup();
 };
 
-// 0 --> load as is
+
+/**
+ * @brief Loads an image from disk.
+ *
+ * We use the stb/stb_image library for reading/decoding.
+ * Supported formats as of now:
+ *   JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
+ *
+ * Check for stb updates if your format is missing:
+ *   https://github.com/nothings/stb/blob/master/stb_image.h
+ *
+ * @param image_filename Path to image file
+ *
+ * @param force_num_channels can be used to force the number of
+ *              loaded channels (e.g. load a JPEG as RGBA by
+ *              specifying force_num_channels=4).
+ *              Supported:
+ *                0: load as-is
+ *                1: load as grayscale
+ *                2: load as grayscale + alpha channel
+ *                3: load as rgb
+ *                4: load as rgb + alpha channel
+ *
+ * @return ImageBuffer
+ */
 ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=0);
 
 
@@ -66,8 +125,26 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=
 void SaveImage(const std::string &image_filename, const ImageBuffer &image);
 
 
+/** @brief Converts a grayscale ImageBuffer to RGB. */
+ImageBuffer Gray2RGB(const ImageBuffer &img);
+
+
+/** @brief Converts a grayscale ImageBuffer to RGBA. */
+ImageBuffer Gray2RGBA(const ImageBuffer &img);
+
+
+/** @brief Converts a RGBA ImageBuffer to RGB. */
+ImageBuffer RGBA2RGB(const ImageBuffer &img);
+
+
+/** @brief Converts a RGB ImageBuffer to RGBA. */
+ImageBuffer RGB2RGBA(const ImageBuffer &img);
+
+
 //------------------------------------------------- Vectors/Coordinates
-//TODO doc
+/**
+ * @brief Template class to represent a vector/coordinate.
+ */
 template<typename _Tp, int dim>
 class Vec
 {
@@ -166,7 +243,13 @@ typedef Vec<int, 3> Vec3i;
 
 
 //-------------------------------------------------  Rectangle
-//TODO doc
+/**
+ * @brief Rectangle for visualization.
+ *
+ * Note that it is defined by its CENTER coordinates
+ * width, height, angle (clockwise rotation in degrees),
+ * and a corner radius (for rounded rectangles).
+ */
 struct Rect
 {
   double cx; /**< Center coordinate in x direction. */

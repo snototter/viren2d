@@ -22,6 +22,18 @@ namespace vivi
 {
 //---------------------------------------------------- Image buffer
 //TODO support only RGBA
+
+ImageBuffer::ImageBuffer(int w, int h, int ch)
+{
+  const int num_bytes = w * h * ch;
+  data = static_cast<unsigned char*>(std::malloc(num_bytes));
+  width = w;
+  height = h;
+  channels = ch;
+  stride = w * channels;
+  owns_data_ = true;
+}
+
 ImageBuffer::~ImageBuffer()
 {
   Cleanup();
@@ -64,6 +76,12 @@ ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
   // Reset "other" but ensure that the memory won't be freed:
   other.owns_data_ = false;
   other.Cleanup();
+//  other.data = nullptr;
+//  other.owns_data_ = false;
+//  other.width = 0;
+//  other.height = 0;
+//  other.channels = 0;
+//  other.stride = 0;
 }
 
 
@@ -90,8 +108,6 @@ ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept
 void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int height,
                                      int channels, int stride)
 {
-  assert(channels == 4); //TODO maybe add support for other layouts in the future
-
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -104,11 +120,9 @@ void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int heigh
 }
 
 
-void ImageBuffer::CreateCopy(unsigned char *buffer, int width, int height,
+void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
                              int channels, int stride)
 {
-  assert(channels == 4); //TODO maybe add support for other layouts in the future
-
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -136,7 +150,12 @@ void ImageBuffer::RGB2BGR()
   if (!data)
     return;
 
-  assert(channels == 4 || channels == 3);
+  if (channels != 4 && channels != 3)
+  {
+    std::stringstream s;
+    s << "Cannot flip red & blue channel of an image with " << channels << " channels";
+    throw std::logic_error(s.str());
+  }
   // We iterate over the image buffer similar to the
   // efficient OpenCV matrix scan:
   // https://docs.opencv.org/2.4/doc/tutorials/core/how_to_scan_images/how_to_scan_images.html#the-efficient-way
@@ -162,6 +181,54 @@ void ImageBuffer::RGB2BGR()
   }
 }
 
+ImageBuffer ImageBuffer::ToRGB() const
+{
+  if (channels != 1 && channels != 3 && channels != 4)
+    throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGB!");
+
+  if (channels == 1)
+  {
+    return Gray2RGB(*this);
+  }
+  else
+  {
+    if (channels == 3)
+      return ImageBuffer(*this);
+    else
+      return RGBA2RGB(*this);
+  }
+}
+
+ImageBuffer ImageBuffer::ToRGBA() const
+{
+  if (channels != 1 && channels != 3 && channels != 4)
+    throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGBA!");
+
+  if (channels == 1)
+  {
+    return Gray2RGBA(*this);
+  }
+  else
+  {
+    if (channels == 3)
+      return RGB2RGBA(*this);
+    else
+      return ImageBuffer(*this);
+  }
+}
+
+
+std::string ImageBuffer::ToString() const
+{
+  std::stringstream s;
+  s << "ImageBuffer(" << width << "x" << height << "x" << channels;
+  if (owns_data_)
+    s << ", copied memory)";
+  else
+    s << ", shared memory)";
+  return s.str();
+}
+
 
 void ImageBuffer::Cleanup()
 {
@@ -182,8 +249,6 @@ void ImageBuffer::Cleanup()
 ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels)
 {
   int width, height, bytes_per_pixel;
-  // Force stb to load 4 bytes per pixel (STBI_rgb_alpha), so we
-  // can easily plug/copy it into the Cairo surface
   unsigned char *data = stbi_load(image_filename.c_str(),
                                   &width, &height,
                                   &bytes_per_pixel,
@@ -257,6 +322,115 @@ void SaveImage(const std::string &image_filename, const ImageBuffer &image)
     s << "Could not save ImageBuffer to '" << image_filename << "' - unknown error!";
     throw std::runtime_error(s.str());
   }
+}
+
+
+ImageBuffer ConversionHelperGray(const ImageBuffer &src, int channels_out)
+{
+  if (src.channels != 1)
+    throw std::invalid_argument("Input image must be grayscale!");
+
+  if (!src.data)
+    throw std::invalid_argument("Invalid input image (nullptr)!");
+
+  if (channels_out != 3 && channels_out != 4)
+    throw std::invalid_argument("Number of output channels must be 3 or 4!");
+
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src.width, src.height, channels_out);
+
+  int rows = src.height;
+  int cols = src.width; // src channels is 1
+  if (src.stride == cols) // Is memory contiguous?
+  {
+    cols *= rows;
+    rows = 1;
+  }
+
+  unsigned char *src_row;
+  unsigned char *dst_row;
+  for (int row = 0; row < rows; ++row)
+  {
+    src_row = src.data + row * src.stride;
+    dst_row = dst.data + row * dst.stride;
+    for (int src_col = 0, dst_col = 0; src_col < cols; src_col+=src.channels, dst_col+=dst.channels)
+    {
+      dst_row[dst_col] = src_row[src_col];
+      dst_row[dst_col + 1] = src_row[src_col];
+      dst_row[dst_col + 2] = src_row[src_col];
+      if (channels_out == 4)
+        dst_row[dst_col + 3] = 255;
+    }
+  }
+
+  return dst;
+}
+
+ImageBuffer Gray2RGB(const ImageBuffer &img)
+{
+  return ConversionHelperGray(img, 3);
+}
+
+ImageBuffer Gray2RGBA(const ImageBuffer &img)
+{
+  return ConversionHelperGray(img, 4);
+}
+
+
+
+ImageBuffer ConversionHelperRGB(const ImageBuffer &src, int channels_out)
+{
+  if (src.channels != 3 && src.channels != 4)
+    throw std::invalid_argument("Input image must be RGB or RGBA!");
+
+  if (!src.data)
+    throw std::invalid_argument("Invalid input image (nullptr)!");
+
+  if (channels_out != 3 && channels_out != 4)
+    throw std::invalid_argument("Number of output channels must be 3 or 4!");
+
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src.width, src.height, channels_out);
+
+  int rows = src.height;
+  int cols = src.width * src.channels;
+  if (src.stride == cols) // Is memory contiguous?
+  {
+    cols *= rows;
+    rows = 1;
+  }
+
+  unsigned char *src_row;
+  unsigned char *dst_row;
+  for (int row = 0; row < rows; ++row)
+  {
+    src_row = src.data + row * src.stride;
+    dst_row = dst.data + row * dst.stride;
+    for (int src_col = 0, dst_col = 0; src_col < cols; src_col+=src.channels, dst_col+=dst.channels)
+    {
+      // Copy RGB
+      dst_row[dst_col]     = src_row[src_col];
+      dst_row[dst_col + 1] = src_row[src_col + 1];
+      dst_row[dst_col + 2] = src_row[src_col + 2];
+      // Two cases:
+      // * RGBA --> RGB, we're already done
+      // * RGB  --> RGBA, we must add he alpha channel
+      if (channels_out == 4)
+        dst_row[dst_col + 3] = 255;
+    }
+  }
+
+  return dst;
+}
+
+ImageBuffer RGBA2RGB(const ImageBuffer &img)
+{
+  return ConversionHelperRGB(img, 3);
+}
+
+ImageBuffer RGB2RGBA(const ImageBuffer &img)
+{
+  return ConversionHelperRGB(img, 4);
 }
 
 

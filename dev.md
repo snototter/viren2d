@@ -244,7 +244,83 @@ imvis.imshow(img_shared)
 imvis.imshow(img_copied)
 
 
+# 
+import vivi
+import numpy as np
 
+# 1 channel
+img_np = np.zeros((480, 640), dtype=np.uint8)
+buf = vivi.ImageBuffer(img_np)
+print(f'{buf}\n {buf.width} x {buf.height} x {buf.channels}, stride {buf.stride}, owns data: {buf.owns_data}')
+
+# 3 channel
+img_np = np.zeros((480, 640, 3), dtype=np.uint8)
+buf = vivi.ImageBuffer(img_np)
+print(f'{buf}\n {buf.width} x {buf.height} x {buf.channels}, stride {buf.stride}, owns data: {buf.owns_data}')
+
+
+# Set image canvas from Python :)
+# Canvas from grayscale
+import vivi
+import numpy as np
+from vito import imvis
+p = vivi.Painter()
+img_np = np.zeros((480, 640), dtype=np.uint8)
+img_np[:] = 120
+b = vivi.ImageBuffer(img_np)
+b
+p.set_canvas_image(img_np)
+p.draw_line((10, 200), (600, 10), (3.9, (0, 1, 1)))
+canvas = np.array(p.get_canvas(), copy=False)
+imvis.imshow(canvas)
+
+# Canvas from RGB
+import vivi
+import numpy as np
+from vito import imvis
+p = vivi.Painter()
+img_np = np.zeros((480, 640, 3), dtype=np.uint8)
+img_np[:, :, 1] = 200
+img_np[:, :, 2] = 200 # cyan
+b = vivi.ImageBuffer(img_np)
+p.set_canvas_image(b)
+p.draw_line((10, 200), (600, 10), (3.9, (0, 0, 1), [20, 20]))
+imvis.imshow(np.array(p.get_canvas(), copy=False))
+
+
+# Canvas from RGBA
+import vivi
+import numpy as np
+from vito import imvis
+p = vivi.Painter()
+img_np = np.zeros((480, 640, 4), dtype=np.uint8)
+img_np[:, :, 1] = 200
+img_np[:, :, 2] = 200 # cyan
+img_np[:, :, 3] = 128 # 50% transparency
+# Draw something
+p.set_canvas_image(img_np)
+p.draw_line((10, 200), (600, 10), (3.9, (0, 0, 1), [20, 20]))
+imvis.imshow(np.array(p.get_canvas(), copy=False)) # Show transparent canvas
+imvis.imshow(np.array(p.get_canvas().to_rgb(), copy=False)) # Drop transparency
+
+
+
+
+
+
+
+
+img_np = np.zeros((480, 640, 4), dtype=np.uint8)
+img_np[:, :, 3] = 255
+img_np[:, :, 2] = 200
+p.set_canvas_image(img_np)
+ls = vivi.LineStyle(4.2, (1, 0, 1, .8), [20, 20], vivi.LineStyle.Cap.Round)
+fill = vivi.Color(0, 1, 1, 0.6)
+p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
+
+from vito import imvis
+canvas = np.array(p.get_canvas(), copy=False)
+imvis.imshow(canvas)
 ```
 
 

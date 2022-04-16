@@ -95,7 +95,7 @@ int main(int argc, char **argv)
   auto painter = vivi::CreateImagePainter();
 
 //  painter->SetCanvas(image_filename);
-  painter->SetCanvas(image_buffer, false);
+  painter->SetCanvas(image_buffer);
 //  painter->SetCanvas(600, 400, vivi::RGBA(255, 255, 255));
 
   for (int i = 0; i < 4; ++i)

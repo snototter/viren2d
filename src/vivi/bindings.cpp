@@ -5,6 +5,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 
 #include <vivi/vivi.hpp>
 
@@ -148,7 +149,10 @@ public:
     painter_->SetCanvas(image_filename);
   }
 
-//  void SetCanvasImage(TODO)
+  void SetCanvasImage(const vivi::ImageBuffer &image)
+  {
+    painter_->SetCanvas(image);
+  }
 
   vivi::ImageBuffer GetCanvas(bool copy)
   {
@@ -250,6 +254,25 @@ vivi::Rect CreateRect(py::tuple tpl)
   return rect;
 }
 
+//------------------------------------------------- ImageBuffer from numpy array
+// We need a uint8, row-major (C-style) numpy array:
+vivi::ImageBuffer CreateImageBuffer(py::array_t<unsigned char, py::array::c_style | py::array::forcecast> buf)
+{
+  // Sanity checks
+  if (buf.ndim() < 2 || buf.ndim() > 3)
+    throw std::runtime_error("Incompatible image dimension!");
+
+  if (!buf.dtype().is(py::dtype::of<uint8_t>()))
+    throw std::runtime_error("Incompatible format: expected a uint8 array!");
+
+  vivi::ImageBuffer img;
+  const int row_stride = static_cast<int>(buf.strides(0));
+  const int height = static_cast<int>(buf.shape(0));
+  const int width = static_cast<int>(buf.shape(1));
+  const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
+  img.CreateSharedBuffer(buf.mutable_data(), width, height, channels, row_stride);
+  return img;
+}
 
 //------------------------------------------------- Vec(tor) from tuple
 template<typename _Tp, int dim>
@@ -276,7 +299,12 @@ template<typename _Tp, int dim>
 void RegisterVec(py::module &m)
 {
   using VC = vivi::Vec<_Tp, dim>;
-  py::class_<VC> vec_cls(m, VC::TypeName().c_str()); //TODO optional (could be useful if vecs are to be used in python more extensively):, py::dynamic_attr())
+  std::stringstream doc;
+  doc << "Vector in " << dim << "D space.";
+
+  py::class_<VC> vec_cls(m, VC::TypeName().c_str(), doc.str().c_str());
+  //TODO optionally add py::dynamic_attr()
+  // (could be useful if we want to use these vecs more extensively in python)
 
   vec_cls.def(py::init<>())
          .def(py::init<>(&CreateVec<_Tp, dim>))
@@ -284,12 +312,12 @@ void RegisterVec(py::module &m)
          .def(py::init<_Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"))
          .def(py::init<_Tp, _Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"))
          .def("__repr__",
-              [](const VC& v)
+              [](const VC &v)
               { return "<vivi." + v.ToString() + ">"; })
          .def("__str__", &VC::ToString)
-         .def_property("x", static_cast<const _Tp& (VC::*)() const>(&VC::x), &VC::SetX,
+         .def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x), &VC::SetX,
                        "Accesses the first dimension.")
-         .def_property("y", static_cast<const _Tp& (VC::*)() const>(&VC::y), &VC::SetY,
+         .def_property("y", static_cast<const _Tp &(VC::*)() const>(&VC::y), &VC::SetY,
                        "Accesses the second dimension.")
          .def("__setitem__", [](VC &self, unsigned index, _Tp v)
                              { self[index] = v; })
@@ -316,10 +344,10 @@ void RegisterVec(py::module &m)
     vec_cls.def("cross", &VC::Cross, "Cross product", py::arg("other"));
 
   if (dim > 2)
-    vec_cls.def_property("z", static_cast<const _Tp& (VC::*)() const>(&VC::z), &VC::SetZ,
+    vec_cls.def_property("z", static_cast<const _Tp &(VC::*)() const>(&VC::z), &VC::SetZ,
                          "Accesses the third dimension.");
   if (dim > 3)
-    vec_cls.def_property("w", static_cast<const _Tp& (VC::*)() const>(&VC::w), &VC::SetW,
+    vec_cls.def_property("w", static_cast<const _Tp &(VC::*)() const>(&VC::w), &VC::SetW,
                          "Accesses the fourth dimension.");
 
   py::implicitly_convertible<py::tuple, VC>();
@@ -354,14 +382,15 @@ PYBIND11_MODULE(vivi, m)
   )pbdoc";
 
   //------------------------------------------------- Color
-  py::class_<vivi::Color>(m, "Color")
+  py::class_<vivi::Color>(m, "Color",
+                          "Color in rgba format, i.e. each component is within [0,1].")
       .def(py::init<>())
-      .def(py::init<>(&moddef::CreateColor))// init from tuple
+      .def(py::init<>(&moddef::CreateColor))  // Allow initialization from tuple
       .def(py::init<double, double, double, double>(),
            py::arg("red"), py::arg("green"), py::arg("blue"),
            py::arg("alpha")=1.0)
       .def("__repr__",
-           [](const vivi::Color& c)
+           [](const vivi::Color &c)
            { return "<vivi.Color " + c.ToString() + ">"; })
       .def("__str__", &vivi::Color::ToString)
       .def(py::pickle(&pickling::SerializeColor,
@@ -396,6 +425,8 @@ PYBIND11_MODULE(vivi, m)
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
+  //TODO bind colornames
+
 
   //------------------------------------------------- Primitives - Vectors
   moddef::RegisterVec<double, 2>(m);
@@ -404,19 +435,30 @@ PYBIND11_MODULE(vivi, m)
   moddef::RegisterVec<int, 2>(m);
   moddef::RegisterVec<int, 3>(m);
 
+
   //------------------------------------------------- Primitives - Rectangle
-  py::class_<vivi::Rect>(m, "Rect")
-      .def(py::init<>(&moddef::CreateRect))// init from tuple
+  py::class_<vivi::Rect>(m, "Rect",
+                         "Rectangle for visualization.\n"
+                         "Note that it is defined by its CENTER coordinates,\n"
+                         "width, height, angle (clockwise rotation in degrees),\n"
+                         "and a corner radius (for rounded rectangles).")
+      .def(py::init<>(&moddef::CreateRect))  // init from tuple
       .def(py::init<double, double, double, double>(),
+           "Axis-aligned box: center coordinates & dimensions.",
            py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"))
       .def(py::init<double, double, double, double, double>(),
+           "Rotated box: center coordinates, dimensions and\n"
+           "rotation (clockwise, in degrees).",
            py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"),
            py::arg("angle"))
       .def(py::init<double, double, double, double, double, double>(),
+           "Rotated rounded rectangle: center coordinates,\n"
+           "dimensions, rotation (clockwise, in degrees), and\n"
+           "corner radius (in pixels).",
            py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"),
            py::arg("angle"), py::arg("radius"))
       .def("__repr__",
-           [](const vivi::Rect& r)
+           [](const vivi::Rect &r)
            { return "<vivi." + r.ToString() + ">"; })
       .def("__str__", &vivi::Rect::ToString)
       .def(py::pickle(&pickling::SerializeRect,
@@ -437,16 +479,19 @@ PYBIND11_MODULE(vivi, m)
 
   //TODO line? (overkill, not needed now)
   //TODO plane? (maybe, when we implement 3d)
-  //TODO image? (prefer to use a simple buffer; maybe in combination with stb image)
+
   //------------------------------------------------- Primitives - ImageBuffer
-  // TODO numpy memory layout: https://stackoverflow.com/questions/53097952/how-to-understand-numpy-strides-for-layman
-  // pybind11 numpy: https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html
-  py::class_<vivi::ImageBuffer>(m, "ImageBuffer", py::buffer_protocol()) //TODO doc
+  // Info on numpy memory: https://stackoverflow.com/a/53099870/400948
+  py::class_<vivi::ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
+                                "An ImageBuffer holds 8-bit images (Grayscale,\n"
+                                "RGB or RGBA).")
+      .def(py::init(&moddef::CreateImageBuffer),
+           "Initialize from numpy array with dtype uint8.")
      .def_buffer([](vivi::ImageBuffer &img) -> py::buffer_info {
           return py::buffer_info(
               img.data, sizeof(unsigned char), // Pointer to data & size of each element
               py::format_descriptor<unsigned char>::format(), // Python struct-style format descriptor
-              3, // Number of dimensions (our canvas is always RGBA)
+              3, // We'll always return ndim=3 arrays
               { static_cast<size_t>(img.height),
                 static_cast<size_t>(img.width),
                 static_cast<size_t>(img.channels) }, // Buffer dimensions
@@ -454,20 +499,27 @@ PYBIND11_MODULE(vivi, m)
                 static_cast<size_t>(img.channels),
                 sizeof(unsigned char) } // Strides (in bytes) per dimension
           );
-      });
+      })
+      .def("to_rgb", &vivi::ImageBuffer::ToRGB,
+           "Convert to RGB. Will always return a copy, even if this buffer\n"
+           "is already RGB.")
+      .def("to_rgba", &vivi::ImageBuffer::ToRGBA,
+           "Convert to RGBA. Will always return a copy, even if this buffer\n"
+           "is already RGBA.")
+      .def("__repr__",
+           [](const vivi::ImageBuffer &b)
+           { return "<vivi." + b.ToString() + ">"; })
+      .def("__str__", &vivi::ImageBuffer::ToString)
+      .def_readonly("width", &vivi::ImageBuffer::width, "Image width in pixels.")
+      .def_readonly("height", &vivi::ImageBuffer::height, "Image height in pixels.")
+      .def_readonly("channels", &vivi::ImageBuffer::channels, "Number of channels.")
+      .def_readonly("stride", &vivi::ImageBuffer::stride, "Stride per row (in bytes).")
+      .def_readonly("owns_data", &vivi::ImageBuffer::owns_data_,
+                    "Boolean flag indicating if it has ownership of the image data,\n"
+                    "i.e. whether it is responsible for memory cleanup.");
 
-//  py::class_<Matrix>(m, "Matrix", py::buffer_protocol())
-//     .def_buffer([](Matrix &m) -> py::buffer_info {
-//          return py::buffer_info(
-//              m.data(),                               /* Pointer to buffer */
-//              sizeof(float),                          /* Size of one scalar */
-//              py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
-//              2,                                      /* Number of dimensions */
-//              { m.rows(), m.cols() },                 /* Buffer dimensions */
-//              { sizeof(float) * m.cols(),             /* Strides (in bytes) for each index */
-//                sizeof(float) }
-//          );
-//      });
+  // An ImageBuffer can be initialized from a numpy array
+  py::implicitly_convertible<py::array, vivi::ImageBuffer>();
 
 
   //------------------------------------------------- Drawing - LineStyle
@@ -496,7 +548,7 @@ PYBIND11_MODULE(vivi, m)
            py::arg("line_cap")=vivi::LineStyle::Cap::Butt,
            py::arg("line_join")=vivi::LineStyle::Join::Miter)
       .def("__repr__",
-           [](const vivi::LineStyle& st)
+           [](const vivi::LineStyle &st)
            { return "<vivi." + st.ToString() + ">"; })
       .def("__str__", &vivi::LineStyle::ToString)
       .def(py::pickle(&pickling::SerializeLineStyle,
@@ -546,12 +598,16 @@ PYBIND11_MODULE(vivi, m)
            "your format is missing:\n"
            "https://github.com/nothings/stb/blob/master/stb_image.h",
            py::arg("image_filename"))
-//      .def("set_canvas_image") //TODO
+      .def("set_canvas_image", &moddef::Painter::SetCanvasImage,
+           "Initializes the canvas from the given image, i.e. either\n"
+           "a numpy array (dtype uint8) or a vivi.ImageBuffer.",
+           py::arg("image"))
       .def("get_canvas", &moddef::Painter::GetCanvas,
            "Returns the current state of the visualization.\n\n"
            "If you want a copy, set copy=True. Otherwise, the buffer"
-           "will just provide a view on the Painter's canvas.",
-           py::arg("copy")=false) //TODO which default should be used???
+           "will just provide a view on the Painter's canvas.\n\n"
+           "Default behavior: canvas will NOT be copied.",
+           py::arg("copy")=false)
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",

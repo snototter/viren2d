@@ -110,9 +110,11 @@ public:
    */
   virtual void SetCanvas(const std::string &image_filename) = 0;
 
-  //TODO doc - memory will be copied if copy is true (otherwise, we simply
-  // reuse the given memory); image must be RGBA!
-  virtual void SetCanvas(const ImageBuffer &image_buffer, bool copy) = 0;
+  //TODO doc - memory will be copied; image must be RGBA!
+  // TODO support RGB and grayscale images, too:
+  // * rgb, set alpha 255
+  // * grayscale --> gray,gray,gray, alpha
+  virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
 
 
   /**
