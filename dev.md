@@ -87,9 +87,9 @@ python
 
 import vivi
 c1 = vivi.rgba(1, 0, 0.5)
-c1 == c1.inverse().inverse()
+assert c1 == c1.inverse().inverse()
 c1.__getstate__()
-c1.red += 0.001
+c1.red -= 0.03
 c1.as_RGBA()
 c1.as_hex()
 
@@ -98,6 +98,7 @@ data = pickle.dumps(c1)
 data
 c2 = pickle.loads(data)
 c2
+assert c1 == c2
 
 
 vivi.Vec2d(1, 2, 3)

@@ -39,10 +39,8 @@ vivi::Color DeserializeColor(py::tuple tpl)
     s << "Invalid vivi.Color state - expected 4 values (rgba), got " << tpl.size() << "!";
     throw std::runtime_error(s.str());
   }
-  return vivi::Color(tpl[0].cast<double>(),
-      tpl[1].cast<double>(),
-      tpl[2].cast<double>(),
-      tpl[3].cast<double>());
+  return vivi::Color(tpl[0].cast<double>(), tpl[1].cast<double>(),
+                     tpl[2].cast<double>(), tpl[3].cast<double>());
 }
 
 //------------------------------------------------- Templated Vec(tor) class
