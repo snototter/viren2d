@@ -120,8 +120,8 @@ v[2]
 import pickle
 data = pickle.dumps(v)
 vp = pickle.loads(data)
-vp == v
-v == v2
+assert vp == v
+assert v != v2
 
 a = vivi.Vec3d(1, 0, 0)
 b = vivi.Vec3d(0, 1, 0)
@@ -137,20 +137,20 @@ ls = vivi.LineStyle(3.9, (1, 0, 1), [10, 30])
 data = pickle.dumps(ls)
 ls
 des = pickle.loads(data)
-des == ls
+assert des == ls
 
 
 import vivi
 import pickle
 r1 = vivi.Rect(40, 20, 80, 40, 45, 10)
 r2 = vivi.Rect((40, 20, 80, 40, 45, 10))
-r1 == r2
+assert r1 == r2
 r1
 data = pickle.dumps(r1)
 r3 = pickle.loads(data)
-r1 == r3
+assert r1 == r3
 r1.cx = 50
-r1 == r3
+assert r1 != r3
 
 
 import vivi
@@ -174,6 +174,7 @@ p = vivi.Painter()
 p.set_canvas_rgb(400, 300, (1, 0, 1))
 p.draw_line((10, 10), (600, 100), vivi.LineStyle(3.9, (0, 0, 0), [10, 30]))
 p.draw_line((10, 200), (600, 10), (3.9, (0, 1, 1)))
+p.draw_circle((100, 100), 30, (4, (0, 1, 1), [10, 10]), (0, 1, 1, 0.6))
 p.show()
 ```
 
