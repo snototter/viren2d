@@ -99,6 +99,7 @@ public:
    */
   virtual void SetCanvas(int width, int height, const Color &color) = 0;
 
+
   /**
    * @brief Initializes the canvas with the given image file.
    *
@@ -109,11 +110,23 @@ public:
    */
   virtual void SetCanvas(const std::string &image_filename) = 0;
 
-  // copy: true - allocates memory; false - returns the canvas buffer directly
+  //TODO setcanvas imagebuffer
+
+
+  /**
+   * @brief Returns the current visualization state (canvas) as ImageBuffer
+   *
+   * If "copy" is true, the canvas memory is copied into the ImageBuffer (i.e.
+   * you can modify the buffer however you like). Otherwise, the ImageBuffer
+   * shares the Painter's memory (and thus your subsequent memory modifications
+   * will directly affect the canvas).
+   */
   virtual ImageBuffer GetCanvas(bool copy) = 0;
+
 
   virtual void DrawLine(const Vec2d &from, const Vec2d &to,
                         const LineStyle &line_style) = 0;
+
 
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
@@ -125,12 +138,14 @@ public:
                 const Color &fill = Color(0, 0, 0, 0))
   { DrawRectImpl(rect, line_style, fill); }
 
+
+// Currently, just saves the canvas to disk
   virtual void DummyShow() = 0;//TODO remove
 
   //TODO DrawPoints - how to handle alternating colors???
   //TODO DrawEllipse <-- (optionally rotated) rect!
   //TODO DrawArrow
-  //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, ppp
+  //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
 
 protected:
   virtual void DrawCircleImpl(const Vec2d &center, double radius,

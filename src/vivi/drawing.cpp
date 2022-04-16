@@ -465,6 +465,7 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect)
   cairo_close_path(context);
 }
 
+
 void ImagePainter::DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                                 const Color &fill)
 {
@@ -481,7 +482,6 @@ void ImagePainter::DrawRectImpl(const Rect &rect, const LineStyle &line_style,
   else
     cairo_rectangle(context_, -rect.half_width(), -rect.half_height(),
                     rect.width, rect.height);
-//    PathHelperStandardRect(context_, rect);
 
   if (fill.alpha > 0.0)
   {
