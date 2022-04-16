@@ -306,11 +306,13 @@ void RegisterVec(py::module &m)
   //TODO optionally add py::dynamic_attr()
   // (could be useful if we want to use these vecs more extensively in python)
 
+  std::stringstream doc_tpl;
+  doc_tpl << "Initialize " << VC::TypeName() << " from "
+          << dim << "-element tuple.";
+
   vec_cls.def(py::init<>())
-         .def(py::init<>(&CreateVec<_Tp, dim>))
-         .def(py::init<_Tp, _Tp>(), py::arg("x"), py::arg("y"))
-         .def(py::init<_Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"))
-         .def(py::init<_Tp, _Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"))
+         .def(py::init<>(&CreateVec<_Tp, dim>),
+              doc_tpl.str().c_str())
          .def("__repr__",
               [](const VC &v)
               { return "<vivi." + v.ToString() + ">"; })
@@ -340,12 +342,26 @@ void RegisterVec(py::module &m)
   // *=
   // x / 3; /=
 
+
+  // Specific for 2-dim vectors
+  if (dim == 2)
+    vec_cls.def(py::init<_Tp, _Tp>(), py::arg("x"), py::arg("y"));
+
+  // Specific for 3-dim vectors
   if (dim == 3)
+  {
+    vec_cls.def(py::init<_Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"));
     vec_cls.def("cross", &VC::Cross, "Cross product", py::arg("other"));
+  }
 
   if (dim > 2)
     vec_cls.def_property("z", static_cast<const _Tp &(VC::*)() const>(&VC::z), &VC::SetZ,
                          "Accesses the third dimension.");
+
+  // Specific for >=4-dim vectors
+  if (dim == 4)
+    vec_cls.def(py::init<_Tp, _Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"));
+
   if (dim > 3)
     vec_cls.def_property("w", static_cast<const _Tp &(VC::*)() const>(&VC::w), &VC::SetW,
                          "Accesses the fourth dimension.");
@@ -375,11 +391,13 @@ void RegisterVec(py::module &m)
 PYBIND11_MODULE(vivi, m)
 { 
   m.doc() = R"pbdoc(
-    vivi - A VIsualization tool for computer VIsion
+    A visualization tool for computer vision tasks
 
     Python bindings for the C++ vivi toolbox which
     uses the 2D Cairo graphics library.
   )pbdoc";
+  //TODO maybe rename cpp toolbox to vivi++ ? If so, adjust docstring above!
+
 
   //------------------------------------------------- Color
   py::class_<vivi::Color>(m, "Color",
@@ -398,15 +416,21 @@ PYBIND11_MODULE(vivi, m)
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def("as_RGBA", &vivi::Color::ToRGBA,
-           "Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255] and alpha in [0, 1].")
+           "Returns the corresponding (R, G, B, a) tuple,\n"
+           "where R, G, B in [0, 255] and alpha in [0, 1].")
       .def("as_hex", &vivi::Color::ToHexString,
-           "Returns the hex web color code representation, e.g. '#0011FF' (alpha is ignored).")
-      .def_readwrite("red", &vivi::Color::red, "Red component within [0, 1].")
-      .def_readwrite("green", &vivi::Color::green, "Green component within [0, 1].")
-      .def_readwrite("blue", &vivi::Color::blue, "Blue component within [0, 1].")
-      .def_readwrite("alpha", &vivi::Color::alpha, "Opacity within [0, 1].")
+           "Returns the hex web color code representation,\n"
+           "e.g. '#0011FF' (alpha is ignored).")
+      .def_readwrite("red", &vivi::Color::red,
+                     "Red component within [0, 1].")
+      .def_readwrite("green", &vivi::Color::green,
+                     "Green component within [0, 1].")
+      .def_readwrite("blue", &vivi::Color::blue,
+                     "Blue component within [0, 1].")
+      .def_readwrite("alpha", &vivi::Color::alpha,
+                     "Opacity within [0, 1].")
       .def("inverse", &vivi::Color::Inverse,
-           "Returns the inverse color, i.e. (1.0-r, 1.0-g, 1.0-b).\n"
+           "Returns the inverse color, i.e. (1.0-r, 1.0-g, 1.0-b, a).\n"
            "Alpha value stays the same.");
 
   // A Color can be initialized from a given tuple.
@@ -438,7 +462,7 @@ PYBIND11_MODULE(vivi, m)
 
   //------------------------------------------------- Primitives - Rectangle
   py::class_<vivi::Rect>(m, "Rect",
-                         "Rectangle for visualization.\n"
+                         "Rectangle for visualization.\n\n"
                          "Note that it is defined by its CENTER coordinates,\n"
                          "width, height, angle (clockwise rotation in degrees),\n"
                          "and a corner radius (for rounded rectangles).")
@@ -483,7 +507,7 @@ PYBIND11_MODULE(vivi, m)
   //------------------------------------------------- Primitives - ImageBuffer
   // Info on numpy memory: https://stackoverflow.com/a/53099870/400948
   py::class_<vivi::ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
-                                "An ImageBuffer holds 8-bit images (Grayscale,\n"
+                                "An ImageBuffer holds 8-bit images (Grayscale, "
                                 "RGB or RGBA).")
       .def(py::init(&moddef::CreateImageBuffer),
            "Initialize from numpy array with dtype uint8.")
@@ -528,16 +552,22 @@ PYBIND11_MODULE(vivi, m)
 
   py::enum_<vivi::LineStyle::Cap>(line_style, "Cap",
                                   "How to render the endpoints of the line (or dash strokes).")
-      .value("Butt", vivi::LineStyle::Cap::Butt)
-      .value("Round", vivi::LineStyle::Cap::Round)
-      .value("Square", vivi::LineStyle::Cap::Square);
+      .value("Butt", vivi::LineStyle::Cap::Butt,
+             "Start/stop the line exactly at the start/end point.")
+      .value("Round", vivi::LineStyle::Cap::Round,
+             "Round ending, center of the circle is the end point.")
+      .value("Square", vivi::LineStyle::Cap::Square,
+             "Square ending, center of the square is the end point.");
 
 
   py::enum_<vivi::LineStyle::Join>(line_style, "Join",
                                    "How to render the junction of two lines/segments.")
-      .value("Miter", vivi::LineStyle::Join::Miter)
-      .value("Bevel", vivi::LineStyle::Join::Bevel)
-      .value("Round", vivi::LineStyle::Join::Round);
+      .value("Miter", vivi::LineStyle::Join::Miter,
+             "Sharp (angled) corner.")
+      .value("Bevel", vivi::LineStyle::Join::Bevel,
+             "Cut off the join at half the line width from the joint point.")
+      .value("Round", vivi::LineStyle::Join::Round,
+             "Rounded join, where the center of the circle is the joint point.");
 
 
   line_style.def(py::init<>(&moddef::CreateLineStyle))// init from tuple
@@ -574,20 +604,21 @@ PYBIND11_MODULE(vivi, m)
 
           Usage:
           1. Create a Painter
-          2. set_canvas_rgb() or set_canvas_image()
+          2. Initialize the canvas via either:
+             * set_canvas_rgb(),
+             * set_canvas_image(), or
+             * set_canvas_filename()
           3. Draw onto the canvas via draw_xxx()
           4. When all objects have been drawn, retrieve
              the visualization via get_canvas()
-          5. For the next visualization, start at (2) to
-             reuse the allocated resources.
+          5. The painter can be reused for future
+             visualizations: start over at set_canvas_xxx()
           )pbdoc")
       .def(py::init<>())
       .def("__repr__", [](const moddef::Painter &) { return "<vivi.Painter>"; })
       .def("__str__", [](const moddef::Painter &) { return "vivi.Painter"; })
       .def("set_canvas_rgb", &moddef::Painter::SetCanvasColor,
-           "Initializes the canvas with the given color. This or\n"
-           "set_canvas_XXX() must be called before anything can\n"
-           "be drawn.",
+           "Initializes the canvas with the given color.",
            py::arg("width"), py::arg("height"),
            py::arg("color")=vivi::Color(0, 0, 0, 1))
       .def("set_canvas_filename", &moddef::Painter::SetCanvasFilename,
@@ -600,13 +631,24 @@ PYBIND11_MODULE(vivi, m)
            py::arg("image_filename"))
       .def("set_canvas_image", &moddef::Painter::SetCanvasImage,
            "Initializes the canvas from the given image, i.e. either\n"
-           "a numpy array (dtype uint8) or a vivi.ImageBuffer.",
+           "a numpy array (dtype uint8) or a vivi.ImageBuffer.\n\n"
+           "Example:\n"
+           "  img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
+           "  painter.set_canvas_image(img_np)",
            py::arg("image"))
       .def("get_canvas", &moddef::Painter::GetCanvas,
            "Returns the current state of the visualization.\n\n"
-           "If you want a copy, set copy=True. Otherwise, the buffer"
-           "will just provide a view on the Painter's canvas.\n\n"
-           "Default behavior: canvas will NOT be copied.",
+           "If you want a copy, set copy=True. Otherwise, the buffer\n"
+           "will just provide a view on the Painter's canvas.\n"
+           "--> If you keep on drawing, this will also affect the\n"
+           "    previously obtained canvas.\n\n"
+           "Examples:\n"
+           "* Get canvas as numpy array, memory is\n"
+           "  SHARED with the painter:\n"
+           "    img_np = np.array(p.get_canvas(), copy=False)\n\n"
+           "* Retrieve a deep COPY of the canvas as\n"
+           "  numpy array:\n"
+           "    img_np = np.array(p.get_canvas(True), copy=False)",
            py::arg("copy")=false)
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
