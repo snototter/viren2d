@@ -256,7 +256,7 @@ public:
 
   void SetCanvas(const std::string &image_filename) override;
 
-  void SetCanvas(const ImageBuffer &image_buffer) override;
+  void SetCanvas(const ImageBuffer &image_buffer, bool copy) override;
 
 //  void SetCanvas(const cv::Mat &image) override //TODO replace by buffer (maybe stb?)
 //  {
@@ -277,25 +277,6 @@ public:
 //  }
 
   ImageBuffer GetCanvas(bool copy) override;
-
-  void DummyShow() override
-  {
-    std::cerr << "WARNING - display functionality will be removed at any time without notice!" << std::endl;
-
-//    ImageBuffer buffer = GetCanvas(true);
-//    buffer.RGB2BGR(); // OpenCV wants BGR, OpenCV gets BGR
-//    cv::Mat mat(buffer.height, buffer.width,
-//                CV_MAKETYPE(CV_8U, buffer.channels),
-//                buffer.data, buffer.stride);
-
-//    const std::string win_title("Painter's Canvas");
-//    cv::imshow(win_title, mat);
-//    cv::waitKey();
-//    cv::destroyWindow(win_title);
-
-    ImageBuffer buffer = GetCanvas(false);
-    SaveImage("dummy-canvas.jpg", buffer);
-  }
 
   void DrawLine(const Vec2d &from, const Vec2d &to,
                 const LineStyle &line_style) override;
@@ -355,17 +336,26 @@ void ImagePainter::SetCanvas(const std::string &image_filename)
   // can easily plug/copy it into the Cairo surface
   ImageBuffer buffer = LoadImage(image_filename, 4);
 
-  SetCanvas(buffer);
+  // Loading from disk is already slow - thus, for the sake of
+  // code simplicity (not needing to keep track of the ImageBuffer),
+  // we let the canvas redundantly copy the memory:
+  SetCanvas(buffer, true);
 }
 
-void ImagePainter::SetCanvas(const ImageBuffer &image_buffer)
+void ImagePainter::SetCanvas(const ImageBuffer &image_buffer, bool copy)
 {
   if (image_buffer.channels != 4)
     throw std::runtime_error("ImagePainter only accepts 4-channel (RGBA) images!");
 
-  // Since loading from disk is already expensive, we omit trying
-  // to reuse existing memory (for the sake of readable code and
-  // laziness)
+  // TODO Avoid premature optimization:
+  // Currently, we clean up previously created contexts/surfaces to
+  // avoid unnecessarily cluttering the implementation.
+  //
+  // If this becomes a bottleneck, we need to distinguish 4 scenarios:
+  // * copy true, existing data --> check if it surface can be reused (memcpy)
+  // * copy true, no surface --> malloc(surface create) + memcpy
+  // * copy false, existing data --> clean up data, reuse surface
+  // * copy false, no surface --> surface create_for_data
   if (context_)
   {
     cairo_destroy(context_);
@@ -377,13 +367,20 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer)
     surface_ = nullptr;
   }
 
-  // From my understanding, cairo_image_surface_create_for_data
-  // does not take ownership. So currently, I'm redundantly copying
-  // the image data:
-  surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                        image_buffer.width, image_buffer.height);
-  std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
-              4 * image_buffer.width * image_buffer.height);
+  if (copy)
+  {
+    surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                          image_buffer.width, image_buffer.height);
+    std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
+                4 * image_buffer.width * image_buffer.height);
+  }
+  else
+  {
+    surface_ = cairo_image_surface_create_for_data(image_buffer.data,
+                                                   CAIRO_FORMAT_ARGB32,
+                                                   image_buffer.width, image_buffer.height,
+                                                   image_buffer.stride);
+  }
   context_ = cairo_create(surface_);
   cairo_surface_mark_dirty(surface_);
 }

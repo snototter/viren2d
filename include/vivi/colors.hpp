@@ -11,6 +11,8 @@
 //TODO colormaps
 //TODO pseudocoloring!
 
+//TODO python bindings for colornames
+
 namespace vivi
 {
 

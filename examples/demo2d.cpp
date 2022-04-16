@@ -53,10 +53,11 @@ https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
 
 //#include <Eigen/Dense>
 
-//#include <opencv2/core.hpp>
+#ifdef WITH_OPENCV
 #include <opencv2/opencv.hpp>
 //#include <opencv2/core/eigen.hpp>
 #include <opencv2/highgui.hpp>
+#endif // WITH_OPENCV
 
 #include <vivi/vivi.hpp>
 
@@ -90,14 +91,11 @@ int main(int argc, char **argv)
   // compare image.png cv-image.png diff.png
   std::string image_filename("../examples/flamingo.jpg");
   vivi::ImageBuffer image_buffer = vivi::LoadImage(image_filename, 4);
-//  cv::Mat orig = cv::imread(image_filename);
-//  cv::Mat img = orig;
 
-  auto painter = vivi::CreateImagePainter();//vivi::ImagePainter painter1;
-//  painter->SetCanvas(img);
+  auto painter = vivi::CreateImagePainter();
 
 //  painter->SetCanvas(image_filename);
-  painter->SetCanvas(image_buffer);
+  painter->SetCanvas(image_buffer, false);
 //  painter->SetCanvas(600, 400, vivi::RGBA(255, 255, 255));
 
   for (int i = 0; i < 4; ++i)
@@ -106,9 +104,6 @@ int main(int argc, char **argv)
                       vivi::LineStyle(6, vivi::colors::Indigo(0.9)),
                       vivi::colors::Cyan(0.2));
   }
-  vivi::ImageBuffer canvas = painter->GetCanvas(false);
-  vivi::SaveImage("canvas-stb-test.png", canvas);
-
 
 //  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
   painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(image_buffer.width-10, image_buffer.height-10),
@@ -129,11 +124,11 @@ int main(int argc, char **argv)
   ////  ImagePainter painter; painter = std::move(painter1); // move assignment
   ////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
 
+  vivi::ImageBuffer canvas = painter->GetCanvas(false);
+  vivi::SaveImage("dummy-canvas.png", canvas);
 
-  painter->DummyShow();
-
-
-  // TODO the last bit of OpenCV dependency ;-)
+#ifdef WITH_OPENCV
+  // The last bit of OpenCV dependency (only for displaying the image ;-)
   vivi::ImageBuffer img_buffer = painter->GetCanvas(true);
   img_buffer.RGB2BGR(); //warning: currently, the buffer is shared!!
   cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
@@ -141,6 +136,7 @@ int main(int argc, char **argv)
                     img_buffer.data, img_buffer.stride);
   cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
   cv::waitKey();
+#endif // WITH_OPENCV
 
   return 0;
 }

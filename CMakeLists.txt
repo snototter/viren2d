@@ -53,13 +53,19 @@ add_executable(demo2d
     ${VIVI_SOURCE_FILES}
     examples/demo2d.cpp
 )
+# TODO When we have a standalone cpp library, it expose/link/... Cairo_LIBS. Then, the following is no longer needed!
+target_link_libraries(demo2d PRIVATE ${Cairo_LIBS})
 
-#TODO make optional - if not, fall back to stb image
-find_package(OpenCV REQUIRED)
 #TODO check interface/public/private https://stackoverflow.com/a/49538748/400948
 #TODO read https://kubasejdak.com/modern-cmake-is-like-inheritance
-target_include_directories(demo2d PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(demo2d PRIVATE ${Cairo_LIBS} ${OpenCV_LIBRARIES})
+# OpenCV is optional, we only need it for displaying the rendered images
+find_package(OpenCV)
+if(${OpenCV_FOUND})
+    add_definitions(-DWITH_OPENCV)
+    target_include_directories(demo2d PRIVATE ${OpenCV_INCLUDE_DIRS})
+    target_link_libraries(demo2d PRIVATE ${OpenCV_LIBRARIES})
+endif()
+
 
 #########################################################################################
 # Python bindings

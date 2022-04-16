@@ -110,8 +110,9 @@ public:
    */
   virtual void SetCanvas(const std::string &image_filename) = 0;
 
-  //TODO doc - memory will be copied; image must be RGBA!
-  virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
+  //TODO doc - memory will be copied if copy is true (otherwise, we simply
+  // reuse the given memory); image must be RGBA!
+  virtual void SetCanvas(const ImageBuffer &image_buffer, bool copy) = 0;
 
 
   /**
@@ -139,9 +140,6 @@ public:
                 const Color &fill = Color(0, 0, 0, 0))
   { DrawRectImpl(rect, line_style, fill); }
 
-
-// Currently, just saves the canvas to disk
-  virtual void DummyShow() = 0;//TODO remove
 
   //TODO DrawPoints - how to handle alternating colors???
   //TODO DrawEllipse <-- (optionally rotated) rect!

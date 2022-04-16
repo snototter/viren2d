@@ -155,9 +155,6 @@ public:
     return painter_->GetCanvas(copy);
   }
 
-  void DummyShow() { painter_->DummyShow(); } //TODO remove
-  //TODO setcanvas image
-  //TODO getcanvas
 
   void DrawLine(const vivi::Vec2d &from, const vivi::Vec2d &to,
                 const vivi::LineStyle &line_style)
@@ -575,7 +572,7 @@ PYBIND11_MODULE(vivi, m)
            py::arg("rect"), py::arg("line_style"),
            py::arg("fill")=vivi::Color(0, 0, 0, 0))
       //TODO add draw_xxx methods
-      .def("show", &moddef::Painter::DummyShow, "TODO - Shows the current canvas; only used for initial development!");
+      ;
 
 
 #ifdef VERSION_INFO
