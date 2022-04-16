@@ -337,10 +337,10 @@ PYBIND11_MODULE(vivi, m)
            "Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255] and alpha in [0, 1].")
       .def("as_hex", &vivi::Color::ToHexString,
            "Returns the hex web color code representation, e.g. '#0011FF' (alpha is ignored).")
-      .def_readwrite("red", &vivi::Color::red)
-      .def_readwrite("green", &vivi::Color::green)
-      .def_readwrite("blue", &vivi::Color::blue)
-      .def_readwrite("alpha", &vivi::Color::alpha)
+      .def_readwrite("red", &vivi::Color::red, "Red component within [0, 1].")
+      .def_readwrite("green", &vivi::Color::green, "Green component within [0, 1].")
+      .def_readwrite("blue", &vivi::Color::blue, "Blue component within [0, 1].")
+      .def_readwrite("alpha", &vivi::Color::alpha, "Opacity within [0, 1].")
       .def("inverse", &vivi::Color::Inverse,
            "Returns the inverse color, i.e. (1.0-r, 1.0-g, 1.0-b).\n"
            "Alpha value stays the same.");
@@ -388,12 +388,12 @@ PYBIND11_MODULE(vivi, m)
                       &pickling::DeserializeRect))
       .def(py::self == py::self)
       .def(py::self != py::self)
-      .def_readwrite("cx", &vivi::Rect::cx)
-      .def_readwrite("cy", &vivi::Rect::cy)
-      .def_readwrite("width", &vivi::Rect::width)
-      .def_readwrite("height", &vivi::Rect::height)
-      .def_readwrite("angle", &vivi::Rect::angle)
-      .def_readwrite("radius", &vivi::Rect::radius);
+      .def_readwrite("cx", &vivi::Rect::cx, "Horizontal center.")
+      .def_readwrite("cy", &vivi::Rect::cy, "Vertical center.")
+      .def_readwrite("width", &vivi::Rect::width, "Rectangle width.")
+      .def_readwrite("height", &vivi::Rect::height, "Rectangle height.")
+      .def_readwrite("angle", &vivi::Rect::angle, "Angle in degrees (clockwise rotation).")
+      .def_readwrite("radius", &vivi::Rect::radius, "Corner radius (for rounded rectangles).");
 
   // A Rect can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, vivi::Rect>();
@@ -419,9 +419,9 @@ PYBIND11_MODULE(vivi, m)
                       &pickling::DeserializeLineStyle))
       .def(py::self == py::self)
       .def(py::self != py::self)
-      .def_readwrite("line_width", &vivi::LineStyle::line_width)
-      .def_readwrite("color", &vivi::LineStyle::color)
-      .def_readwrite("dash_pattern", &vivi::LineStyle::dash_pattern);
+      .def_readwrite("line_width", &vivi::LineStyle::line_width, "Width in pixels (best results for even values).")
+      .def_readwrite("color", &vivi::LineStyle::color, "Line color (rgba).")
+      .def_readwrite("dash_pattern", &vivi::LineStyle::dash_pattern, "Custom dash pattern defined as list of on/off lengths (in pixels), e.g. [20, 10, 40, 10].");
 
   // A LineStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, vivi::LineStyle>();

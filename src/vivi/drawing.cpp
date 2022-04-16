@@ -92,7 +92,11 @@ cairo_surface_t *Mat2Cairo(const cv::Mat &mat)
   if (mat.channels() == 3)
   {
     cv::Mat m4;
+#if (CV_VERSION_MAJOR >= 4)
+    cv::cvtColor(mat, m4, cv::COLOR_RGB2RGBA);
+#else
     cv::cvtColor(mat, m4, CV_RGB2RGBA);
+#endif
     memcpy(cairo_image_surface_get_data(surface),
            m4.data, 4*m4.cols*m4.rows); //TODO only valid if iscontiguous!
   }

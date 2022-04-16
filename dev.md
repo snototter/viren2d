@@ -1,4 +1,9 @@
 ```
+# install via apt: libcairo2-dev, ninja-build
+# git clone --recursive https://github.com/snototter/vivi.git
+# currently, we also need libopencv-dev
+# python -m pip install git+https://github.com/snototter/vivi.git
+
 cd build
 make -j && ./demo2d
 
