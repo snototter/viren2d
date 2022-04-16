@@ -3,6 +3,7 @@
 #include <map>
 
 #include <vivi/colors.hpp>
+#include <vivi/math.hpp>
 
 namespace vivi
 {
@@ -79,6 +80,19 @@ std::string Color::ToHexString() const
   webcode[6] = hex[rem];
 
   return webcode;
+}
+
+
+bool operator==(const Color& lhs, const Color& rhs)
+{
+  return eps_equal(lhs.red, rhs.red) && eps_equal(lhs.green, rhs.green)
+      && eps_equal(lhs.blue, rhs.blue) && eps_equal(lhs.alpha, rhs.alpha);
+}
+
+
+bool operator!=(const Color& lhs, const Color& rhs)
+{
+  return !(lhs == rhs);
 }
 
 Color rgba(double r, double g, double b, double alpha)

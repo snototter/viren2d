@@ -118,9 +118,9 @@ class CMakeBuild(build_ext):
 setup(
     name="vivi",
     version="0.0.1",
-    author="TODO",
-    author_email="TODO",
-    description="A test project using pybind11 and CMake",
+    author="snototter",
+    author_email="snototter@users.noreply.github.com",
+    description="A visualization toolbox for common vision tasks (using Cairo graphics).",
     long_description="",
     ext_modules=[CMakeExtension("vivi")],
     cmdclass={"build_ext": CMakeBuild},

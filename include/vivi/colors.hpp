@@ -5,15 +5,24 @@
 #include <algorithm>
 #include <string>
 #include <tuple>
+#include <ostream>
+
+//TODO colornames
+//TODO colormaps
+//TODO pseudocoloring!
 
 namespace vivi
 {
+
+/** @brief Clips the given value to the range [low, high]. */
 template<typename _Tp>
 _Tp saturation_cast(_Tp val, _Tp low, _Tp high)
 {
   return std::min(std::max(val, low), high);
 }
 
+
+//-------------------------------------------------  Color
 
 /**
  * @brief Represents a rgba color
@@ -61,20 +70,22 @@ struct Color
 
   /** @brief Returns the web color code, e.g. "#dcdce4" (alpha value is ignored). */
   std::string ToHexString() const;
+
+  friend std::ostream &operator<<(std::ostream &os, const Color &col)
+  {
+    os << col.ToString();
+    return os;
+  }
 };
 
-inline bool operator==(const Color& lhs, const Color& rhs)
-{
-  // TODO approx equal - https://stackoverflow.com/questions/17333/what-is-the-most-effective-way-for-float-and-double-comparison
-  return lhs.red == rhs.red && lhs.green == rhs.green
-      && lhs.blue == rhs.blue && lhs.alpha == rhs.alpha;
-}
 
-inline bool operator!=(const Color& lhs, const Color& rhs)
-{
-  return !(lhs == rhs);
-}
+//-------------------------------------------------  Comparison operators
 
+bool operator==(const Color& lhs, const Color& rhs);
+bool operator!=(const Color& lhs, const Color& rhs);
+
+
+//-------------------------------------------------  Convenience initialization for Color
 
 /** Convenience wrapper to initialize @see Color from rgb values in range [0,1]. */
 Color rgba(double r, double g, double b, double alpha=1.0);

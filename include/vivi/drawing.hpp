@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 //FIXME remove opencv dependency
 #include <opencv2/core.hpp>
@@ -12,6 +13,49 @@
 
 namespace vivi
 {
+
+//-------------------------------------------------  LineStyle
+
+/** @brief Style definitions for lines & contours. */
+struct LineStyle
+{
+  double line_width;
+  Color color;
+  std::vector<double> dash_pattern;
+
+  LineStyle(double width, const Color &col)
+    : line_width(width), color(col),
+      dash_pattern(std::vector<double>())
+  {}
+
+  LineStyle(double width, const Color &col, const std::vector<double> &dash)
+    : line_width(width), color(col),
+      dash_pattern(dash)
+  {}
+
+  std::string ToString() const;
+};
+
+
+//-------------------------------------------------  Comparison operators
+
+bool operator==(const LineStyle &lhs, const LineStyle &rhs);
+bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
+
+
+//-------------------------------------------------  Painter
+/**
+ * @brief The Painter supports drawing on a canvas.
+ *
+ * Workflow:
+ * 1. Create a Painter
+ * 2. SetCanvas()
+ * 3. Draw onto the canvas via DrawXXX
+ * 4. When all objects have been drawn, retrieve
+ *    the visualization via GetCanvas()
+ * 5. For the next visualization, start at step 2 to
+ *    reuse the allocated resources.
+ */
 class Painter
 {
 public:
@@ -20,10 +64,11 @@ public:
   // Explicitly default the copy/move constructors
   // and assignment operators:
   Painter() = default;
-  Painter(const Painter& other) = default;
-  Painter& operator=(const Painter& other) = default;
+  Painter(const Painter &other) = default;
+  Painter& operator=(const Painter &other) = default;
   Painter(Painter &&) = default;
   Painter& operator=(Painter &&) = default;
+
 
   /** @brief Returns true if the painter's canvas is empty/invalid.
    *
@@ -32,29 +77,45 @@ public:
    */
   virtual bool Empty() const = 0;
 
-  virtual void SetCanvas(const cv::Mat &image) = 0;//FIXME remove
+
+  virtual void SetCanvas(const cv::Mat &image) = 0;//FIXME remove - replace by stb or buffer...
+
 
   /** @brief Initializes the canvas with the given color. This or
    *  any overloaded SetCanvas() must be called before any other
    *  DrawXXX calls can be performed.
    */
   virtual void SetCanvas(int width, int height, const Color& color) = 0;
-  virtual cv::Mat GetCanvas() = 0;
 
-  void DrawLine(const Vec2d& from, const Vec2d& to,
-                double line_width, const Color& color,
-                const std::vector<double> &dash_style = std::vector<double>())
-  { DrawLineImpl(from, to, line_width, color, dash_style); }
+  virtual cv::Mat GetCanvas() = 0; //FIXME remove - replace by stb or buffer, or ...
+
+  virtual void DrawLine(const Vec2d& from, const Vec2d& to,
+                const LineStyle& line_style) = 0;
+
+  void DrawCircle(const Vec2d &center, double radius,
+                  const LineStyle &line_style,
+                  const Color &fill = Color(0, 0, 0, 0))
+  { DrawCircleImpl(center, radius, line_style, fill); }
+
+
+  void DrawRect(const Rect &rect, const LineStyle &line_style,
+                const Color &fill = Color(0, 0, 0, 0))
+  { DrawRectImpl(rect, line_style, fill); }
 
   virtual void DummyShow() = 0;//TODO remove
-  //TODO DrawLine
-  //DrawArrow
+
+  //TODO DrawPoints - how to handle alternating colors???
+  //TODO DrawEllipse <-- (optionally rotated) rect!
+  //TODO DrawArrow
+  //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, ppp
 
 protected:
-  virtual void DrawLineImpl(const Vec2d& from, const Vec2d& to,
-                            double line_width, const Color& color,
-                            const std::vector<double> &dash_style) = 0;
+  virtual void DrawCircleImpl(const Vec2d& center, double radius,
+                              const LineStyle &line_style,
+                              const Color &fill) = 0;
 
+  virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
+                            const Color &fill) = 0;
 };
 
 std::unique_ptr<Painter> CreateImagePainter();

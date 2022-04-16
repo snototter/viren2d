@@ -61,6 +61,7 @@ TODO repo structure
 * tests / would be nice...
 
 Cairo tutorials
+https://www.cairographics.org/samples/
 https://www.cairographics.org/tutorial/
 https://www.cairographics.org/FAQ/#paint_from_a_surface
 https://zetcode.com/gfx/cairo/cairobackends/
@@ -128,9 +129,50 @@ a.cross(b)
 
 
 import vivi
+import pickle
+ls = vivi.LineStyle(3.9, vivi.RGBA(200, 0, 200))
+vivi.LineStyle(3.9, (1, 0, 1))
+ls = vivi.LineStyle(3.9, (1, 0, 1), [10, 30])
+data = pickle.dumps(ls)
+ls
+des = pickle.loads(data)
+des == ls
+
+
+import vivi
+import pickle
+r1 = vivi.Rect(40, 20, 80, 40, 45, 10)
+r2 = vivi.Rect((40, 20, 80, 40, 45, 10))
+r1 == r2
+r1
+data = pickle.dumps(r1)
+r3 = pickle.loads(data)
+r1 == r3
+r1.cx = 50
+r1 == r3
+
+
+import vivi
+from vito import pyutils as pu
+pu.tic()
+p = vivi.Painter()
+p.set_canvas_rgb(400, 300, (1, 1, 1))
+#for i in range(100):
+#    p.draw_rect((200, 150, 50, 90, i*3.6, 10), (4.2, (1, 0, 1, .2)), (0, 1, 1, 0.2))
+p.draw_rect((200, 150, 50, 90, 3.6, 10), (4.2, (1, 0, 1, .2)), (0, 1, 1, 0.2))
+
+pu.toc()
+# 100 rects -> 15 to 16ms
+# 1 rect -> 5 ms
+p.show()
+
+
+
+import vivi
 p = vivi.Painter()
 p.set_canvas_rgb(400, 300, (1, 0, 1))
-p.draw_line((10, 10), (600, 100), 3, (0, 0, 0), [])
+p.draw_line((10, 10), (600, 100), vivi.LineStyle(3.9, (0, 0, 0), [10, 30]))
+p.draw_line((10, 200), (600, 10), (3.9, (0, 1, 1)))
 p.show()
 ```
 

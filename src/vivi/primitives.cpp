@@ -425,6 +425,26 @@ template Vec3i operator*(Vec3i lhs, double scale);
 template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
 
-//---------------------------------------------------- TODO others
+//---------------------------------------------------- Rectangle
+std::string Rect::ToString() const
+{
+  std::stringstream s;
+  s << "Rect(" << std::fixed << std::setprecision(1)
+    << cx << ", " << cy << ", " << width << ", " << height
+    << "; rot=" << angle << "°, radius=" << radius << ")";
+  return s.str();
+}
+
+bool operator==(const Rect& lhs, const Rect& rhs)
+{
+  return eps_equal(lhs.cx, rhs.cx) && eps_equal(lhs.cy, rhs.cy)
+      && eps_equal(lhs.width, rhs.width) && eps_equal(lhs.height, rhs.height)
+      && eps_equal(lhs.angle, rhs.angle) && eps_equal(lhs.radius, rhs.radius);
+}
+
+bool operator!=(const Rect& lhs, const Rect& rhs)
+{
+  return !(lhs == rhs);
+}
 
 } // namespace vivi

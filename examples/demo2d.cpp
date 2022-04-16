@@ -92,6 +92,7 @@ int main(int argc, char **argv)
 
   auto painter = vivi::CreateImagePainter();//vivi::ImagePainter painter1;
   painter->SetCanvas(img);
+//  painter->SetCanvas(600, 400, vivi::RGBA(255, 255, 255));
 
 //   ImagePainter painter(painter1); // copy construct
 //  auto painter = std::move(painter1);
@@ -99,79 +100,30 @@ int main(int argc, char **argv)
 ////  ImagePainter painter; painter = std::move(painter1); // move assignment
 ////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
 
+
+  for (int i = 0; i < 11; ++i)
+  {
+    painter->SetCanvas(img);
+    painter->DrawRect(vivi::Rect(40, img.rows/2, 80, 120, i*30, 30),
+                      vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {10, 10}),
+                      vivi::RGBA(0, 200, 200, 0.2));
+    cv::Mat mat = painter->GetCanvas();
+    cv::imshow("img", mat);
+    cv::waitKey(200);
+  }
+
 //  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
   painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
-                    10, vivi::RGBA(200, 0, 200));
+                    vivi::LineStyle(10, vivi::RGBA(200, 0, 200)));
 
-  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10
-                                                     , img.rows-10),
-                    6, vivi::RGBA(0, 0, 200), {20, 10});
+  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
+                    vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {20, 10}));
 
-//  painter->DrawLine(cv::Vec2d(10, 10), cv::Vec2d(img.cols-10, img.rows-10), 3.9, cv::Vec3d(1, 0, 0));
-//  painter->DrawLine(cv::Vec2d(10, 10), cv::Vec2d(img.cols-10, 10), 1, cv::Vec3d(1, 0, 1));
-//  img = painter->GetCanvas();
-//  std::cout << "img?" << img.empty() << std::endl;
+  painter->DrawCircle(vivi::Vec2d(70, 90), 35,
+                      vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {20, 10}),
+                      vivi::rgba(0, 1, 1, .3));
 
-//  cv::imshow("image", img);
-////  if (!painter1->Empty())
-////    cv::imshow("prev-painter", painter1->GetCanvas());
 
-//  cv::waitKey();
   painter->DummyShow();
   return 0;
 }
-
-//int main(int argc, char **argv)
-//{
-//  // compare image.png cv-image.png diff.png
-//  cv::Mat img = cv::imread("/home/snototter/workspace/sandbox/vivi/cpp-only/flamingo.jpg");
-
-////  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, img.cols, img.rows);
-//  cairo_surface_t *surface_img = Mat2Cairo(img);
-//  cairo_surface_t *surface = cairo_svg_surface_create("svgtest.svg", img.cols, img.rows); //TODO naive assumption pt == px
-////  cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_1);
-////  cairo_svg_surface_set_document_unit(surface, CAIRO_SVG_UNIT_PX);
-
-//  cairo_t *cr = cairo_create(surface);
-
-//    cairo_save(cr);
-//    cairo_set_source_rgba(cr, 0, 0, 1, 1);
-//    cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
-//        CAIRO_FONT_WEIGHT_BOLD);
-//    cairo_set_font_size(cr, 20.0);
-
-//    cairo_move_to(cr, 10.0, 50.0);
-//    cairo_show_text(cr, "ABCabcqQ?!# 0.123 [a](b){c}");
-//    cairo_restore(cr);
-
-//  cairo_surface_flush(surface_img);
-//  cairo_surface_finish(surface_img);
-//  cairo_set_source_surface(cr, surface_img, 0, 0);
-//  cairo_paint(cr);
-////  cairo_surface_flush(surface);
-////  cairo_surface_finish(surface);
-
-////  cairo_save(cr);
-////  cairo_set_source_rgba(cr, 0, 0, 1, 1);
-////  cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
-////      CAIRO_FONT_WEIGHT_BOLD);
-////  cairo_set_font_size(cr, 20.0);
-
-////  cairo_move_to(cr, 10.0, 50.0);
-////  cairo_show_text(cr, "ABCabcqQ?!# 0.123 [a](b){c}");
-////  cairo_restore(cr);
-
-////  cairo_set_source_rgb(cr_svg, 0, 0, 0);
-////    cairo_select_font_face(cr_svg, "Sans", CAIRO_FONT_SLANT_NORMAL,
-////        CAIRO_FONT_WEIGHT_NORMAL);
-////    cairo_set_font_size(cr_svg, 40.0);
-
-////    cairo_move_to(cr_svg, 10.0, 50.0);
-////    cairo_show_text(cr_svg, "Disziplin ist Macht.");
-
-//  cairo_destroy(cr);
-//  cairo_surface_destroy(surface);
-//  cairo_surface_destroy(surface_img);
-
-//  return 0;
-//}
