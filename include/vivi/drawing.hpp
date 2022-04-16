@@ -19,18 +19,34 @@ namespace vivi
 /** @brief Style definitions for lines & contours. */
 struct LineStyle
 {
+  /** @brief How to render the endpoints of the line (or dash strokes). */
+  enum class Cap
+  {
+    Butt = 0,
+    Round,
+    Square
+  };
+
+  /** @brief How to render the junction of two lines/segments. */
+  enum class Join
+  {
+    Miter = 0,
+    Round,
+    Bevel
+  };
+
+
   double line_width;
   Color color;
   std::vector<double> dash_pattern;
+  Cap line_cap;
+  Join line_join;
 
-  LineStyle(double width, const Color &col)
-    : line_width(width), color(col),
-      dash_pattern(std::vector<double>())
-  {}
-
-  LineStyle(double width, const Color &col, const std::vector<double> &dash)
-    : line_width(width), color(col),
-      dash_pattern(dash)
+  LineStyle(double width, const Color &col,
+            const std::vector<double> &dash=std::vector<double>(),
+            Cap cap=Cap::Butt, Join join=Join::Miter)
+    : line_width(width), color(col), dash_pattern(dash),
+      line_cap(cap), line_join(join)
   {}
 
   std::string ToString() const;
@@ -87,7 +103,7 @@ public:
    * This or any overloaded SetCanvas() must be called before
    * any other DrawXXX calls can be performed.
    */
-  virtual void SetCanvas(int width, int height, const Color& color) = 0;
+  virtual void SetCanvas(int width, int height, const Color &color) = 0;
 
   /**
    * @brief Initializes the canvas with the given image file.
@@ -111,10 +127,13 @@ public:
    * libraries for that.
    */
   virtual void SaveCanvas(const std::string &image_filename) = 0;
-  virtual cv::Mat GetCanvas() = 0; //FIXME remove - replace by stb or buffer, or ...
 
-  virtual void DrawLine(const Vec2d& from, const Vec2d& to,
-                        const LineStyle& line_style) = 0;
+
+  // copy: true - allocates memory; false - returns the canvas buffer directly
+  virtual ImageBuffer GetCanvas(bool copy) = 0;
+
+  virtual void DrawLine(const Vec2d &from, const Vec2d &to,
+                        const LineStyle &line_style) = 0;
 
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
@@ -134,7 +153,7 @@ public:
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, ppp
 
 protected:
-  virtual void DrawCircleImpl(const Vec2d& center, double radius,
+  virtual void DrawCircleImpl(const Vec2d &center, double radius,
                               const LineStyle &line_style,
                               const Color &fill) = 0;
 

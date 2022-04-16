@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <iostream> // TODO remove after switching to spdlog
 #include <stdexcept>
+#include <cassert>
+#include <cstring> // memcpy
 
 #include <math.h>
 
@@ -51,10 +53,46 @@ inline void ApplyColor(cairo_t *context, const Color &color)
 }
 
 
+cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style)
+{
+  switch (line_style.line_cap)
+  {
+    case LineStyle::Cap::Butt:
+      return CAIRO_LINE_CAP_BUTT;
+
+    case LineStyle::Cap::Round:
+      return CAIRO_LINE_CAP_ROUND;
+
+    case LineStyle::Cap::Square:
+      return CAIRO_LINE_CAP_SQUARE;
+  }
+  throw std::runtime_error("Line cap style is not yet mapped to Cairo type!");
+}
+
+
+cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style)
+{
+  switch (line_style.line_join)
+  {
+    case LineStyle::Join::Miter:
+      return CAIRO_LINE_JOIN_MITER;
+
+    case LineStyle::Join::Bevel:
+      return CAIRO_LINE_JOIN_BEVEL;
+
+    case LineStyle::Join::Round:
+      return CAIRO_LINE_JOIN_ROUND;
+  }
+  throw std::runtime_error("Line join style is not yet mapped to Cairo type!");
+}
+
+
 /** @brief Changes the given Cairo context to use the given LineStyle definitions. */
 void ApplyLineStyle(cairo_t *context, const LineStyle &line_style)
 {
   cairo_set_line_width(context, line_style.line_width);
+  cairo_set_line_cap(context, LineCap2Cairo(line_style));
+  cairo_set_line_join(context, LineJoin2Cairo(line_style));
   ApplyColor(context, line_style.color);
 
   //TODO if we add line caps:
@@ -86,27 +124,28 @@ cairo_surface_t *Mat2Cairo(const cv::Mat &mat)
 #else
     cv::cvtColor(mat, m4, CV_RGB2RGBA);
 #endif
-    memcpy(cairo_image_surface_get_data(surface),
-           m4.data, 4*m4.cols*m4.rows); //TODO only valid if iscontiguous!
+    std::memcpy(cairo_image_surface_get_data(surface),
+                m4.data, 4*m4.cols*m4.rows); //TODO only valid if iscontiguous!
   }
   else
   {
-    memcpy(cairo_image_surface_get_data(surface),
-           mat.data, 4*mat.cols*mat.rows); //TODO only if iscontiguous!
+    std::memcpy(cairo_image_surface_get_data(surface),
+                mat.data, 4*mat.cols*mat.rows); //TODO only if iscontiguous!
   }
   // Mark the surface dirty after directly manipulating the memory!
   cairo_surface_mark_dirty(surface);
   return surface;
 }
 
-cv::Mat Cairo2Mat(cairo_surface_t *surface)
-{
-  cv::Mat from_cairo(cairo_image_surface_get_height(surface),
-                     cairo_image_surface_get_width(surface),
-                     CV_8UC4);
-  memcpy(from_cairo.data, cairo_image_surface_get_data(surface), 4*cairo_image_surface_get_width(surface) * cairo_image_surface_get_height(surface));
-  return from_cairo;
-}
+//@deprecated
+//cv::Mat Cairo2Mat(cairo_surface_t *surface)
+//{
+//  cv::Mat from_cairo(cairo_image_surface_get_height(surface),
+//                     cairo_image_surface_get_width(surface),
+//                     CV_8UC4);
+//  std::memcpy(from_cairo.data, cairo_image_surface_get_data(surface), 4*cairo_image_surface_get_width(surface) * cairo_image_surface_get_height(surface));
+//  return from_cairo;
+//}
 
 } // namespace
 
@@ -134,6 +173,12 @@ bool operator==(const LineStyle &lhs, const LineStyle &rhs)
   for (size_t i = 0; i < lhs.dash_pattern.size(); ++i)
     if (!eps_equal(lhs.dash_pattern[i], rhs.dash_pattern[i]))
       return false;
+
+  if (lhs.line_cap != rhs.line_cap)
+    return false;
+
+  if (lhs.line_join != rhs.line_join)
+    return false;
 
   return true;
 }
@@ -163,7 +208,7 @@ public:
       cairo_surface_destroy(surface_);
   }
 
-  ImagePainter(const ImagePainter& other) // copy constructor
+  ImagePainter(const ImagePainter &other) // copy constructor
     : surface_(nullptr), context_(nullptr)
   {
     std::cout << "Inside ImagePainter::CopyConstructor()" << std::endl;//TODO remove
@@ -185,7 +230,7 @@ public:
     }
   }
 
-  ImagePainter(ImagePainter&& other) noexcept // move constructor
+  ImagePainter(ImagePainter &&other) noexcept // move constructor
     : surface_(std::exchange(other.surface_, nullptr)),
       context_(std::exchange(other.context_, nullptr))
   {
@@ -196,13 +241,13 @@ public:
 //    other.context_ = nullptr;
   }
 
-  ImagePainter& operator=(const ImagePainter& other) // Copy assignment
+  ImagePainter& operator=(const ImagePainter &other) // Copy assignment
   {
     std::cout << "Inside ImagePainter::Copy Assignment" << std::endl;//TODO remove
     return *this = ImagePainter(other);
   }
 
-  ImagePainter& operator=(ImagePainter&& other) noexcept // Move assignment
+  ImagePainter& operator=(ImagePainter &&other) noexcept // Move assignment
   {
     std::cout << "Inside ImagePainter::Move Assignment" << std::endl;//TODO remove
     std::swap(surface_, other.surface_);
@@ -215,7 +260,7 @@ public:
     return !surface_;
   }
 
-  void SetCanvas(int width, int height, const Color& color) override;
+  void SetCanvas(int width, int height, const Color &color) override;
 
   void SetCanvas(const std::string &image_filename) override;
 
@@ -239,27 +284,27 @@ public:
     context_ = cairo_create(surface_);
   }
 
-  cv::Mat GetCanvas() override
-  {
-    if (surface_)
-      return Cairo2Mat(surface_);
-    else
-      return cv::Mat();
-  }
+  ImageBuffer GetCanvas(bool copy) override;
 
   void DummyShow() override
   {
-    cv::Mat img = Cairo2Mat(surface_);
-    cv::imshow("Canvas", img);
+    ImageBuffer buffer = GetCanvas(true);
+    buffer.RGB2BGR(); // OpenCV wants BGR, OpenCV gets BGR
+    cv::Mat mat(buffer.height, buffer.width,
+                CV_MAKETYPE(CV_8U, buffer.channels),
+                buffer.data, buffer.stride);
+
+    const std::string win_title("Painter's Canvas");
+    cv::imshow(win_title, mat);
     cv::waitKey();
-    cv::destroyWindow("Canvas");
+    cv::destroyWindow(win_title);
   }
 
-  void DrawLine(const Vec2d& from, const Vec2d& to,
+  void DrawLine(const Vec2d &from, const Vec2d &to,
                 const LineStyle &line_style) override;
 
 protected:
-  void DrawCircleImpl(const Vec2d& center, double radius,
+  void DrawCircleImpl(const Vec2d &center, double radius,
                       const LineStyle &line_style,
                       const Color &fill) override;
 
@@ -310,11 +355,12 @@ void ImagePainter::SetCanvas(int width, int height, const Color &color)
 void ImagePainter::SetCanvas(const std::string &image_filename)
 {
   int width, height, bytes_per_pixel;
-  // Force stb to load 4 bytes per pixel, so we can easily plug it
-  // into the Cairo surface
+  // Force stb to load 4 bytes per pixel (STBI_rgb_alpha), so we
+  // can easily plug/copy it into the Cairo surface
   unsigned char *data = stbi_load(image_filename.c_str(),
                                   &width, &height,
-                                  &bytes_per_pixel, 4);
+                                  &bytes_per_pixel,
+                                  STBI_rgb_alpha);
   if (!data)
   {
     std::stringstream s;
@@ -322,7 +368,8 @@ void ImagePainter::SetCanvas(const std::string &image_filename)
     throw std::runtime_error(s.str());
   }
 
-  // TODO if this becomes a frequently used feature, reuse memory
+  // TODO if this becomes a frequently used feature, we should try to reuse memory
+  // Currently, we clean up existing memory
   if (context_)
   {
     cairo_destroy(context_);
@@ -399,6 +446,30 @@ void ImagePainter::SaveCanvas(const std::string &image_filename)
     throw std::runtime_error(s.str());
   }
 }
+
+
+ImageBuffer ImagePainter::GetCanvas(bool copy)
+{
+  if (!surface_)
+    throw std::logic_error("Invalid cairo surface - did you forget to SetCanvas() first?");
+
+  assert(cairo_image_surface_get_format(surface_) == CAIRO_FORMAT_ARGB32);
+  const int channels = 4;
+
+  unsigned char *data = cairo_image_surface_get_data(surface_);
+  const int width = cairo_image_surface_get_width(surface_);
+  const int height = cairo_image_surface_get_height(surface_);
+  const int stride = cairo_image_surface_get_stride(surface_);
+
+  ImageBuffer buffer;
+  if (copy)
+    buffer.CreateCopy(data, width, height, channels, stride);
+  else
+    buffer.CreateSharedBuffer(data, width, height, channels, stride);
+  return buffer;
+}
+
+
 
 void ImagePainter::DrawLine(const Vec2d &from, const Vec2d &to,
                             const LineStyle &line_style)

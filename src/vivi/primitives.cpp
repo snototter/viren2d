@@ -2,12 +2,170 @@
 #include <iomanip>
 #include <type_traits>
 #include <stdexcept>
+#include <cstdlib>
+#include <cassert>
+#include <cstring> // memcpy
+#include <iostream> // TODO remove
+#include <algorithm> // std::swap
 
 #include <vivi/primitives.hpp>
 #include <vivi/math.hpp>
 
 namespace vivi
 {
+//---------------------------------------------------- Image buffer
+//TODO support only RGBA
+ImageBuffer::~ImageBuffer()
+{
+  Cleanup();
+}
+
+ImageBuffer::ImageBuffer(const ImageBuffer &other)
+{
+  std::cout << "Inside ImageBuffer Copy Constructor" << std::endl; // TODO remove
+  owns_data_ = other.owns_data_;
+  if (other.owns_data_)
+  {
+    const int num_bytes = other.height * other.stride;
+    data = static_cast<unsigned char*>(std::malloc(num_bytes));
+    if (!data)
+    {
+      std::stringstream s;
+      s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
+      throw std::runtime_error(s.str());
+    }
+    std::memcpy(data, other.data, num_bytes);
+  }
+  else
+  {
+    data = other.data;
+  }
+  width = other.width;
+  height = other.height;
+  channels = other.channels;
+  stride = other.stride;
+}
+
+
+ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
+  : data(other.data), width(other.width), height(other.height),
+    channels(other.channels), stride(other.stride),
+    owns_data_(other.owns_data_)
+{
+  std::cout << "Inside ImageBuffer Move Constructor" << std::endl; // TODO remove
+  // Reset "other" but ensure that the memory won't be freed:
+  other.owns_data_ = false;
+  other.Cleanup();
+}
+
+
+ImageBuffer &ImageBuffer::operator=(const ImageBuffer &other)
+{
+  std::cout << "Inside ImageBuffer Copy Assignment" << std::endl; // TODO remove
+  return *this = ImageBuffer(other);
+}
+
+
+ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept
+{
+  std::cout << "Inside ImageBuffer Move Assignment" << std::endl; // TODO remove
+  std::swap(data, other.data);
+  std::swap(owns_data_, other.owns_data_);
+  std::swap(width, other.width);
+  std::swap(height, other.height);
+  std::swap(channels, other.channels);
+  std::swap(stride, other.stride);
+  return *this;
+}
+
+
+void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int height,
+                                     int channels, int stride)
+{
+  assert(channels == 4); //TODO maybe add support for other layouts in the future
+
+  // Clean up first (if this instance already holds image data)
+  Cleanup();
+
+  owns_data_ = false;
+  data = buffer;
+  this->width = width;
+  this->height = height;
+  this->channels = channels;
+  this->stride = stride;
+}
+
+
+void ImageBuffer::CreateCopy(unsigned char *buffer, int width, int height,
+                             int channels, int stride)
+{
+  assert(channels == 4); //TODO maybe add support for other layouts in the future
+
+  // Clean up first (if this instance already holds image data)
+  Cleanup();
+
+  const int num_bytes = height * stride;
+  data = static_cast<unsigned char*>(std::malloc(num_bytes));
+  if (!data)
+  {
+    std::stringstream s;
+    s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
+    throw std::runtime_error(s.str());
+  }
+  owns_data_ = true;
+
+  std::memcpy(data, buffer, num_bytes);
+  this->width = width;
+  this->height = height;
+  this->channels = channels;
+  this->stride = stride;
+}
+
+void ImageBuffer::RGB2BGR()
+{
+  if (!data)
+    return;
+
+  assert(channels == 4 || channels == 3);
+  // We iterate over the image buffer similar to the
+  // efficient OpenCV matrix scan:
+  // https://docs.opencv.org/2.4/doc/tutorials/core/how_to_scan_images/how_to_scan_images.html#the-efficient-way
+  int rows = height;
+  int cols = width * channels;
+  if (stride == cols) // Is memory contiguous?
+  {
+    cols *= rows;
+    rows = 1;
+  }
+
+  unsigned char *ptr_row;
+  for (int row = 0; row < rows; ++row)
+  {
+    ptr_row = data + row * stride;
+    for (int col = 0; col < cols; col+=channels)
+    {
+      // Swap red (at col) and blue (at col+2)
+      unsigned char tmp = ptr_row[col];
+      ptr_row[col]      = ptr_row[col+2];
+      ptr_row[col + 2]  = tmp;
+    }
+  }
+}
+
+
+void ImageBuffer::Cleanup()
+{
+  if (data && owns_data_)
+    std::free(data);
+  data = nullptr;
+  owns_data_ = false;
+  width = 0;
+  height = 0;
+  channels = 0;
+  stride = 0;
+}
+
+
 //---------------------------------------------------- Templated vector class
 template<typename _Tp, int dim>
 Vec<_Tp, dim>::Vec()

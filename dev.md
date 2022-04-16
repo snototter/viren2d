@@ -18,6 +18,17 @@ export CMAKE_GENERATOR="Unix Makefiles"
 python -m pip install .
 ```
 
+FIXME 
+setcanvas stb
+* cpp
+* python
+
+
+
+
+nice-to-have / low prio:
+json serialization of rect and other primitives
+
 
 System packages:
 
@@ -147,12 +158,15 @@ a.cross(b)
 import vivi
 import pickle
 ls = vivi.LineStyle(3.9, vivi.RGBA(200, 0, 200))
-vivi.LineStyle(3.9, (1, 0, 1))
-ls = vivi.LineStyle(3.9, (1, 0, 1), [10, 30])
-data = pickle.dumps(ls)
-ls
-des = pickle.loads(data)
-assert des == ls
+vivi.LineStyle(3.9, (1, 0, 1), [], vivi.LineStyle.Cap.Round)
+
+ls1 = vivi.LineStyle(3.9, (1, 0, 1), [10, 30], vivi.LineStyle.Cap.Round, vivi.LineStyle.Join.Bevel)
+data = pickle.dumps(ls1)
+ls2 = pickle.loads(data)
+ls1
+assert ls1 == ls2
+ls1.line_join = vivi.LineStyle.Join.Round
+assert ls1 != ls2
 
 
 import vivi
@@ -173,9 +187,12 @@ from vito import pyutils as pu
 pu.tic()
 p = vivi.Painter()
 p.set_canvas_rgb(400, 300, (1, 1, 1))
+ls = vivi.LineStyle(4.2, (1, 0, 1, .8), [20, 20], vivi.LineStyle.Cap.Round)
+fill = vivi.Color(0, 1, 1, 0.6)
+p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
+
 #for i in range(100):
 #    p.draw_rect((200, 150, 50, 90, i*3.6, 10), (4.2, (1, 0, 1, .2)), (0, 1, 1, 0.2))
-p.draw_rect((200, 150, 50, 90, 3.6, 10), (4.2, (1, 0, 1, .2)), (0, 1, 1, 0.2))
 
 pu.toc()
 # 100 rects -> 15 to 16ms

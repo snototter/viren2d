@@ -99,25 +99,31 @@ int main(int argc, char **argv)
 
   for (int i = 0; i < 4; ++i)
   {
-//    painter->SetCanvas(img);
     painter->DrawRect(vivi::Rect(40 + i*100, img.rows/2, 80, 120, i*30, 30),
-                      vivi::LineStyle(6, vivi::colors::Indigo(0.9), {10, 10}),
+                      vivi::LineStyle(6, vivi::colors::Indigo(0.9)),
                       vivi::colors::Cyan(0.2));
-    cv::Mat mat = painter->GetCanvas();
-    cv::imshow("img", mat);
-    cv::waitKey(200);
   }
   painter->SaveCanvas("canvas-stb-test.png");
 
+  vivi::ImageBuffer img_buffer = painter->GetCanvas(true);
+  img_buffer.RGB2BGR(); //warning: currently, the buffer is shared!!
+  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
+                    CV_MAKETYPE(CV_8U, img_buffer.channels),
+                    img_buffer.data, img_buffer.stride);
+  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
+  cv::waitKey();
+
+
 //  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
   painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
-                    vivi::LineStyle(10, vivi::RGBA(200, 0, 200)));
+                    vivi::LineStyle(10, vivi::colors::Maroon(0.8)));
 
   painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
-                    vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {20, 10}));
+                    vivi::LineStyle(6, vivi::colors::LimeGreen(), {5, 10, 40, 10},
+                                    vivi::LineStyle::Cap::Round));
 
   painter->DrawCircle(vivi::Vec2d(70, 90), 35,
-                      vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {20, 10}),
+                      vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {20, 20}, vivi::LineStyle::Cap::Round),
                       vivi::rgba(0, 1, 1, .3));
 
 

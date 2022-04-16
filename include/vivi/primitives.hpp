@@ -10,6 +10,45 @@
 
 namespace vivi
 {
+//---------------------------------------------------- Image buffer
+//TODO support only RGBA
+// Idea: getcanvas returns imagebuffer via move
+struct ImageBuffer
+{
+  unsigned char *data;
+  int width;
+  int height;
+  int channels;
+  int stride;
+  bool owns_data_; // TODO doc: we can use a shared memory buffer (won't be cleaned up) or allocate our own (will be cleaned up)
+
+
+  ImageBuffer()
+    : data(nullptr), width(0), height(0), channels(0), stride(0),
+      owns_data_(false)
+  {}
+
+  ~ImageBuffer();
+  ImageBuffer(const ImageBuffer &other); // copy c'tor
+  ImageBuffer(ImageBuffer &&other) noexcept; // move c'tor
+  ImageBuffer &operator=(const ImageBuffer &other); // copy assignment
+  ImageBuffer &operator=(ImageBuffer &&other) noexcept; // move assignment
+
+  //will NOT take ownership - you are responsible for cleaning up the buffer
+  void CreateSharedBuffer(unsigned char *buffer, int width, int height, int channels, int stride);
+
+  // makes a 1:1 memory copy
+  void CreateCopy(unsigned char *buffer, int width, int height, int channels, int stride);
+
+  // Flips red and green in-place
+  // Useful, if you're working with OpenCV's BGR format (e.g. for displaying)
+  // Watch out if you're using a sharedbuffer!
+  void RGB2BGR();
+
+private:
+  void Cleanup();
+};
+
 //------------------------------------------------- Vectors/Coordinates
 //TODO doc
 template<typename _Tp, int dim>

@@ -73,7 +73,7 @@ vivi::Vec<_Tp, dim> DeserializeVec(py::list lst)
   return vec;
 }
 
-//------------------------------------------------- LineStyle
+//------------------------------------------------- Rectangle
 py::tuple SerializeRect(const vivi::Rect &r)
 {
   return py::make_tuple(r.cx, r.cy, r.width, r.height, r.angle, r.radius);
@@ -102,21 +102,23 @@ vivi::Rect DeserializeRect(py::tuple tpl)
 //------------------------------------------------- LineStyle
 py::tuple SerializeLineStyle(const vivi::LineStyle &c)
 {
-  return py::make_tuple(c.line_width, c.color, c.dash_pattern);
+  return py::make_tuple(c.line_width, c.color, c.dash_pattern, c.line_cap, c.line_join);
 }
 
 
 vivi::LineStyle DeserializeLineStyle(py::tuple tpl)
 {
-  if (tpl.size() != 3)
+  if (tpl.size() != 5)
   {
     std::stringstream s;
-    s << "Invalid vivi.LineStyle state - expected 3 entries, got " << tpl.size() << "!";
+    s << "Invalid vivi.LineStyle state - expected 5 entries, got " << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
   vivi::LineStyle ls(tpl[0].cast<double>(),
                      tpl[1].cast<vivi::Color>(),
-                     tpl[2].cast<std::vector<double>>());
+                     tpl[2].cast<std::vector<double>>(),
+                     tpl[3].cast<vivi::LineStyle::Cap>(),
+                     tpl[4].cast<vivi::LineStyle::Join>());
   return ls;
 }
 } // namespace pickling
@@ -192,7 +194,7 @@ vivi::Color CreateColor(py::tuple tpl)
 //-------------------------------------------------  LineStyle from tuple
 vivi::LineStyle CreateLineStyle(py::tuple tpl)
 {
-  if (tpl.size() < 2 || tpl.size() > 3)
+  if (tpl.size() < 2 || tpl.size() > 5)
   {
     std::stringstream s;
     s << "Cannot create vivi.LineStyle from tuple with"
@@ -205,11 +207,17 @@ vivi::LineStyle CreateLineStyle(py::tuple tpl)
   if (tpl.size() > 2)
     ls.dash_pattern = tpl[2].cast<std::vector<double>>();
 
+  if (tpl.size() > 3)
+    ls.line_cap = tpl[3].cast<vivi::LineStyle::Cap>();
+
+  if (tpl.size() > 4)
+    ls.line_join = tpl[4].cast<vivi::LineStyle::Join>();
+
   return ls;
 }
 
 
-//-------------------------------------------------  LineStyle from tuple
+//-------------------------------------------------  Rectangle from tuple
 vivi::Rect CreateRect(py::tuple tpl)
 {
   if (tpl.size() < 4 || tpl.size() > 6)
@@ -257,31 +265,32 @@ template<typename _Tp, int dim>
 void RegisterVec(py::module &m)
 {
   using VC = vivi::Vec<_Tp, dim>;
-  auto &vccls = py::class_<VC>(m, VC::TypeName().c_str()) //TODO optional (could be useful if vecs are to be used in python more extensively):, py::dynamic_attr())
-      .def(py::init<>())
-      .def(py::init<>(&CreateVec<_Tp, dim>))
-      .def(py::init<_Tp, _Tp>(), py::arg("x"), py::arg("y"))
-      .def(py::init<_Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"))
-      .def(py::init<_Tp, _Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"))
-      .def("__repr__",
-           [](const VC& v)
-           { return "<vivi." + v.ToString() + ">"; })
-      .def("__str__", &VC::ToString)
-      .def_property("x", static_cast<const _Tp& (VC::*)() const>(&VC::x), &VC::SetX,
-                    "Accesses the first dimension.")
-      .def_property("y", static_cast<const _Tp& (VC::*)() const>(&VC::y), &VC::SetY,
-                    "Accesses the second dimension.")
-      .def("__setitem__", [](VC &self, unsigned index, _Tp v)
-                          { self[index] = v; })
-      .def("__getitem__", [](const VC &self, unsigned index)
-                          { return self[index]; })
-      .def("dot", &VC::Dot, py::arg("other"))
-      .def("length", &VC::Length)
-      .def("distance", &VC::Distance, py::arg("other"))
-      .def(py::pickle(&pickling::SerializeVec<_Tp, dim>,
-                      &pickling::DeserializeVec<_Tp, dim>))
-      .def(py::self == py::self)
-      .def(py::self != py::self);
+  py::class_<VC> vec_cls(m, VC::TypeName().c_str()); //TODO optional (could be useful if vecs are to be used in python more extensively):, py::dynamic_attr())
+
+  vec_cls.def(py::init<>())
+         .def(py::init<>(&CreateVec<_Tp, dim>))
+         .def(py::init<_Tp, _Tp>(), py::arg("x"), py::arg("y"))
+         .def(py::init<_Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"))
+         .def(py::init<_Tp, _Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"))
+         .def("__repr__",
+              [](const VC& v)
+              { return "<vivi." + v.ToString() + ">"; })
+         .def("__str__", &VC::ToString)
+         .def_property("x", static_cast<const _Tp& (VC::*)() const>(&VC::x), &VC::SetX,
+                       "Accesses the first dimension.")
+         .def_property("y", static_cast<const _Tp& (VC::*)() const>(&VC::y), &VC::SetY,
+                       "Accesses the second dimension.")
+         .def("__setitem__", [](VC &self, unsigned index, _Tp v)
+                             { self[index] = v; })
+         .def("__getitem__", [](const VC &self, unsigned index)
+                             { return self[index]; })
+         .def("dot", &VC::Dot, py::arg("other"))
+         .def("length", &VC::Length)
+         .def("distance", &VC::Distance, py::arg("other"))
+         .def(py::pickle(&pickling::SerializeVec<_Tp, dim>,
+                         &pickling::DeserializeVec<_Tp, dim>))
+         .def(py::self == py::self)
+         .def(py::self != py::self);
 
   //TODO bind other operators:
   // +
@@ -293,14 +302,14 @@ void RegisterVec(py::module &m)
   // x / 3; /=
 
   if (dim == 3)
-    vccls.def("cross", &VC::Cross, "Cross product", py::arg("other"));
+    vec_cls.def("cross", &VC::Cross, "Cross product", py::arg("other"));
 
   if (dim > 2)
-    vccls.def_property("z", static_cast<const _Tp& (VC::*)() const>(&VC::z), &VC::SetZ,
-                       "Accesses the third dimension.");
+    vec_cls.def_property("z", static_cast<const _Tp& (VC::*)() const>(&VC::z), &VC::SetZ,
+                         "Accesses the third dimension.");
   if (dim > 3)
-    vccls.def_property("w", static_cast<const _Tp& (VC::*)() const>(&VC::w), &VC::SetW,
-                       "Accesses the fourth dimension.");
+    vec_cls.def_property("w", static_cast<const _Tp& (VC::*)() const>(&VC::w), &VC::SetW,
+                         "Accesses the fourth dimension.");
 
   py::implicitly_convertible<py::tuple, VC>();
 }
@@ -407,11 +416,30 @@ PYBIND11_MODULE(vivi, m)
 
 
   //------------------------------------------------- Drawing - LineStyle
-  py::class_<vivi::LineStyle>(m, "LineStyle")
-      .def(py::init<>(&moddef::CreateLineStyle))// init from tuple
-      .def(py::init<double, vivi::Color, std::vector<double>>(),
+  py::class_<vivi::LineStyle> line_style(m, "LineStyle",
+                                         "How a line should be drawn.");
+
+  py::enum_<vivi::LineStyle::Cap>(line_style, "Cap",
+                                  "How to render the endpoints of the line (or dash strokes).")
+      .value("Butt", vivi::LineStyle::Cap::Butt)
+      .value("Round", vivi::LineStyle::Cap::Round)
+      .value("Square", vivi::LineStyle::Cap::Square);
+
+
+  py::enum_<vivi::LineStyle::Join>(line_style, "Join",
+                                   "How to render the junction of two lines/segments.")
+      .value("Miter", vivi::LineStyle::Join::Miter)
+      .value("Bevel", vivi::LineStyle::Join::Bevel)
+      .value("Round", vivi::LineStyle::Join::Round);
+
+
+  line_style.def(py::init<>(&moddef::CreateLineStyle))// init from tuple
+      .def(py::init<double, vivi::Color, std::vector<double>,
+                    vivi::LineStyle::Cap, vivi::LineStyle::Join>(),
            py::arg("line_width"), py::arg("color"),
-           py::arg("dash_pattern")=std::vector<double>())
+           py::arg("dash_pattern")=std::vector<double>(),
+           py::arg("line_cap")=vivi::LineStyle::Cap::Butt,
+           py::arg("line_join")=vivi::LineStyle::Join::Miter)
       .def("__repr__",
            [](const vivi::LineStyle& st)
            { return "<vivi." + st.ToString() + ">"; })
@@ -424,7 +452,10 @@ PYBIND11_MODULE(vivi, m)
       .def_readwrite("color", &vivi::LineStyle::color, "Line color (rgba).")
       .def_readwrite("dash_pattern", &vivi::LineStyle::dash_pattern, "Dash pattern defined as list of on/off strokes (lengths in\n"
                                                                      "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
-                                                                     "line will be drawn solid.");
+                                                                     "line will be drawn solid.")
+      .def_readwrite("line_cap", &vivi::LineStyle::line_cap, "How to render the endpoints of the line (or dash strokes).")
+      .def_readwrite("line_join", &vivi::LineStyle::line_join, "How to render the junction of two lines/segments.");
+
 
   // A LineStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, vivi::LineStyle>();
