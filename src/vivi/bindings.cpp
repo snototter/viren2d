@@ -400,10 +400,16 @@ PYBIND11_MODULE(vivi, m)
 
 
   //------------------------------------------------- Color
-  py::class_<vivi::Color>(m, "Color",
+  py::module_ color_sub = m.def_submodule("colors",
+                                          "Color definitions, named colors and convenience wrappers");
+  py::class_<vivi::Color>(color_sub, "Color",
                           "Color in rgba format, i.e. each component is within [0,1].")
       .def(py::init<>())
-      .def(py::init<>(&moddef::CreateColor))  // Allow initialization from tuple
+      .def(py::init<>(&moddef::CreateColor),
+           "Initialize from tuple (all values must\n"
+           "be within [0, 1]):\n"
+           "* (red, green, blue)\n"
+           "* (red, green, blue, alpha)")
       .def(py::init<double, double, double, double>(),
            py::arg("red"), py::arg("green"), py::arg("blue"),
            py::arg("alpha")=1.0)
@@ -437,48 +443,80 @@ PYBIND11_MODULE(vivi, m)
   py::implicitly_convertible<py::tuple, vivi::Color>();
 
 
-  m.def("rgba", vivi::rgba, "Returns a vivi.Color for the given rgba values.\n"
-                            "r, g, b and alpha must be within [0, 1]",
-        py::arg("red"), py::arg("green"), py::arg("blue"),
-        py::arg("alpha")=1.0);
+  color_sub.def("rgba", vivi::rgba, "Returns a vivi.Color for the given rgba values.\n"
+                                    "r, g, b and alpha must be within [0, 1]",
+                py::arg("red"), py::arg("green"), py::arg("blue"),
+                py::arg("alpha")=1.0);
 
 
-  m.def("RGBA", vivi::RGBA, "Returns a vivi.Color for the given RGBA values.\n"
-                            "* R,G,B must be within [0, 255]\n"
-                            "* alpha must be within [0, 1].",
-        py::arg("red"), py::arg("green"), py::arg("blue"),
-        py::arg("alpha")=1.0);
+  color_sub.def("RGBA", vivi::RGBA, "Returns a vivi.Color for the given RGBA values.\n"
+                                    "* R,G,B must be within [0, 255]\n"
+                                    "* alpha must be within [0, 1].",
+                py::arg("red"), py::arg("green"), py::arg("blue"),
+                py::arg("alpha")=1.0);
 
-  //TODO bind colornames
-
+  color_sub.def("black", &vivi::colors::Black, py::arg("alpha")=1.0)
+      .def("white", &vivi::colors::White, py::arg("alpha")=1.0)
+      .def("crimson", &vivi::colors::Crimson, py::arg("alpha")=1.0)
+      .def("maroon", &vivi::colors::Maroon, py::arg("alpha")=1.0)
+      .def("purple", &vivi::colors::Purple, py::arg("alpha")=1.0)
+      .def("cyan", &vivi::colors::Cyan, py::arg("alpha")=1.0)
+      .def("magenta", &vivi::colors::Magenta, py::arg("alpha")=1.0)
+      .def("turquoise", &vivi::colors::Turquoise, py::arg("alpha")=1.0)
+      .def("orange", &vivi::colors::Orange, py::arg("alpha")=1.0)
+      .def("orchid", &vivi::colors::Orchid, py::arg("alpha")=1.0)
+      .def("silver", &vivi::colors::Silver, py::arg("alpha")=1.0)
+      .def("gold", &vivi::colors::Gold, py::arg("alpha")=1.0)
+      .def("forest_green", &vivi::colors::ForestGreen, py::arg("alpha")=1.0)
+      .def("teal_green", &vivi::colors::TealGreen, py::arg("alpha")=1.0)
+      .def("lime_green", &vivi::colors::LimeGreen, py::arg("alpha")=1.0)
+      .def("navy_blue", &vivi::colors::NavyBlue, py::arg("alpha")=1.0)
+      .def("indigo", &vivi::colors::Indigo, py::arg("alpha")=1.0)
+      .def("copper", &vivi::colors::Copper, py::arg("alpha")=1.0)
+      .def("freesia", &vivi::colors::Freesia, py::arg("alpha")=1.0)
+      .def("midnight_blue", &vivi::colors::MidnightBlue, py::arg("alpha")=1.0)
+      .def("salmon", &vivi::colors::Salmon, py::arg("alpha")=1.0)
+      .def("rose_red", &vivi::colors::RoseRed, py::arg("alpha")=1.0)
+      .def("olive", &vivi::colors::Olive, py::arg("alpha")=1.0)
+      .def("light_blue", &vivi::colors::LightBlue, py::arg("alpha")=1.0)
+      .def("lavender", &vivi::colors::Lavender, py::arg("alpha")=1.0)
+      .def("ivory", &vivi::colors::Ivory, py::arg("alpha")=1.0);
 
   //------------------------------------------------- Primitives - Vectors
   moddef::RegisterVec<double, 2>(m);
   moddef::RegisterVec<double, 3>(m);
-  moddef::RegisterVec<double, 4>(m);
-  moddef::RegisterVec<int, 2>(m);
-  moddef::RegisterVec<int, 3>(m);
+  //TODO add more vector bindings once we need them
+//  moddef::RegisterVec<double, 4>(m);
+//  moddef::RegisterVec<int, 2>(m);
+//  moddef::RegisterVec<int, 3>(m);
 
 
   //------------------------------------------------- Primitives - Rectangle
   py::class_<vivi::Rect>(m, "Rect",
                          "Rectangle for visualization.\n\n"
-                         "Note that it is defined by its CENTER coordinates,\n"
+                         "Note that a rectangle is defined by its CENTER,\n"
                          "width, height, angle (clockwise rotation in degrees),\n"
                          "and a corner radius (for rounded rectangles).")
-      .def(py::init<>(&moddef::CreateRect))  // init from tuple
+      .def(py::init<>(&moddef::CreateRect),
+           "Initialize from tuple:\n"
+           "* (cx, cy, w, h)\n"
+           "* (cx, cy, w, h, angle)\n"
+           "* (cx, cy, w, h, angle, radius)",
+           py::arg("tpl"))  // init from tuple
       .def(py::init<double, double, double, double>(),
-           "Axis-aligned box: center coordinates & dimensions.",
+           "Create an axis-aligned square box:\n"
+           "  Center coordinates and dimensions.",
            py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"))
       .def(py::init<double, double, double, double, double>(),
-           "Rotated box: center coordinates, dimensions and\n"
-           "rotation (clockwise, in degrees).",
+           "Create a rotated square box:\n"
+           "  Center coordinates, dimensions and\n"
+           "  rotation (clockwise, in degrees).",
            py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"),
            py::arg("angle"))
       .def(py::init<double, double, double, double, double, double>(),
-           "Rotated rounded rectangle: center coordinates,\n"
-           "dimensions, rotation (clockwise, in degrees), and\n"
-           "corner radius (in pixels).",
+           "Create a rotated rounded rectangle:\n"
+           "  Center coordinates, dimensions, rotation (clockwise,\n"
+           "  in degrees), and corner radius (in pixels).",
            py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"),
            py::arg("angle"), py::arg("radius"))
       .def("__repr__",
@@ -500,9 +538,10 @@ PYBIND11_MODULE(vivi, m)
   py::implicitly_convertible<py::tuple, vivi::Rect>();
 
 
-
   //TODO line? (overkill, not needed now)
-  //TODO plane? (maybe, when we implement 3d)
+  //TODO plane? maybe - either use vec4d or make a full-blown plane class
+  //     preferably reuse vec4d - nobody expects a visualization toolbox to
+  //     be the go-to resource for (easy to use) geometric datatypes
 
   //------------------------------------------------- Primitives - ImageBuffer
   // Info on numpy memory: https://stackoverflow.com/a/53099870/400948

@@ -116,6 +116,15 @@ namespace colors
   Color LimeGreen(double alpha=1.0);
   Color NavyBlue(double alpha=1.0);
   Color Indigo(double alpha=1.0);
+  Color Copper(double alpha=1.0);
+  Color Freesia(double alpha=1.0);
+  Color MidnightBlue(double alpha=1.0);
+  Color Salmon(double alpha=1.0);
+  Color RoseRed(double alpha=1.0);
+  Color Olive(double alpha=1.0);
+  Color LightBlue(double alpha=1.0);
+  Color Lavender(double alpha=1.0);
+  Color Ivory (double alpha=1.0);
 } // namespace colors
 
 } // namespace vivi

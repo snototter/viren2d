@@ -1,3 +1,76 @@
+# TODO
+* readme - install/setup section
+* readme - quickstart
+* readme - make github banner with vivi ;-)
+* separate example/tutorial doc
+
+
+## Examples
+
+Example code requires python packages `vito` and `numpy`
+```python
+from vito import imvis
+import numpy as np
+import vivi
+
+# Dashed 4-px wide line
+line_style = vivi.LineStyle(4, vivi.colors.salmon(0.8), [20, 15])
+
+p = vivi.Painter()
+p.set_canvas_rgb(800, 600, vivi.colors.lavender())
+p.draw_line((10, 200), (600, 10), line_style)
+
+# Get SHARED image buffer (changed by subsequent draw_... calls)
+img = np.array(p.get_canvas(), copy=False)
+imvis.imshow(img)
+
+line_style.color = vivi.colors.midnight_blue()
+line_style.line_cap = vivi.LineStyle.Cap.Round
+line_style.dash_pattern = [50, 10, 10, 10]
+p.draw_line((0, 0), (400, 400), line_style)
+
+# Don't need to re-retrieve the canvas because we requested the
+# shared buffer. This is the default behavior unless you use
+#   p.get_canvas(False)
+imvis.imshow(img)
+
+line_style.line_width = 2
+line_style.dash_pattern = []
+p.draw_circle((300, 300), 40, line_style, vivi.colors.light_blue(0.4))
+imvis.imshow(img)
+```
+
+
+```python
+import vivi
+# Draw something
+p = vivi.Painter()
+p.set_canvas_filename('examples/flamingo.jpg')
+ls = vivi.LineStyle(4.2, (1, 0, 1, .8), [20, 20], vivi.LineStyle.Cap.Round)
+fill = vivi.colors.Color(0, 1, 1, 0.6)
+p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
+
+# How to get the visualization?
+import numpy as np
+from vito import imvis
+
+# Copied memory (avoiding the additional copy from C++ buffer to numpy)
+img_copied = np.array(p.get_canvas(True), copy=False)
+imvis.imshow(img_copied)
+
+# Shared memory - changing img_np will modify the canvas memory!
+img_shared = np.array(p.get_canvas(False), copy=False)
+imvis.imshow(img_shared)
+# Demonstrating shared memory side effects:
+img_shared[:, :, 0] = 0
+img_shared = np.array(p.get_canvas(False), copy=False)
+imvis.imshow(img_shared)
+imvis.imshow(img_copied)
+```
+
+
+
+
 ```
 # install via apt: libcairo2-dev, ninja-build
 # git clone --recursive https://github.com/snototter/vivi.git
@@ -11,19 +84,12 @@ make -j && ./demo2d
 
 python -m pip install .
 # if this fails with /tmp/..../ninja not found:
-# rm -r build/temp...
-# then re-run
-# or don't use ninja:
-export CMAKE_GENERATOR="Unix Makefiles"
+rm -r build/temp.linux-x86_64-cpython-38/
 python -m pip install .
+## or don't use ninja:
+#export CMAKE_GENERATOR="Unix Makefiles"
+#python -m pip install .
 ```
-
-FIXME 
-setcanvas stb
-* cpp
-* python
-
-
 
 
 nice-to-have / low prio:
@@ -31,6 +97,8 @@ json serialization of rect and other primitives
 
 
 System packages:
+cmake, python3, pip, venv
+maybe eigen3 in the future
 
 TODO
 TODO
@@ -46,15 +114,13 @@ cmake
 libcairo2-dev
 nope##libeigen3-dev
 
-for the examples:
+for the examples (optional)
 opencv
 
 ```cpp
 /*
 check rgb/bgr
 https://stackoverflow.com/questions/66127550/python-cairo-save-figure-as-np-array-gives-weird-results
-opencv memory layout:
-https://docs.opencv.org/4.x/db/da5/tutorial_how_to_scan_images.html
 
 cpp style guide
 https://google.github.io/styleguide/cppguide.html#Pointer_and_Reference_Expressions
@@ -67,14 +133,13 @@ Image loading lightweight:
 https://stackoverflow.com/a/40812978/400948
 --> recommends https://github.com/nothings/stb
 
-Clean library with CMake
-https://github.com/robotology/how-to-export-cpp-library/blob/master/CMakeLists.txt
 
-CMake set up header only library:
-https://stackoverflow.com/questions/28629084/how-to-get-a-header-only-library-portably-from-version-control-using-cmake
+How to make a clean library with CMake
+https://github.com/robotology/how-to-export-cpp-library/blob/master/CMakeLists.txt
 
 CMake include other target
 https://stackoverflow.com/a/61097014/400948
+
 
 TODO repo structure
 * examples/vivi-demo.cpp
@@ -82,13 +147,14 @@ TODO repo structure
 * src/vivi
 * tests / would be nice...
 
+
 Cairo tutorials
 https://www.cairographics.org/samples/
 https://www.cairographics.org/tutorial/
 https://www.cairographics.org/FAQ/#paint_from_a_surface
 https://zetcode.com/gfx/cairo/cairobackends/
 
-FindCairo.cmake
+FindCairo.cmake taken from
 https://github.com/preshing/CairoSample/blob/master/modules/FindCairo.cmake
 
 opencv <--> eigen3
@@ -96,19 +162,50 @@ https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
 */
 ```
 
-
-TODO git submodule add ... libs/stb
-https://github.com/nothings/stb
-
-
 run
 ```
 pip install -e .
+pip install vito
 
 python
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+from vito import imvis
+import numpy as np
 import vivi
-c1 = vivi.rgba(1, 0, 0.5)
+
+# Dashed 4-px wide line
+line_style = vivi.LineStyle(4, vivi.colors.salmon(0.8), [20, 15])
+
+p = vivi.Painter()
+p.set_canvas_rgb(800, 600, vivi.colors.lavender())
+p.draw_line((10, 200), (600, 10), line_style)
+
+# Get SHARED image buffer (changed by subsequent draw_... calls)
+img = np.array(p.get_canvas(), copy=False)
+imvis.imshow(img)
+
+line_style.color = vivi.colors.midnight_blue()
+line_style.line_cap = vivi.LineStyle.Cap.Round
+line_style.dash_pattern = [50, 10, 10, 10]
+p.draw_line((0, 0), (400, 400), line_style)
+
+# Don't need to re-retrieve the canvas because we requested the
+# shared buffer. This is the default behavior unless you use
+#   p.get_canvas(False)
+imvis.imshow(img)
+
+line_style.line_width = 2
+line_style.dash_pattern = []
+p.draw_circle((300, 300), 40, line_style, vivi.colors.light_blue(0.4))
+imvis.imshow(img)
+
+
+
+
+
+c1 = vivi.colors.rgba(1, 0, 0.5)
 assert c1 == c1.inverse().inverse()
 c1.__getstate__()
 c1.red -= 0.03
@@ -122,14 +219,15 @@ c2 = pickle.loads(data)
 c2
 assert c1 == c2
 
+# stuff below is broken (due to submodule colors)
 
-vivi.Vec2d(1, 2, 3)
+vivi.Vec2d(1, 2, 3) # raises typeerror
 v = vivi.Vec2d(1, 2)
 v.x
 v.x = 3
 str(v)
 v.y
-v.z
+v.z # attribute error
 
 
 v2 = vivi.Vec2d(3, 4)
@@ -137,7 +235,8 @@ v.dot(v2)
 
 v[0]
 v[1]
-v[2]
+v[2] # index error
+
 
 import pickle
 data = pickle.dumps(v)
@@ -150,10 +249,9 @@ b = vivi.Vec3d(0, 1, 0)
 a.cross(b)
 
 
-
 import vivi
 import pickle
-ls = vivi.LineStyle(3.9, vivi.RGBA(200, 0, 200))
+ls = vivi.LineStyle(3.9, vivi.colors.RGBA(200, 0, 200))
 vivi.LineStyle(3.9, (1, 0, 1), [], vivi.LineStyle.Cap.Round)
 
 ls1 = vivi.LineStyle(3.9, (1, 0, 1), [10, 30], vivi.LineStyle.Cap.Round, vivi.LineStyle.Join.Bevel)
@@ -212,9 +310,6 @@ p.draw_circle((100, 100), 30, (4, (0, 1, 1), [10, 10]), (0, 1, 1, 0.6))
 p.show()
 
 
-
-# FIXME runtime dependency: NumPy>=1.7.0
-
 ####################################################
 # get canvas dev:
 
@@ -223,7 +318,7 @@ import vivi
 p = vivi.Painter()
 p.set_canvas_filename('examples/flamingo.jpg')
 ls = vivi.LineStyle(4.2, (1, 0, 1, .8), [20, 20], vivi.LineStyle.Cap.Round)
-fill = vivi.Color(0, 1, 1, 0.6)
+fill = vivi.colors.Color(0, 1, 1, 0.6)
 p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
 
 # How to get the visualization?

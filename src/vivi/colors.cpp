@@ -206,6 +206,50 @@ Color Indigo(double alpha)
   return rgba(0.3, 0, 0.51, alpha);
 }
 
+Color Copper(double alpha)
+{
+  return rgba(0.72, 0.45, 0.2, alpha);
+}
+
+Color Freesia(double alpha)
+{
+  return rgba(0.97, 0.77, 0.14, alpha);
+}
+
+Color MidnightBlue(double alpha)
+{
+  return rgba(0.1, 0.1, 0.44, alpha);
+}
+
+Color Salmon(double alpha)
+{
+  return rgba(0.98, 0.5, 0.45, alpha);
+}
+
+Color RoseRed(double alpha)
+{
+  return rgba(1, 0.01, 0.24, alpha);
+}
+
+Color Olive(double alpha)
+{
+  return rgba(0.5, 0.5, 0, alpha);
+}
+
+Color LightBlue(double alpha)
+{
+  return rgba(0.68, 0.85, 0.9, alpha);
+}
+
+Color Lavender(double alpha)
+{
+  return rgba(0.9, 0.9, 0.98, alpha);
+}
+
+Color Ivory(double alpha)
+{
+  return rgba(1, 1, 0.94, alpha);
+}
 } // namespace colors
 
 } // namespace vivi
