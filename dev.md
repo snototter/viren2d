@@ -1,3 +1,17 @@
+```
+cd build
+make -j && ./demo2d
+
+#vs
+
+python -m pip install .
+# if this fails with /tmp/..../ninja not found:
+export CMAKE_GENERATOR="Unix Makefiles"
+python -m pip install .
+# or rm -r build/temp...
+```
+
+
 System packages:
 
 TODO

@@ -25,5 +25,7 @@ I'm planning to support visualization of the following primitives/objects:
 * [ ] Text (simple)
 * [ ] Trajectories / Tracking results (plain paths vs fading effect)
 * [ ] Poses (e.g. human pose estimation results) - low priority feature
+* [ ] Image overlay
+* [ ] Pseudocoloring - depends on how I will integrate image support (external, lightweight library; if it supports different data types, pseudocoloring is on the feature list)
 * [ ] Camera calibration-related: Ground plane, horizon, 3D bounding boxes (projected onto 2D image/canvas)
 
