@@ -93,6 +93,29 @@ Color rgba(double r, double g, double b, double alpha=1.0);
 /** Convenience wrapper to initialize @see Color from RGB values in range [0,255]. */
 Color RGBA(double R, double G, double B, double alpha=1.0);
 
+//TODO group by r,g,b levels?
+namespace colors
+{
+  Color Black(double alpha=1.0);
+  Color White(double alpha=1.0);
+
+  Color Crimson(double alpha=1.0);
+  Color Maroon(double alpha=1.0);
+  Color Purple(double alpha=1.0);
+  Color Cyan(double alpha=1.0);
+  Color Magenta(double alpha=1.0);
+  Color Turquoise(double alpha=1.0);
+  Color Orange(double alpha=1.0);
+  Color Orchid(double alpha=1.0);
+  Color Silver(double alpha=1.0);
+  Color Gold(double alpha=1.0);
+  Color ForestGreen(double alpha=1.0);
+  Color TealGreen(double alpha=1.0);
+  Color LimeGreen(double alpha=1.0);
+  Color NavyBlue(double alpha=1.0);
+  Color Indigo(double alpha=1.0);
+} // namespace colors
+
 } // namespace vivi
 
 #endif // __VIVI_COLORS_H__

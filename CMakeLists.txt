@@ -5,45 +5,72 @@ project(vivi)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 14)
 
+#########################################################################################
+# C++ library
 
+# Header files
+## Currently, all should be shipped as the public library interface
+set(VIVI_HEADER_FILES
+    include/vivi/colors.hpp
+    include/vivi/drawing.hpp
+    include/vivi/math.hpp
+    include/vivi/primitives.hpp
+    include/vivi/string_utils.hpp
+    include/vivi/vivi.hpp
+)
+
+# Source files
+## C++ library only
 set(VIVI_SOURCE_FILES
     src/vivi/primitives.cpp
     src/vivi/colors.cpp
     src/vivi/drawing.cpp
 )
 
+# Include the library headers for all targets
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+# We use the header-only stb library for image data handling
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/stb")
 
+
+# Uses the custom ./cmake/FindCairo.cmake
 find_package(Cairo REQUIRED)
 include_directories(${Cairo_INCLUDE_DIRS})
 
+#TODO maybe needed when we start working on camera calibration, 3d stuff
 #find_package(Eigen3 REQUIRED)
 #include_directories(${EIGEN3_INCLUDE_DIR})
 
+
+#########################################################################################
+# C++ demo/examples
+
 #TODO make library, then include library in demo
-#TODO post config/build step - copy image to build folder
+#TODO post config/build step - copy image/other assets to build folder
 add_executable(demo2d
+    ${VIVI_HEADER_FILES}
     ${VIVI_SOURCE_FILES}
     examples/demo2d.cpp
 )
 
-#TODO optional - if not, fall back to stb image
+#TODO make optional - if not, fall back to stb image
 find_package(OpenCV REQUIRED)
 #TODO check interface/public/private https://stackoverflow.com/a/49538748/400948
 #TODO read https://kubasejdak.com/modern-cmake-is-like-inheritance
 target_include_directories(demo2d PRIVATE ${OpenCV_INCLUDE_DIRS})
-#include_directories(${OpenCV_INCLUDE_DIRS})
 target_link_libraries(demo2d PRIVATE ${Cairo_LIBS} ${OpenCV_LIBRARIES})
 
-#message(INFO "${Cairo_LIBRARIES}")
-#message(INFO "${Cairo_LIBS}")
+#########################################################################################
+# Python bindings
 
-
+# pybind11 provides add_module which creates a target
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/pybind11)
 pybind11_add_module(vivi
+    ${VIVI_HEADER_FILES}
     ${VIVI_SOURCE_FILES}
-    src/vivi/bindings.cpp)
+    src/vivi/bindings.cpp
+)
 
 target_link_libraries(vivi PRIVATE ${Cairo_LIBS} ${OpenCV_LIBRARIES})
 

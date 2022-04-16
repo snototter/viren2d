@@ -87,30 +87,27 @@ int main(int argc, char **argv)
   //------------------------------------------------------
 
   // compare image.png cv-image.png diff.png
-  cv::Mat orig = cv::imread("../examples/flamingo.jpg");
+  std::string image_filename("../examples/flamingo.jpg");
+  cv::Mat orig = cv::imread(image_filename);
   cv::Mat img = orig;
 
   auto painter = vivi::CreateImagePainter();//vivi::ImagePainter painter1;
-  painter->SetCanvas(img);
+//  painter->SetCanvas(img);
+
+  painter->SetCanvas(image_filename);
 //  painter->SetCanvas(600, 400, vivi::RGBA(255, 255, 255));
 
-//   ImagePainter painter(painter1); // copy construct
-//  auto painter = std::move(painter1);
-////  ImagePainter painter = std::move(painter1); // move constructor
-////  ImagePainter painter; painter = std::move(painter1); // move assignment
-////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
-
-
-  for (int i = 0; i < 11; ++i)
+  for (int i = 0; i < 4; ++i)
   {
-    painter->SetCanvas(img);
-    painter->DrawRect(vivi::Rect(40, img.rows/2, 80, 120, i*30, 30),
-                      vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {10, 10}),
-                      vivi::RGBA(0, 200, 200, 0.2));
+//    painter->SetCanvas(img);
+    painter->DrawRect(vivi::Rect(40 + i*100, img.rows/2, 80, 120, i*30, 30),
+                      vivi::LineStyle(6, vivi::colors::Indigo(0.9), {10, 10}),
+                      vivi::colors::Cyan(0.2));
     cv::Mat mat = painter->GetCanvas();
     cv::imshow("img", mat);
     cv::waitKey(200);
   }
+  painter->SaveCanvas("canvas-stb-test.png");
 
 //  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
   painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(img.cols-10, img.rows-10),
@@ -122,6 +119,13 @@ int main(int argc, char **argv)
   painter->DrawCircle(vivi::Vec2d(70, 90), 35,
                       vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {20, 10}),
                       vivi::rgba(0, 1, 1, .3));
+
+
+  //   ImagePainter painter(painter1); // copy construct
+  //  auto painter = std::move(painter1);
+  ////  ImagePainter painter = std::move(painter1); // move constructor
+  ////  ImagePainter painter; painter = std::move(painter1); // move assignment
+  ////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
 
 
   painter->DummyShow();

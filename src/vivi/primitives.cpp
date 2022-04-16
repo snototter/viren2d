@@ -23,7 +23,7 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y)
   {
     std::stringstream s;
     s << "You cannot initialize " << TypeName() << " with 2 values.";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
   val[0] = x;
   val[1] = y;
@@ -36,7 +36,7 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z)
   {
     std::stringstream s;
     s << "You cannot initialize " << TypeName() << " with 3 values.";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
   val[0] = x;
   val[1] = y;
@@ -51,7 +51,7 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z, _Tp w)
   {
     std::stringstream s;
     s << "You cannot initialize " << TypeName() << " with 4 values.";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
   val[0] = x;
   val[1] = y;
@@ -85,7 +85,7 @@ const _Tp& Vec<_Tp, dim>::operator[](int i) const
     std::stringstream s;
     s << "Index-out-of-bounds: cannot access ["
       << i << "] for " << TypeName() << ".";
-    throw std::runtime_error(s.str());
+    throw std::out_of_range(s.str());
   }
   return val[i];
 }
@@ -99,7 +99,7 @@ _Tp& Vec<_Tp, dim>::operator[](int i)
     std::stringstream s;
     s << "Index-out-of-bounds: cannot access ["
       << i << "] for " << TypeName() << ".";
-    throw std::runtime_error(s.str());
+    throw std::out_of_range(s.str());
   }
   return val[i];
 }
@@ -239,7 +239,7 @@ template<typename _Tp, int dim>
 Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other)
 {
   if (dim != 3)
-    throw std::runtime_error("Cross product is only defined for 3-dim vectors!");
+    throw std::logic_error("Cross product is only defined for 3-dim vectors!");
   // There's actually an analog for 2d space, but I didn't need
   // it yet: https://mathworld.wolfram.com/CrossProduct.html
 

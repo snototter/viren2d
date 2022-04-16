@@ -1,15 +1,26 @@
 #include <utility>
 #include <sstream>
 #include <iomanip>
-#include <iostream> // TODO remove after spdlog switch
+#include <iostream> // TODO remove after switching to spdlog
+#include <stdexcept>
 
 #include <math.h>
 
+// Cairo is a C library
 #include <cairo/cairo.h>
+
+// Image handling is done with the lightweight header-only
+// stb library:
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 
 #include <vivi/drawing.hpp>
 #include <vivi/colors.hpp>
 #include <vivi/math.hpp>
+#include <vivi/string_utils.hpp>
 
 
 //TODO remove opencv dependencies!
@@ -19,46 +30,24 @@
 
 namespace vivi
 {
-std::string LineStyle::ToString() const
+/** @brief Drawing utilities in anonymuous namespace. */
+namespace
 {
-  std::stringstream s;
-  s << "LineStyle(w=" << std::fixed << std::setprecision(1)
-    << line_width << ", " << color.ToString() << ", "
-    << (dash_pattern.empty() ? "solid" : "dashed") << ")";
-  return s.str();
-}
-
-
-bool operator==(const LineStyle &lhs, const LineStyle &rhs)
+/**
+ * @brief Sets the source color. Should be used by all
+ * drawing methods (unless you know what you are doing).
+ *
+ * Issue in a nutshell: Cairo's ARGB format uses the same
+ * memory layout as OpenCV's BGRA format. We, however,
+ * want to work with RGB(A) images. Thus, we simply flip
+ * red and blue when setting the color.
+ *
+ * This seemed to be the easiest/least confusing option.
+ */
+inline void ApplyColor(cairo_t *context, const Color &color)
 {
-  if (!eps_equal(lhs.line_width, rhs.line_width))
-    return false;
-
-  if (lhs.color != rhs.color)
-    return false;
-
-  if (lhs.dash_pattern.size() != rhs.dash_pattern.size())
-    return false;
-
-  for (size_t i = 0; i < lhs.dash_pattern.size(); ++i)
-    if (!eps_equal(lhs.dash_pattern[i], rhs.dash_pattern[i]))
-      return false;
-
-  return true;
-}
-
-
-bool operator!=(const LineStyle &lhs, const LineStyle &rhs)
-{
-  return !(lhs == rhs);
-}
-
-
-/** @brief Sets the source color. */
-void ApplyColor(cairo_t *context, const Color &color)
-{
-  cairo_set_source_rgba(context, color.red, color.green,
-                        color.blue, color.alpha);
+  cairo_set_source_rgba(context, color.blue, color.green,
+                        color.red, color.alpha);
 }
 
 
@@ -118,6 +107,43 @@ cv::Mat Cairo2Mat(cairo_surface_t *surface)
   memcpy(from_cairo.data, cairo_image_surface_get_data(surface), 4*cairo_image_surface_get_width(surface) * cairo_image_surface_get_height(surface));
   return from_cairo;
 }
+
+} // namespace
+
+std::string LineStyle::ToString() const
+{
+  std::stringstream s;
+  s << "LineStyle(w=" << std::fixed << std::setprecision(1)
+    << line_width << ", " << color.ToString() << ", "
+    << (dash_pattern.empty() ? "solid" : "dashed") << ")";
+  return s.str();
+}
+
+
+bool operator==(const LineStyle &lhs, const LineStyle &rhs)
+{
+  if (!eps_equal(lhs.line_width, rhs.line_width))
+    return false;
+
+  if (lhs.color != rhs.color)
+    return false;
+
+  if (lhs.dash_pattern.size() != rhs.dash_pattern.size())
+    return false;
+
+  for (size_t i = 0; i < lhs.dash_pattern.size(); ++i)
+    if (!eps_equal(lhs.dash_pattern[i], rhs.dash_pattern[i]))
+      return false;
+
+  return true;
+}
+
+
+bool operator!=(const LineStyle &lhs, const LineStyle &rhs)
+{
+  return !(lhs == rhs);
+}
+
 
 
 class ImagePainter : public Painter
@@ -190,6 +216,10 @@ public:
   }
 
   void SetCanvas(int width, int height, const Color& color) override;
+
+  void SetCanvas(const std::string &image_filename) override;
+
+  void SaveCanvas(const std::string &image_filename) override;
 
   void SetCanvas(const cv::Mat &image) override //TODO replace by buffer (maybe stb?)
   {
@@ -271,16 +301,102 @@ void ImagePainter::SetCanvas(int width, int height, const Color &color)
 
   // Now simply fill the canvas with the given color:
   cairo_save(context_);
-  cairo_set_source_rgba(context_, color.red, color.green, color.blue, color.alpha);
+  ApplyColor(context_, color);
   cairo_paint(context_);
   cairo_restore(context_);
+}
+
+
+void ImagePainter::SetCanvas(const std::string &image_filename)
+{
+  int width, height, bytes_per_pixel;
+  // Force stb to load 4 bytes per pixel, so we can easily plug it
+  // into the Cairo surface
+  unsigned char *data = stbi_load(image_filename.c_str(),
+                                  &width, &height,
+                                  &bytes_per_pixel, 4);
+  if (!data)
+  {
+    std::stringstream s;
+    s << "Could not load image from '" << image_filename << "'!";
+    throw std::runtime_error(s.str());
+  }
+
+  // TODO if this becomes a frequently used feature, reuse memory
+  if (context_)
+  {
+    cairo_destroy(context_);
+    context_ = nullptr;
+  }
+  if (surface_)
+  {
+    cairo_surface_destroy(surface_);
+    surface_ = nullptr;
+  }
+
+  // From my understanding, cairo_image_surface_create_for_data
+  // does not take ownership. So currently, I'm redundantly copying
+  // the image data:
+  surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+  std::memcpy(cairo_image_surface_get_data(surface_), data, 4 * width * height);
+  context_ = cairo_create(surface_);
+  cairo_surface_mark_dirty(surface_);
+  stbi_image_free(data);
+}
+
+void ImagePainter::SaveCanvas(const std::string &image_filename)
+{
+  if (!surface_)
+    throw std::logic_error("Invalid cairo surface - did you forget to SetCanvas() first?");
+
+  // For now, we only support RGBA canvases. TL;DR: For our visualization
+  // use case, Cairo always stores 4 bytes per pixel internally (even if
+  // you use for example the RGB24 format). Thus, our ImagePainter is
+  // designed to work with RGBA images.
+  assert(cairo_image_surface_get_format(surface_) == CAIRO_FORMAT_ARGB32);
+
+  int stb_result = 0; // stb return code 0 indicates failure
+  const int width = cairo_image_surface_get_width(surface_);
+  const int height = cairo_image_surface_get_height(surface_);
+  const int stride = cairo_image_surface_get_stride(surface_);
+
+  const std::string fn_lower = strings::Lower(image_filename);
+  if (strings::EndsWith(fn_lower, ".jpg") || strings::EndsWith(fn_lower, ".jpeg"))
+  {
+    // Default JPEG quality setting: 90%
+    stb_result = stbi_write_jpg(image_filename.c_str(),
+                                width, height, 4,
+                                cairo_image_surface_get_data(surface_),
+                                90);
+  }
+  else
+  {
+    if (strings::EndsWith(fn_lower, ".png"))
+    {
+      stb_result = stbi_write_png(image_filename.c_str(),
+                                  width, height, 4,
+                                  cairo_image_surface_get_data(surface_),
+                                  stride);
+    }
+    else
+    {
+      throw std::invalid_argument("Canvas can only be saved as JPEG or PNG. File extension must be '.jpg', '.jpeg' or '.png'.");
+    }
+  }
+
+  if (stb_result == 0)
+  {
+    std::stringstream s;
+    s << "Could not save canvas to '" << image_filename << "'!";
+    throw std::runtime_error(s.str());
+  }
 }
 
 void ImagePainter::DrawLine(const Vec2d &from, const Vec2d &to,
                             const LineStyle &line_style)
 {
   if (!surface_)
-    throw std::runtime_error("Invalid cairo surface - did you forget to SetCanvas() first?");
+    throw std::logic_error("Invalid cairo surface - did you forget to SetCanvas() first?");
 
   cairo_save(context_);
   ApplyLineStyle(context_, line_style);
@@ -296,7 +412,7 @@ void ImagePainter::DrawCircleImpl(const Vec2d &center, double radius,
                                   const LineStyle &line_style, const Color &fill)
 {
   if (!surface_)
-    throw std::runtime_error("Invalid cairo surface - did you forget to SetCanvas() first?");
+    throw std::logic_error("Invalid cairo surface - did you forget to SetCanvas() first?");
 
   cairo_save(context_);
   cairo_arc(context_, center.x(), center.y(), radius, 0, 2 * M_PI);
@@ -326,7 +442,7 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect)
     s << "Invalid rounded rect: radius " << std::fixed << std::setprecision(2)
       << " must be less than half the smaller dimension (i.e. "
       << std::min(rect.half_height(), rect.half_width()) << ")!";
-    throw std::runtime_error(s.str());
+    throw std::out_of_range(s.str());
   }
 
   const double half_width = rect.half_width() - rect.radius;
@@ -343,7 +459,7 @@ void ImagePainter::DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                                 const Color &fill)
 {
   if (!surface_)
-    throw std::runtime_error("Invalid cairo surface - did you forget to SetCanvas() first?");
+    throw std::logic_error("Invalid cairo surface - did you forget to SetCanvas() first?");
 
   cairo_save(context_);
   cairo_translate(context_, rect.cx, rect.cy);

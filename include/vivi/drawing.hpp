@@ -81,16 +81,40 @@ public:
   virtual void SetCanvas(const cv::Mat &image) = 0;//FIXME remove - replace by stb or buffer...
 
 
-  /** @brief Initializes the canvas with the given color. This or
-   *  any overloaded SetCanvas() must be called before any other
-   *  DrawXXX calls can be performed.
+  /**
+   * @brief Initializes the canvas with the given color.
+   *
+   * This or any overloaded SetCanvas() must be called before
+   * any other DrawXXX calls can be performed.
    */
   virtual void SetCanvas(int width, int height, const Color& color) = 0;
 
+  /**
+   * @brief Initializes the canvas with the given image file.
+   *
+   * Uses the stb/stb_image library for loading, which supports
+   * the most common formats.
+   * This or any overloaded SetCanvas() must be called before
+   * any other DrawXXX calls can be performed.
+   */
+  virtual void SetCanvas(const std::string &image_filename) = 0;
+
+
+  /**
+   * @brief Saves the canvas to disk as either JPEG or PNG.
+   *
+   * Uses the stb/stb_image_write library for writing. Note
+   * that PNG output is not optimal (20-50% larger file size
+   * than using an optimized library).
+   * I consider writing to disk only a nice-to-have feature,
+   * thus I'm not including any other specialized third-party
+   * libraries for that.
+   */
+  virtual void SaveCanvas(const std::string &image_filename) = 0;
   virtual cv::Mat GetCanvas() = 0; //FIXME remove - replace by stb or buffer, or ...
 
   virtual void DrawLine(const Vec2d& from, const Vec2d& to,
-                const LineStyle& line_style) = 0;
+                        const LineStyle& line_style) = 0;
 
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,

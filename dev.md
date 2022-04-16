@@ -29,21 +29,15 @@ TODO vivi/drawing.hpp --> painter
 TODO
 TODO
 
-export CMAKE_GENERATOR="Unix Makefiles"
-pip install .
-or rm -r build/temp...
+--> don't think that we need spdlog: remove submodule (print to stdout for dev)
 
 
 cmake
 libcairo2-dev
-nope##libcairomm-1.0-dev
 nope##libeigen3-dev
 
 for the examples:
 opencv
-
-structure:::
-src/drawing/text.cpp
 
 ```cpp
 /*

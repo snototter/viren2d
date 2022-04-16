@@ -1,5 +1,6 @@
 #include <sstream>
 #include <memory>
+#include <stdexcept>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
@@ -37,7 +38,7 @@ vivi::Color DeserializeColor(py::tuple tpl)
   {
     std::stringstream s;
     s << "Invalid vivi.Color state - expected 4 values (rgba), got " << tpl.size() << "!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
   return vivi::Color(tpl[0].cast<double>(), tpl[1].cast<double>(),
                      tpl[2].cast<double>(), tpl[3].cast<double>());
@@ -63,7 +64,7 @@ vivi::Vec<_Tp, dim> DeserializeVec(py::list lst)
     s << "Invalid vivi." << VC::TypeName()
       << " state - expected " << dim << " values, found "
       << lst.size() << "!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
 
   VC vec;
@@ -85,7 +86,7 @@ vivi::Rect DeserializeRect(py::tuple tpl)
   {
     std::stringstream s;
     s << "Invalid vivi.Rect state - expected 6 entries, got " << tpl.size() << "!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
   return vivi::Rect(tpl[0].cast<double>(), tpl[1].cast<double>(),
                     tpl[2].cast<double>(), tpl[3].cast<double>(),
@@ -111,7 +112,7 @@ vivi::LineStyle DeserializeLineStyle(py::tuple tpl)
   {
     std::stringstream s;
     s << "Invalid vivi.LineStyle state - expected 3 entries, got " << tpl.size() << "!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
   vivi::LineStyle ls(tpl[0].cast<double>(),
                      tpl[1].cast<vivi::Color>(),
@@ -177,7 +178,7 @@ vivi::Color CreateColor(py::tuple tpl)
     std::stringstream s;
     s << "Cannot create vivi.Color: expected 3 or 4 values, found tuple with"
       << tpl.size() << "!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
   vivi::Color col(tpl[0].cast<double>(),
                   tpl[1].cast<double>(),
@@ -196,7 +197,7 @@ vivi::LineStyle CreateLineStyle(py::tuple tpl)
     std::stringstream s;
     s << "Cannot create vivi.LineStyle from tuple with"
       << tpl.size() << " entries!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
 
   vivi::LineStyle ls(tpl[0].cast<double>(),
@@ -216,7 +217,7 @@ vivi::Rect CreateRect(py::tuple tpl)
     std::stringstream s;
     s << "Cannot create vivi.Rect from tuple with"
       << tpl.size() << " entries!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
 
   vivi::Rect rect(tpl[0].cast<double>(),
@@ -242,7 +243,7 @@ vivi::Vec<_Tp, dim> CreateVec(py::tuple tpl)
     s << "Cannot create vivi." << VC::TypeName()
       << ": expected " << dim << " values, found tuple with"
       << tpl.size() << "!";
-    throw std::runtime_error(s.str());
+    throw std::invalid_argument(s.str());
   }
 
   VC vec;
