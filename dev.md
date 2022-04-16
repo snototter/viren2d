@@ -11,9 +11,11 @@ make -j && ./demo2d
 
 python -m pip install .
 # if this fails with /tmp/..../ninja not found:
+# rm -r build/temp...
+# then re-run
+# or don't use ninja:
 export CMAKE_GENERATOR="Unix Makefiles"
 python -m pip install .
-# or rm -r build/temp...
 ```
 
 

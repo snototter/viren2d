@@ -421,7 +421,9 @@ PYBIND11_MODULE(vivi, m)
       .def(py::self != py::self)
       .def_readwrite("line_width", &vivi::LineStyle::line_width, "Width in pixels (best results for even values).")
       .def_readwrite("color", &vivi::LineStyle::color, "Line color (rgba).")
-      .def_readwrite("dash_pattern", &vivi::LineStyle::dash_pattern, "Custom dash pattern defined as list of on/off lengths (in pixels), e.g. [20, 10, 40, 10].");
+      .def_readwrite("dash_pattern", &vivi::LineStyle::dash_pattern, "Dash pattern defined as list of on/off strokes (lengths in\n"
+                                                                     "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
+                                                                     "line will be drawn solid.");
 
   // A LineStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, vivi::LineStyle>();
