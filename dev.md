@@ -199,11 +199,52 @@ p.show()
 
 import vivi
 p = vivi.Painter()
-p.set_canvas_rgb(400, 300, (1, 0, 1))
+#p.set_canvas_rgb(400, 300, (1, 0, 1))
+p.set_canvas_filename('examples/flamingo.jpg')
+ls = vivi.LineStyle(4.2, (1, 0, 1, .8), [20, 20], vivi.LineStyle.Cap.Round)
+fill = vivi.Color(0, 1, 1, 0.6)
+p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
+p.show()
+
 p.draw_line((10, 10), (600, 100), vivi.LineStyle(3.9, (0, 0, 0), [10, 30]))
 p.draw_line((10, 200), (600, 10), (3.9, (0, 1, 1)))
 p.draw_circle((100, 100), 30, (4, (0, 1, 1), [10, 10]), (0, 1, 1, 0.6))
 p.show()
+
+
+
+# FIXME runtime dependency: NumPy>=1.7.0
+
+####################################################
+# get canvas dev:
+
+# Draw something
+import vivi
+p = vivi.Painter()
+p.set_canvas_filename('examples/flamingo.jpg')
+ls = vivi.LineStyle(4.2, (1, 0, 1, .8), [20, 20], vivi.LineStyle.Cap.Round)
+fill = vivi.Color(0, 1, 1, 0.6)
+p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
+
+# How to get the visualization?
+import numpy as np
+from vito import imvis
+
+# Copied memory (avoiding the additional copy from C++ buffer to numpy)
+img_copied = np.array(p.get_canvas(True), copy=False)
+imvis.imshow(img_copied)
+
+# Shared memory - changing img_np will modify the canvas memory!
+img_shared = np.array(p.get_canvas(False), copy=False)
+imvis.imshow(img_shared)
+# Demonstrating shared memory side effects:
+img_shared[:, :, 0] = 0
+img_shared = np.array(p.get_canvas(False), copy=False)
+imvis.imshow(img_shared)
+imvis.imshow(img_copied)
+
+
+
 ```
 
 

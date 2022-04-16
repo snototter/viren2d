@@ -6,6 +6,7 @@ build/
 **/.vscode/*
 *.xml
 **/output*/
+dummy*
 
 ######
 # Useful default ignore patterns: https://github.com/github/gitignore

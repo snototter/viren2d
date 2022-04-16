@@ -138,8 +138,22 @@ public:
   Painter() : painter_(vivi::CreateImagePainter())
   {}
 
-  void SetCanvas(int width, int height, const vivi::Color &color)
-  { painter_->SetCanvas(width, height, color); }
+  void SetCanvasColor(int width, int height, const vivi::Color &color)
+  {
+    painter_->SetCanvas(width, height, color);
+  }
+
+  void SetCanvasFilename(const std::string &image_filename)
+  {
+    painter_->SetCanvas(image_filename);
+  }
+
+//  void SetCanvasImage(TODO)
+
+  vivi::ImageBuffer GetCanvas(bool copy)
+  {
+    return painter_->GetCanvas(copy);
+  }
 
   void DummyShow() { painter_->DummyShow(); } //TODO remove
   //TODO setcanvas image
@@ -318,9 +332,23 @@ void RegisterVec(py::module &m)
 
 
 //------------------------------------------------- Module definition
+// TODO How to bind a new class X:
+// * Implement moddef::CreateX (init from py::tuple/list/whatever)
+// * Implement pickling::SerializeX
+// * Implement pickling::DeserializeX
+// * Implement __str__ & __repr__
+// * nice-to-have: operator == and !=
+// * Declare it py::implicitly_convertible
+// * Check (in python) initialization, pickling, comparison, etc.
+// * All this info does not hold for ImageBuffer - which exposes a
+//   buffer view (and we need to be able to convert to/from numpy
+//   arrays)
+//
+// TODO low priority: DeserializeX could reuse CreateX (not sure if
+//      both are using the same inputs, tuples vs list vs ...)
+
 PYBIND11_MODULE(vivi, m)
-{
-//  py::module m("vivi");
+{ 
   m.doc() = R"pbdoc(
     vivi - A VIsualization tool for computer VIsion
 
@@ -413,6 +441,36 @@ PYBIND11_MODULE(vivi, m)
   //TODO line? (overkill, not needed now)
   //TODO plane? (maybe, when we implement 3d)
   //TODO image? (prefer to use a simple buffer; maybe in combination with stb image)
+  //------------------------------------------------- Primitives - ImageBuffer
+  // TODO numpy memory layout: https://stackoverflow.com/questions/53097952/how-to-understand-numpy-strides-for-layman
+  // pybind11 numpy: https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html
+  py::class_<vivi::ImageBuffer>(m, "ImageBuffer", py::buffer_protocol()) //TODO doc
+     .def_buffer([](vivi::ImageBuffer &img) -> py::buffer_info {
+          return py::buffer_info(
+              img.data, sizeof(unsigned char), // Pointer to data & size of each element
+              py::format_descriptor<unsigned char>::format(), // Python struct-style format descriptor
+              3, // Number of dimensions (our canvas is always RGBA)
+              { static_cast<size_t>(img.height),
+                static_cast<size_t>(img.width),
+                static_cast<size_t>(img.channels) }, // Buffer dimensions
+              { static_cast<size_t>(img.stride),
+                static_cast<size_t>(img.channels),
+                sizeof(unsigned char) } // Strides (in bytes) per dimension
+          );
+      });
+
+//  py::class_<Matrix>(m, "Matrix", py::buffer_protocol())
+//     .def_buffer([](Matrix &m) -> py::buffer_info {
+//          return py::buffer_info(
+//              m.data(),                               /* Pointer to buffer */
+//              sizeof(float),                          /* Size of one scalar */
+//              py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
+//              2,                                      /* Number of dimensions */
+//              { m.rows(), m.cols() },                 /* Buffer dimensions */
+//              { sizeof(float) * m.cols(),             /* Strides (in bytes) for each index */
+//                sizeof(float) }
+//          );
+//      });
 
 
   //------------------------------------------------- Drawing - LineStyle
@@ -477,12 +535,26 @@ PYBIND11_MODULE(vivi, m)
       .def(py::init<>())
       .def("__repr__", [](const moddef::Painter &) { return "<vivi.Painter>"; })
       .def("__str__", [](const moddef::Painter &) { return "vivi.Painter"; })
-      .def("set_canvas_rgb", &moddef::Painter::SetCanvas,
+      .def("set_canvas_rgb", &moddef::Painter::SetCanvasColor,
            "Initializes the canvas with the given color. This or\n"
-           "set_canvas_image() must be called before anything can\n"
-           "be drawn.", py::arg("width"), py::arg("height"),
+           "set_canvas_XXX() must be called before anything can\n"
+           "be drawn.",
+           py::arg("width"), py::arg("height"),
            py::arg("color")=vivi::Color(0, 0, 0, 1))
+      .def("set_canvas_filename", &moddef::Painter::SetCanvasFilename,
+           "Initializes the canvas from the given image file.\n"
+           "Supported formats are:\n"
+           "  JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM\n\n"
+           "Relies on the stb library, so check for updates if\n"
+           "your format is missing:\n"
+           "https://github.com/nothings/stb/blob/master/stb_image.h",
+           py::arg("image_filename"))
 //      .def("set_canvas_image") //TODO
+      .def("get_canvas", &moddef::Painter::GetCanvas,
+           "Returns the current state of the visualization.\n\n"
+           "If you want a copy, set copy=True. Otherwise, the buffer"
+           "will just provide a view on the Painter's canvas.",
+           py::arg("copy")=false) //TODO which default should be used???
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",

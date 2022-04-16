@@ -5,8 +5,8 @@
 #include <cstdlib>
 #include <cassert>
 #include <cstring> // memcpy
-#include <iostream> // TODO remove
 #include <algorithm> // std::swap
+#include <iostream> // TODO remove
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
