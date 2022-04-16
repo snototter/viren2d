@@ -125,7 +125,16 @@ setup(
     ext_modules=[CMakeExtension("vivi")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
+    install_requires=[
+        'numpy>=1.7.0'],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 #    extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.6",
 )
+#TODO add license, platform, etc
+
 

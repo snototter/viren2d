@@ -4,6 +4,63 @@
 * readme - make github banner with vivi ;-)
 * separate example/tutorial doc
 
+TODO rename to viren2d
+A light-weight 2D rendering toolbox for various computer vision tasks.
+
+How to pronounce viren2d?
+"vi" as in "vision", "ren" as in "rendering": "vi-ren-2d"
+This is by the way also how you pronounce the German word for viruses (Totally coincidentally, or maybe I'm still affected by the aftermath of the pandemic)
+
+Why?
+I'm too tired of/too lazy to look up how to visualize some results (read: bounding boxes, trajectories, etc.) within the software framework I currently have to work with.
+Ideally, I wanted something that can be easily used both within C++ and Python settings - as I have to switch between these two regularly.
+
+Initially, I implemented a [similar toolbox](TODO vitocpp) based on OpenCV, but a) OpenCV is a quite heavy dependency (w.r.t. disk requirements, 
+b) limited in its rendering capabilities (it's an image processing not graphics library) and c) my framework grew over the years (and thus, suffering from the usual "I will clean this up once I can afford more time" self-deception)
+So here comes viren2d, a toolbox with only a single purpose: easily create aesthetically pleasing (at least to me) visualizations.
+* Lightweight: under the hood, viren2d uses libcairo2 (approximately 20 MB of disk space TODO check)
+* Ease-of-use: 
+* Maintainability (hopefully)
+
+Note on efficiency: it's likely not the most efficient (I preferred code readability over efficiency)
+But compared to my previous attempt using OpenCV, the Cairo backend already shines (despite using CPU-only in-memory image surface rendering, which is by far the slowest usage of Cairo)
+
+## Installation
+**Supported platforms**:
+So far, `viren2d` has been tested on: Ubuntu 18.04 & 20.04
+todo python3, cairo, ninja, cmake should work on almost all platforms
+
+let me know if you set it up on any other systems, so I can update the install/setup instructions accordingly: 
+
+### Prerequisites
+install via apt: libcairo2-dev, ninja-build, cmake>3.12 (todo check or was it 3.15?)
+
+### Direct Installation
+  * **Install directly via pip>=10** TODO find correct version (must support pyproject.toml!!!)
+    ```bash
+    # ... set up a virtualenv ...
+    python3 -m venv venv
+    source venv/bin/activate
+    python -m pip install -U pip
+    
+    > python -m pip install git+https://github.com/snototter/vivi.git
+    ```
+### Build from Source
+```bash
+# Clone recursively to set up the external libraries
+git clone --recursive https://github.com/snototter/vivi.git
+cd viren2d
+TODO c++ vs python
+
+python -m pip install .
+```
+
+Note, if you want to re-install it, you may have to delete the CMake cache first (as it points to a Ninja binary, which is located within /tmp).
+```bash
+rm -r build/temp.*
+python -m pip install .
+```
+
 
 ## Examples
 
