@@ -7,18 +7,17 @@
 TODO rename to viren2d
 A light-weight 2D rendering toolbox for various computer vision tasks.
 
-How to pronounce viren2d?
+How to pronounce viren2d?  
 "vi" as in "vision", "ren" as in "rendering": "vi-ren-2d"
 This is by the way also how you pronounce the German word for viruses (Totally coincidentally, or maybe I'm still affected by the aftermath of the pandemic)
 
-Why?
+Why?  
 I'm too tired of/too lazy to look up how to visualize some results (read: bounding boxes, trajectories, etc.) within the software framework I currently have to work with.
 Ideally, I wanted something that can be easily used both within C++ and Python settings - as I have to switch between these two regularly.
 
-Initially, I implemented a [similar toolbox](TODO vitocpp) based on OpenCV, but a) OpenCV is a quite heavy dependency (w.r.t. disk requirements, 
-b) limited in its rendering capabilities (it's an image processing not graphics library) and c) my framework grew over the years (and thus, suffering from the usual "I will clean this up once I can afford more time" self-deception)
-So here comes viren2d, a toolbox with only a single purpose: easily create aesthetically pleasing (at least to me) visualizations.
-* Lightweight: under the hood, viren2d uses libcairo2 (approximately 20 MB of disk space TODO check)
+Initially, I implemented a [similar toolbox](https://github.com/snototter/vitocpp/) based on OpenCV, but a) OpenCV is a quite heavy dependency (and there can be issues when your system's version doesn't match the python bindings - if you forget to check for opencv-python TODO - if you know, you know); b) it offers only limited drawing capabilities (it's an image processing library, thus not focusing on "nice" graphics) and c) my framework grew over the years (and thus, suffering from the usual "I will clean this up once I can afford more time" self-deception)
+So here comes `viren2d`, a toolbox with only a single purpose: easily create aesthetically pleasing (at least to me) visualizations.
+* Lightweight: under the hood, viren2d uses libcairo2 (approximately 20 MB of disk space TODO check, vs X00 MB opencv?)
 * Ease-of-use: 
 * Maintainability (hopefully)
 
