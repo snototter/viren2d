@@ -1,5 +1,7 @@
-# viren2d
-A light-weight 2D rendering toolbox for various computer vision tasks.
+# viren2d - Vision & Rendering 2D
+This is a light-weight 2D rendering toolbox to easily (and aesthetically) visualize common computer vision results (think of detections, trajectories, and the like).
+
+This toolbox uses the [Cairo graphics library](https://www.cairographics.org/) under the hood.
 
 How to pronounce viren2d?  
 "vi" as in "vision", "ren" as in "rendering": "vi-ren-2d"
