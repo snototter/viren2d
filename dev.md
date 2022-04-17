@@ -5,8 +5,22 @@
 * TODO test - via pytest
 * separate example/tutorial doc
 
-TODO rename to viren2d  
 
+
+TODO library sizes (apt)
+opencv
+
+apt-cache --no-all-versions show libopencv* | awk '
+function human(x) {
+        if (x<1000) {return x} else {x/=1024}
+        s="kMGTEPZY";
+        while (x>=1000 && length(s)>1)
+            {x/=1024; s=substr(s,2)}
+        return int(x+0.5) substr(s,1,1)
+    }
+$1 == "Package:" { p = $2 } $1 == "Size:"    { print p, $2, human($2)}'
+
+https://unix.stackexchange.com/a/44087
 
 
 ## Examples
