@@ -1,55 +1,4 @@
-/*
-check rgb/bgr
-https://stackoverflow.com/questions/66127550/python-cairo-save-figure-as-np-array-gives-weird-results
-opencv memory layout:
-https://docs.opencv.org/4.x/db/da5/tutorial_how_to_scan_images.html
-
-cpp style guide
-https://google.github.io/styleguide/cppguide.html#Pointer_and_Reference_Expressions
-r vs lvalue: ;-) https://stackoverflow.com/a/33829750/400948
-
-pybind11 return numpy:
-https://stackoverflow.com/questions/44659924/returning-numpy-arrays-via-pybind11
-
-Image loading lightweight:
-https://stackoverflow.com/a/40812978/400948
---> recommends https://github.com/nothings/stb
-
-Logging:
-https://github.com/gabime/spdlog
-
-Clean library with CMake
-https://github.com/robotology/how-to-export-cpp-library/blob/master/CMakeLists.txt
-
-CMake set up header only library:
-https://stackoverflow.com/questions/28629084/how-to-get-a-header-only-library-portably-from-version-control-using-cmake
-
-CMake include other target
-https://stackoverflow.com/a/61097014/400948
-
-TODO repo structure
-* examples/vivi-demo.cpp
-* include/vivi/
-* src/vivi
-* tests / would be nice...
-
-Cairo tutorials
-https://www.cairographics.org/tutorial/
-https://www.cairographics.org/FAQ/#paint_from_a_surface
-https://zetcode.com/gfx/cairo/cairobackends/
-
-FindCairo.cmake
-https://github.com/preshing/CairoSample/blob/master/modules/FindCairo.cmake
-
-opencv <--> eigen3
-https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
-*/
-
 #include <iostream>
-
-//#include <cairo/cairo.h>
-//#include <cairo/cairo-svg.h>
-
 
 //#include <Eigen/Dense>
 
@@ -59,20 +8,20 @@ https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
 #include <opencv2/highgui.hpp>
 #endif // WITH_OPENCV
 
-#include <vivi/vivi.hpp>
+#include <viren2d/viren2d.hpp>
 
 
 int main(int argc, char **argv)
 {
   //------------------------------------------------------
-  vivi::Vec2d vd1(1, 2), vd2(3, 9);
-  vivi::Vec3i vi1(13, 42, -1), vi2(13,42, 0);
+  viren2d::Vec2d vd1(1, 2), vd2(3, 9);
+  viren2d::Vec3i vi1(13, 42, -1), vi2(13,42, 0);
   std::cout << vd1 << " == " << vd2 << ": " << (vd1 == vd2) << std::endl
             << vd1 << " == " << vd1 << ": " << (vd1 == vd1) << std::endl
             << vi1 << " == " << vi2 << ": " << (vi1 == vi2) << std::endl
             << vi1 << " == " << vi1 << ": " << (vi1 == vi1) << std::endl;
 
-//  vivi::Vec3d cast = static_cast<vivi::Vec3d>(vi3);
+//  viren2d::Vec3d cast = static_cast<viren2d::Vec3d>(vi3);
 //  std::cout << "Casted?: " << cast << std::endl;
   std::cout << "Arithmetic: " << vd1 << " - " << vd2 << " = " << (vd1 - vd2) << std::endl
             << "  '+' = " << (vd1 + vd2) << std::endl
@@ -84,38 +33,38 @@ int main(int argc, char **argv)
 
   //------------------------------------------------------
 
-  vivi::Color color = vivi::RGBA(255, 0, 255);
+  viren2d::Color color = viren2d::RGBA(255, 0, 255);
   std::cout << color.ToString() << std::endl;
   //------------------------------------------------------
 
   // compare image.png cv-image.png diff.png
   std::string image_filename("../examples/flamingo.jpg");
-  vivi::ImageBuffer image_buffer = vivi::LoadImage(image_filename, 4);
+  viren2d::ImageBuffer image_buffer = viren2d::LoadImage(image_filename, 4);
 
-  auto painter = vivi::CreateImagePainter();
+  auto painter = viren2d::CreateImagePainter();
 
 //  painter->SetCanvas(image_filename);
   painter->SetCanvas(image_buffer);
-//  painter->SetCanvas(600, 400, vivi::RGBA(255, 255, 255));
+//  painter->SetCanvas(600, 400, viren2d::RGBA(255, 255, 255));
 
   for (int i = 0; i < 4; ++i)
   {
-    painter->DrawRect(vivi::Rect(40 + i*100, 256, 80, 120, i*30, 30),
-                      vivi::LineStyle(6, vivi::colors::Indigo(0.9)),
-                      vivi::colors::Cyan(0.2));
+    painter->DrawRect(viren2d::Rect(40 + i*100, 256, 80, 120, i*30, 30),
+                      viren2d::LineStyle(6, viren2d::colors::Indigo(0.9)),
+                      viren2d::colors::Cyan(0.2));
   }
 
-//  painter->SetCanvas(img.cols, img.rows, vivi::RGBA(0, 0, 200));
-  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(image_buffer.width-10, image_buffer.height-10),
-                    vivi::LineStyle(10, vivi::colors::Maroon(0.8)));
+//  painter->SetCanvas(img.cols, img.rows, viren2d::RGBA(0, 0, 200));
+  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
+                    viren2d::LineStyle(10, viren2d::colors::Maroon(0.8)));
 
-  painter->DrawLine(vivi::Vec2d(10, 10), vivi::Vec2d(image_buffer.width-10, image_buffer.height-10),
-                    vivi::LineStyle(6, vivi::colors::LimeGreen(), {5, 10, 40, 10},
-                                    vivi::LineStyle::Cap::Round));
+  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
+                    viren2d::LineStyle(6, viren2d::colors::LimeGreen(), {5, 10, 40, 10},
+                                    viren2d::LineStyle::Cap::Round));
 
-  painter->DrawCircle(vivi::Vec2d(70, 90), 35,
-                      vivi::LineStyle(6, vivi::RGBA(0, 0, 200), {20, 20}, vivi::LineStyle::Cap::Round),
-                      vivi::rgba(0, 1, 1, .3));
+  painter->DrawCircle(viren2d::Vec2d(70, 90), 35,
+                      viren2d::LineStyle(6, viren2d::RGBA(0, 0, 200), {20, 20}, viren2d::LineStyle::Cap::Round),
+                      viren2d::rgba(0, 1, 1, .3));
 
 
   //   ImagePainter painter(painter1); // copy construct
@@ -124,12 +73,12 @@ int main(int argc, char **argv)
   ////  ImagePainter painter; painter = std::move(painter1); // move assignment
   ////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
 
-  vivi::ImageBuffer canvas = painter->GetCanvas(false);
-  vivi::SaveImage("dummy-canvas.png", canvas);
+  viren2d::ImageBuffer canvas = painter->GetCanvas(false);
+  viren2d::SaveImage("dummy-canvas.png", canvas);
 
 #ifdef WITH_OPENCV
   // The last bit of OpenCV dependency (only for displaying the image ;-)
-  vivi::ImageBuffer img_buffer = painter->GetCanvas(true);
+  viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);
   img_buffer.RGB2BGR(); //warning: currently, the buffer is shared!!
   cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
                     CV_MAKETYPE(CV_8U, img_buffer.channels),

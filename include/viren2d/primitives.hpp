@@ -1,14 +1,14 @@
-#ifndef __VIVI_PRIMITIVES_H__
-#define __VIVI_PRIMITIVES_H__
+#ifndef __VIREN2D_PRIMITIVES_H__
+#define __VIREN2D_PRIMITIVES_H__
 
 #include <stdexcept>
 #include <string>
 #include <ostream>
 
-#include <vivi/math.hpp>
+#include <viren2d/math.hpp>
 
 
-namespace vivi
+namespace viren2d
 {
 //---------------------------------------------------- Image buffer
 /**
@@ -310,6 +310,6 @@ struct Rect
 bool operator==(const Rect& lhs, const Rect& rhs);
 bool operator!=(const Rect& lhs, const Rect& rhs);
 
-} // namespace vivi
+} // namespace viren2d
 
-#endif // __VIVI_PRIMITIVES_H__
+#endif // __VIREN2D_PRIMITIVES_H__

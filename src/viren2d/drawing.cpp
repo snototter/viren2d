@@ -10,13 +10,13 @@
 
 #include <cairo/cairo.h>
 
-// public vivi headers
-#include <vivi/drawing.hpp>
-#include <vivi/colors.hpp>
-#include <vivi/math.hpp>
-#include <vivi/string_utils.hpp>
+// public viren2d headers
+#include <viren2d/drawing.hpp>
+#include <viren2d/colors.hpp>
+#include <viren2d/math.hpp>
+#include <viren2d/string_utils.hpp>
 
-// private vivi headers
+// private viren2d headers
 #include "drawing_helpers.hpp"
 
 ////TODO remove opencv dependencies!
@@ -24,7 +24,7 @@
 ////#include <opencv2/core/eigen.hpp>
 //#include <opencv2/highgui.hpp>
 
-namespace vivi
+namespace viren2d
 {
 ////TODO remove opencv dependencies and conversion
 //@deprecated
@@ -359,4 +359,4 @@ std::unique_ptr<Painter> CreateImagePainter()
   return std::unique_ptr<Painter>(new ImagePainter());
 }
 
-} // namespace vivi
+} // namespace viren2d

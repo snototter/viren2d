@@ -1,5 +1,5 @@
-#ifndef __VIVI_COLORS_H__
-#define __VIVI_COLORS_H__
+#ifndef __VIREN2D_COLORS_H__
+#define __VIREN2D_COLORS_H__
 
 #include <memory>
 #include <algorithm>
@@ -13,7 +13,7 @@
 
 //TODO python bindings for colornames
 
-namespace vivi
+namespace viren2d
 {
 
 /** @brief Clips the given value to the range [low, high]. */
@@ -127,7 +127,7 @@ namespace colors
   Color Ivory (double alpha=1.0);
 } // namespace colors
 
-} // namespace vivi
+} // namespace viren2d
 
-#endif // __VIVI_COLORS_H__
+#endif // __VIREN2D_COLORS_H__
 

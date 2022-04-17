@@ -2,10 +2,10 @@
 #include <iomanip>
 #include <map>
 
-#include <vivi/colors.hpp>
-#include <vivi/math.hpp>
+#include <viren2d/colors.hpp>
+#include <viren2d/math.hpp>
 
-namespace vivi
+namespace viren2d
 {
 /** @brief Color utilities in anonymuous namespace. */
 namespace
@@ -252,4 +252,4 @@ Color Ivory(double alpha)
 }
 } // namespace colors
 
-} // namespace vivi
+} // namespace viren2d

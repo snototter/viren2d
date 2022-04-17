@@ -1,5 +1,5 @@
-#ifndef __VIVI_STRING_UTILS_H__
-#define __VIVI_STRING_UTILS_H__
+#ifndef __VIREN2D_STRING_UTILS_H__
+#define __VIREN2D_STRING_UTILS_H__
 
 #include <algorithm>
 #include <iomanip>
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace vivi
+namespace viren2d
 {
 namespace strings
 {
@@ -134,6 +134,6 @@ inline std::vector<std::string> Split(const std::string &s, char delim)
 //TODO maybe include other vcp string utils
 
 } // namespace strings
-} // namespace vivi
+} // namespace viren2d
 
-#endif // __VIVI_STRING_UTILS_H__
+#endif // __VIREN2D_STRING_UTILS_H__

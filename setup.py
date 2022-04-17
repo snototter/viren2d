@@ -54,7 +54,7 @@ class CMakeBuild(build_ext):
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
 
         # In this example, we pass in the version to C++. You might not need to.
-        cmake_args += [f"-DPYVIVI_VERSION_INFO={self.distribution.get_version()}"]
+        cmake_args += [f"-DPYVIREN2D_VERSION_INFO={self.distribution.get_version()}"]
 
         if self.compiler.compiler_type != "msvc":
             # Using Ninja-build since it a) is available as a wheel and b)
@@ -116,13 +116,13 @@ class CMakeBuild(build_ext):
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
-    name="vivi",
-    version="0.2",
+    name="viren2d",
+    version="0.3",
     author="snototter",
     author_email="snototter@users.noreply.github.com",
     description="A visualization toolbox for common vision tasks (using Cairo graphics).",
     long_description="",
-    ext_modules=[CMakeExtension("vivi")],
+    ext_modules=[CMakeExtension("viren2d")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     install_requires=[

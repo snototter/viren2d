@@ -4,10 +4,10 @@
 #include <iomanip>
 
 // Custom
-#include <vivi/math.hpp>
+#include <viren2d/math.hpp>
 #include "drawing_helpers.hpp"
 
-namespace vivi
+namespace viren2d
 {
 namespace helpers
 {
@@ -113,4 +113,4 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 
 } // namespace helpers
-} // namespace vivi
+} // namespace viren2d

@@ -7,7 +7,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 
-#include <vivi/vivi.hpp>
+#include <viren2d/viren2d.hpp>
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -27,27 +27,27 @@ namespace py = pybind11;
 namespace pickling
 {
 //------------------------------------------------- Color
-py::tuple SerializeColor(const vivi::Color &c)
+py::tuple SerializeColor(const viren2d::Color &c)
 {
   return py::make_tuple(c.red, c.green, c.blue, c.alpha);
 }
 
 
-vivi::Color DeserializeColor(py::tuple tpl)
+viren2d::Color DeserializeColor(py::tuple tpl)
 {
   if (tpl.size() != 4)
   {
     std::stringstream s;
-    s << "Invalid vivi.Color state - expected 4 values (rgba), got " << tpl.size() << "!";
+    s << "Invalid viren2d.Color state - expected 4 values (rgba), got " << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
-  return vivi::Color(tpl[0].cast<double>(), tpl[1].cast<double>(),
+  return viren2d::Color(tpl[0].cast<double>(), tpl[1].cast<double>(),
                      tpl[2].cast<double>(), tpl[3].cast<double>());
 }
 
 //------------------------------------------------- Templated Vec(tor) class
 template<typename _Tp, int dim>
-py::list SerializeVec(const vivi::Vec<_Tp, dim> &vec)
+py::list SerializeVec(const viren2d::Vec<_Tp, dim> &vec)
 {
   py::list lst;
   for (int i = 0; i < dim; ++i)
@@ -56,13 +56,13 @@ py::list SerializeVec(const vivi::Vec<_Tp, dim> &vec)
 }
 
 template<typename _Tp, int dim>
-vivi::Vec<_Tp, dim> DeserializeVec(py::list lst)
+viren2d::Vec<_Tp, dim> DeserializeVec(py::list lst)
 {
-  using VC = vivi::Vec<_Tp, dim>;
+  using VC = viren2d::Vec<_Tp, dim>;
   if (lst.size() != dim)
   {
     std::stringstream s;
-    s << "Invalid vivi." << VC::TypeName()
+    s << "Invalid viren2d." << VC::TypeName()
       << " state - expected " << dim << " values, found "
       << lst.size() << "!";
     throw std::invalid_argument(s.str());
@@ -75,21 +75,21 @@ vivi::Vec<_Tp, dim> DeserializeVec(py::list lst)
 }
 
 //------------------------------------------------- Rectangle
-py::tuple SerializeRect(const vivi::Rect &r)
+py::tuple SerializeRect(const viren2d::Rect &r)
 {
   return py::make_tuple(r.cx, r.cy, r.width, r.height, r.angle, r.radius);
 }
 
 
-vivi::Rect DeserializeRect(py::tuple tpl)
+viren2d::Rect DeserializeRect(py::tuple tpl)
 {
   if (tpl.size() != 6)
   {
     std::stringstream s;
-    s << "Invalid vivi.Rect state - expected 6 entries, got " << tpl.size() << "!";
+    s << "Invalid viren2d.Rect state - expected 6 entries, got " << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
-  return vivi::Rect(tpl[0].cast<double>(), tpl[1].cast<double>(),
+  return viren2d::Rect(tpl[0].cast<double>(), tpl[1].cast<double>(),
                     tpl[2].cast<double>(), tpl[3].cast<double>(),
                     tpl[4].cast<double>(), tpl[5].cast<double>());
 }
@@ -101,25 +101,25 @@ vivi::Rect DeserializeRect(py::tuple tpl)
 
 
 //------------------------------------------------- LineStyle
-py::tuple SerializeLineStyle(const vivi::LineStyle &c)
+py::tuple SerializeLineStyle(const viren2d::LineStyle &c)
 {
   return py::make_tuple(c.line_width, c.color, c.dash_pattern, c.line_cap, c.line_join);
 }
 
 
-vivi::LineStyle DeserializeLineStyle(py::tuple tpl)
+viren2d::LineStyle DeserializeLineStyle(py::tuple tpl)
 {
   if (tpl.size() != 5)
   {
     std::stringstream s;
-    s << "Invalid vivi.LineStyle state - expected 5 entries, got " << tpl.size() << "!";
+    s << "Invalid viren2d.LineStyle state - expected 5 entries, got " << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
-  vivi::LineStyle ls(tpl[0].cast<double>(),
-                     tpl[1].cast<vivi::Color>(),
+  viren2d::LineStyle ls(tpl[0].cast<double>(),
+                     tpl[1].cast<viren2d::Color>(),
                      tpl[2].cast<std::vector<double>>(),
-                     tpl[3].cast<vivi::LineStyle::Cap>(),
-                     tpl[4].cast<vivi::LineStyle::Join>());
+                     tpl[3].cast<viren2d::LineStyle::Cap>(),
+                     tpl[4].cast<viren2d::LineStyle::Join>());
   return ls;
 }
 } // namespace pickling
@@ -136,10 +136,10 @@ namespace moddef
 class Painter
 {
 public:
-  Painter() : painter_(vivi::CreateImagePainter())
+  Painter() : painter_(viren2d::CreateImagePainter())
   {}
 
-  void SetCanvasColor(int width, int height, const vivi::Color &color)
+  void SetCanvasColor(int width, int height, const viren2d::Color &color)
   {
     painter_->SetCanvas(width, height, color);
   }
@@ -149,63 +149,63 @@ public:
     painter_->SetCanvas(image_filename);
   }
 
-  void SetCanvasImage(const vivi::ImageBuffer &image)
+  void SetCanvasImage(const viren2d::ImageBuffer &image)
   {
     painter_->SetCanvas(image);
   }
 
-  vivi::ImageBuffer GetCanvas(bool copy)
+  viren2d::ImageBuffer GetCanvas(bool copy)
   {
     return painter_->GetCanvas(copy);
   }
 
 
-  void DrawArc(const vivi::Vec2d &center, double radius,
+  void DrawArc(const viren2d::Vec2d &center, double radius,
                double angle1, double angle2,
-               const vivi::LineStyle &line_style,
-               const vivi::Color &fill)
+               const viren2d::LineStyle &line_style,
+               const viren2d::Color &fill)
   {
     painter_->DrawArc(center, radius, angle1, angle2, line_style, fill);
   }
 
-  void DrawCircle(const vivi::Vec2d &center, double radius,
-                  const vivi::LineStyle &line_style,
-                  const vivi::Color &fill)
+  void DrawCircle(const viren2d::Vec2d &center, double radius,
+                  const viren2d::LineStyle &line_style,
+                  const viren2d::Color &fill)
   {
     painter_->DrawCircle(center, radius, line_style, fill);
   }
 
 
-  void DrawLine(const vivi::Vec2d &from, const vivi::Vec2d &to,
-                const vivi::LineStyle &line_style)
+  void DrawLine(const viren2d::Vec2d &from, const viren2d::Vec2d &to,
+                const viren2d::LineStyle &line_style)
   {
     painter_->DrawLine(from, to, line_style);
   }
 
 
-  void DrawRect(const vivi::Rect &rect, const vivi::LineStyle &line_style,
-                const vivi::Color &fill)
+  void DrawRect(const viren2d::Rect &rect, const viren2d::LineStyle &line_style,
+                const viren2d::Color &fill)
   {
     painter_->DrawRect(rect, line_style, fill);
   }
 
 private:
-  std::unique_ptr<vivi::Painter> painter_;
+  std::unique_ptr<viren2d::Painter> painter_;
 };
 
 
 
 //-------------------------------------------------  Color from tuple
-vivi::Color CreateColor(py::tuple tpl)
+viren2d::Color CreateColor(py::tuple tpl)
 {
   if (tpl.size() < 3 || tpl.size() > 4)
   {
     std::stringstream s;
-    s << "Cannot create vivi.Color: expected 3 or 4 values, found tuple with"
+    s << "Cannot create viren2d.Color: expected 3 or 4 values, found tuple with"
       << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
-  vivi::Color col(tpl[0].cast<double>(),
+  viren2d::Color col(tpl[0].cast<double>(),
                   tpl[1].cast<double>(),
                   tpl[2].cast<double>(), 1.0);
   if (tpl.size() == 4)
@@ -215,43 +215,43 @@ vivi::Color CreateColor(py::tuple tpl)
 
 
 //-------------------------------------------------  LineStyle from tuple
-vivi::LineStyle CreateLineStyle(py::tuple tpl)
+viren2d::LineStyle CreateLineStyle(py::tuple tpl)
 {
   if (tpl.size() < 2 || tpl.size() > 5)
   {
     std::stringstream s;
-    s << "Cannot create vivi.LineStyle from tuple with"
+    s << "Cannot create viren2d.LineStyle from tuple with"
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
   }
 
-  vivi::LineStyle ls(tpl[0].cast<double>(),
-                     tpl[1].cast<vivi::Color>());
+  viren2d::LineStyle ls(tpl[0].cast<double>(),
+                     tpl[1].cast<viren2d::Color>());
   if (tpl.size() > 2)
     ls.dash_pattern = tpl[2].cast<std::vector<double>>();
 
   if (tpl.size() > 3)
-    ls.line_cap = tpl[3].cast<vivi::LineStyle::Cap>();
+    ls.line_cap = tpl[3].cast<viren2d::LineStyle::Cap>();
 
   if (tpl.size() > 4)
-    ls.line_join = tpl[4].cast<vivi::LineStyle::Join>();
+    ls.line_join = tpl[4].cast<viren2d::LineStyle::Join>();
 
   return ls;
 }
 
 
 //-------------------------------------------------  Rectangle from tuple
-vivi::Rect CreateRect(py::tuple tpl)
+viren2d::Rect CreateRect(py::tuple tpl)
 {
   if (tpl.size() < 4 || tpl.size() > 6)
   {
     std::stringstream s;
-    s << "Cannot create vivi.Rect from tuple with"
+    s << "Cannot create viren2d.Rect from tuple with"
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
   }
 
-  vivi::Rect rect(tpl[0].cast<double>(),
+  viren2d::Rect rect(tpl[0].cast<double>(),
                   tpl[1].cast<double>(),
                   tpl[2].cast<double>(),
                   tpl[3].cast<double>());
@@ -264,7 +264,7 @@ vivi::Rect CreateRect(py::tuple tpl)
 
 //------------------------------------------------- ImageBuffer from numpy array
 // We need a uint8, row-major (C-style) numpy array:
-vivi::ImageBuffer CreateImageBuffer(py::array_t<unsigned char, py::array::c_style | py::array::forcecast> buf)
+viren2d::ImageBuffer CreateImageBuffer(py::array_t<unsigned char, py::array::c_style | py::array::forcecast> buf)
 {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3)
@@ -273,7 +273,7 @@ vivi::ImageBuffer CreateImageBuffer(py::array_t<unsigned char, py::array::c_styl
   if (!buf.dtype().is(py::dtype::of<uint8_t>()))
     throw std::runtime_error("Incompatible format: expected a uint8 array!");
 
-  vivi::ImageBuffer img;
+  viren2d::ImageBuffer img;
   const int row_stride = static_cast<int>(buf.strides(0));
   const int height = static_cast<int>(buf.shape(0));
   const int width = static_cast<int>(buf.shape(1));
@@ -284,13 +284,13 @@ vivi::ImageBuffer CreateImageBuffer(py::array_t<unsigned char, py::array::c_styl
 
 //------------------------------------------------- Vec(tor) from tuple
 template<typename _Tp, int dim>
-vivi::Vec<_Tp, dim> CreateVec(py::tuple tpl)
+viren2d::Vec<_Tp, dim> CreateVec(py::tuple tpl)
 {
-  using VC = vivi::Vec<_Tp, dim>;
+  using VC = viren2d::Vec<_Tp, dim>;
   if (tpl.size() != dim)
   {
     std::stringstream s;
-    s << "Cannot create vivi." << VC::TypeName()
+    s << "Cannot create viren2d." << VC::TypeName()
       << ": expected " << dim << " values, found tuple with"
       << tpl.size() << "!";
     throw std::invalid_argument(s.str());
@@ -306,7 +306,7 @@ vivi::Vec<_Tp, dim> CreateVec(py::tuple tpl)
 template<typename _Tp, int dim>
 void RegisterVec(py::module &m)
 {
-  using VC = vivi::Vec<_Tp, dim>;
+  using VC = viren2d::Vec<_Tp, dim>;
   std::stringstream doc;
   doc << "Vector in " << dim << "D space.";
 
@@ -323,7 +323,7 @@ void RegisterVec(py::module &m)
               doc_tpl.str().c_str())
          .def("__repr__",
               [](const VC &v)
-              { return "<vivi." + v.ToString() + ">"; })
+              { return "<viren2d." + v.ToString() + ">"; })
          .def("__str__", &VC::ToString)
          .def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x), &VC::SetX,
                        "Accesses the first dimension.")
@@ -396,21 +396,24 @@ void RegisterVec(py::module &m)
 // TODO low priority: DeserializeX could reuse CreateX (not sure if
 //      both are using the same inputs, tuples vs list vs ...)
 
-PYBIND11_MODULE(vivi, m)
+PYBIND11_MODULE(viren2d, m)
 { 
   m.doc() = R"pbdoc(
-    A visualization tool for computer vision tasks
+    Vision & Rendering 2D
 
-    Python bindings for the C++ vivi toolbox which
-    uses the 2D Cairo graphics library.
+    This is a light-weight 2D rendering toolbox to
+    easily (and aesthetically) visualize common
+    computer vision results (detections, trajectories,
+    and the like).
+    This toolbox uses the 2D Cairo graphics library
+    under the hood.
   )pbdoc";
-  //TODO maybe rename cpp toolbox to vivi++ ? If so, adjust docstring above!
 
 
   //------------------------------------------------- Color
   py::module_ color_sub = m.def_submodule("colors",
                                           "Color definitions, named colors and convenience wrappers");
-  py::class_<vivi::Color>(color_sub, "Color",
+  py::class_<viren2d::Color>(color_sub, "Color",
                           "Color in rgba format, i.e. each component is within [0,1].")
       .def(py::init<>())
       .def(py::init<>(&moddef::CreateColor),
@@ -422,73 +425,73 @@ PYBIND11_MODULE(vivi, m)
            py::arg("red"), py::arg("green"), py::arg("blue"),
            py::arg("alpha")=1.0)
       .def("__repr__",
-           [](const vivi::Color &c)
-           { return "<vivi.Color " + c.ToString() + ">"; })
-      .def("__str__", &vivi::Color::ToString)
+           [](const viren2d::Color &c)
+           { return "<viren2d.Color " + c.ToString() + ">"; })
+      .def("__str__", &viren2d::Color::ToString)
       .def(py::pickle(&pickling::SerializeColor,
                       &pickling::DeserializeColor))
       .def(py::self == py::self)
       .def(py::self != py::self)
-      .def("as_RGBA", &vivi::Color::ToRGBA,
+      .def("as_RGBA", &viren2d::Color::ToRGBA,
            "Returns the corresponding (R, G, B, a) tuple,\n"
            "where R, G, B in [0, 255] and alpha in [0, 1].")
-      .def("as_hex", &vivi::Color::ToHexString,
+      .def("as_hex", &viren2d::Color::ToHexString,
            "Returns the hex web color code representation,\n"
            "e.g. '#0011FF' (alpha is ignored).")
-      .def_readwrite("red", &vivi::Color::red,
+      .def_readwrite("red", &viren2d::Color::red,
                      "Red component within [0, 1].")
-      .def_readwrite("green", &vivi::Color::green,
+      .def_readwrite("green", &viren2d::Color::green,
                      "Green component within [0, 1].")
-      .def_readwrite("blue", &vivi::Color::blue,
+      .def_readwrite("blue", &viren2d::Color::blue,
                      "Blue component within [0, 1].")
-      .def_readwrite("alpha", &vivi::Color::alpha,
+      .def_readwrite("alpha", &viren2d::Color::alpha,
                      "Opacity within [0, 1].")
-      .def("inverse", &vivi::Color::Inverse,
+      .def("inverse", &viren2d::Color::Inverse,
            "Returns the inverse color, i.e. (1.0-r, 1.0-g, 1.0-b, a).\n"
            "Alpha value stays the same.");
 
   // A Color can be initialized from a given tuple.
-  py::implicitly_convertible<py::tuple, vivi::Color>();
+  py::implicitly_convertible<py::tuple, viren2d::Color>();
 
 
-  color_sub.def("rgba", vivi::rgba, "Returns a vivi.Color for the given rgba values.\n"
+  color_sub.def("rgba", viren2d::rgba, "Returns a viren2d.Color for the given rgba values.\n"
                                     "r, g, b and alpha must be within [0, 1]",
                 py::arg("red"), py::arg("green"), py::arg("blue"),
                 py::arg("alpha")=1.0);
 
 
-  color_sub.def("RGBA", vivi::RGBA, "Returns a vivi.Color for the given RGBA values.\n"
+  color_sub.def("RGBA", viren2d::RGBA, "Returns a viren2d.Color for the given RGBA values.\n"
                                     "* R,G,B must be within [0, 255]\n"
                                     "* alpha must be within [0, 1].",
                 py::arg("red"), py::arg("green"), py::arg("blue"),
                 py::arg("alpha")=1.0);
 
-  color_sub.def("black", &vivi::colors::Black, py::arg("alpha")=1.0)
-      .def("white", &vivi::colors::White, py::arg("alpha")=1.0)
-      .def("crimson", &vivi::colors::Crimson, py::arg("alpha")=1.0)
-      .def("maroon", &vivi::colors::Maroon, py::arg("alpha")=1.0)
-      .def("purple", &vivi::colors::Purple, py::arg("alpha")=1.0)
-      .def("cyan", &vivi::colors::Cyan, py::arg("alpha")=1.0)
-      .def("magenta", &vivi::colors::Magenta, py::arg("alpha")=1.0)
-      .def("turquoise", &vivi::colors::Turquoise, py::arg("alpha")=1.0)
-      .def("orange", &vivi::colors::Orange, py::arg("alpha")=1.0)
-      .def("orchid", &vivi::colors::Orchid, py::arg("alpha")=1.0)
-      .def("silver", &vivi::colors::Silver, py::arg("alpha")=1.0)
-      .def("gold", &vivi::colors::Gold, py::arg("alpha")=1.0)
-      .def("forest_green", &vivi::colors::ForestGreen, py::arg("alpha")=1.0)
-      .def("teal_green", &vivi::colors::TealGreen, py::arg("alpha")=1.0)
-      .def("lime_green", &vivi::colors::LimeGreen, py::arg("alpha")=1.0)
-      .def("navy_blue", &vivi::colors::NavyBlue, py::arg("alpha")=1.0)
-      .def("indigo", &vivi::colors::Indigo, py::arg("alpha")=1.0)
-      .def("copper", &vivi::colors::Copper, py::arg("alpha")=1.0)
-      .def("freesia", &vivi::colors::Freesia, py::arg("alpha")=1.0)
-      .def("midnight_blue", &vivi::colors::MidnightBlue, py::arg("alpha")=1.0)
-      .def("salmon", &vivi::colors::Salmon, py::arg("alpha")=1.0)
-      .def("rose_red", &vivi::colors::RoseRed, py::arg("alpha")=1.0)
-      .def("olive", &vivi::colors::Olive, py::arg("alpha")=1.0)
-      .def("light_blue", &vivi::colors::LightBlue, py::arg("alpha")=1.0)
-      .def("lavender", &vivi::colors::Lavender, py::arg("alpha")=1.0)
-      .def("ivory", &vivi::colors::Ivory, py::arg("alpha")=1.0);
+  color_sub.def("black", &viren2d::colors::Black, py::arg("alpha")=1.0)
+      .def("white", &viren2d::colors::White, py::arg("alpha")=1.0)
+      .def("crimson", &viren2d::colors::Crimson, py::arg("alpha")=1.0)
+      .def("maroon", &viren2d::colors::Maroon, py::arg("alpha")=1.0)
+      .def("purple", &viren2d::colors::Purple, py::arg("alpha")=1.0)
+      .def("cyan", &viren2d::colors::Cyan, py::arg("alpha")=1.0)
+      .def("magenta", &viren2d::colors::Magenta, py::arg("alpha")=1.0)
+      .def("turquoise", &viren2d::colors::Turquoise, py::arg("alpha")=1.0)
+      .def("orange", &viren2d::colors::Orange, py::arg("alpha")=1.0)
+      .def("orchid", &viren2d::colors::Orchid, py::arg("alpha")=1.0)
+      .def("silver", &viren2d::colors::Silver, py::arg("alpha")=1.0)
+      .def("gold", &viren2d::colors::Gold, py::arg("alpha")=1.0)
+      .def("forest_green", &viren2d::colors::ForestGreen, py::arg("alpha")=1.0)
+      .def("teal_green", &viren2d::colors::TealGreen, py::arg("alpha")=1.0)
+      .def("lime_green", &viren2d::colors::LimeGreen, py::arg("alpha")=1.0)
+      .def("navy_blue", &viren2d::colors::NavyBlue, py::arg("alpha")=1.0)
+      .def("indigo", &viren2d::colors::Indigo, py::arg("alpha")=1.0)
+      .def("copper", &viren2d::colors::Copper, py::arg("alpha")=1.0)
+      .def("freesia", &viren2d::colors::Freesia, py::arg("alpha")=1.0)
+      .def("midnight_blue", &viren2d::colors::MidnightBlue, py::arg("alpha")=1.0)
+      .def("salmon", &viren2d::colors::Salmon, py::arg("alpha")=1.0)
+      .def("rose_red", &viren2d::colors::RoseRed, py::arg("alpha")=1.0)
+      .def("olive", &viren2d::colors::Olive, py::arg("alpha")=1.0)
+      .def("light_blue", &viren2d::colors::LightBlue, py::arg("alpha")=1.0)
+      .def("lavender", &viren2d::colors::Lavender, py::arg("alpha")=1.0)
+      .def("ivory", &viren2d::colors::Ivory, py::arg("alpha")=1.0);
 
   //------------------------------------------------- Primitives - Vectors
   moddef::RegisterVec<double, 2>(m);
@@ -500,7 +503,7 @@ PYBIND11_MODULE(vivi, m)
 
 
   //------------------------------------------------- Primitives - Rectangle
-  py::class_<vivi::Rect>(m, "Rect",
+  py::class_<viren2d::Rect>(m, "Rect",
                          "Rectangle for visualization.\n\n"
                          "Note that a rectangle is defined by its CENTER,\n"
                          "width, height, angle (clockwise rotation in degrees),\n"
@@ -528,22 +531,22 @@ PYBIND11_MODULE(vivi, m)
            py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"),
            py::arg("angle"), py::arg("radius"))
       .def("__repr__",
-           [](const vivi::Rect &r)
-           { return "<vivi." + r.ToString() + ">"; })
-      .def("__str__", &vivi::Rect::ToString)
+           [](const viren2d::Rect &r)
+           { return "<viren2d." + r.ToString() + ">"; })
+      .def("__str__", &viren2d::Rect::ToString)
       .def(py::pickle(&pickling::SerializeRect,
                       &pickling::DeserializeRect))
       .def(py::self == py::self)
       .def(py::self != py::self)
-      .def_readwrite("cx", &vivi::Rect::cx, "Horizontal center.")
-      .def_readwrite("cy", &vivi::Rect::cy, "Vertical center.")
-      .def_readwrite("width", &vivi::Rect::width, "Rectangle width.")
-      .def_readwrite("height", &vivi::Rect::height, "Rectangle height.")
-      .def_readwrite("angle", &vivi::Rect::angle, "Angle in degrees (clockwise rotation).")
-      .def_readwrite("radius", &vivi::Rect::radius, "Corner radius (for rounded rectangles).");
+      .def_readwrite("cx", &viren2d::Rect::cx, "Horizontal center.")
+      .def_readwrite("cy", &viren2d::Rect::cy, "Vertical center.")
+      .def_readwrite("width", &viren2d::Rect::width, "Rectangle width.")
+      .def_readwrite("height", &viren2d::Rect::height, "Rectangle height.")
+      .def_readwrite("angle", &viren2d::Rect::angle, "Angle in degrees (clockwise rotation).")
+      .def_readwrite("radius", &viren2d::Rect::radius, "Corner radius (for rounded rectangles).");
 
   // A Rect can be initialized from a given tuple.
-  py::implicitly_convertible<py::tuple, vivi::Rect>();
+  py::implicitly_convertible<py::tuple, viren2d::Rect>();
 
 
   //TODO line? (overkill, not needed now)
@@ -553,12 +556,12 @@ PYBIND11_MODULE(vivi, m)
 
   //------------------------------------------------- Primitives - ImageBuffer
   // Info on numpy memory: https://stackoverflow.com/a/53099870/400948
-  py::class_<vivi::ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
+  py::class_<viren2d::ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
                                 "An ImageBuffer holds 8-bit images (Grayscale, "
                                 "RGB or RGBA).")
       .def(py::init(&moddef::CreateImageBuffer),
            "Initialize from numpy array with dtype uint8.")
-     .def_buffer([](vivi::ImageBuffer &img) -> py::buffer_info {
+     .def_buffer([](viren2d::ImageBuffer &img) -> py::buffer_info {
           return py::buffer_info(
               img.data, sizeof(unsigned char), // Pointer to data & size of each element
               py::format_descriptor<unsigned char>::format(), // Python struct-style format descriptor
@@ -571,78 +574,78 @@ PYBIND11_MODULE(vivi, m)
                 sizeof(unsigned char) } // Strides (in bytes) per dimension
           );
       })
-      .def("to_rgb", &vivi::ImageBuffer::ToRGB,
+      .def("to_rgb", &viren2d::ImageBuffer::ToRGB,
            "Convert to RGB. Will always return a copy, even if this buffer\n"
            "is already RGB.")
-      .def("to_rgba", &vivi::ImageBuffer::ToRGBA,
+      .def("to_rgba", &viren2d::ImageBuffer::ToRGBA,
            "Convert to RGBA. Will always return a copy, even if this buffer\n"
            "is already RGBA.")
       .def("__repr__",
-           [](const vivi::ImageBuffer &b)
-           { return "<vivi." + b.ToString() + ">"; })
-      .def("__str__", &vivi::ImageBuffer::ToString)
-      .def_readonly("width", &vivi::ImageBuffer::width, "Image width in pixels.")
-      .def_readonly("height", &vivi::ImageBuffer::height, "Image height in pixels.")
-      .def_readonly("channels", &vivi::ImageBuffer::channels, "Number of channels.")
-      .def_readonly("stride", &vivi::ImageBuffer::stride, "Stride per row (in bytes).")
-      .def_readonly("owns_data", &vivi::ImageBuffer::owns_data_,
+           [](const viren2d::ImageBuffer &b)
+           { return "<viren2d." + b.ToString() + ">"; })
+      .def("__str__", &viren2d::ImageBuffer::ToString)
+      .def_readonly("width", &viren2d::ImageBuffer::width, "Image width in pixels.")
+      .def_readonly("height", &viren2d::ImageBuffer::height, "Image height in pixels.")
+      .def_readonly("channels", &viren2d::ImageBuffer::channels, "Number of channels.")
+      .def_readonly("stride", &viren2d::ImageBuffer::stride, "Stride per row (in bytes).")
+      .def_readonly("owns_data", &viren2d::ImageBuffer::owns_data_,
                     "Boolean flag indicating if it has ownership of the image data,\n"
                     "i.e. whether it is responsible for memory cleanup.");
 
   // An ImageBuffer can be initialized from a numpy array
-  py::implicitly_convertible<py::array, vivi::ImageBuffer>();
+  py::implicitly_convertible<py::array, viren2d::ImageBuffer>();
 
 
   //------------------------------------------------- Drawing - LineStyle
-  py::class_<vivi::LineStyle> line_style(m, "LineStyle",
+  py::class_<viren2d::LineStyle> line_style(m, "LineStyle",
                                          "How a line should be drawn.");
 
-  py::enum_<vivi::LineStyle::Cap>(line_style, "Cap",
+  py::enum_<viren2d::LineStyle::Cap>(line_style, "Cap",
                                   "How to render the endpoints of the line (or dash strokes).")
-      .value("Butt", vivi::LineStyle::Cap::Butt,
+      .value("Butt", viren2d::LineStyle::Cap::Butt,
              "Start/stop the line exactly at the start/end point.")
-      .value("Round", vivi::LineStyle::Cap::Round,
+      .value("Round", viren2d::LineStyle::Cap::Round,
              "Round ending, center of the circle is the end point.")
-      .value("Square", vivi::LineStyle::Cap::Square,
+      .value("Square", viren2d::LineStyle::Cap::Square,
              "Square ending, center of the square is the end point.");
 
 
-  py::enum_<vivi::LineStyle::Join>(line_style, "Join",
+  py::enum_<viren2d::LineStyle::Join>(line_style, "Join",
                                    "How to render the junction of two lines/segments.")
-      .value("Miter", vivi::LineStyle::Join::Miter,
+      .value("Miter", viren2d::LineStyle::Join::Miter,
              "Sharp (angled) corner.")
-      .value("Bevel", vivi::LineStyle::Join::Bevel,
+      .value("Bevel", viren2d::LineStyle::Join::Bevel,
              "Cut off the join at half the line width from the joint point.")
-      .value("Round", vivi::LineStyle::Join::Round,
+      .value("Round", viren2d::LineStyle::Join::Round,
              "Rounded join, where the center of the circle is the joint point.");
 
 
   line_style.def(py::init<>(&moddef::CreateLineStyle))// init from tuple
-      .def(py::init<double, vivi::Color, std::vector<double>,
-                    vivi::LineStyle::Cap, vivi::LineStyle::Join>(),
+      .def(py::init<double, viren2d::Color, std::vector<double>,
+                    viren2d::LineStyle::Cap, viren2d::LineStyle::Join>(),
            py::arg("line_width"), py::arg("color"),
            py::arg("dash_pattern")=std::vector<double>(),
-           py::arg("line_cap")=vivi::LineStyle::Cap::Butt,
-           py::arg("line_join")=vivi::LineStyle::Join::Miter)
+           py::arg("line_cap")=viren2d::LineStyle::Cap::Butt,
+           py::arg("line_join")=viren2d::LineStyle::Join::Miter)
       .def("__repr__",
-           [](const vivi::LineStyle &st)
-           { return "<vivi." + st.ToString() + ">"; })
-      .def("__str__", &vivi::LineStyle::ToString)
+           [](const viren2d::LineStyle &st)
+           { return "<viren2d." + st.ToString() + ">"; })
+      .def("__str__", &viren2d::LineStyle::ToString)
       .def(py::pickle(&pickling::SerializeLineStyle,
                       &pickling::DeserializeLineStyle))
       .def(py::self == py::self)
       .def(py::self != py::self)
-      .def_readwrite("line_width", &vivi::LineStyle::line_width, "Width in pixels (best results for even values).")
-      .def_readwrite("color", &vivi::LineStyle::color, "Line color (rgba).")
-      .def_readwrite("dash_pattern", &vivi::LineStyle::dash_pattern, "Dash pattern defined as list of on/off strokes (lengths in\n"
+      .def_readwrite("line_width", &viren2d::LineStyle::line_width, "Width in pixels (best results for even values).")
+      .def_readwrite("color", &viren2d::LineStyle::color, "Line color (rgba).")
+      .def_readwrite("dash_pattern", &viren2d::LineStyle::dash_pattern, "Dash pattern defined as list of on/off strokes (lengths in\n"
                                                                      "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
                                                                      "line will be drawn solid.")
-      .def_readwrite("line_cap", &vivi::LineStyle::line_cap, "How to render the endpoints of the line (or dash strokes).")
-      .def_readwrite("line_join", &vivi::LineStyle::line_join, "How to render the junction of two lines/segments.");
+      .def_readwrite("line_cap", &viren2d::LineStyle::line_cap, "How to render the endpoints of the line (or dash strokes).")
+      .def_readwrite("line_join", &viren2d::LineStyle::line_join, "How to render the junction of two lines/segments.");
 
 
   // A LineStyle can be initialized from a given tuple.
-  py::implicitly_convertible<py::tuple, vivi::LineStyle>();
+  py::implicitly_convertible<py::tuple, viren2d::LineStyle>();
 
 
   //------------------------------------------------- Drawing - Painter
@@ -662,12 +665,12 @@ PYBIND11_MODULE(vivi, m)
              visualizations: start over at set_canvas_xxx()
           )pbdoc")
       .def(py::init<>())
-      .def("__repr__", [](const moddef::Painter &) { return "<vivi.Painter>"; })
-      .def("__str__", [](const moddef::Painter &) { return "vivi.Painter"; })
+      .def("__repr__", [](const moddef::Painter &) { return "<viren2d.Painter>"; })
+      .def("__str__", [](const moddef::Painter &) { return "viren2d.Painter"; })
       .def("set_canvas_rgb", &moddef::Painter::SetCanvasColor,
            "Initializes the canvas with the given color.",
            py::arg("width"), py::arg("height"),
-           py::arg("color")=vivi::Color(0, 0, 0, 1))
+           py::arg("color")=viren2d::Color(0, 0, 0, 1))
       .def("set_canvas_filename", &moddef::Painter::SetCanvasFilename,
            "Initializes the canvas from the given image file.\n"
            "Supported formats are:\n"
@@ -678,7 +681,7 @@ PYBIND11_MODULE(vivi, m)
            py::arg("image_filename"))
       .def("set_canvas_image", &moddef::Painter::SetCanvasImage,
            "Initializes the canvas from the given image, i.e. either\n"
-           "a numpy array (dtype uint8) or a vivi.ImageBuffer.\n\n"
+           "a numpy array (dtype uint8) or a viren2d.ImageBuffer.\n\n"
            "Example:\n"
            "  img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
            "  painter.set_canvas_image(img_np)",
@@ -708,13 +711,13 @@ PYBIND11_MODULE(vivi, m)
            py::arg("center"), py::arg("radius"),
            py::arg("angle1"), py::arg("angle2"),
            py::arg("line_style"),
-           py::arg("fill")=vivi::Color(0, 0, 0, 0))
+           py::arg("fill")=viren2d::Color(0, 0, 0, 0))
       .def("draw_circle", &moddef::Painter::DrawCircle,
            "Draws a circle at the given Vec2d position using the\n"
            "LineStyle specification. The circle will be filled if\n"
            "a fill color with alpha > 0 is given.",
            py::arg("center"), py::arg("radius"), py::arg("line_style"),
-           py::arg("fill")=vivi::Color(0, 0, 0, 0))
+           py::arg("fill")=viren2d::Color(0, 0, 0, 0))
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",
@@ -727,7 +730,7 @@ PYBIND11_MODULE(vivi, m)
            "* By defining the rect's corner radius, you can draw\n"
            "  a rounded rectangle.",
            py::arg("rect"), py::arg("line_style"),
-           py::arg("fill")=vivi::Color(0, 0, 0, 0))
+           py::arg("fill")=viren2d::Color(0, 0, 0, 0))
       //TODO add draw_xxx methods
       ;
 

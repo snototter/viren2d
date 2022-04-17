@@ -1,12 +1,12 @@
-#ifndef __VIVI_MATH_H__
-#define __VIVI_MATH_H__
+#ifndef __VIREN2D_MATH_H__
+#define __VIREN2D_MATH_H__
 
 #include <limits>
 #include <type_traits>
 
 #include <math.h>
 
-namespace vivi
+namespace viren2d
 {
 
 inline double deg2rad(double deg)
@@ -65,7 +65,6 @@ inline bool eps_equal(T x, T y, int ulp=2)
 //         || std::fabs(x-y) < std::numeric_limits<T>::min();
 //}
 
-} // namespace vivi
+} // namespace viren2d
 
-#endif // __VIVI_MATH_H__
-
+#endif // __VIREN2D_MATH_H__

@@ -1,14 +1,14 @@
-#ifndef __VIVI_DRAWING_H__
-#define __VIVI_DRAWING_H__
+#ifndef __VIREN2D_DRAWING_H__
+#define __VIREN2D_DRAWING_H__
 
 #include <memory>
 #include <vector>
 #include <string>
 
-#include <vivi/primitives.hpp>
-#include <vivi/colors.hpp>
+#include <viren2d/primitives.hpp>
+#include <viren2d/colors.hpp>
 
-namespace vivi
+namespace viren2d
 {
 
 //-------------------------------------------------  LineStyle
@@ -176,6 +176,6 @@ protected:
 };
 
 std::unique_ptr<Painter> CreateImagePainter();
-} // namespace vivi
+} // namespace viren2d
 
-#endif // __VIVI_DRAWING_H__
+#endif // __VIREN2D_DRAWING_H__

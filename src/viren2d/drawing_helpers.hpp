@@ -1,16 +1,16 @@
-#ifndef __VIREN_DRAWING_HELPERS_H__
-#define __VIREN_DRAWING_HELPERS_H__
+#ifndef __VIREN2D_DRAWING_HELPERS_H__
+#define __VIREN2D_DRAWING_HELPERS_H__
 
 #include <stdexcept>
 
 #include <math.h>
 #include <cairo/cairo.h>
 
-#include <vivi/colors.hpp>
-#include <vivi/drawing.hpp>
+#include <viren2d/colors.hpp>
+#include <viren2d/drawing.hpp>
 
 
-namespace vivi
+namespace viren2d
 {
 namespace helpers
 {
@@ -139,7 +139,6 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 
 } // namespace helpers
-} // namespace vivi
+} // namespace viren2d
 
-#endif // __VIREN_DRAWING_HELPERS_H__
-
+#endif // __VIREN2D_DRAWING_HELPERS_H__

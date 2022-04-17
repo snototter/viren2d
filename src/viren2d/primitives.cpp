@@ -14,14 +14,13 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-#include <vivi/primitives.hpp>
-#include <vivi/math.hpp>
-#include <vivi/string_utils.hpp>
+#include <viren2d/primitives.hpp>
+#include <viren2d/math.hpp>
+#include <viren2d/string_utils.hpp>
 
-namespace vivi
+namespace viren2d
 {
 //---------------------------------------------------- Image buffer
-//TODO support only RGBA
 
 ImageBuffer::ImageBuffer(int w, int h, int ch)
 {
@@ -873,4 +872,4 @@ bool operator!=(const Rect& lhs, const Rect& rhs)
   return !(lhs == rhs);
 }
 
-} // namespace vivi
+} // namespace viren2d
