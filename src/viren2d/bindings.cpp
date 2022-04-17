@@ -622,7 +622,7 @@ PYBIND11_MODULE(viren2d, m)
 
   line_style.def(py::init<>(&moddef::CreateLineStyle))// init from tuple
       .def(py::init<double, viren2d::Color, std::vector<double>,
-                    viren2d::LineStyle::Cap, viren2d::LineStyle::Join>(),
+                    viren2d::LineStyle::Cap, viren2d::LineStyle::Join>(),//FIXME name arguments
            py::arg("line_width"), py::arg("color"),
            py::arg("dash_pattern")=std::vector<double>(),
            py::arg("line_cap")=viren2d::LineStyle::Cap::Butt,
@@ -701,6 +701,7 @@ PYBIND11_MODULE(viren2d, m)
            "    img_np = np.array(p.get_canvas(True), copy=False)",
            py::arg("copy")=false)
 //------------------- TODO keep alphabetic order - easier to maintain!
+//----- FIXME: don't use python keywords as argument names!
       .def("draw_arc", &moddef::Painter::DrawArc,
            "Draws a circular arc of the given radius using the\n"
            "LineStyle specification. The arc will be filled if\n"
@@ -721,7 +722,7 @@ PYBIND11_MODULE(viren2d, m)
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",
-           py::arg("from"), py::arg("to"), py::arg("line_style"))
+           py::arg("pt1"), py::arg("pt2"), py::arg("line_style"))
       .def("draw_rect", &moddef::Painter::DrawRect,
            "Draws a rectangle using the LineStyle specification.\n\n"
            "* The rectangle will be filled if fill color has alpha > 0.\n"

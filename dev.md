@@ -36,7 +36,10 @@ line_style = viren2d.LineStyle(4, viren2d.colors.salmon(0.8), [20, 15])
 
 p = viren2d.Painter()
 p.set_canvas_rgb(800, 600, viren2d.colors.lavender())
-p.draw_line((10, 200), (600, 10), line_style)
+
+TODO clean up example (ordering arguments works!!!)
+p.draw_line(pt1=(10, 200), pt2=(600, 10), line_style=line_style)
+p.draw_line(line_style=line_style, pt1=(100, 20), pt2=(600, 10))
 
 # Get SHARED image buffer (changed by subsequent draw_... calls)
 img = np.array(p.get_canvas(), copy=False)
