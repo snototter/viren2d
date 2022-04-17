@@ -113,15 +113,20 @@ class CMakeBuild(build_ext):
         subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=build_temp)
 
 
-# The information here can also be placed in setup.cfg - better separation of
-# logic and declaration, and simpler if you include description/version in a file.
+# Load description
+try:
+    with open('README.md', 'r') as fr:
+        long_description = fr.read()
+except FileNotFoundError:
+    long_description = ''
+
 setup(
     name="viren2d",
     version="0.3",
     author="snototter",
     author_email="snototter@users.noreply.github.com",
     description="A visualization toolbox for common vision tasks (using Cairo graphics).",
-    long_description="",
+    long_description=long_description,
     ext_modules=[CMakeExtension("viren2d")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,

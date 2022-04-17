@@ -18,9 +18,13 @@ function human(x) {
             {x/=1024; s=substr(s,2)}
         return int(x+0.5) substr(s,1,1)
     }
+$1 == "Package:" { p = $2 } $1 == "Installed-Size:"    { print p, $2, human($2)}'
+
+
 $1 == "Package:" { p = $2 } $1 == "Size:"    { print p, $2, human($2)}'
 
 https://unix.stackexchange.com/a/44087
+
 
 
 ## Examples

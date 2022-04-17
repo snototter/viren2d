@@ -20,27 +20,23 @@ Previously, I experimented with a [similar toolbox (`vcp`)](https://github.com/s
 *c)* my `vcp` framework grew over the years (and suffers from the usual *"I will clean this mess up later"* quick-and-dirty extensions).
 
 **So here comes `viren2d`**, a toolbox with only a single purpose: easily create aesthetically pleasing visualizations.
-* Lightweight: `viren2d` (TODO add python pkg size + cpp library size) uses `libcairo2` (567 KB TODO check - apt unzipped to 20mb (packages weren't isolated, though)
-* Ease-of-use: TODO refer to examples/tutorial
-* Maintainability (hopefully)
 
 Note on efficiency: I preferred code readability over efficiency. Nevertheless, compared to my previous attempt using OpenCV, the switch to Cairo immediately paid off (despite using CPU-only in-memory image surface rendering, which is by far the slowest usage of Cairo).
 
-Marginalia: I also wanted to brush up on my C++ knowledge, refresh my CMake foo, dive into pybind11, etc.
+Marginalia: Another reason to work on this library was that I wanted to brush up on my C++ knowledge, refresh my CMake foo, dive deeper into pybind11, etc.
 
 **How to pronounce viren2d?**  
 **"vi-ren-2d"**, with **vi** as in *vision*, plus **ren** as in *rendering*  
 This is by the way also how you pronounce the German word *Viren* (viruses). I could have been affected by the aftermath of the pandemic when picking a name...
 
 
-
 ## Installation
 ### Platforms
-So far, `viren2d` has been tested on: Ubuntu 18.04 & 20.04
+So far, `viren2d` has been tested on:  
+Ubuntu 18.04, Ubuntu 20.04
 
-todo python3, cairo, ninja, cmake come for almost all platforms
-
-let me know if you set it up on any other systems, so I can update the install/setup instructions accordingly
+There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([cairo](https://www.cairographics.org/download/), [ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
+Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.
 
 ### Prerequisites
 TODO add usage requirements (not dev versions)
