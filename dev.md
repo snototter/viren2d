@@ -40,10 +40,11 @@ imvis.imshow(img)
 
 line_style.line_width = 2
 line_style.dash_pattern = []
-p.draw_circle((300, 300), 40, line_style, viren2d.colors.light_blue(0.4))
+#p.draw_circle((300, 300), 40, line_style, viren2d.colors.light_blue(0.4))
+p.draw_arc((300, 300), 40, 0, 200, line_style, viren2d.colors.light_blue(0.4))
 imvis.imshow(img)
-```
 
+```
 
 
 
