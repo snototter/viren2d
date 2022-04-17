@@ -4,7 +4,7 @@
 * readme - make github banner with vivi ;-)
 * separate example/tutorial doc
 
-TODO rename to viren2d
+TODO rename to viren2d  
 A light-weight 2D rendering toolbox for various computer vision tasks.
 
 How to pronounce viren2d?  
@@ -15,14 +15,14 @@ Why?
 I'm too tired of/too lazy to look up how to visualize some results (read: bounding boxes, trajectories, etc.) within the software framework I currently have to work with.
 Ideally, I wanted something that can be easily used both within C++ and Python settings - as I have to switch between these two regularly.
 
-Initially, I implemented a [similar toolbox](https://github.com/snototter/vitocpp/) based on OpenCV, but a) OpenCV is a quite heavy dependency (and there can be issues when your system's version doesn't match the python bindings - if you forget to check for opencv-python TODO - if you know, you know); b) it offers only limited drawing capabilities (it's an image processing library, thus not focusing on "nice" graphics) and c) my framework grew over the years (and thus, suffering from the usual "I will clean this up once I can afford more time" self-deception)
-So here comes `viren2d`, a toolbox with only a single purpose: easily create aesthetically pleasing (at least to me) visualizations.
+Initially, I implemented a [similar toolbox](https://github.com/snototter/vitocpp/) based on OpenCV, but a) OpenCV is a quite heavy dependency (did you ever get to "enjoy" a version mismatch between (unofficial) Python bindings and your system's OpenCV library?); b) it offers only limited drawing capabilities (it's an image processing library, thus not focusing on "nice" graphics) and c) my framework grew over the years (and thus, suffering from the usual __"I will clean this mess up later"__ bad coding habbit).
+
+So here comes `viren2d`, a toolbox with only a single purpose: easily create aesthetically pleasing visualizations.
 * Lightweight: under the hood, viren2d uses libcairo2 (approximately 20 MB of disk space TODO check, vs X00 MB opencv?)
 * Ease-of-use: 
 * Maintainability (hopefully)
 
-Note on efficiency: it's likely not the most efficient (I preferred code readability over efficiency)
-But compared to my previous attempt using OpenCV, the Cairo backend already shines (despite using CPU-only in-memory image surface rendering, which is by far the slowest usage of Cairo)
+Note on efficiency: I preferred code readability over efficiency. Nevertheless, compared to my previous attempt using OpenCV, the switch to Cairo immediately paid off (despite using CPU-only in-memory image surface rendering, which is by far the slowest usage of Cairo).
 
 ## Installation
 **Supported platforms**:
