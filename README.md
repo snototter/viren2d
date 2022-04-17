@@ -1,18 +1,25 @@
 # viren2d - Vision & Rendering 2D
 This is a light-weight 2D rendering toolbox to easily (and aesthetically) visualize common computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
 
-This toolbox uses the [Cairo graphics library](https://www.cairographics.org/) under the hood.
+This toolbox uses the [Cairo graphics library](https://www.cairographics.org/) under the hood, so visually unpleasing results will (hopefully) only be caused by questionable color choices :wink:.
 
+
+## Roadmap
+* An initial version v1.0 will hopefully released in July/August 2022 (this is a hobby/leisure time project)
+* I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you)
+
+
+## Description
 **Why yet another toolbox?**  
-I'm too tired of/too lazy to look up how to visualize some results within the software framework I currently have to work with.
-Ideally, I wanted something that can be easily used both within C++ and Python settings - as I have to switch between these two regularly.
+I became too tired (or lazy?) of to look up how to visualize some results within the software framework I currently have to work with.
+Ideally, I wanted something that can be easily used both within C++ and Python environments - as I have to switch between these two regularly.
 
 Previously, I experimented with a [similar toolbox (`vcp`)](https://github.com/snototter/vitocpp/) based on [OpenCV](https://github.com/opencv/opencv), but this has a few drawbacks (considering *ease-of-use*):  
 *a)* OpenCV is a quite heavy dependency (plus, did you ever get to enjoy a version mismatch between (unofficial) Python bindings in your virtualenv and your system's OpenCV library?)  
 *b)* it offers only limited drawing capabilities (it's an image processing library, thus not focusing on graphics pleasing to the eye), and  
-*c)* my `vcp` framework grew over the years (and suffers from the usual *"I will clean this mess up later"* bad coding habbit).
+*c)* my `vcp` framework grew over the years (and suffers from the usual *"I will clean this mess up later"* quick-and-dirty extensions).
 
-So here comes **`viren2d`**, a toolbox with only a single purpose: easily create aesthetically pleasing visualizations.
+**So here comes `viren2d`**, a toolbox with only a single purpose: easily create aesthetically pleasing visualizations.
 * Lightweight: `viren2d` (TODO add python pkg size + cpp library size) uses `libcairo2` (567 KB TODO check - apt unzipped to 20mb (packages weren't isolated, though)
 * Ease-of-use: TODO refer to examples/tutorial
 * Maintainability (hopefully)
@@ -22,17 +29,18 @@ Note on efficiency: I preferred code readability over efficiency. Nevertheless, 
 Marginalia: I also wanted to brush up on my C++ knowledge, refresh my CMake foo, dive into pybind11, etc.
 
 **How to pronounce viren2d?**  
-"vi" as in "vision", "ren" as in "rendering": **"vi-ren-2d"**
-This is by the way also how you pronounce the German word for viruses. I could have been affected by the aftermath of the pandemic when picking a name.
+**"vi-ren-2d"**, with **vi** as in *vision*, plus **ren** as in *rendering*  
+This is by the way also how you pronounce the German word *Viren* (viruses). I could have been affected by the aftermath of the pandemic when picking a name...
 
 
 
 ## Installation
-**Supported platforms**:
+### Platforms
 So far, `viren2d` has been tested on: Ubuntu 18.04 & 20.04
-todo python3, cairo, ninja, cmake should work on almost all platforms
 
-let me know if you set it up on any other systems, so I can update the install/setup instructions accordingly: 
+todo python3, cairo, ninja, cmake come for almost all platforms
+
+let me know if you set it up on any other systems, so I can update the install/setup instructions accordingly
 
 ### Prerequisites
 TODO add usage requirements (not dev versions)
@@ -65,10 +73,6 @@ Note, if you want to re-install it, you may have to delete the CMake cache first
 rm -r build/temp.*
 python -m pip install .
 ```
-
-## Roadmap
-* An initial version v1.0 will hopefully released in July/August 2022
-* I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you)
 
 
 ## Features
