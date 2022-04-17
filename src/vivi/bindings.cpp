@@ -160,18 +160,26 @@ public:
   }
 
 
-  void DrawLine(const vivi::Vec2d &from, const vivi::Vec2d &to,
-                const vivi::LineStyle &line_style)
+  void DrawArc(const vivi::Vec2d &center, double radius,
+               double angle1, double angle2,
+               const vivi::LineStyle &line_style,
+               const vivi::Color &fill)
   {
-    painter_->DrawLine(from, to, line_style);
+    painter_->DrawArc(center, radius, angle1, angle2, line_style, fill);
   }
-
 
   void DrawCircle(const vivi::Vec2d &center, double radius,
                   const vivi::LineStyle &line_style,
                   const vivi::Color &fill)
   {
     painter_->DrawCircle(center, radius, line_style, fill);
+  }
+
+
+  void DrawLine(const vivi::Vec2d &from, const vivi::Vec2d &to,
+                const vivi::LineStyle &line_style)
+  {
+    painter_->DrawLine(from, to, line_style);
   }
 
 
@@ -689,16 +697,28 @@ PYBIND11_MODULE(vivi, m)
            "  numpy array:\n"
            "    img_np = np.array(p.get_canvas(True), copy=False)",
            py::arg("copy")=false)
-      .def("draw_line", &moddef::Painter::DrawLine,
-           "Draws a line between the two Vec2d coordinates using the\n"
-           "LineStyle specification.",
-           py::arg("from"), py::arg("to"), py::arg("line_style"))
+//------------------- TODO keep alphabetic order - easier to maintain!
+      .def("draw_arc", &moddef::Painter::DrawArc,
+           "Draws a circular arc of the given radius using the\n"
+           "LineStyle specification. The arc will be filled if\n"
+           "a fill color with alpha > 0 is given.\n"
+           "Angles are in degrees, where 0.0 is in the direction\n"
+           "of the positive X axis (in user space). The arc will\n"
+           "be drawn from angle1 to angle2 in clockwise direction.",
+           py::arg("center"), py::arg("radius"),
+           py::arg("angle1"), py::arg("angle2"),
+           py::arg("line_style"),
+           py::arg("fill")=vivi::Color(0, 0, 0, 0))
       .def("draw_circle", &moddef::Painter::DrawCircle,
            "Draws a circle at the given Vec2d position using the\n"
            "LineStyle specification. The circle will be filled if\n"
            "a fill color with alpha > 0 is given.",
            py::arg("center"), py::arg("radius"), py::arg("line_style"),
            py::arg("fill")=vivi::Color(0, 0, 0, 0))
+      .def("draw_line", &moddef::Painter::DrawLine,
+           "Draws a line between the two Vec2d coordinates using the\n"
+           "LineStyle specification.",
+           py::arg("from"), py::arg("to"), py::arg("line_style"))
       .def("draw_rect", &moddef::Painter::DrawRect,
            "Draws a rectangle using the LineStyle specification.\n\n"
            "* The rectangle will be filled if fill color has alpha > 0.\n"

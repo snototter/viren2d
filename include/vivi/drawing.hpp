@@ -128,14 +128,27 @@ public:
   virtual ImageBuffer GetCanvas(bool copy) = 0;
 
 
-  virtual void DrawLine(const Vec2d &from, const Vec2d &to,
-                        const LineStyle &line_style) = 0;
+  /** TODO doc
+   *  starts at angle1, draws (increasing angle, i.e. clockwise) until angle2
+   *  angle of 0.0 is in the direction of the positive X axis.
+ angles in degrees*/
+  void DrawArc(const Vec2d &center, double radius,
+               double angle1, double angle2,
+               const LineStyle &line_style,
+               const Color &fill = Color(0, 0, 0, 0))
+  { DrawArcImpl(center, radius, angle1, angle2, line_style, fill); }
 
 
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
                   const Color &fill = Color(0, 0, 0, 0))
   { DrawCircleImpl(center, radius, line_style, fill); }
+
+
+
+  virtual void DrawLine(const Vec2d &from, const Vec2d &to,
+                        const LineStyle &line_style) = 0;
+
 
 
   void DrawRect(const Rect &rect, const LineStyle &line_style,
@@ -149,6 +162,11 @@ public:
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
 
 protected:
+  virtual void DrawArcImpl(const Vec2d &center, double radius,
+                           double angle1, double angle2,
+                           const LineStyle &line_style,
+                           const Color &fill) = 0;
+
   virtual void DrawCircleImpl(const Vec2d &center, double radius,
                               const LineStyle &line_style,
                               const Color &fill) = 0;

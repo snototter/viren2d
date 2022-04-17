@@ -166,6 +166,18 @@ TODO
 TODO
 
 
+apt package for cpp stuff
+https://earthly.dev/blog/creating-and-hosting-your-own-deb-packages-and-apt-repo/
+
+python packaging (try build instead of setuptools)
+https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
+
+
+
+
+
+
+
 
 cmake
 libcairo2-dev

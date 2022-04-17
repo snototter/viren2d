@@ -25,7 +25,10 @@ set(VIVI_SOURCE_FILES
     src/vivi/primitives.cpp
     src/vivi/colors.cpp
     src/vivi/drawing.cpp
+    src/vivi/drawing_helpers.hpp
+    src/vivi/drawing_helpers_primitives.cpp
 )
+
 
 # Include the library headers for all targets
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
