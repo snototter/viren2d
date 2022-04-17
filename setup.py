@@ -117,7 +117,7 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="vivi",
-    version="0.0.2",
+    version="0.2",
     author="snototter",
     author_email="snototter@users.noreply.github.com",
     description="A visualization toolbox for common vision tasks (using Cairo graphics).",

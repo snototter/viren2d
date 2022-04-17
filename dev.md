@@ -2,6 +2,7 @@
 * readme - install/setup section
 * readme - quickstart
 * readme - make github banner with vivi ;-)
+* TODO test - via pytest
 * separate example/tutorial doc
 
 TODO rename to viren2d  
