@@ -33,6 +33,21 @@ Color Color::Inverse() const
   return Color(1.0 - red, 1.0 - green, 1.0 - blue, alpha);
 }
 
+
+bool Color::IsValid() const
+{
+  if (red < 0.0 || red > 1.0)
+    return false;
+  if (green < 0.0 || green > 1.0)
+    return false;
+  if (blue < 0.0 || blue > 1.0)
+    return false;
+  if (alpha < 0.0 || alpha > 1.0)
+    return false;
+  return true;
+}
+
+
 std::string Color::ToString() const
 {
   std::stringstream s;
@@ -116,7 +131,14 @@ Color RGBA(double R, double G, double B, double alpha)
                alpha);
 }
 
-//TODO add more named colors
+Color InvalidColor()
+{
+  Color c;
+  c.red = c.green = c.blue = c.alpha = -1.0;
+  return c;
+}
+
+//TODO maybe add more named colors?
 // Similar to: https://matplotlib.org/3.5.0/_images/sphx_glr_named_colors_003.png
 // Check mixing ratios at: https://www.canva.com/colors/color-meanings/
 namespace colors

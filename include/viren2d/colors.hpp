@@ -7,11 +7,9 @@
 #include <tuple>
 #include <ostream>
 
-//TODO colornames
 //TODO colormaps
 //TODO pseudocoloring!
 
-//TODO python bindings for colornames
 
 namespace viren2d
 {
@@ -63,6 +61,10 @@ struct Color
    */
   Color Inverse() const;
 
+
+  /** @brief Checks if all rgba components are within [0, 1]. */
+  bool IsValid() const;
+
   std::string ToString() const;
 
   /** @brief Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255] and alpha in [0, 1]. */
@@ -95,7 +97,14 @@ Color rgba(double r, double g, double b, double alpha=1.0);
 /** Convenience wrapper to initialize @see Color from RGB values in range [0,255]. */
 Color RGBA(double R, double G, double B, double alpha=1.0);
 
-//TODO group by r,g,b levels?
+/** Returns an invalid color (all components < 0). These are
+ * used as special arguments, e.g. when drawing text boxes,
+ * viren2d can automatically select the font color as the
+ * opposite of the background color.
+ */
+Color InvalidColor();
+
+//TODO group/sort the names for maintainability
 namespace colors
 {
   Color Black(double alpha=1.0);

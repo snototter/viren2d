@@ -446,6 +446,9 @@ PYBIND11_MODULE(viren2d, m)
                      "Blue component within [0, 1].")
       .def_readwrite("alpha", &viren2d::Color::alpha,
                      "Opacity within [0, 1].")
+      .def("is_valid", &viren2d::Color::IsValid,
+           "Returns True if this is a valid rgba color, where all\n"
+           "components are within [0, 1].")
       .def("inverse", &viren2d::Color::Inverse,
            "Returns the inverse color, i.e. (1.0-r, 1.0-g, 1.0-b, a).\n"
            "Alpha value stays the same.");
@@ -454,17 +457,25 @@ PYBIND11_MODULE(viren2d, m)
   py::implicitly_convertible<py::tuple, viren2d::Color>();
 
 
-  color_sub.def("rgba", viren2d::rgba, "Returns a viren2d.Color for the given rgba values.\n"
-                                    "r, g, b and alpha must be within [0, 1]",
+  color_sub.def("rgba", &viren2d::rgba,
+                "Returns a viren2d.Color for the given rgba values.\n"
+                "r, g, b and alpha must be within [0, 1]",
                 py::arg("red"), py::arg("green"), py::arg("blue"),
                 py::arg("alpha")=1.0);
 
 
-  color_sub.def("RGBA", viren2d::RGBA, "Returns a viren2d.Color for the given RGBA values.\n"
-                                    "* R,G,B must be within [0, 255]\n"
-                                    "* alpha must be within [0, 1].",
+  color_sub.def("RGBA", &viren2d::RGBA,
+                "Returns a viren2d.Color for the given RGBA values.\n"
+                "* R,G,B must be within [0, 255]\n"
+                "* alpha must be within [0, 1].",
                 py::arg("red"), py::arg("green"), py::arg("blue"),
                 py::arg("alpha")=1.0);
+
+  color_sub.def("invalid", &viren2d::InvalidColor,
+                "Returns an invalid color (all components < 0). These are\n"
+                "used as special arguments, e.g. when drawing text boxes,\n"
+                "viren2d can automatically select the font color as the\n"
+                "opposite of the background color.");
 
   color_sub.def("black", &viren2d::colors::Black, py::arg("alpha")=1.0)
       .def("white", &viren2d::colors::White, py::arg("alpha")=1.0)
