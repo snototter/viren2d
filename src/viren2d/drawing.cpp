@@ -171,9 +171,9 @@ public:
     return *this;
   }
 
-  bool Empty() const override
+  bool IsValid() const override
   {
-    return !surface_;
+    return surface_ != nullptr;
   }
 
   void SetCanvas(int width, int height, const Color &color) override;

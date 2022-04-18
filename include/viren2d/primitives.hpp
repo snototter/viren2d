@@ -125,6 +125,8 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=
 void SaveImage(const std::string &image_filename, const ImageBuffer &image);
 
 
+//TODO rgb(a)2gray (single output channel vs 3 channels for drawing)
+
 /** @brief Converts a grayscale ImageBuffer to RGB. */
 ImageBuffer Gray2RGB(const ImageBuffer &img);
 
@@ -293,8 +295,8 @@ struct Rect
   { return height / 2.0; }
 
 
-  bool Empty() const
-  { return eps_zero(width) || eps_zero(height); }
+  bool IsValid() const
+  { return width > 0.0 && height > 0.0; }
 
   std::string ToString() const;
 

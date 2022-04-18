@@ -83,12 +83,12 @@ public:
   Painter& operator=(Painter &&) = default;
 
 
-  /** @brief Returns true if the painter's canvas is empty/invalid.
+  /** @brief Returns true if the painter's canvas is valid.
    *
-   *  Drawing without setting up the canvas via @see SetCanvas
-   *  must be avoided (to prevent crashes).
+   * You have to set up the painter's canvas before drawing
+   * or retrieving, @see SetCanvas
    */
-  virtual bool Empty() const = 0;
+  virtual bool IsValid() const = 0;
 
 
   /**

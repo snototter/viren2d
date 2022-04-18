@@ -552,9 +552,12 @@ PYBIND11_MODULE(viren2d, m)
       .def_readwrite("cx", &viren2d::Rect::cx, "Horizontal center.")
       .def_readwrite("cy", &viren2d::Rect::cy, "Vertical center.")
       .def_readwrite("width", &viren2d::Rect::width, "Rectangle width.")
+      .def_property_readonly("half_width", &viren2d::Rect::half_width, "Half the rectangle width (for us lazy folks).") // I mostly wanted to try pybind11's property definition
+      .def_property_readonly("half_height", &viren2d::Rect::half_height, "Half the rectangle height (for us lazy folks).")
       .def_readwrite("height", &viren2d::Rect::height, "Rectangle height.")
       .def_readwrite("angle", &viren2d::Rect::angle, "Angle in degrees (clockwise rotation).")
-      .def_readwrite("radius", &viren2d::Rect::radius, "Corner radius (for rounded rectangles).");
+      .def_readwrite("radius", &viren2d::Rect::radius, "Corner radius (for rounded rectangles).")
+      .def("is_valid", &viren2d::Rect::IsValid, "Returns True if both width & height are > 0.");
 
   // A Rect can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::Rect>();
