@@ -17,7 +17,7 @@ namespace viren2d
 struct LineStyle
 {
   /** @brief How to render the endpoints of the line (or dash strokes). */
-  enum class Cap
+  enum class Cap : unsigned char
   {
     Butt = 0,
     Round,
@@ -25,7 +25,7 @@ struct LineStyle
   };
 
   /** @brief How to render the junction of two lines/segments. */
-  enum class Join
+  enum class Join : unsigned char
   {
     Miter = 0,
     Round,

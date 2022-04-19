@@ -76,9 +76,11 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style)
   cairo_set_line_join(context, LineJoin2Cairo(line_style));
   ApplyColor(context, line_style.color);
 
-  //TODO if we add line caps:
-  // * adjust context here
-  // * adjust pybind11 parsing (tuple to LineStyle) in CreateLineStyle
+  //TODO if we're adding patterns (e.g. color gradients), we
+  // could return a pointer (or add another parameter); a pattern
+  // must be destroyed after use
+  //- https://zetcode.com/gfx/cairo/gradients/
+  //- https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-rgba
 
   if (!line_style.dash_pattern.empty())
   {
