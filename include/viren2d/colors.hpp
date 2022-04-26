@@ -47,11 +47,16 @@ struct Color
   Color() : red(-1.0), green(-1.0), blue(-1.0), alpha(1.0)
   {}
 
-  Color(double r, double g, double b, double a)
+  Color(double r, double g, double b, double alpha_)
     : red(saturation_cast<double>(r, 0.0, 1.0)),
       green(saturation_cast<double>(g, 0.0, 1.0)),
       blue(saturation_cast<double>(b, 0.0, 1.0)),
-      alpha(saturation_cast<double>(a, 0.0, 1.0))
+      alpha(saturation_cast<double>(alpha_, 0.0, 1.0))
+  {}
+
+  Color(const Color &other, double alpha_)
+    : red(other.red), green(other.green), blue(other.blue),
+      alpha(saturation_cast<double>(alpha_, 0.0, 1.0))
   {}
 
   /**
@@ -107,33 +112,33 @@ Color InvalidColor();
 //TODO group/sort the names for maintainability
 namespace colors
 {
-  Color Black(double alpha=1.0);
-  Color White(double alpha=1.0);
+  extern const Color Black;
+  extern const Color White;
 
-  Color Crimson(double alpha=1.0);
-  Color Maroon(double alpha=1.0);
-  Color Purple(double alpha=1.0);
-  Color Cyan(double alpha=1.0);
-  Color Magenta(double alpha=1.0);
-  Color Turquoise(double alpha=1.0);
-  Color Orange(double alpha=1.0);
-  Color Orchid(double alpha=1.0);
-  Color Silver(double alpha=1.0);
-  Color Gold(double alpha=1.0);
-  Color ForestGreen(double alpha=1.0);
-  Color TealGreen(double alpha=1.0);
-  Color LimeGreen(double alpha=1.0);
-  Color NavyBlue(double alpha=1.0);
-  Color Indigo(double alpha=1.0);
-  Color Copper(double alpha=1.0);
-  Color Freesia(double alpha=1.0);
-  Color MidnightBlue(double alpha=1.0);
-  Color Salmon(double alpha=1.0);
-  Color RoseRed(double alpha=1.0);
-  Color Olive(double alpha=1.0);
-  Color LightBlue(double alpha=1.0);
-  Color Lavender(double alpha=1.0);
-  Color Ivory (double alpha=1.0);
+  extern const Color Crimson;
+  extern const Color Maroon;
+  extern const Color Purple;
+  extern const Color Cyan;
+//  extern const Color Magenta;
+//  extern const Color Turquoise;
+//  extern const Color Orange;
+//  extern const Color Orchid;
+//  extern const Color Silver;
+//  extern const Color Gold;
+//  extern const Color ForestGreen;
+//  extern const Color TealGreen;
+//  extern const Color LimeGreen;
+//  extern const Color NavyBlue;
+//  extern const Color Indigo;
+//  extern const Color Copper;
+//  extern const Color Freesia;
+//  extern const Color MidnightBlue;
+//  extern const Color Salmon;
+//  extern const Color RoseRed;
+//  extern const Color Olive;
+//  extern const Color LightBlue;
+//  extern const Color Lavender;
+//  extern const Color Ivory;
 } // namespace colors
 
 } // namespace viren2d

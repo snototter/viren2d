@@ -475,34 +475,39 @@ PYBIND11_MODULE(viren2d, m)
                 "Returns an invalid color (all components < 0). These are\n"
                 "used as special arguments, e.g. when drawing text boxes,\n"
                 "viren2d can automatically select the font color as the\n"
-                "opposite of the background color.");
+                "opposite of the background color."); //TODO make const, like the color defs
 
-  color_sub.def("black", &viren2d::colors::Black, py::arg("alpha")=1.0)
-      .def("white", &viren2d::colors::White, py::arg("alpha")=1.0)
-      .def("crimson", &viren2d::colors::Crimson, py::arg("alpha")=1.0)
-      .def("maroon", &viren2d::colors::Maroon, py::arg("alpha")=1.0)
-      .def("purple", &viren2d::colors::Purple, py::arg("alpha")=1.0)
-      .def("cyan", &viren2d::colors::Cyan, py::arg("alpha")=1.0)
-      .def("magenta", &viren2d::colors::Magenta, py::arg("alpha")=1.0)
-      .def("turquoise", &viren2d::colors::Turquoise, py::arg("alpha")=1.0)
-      .def("orange", &viren2d::colors::Orange, py::arg("alpha")=1.0)
-      .def("orchid", &viren2d::colors::Orchid, py::arg("alpha")=1.0)
-      .def("silver", &viren2d::colors::Silver, py::arg("alpha")=1.0)
-      .def("gold", &viren2d::colors::Gold, py::arg("alpha")=1.0)
-      .def("forest_green", &viren2d::colors::ForestGreen, py::arg("alpha")=1.0)
-      .def("teal_green", &viren2d::colors::TealGreen, py::arg("alpha")=1.0)
-      .def("lime_green", &viren2d::colors::LimeGreen, py::arg("alpha")=1.0)
-      .def("navy_blue", &viren2d::colors::NavyBlue, py::arg("alpha")=1.0)
-      .def("indigo", &viren2d::colors::Indigo, py::arg("alpha")=1.0)
-      .def("copper", &viren2d::colors::Copper, py::arg("alpha")=1.0)
-      .def("freesia", &viren2d::colors::Freesia, py::arg("alpha")=1.0)
-      .def("midnight_blue", &viren2d::colors::MidnightBlue, py::arg("alpha")=1.0)
-      .def("salmon", &viren2d::colors::Salmon, py::arg("alpha")=1.0)
-      .def("rose_red", &viren2d::colors::RoseRed, py::arg("alpha")=1.0)
-      .def("olive", &viren2d::colors::Olive, py::arg("alpha")=1.0)
-      .def("light_blue", &viren2d::colors::LightBlue, py::arg("alpha")=1.0)
-      .def("lavender", &viren2d::colors::Lavender, py::arg("alpha")=1.0)
-      .def("ivory", &viren2d::colors::Ivory, py::arg("alpha")=1.0);
+  color_sub.attr("BLACK") = viren2d::colors::Black;
+  color_sub.def("black", [](double alpha) { return viren2d::Color(viren2d::colors::Black, alpha); }, py::arg("alpha")=1.0);
+
+  color_sub.attr("WHITE") = viren2d::colors::White;
+  color_sub.attr("CRIMSON") = viren2d::colors::Crimson;
+//  color_sub.def("black", &viren2d::colors::Black, py::arg("alpha")=1.0)
+//      .def("white", &viren2d::colors::White, py::arg("alpha")=1.0)
+//      .def("crimson", &viren2d::colors::Crimson, py::arg("alpha")=1.0)
+//      .def("maroon", &viren2d::colors::Maroon, py::arg("alpha")=1.0)
+//      .def("purple", &viren2d::colors::Purple, py::arg("alpha")=1.0)
+//      .def("cyan", &viren2d::colors::Cyan, py::arg("alpha")=1.0)
+//      .def("magenta", &viren2d::colors::Magenta, py::arg("alpha")=1.0)
+//      .def("turquoise", &viren2d::colors::Turquoise, py::arg("alpha")=1.0)
+//      .def("orange", &viren2d::colors::Orange, py::arg("alpha")=1.0)
+//      .def("orchid", &viren2d::colors::Orchid, py::arg("alpha")=1.0)
+//      .def("silver", &viren2d::colors::Silver, py::arg("alpha")=1.0)
+//      .def("gold", &viren2d::colors::Gold, py::arg("alpha")=1.0)
+//      .def("forest_green", &viren2d::colors::ForestGreen, py::arg("alpha")=1.0)
+//      .def("teal_green", &viren2d::colors::TealGreen, py::arg("alpha")=1.0)
+//      .def("lime_green", &viren2d::colors::LimeGreen, py::arg("alpha")=1.0)
+//      .def("navy_blue", &viren2d::colors::NavyBlue, py::arg("alpha")=1.0)
+//      .def("indigo", &viren2d::colors::Indigo, py::arg("alpha")=1.0)
+//      .def("copper", &viren2d::colors::Copper, py::arg("alpha")=1.0)
+//      .def("freesia", &viren2d::colors::Freesia, py::arg("alpha")=1.0)
+//      .def("midnight_blue", &viren2d::colors::MidnightBlue, py::arg("alpha")=1.0)
+//      .def("salmon", &viren2d::colors::Salmon, py::arg("alpha")=1.0)
+//      .def("rose_red", &viren2d::colors::RoseRed, py::arg("alpha")=1.0)
+//      .def("olive", &viren2d::colors::Olive, py::arg("alpha")=1.0)
+//      .def("light_blue", &viren2d::colors::LightBlue, py::arg("alpha")=1.0)
+//      .def("lavender", &viren2d::colors::Lavender, py::arg("alpha")=1.0)
+//      .def("ivory", &viren2d::colors::Ivory, py::arg("alpha")=1.0);
 
   //------------------------------------------------- Primitives - Vectors
   moddef::RegisterVec<double, 2>(m);

@@ -143,135 +143,120 @@ Color InvalidColor()
 // Check mixing ratios at: https://www.canva.com/colors/color-meanings/
 namespace colors
 {
-Color Black(double alpha)
-{
-  return rgba(0, 0, 0, alpha);
-}
+const Color Black = rgba(0.0, 0.0, 0.0, 1.0);
 
-Color White(double alpha)
-{
-  return rgba(1, 1, 1, alpha);
-}
+const Color White = rgba(1, 1, 1, 1);//TODO all double, all colors!
 
-Color Crimson(double alpha)
-{
-  return rgba(0.6, 0, 0, alpha);
-}
+const Color Crimson = rgba(0.6, 0, 0, 1);
 
-Color Purple(double alpha)
-{
-  return rgba(0.63, 0.13, 0.94, alpha);
-}
+const Color Purple = rgba(0.63, 0.13, 0.94, 1);
 
-Color Cyan(double alpha)
-{
-  return rgba(0, 1, 1, alpha);
-}
+const Color Cyan = rgba(0, 1, 1, 1.0);
 
-Color Magenta(double alpha)
-{
-  return rgba(1, 0, 1, alpha);
-}
+//Color Magenta(double alpha)
+//{
+//  return rgba(1, 0, 1, alpha);
+//}
 
-Color Turquoise(double alpha)
-{
-  return rgba(0.19, 0.84, 0.78, alpha);
-}
+//Color Turquoise(double alpha)
+//{
+//  return rgba(0.19, 0.84, 0.78, alpha);
+//}
 
-Color Orange(double alpha)
-{
-  return rgba(1, 0.65, 0, alpha);
-}
+//Color Orange(double alpha)
+//{
+//  return rgba(1, 0.65, 0, alpha);
+//}
 
-Color Orchid(double alpha)
-{
-  return rgba(0.86, 0.44, 0.84, alpha);
-}
+//Color Orchid(double alpha)
+//{
+//  return rgba(0.86, 0.44, 0.84, alpha);
+//}
 
-Color Maroon(double alpha)
-{
-  return rgba(0.5, 0, 0, alpha);
-}
+//Color Maroon(double alpha)
+//{
+//  return rgba(0.5, 0, 0, alpha);
+//}
 
-Color Silver(double alpha)
-{
-  return rgba(0.75, 0.75, 0.75, alpha);
-}
+//Color Silver(double alpha)
+//{
+//  return rgba(0.75, 0.75, 0.75, alpha);
+//}
 
-Color Gold(double alpha)
-{
-  return rgba(1, 0.84, 0, alpha);
-}
+//Color Gold(double alpha)
+//{
+//  return rgba(1, 0.84, 0, alpha);
+//}
 
-Color ForestGreen(double alpha)
-{
-  return rgba(0.13, 0.55, 0.13, alpha);
-}
+//Color ForestGreen(double alpha)
+//{
+//  return rgba(0.13, 0.55, 0.13, alpha);
+//}
 
-Color TealGreen(double alpha)
-{
-  return rgba(0, 0.43, 0.36, alpha);
-}
+//Color TealGreen(double alpha)
+//{
+//  return rgba(0, 0.43, 0.36, alpha);
+//}
 
-Color LimeGreen(double alpha)
-{
-  return rgba(0.2, 0.8, 0.2, alpha);
-}
+//Color LimeGreen(double alpha)
+//{
+//  return rgba(0.2, 0.8, 0.2, alpha);
+//}
 
-Color NavyBlue(double alpha)
-{
-  return rgba(0, 0, 0.5, alpha);
-}
+//Color NavyBlue(double alpha)
+//{
+//  return rgba(0, 0, 0.5, alpha);
+//}
 
-Color Indigo(double alpha)
-{
-  return rgba(0.3, 0, 0.51, alpha);
-}
+//Color Indigo(double alpha)
+//{
+//  return rgba(0.3, 0, 0.51, alpha);
+//}
 
-Color Copper(double alpha)
-{
-  return rgba(0.72, 0.45, 0.2, alpha);
-}
+//Color Copper(double alpha)
+//{
+//  return rgba(0.72, 0.45, 0.2, alpha);
+//}
 
-Color Freesia(double alpha)
-{
-  return rgba(0.97, 0.77, 0.14, alpha);
-}
+//Color Freesia(double alpha)
+//{
+//  return rgba(0.97, 0.77, 0.14, alpha);
+//}
 
-Color MidnightBlue(double alpha)
-{
-  return rgba(0.1, 0.1, 0.44, alpha);
-}
+//Color MidnightBlue(double alpha)
+//{
+//  return rgba(0.1, 0.1, 0.44, alpha);
+//}
 
-Color Salmon(double alpha)
-{
-  return rgba(0.98, 0.5, 0.45, alpha);
-}
+//Color Salmon(double alpha)
+//{
+//  return rgba(0.98, 0.5, 0.45, alpha);
+//}
 
-Color RoseRed(double alpha)
-{
-  return rgba(1, 0.01, 0.24, alpha);
-}
+//Color RoseRed(double alpha)
+//{
+//  return rgba(1, 0.01, 0.24, alpha);
+//}
 
-Color Olive(double alpha)
-{
-  return rgba(0.5, 0.5, 0, alpha);
-}
+//Color Olive(double alpha)
+//{
+//  return rgba(0.5, 0.5, 0, alpha);
+//}
 
-Color LightBlue(double alpha)
-{
-  return rgba(0.68, 0.85, 0.9, alpha);
-}
+//Color LightBlue(double alpha)
+//{
+//  return rgba(0.68, 0.85, 0.9, alpha);
+//}
 
-Color Lavender(double alpha)
-{
-  return rgba(0.9, 0.9, 0.98, alpha);
-}
+//Color Lavender(double alpha)
+//{
+//  return rgba(0.9, 0.9, 0.98, alpha);
+//}
 
-Color Ivory(double alpha)
-{
-  return rgba(1, 1, 0.94, alpha);
-}
+//Color Ivory(double alpha)
+//{
+//  return rgba(1, 1, 0.94, alpha);
+//}
 } // namespace colors
 
 } // namespace viren2d
