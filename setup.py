@@ -2,6 +2,7 @@ import os
 import re
 import subprocess
 import sys
+import pathlib
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
@@ -13,6 +14,16 @@ PLAT_TO_CMAKE = {
     "win-arm32": "ARM",
     "win-arm64": "ARM64",
 }
+
+
+def load_version():
+    here = pathlib.Path(__file__).parent.resolve()
+    return (here / "VERSION").read_text().strip()
+
+
+def load_long_description():
+    here = pathlib.Path(__file__).parent.resolve()
+    return (here / "README.md").read_text(encoding="utf-8")
 
 
 # A CMakeExtension needs a sourcedir instead of a file list.
@@ -46,15 +57,14 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
+            f"-Dviren2d_VERSION={load_version()}",
+            "-Dviren2d_WITH_PYTHON=ON",
         ]
         build_args = []
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
-
-        # In this example, we pass in the version to C++. You might not need to.
-        cmake_args += [f"-DPYVIREN2D_VERSION_INFO={self.distribution.get_version()}"]
 
         if self.compiler.compiler_type != "msvc":
             # Using Ninja-build since it a) is available as a wheel and b)
@@ -113,25 +123,18 @@ class CMakeBuild(build_ext):
         subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=build_temp)
 
 
-# Load description
-try:
-    with open('README.md', 'r') as fr:
-        long_description = fr.read()
-except FileNotFoundError:
-    long_description = ''
 
 setup(
     name="viren2d",
-    version="0.3",
+    version=load_version(),
     author="snototter",
     author_email="snototter@users.noreply.github.com",
     description="A visualization toolbox for common vision tasks (using Cairo graphics).",
-    long_description=long_description,
+    long_description=load_long_description(),
     ext_modules=[CMakeExtension("viren2d")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
-    install_requires=[
-        'numpy>=1.7.0'],
+    install_requires=[],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -140,6 +143,4 @@ setup(
 #    extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.6",
 )
-#TODO add license, platform, etc
-
 

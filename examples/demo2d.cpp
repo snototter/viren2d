@@ -13,6 +13,11 @@
 
 int main(int argc, char **argv)
 {
+  std::cout << viren2d::Color(viren2d::NamedColor::Black).ToString() << std::endl
+            << viren2d::Color("white", 0.1).ToString() << std::endl
+            << viren2d::Color("red").ToHexString() << std::endl
+            << viren2d::Color("green", 0.1).ToHexString() << std::endl;
+  auto x = viren2d::Color("blue");
 //  //------------------------------------------------------
 //  viren2d::Vec2d vd1(1, 2), vd2(3, 9);
 //  viren2d::Vec3i vi1(13, 42, -1), vi2(13,42, 0);

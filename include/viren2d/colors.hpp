@@ -7,22 +7,65 @@
 #include <tuple>
 #include <ostream>
 
-//TODO colormaps
-//TODO pseudocoloring!
+//TODO colormaps & pseudocoloring - for v2?
 
 
-namespace viren2d
-{
+namespace viren2d {
 
 /** @brief Clips the given value to the range [low, high]. */
 template<typename _Tp>
-_Tp saturation_cast(_Tp val, _Tp low, _Tp high)
-{
+_Tp saturation_cast(_Tp val, _Tp low, _Tp high) {
   return std::min(std::max(val, low), high);
 }
 
 
 //-------------------------------------------------  Color
+
+
+enum class NamedColor : unsigned short {
+  Black = 0,
+  White,
+  Gray,
+  Grey = Gray,  // alias
+
+  Red,
+  Green,
+  Blue,
+
+  Copper,
+  Crimson,
+  Cyan,
+  ForestGreen,
+  Freesia,
+  Gold,
+  Indigo,
+  Ivory,
+  Lavender,
+  LightBlue,
+  LimeGreen,
+  Maroon,
+  Magenta,
+  MidnightBlue,
+  NavyBlue,
+  Olive,
+  Orange,
+  Orchid,
+  Purple,
+  Salmon,
+  Silver,
+  TealGreen,
+  Turquoise,
+  RoseRed,
+
+  Invalid /**< "Invalid" must be the last element (as it denotes the end of the enum definition internally). */
+};
+// TODO for tests we could try iterating over the enum values like here: https://stackoverflow.com/a/31836401
+
+NamedColor NamedColorFromString(const std::string &name);
+
+
+std::string NamedColorToString(NamedColor color);
+
 
 /**
  * @brief Represents a rgba color
@@ -37,26 +80,44 @@ _Tp saturation_cast(_Tp val, _Tp low, _Tp high)
  * TODO nice-to-have: add conversions from other color spaces (such as HSV, CMYK)
  *      --> not now, we're almost exclusively working with RGB/rgb
  */
-struct Color
-{
+class Color {
+ public:
   double red;   /**< Red component within [0,1]. */
   double green; /**< Green component within [0,1]. */
   double blue;  /**< Blue component within [0,1]. */
   double alpha; /**< Alpha (opacity) component within [0,1]. */
 
+  //TODO initializes an invalid color
+  //TESTED
   Color() : red(-1.0), green(-1.0), blue(-1.0), alpha(1.0)
   {}
 
-  Color(double r, double g, double b, double alpha_)
-    : red(saturation_cast<double>(r, 0.0, 1.0)),
-      green(saturation_cast<double>(g, 0.0, 1.0)),
-      blue(saturation_cast<double>(b, 0.0, 1.0)),
-      alpha(saturation_cast<double>(alpha_, 0.0, 1.0))
+  // TODO initialize from r,g,b clamped to [0,1]
+  //TESTED
+  Color(double red, double green, double blue, double alpha)
+    : red(saturation_cast<double>(red, 0.0, 1.0)),
+      green(saturation_cast<double>(green, 0.0, 1.0)),
+      blue(saturation_cast<double>(blue, 0.0, 1.0)),
+      alpha(saturation_cast<double>(alpha, 0.0, 1.0))
   {}
 
-  Color(const Color &other, double alpha_)
+  // TODO initialize from different color with different transparency
+  //TESTED
+  Color(const Color &other, double alpha)
     : red(other.red), green(other.green), blue(other.blue),
-      alpha(saturation_cast<double>(alpha_, 0.0, 1.0))
+      alpha(saturation_cast<double>(alpha, 0.0, 1.0))
+  {}
+
+  // TODO initialize from a color name
+  //TESTED
+  Color(const NamedColor color, double alpha=1.0);
+
+  // TODO doc
+  //TESTED
+  // Uses constructor delegation
+  //TODO nice-to-have: init from colorname (black, maroon, ...) OR from hex code (if strstartswith('#'))
+  Color(const std::string &color_name, double alpha=1.0)
+    : Color(NamedColorFromString(color_name), alpha)
   {}
 
   /**
@@ -64,12 +125,14 @@ struct Color
    *
    * Caveat: TODO 50% gray inverse = 50% gray in rgb color space --> use opposite color
    */
-  Color Inverse() const;
+  Color Inverse() const; //TODO if invalid --> return invalid!
 
 
+  //TESTED
   /** @brief Checks if all rgba components are within [0, 1]. */
   bool IsValid() const;
 
+  //TODO
   std::string ToString() const;
 
   /** @brief Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255] and alpha in [0, 1]. */
@@ -80,11 +143,11 @@ struct Color
   /** @brief Returns the web color code, e.g. "#dcdce4" (alpha value is ignored). */
   std::string ToHexString() const;
 
-  friend std::ostream &operator<<(std::ostream &os, const Color &col)
-  {
+  friend std::ostream &operator<<(std::ostream &os, const Color &col) {
     os << col.ToString();
     return os;
   }
+  //TODO * scalar
 };
 
 
@@ -99,7 +162,7 @@ bool operator!=(const Color& lhs, const Color& rhs);
 /** Convenience wrapper to initialize @see Color from rgb values in range [0,1]. */
 Color rgba(double r, double g, double b, double alpha=1.0);
 
-/** Convenience wrapper to initialize @see Color from RGB values in range [0,255]. */
+/** Convenience wrapper to initialize @see Color from RGB values in range [0,255]. Alpha must be in [0,1]. */
 Color RGBA(double R, double G, double B, double alpha=1.0);
 
 /** Returns an invalid color (all components < 0). These are
@@ -108,38 +171,6 @@ Color RGBA(double R, double G, double B, double alpha=1.0);
  * opposite of the background color.
  */
 Color InvalidColor();
-
-//TODO group/sort the names for maintainability
-namespace colors
-{
-  extern const Color Black;
-  extern const Color White;
-
-  extern const Color Crimson;
-  extern const Color Maroon;
-  extern const Color Purple;
-  extern const Color Cyan;
-//  extern const Color Magenta;
-//  extern const Color Turquoise;
-//  extern const Color Orange;
-//  extern const Color Orchid;
-//  extern const Color Silver;
-//  extern const Color Gold;
-//  extern const Color ForestGreen;
-//  extern const Color TealGreen;
-//  extern const Color LimeGreen;
-//  extern const Color NavyBlue;
-//  extern const Color Indigo;
-//  extern const Color Copper;
-//  extern const Color Freesia;
-//  extern const Color MidnightBlue;
-//  extern const Color Salmon;
-//  extern const Color RoseRed;
-//  extern const Color Olive;
-//  extern const Color LightBlue;
-//  extern const Color Lavender;
-//  extern const Color Ivory;
-} // namespace colors
 
 } // namespace viren2d
 

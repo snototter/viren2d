@@ -5,7 +5,7 @@
 
 // Custom
 #include <viren2d/math.hpp>
-#include "drawing_helpers.hpp"
+#include <drawing_helpers/drawing_helpers.hpp>
 
 namespace viren2d
 {

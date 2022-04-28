@@ -17,7 +17,7 @@
 #include <viren2d/string_utils.hpp>
 
 // private viren2d headers
-#include "drawing_helpers.hpp"
+#include <drawing_helpers/drawing_helpers.hpp>
 
 ////TODO remove opencv dependencies!
 //#include <opencv2/opencv.hpp>

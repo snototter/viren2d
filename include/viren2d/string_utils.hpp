@@ -131,6 +131,25 @@ inline std::vector<std::string> Split(const std::string &s, char delim)
   return elems;
 }
 
+
+/** @brief Replaces (the first occurence of) a substring of the given string
+  * @param[in] str The string
+  * @param[in] search String to search for
+  * @param[in] replacement The replacement string
+  * @return the string with the replaced part, or an empty string
+  */
+inline std::string Replace(const std::string &str, const std::string &search, const std::string &replacement) {
+  size_t start_pos = str.find(search);
+  if(start_pos == std::string::npos)
+    return str;
+  std::string s = str;
+  do {
+    s.replace(start_pos, search.length(), replacement);
+    start_pos = s.find(search);
+  } while (start_pos != std::string::npos);
+  return s;
+}
+
 //TODO maybe include other vcp string utils
 
 } // namespace strings

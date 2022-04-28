@@ -477,11 +477,21 @@ PYBIND11_MODULE(viren2d, m)
                 "viren2d can automatically select the font color as the\n"
                 "opposite of the background color."); //TODO make const, like the color defs
 
-  color_sub.attr("BLACK") = viren2d::colors::Black;
-  color_sub.def("black", [](double alpha) { return viren2d::Color(viren2d::colors::Black, alpha); }, py::arg("alpha")=1.0);
+//  color_sub.attr("BLACK") = viren2d::colors::Black;
+//  color_sub.def("black", [](double alpha)
+//                { return viren2d::Color(viren2d::colors::Black, alpha); },
+//                py::arg("alpha")=1.0);
 
-  color_sub.attr("WHITE") = viren2d::colors::White;
-  color_sub.attr("CRIMSON") = viren2d::colors::Crimson;
+//  color_sub.attr("WHITE") = viren2d::colors::White;
+//  color_sub.def("white", [](double alpha)
+//                { return viren2d::Color(viren2d::colors::White, alpha); },
+//                py::arg("alpha")=1.0);
+
+//  color_sub.attr("CRIMSON") = viren2d::colors::Crimson;
+//  color_sub.def("crimson", [](double alpha)
+//           { return viren2d::Color(viren2d::colors::Crimson, alpha); },
+//           py::arg("alpha")=1.0);
+
 //  color_sub.def("black", &viren2d::colors::Black, py::arg("alpha")=1.0)
 //      .def("white", &viren2d::colors::White, py::arg("alpha")=1.0)
 //      .def("crimson", &viren2d::colors::Crimson, py::arg("alpha")=1.0)
