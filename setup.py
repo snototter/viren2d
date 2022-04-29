@@ -129,7 +129,7 @@ setup(
     version=load_version(),
     author="snototter",
     author_email="snototter@users.noreply.github.com",
-    description="A visualization toolbox for common vision tasks (using Cairo graphics).",
+    description="A visualization toolbox for common computer vision tasks.",
     long_description=load_long_description(),
     ext_modules=[CMakeExtension("viren2d")],
     cmdclass={"build_ext": CMakeBuild},

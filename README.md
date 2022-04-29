@@ -89,3 +89,11 @@ I'm planning to support visualization of the following primitives/objects:
 * [ ] Pseudocoloring - depends on how I will integrate image support (external, lightweight library; if it supports different data types, pseudocoloring is on the feature list)
 * [ ] Camera calibration-related: Ground plane, horizon, 3D bounding boxes (projected onto 2D image/canvas)
 
+
+# TODOs
+* [ ] Change Fetch location to prj/libs
+* [ ] Add colormaps & pseudocoloring (low priority, v2.0?)
+* [ ] Nice-to-have: color space conversion
+* [ ] use spdlog; set library-global debug level via interface function
+
+

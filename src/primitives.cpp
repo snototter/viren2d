@@ -14,16 +14,15 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-#include <viren2d/primitives.hpp>
-#include <viren2d/math.hpp>
-#include <viren2d/string_utils.hpp>
+#include <viren2d/primitives.h>
+#include <viren2d/math.h>
+#include <viren2d/string_utils.h>
 
-namespace viren2d
-{
+
+namespace viren2d {
 //---------------------------------------------------- Image buffer
 
-ImageBuffer::ImageBuffer(int w, int h, int ch)
-{
+ImageBuffer::ImageBuffer(int w, int h, int ch) {
   const int num_bytes = w * h * ch;
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
   width = w;
@@ -33,32 +32,27 @@ ImageBuffer::ImageBuffer(int w, int h, int ch)
   owns_data_ = true;
 }
 
-ImageBuffer::~ImageBuffer()
-{
+ImageBuffer::~ImageBuffer() {
   Cleanup();
 }
 
-ImageBuffer::ImageBuffer(const ImageBuffer &other)
-{
+ImageBuffer::ImageBuffer(const ImageBuffer &other) {
   std::cout << "Inside ImageBuffer Copy Constructor" << std::endl; // TODO remove
   owns_data_ = other.owns_data_;
-  if (other.owns_data_)
-  {
+  if (other.owns_data_) {
     const int num_bytes = other.height * other.stride;
     data = static_cast<unsigned char*>(std::malloc(num_bytes));
-    if (!data)
-    {
+    if (!data) {
       std::stringstream s;
       s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
       throw std::runtime_error(s.str());
     }
     std::memcpy(data, other.data, num_bytes);
     std::cout << "ImageBuffer allocated " << num_bytes << " bytes" << std::endl; // TODO remove
-  }
-  else
-  {
+  } else {
     data = other.data;
   }
+
   width = other.width;
   height = other.height;
   channels = other.channels;
@@ -69,30 +63,21 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other)
 ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
   : data(other.data), width(other.width), height(other.height),
     channels(other.channels), stride(other.stride),
-    owns_data_(other.owns_data_)
-{
+    owns_data_(other.owns_data_) {
   std::cout << "Inside ImageBuffer Move Constructor" << std::endl; // TODO remove
   // Reset "other" but ensure that the memory won't be freed:
   other.owns_data_ = false;
   other.Cleanup();
-//  other.data = nullptr;
-//  other.owns_data_ = false;
-//  other.width = 0;
-//  other.height = 0;
-//  other.channels = 0;
-//  other.stride = 0;
 }
 
 
-ImageBuffer &ImageBuffer::operator=(const ImageBuffer &other)
-{
+ImageBuffer &ImageBuffer::operator=(const ImageBuffer &other) {
   std::cout << "Inside ImageBuffer Copy Assignment" << std::endl; // TODO remove
   return *this = ImageBuffer(other);
 }
 
 
-ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept
-{
+ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
   std::cout << "Inside ImageBuffer Move Assignment" << std::endl; // TODO remove
   std::swap(data, other.data);
   std::swap(owns_data_, other.owns_data_);
@@ -105,8 +90,7 @@ ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept
 
 
 void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int height,
-                                     int channels, int stride)
-{
+                                     int channels, int stride) {
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -120,15 +104,13 @@ void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int heigh
 
 
 void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
-                             int channels, int stride)
-{
+                             int channels, int stride) {
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
   const int num_bytes = height * stride;
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
-  if (!data)
-  {
+  if (!data) {
     std::stringstream s;
     s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
     throw std::runtime_error(s.str());
@@ -144,13 +126,11 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
   std::cout << "ImageBuffer copied " << num_bytes << " bytes (CreateCopy)" << std::endl; // TODO remove
 }
 
-void ImageBuffer::RGB2BGR()
-{
+void ImageBuffer::RGB2BGR() {
   if (!data)
     return;
 
-  if (channels != 4 && channels != 3)
-  {
+  if (channels != 4 && channels != 3) {
     std::stringstream s;
     s << "Cannot flip red & blue channel of an image with " << channels << " channels";
     throw std::logic_error(s.str());
@@ -160,18 +140,15 @@ void ImageBuffer::RGB2BGR()
   // https://docs.opencv.org/2.4/doc/tutorials/core/how_to_scan_images/how_to_scan_images.html#the-efficient-way
   int rows = height;
   int cols = width * channels;
-  if (stride == cols) // Is memory contiguous?
-  {
+  if (stride == cols) { // Is memory contiguous?
     cols *= rows;
     rows = 1;
   }
 
   unsigned char *ptr_row;
-  for (int row = 0; row < rows; ++row)
-  {
+  for (int row = 0; row < rows; ++row) {
     ptr_row = data + row * stride;
-    for (int col = 0; col < cols; col+=channels)
-    {
+    for (int col = 0; col < cols; col+=channels) {
       // Swap red (at col) and blue (at col+2)
       unsigned char tmp = ptr_row[col];
       ptr_row[col]      = ptr_row[col+2];
@@ -180,21 +157,18 @@ void ImageBuffer::RGB2BGR()
   }
 }
 
-ImageBuffer ImageBuffer::ToRGB() const
-{
+ImageBuffer ImageBuffer::ToRGB() const {
   if (channels != 1 && channels != 3 && channels != 4)
     throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGB!");
 
-  if (channels == 1)
-  {
+  if (channels == 1) {
     return Gray2RGB(*this);
-  }
-  else
-  {
-    if (channels == 3)
+  } else {
+    if (channels == 3) {
       return ImageBuffer(*this);
-    else
+    } else {
       return RGBA2RGB(*this);
+    }
   }
 }
 
@@ -203,22 +177,19 @@ ImageBuffer ImageBuffer::ToRGBA() const
   if (channels != 1 && channels != 3 && channels != 4)
     throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGBA!");
 
-  if (channels == 1)
-  {
+  if (channels == 1) {
     return Gray2RGBA(*this);
-  }
-  else
-  {
-    if (channels == 3)
+  } else {
+    if (channels == 3) {
       return RGB2RGBA(*this);
-    else
+    } else {
       return ImageBuffer(*this);
+    }
   }
 }
 
 
-std::string ImageBuffer::ToString() const
-{
+std::string ImageBuffer::ToString() const {
   std::stringstream s;
   s << "ImageBuffer(" << width << "x" << height << "x" << channels;
   if (owns_data_)
@@ -229,10 +200,8 @@ std::string ImageBuffer::ToString() const
 }
 
 
-void ImageBuffer::Cleanup()
-{
-  if (data && owns_data_)
-  {
+void ImageBuffer::Cleanup() {
+  if (data && owns_data_) {
     std::cout << "ImageBuffer freeing " << width*stride << " bytes" << std::endl; //TODO remove
     std::free(data);
   }
@@ -245,15 +214,14 @@ void ImageBuffer::Cleanup()
 }
 
 
-ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels)
-{
+ImageBuffer LoadImage(const std::string &image_filename,
+                      int force_num_channels) {
   int width, height, bytes_per_pixel;
   unsigned char *data = stbi_load(image_filename.c_str(),
                                   &width, &height,
                                   &bytes_per_pixel,
                                   force_num_channels);
-  if (!data)
-  {
+  if (!data) {
     std::stringstream s;
     s << "Could not load image from '" << image_filename << "'!";
     throw std::runtime_error(s.str());
@@ -278,16 +246,15 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels)
 }
 
 
-void SaveImage(const std::string &image_filename, const ImageBuffer &image)
-{
+void SaveImage(const std::string &image_filename,
+               const ImageBuffer &image) {
   int stb_result = 0; // stb return code 0 indicates failure
 
   const std::string fn_lower = strings::Lower(image_filename);
-  if (strings::EndsWith(fn_lower, ".jpg") || strings::EndsWith(fn_lower, ".jpeg"))
-  {
+  if (strings::EndsWith(fn_lower, ".jpg")
+      || strings::EndsWith(fn_lower, ".jpeg")) {
     // stbi_write_jpg requires contiguous memory
-    if (image.stride != image.channels * image.width)
-    {
+    if (image.stride != image.channels * image.width) {
       std::stringstream s;
       s << "Cannot save JPEG because image memory is not contiguous. Expected "
         << image.channels * image.width << " bytes per row, but image buffer has "
@@ -299,24 +266,18 @@ void SaveImage(const std::string &image_filename, const ImageBuffer &image)
                                 image.width, image.height,
                                 image.channels, image.data,
                                 90);
-  }
-  else
-  {
-    if (strings::EndsWith(fn_lower, ".png"))
-    {
+  } else {
+    if (strings::EndsWith(fn_lower, ".png")) {
       stb_result = stbi_write_png(image_filename.c_str(),
                                   image.width, image.height,
                                   image.channels, image.data,
                                   image.stride);
-    }
-    else
-    {
+    } else {
       throw std::invalid_argument("ImageBuffer can only be saved as JPEG or PNG. File extension must be '.jpg', '.jpeg' or '.png'.");
     }
   }
 
-  if (stb_result == 0)
-  {
+  if (stb_result == 0) {
     std::stringstream s;
     s << "Could not save ImageBuffer to '" << image_filename << "' - unknown error!";
     throw std::runtime_error(s.str());
@@ -324,8 +285,8 @@ void SaveImage(const std::string &image_filename, const ImageBuffer &image)
 }
 
 
-ImageBuffer ConversionHelperGray(const ImageBuffer &src, int channels_out)
-{
+ImageBuffer ConversionHelperGray(const ImageBuffer &src,
+                                 int channels_out) {
   if (src.channels != 1)
     throw std::invalid_argument("Input image must be grayscale!");
 
@@ -340,20 +301,19 @@ ImageBuffer ConversionHelperGray(const ImageBuffer &src, int channels_out)
 
   int rows = src.height;
   int cols = src.width; // src channels is 1
-  if (src.stride == cols) // Is memory contiguous?
-  {
+  if (src.stride == cols) { // Is memory contiguous?
     cols *= rows;
     rows = 1;
   }
 
   unsigned char *src_row;
   unsigned char *dst_row;
-  for (int row = 0; row < rows; ++row)
-  {
+  for (int row = 0; row < rows; ++row) {
     src_row = src.data + row * src.stride;
     dst_row = dst.data + row * dst.stride;
-    for (int src_col = 0, dst_col = 0; src_col < cols; src_col+=src.channels, dst_col+=dst.channels)
-    {
+    for (int src_col = 0, dst_col = 0;
+         src_col < cols;
+         src_col+=src.channels, dst_col+=dst.channels) {
       dst_row[dst_col] = src_row[src_col];
       dst_row[dst_col + 1] = src_row[src_col];
       dst_row[dst_col + 2] = src_row[src_col];
@@ -365,20 +325,18 @@ ImageBuffer ConversionHelperGray(const ImageBuffer &src, int channels_out)
   return dst;
 }
 
-ImageBuffer Gray2RGB(const ImageBuffer &img)
-{
+ImageBuffer Gray2RGB(const ImageBuffer &img) {
   return ConversionHelperGray(img, 3);
 }
 
-ImageBuffer Gray2RGBA(const ImageBuffer &img)
-{
+ImageBuffer Gray2RGBA(const ImageBuffer &img) {
   return ConversionHelperGray(img, 4);
 }
 
 
 
-ImageBuffer ConversionHelperRGB(const ImageBuffer &src, int channels_out)
-{
+ImageBuffer ConversionHelperRGB(const ImageBuffer &src,
+                                int channels_out) {
   if (src.channels != 3 && src.channels != 4)
     throw std::invalid_argument("Input image must be RGB or RGBA!");
 
@@ -393,27 +351,26 @@ ImageBuffer ConversionHelperRGB(const ImageBuffer &src, int channels_out)
 
   int rows = src.height;
   int cols = src.width * src.channels;
-  if (src.stride == cols) // Is memory contiguous?
-  {
+  if (src.stride == cols) { // Is memory contiguous?
     cols *= rows;
     rows = 1;
   }
 
   unsigned char *src_row;
   unsigned char *dst_row;
-  for (int row = 0; row < rows; ++row)
-  {
+  for (int row = 0; row < rows; ++row) {
     src_row = src.data + row * src.stride;
     dst_row = dst.data + row * dst.stride;
-    for (int src_col = 0, dst_col = 0; src_col < cols; src_col+=src.channels, dst_col+=dst.channels)
-    {
+    for (int src_col = 0, dst_col = 0;
+         src_col < cols;
+         src_col+=src.channels, dst_col+=dst.channels) {
       // Copy RGB
       dst_row[dst_col]     = src_row[src_col];
       dst_row[dst_col + 1] = src_row[src_col + 1];
       dst_row[dst_col + 2] = src_row[src_col + 2];
       // Two cases:
       // * RGBA --> RGB, we're already done
-      // * RGB  --> RGBA, we must add he alpha channel
+      // * RGB  --> RGBA, we must add the alpha channel
       if (channels_out == 4)
         dst_row[dst_col + 3] = 255;
     }
@@ -422,30 +379,25 @@ ImageBuffer ConversionHelperRGB(const ImageBuffer &src, int channels_out)
   return dst;
 }
 
-ImageBuffer RGBA2RGB(const ImageBuffer &img)
-{
+ImageBuffer RGBA2RGB(const ImageBuffer &img) {
   return ConversionHelperRGB(img, 3);
 }
 
-ImageBuffer RGB2RGBA(const ImageBuffer &img)
-{
+ImageBuffer RGB2RGBA(const ImageBuffer &img) {
   return ConversionHelperRGB(img, 4);
 }
 
 
 //---------------------------------------------------- Templated vector class
 template<typename _Tp, int dim>
-Vec<_Tp, dim>::Vec()
-{
+Vec<_Tp, dim>::Vec() {
   for (int i = 0; i < dim; ++i)
     val[i] = static_cast<_Tp>(0);
 }
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim>::Vec(_Tp x, _Tp y)
-{
-  if (dim != 2)
-  {
+Vec<_Tp, dim>::Vec(_Tp x, _Tp y) {
+  if (dim != 2) {
     std::stringstream s;
     s << "You cannot initialize " << TypeName() << " with 2 values.";
     throw std::invalid_argument(s.str());
@@ -455,10 +407,8 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y)
 }
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z)
-{
-  if (dim != 3)
-  {
+Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z) {
+  if (dim != 3) {
     std::stringstream s;
     s << "You cannot initialize " << TypeName() << " with 3 values.";
     throw std::invalid_argument(s.str());
@@ -470,10 +420,8 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z)
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z, _Tp w)
-{
-  if (dim != 4)
-  {
+Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z, _Tp w) {
+  if (dim != 4) {
     std::stringstream s;
     s << "You cannot initialize " << TypeName() << " with 4 values.";
     throw std::invalid_argument(s.str());
@@ -486,15 +434,13 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z, _Tp w)
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim>::Vec(const Vec<_Tp, dim>& other)
-{
+Vec<_Tp, dim>::Vec(const Vec<_Tp, dim>& other) {
   for (int i = 0; i < dim; ++i)
     val[i] = other.val[i];
 }
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim>::operator Vec<double, dim>() const
-{
+Vec<_Tp, dim>::operator Vec<double, dim>() const {
   Vec<double, dim> conv;
   for (int i = 0; i < dim; ++i)
     conv.val[i] = static_cast<double>(val[i]);
@@ -503,10 +449,8 @@ Vec<_Tp, dim>::operator Vec<double, dim>() const
 
 
 template<typename _Tp, int dim>
-const _Tp& Vec<_Tp, dim>::operator[](int i) const
-{
-  if (i >= dim)
-  {
+const _Tp& Vec<_Tp, dim>::operator[](int i) const {
+  if (i >= dim) {
     std::stringstream s;
     s << "Index-out-of-bounds: cannot access ["
       << i << "] for " << TypeName() << ".";
@@ -517,10 +461,8 @@ const _Tp& Vec<_Tp, dim>::operator[](int i) const
 
 
 template<typename _Tp, int dim>
-_Tp& Vec<_Tp, dim>::operator[](int i)
-{
-  if (i >= dim)
-  {
+_Tp& Vec<_Tp, dim>::operator[](int i) {
+  if (i >= dim) {
     std::stringstream s;
     s << "Index-out-of-bounds: cannot access ["
       << i << "] for " << TypeName() << ".";
@@ -531,92 +473,79 @@ _Tp& Vec<_Tp, dim>::operator[](int i)
 
 
 template<typename _Tp, int dim>
-const _Tp& Vec<_Tp, dim>::x() const
-{
+const _Tp& Vec<_Tp, dim>::x() const {
   return (*this)[0];
 }
 
 
 template<typename _Tp, int dim>
-const _Tp& Vec<_Tp, dim>::y() const
-{
+const _Tp& Vec<_Tp, dim>::y() const {
   return (*this)[1];
 }
 
 
 template<typename _Tp, int dim>
-const _Tp& Vec<_Tp, dim>::z() const
-{
+const _Tp& Vec<_Tp, dim>::z() const {
   return (*this)[2];
 }
 
 
 template<typename _Tp, int dim>
-const _Tp& Vec<_Tp, dim>::w() const
-{
+const _Tp& Vec<_Tp, dim>::w() const {
   return (*this)[3];
 }
 
 
 template<typename _Tp, int dim>
-_Tp& Vec<_Tp, dim>::x()
-{
+_Tp& Vec<_Tp, dim>::x() {
   return (*this)[0];
 }
 
 
 template<typename _Tp, int dim>
-_Tp& Vec<_Tp, dim>::y()
-{
+_Tp& Vec<_Tp, dim>::y() {
   return (*this)[1];
 }
 
 
 template<typename _Tp, int dim>
-_Tp& Vec<_Tp, dim>::z()
-{
+_Tp& Vec<_Tp, dim>::z() {
   return (*this)[2];
 }
 
 
 template<typename _Tp, int dim>
-_Tp& Vec<_Tp, dim>::w()
-{
+_Tp& Vec<_Tp, dim>::w() {
   return (*this)[3];
 }
 
 
 template<typename _Tp, int dim>
-void Vec<_Tp, dim>::SetX(_Tp x)
-{
+void Vec<_Tp, dim>::SetX(_Tp x) {
   (*this)[0] = x;
 }
 
 
 template<typename _Tp, int dim>
-void Vec<_Tp, dim>::SetY(_Tp y)
-{
+void Vec<_Tp, dim>::SetY(_Tp y) {
   (*this)[1] = y;
 }
 
 
 template<typename _Tp, int dim>
-void Vec<_Tp, dim>::SetZ(_Tp z)
-{
+void Vec<_Tp, dim>::SetZ(_Tp z) {
   (*this)[2] = z;
 }
 
 
 template<typename _Tp, int dim>
-void Vec<_Tp, dim>::SetW(_Tp w)
-{
+void Vec<_Tp, dim>::SetW(_Tp w) {
   (*this)[3] = w;
 }
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(const Vec<_Tp, dim>& rhs)
-{
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(const Vec<_Tp, dim>& rhs) {
   for (int i = 0; i < dim; ++i)
     val[i] += rhs[i];
   return *this;
@@ -624,8 +553,7 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(const Vec<_Tp, dim>& rhs)
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(const Vec<_Tp, dim>& rhs)
-{
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(const Vec<_Tp, dim>& rhs) {
   for (int i = 0; i < dim; ++i)
     val[i] -= rhs[i];
   return *this;
@@ -633,8 +561,7 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(const Vec<_Tp, dim>& rhs)
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> &Vec<_Tp, dim>::operator*=(double scale)
-{
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator*=(double scale) {
   for (int i = 0; i < dim; ++i)
     val[i] *= scale;
   return *this;
@@ -642,8 +569,7 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator*=(double scale)
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale)
-{
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale) {
   for (int i = 0; i < dim; ++i)
     val[i] /= scale;
   return *this;
@@ -651,8 +577,7 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale)
 
 
 template<typename _Tp, int dim>
-_Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other)
-{
+_Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other) {
   _Tp s = static_cast<_Tp>(0);
   for (int i = 0; i < dim; ++i)
     s += val[i] * other.val[i];
@@ -661,8 +586,7 @@ _Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other)
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other)
-{
+Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other) {
   if (dim != 3)
     throw std::logic_error("Cross product is only defined for 3-dim vectors!");
   // There's actually an analog for 2d space, but I didn't need
@@ -675,8 +599,7 @@ Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other)
 
 
 template<typename _Tp, int dim>
-double Vec<_Tp, dim>::Length() const
-{
+double Vec<_Tp, dim>::Length() const {
   double squared = 0.0;
   for (int i = 0; i < dim; ++i)
     squared += static_cast<double>(val[i] * val[i]);
@@ -685,8 +608,7 @@ double Vec<_Tp, dim>::Length() const
 
 
 template<typename _Tp, int dim>
-double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other)
-{
+double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other) {
   auto diff = *this - other;
   return diff.Length();
 }
@@ -701,8 +623,7 @@ template<> char VecType<double>()        { return 'd'; }
 
 
 template<typename _Tp, int dim>
-std::string Vec<_Tp, dim>::TypeName()
-{
+std::string Vec<_Tp, dim>::TypeName() {
   std::stringstream s;
   s << "Vec" << dim << VecType<_Tp>();
   return s.str();
@@ -710,29 +631,26 @@ std::string Vec<_Tp, dim>::TypeName()
 
 
 template<typename _Tp, int dim>
-std::string Vec<_Tp, dim>::ToString() const
-{
+std::string Vec<_Tp, dim>::ToString() const {
   std::stringstream s;
   s << Vec<_Tp, dim>::TypeName() << "("
     << std::fixed << std::setprecision(2);
-  for (int i = 0; i < dim; ++i)
-  {
+
+  for (int i = 0; i < dim; ++i) {
     s << val[i];
     if (i < dim -1)
       s << ", ";
   }
+
   s << ")";
   return s.str();
 }
 
 //---------------------------------------------------- Vector operators
 template<typename _Tp, int dim>
-bool operator==(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs)
-{
-  for (int i = 0; i < dim; ++i)
-  {
-    if (!eps_equal(lhs.val[i], rhs.val[i]))
-    {
+bool operator==(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs) {
+  for (int i = 0; i < dim; ++i) {
+    if (!eps_equal(lhs.val[i], rhs.val[i])) {
       return false;
     }
   }
@@ -741,47 +659,41 @@ bool operator==(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs)
 
 
 template<typename _Tp, int dim>
-bool operator!=(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs)
-{
+bool operator!=(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs) {
   return !(lhs == rhs);
 }
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> operator+(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs)
-{
+Vec<_Tp, dim> operator+(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs) {
   lhs += rhs;
   return lhs;
 }
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs)
-{
+Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs) {
   lhs -= rhs;
   return lhs;
 }
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double scale)
-{
+Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double scale) {
   lhs *= scale;
   return lhs;
 }
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> operator*(double scale, Vec<_Tp, dim> rhs)
-{
+Vec<_Tp, dim> operator*(double scale, Vec<_Tp, dim> rhs) {
   rhs *= scale;
   return rhs;
 }
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> operator/(Vec<_Tp, dim> lhs, double scale)
-{
+Vec<_Tp, dim> operator/(Vec<_Tp, dim> lhs, double scale) {
   lhs /= scale;
   return lhs;
 }
@@ -851,8 +763,7 @@ template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
 
 //---------------------------------------------------- Rectangle
-std::string Rect::ToString() const
-{
+std::string Rect::ToString() const {
   std::stringstream s;
   s << "Rect(" << std::fixed << std::setprecision(1)
     << cx << ", " << cy << ", " << width << ", " << height
@@ -860,15 +771,13 @@ std::string Rect::ToString() const
   return s.str();
 }
 
-bool operator==(const Rect& lhs, const Rect& rhs)
-{
+bool operator==(const Rect& lhs, const Rect& rhs) {
   return eps_equal(lhs.cx, rhs.cx) && eps_equal(lhs.cy, rhs.cy)
       && eps_equal(lhs.width, rhs.width) && eps_equal(lhs.height, rhs.height)
       && eps_equal(lhs.angle, rhs.angle) && eps_equal(lhs.radius, rhs.radius);
 }
 
-bool operator!=(const Rect& lhs, const Rect& rhs)
-{
+bool operator!=(const Rect& lhs, const Rect& rhs) {
   return !(lhs == rhs);
 }
 

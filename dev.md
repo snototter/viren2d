@@ -36,12 +36,12 @@ import numpy as np
 import viren2d
 
 # Dashed 4-px wide line
-line_style = viren2d.LineStyle(4, viren2d.colors.salmon(0.8), [20, 15])
+line_style = viren2d.LineStyle(4, viren2d.Color('salmon!80'), [20, 15])
 
 p = viren2d.Painter()
-p.set_canvas_rgb(800, 600, viren2d.colors.lavender())
+p.set_canvas_rgb(800, 600, 'lavender')
 
-TODO clean up example (ordering arguments works!!!)
+#TODO clean up example (ordering arguments works!!!)
 p.draw_line(pt1=(10, 200), pt2=(600, 10), line_style=line_style)
 p.draw_line(line_style=line_style, pt1=(100, 20), pt2=(600, 10))
 
@@ -459,5 +459,15 @@ canvas = np.array(p.get_canvas(), copy=False)
 imvis.imshow(canvas)
 ```
 
+# TODO Add Tests
+
+from vito import imvis
+import numpy as np
+import viren2d
+
+# Get a list of premixed/known colors
+viren2d.color_names()
+
+viren2d.Color.black = 3  # AttributeError: read-only!
 
 

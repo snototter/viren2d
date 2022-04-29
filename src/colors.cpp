@@ -1,12 +1,15 @@
+#include <algorithm>
+#include <cctype>
 #include <sstream>
 #include <iomanip>
 #include <map>
 #include <exception>
-#include <algorithm>
 
-#include <viren2d/colors.hpp>
-#include <viren2d/math.hpp>
-#include <viren2d/string_utils.hpp>
+#include <viren2d/colors.h>
+#include <viren2d/math.h>
+#include <viren2d/string_utils.h>
+#include <helpers/enum.h>
+
 
 namespace viren2d {
 /** @brief Color utilities in anonymuous namespace. */
@@ -26,11 +29,30 @@ double cast_RGB(double v) {
 } // namespace (anon)
 
 
+std::vector<std::string> ListNamedColors() {
+  std::vector<std::string> lst;
+  typedef ContinuousEnumIterator<NamedColor,
+    NamedColor::Black, NamedColor::Invalid> NamedColorIterator;
+
+  for (NamedColor cn: NamedColorIterator()) {
+    if (cn != NamedColor::Invalid)
+      lst.push_back(NamedColorToString(cn));
+  }
+  return lst;
+}
+
+
 NamedColor NamedColorFromString(const std::string &name) {
-  //FIXME slugify the given string first, then strip all dashes (e.g. to
-  // allow forest-green or "Forest Green" or forest_green)
-  std::string cname = strings::Replace(strings::Lower(name), "-", "");
-//  std::replace(cname.begin(), cname.end(), '-', 'x');
+  std::string cname = strings::Lower(name);
+  cname.erase(std::remove_if(cname.begin(), cname.end(), [](char ch) -> bool {
+      return ::isspace(ch) || (ch == '-') || (ch == '_');
+    }), cname.end());
+
+  // Ignore potential alpha specification, e.g. "blue!30"
+  size_t pos = cname.find('!');
+  if (pos != std::string::npos) {
+    cname = cname.substr(0, pos);
+  }
 
   if (cname.compare("black") == 0) {
     return NamedColor::Black;
@@ -45,6 +67,14 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Green;
   } else if (cname.compare("blue") == 0) {
     return NamedColor::Blue;
+  } else if (cname.compare("azure") == 0) {
+    return NamedColor::Azure;
+  } else if (cname.compare("bronze") == 0) {
+    return NamedColor::Bronze;
+  } else if (cname.compare("brown") == 0) {
+    return NamedColor::Brown;
+  } else if (cname.compare("carrot") == 0) {
+    return NamedColor::Carrot;
   } else if (cname.compare("copper") == 0) {
     return NamedColor::Copper;
   } else if (cname.compare("crimson") == 0) {
@@ -83,22 +113,31 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Orchid;
   } else if (cname.compare("purple") == 0) {
     return NamedColor::Purple;
+  } else if (cname.compare("rosered") == 0) {
+    return NamedColor::RoseRed;
   } else if (cname.compare("salmon") == 0) {
     return NamedColor::Salmon;
   } else if (cname.compare("silver") == 0) {
     return NamedColor::Silver;
+  } else if (cname.compare("spearmint") == 0) {
+    return NamedColor::Spearmint;
+  } else if (cname.compare("tangerine") == 0) {
+    return NamedColor::Tangerine;
+  } else if (cname.compare("taupe") == 0) {
+    return NamedColor::Taupe;
   } else if (cname.compare("tealgreen") == 0) {
     return NamedColor::TealGreen;
   } else if (cname.compare("turquoise") == 0) {
     return NamedColor::Turquoise;
-  } else if (cname.compare("rosered") == 0) {
-    return NamedColor::RoseRed;
+  } else if (cname.compare("yellow") == 0) {
+    return NamedColor::Yellow;
   } else if (cname.compare("invalid") == 0) {
     return NamedColor::Invalid;
   }
 
   std::stringstream s;
-  s << "Could not look up color name corresponding to \"" << name << "\".";
+  s << "Could not look up NamedColor corresponding to \""
+    << name << "\".";
   throw std::invalid_argument(s.str());
 }
 
@@ -112,6 +151,11 @@ std::string NamedColorToString(NamedColor color) {
     case NamedColor::Red: return "red";
     case NamedColor::Green: return "green";
     case NamedColor::Blue: return "blue";
+
+    case NamedColor::Azure: return "azure";
+    case NamedColor::Bronze: return "bronze";
+    case NamedColor::Brown: return "brown";
+    case NamedColor::Carrot: return "carrot";
     case NamedColor::Copper: return "copper";
     case NamedColor::Crimson: return "crimson";
     case NamedColor::Cyan: return "cyan";
@@ -131,20 +175,34 @@ std::string NamedColorToString(NamedColor color) {
     case NamedColor::Orange: return "orange";
     case NamedColor::Orchid: return "orchid";
     case NamedColor::Purple: return "purple";
+    case NamedColor::RoseRed: return "rose-red";
     case NamedColor::Salmon: return "salmon";
     case NamedColor::Silver: return "silver";
+    case NamedColor::Spearmint: return "spearmint";
+    case NamedColor::Tangerine: return "tangerine";
+    case NamedColor::Taupe: return "taupe";
     case NamedColor::TealGreen: return "teal-green";
     case NamedColor::Turquoise: return "turquoise";
-    case NamedColor::RoseRed: return "rose-red";
+    case NamedColor::Yellow: return "yellow";
 
     case NamedColor::Invalid: return "invalid";
 
     default:
-      s << "No string representation available for this named color ("
+      s << "No string representation available for this NamedColor ("
         << static_cast<unsigned short>(color) << ")";
       throw std::runtime_error(s.str());
   }
 }
+
+
+const Color Color::Black   = Color(NamedColor::Black);
+const Color Color::White   = Color(NamedColor::White);
+const Color Color::Red     = Color(NamedColor::Red);
+const Color Color::Green   = Color(NamedColor::Green);
+const Color Color::Blue    = Color(NamedColor::Blue);
+const Color Color::Cyan    = Color(NamedColor::Cyan);
+const Color Color::Magenta = Color(NamedColor::Magenta);
+const Color Color::Yellow  = Color(NamedColor::Yellow);
 
 
 Color::Color(const NamedColor color, double alpha) {
@@ -158,7 +216,7 @@ Color::Color(const NamedColor color, double alpha) {
     case NamedColor::White:
       red = green = blue = 1.0; break;
 
-    case NamedColor::Gray:  // "Grey" is simply an alias
+    case NamedColor::Gray:  // "Grey" is just an alias
       red = green = blue = 0.5; break;
 
     case NamedColor::Red:
@@ -169,6 +227,18 @@ Color::Color(const NamedColor color, double alpha) {
 
     case NamedColor::Blue:
       blue = 1.0; red = green = 0.0; break;
+
+    case NamedColor::Azure:
+      red = 0.0; green = 0.5; blue = 1.0; break;
+
+    case NamedColor::Bronze:
+      red = 0.8; green = 0.5; blue = 0.20; break;
+
+    case NamedColor::Brown:
+      red = 0.53; green = 0.33; blue = 0.04; break;
+
+    case NamedColor::Carrot:
+      red = 0.93; green = 0.57; blue = 0.13; break;
 
     case NamedColor::Copper:
       red = 0.72; green = 0.45; blue = 0.2; break;
@@ -185,10 +255,77 @@ Color::Color(const NamedColor color, double alpha) {
     case NamedColor::Freesia:
       red = 0.97; green = 0.77; blue = 0.14; break;
 
-//TODO continue!
+    case NamedColor::Gold:
+      red = 1.0; green = 0.84; blue = 0.0; break;
+
+    case NamedColor::Indigo:
+      red = 0.3; green = 0.0; blue = 0.51; break;
+
+    case NamedColor::Ivory:
+      red = 1.0; green = 1.0; blue = 0.94; break;
+
+    case NamedColor::Lavender:
+      red = 0.9; green = 0.9; blue = 0.98; break;
+
+    case NamedColor::LightBlue:
+      red = 0.68; green = 0.85; blue = 0.9; break;
+
+    case NamedColor::LimeGreen:
+      red = 0.2; green = 0.8; blue = 0.2; break;
+
+    case NamedColor::Magenta:
+      red = 1.0; green = 0.0; blue = 1.0; break;
+
+    case NamedColor::Maroon:
+      red = 0.5; green = 0.0; blue = 0.0; break;
+
+    case NamedColor::MidnightBlue:
+      red = 0.1; green = 0.1; blue = 0.44; break;
+
+    case NamedColor::NavyBlue:
+      red = 0.0; green = 0.0; blue = 0.5; break;
+
+    case NamedColor::Olive:
+      red = 0.5; green = 0.5; blue = 0.0; break;
+
+    case NamedColor::Orange:
+      red = 1.0; green = 0.65; blue = 0.0; break;
+
+    case NamedColor::Orchid:
+      red = 0.86; green = 0.44; blue = 0.84; break;
+
     case NamedColor::Purple:
       red = 0.63; green = 0.13; blue = 0.94; break;
-//TODO continue!
+
+    case NamedColor::RoseRed:
+      red = 1.0; green = 0.01; blue = 0.24; break;
+
+    case NamedColor::Salmon:
+      red = 0.98; green = 0.5; blue = 0.45; break;
+
+    case NamedColor::Silver:
+      red = 0.75; green = 0.75; blue = 0.75; break;
+
+    case NamedColor::Spearmint:
+      red = 0.27; green = 0.69; blue = 0.55; break;
+
+    case NamedColor::Tangerine:
+      red = 0.95; green = 0.52; blue = 0.0; break;
+
+    case NamedColor::Taupe:
+      red = 0.28; green = 0.24; blue = 0.20; break;
+
+    case NamedColor::TealGreen:
+      red = 0.0; green = 0.43; blue = 0.36; break;
+
+    case NamedColor::Turquoise:
+      red = 0.19; green = 0.84; blue = 0.78; break;
+
+    case NamedColor::Yellow:
+      red = green = 1.0; blue = 0.0; break;
+
+    case NamedColor::Invalid:
+      red = green = blue = -1.0; break;
 
     default:
       s << "No color code available for named color \""
@@ -198,13 +335,68 @@ Color::Color(const NamedColor color, double alpha) {
 }
 
 
-Color Color::Inverse() const {
-  return Color(1.0 - red, 1.0 - green, 1.0 - blue, alpha);
+Color::Color(const std::string &colorspec, double alpha) {
+  if (colorspec.length() > 1 && colorspec[0] == '#') {
+    *this = ColorFromHexString(colorspec, alpha);
+  } else {
+    // Check if we need special handling later on
+    const bool invert = colorspec.length() > 1 &&
+        ((colorspec[0] == '!') || (colorspec[0] == '-'));
+    const std::string cspec_ = invert ? colorspec.substr(1)
+                                      : colorspec;
+    // Get the "base" color from the string and invert if needed
+    *this = Color(NamedColorFromString(cspec_), alpha);
+    if (invert) {
+      *this = Inverse();
+    }
+
+    // Check if the colorspec string contained an alpha specification.
+    size_t pos = cspec_.find('!');
+    if (pos != std::string::npos) {
+      // If so, the "string alpha" (which must be an integer in [0, 100])
+      // will overwrite the constructor's alpha parameter
+      const std::string aspec_ = cspec_.substr(pos + 1);
+
+      // std::stoi will throw an invalid_argument if the input can't be parsed...
+      this->alpha = std::stoi(cspec_.substr(pos + 1)) / 100.0;
+      if (this->alpha < 0.0 || this->alpha > 1.0) {
+        std::stringstream s;
+        s << "Alpha in \"" << colorspec
+          << "\" must be an integer within [0, 100].";
+        throw std::invalid_argument(s.str());
+      }
+
+      // ... However, std::stoi will silently accept floating point
+      // representations (simply return the part before the comma). We
+      // explicitly require alpha in the string to be an integer:
+      if (!std::all_of(aspec_.begin(), aspec_.end(), ::isdigit)) {
+        std::stringstream s;
+        s << "Alpha in \"" << colorspec
+          << "\" must be an integer, but it contains non-digits.";
+        throw std::invalid_argument(s.str());
+      }
+    }
+  }
 }
 
 
-bool Color::IsValid() const
-{
+Color Color::Inverse() const {
+  if (IsValid()) {
+    if (IsShadeOfGray()) {
+      if (red < 0.5)
+        return Color(White, alpha);
+      else
+        return Color(Black, alpha);
+    } else {
+      return Color(1.0 - red, 1.0 - green, 1.0 - blue, alpha);
+    }
+  } else {
+    return *this;
+  }
+}
+
+
+bool Color::IsValid() const {
   if (red < 0.0 || red > 1.0)
     return false;
   if (green < 0.0 || green > 1.0)
@@ -217,18 +409,28 @@ bool Color::IsValid() const
 }
 
 
-std::string Color::ToString() const
-{
+bool Color::IsShadeOfGray(double epsilon) const {
+  // No need to check red vs blue thanks to transitivity
+  if ((red < (green - epsilon)) || (red > (green + epsilon))
+      || (green < (blue - epsilon)) || (green > (blue + epsilon)))
+    return false;
+  return true;
+}
+
+std::string Color::ToString() const {
   std::stringstream s;
-  s << "rgba(" << std::fixed << std::setprecision(2)
-    << red << ", " << green << ", " << blue << ", "
+  const auto rgb = ToRGBa();
+  s << "RGBa(" << static_cast<int>(std::get<0>(rgb))
+    << ", " << static_cast<int>(std::get<1>(rgb))
+    << ", " << static_cast<int>(std::get<2>(rgb))
+    << ", " << std::fixed << std::setprecision(2)
     << alpha << ")";
   return s.str();
 }
 
+
 std::tuple<unsigned char, unsigned char, unsigned char, double>
-Color::ToRGBA() const
-{
+Color::ToRGBa() const {
   return std::make_tuple(static_cast<unsigned char>(red * 255),
         static_cast<unsigned char>(green * 255),
         static_cast<unsigned char>(blue * 255),
@@ -236,18 +438,17 @@ Color::ToRGBA() const
 }
 
 
-std::string Color::ToHexString() const
-{
+std::string Color::ToHexString() const {
   std::string webcode("#000000");
   // RGB is easier to work with
-  auto RGBa = ToRGBA();
+  auto RGBa = ToRGBa();
 
   // Mapping from [0,15] to corresponding hex code character
   std::map<unsigned char, char> hex2char {
     {0, '0'}, {1, '1'}, {2, '2'}, {3, '3'}, {4, '4'},
     {5, '5'}, {6, '6'}, {7, '7'}, {8, '8'}, {9, '9'},
-    {10, 'A'}, {11, 'B'}, {12, 'C'}, {13, 'D'},
-    {14, 'E'}, {15, 'F'}
+    {10, 'a'}, {11, 'b'}, {12, 'c'}, {13, 'd'},
+    {14, 'e'}, {15, 'f'}
   };
 
   // For now, tuple elements can't be accessed
@@ -276,17 +477,51 @@ std::string Color::ToHexString() const
 }
 
 
-bool operator==(const Color& lhs, const Color& rhs)
-{
+Color Color::operator*(double scalar) const {
+  // Scale the color components (but not the alpha)
+  return Color(red * scalar, green * scalar,
+               blue * scalar, alpha);
+}
+
+
+Color &Color::operator*=(double scalar) {
+  *this = (*this) * scalar;
+  return *this;
+}
+
+
+Color Color::operator/(double scalar) const {
+  return Color(red / scalar, green / scalar,
+               blue / scalar, alpha);
+}
+
+
+Color &Color::operator/=(double scalar) {
+  *this = (*this) / scalar;
+  return *this;
+}
+
+
+Color Color::WithAlpha(double alpha) const {
+  return Color(*this, alpha);
+}
+
+
+bool operator==(const Color& lhs, const Color& rhs) {
   return eps_equal(lhs.red, rhs.red) && eps_equal(lhs.green, rhs.green)
       && eps_equal(lhs.blue, rhs.blue) && eps_equal(lhs.alpha, rhs.alpha);
 }
 
 
-bool operator!=(const Color& lhs, const Color& rhs)
-{
+bool operator!=(const Color& lhs, const Color& rhs) {
   return !(lhs == rhs);
 }
+
+
+Color operator*(double scalar, Color rhs) {
+  return rhs * scalar;
+}
+
 
 Color rgba(double r, double g, double b, double alpha)
 {
@@ -294,10 +529,37 @@ Color rgba(double r, double g, double b, double alpha)
                cast_01(alpha));
 }
 
-Color RGBA(double R, double G, double B, double alpha)
+Color RGBa(double R, double G, double B, double alpha)
 {
   return Color(cast_RGB(R/255.0), cast_RGB(G/255.0), cast_RGB(B/255.0),
                alpha);
+}
+
+
+Color ColorFromHexString(const std::string &webcode, double alpha) {
+  const size_t len = webcode.length();
+  if (len != 7) {
+    std::stringstream s;
+    s << "Input must have a leading '#' and exactly 6 hex digits, "
+      << "but was: \"" << webcode << "\".";
+    throw std::invalid_argument(s.str());
+  }
+
+  const std::string hex = strings::Lower(webcode);
+  unsigned char rgb[3];
+  for (size_t idx = 0; idx < 3; ++idx) {
+    unsigned char upper = hex[idx * 2 + 1];
+    upper = (upper <= '9') ? (upper - '0')
+                           : (upper - 'a' + 10);
+
+    unsigned char lower = hex[idx * 2 + 2];
+    lower = (lower <= '9') ? (lower - '0')
+                           : (lower - 'a' + 10);
+
+    rgb[idx] = (upper << 4) | lower;
+  }
+  return Color(rgb[0] / 255.0, rgb[1] / 255.0,
+               rgb[2] / 255.0, alpha);
 }
 
 Color InvalidColor()
@@ -306,105 +568,5 @@ Color InvalidColor()
   c.red = c.green = c.blue = c.alpha = -1.0;
   return c;
 }
-
-//TODO maybe add more named colors?
-// Similar to: https://matplotlib.org/3.5.0/_images/sphx_glr_named_colors_003.png
-// Check mixing ratios at: https://www.canva.com/colors/color-meanings/
-//namespace colors
-//{
-
-//Color Magenta(double alpha)
-//{
-//  return rgba(1, 0, 1, alpha);
-//}
-
-//Color Turquoise(double alpha)
-//{
-//  return rgba(0.19, 0.84, 0.78, alpha);
-//}
-
-//Color Orange(double alpha)
-//{
-//  return rgba(1, 0.65, 0, alpha);
-//}
-
-//Color Orchid(double alpha)
-//{
-//  return rgba(0.86, 0.44, 0.84, alpha);
-//}
-
-//Color Maroon(double alpha)
-//{
-//  return rgba(0.5, 0, 0, alpha);
-//}
-
-//Color Silver(double alpha)
-//{
-//  return rgba(0.75, 0.75, 0.75, alpha);
-//}
-
-//Color Gold(double alpha)
-//{
-//  return rgba(1, 0.84, 0, alpha);
-//}
-
-
-
-//Color TealGreen(double alpha)
-//{
-//  return rgba(0, 0.43, 0.36, alpha);
-//}
-
-//Color LimeGreen(double alpha)
-//{
-//  return rgba(0.2, 0.8, 0.2, alpha);
-//}
-
-//Color NavyBlue(double alpha)
-//{
-//  return rgba(0, 0, 0.5, alpha);
-//}
-
-//Color Indigo(double alpha)
-//{
-//  return rgba(0.3, 0, 0.51, alpha);
-//}
-
-
-//Color MidnightBlue(double alpha)
-//{
-//  return rgba(0.1, 0.1, 0.44, alpha);
-//}
-
-//Color Salmon(double alpha)
-//{
-//  return rgba(0.98, 0.5, 0.45, alpha);
-//}
-
-//Color RoseRed(double alpha)
-//{
-//  return rgba(1, 0.01, 0.24, alpha);
-//}
-
-//Color Olive(double alpha)
-//{
-//  return rgba(0.5, 0.5, 0, alpha);
-//}
-
-//Color LightBlue(double alpha)
-//{
-//  return rgba(0.68, 0.85, 0.9, alpha);
-//}
-
-//Color Lavender(double alpha)
-//{
-//  return rgba(0.9, 0.9, 0.98, alpha);
-//}
-
-//Color Ivory(double alpha)
-//{
-//  return rgba(1, 1, 0.94, alpha);
-//}
-//} // namespace colors
 
 } // namespace viren2d

@@ -5,11 +5,10 @@
 #include <string>
 #include <ostream>
 
-#include <viren2d/math.hpp>
+#include <viren2d/math.h>
 
 
-namespace viren2d
-{
+namespace viren2d {
 //---------------------------------------------------- Image buffer
 /**
  * @brief An ImageBuffer holds 8-bit images.
@@ -19,8 +18,7 @@ namespace viren2d
  *        latter does NOT take ownership of the memory (cleaning up
  *        remains the caller's responsibility).
  */
-struct ImageBuffer
-{
+struct ImageBuffer {
   unsigned char *data;
   int width;
   int height;
@@ -148,8 +146,7 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
  * @brief Template class to represent a vector/coordinate.
  */
 template<typename _Tp, int dim>
-class Vec
-{
+class Vec {
 public:
   using VT = Vec<_Tp, dim>;
 
@@ -199,8 +196,7 @@ public:
 
   std::string ToString() const;
 
-  friend std::ostream &operator<<(std::ostream &os, const Vec<_Tp, dim> &vec)
-  {
+  friend std::ostream &operator<<(std::ostream &os, const Vec<_Tp, dim> &vec) {
     os << vec.ToString();
     return os;
   }
@@ -252,8 +248,7 @@ typedef Vec<int, 3> Vec3i;
  * width, height, angle (clockwise rotation in degrees),
  * and a corner radius (for rounded rectangles).
  */
-struct Rect
-{
+struct Rect {
   double cx; /**< Center coordinate in x direction. */
   double cy; /**< Center coordinate in y direction. */
   double width;  /**< Width of rectangle. */
@@ -287,21 +282,23 @@ struct Rect
   {}
 
 
-  inline double half_width() const
-  { return width / 2.0; }
+  inline double half_width() const {
+    return width / 2.0;
+  }
 
 
-  inline double half_height() const
-  { return height / 2.0; }
+  inline double half_height() const {
+    return height / 2.0;
+  }
 
 
-  bool IsValid() const
-  { return width > 0.0 && height > 0.0; }
+  bool IsValid() const {
+    return width > 0.0 && height > 0.0;
+  }
 
   std::string ToString() const;
 
-  friend std::ostream &operator<<(std::ostream &os, const Rect &r)
-  {
+  friend std::ostream &operator<<(std::ostream &os, const Rect &r) {
     os << r.ToString();
     return os;
   }

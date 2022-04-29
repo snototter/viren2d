@@ -4,26 +4,22 @@
 #include <iomanip>
 
 // Custom
-#include <viren2d/math.hpp>
-#include <drawing_helpers/drawing_helpers.hpp>
+#include <viren2d/math.h>
+#include <helpers/drawing_helpers.h>
 
-namespace viren2d
-{
-namespace helpers
-{
+namespace viren2d {
+namespace helpers {
 //---------------------------------------------------- Arc/Circle
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
              const Vec2d &center, double radius,
              double angle1, double angle2,
-             const LineStyle &line_style, const Color &fill)
-{
+             const LineStyle &line_style, const Color &fill) {
   CheckCanvas(surface, context);
 
   cairo_save(context);
   cairo_arc(context, center.x(), center.y(), radius,
             deg2rad(angle1), deg2rad(angle2));
-  if (fill.alpha > 0.0)
-  {
+  if (fill.alpha > 0.0) {
     helpers::ApplyColor(context, fill);
     cairo_fill_preserve(context);
   }
@@ -38,8 +34,7 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
 //---------------------------------------------------- Line
 void DrawLine(cairo_surface_t *surface, cairo_t *context,
               const Vec2d &from, const Vec2d &to,
-              const LineStyle &line_style)
-{
+              const LineStyle &line_style) {
   CheckCanvas(surface, context);
 
   cairo_save(context);
@@ -60,10 +55,8 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
  *  Assumes that the viewport is already translated (and optionally
  *  rotated).
  */
-void PathHelperRoundedRect(cairo_t *context, const Rect &rect)
-{
-  if (rect.radius > std::min(rect.half_height(), rect.half_width()))
-  {
+void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
+  if (rect.radius > std::min(rect.half_height(), rect.half_width())) {
     std::stringstream s;
     s << "Invalid rounded rect: radius " << std::fixed << std::setprecision(2)
       << " must be less than half the smaller dimension (i.e. "
@@ -84,8 +77,7 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect)
 
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
               const Rect &rect, const LineStyle &line_style,
-              const Color &fill)
-{
+              const Color &fill) {
   CheckCanvas(surface, context);
 
   cairo_save(context);
@@ -99,8 +91,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
     cairo_rectangle(context, -rect.half_width(), -rect.half_height(),
                     rect.width, rect.height);
 
-  if (fill.alpha > 0.0)
-  {
+  if (fill.alpha > 0.0) {
     helpers::ApplyColor(context, fill);
     cairo_fill_preserve(context);
   }

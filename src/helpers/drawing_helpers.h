@@ -6,14 +6,12 @@
 #include <math.h>
 #include <cairo/cairo.h>
 
-#include <viren2d/colors.hpp>
-#include <viren2d/drawing.hpp>
+#include <viren2d/colors.h>
+#include <viren2d/drawing.h>
 
 
-namespace viren2d
-{
-namespace helpers
-{
+namespace viren2d {
+namespace helpers {
 //---------------------------------------------------- Used by all drawing helpers
 
 /**
@@ -27,17 +25,14 @@ namespace helpers
  *
  * This seemed to be the easiest/least confusing option.
  */
-inline void ApplyColor(cairo_t *context, const Color &color)
-{
+inline void ApplyColor(cairo_t *context, const Color &color) {
   cairo_set_source_rgba(context, color.blue, color.green,
                         color.red, color.alpha);
 }
 
 
-inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style)
-{
-  switch (line_style.line_cap)
-  {
+inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style) {
+  switch (line_style.line_cap) {
     case LineStyle::Cap::Butt:
       return CAIRO_LINE_CAP_BUTT;
 
@@ -51,10 +46,8 @@ inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style)
 }
 
 
-inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style)
-{
-  switch (line_style.line_join)
-  {
+inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
+  switch (line_style.line_join) {
     case LineStyle::Join::Miter:
       return CAIRO_LINE_JOIN_MITER;
 
@@ -69,8 +62,7 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style)
 
 
 /** @brief Changes the given Cairo context to use the given LineStyle definitions. */
-inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style)
-{
+inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style) {
   cairo_set_line_width(context, line_style.line_width);
   cairo_set_line_cap(context, LineCap2Cairo(line_style));
   cairo_set_line_join(context, LineJoin2Cairo(line_style));
@@ -82,8 +74,7 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style)
   //- https://zetcode.com/gfx/cairo/gradients/
   //- https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-rgba
 
-  if (!line_style.dash_pattern.empty())
-  {
+  if (!line_style.dash_pattern.empty()) {
     // https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
     const double *dash = &line_style.dash_pattern[0];
     cairo_set_dash(context, dash,
@@ -93,10 +84,8 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style)
 }
 
 
-
-
-inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context)
-{
+/** Ensure that the canvas is set up correctly. Should be called within each drawing helper function. */
+inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
   //TODO also check NIL surface (or if finalized, etc.)
   if (!surface)
     throw std::logic_error("Invalid cairo surface (nullptr)"
@@ -120,8 +109,7 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
 
 inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
                        const Vec2d &center, double radius,
-                       const LineStyle &line_style, const Color &fill)
-{
+                       const LineStyle &line_style, const Color &fill) {
   DrawArc(surface, context, center, radius, 0, 360, line_style, fill);
 }
 

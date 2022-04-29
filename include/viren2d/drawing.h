@@ -5,28 +5,24 @@
 #include <vector>
 #include <string>
 
-#include <viren2d/primitives.hpp>
-#include <viren2d/colors.hpp>
+#include <viren2d/primitives.h>
+#include <viren2d/colors.h>
 
-namespace viren2d
-{
+namespace viren2d {
 
 //-------------------------------------------------  LineStyle
 
 /** @brief Style definitions for lines & contours. */
-struct LineStyle
-{
+struct LineStyle {
   /** @brief How to render the endpoints of the line (or dash strokes). */
-  enum class Cap : unsigned char
-  {
+  enum class Cap : unsigned char {
     Butt = 0,
     Round,
     Square
   };
 
   /** @brief How to render the junction of two lines/segments. */
-  enum class Join : unsigned char
-  {
+  enum class Join : unsigned char {
     Miter = 0,
     Round,
     Bevel
@@ -69,8 +65,7 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
  * 5. For the next visualization, start at step 2 to
  *    reuse the allocated resources.
  */
-class Painter
-{
+class Painter {
 public:
   virtual ~Painter() {}
 
@@ -135,25 +130,26 @@ public:
   void DrawArc(const Vec2d &center, double radius,
                double angle1, double angle2,
                const LineStyle &line_style,
-               const Color &fill = Color(0, 0, 0, 0))
-  { DrawArcImpl(center, radius, angle1, angle2, line_style, fill); }
+               const Color &fill = Color(0, 0, 0, 0)) {
+    DrawArcImpl(center, radius, angle1, angle2, line_style, fill);
+  }
 
 
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
-                  const Color &fill = Color(0, 0, 0, 0))
-  { DrawCircleImpl(center, radius, line_style, fill); }
-
+                  const Color &fill = Color(0, 0, 0, 0)) {
+    DrawCircleImpl(center, radius, line_style, fill);
+  }
 
 
   virtual void DrawLine(const Vec2d &from, const Vec2d &to,
                         const LineStyle &line_style) = 0;
 
 
-
   void DrawRect(const Rect &rect, const LineStyle &line_style,
-                const Color &fill = Color(0, 0, 0, 0))
-  { DrawRectImpl(rect, line_style, fill); }
+                const Color &fill = Color(0, 0, 0, 0)) {
+    DrawRectImpl(rect, line_style, fill);
+  }
 
 
   //TODO DrawPoints - how to handle alternating colors???
@@ -176,6 +172,7 @@ protected:
 };
 
 std::unique_ptr<Painter> CreateImagePainter();
+
 } // namespace viren2d
 
 #endif // __VIREN2D_DRAWING_H__
