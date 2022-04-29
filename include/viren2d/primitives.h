@@ -4,9 +4,11 @@
 #include <stdexcept>
 #include <string>
 #include <ostream>
+#include <initializer_list>
 
 #include <viren2d/math.h>
 
+// FIXME add type conversions to new types (initializer lists; built-in types for more convenient/less cluttered use)
 
 namespace viren2d {
 //---------------------------------------------------- Image buffer
@@ -155,7 +157,10 @@ public:
   Vec(_Tp x, _Tp y);
   Vec(_Tp x, _Tp y, _Tp z);
   Vec(_Tp x, _Tp y, _Tp z, _Tp w);
+  Vec(std::initializer_list<_Tp> values);
+
   Vec(const Vec<_Tp, dim>& other);
+
 
   /** @brief Allow casting each vector to its double-precision counterpart.
    *  Needed because we work with cairo, which heavily uses doubles.
@@ -280,6 +285,12 @@ struct Rect {
     : cx(center_x), cy(center_y), width(w), height(h),
       angle(rot), radius(corner_radius)
   {}
+
+  /**
+   * Construct from initializer list with 4 to 6 elements (refer
+   * to any other c'tor for the order of parameters).
+   */
+  Rect(std::initializer_list<double> values);
 
 
   inline double half_width() const {

@@ -56,17 +56,40 @@ int main(int /*argc*/, char **/*argv*/) {
     viren2d::Rect rect(40 + i*100, 256, 80, 120, i*30, 30);
 
     // Invocation with explicit types:
-    painter->DrawRect(rect, viren2d::LineStyle(6, viren2d::Color("indigo!90")),
+    painter->DrawRect(rect,
+                      viren2d::LineStyle(6, viren2d::Color("indigo!90")),
                       viren2d::Color("cyan!20"));
 
     rect.cy -= (rect.height + 10);
-    // Invocation with implicit cast (color can be created from a (C) string)
-    painter->DrawRect(rect, viren2d::LineStyle(6, "taupe!90"), "cyan!60");
+    // Invocation with implicit casts:
+    // * Rect can be created from an initializer_list of doubles
+    // * Color can be created from a C string
+    painter->DrawRect({40.0 + i*100.0, 100, 80, 120, i*30.0, 30},
+                      viren2d::LineStyle(6, "taupe!90"),
+                      "cyan!60");
   }
 
+  //  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
+  //                    viren2d::LineStyle(10, viren2d::colors::Maroon(0.8)));
+
+  painter->DrawLine({10.0, 10.0}, {image_buffer.width-10.0, image_buffer.height-10.0},
+                    viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineStyle::Cap::Round));
+
+#ifdef WITH_OPENCV
+  // The last bit of OpenCV dependency (only for displaying the image ;-)
+  viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);
+  img_buffer.RGB2BGR(); // Warning: Currently, the buffer is shared!!
+  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
+                    CV_MAKETYPE(CV_8U, img_buffer.channels),
+                    img_buffer.data, img_buffer.stride);
+  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
+  cv::waitKey();
+#endif // WITH_OPENCV
+
+
 ////  painter->SetCanvas(img.cols, img.rows, viren2d::RGBA(0, 0, 200));
-//  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
-//                    viren2d::LineStyle(10, viren2d::colors::Maroon(0.8)));
+
+
 
 //  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
 //                    viren2d::LineStyle(6, viren2d::colors::LimeGreen(), {5, 10, 40, 10},
@@ -85,17 +108,6 @@ int main(int /*argc*/, char **/*argv*/) {
 
 //  viren2d::ImageBuffer canvas = painter->GetCanvas(false);
 //  viren2d::SaveImage("dummy-canvas.png", canvas);
-
-#ifdef WITH_OPENCV
-  // The last bit of OpenCV dependency (only for displaying the image ;-)
-  viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);
-  img_buffer.RGB2BGR(); // Warning: Currently, the buffer is shared!!
-  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
-                    CV_MAKETYPE(CV_8U, img_buffer.channels),
-                    img_buffer.data, img_buffer.stride);
-  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
-  cv::waitKey();
-#endif // WITH_OPENCV
 
   return 0;
 }

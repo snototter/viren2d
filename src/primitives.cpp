@@ -420,6 +420,20 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z) {
 
 
 template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec(std::initializer_list<_Tp> values) {
+  if (static_cast<size_t>(dim) != values.size()) {
+    std::stringstream s;
+    s << "You cannot initialize " << TypeName()
+      << " with " << values.size() << " values";
+    throw std::invalid_argument(s.str());
+  }
+
+  for (size_t i = 0; i < values.size(); ++i)
+    val[i] = values.begin()[i];
+}
+
+
+template<typename _Tp, int dim>
 Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z, _Tp w) {
   if (dim != 4) {
     std::stringstream s;
@@ -763,6 +777,29 @@ template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
 
 //---------------------------------------------------- Rectangle
+
+Rect::Rect(std::initializer_list<double> values) {
+  if (values.size() < 4 || values.size() > 6) {
+    std::stringstream s;
+    s << "Rect c'tor requires 4 to 6 entries in initializer_list, "
+      << "but got " << values.size() << ".";
+    throw std::invalid_argument(s.str());
+  }
+
+  const auto val = values.begin();
+  cx = val[0];
+  cy = val[1];
+  width = val[2];
+  height = val[3];
+
+  if (values.size() > 4)
+    angle = val[4];
+
+  if (values.size() > 5)
+    radius = val[5];
+}
+
+
 std::string Rect::ToString() const {
   std::stringstream s;
   s << "Rect(" << std::fixed << std::setprecision(1)
