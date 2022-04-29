@@ -16,6 +16,7 @@ project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
 option(viren2d_WITH_DEMO "Build C++ demo." ON)
 option(viren2d_WITH_PYTHON "Build Python bindings." ON)
 option(viren2d_WITH_TESTS "Build test suite." ON)
+option(viren2d_WITH_IMWRITE "Include image saving capabilities via stb." OFF)
 option(INSTALL_viren2d "Configure installation target." ON)
 
 
@@ -98,6 +99,10 @@ add_library(viren2d::viren2d ALIAS viren2d)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Cairo REQUIRED)
 target_link_libraries(viren2d PRIVATE ${Cairo_LIBS})
+
+if(viren2d_WITH_IMWRITE)
+  target_compile_definitions(viren2d PRIVATE viren2d_WITH_IMWRITE)
+endif()
 
 
 # Set up the include paths for internal usage (PRIVATE), usage if this CMakeLists.txt is

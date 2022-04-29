@@ -64,7 +64,7 @@ int main(int /*argc*/, char **/*argv*/) {
     // Invocation with implicit casts:
     // * Rect can be created from an initializer_list of doubles
     // * Color can be created from a C string
-    painter->DrawRect({40.0 + i*100.0, 100, 80, 120, i*30.0, 30},
+    painter->DrawRect({40.0 + i*100.0, 100, 80, 120, i*30.0, 20},
                       viren2d::LineStyle(6, "taupe!90"),
                       "cyan!60");
   }
@@ -75,6 +75,8 @@ int main(int /*argc*/, char **/*argv*/) {
   painter->DrawLine({10.0, 10.0}, {image_buffer.width-10.0, image_buffer.height-10.0},
                     viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineStyle::Cap::Round));
 
+//  viren2d::SaveImage("test.jpg", painter->GetCanvas(false));
+
 #ifdef WITH_OPENCV
   // The last bit of OpenCV dependency (only for displaying the image ;-)
   viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);
@@ -82,7 +84,7 @@ int main(int /*argc*/, char **/*argv*/) {
   cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
                     CV_MAKETYPE(CV_8U, img_buffer.channels),
                     img_buffer.data, img_buffer.stride);
-  cv::imshow("ImageBuffer --> cv::Mat", cv_buffer);
+  cv::imshow("Painter's Canvas", cv_buffer);
   cv::waitKey();
 #endif // WITH_OPENCV
 
