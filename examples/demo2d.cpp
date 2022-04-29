@@ -75,7 +75,11 @@ int main(int /*argc*/, char **/*argv*/) {
   painter->DrawLine({10.0, 10.0}, {image_buffer.width-10.0, image_buffer.height-10.0},
                     viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineStyle::Cap::Round));
 
-//  viren2d::SaveImage("test.jpg", painter->GetCanvas(false));
+  try {
+    viren2d::SaveImage("test.jpg", painter->GetCanvas(false));
+  }  catch (const std::runtime_error &e) {
+    std::cerr << "Could not save canvas: " << e.what() << std::endl;
+  }
 
 #ifdef WITH_OPENCV
   // The last bit of OpenCV dependency (only for displaying the image ;-)
