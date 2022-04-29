@@ -67,6 +67,15 @@ TEST(ColorTest, BasicInitialization) {
 }
 
 
+TEST(ColorTest, StringConversion) {
+  viren2d::Color color = "cyan!20";
+  EXPECT_EQ(color, viren2d::Color::Cyan.WithAlpha(0.20));
+
+  color = viren2d::Color(std::string("taupe!80"));
+  EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::Taupe, 0.8));
+}
+
+
 TEST(ColorTest, ValidityChecks) {
   // Is color valid?
   viren2d::Color color;

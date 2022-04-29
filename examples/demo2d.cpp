@@ -13,9 +13,9 @@
 
 int main(int /*argc*/, char **/*argv*/) {
   std::cout << viren2d::Color(viren2d::NamedColor::Black).ToString() << std::endl
-            << viren2d::Color("white", 0.1).ToString() << std::endl
+            << viren2d::Color("white").ToString() << std::endl
             << viren2d::Color("red").ToHexString() << std::endl
-            << viren2d::Color("green", 0.1).ToHexString() << std::endl;
+            << viren2d::Color("green").ToHexString() << std::endl;
   auto x = viren2d::Color("blue");
   x = viren2d::Color("#aabbcc");
   //------------------------------------------------------
@@ -53,9 +53,15 @@ int main(int /*argc*/, char **/*argv*/) {
 ////  painter->SetCanvas(600, 400, viren2d::RGBA(255, 255, 255));
 
   for (int i = 0; i < 4; ++i) {
-    painter->DrawRect(viren2d::Rect(40 + i*100, 256, 80, 120, i*30, 30),
-                      viren2d::LineStyle(6, viren2d::Color("indigo!90")),
+    viren2d::Rect rect(40 + i*100, 256, 80, 120, i*30, 30);
+
+    // Invocation with explicit types:
+    painter->DrawRect(rect, viren2d::LineStyle(6, viren2d::Color("indigo!90")),
                       viren2d::Color("cyan!20"));
+
+    rect.cy -= (rect.height + 10);
+    // Invocation with implicit cast (color can be created from a (C) string)
+    painter->DrawRect(rect, viren2d::LineStyle(6, "taupe!90"), "cyan!60");
   }
 
 ////  painter->SetCanvas(img.cols, img.rows, viren2d::RGBA(0, 0, 200));

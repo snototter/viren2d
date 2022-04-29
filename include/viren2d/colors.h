@@ -159,9 +159,27 @@ class Color {
   //TESTED
   Color(const NamedColor color, double alpha=1.0);
 
-  // TODO doc
-  //TODO nice-to-have: init from colorname (black, maroon, ...) OR from hex code (if strstartswith('#'))
-  Color(const std::string &colorspec, double alpha=1.0);
+
+  /** Create a color from the given color specification (std::string) and alpha value. */
+  Color(const std::string &colorspec, double alpha);
+
+
+  /** Create a color from the given color specification (std::string). */
+  explicit Color(const std::string &colorspec)
+    : Color(colorspec, 1.0)
+  {}
+
+
+  /** Create a color from the given color specification (C string) and alpha value. */
+  Color(const char *colorspec, double alpha)
+    : Color(std::string(colorspec), alpha)
+  {}
+
+  /** Create a color from the given color specification (C string). */
+  Color(const char *colorspec)
+    : Color(colorspec, 1.0)
+  {}
+
 
   /**
    * @brief Returns the inverse/complementary color.

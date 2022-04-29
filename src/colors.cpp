@@ -342,8 +342,8 @@ Color::Color(const std::string &colorspec, double alpha) {
     // Check if we need special handling later on
     const bool invert = colorspec.length() > 1 &&
         ((colorspec[0] == '!') || (colorspec[0] == '-'));
-    const std::string cspec_ = invert ? colorspec.substr(1)
-                                      : colorspec;
+    const std::string &cspec_ = invert ? colorspec.substr(1)
+                                       : colorspec;
     // Get the "base" color from the string and invert if needed
     *this = Color(NamedColorFromString(cspec_), alpha);
     if (invert) {
@@ -358,7 +358,7 @@ Color::Color(const std::string &colorspec, double alpha) {
       const std::string aspec_ = cspec_.substr(pos + 1);
 
       // std::stoi will throw an invalid_argument if the input can't be parsed...
-      this->alpha = std::stoi(cspec_.substr(pos + 1)) / 100.0;
+      this->alpha = std::stoi(aspec_) / 100.0;
       if (this->alpha < 0.0 || this->alpha > 1.0) {
         std::stringstream s;
         s << "Alpha in \"" << colorspec
@@ -528,6 +528,7 @@ Color rgba(double r, double g, double b, double alpha)
   return Color(cast_01(r), cast_01(g), cast_01(b),
                cast_01(alpha));
 }
+
 
 Color RGBa(double R, double G, double B, double alpha)
 {
