@@ -461,13 +461,44 @@ imvis.imshow(canvas)
 
 # TODO Add Tests
 
+```python
 from vito import imvis
 import numpy as np
 import viren2d
 
+viren2d.__version__
+
 # Get a list of premixed/known colors
 viren2d.color_names()
 
-viren2d.Color.black = 3  # AttributeError: read-only!
+# AttributeError: read-only!
+viren2d.Color.black = 3
 
+
+
+# Dashed 4-px wide line
+## Explicit types
+line_style = viren2d.LineStyle(4, viren2d.Color('salmon!80'), [20, 15])
+## Implicit casts
+line_style = viren2d.LineStyle(4, 'navy-blue!80', [20, 15], viren2d.LineStyle.Cap.Round)
+
+#TODO/FIXME maybe move Cap/Joint to parent namespace in both c++ and python?
+
+p = viren2d.Painter()
+p.set_canvas_rgb(800, 600, 'lavender')
+p.draw_line((10, 200), (600, 10), line_style)
+
+
+line_style.color = "azure"
+line_style.line_cap = viren2d.LineStyle.Cap.Round
+line_style.dash_pattern = [50, 10, 10, 10]
+p.draw_line((0, 0), (400, 400), line_style)
+
+
+# Get SHARED image buffer (changed by subsequent draw_... calls)
+img = np.array(p.get_canvas(), copy=False)
+imvis.imshow(img)
+
+
+```
 
