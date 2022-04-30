@@ -396,12 +396,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "be used in several Painter methods to request special\n"
            "color handling (e.g. switching to the inverse color).")
       .def(py::init<const viren2d::Color &>(),
-           "Initializes a color as copy.",
+           "Initializes a color as copy. If you want the same color\n"
+           "with a different alpha, use with_alpha() instead.",
            py::arg("color"))
-      .def(py::init<const viren2d::Color &, double>(),
-           "Initializes a color as copy (with optionally replacing\n"
-           "the alpha value).",
-           py::arg("color"), py::arg("alpha")=1.0)
       .def(py::init<>(&moddef::CreateColor),
            "Initialize from tuple (all values must\n"
            "be within [0, 1]):\n"
@@ -430,8 +427,24 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def("__str__", &viren2d::Color::ToString)
       .def(py::pickle(&pickling::SerializeColor,
                       &pickling::DeserializeColor))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+      .def(py::self == py::self,
+           "'==' operator: Returns True if ALL components (r, g,\n"
+           "               b & alpha) are equal.")
+      .def(py::self != py::self,
+           "'!=' operator: Returns True if ANY component (r, g,\n"
+           "               b or alpha) differ.")
+      .def(py::self += py::self,
+           "'+=' operator: Adds the other's r,g,b values and clamps\n"
+           "               the result to [0, 1]. Alpha will not be changed.")
+      .def(py::self + py::self,
+           "'+' operator: Adds the r,g,b values of two Color objects and\n"
+           "              clamps the result to [0, 1]. Alpha will not be changed.")
+      .def(py::self -= py::self,
+           "'+=' operator: Subtracts the other's r,g,b values and clamps\n"
+           "               the result to [0, 1]. Alpha will not be changed.")
+      .def(py::self - py::self,
+           "'-' operator: Subtracts the r,g,b values of rhs from lhs and\n"
+           "              clamps the result to [0, 1]. Alpha will not be changed.")
       .def(py::self *= float(),
            "Scales r,g,b by the given factor (alpha remains unchanged).")
       .def(float() * py::self,
@@ -448,6 +461,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def("as_hex", &viren2d::Color::ToHexString,
            "Returns the hex web color code representation,\n"
            "e.g. '#0011ff' (alpha is ignored).")
+      .def("with_alpha", &viren2d::Color::WithAlpha,
+           "Return a color with the same r,g,b components, but the given alpha.",
+           py::arg("alpha"))
       .def_readwrite("red", &viren2d::Color::red,
                      "Red component within [0, 1].")
       .def_readwrite("green", &viren2d::Color::green,
@@ -458,23 +474,23 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                      "Opacity within [0, 1].")
       // TODO pybind11 bug, documentation of static members is
       //      not carried over to python: https://github.com/pybind/pybind11/issues/3815
-      .def_readonly_static("white", &viren2d::Color::White,
+      .def_readonly_static("White", &viren2d::Color::White,
                            "Read-only white color instantiation (for convenience).")
-      .def_readonly_static("black", &viren2d::Color::Black,
+      .def_readonly_static("Black", &viren2d::Color::Black,
                            "Read-only black color instantiation (for convenience).")
-      //.def_readonly_static("red", &viren2d::Color::Red,
-      //                     "Read-only red color instantiation (for convenience).")
-      //.def_readonly_static("green", &viren2d::Color::Green,
-      //                     "Read-only green color instantiation (for convenience).")
-      //.def_readonly_static("blue", &viren2d::Color::Blue,
-      //                     "Read-only blue color instantiation (for convenience).")
-      .def_readonly_static("cyan", &viren2d::Color::Cyan,
+      .def_readonly_static("Red", &viren2d::Color::Red,
+                           "Read-only red color instantiation (for convenience).")
+      .def_readonly_static("Green", &viren2d::Color::Green,
+                           "Read-only green color instantiation (for convenience).")
+      .def_readonly_static("Blue", &viren2d::Color::Blue,
+                           "Read-only blue color instantiation (for convenience).")
+      .def_readonly_static("Cyan", &viren2d::Color::Cyan,
                            "Read-only cyan color instantiation (for convenience).")
-      .def_readonly_static("magenta", &viren2d::Color::Magenta,
+      .def_readonly_static("Magenta", &viren2d::Color::Magenta,
                            "Read-only magenta color instantiation (for convenience).")
-      .def_readonly_static("yellow", &viren2d::Color::Yellow,
+      .def_readonly_static("Yellow", &viren2d::Color::Yellow,
                            "Read-only yellow color instantiation (for convenience).")
-      .def("is_valid", &viren2d::Color::IsValid,
+      .def("is_valid", &viren2d::Color::IsValid, //FUCK operator+
            "Returns True if this is a valid rgba color, where all\n"
            "components are within [0, 1].")
       .def("inverse", &viren2d::Color::Inverse,
@@ -485,7 +501,10 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "Why special handling of gray? Complementary colors should be\n"
            "used to provide good contrast/highlights - thus, having the\n"
            "true inverse (i.e. 1-r|g|b) for medium gray (r|g|b close to 127)\n"
-           "would not be too useful.");
+           "would not be too useful.")
+      .def("is_shade_of_gray", &viren2d::Color::IsShadeOfGray,
+           "Checks if all rgb components almost the same (+/- the given epsilon).",
+           py::arg("eps")=0.02);
 
   // A Color can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::Color>();

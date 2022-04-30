@@ -477,6 +477,11 @@ std::string Color::ToHexString() const {
 }
 
 
+Color Color::WithAlpha(double alpha) const {
+  return Color(*this, alpha);
+}
+
+
 Color Color::operator*(double scalar) const {
   // Scale the color components (but not the alpha)
   return Color(red * scalar, green * scalar,
@@ -502,8 +507,19 @@ Color &Color::operator/=(double scalar) {
 }
 
 
-Color Color::WithAlpha(double alpha) const {
-  return Color(*this, alpha);
+Color &Color::operator+=(const Color &rhs) {
+  red = cast_01(red + rhs.red);
+  green = cast_01(green + rhs.green);
+  blue = cast_01(blue + rhs.blue);
+  return *this;
+}
+
+
+Color &Color::operator-=(const Color &rhs) {
+  red = cast_01(red - rhs.red);
+  green = cast_01(green - rhs.green);
+  blue = cast_01(blue - rhs.blue);
+  return *this;
 }
 
 
@@ -520,6 +536,18 @@ bool operator!=(const Color& lhs, const Color& rhs) {
 
 Color operator*(double scalar, Color rhs) {
   return rhs * scalar;
+}
+
+
+Color operator+(Color lhs, const Color& rhs) {
+  lhs += rhs;
+  return lhs;
+}
+
+
+Color operator-(Color lhs, const Color& rhs) {
+  lhs -= rhs;
+  return lhs;
 }
 
 

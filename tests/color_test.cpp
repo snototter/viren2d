@@ -41,6 +41,13 @@ TEST(ColorTest, BasicInitialization) {
                      color.blue * 255.0, color.alpha);
   EXPECT_EQ(c2, color);
 
+  // Init from static members
+  color = viren2d::Color::Magenta.WithAlpha(0.25);
+  EXPECT_EQ(color, viren2d::Color("magenta!25"));
+
+  color = viren2d::Color::Blue.WithAlpha(0.9);
+  EXPECT_EQ(color, viren2d::Color("blue!90"));
+
   // Copy constructor
   viren2d::Color copy(color);
   EXPECT_EQ(copy, color);
@@ -73,6 +80,9 @@ TEST(ColorTest, StringConversion) {
 
   color = viren2d::Color(std::string("taupe!80"));
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::Taupe, 0.8));
+
+  color = viren2d::Color("navy----blue!77");
+  EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::NavyBlue, 0.77));
 }
 
 
@@ -82,6 +92,18 @@ TEST(ColorTest, ValidityChecks) {
   EXPECT_FALSE(color.IsValid());
 
   color = viren2d::Color("black");
+  EXPECT_TRUE(color.IsValid());
+
+  color = viren2d::Color("invalid");
+  EXPECT_FALSE(color.IsValid());
+
+  color = viren2d::Color("forest-green");
+  EXPECT_TRUE(color.IsValid());
+
+  color = viren2d::Color(viren2d::NamedColor::Invalid);
+  EXPECT_FALSE(color.IsValid());
+
+  color = viren2d::Color("navy-blue");
   EXPECT_TRUE(color.IsValid());
 
   color.red = -1.0;
@@ -306,4 +328,23 @@ TEST(ColorTest, Operators) {
   color /= 5;
   EXPECT_TRUE(CheckColor(color, 0.1, 0.0, 0.1, 0.7));
   EXPECT_EQ(viren2d::Color::Magenta.WithAlpha(0.7) / 10.0, color);
+
+  // Addition with saturation casts
+  auto add = color + color;
+  EXPECT_EQ(2 * color, add);
+  copy.green = 0.3;
+  add += copy;
+  EXPECT_EQ(add, viren2d::rgba(0.7, 0.3, 0.7, 0.7));
+  // but the operand should not have changed
+  EXPECT_EQ(viren2d::Color::Magenta.WithAlpha(0.7) / 10.0, color);
+  // saturation
+  add += viren2d::Color::White;
+  EXPECT_EQ(add, "white!70");
+
+  // Subtract
+  add -= 2 * viren2d::Color::Magenta;
+  EXPECT_EQ(add, "GREEN!70");
+
+  add = copy - color;
+  EXPECT_EQ(add, viren2d::rgba(0.4, 0.3, 0.4, 0.7));
 }

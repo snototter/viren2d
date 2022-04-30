@@ -17,9 +17,6 @@ _Tp saturation_cast(_Tp val, _Tp low, _Tp high) {
 }
 
 
-//-------------------------------------------------  Color
-
-
 /**
  * @brief Enum to create a @see Color instance from these named premixes.
  */
@@ -123,6 +120,7 @@ class Color {
   double blue;  /**< Blue component within [0,1]. */
   double alpha; /**< Alpha (opacity) component within [0,1]. */
 
+
   // For convenience, we provide the primary colors (and their
   // complementaries).
   static const Color White;
@@ -134,13 +132,15 @@ class Color {
   static const Color Magenta;
   static const Color Yellow;
 
-  //TODO doc initializes an invalid color
-  //TESTED
+
+  /**
+   * @brief Constructs an invalid color (used to indicate
+   * "special" color handling in some drawing functions).
+   */
   Color() : red(-1.0), green(-1.0), blue(-1.0), alpha(1.0)
   {}
 
-  // TODO doc initialize from r,g,b clamped to [0,1]
-  //TESTED
+  /** @brief Construct a color from the given components, clamped to [0, 1]. */
   Color(double red, double green, double blue, double alpha)
     : red(saturation_cast<double>(red, 0.0, 1.0)),
       green(saturation_cast<double>(green, 0.0, 1.0)),
@@ -148,19 +148,18 @@ class Color {
       alpha(saturation_cast<double>(alpha, 0.0, 1.0))
   {}
 
-  // TODO doc initialize from different color with different transparency
-  //TESTED
+  /** @brief Copy the other's rgb components and set a custom alpha. */
   Color(const Color &other, double alpha)
     : red(other.red), green(other.green), blue(other.blue),
       alpha(saturation_cast<double>(alpha, 0.0, 1.0))
   {}
 
+  /** @brief Copy the others rgb & alpha components. */
   Color(const Color &other)
     : Color(other, other.alpha)
   {}
 
-  // TODO doc initialize from a color name
-  //TESTED
+  /** @brief Construct a color from the NamedColor enumeration. */
   Color(const NamedColor color, double alpha=1.0);
 
 
@@ -179,10 +178,18 @@ class Color {
     : Color(std::string(colorspec), alpha)
   {}
 
+
   /** Create a color from the given color specification (C string). */
   Color(const char *colorspec)
     : Color(colorspec, 1.0)
   {}
+
+
+  // Nothing special about the color class, so we can have
+  // the default assignment/move operators/c'tors:
+  Color& operator=(const Color &other) = default;
+  Color(Color &&) = default;
+  Color& operator=(Color &&) = default;
 
 
   /**
@@ -198,33 +205,47 @@ class Color {
    */
   Color Inverse() const;
 
-  //TESTED
+
   /** @brief Checks if all rgba components are within [0, 1]. */
   bool IsValid() const;
 
-  //TESTED
+
   /** @brief Checks if all rgb components almost the same (+/- the given epsilon). */
   bool IsShadeOfGray(double epsilon=0.02) const;
 
+
   /** @brief Human readable RGBa representation. */
   std::string ToString() const;
+
 
   /** @brief Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255] and alpha in [0, 1]. */
   std::tuple<unsigned char, unsigned char, unsigned char, double>
   ToRGBa() const;
 
-  //TESTED
+
   /** @brief Returns the web color code, e.g. "#dcdce4" (alpha value is ignored). */
   std::string ToHexString() const;
 
-  Color operator*(double scalar) const;
-  Color &operator*=(double scalar);
-
-  Color operator/(double scalar) const;
-  Color &operator/=(double scalar);
 
   /** @brief Return a color with the same r,g,b components, but the given alpha. */
   Color WithAlpha(double alpha) const;
+
+  /** @brief Scale rgb and clamp to [0, 1]. Alpha stays unchanged. */
+  Color operator*(double scalar) const;
+
+  Color &operator*=(double scalar);
+
+  /** @brief Divide rgb by the factor and clamp to [0, 1]. Alpha stays unchanged. */
+  Color operator/(double scalar) const;
+
+  Color &operator/=(double scalar);
+
+  /** @brief Adds the other's rgb and clamps the result to [0, 1]. Alpha stays unchanged. */
+  Color &operator+=(const Color &rhs);
+
+  /** @brief Subtracts the other's rgb and clamps the result to [0, 1]. Alpha stays unchanged. */
+  Color &operator-=(const Color &rhs);
+
 
   friend std::ostream &operator<<(std::ostream &os, const Color &col) {
     os << col.ToString();
@@ -237,7 +258,14 @@ class Color {
 
 bool operator==(const Color& lhs, const Color& rhs);
 bool operator!=(const Color& lhs, const Color& rhs);
+
+
+//-------------------------------------------------  Arithmetic operators
+
 Color operator*(double scalar, Color rhs);
+Color operator+(Color lhs, const Color& rhs);
+Color operator-(Color lhs, const Color& rhs);
+
 
 //-------------------------------------------------  Convenience initialization for Color
 
