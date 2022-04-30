@@ -237,7 +237,9 @@ if(viren2d_WITH_TESTS)
 
     add_executable(viren2d_test
         src/helpers/enum.h
-        tests/color_test.cpp)
+        tests/color_test.cpp
+        tests/vector_test.cpp
+        tests/imagebuffer_test.cpp)
 
     target_include_directories(viren2d_test
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

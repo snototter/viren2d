@@ -296,47 +296,63 @@ void RegisterVec(py::module &m) {
           << dim << "-element tuple.";
 
   vec_cls.def(py::init<>())
-         .def(py::init<>(&CreateVec<_Tp, dim>),
-              doc_tpl.str().c_str())
-         .def("__repr__",
-              [](const VC &v)
-              { return "<viren2d." + v.ToString() + ">"; })
-         .def("__str__", &VC::ToString)
-         .def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x), &VC::SetX,
-                       "Accesses the first dimension.")
-         .def_property("y", static_cast<const _Tp &(VC::*)() const>(&VC::y), &VC::SetY,
-                       "Accesses the second dimension.")
-         .def("__setitem__", [](VC &self, unsigned index, _Tp v)
-                             { self[index] = v; })
-         .def("__getitem__", [](const VC &self, unsigned index)
-                             { return self[index]; })
-         .def("dot", &VC::Dot, py::arg("other"))
-         .def("length", &VC::Length)
-         .def("distance", &VC::Distance, py::arg("other"))
-         .def(py::pickle(&pickling::SerializeVec<_Tp, dim>,
-                         &pickling::DeserializeVec<_Tp, dim>))
-         .def(py::self == py::self)
-         .def(py::self != py::self);
-
-  //TODO bind other operators:
-  // +
-  // +=
-  // -
-  // -=
-  // *
-  // *=
-  // x / 3; /=
+      .def(py::init<>(&CreateVec<_Tp, dim>),
+           doc_tpl.str().c_str())
+      .def("__repr__",
+           [](const VC &v)
+           { return "<viren2d." + v.ToString() + ">"; })
+      .def("__str__", &VC::ToString)
+      .def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x), &VC::SetX,
+                    "Accesses the first dimension.")
+      .def_property("y", static_cast<const _Tp &(VC::*)() const>(&VC::y), &VC::SetY,
+                    "Accesses the second dimension.")
+      .def_property_readonly("ndim", [](const VC&) { return dim; },
+                             "Number of dimensions.")
+      .def("__setitem__", [](VC &self, unsigned index, _Tp v)
+                          { self[index] = v; })
+      .def("__getitem__", [](const VC &self, unsigned index)
+                          { return self[index]; })
+      .def("copy", [](const VC &self) { return VC(self); },
+           "Returns a copy of this vector.")
+      .def("dot", &VC::Dot, py::arg("other"))
+      .def("length", &VC::Length)
+      .def("length_squared", &VC::LengthSquared)
+      .def("distance", &VC::Distance, py::arg("other"))
+      .def(py::pickle(&pickling::SerializeVec<_Tp, dim>,
+                      &pickling::DeserializeVec<_Tp, dim>))
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def(py::self + py::self)
+      .def(py::self += py::self)
+      .def(py::self - py::self)
+#ifdef __clang__
+// Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif  // __clang__
+      .def(py::self -= py::self)
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif  // __clang__
+      .def(py::self * float())
+      .def(py::self *= float())
+      .def(float() * py::self)
+      .def(py::self / float())
+      .def(py::self /= float());
 
 
   // Specific for 2-dim vectors
   if (dim == 2)
-    vec_cls.def(py::init<_Tp, _Tp>(), py::arg("x"), py::arg("y"));
+    vec_cls.def(py::init<_Tp, _Tp>(),
+                py::arg("x"), py::arg("y"));
 
   // Specific for 3-dim vectors
   if (dim == 3)
   {
-    vec_cls.def(py::init<_Tp, _Tp, _Tp>(), py::arg("x"), py::arg("y"), py::arg("z"));
-    vec_cls.def("cross", &VC::Cross, "Cross product", py::arg("other"));
+    vec_cls.def(py::init<_Tp, _Tp, _Tp>(),
+                py::arg("x"), py::arg("y"), py::arg("z"));
+    vec_cls.def("cross", &VC::Cross,
+                "Cross product", py::arg("other"));
   }
 
   if (dim > 2)
@@ -439,9 +455,17 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def(py::self + py::self,
            "'+' operator: Adds the r,g,b values of two Color objects and\n"
            "              clamps the result to [0, 1]. Alpha will not be changed.")
+#ifdef __clang__
+// Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif  // __clang__
       .def(py::self -= py::self,
            "'+=' operator: Subtracts the other's r,g,b values and clamps\n"
            "               the result to [0, 1]. Alpha will not be changed.")
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif  // __clang__
       .def(py::self - py::self,
            "'-' operator: Subtracts the r,g,b values of rhs from lhs and\n"
            "              clamps the result to [0, 1]. Alpha will not be changed.")

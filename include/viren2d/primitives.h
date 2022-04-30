@@ -149,9 +149,7 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
  */
 template<typename _Tp, int dim>
 class Vec {
-public:
-  using VT = Vec<_Tp, dim>;
-
+ public:
   Vec();
 
   Vec(_Tp x, _Tp y);
@@ -191,12 +189,22 @@ public:
   Vec<_Tp, dim> &operator*=(double scale);
   Vec<_Tp, dim> &operator/=(double scale);
 
-  _Tp Dot(const Vec<_Tp, dim>& other);
-  Vec<_Tp, dim> Cross(const Vec<_Tp, dim>& other);
+  /** @brief Computes the dot product. */
+  _Tp Dot(const Vec<_Tp, dim>& other) const;
+
+  /** @brief Returns the vector's length. */
+  Vec<_Tp, dim> Cross(const Vec<_Tp, dim>& other) const;
+
+  /** @brief Returns the vector's length. */
   double Length() const;
+
+  /** @brief Returns the squared vector's length. */
+  double LengthSquared() const;
+
+  /** @brief Computes the distance between this and the other. */
   double Distance(const Vec<_Tp, dim>& other);
 
-  /** @brief Returns the class type name, e.g. "Vec2d" */
+  /** @brief Returns the class type name, e.g. "Vec2d". */
   static std::string TypeName();
 
   std::string ToString() const;
@@ -231,7 +239,8 @@ Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double rhs);
 /** Multiply (lhs) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(double lhs, Vec<_Tp, dim> rhs);
-// divide
+
+/** Divide (scale) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator/(Vec<_Tp, dim> lhs, double rhs);
 

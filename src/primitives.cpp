@@ -601,7 +601,7 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale) {
 
 
 template<typename _Tp, int dim>
-_Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other) {
+_Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other) const {
   _Tp s = static_cast<_Tp>(0);
   for (int i = 0; i < dim; ++i)
     s += val[i] * other.val[i];
@@ -610,7 +610,7 @@ _Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other) {
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other) {
+Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other) const {
   if (dim != 3)
     throw std::logic_error("Cross product is only defined for 3-dim vectors!");
   // There's actually an analog for 2d space, but I didn't need
@@ -624,10 +624,13 @@ Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other) {
 
 template<typename _Tp, int dim>
 double Vec<_Tp, dim>::Length() const {
-  double squared = 0.0;
-  for (int i = 0; i < dim; ++i)
-    squared += static_cast<double>(val[i] * val[i]);
-  return std::sqrt(squared);
+  return std::sqrt(LengthSquared());
+}
+
+
+template<typename _Tp, int dim>
+double Vec<_Tp, dim>::LengthSquared() const {
+  return static_cast<double>(Dot(*this));
 }
 
 

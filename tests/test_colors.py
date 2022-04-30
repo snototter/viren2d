@@ -2,6 +2,7 @@ import pytest
 import viren2d
 import pathlib
 
+
 def test_viren2d_version():
     here = pathlib.Path(__file__).parent.parent.resolve()
     expected_version = (here / "VERSION").read_text().strip()
@@ -229,8 +230,4 @@ def test_operators():
 
     add = cp - color
     assert add == viren2d.rgba(0.4, 0.3, 0.4, 0.7)
-
-# pip install pytest pytest-cov
-# pytest tests/test_colors.py
-# open bug? https://github.com/pytorch/pytorch/issues/50481
 

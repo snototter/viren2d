@@ -502,3 +502,12 @@ imvis.imshow(img)
 
 ```
 
+
+# Testing
+```
+pip install pytest
+pytest tests/test_*.py
+open bug? https://github.com/pytorch/pytorch/issues/50481
+```
+
+
