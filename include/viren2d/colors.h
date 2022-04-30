@@ -155,6 +155,10 @@ class Color {
       alpha(saturation_cast<double>(alpha, 0.0, 1.0))
   {}
 
+  Color(const Color &other)
+    : Color(other, other.alpha)
+  {}
+
   // TODO doc initialize from a color name
   //TESTED
   Color(const NamedColor color, double alpha=1.0);

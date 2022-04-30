@@ -395,6 +395,13 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "Initializes an 'invalid color' (r,g,b < 0) which can\n"
            "be used in several Painter methods to request special\n"
            "color handling (e.g. switching to the inverse color).")
+      .def(py::init<const viren2d::Color &>(),
+           "Initializes a color as copy.",
+           py::arg("color"))
+      .def(py::init<const viren2d::Color &, double>(),
+           "Initializes a color as copy (with optionally replacing\n"
+           "the alpha value).",
+           py::arg("color"), py::arg("alpha")=1.0)
       .def(py::init<>(&moddef::CreateColor),
            "Initialize from tuple (all values must\n"
            "be within [0, 1]):\n"
@@ -405,7 +412,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "will be clamped to [0, 1].",
            py::arg("red"), py::arg("green"), py::arg("blue"),
            py::arg("alpha")=1.0)
-      .def(py::init<std::string, double>(),
+      .def(py::init<const std::string &, double>(),
            "Initialize from a string represenation:\n"
            "* Hex/Webcodes (6-digit):\n '#00ff00'\n"
            "* A color name, e.g. 'black', 'navy-blue'.\n"
@@ -455,12 +462,12 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                            "Read-only white color instantiation (for convenience).")
       .def_readonly_static("black", &viren2d::Color::Black,
                            "Read-only black color instantiation (for convenience).")
-      .def_readonly_static("red", &viren2d::Color::Red,
-                           "Read-only red color instantiation (for convenience).")
-      .def_readonly_static("green", &viren2d::Color::Green,
-                           "Read-only green color instantiation (for convenience).")
-      .def_readonly_static("blue", &viren2d::Color::Blue,
-                           "Read-only blue color instantiation (for convenience).")
+      //.def_readonly_static("red", &viren2d::Color::Red,
+      //                     "Read-only red color instantiation (for convenience).")
+      //.def_readonly_static("green", &viren2d::Color::Green,
+      //                     "Read-only green color instantiation (for convenience).")
+      //.def_readonly_static("blue", &viren2d::Color::Blue,
+      //                     "Read-only blue color instantiation (for convenience).")
       .def_readonly_static("cyan", &viren2d::Color::Cyan,
                            "Read-only cyan color instantiation (for convenience).")
       .def_readonly_static("magenta", &viren2d::Color::Magenta,
