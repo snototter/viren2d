@@ -287,6 +287,14 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
   //  }
     context_ = cairo_create(surface_);
     cairo_surface_mark_dirty(surface_);
+
+    ////FIXME parametrize or remove
+    /// FIXME how to dim? image + transparent color; image + grayscale?
+    //cairo_save(context_);
+    //helpers::ApplyColor(context_, "white!50");
+    ////cairo_paint_with_alpha(context_, 0.5);
+    //cairo_paint(context_);
+    //cairo_restore(context_);
   }
 }
 
