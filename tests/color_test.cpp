@@ -13,7 +13,7 @@
   if (viren2d::eps_equal(color.red, red)
       && viren2d::eps_equal(color.green, green)
       && viren2d::eps_equal(color.blue, blue)
-      && viren2d::eps_equal(color.alpha, alpha)) {
+      && (std::fabs(color.alpha - alpha) < 0.001)) {
     return ::testing::AssertionSuccess();
   } else {
     return ::testing::AssertionFailure()
@@ -196,20 +196,20 @@ TEST(ColorTest, Webcodes) {
   // Test initialization via webcodes/hex codes
   auto color = viren2d::ColorFromHexString("#000000", 0.1);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::Black, 0.1));
-  EXPECT_EQ(color.ToHexString(), "#000000");
+  EXPECT_EQ(color.ToHexString(), "#00000019");
 
   color = viren2d::ColorFromHexString("#fFfFfF", 0.3);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::White, 0.3));
-  EXPECT_EQ(color.ToHexString(), "#ffffff");
+  EXPECT_EQ(color.ToHexString(), "#ffffff4c");
 
   // Invalid inputs
   EXPECT_THROW(viren2d::ColorFromHexString("abcd"), std::invalid_argument);
   EXPECT_THROW(viren2d::ColorFromHexString("#abc"), std::invalid_argument);
-  EXPECT_THROW(viren2d::ColorFromHexString("#abcdefgh"), std::invalid_argument);
+  EXPECT_THROW(viren2d::ColorFromHexString("#abcdefghf"), std::invalid_argument);
 
   // Sweep over each hex digit separately:
-  for (size_t idx = 0; idx < 6; ++idx) {
-    std::string webcode("#000000");
+  for (size_t idx = 0; idx < 8; ++idx) {
+    std::string webcode("#000000FF");
     for (unsigned char digit = 0; digit < 16; ++digit) {
       webcode[idx+1] = (digit < 10) ? ('0' + digit)
                                   : ('A' + digit - 10);
@@ -226,8 +226,14 @@ TEST(ColorTest, Webcodes) {
   color = viren2d::ColorFromHexString("#5500ba");
   EXPECT_EQ(color, viren2d::RGBa(85, 0, 186));
 
-  color = viren2d::ColorFromHexString("#ea8435");
+  color = viren2d::ColorFromHexString("#ea8435ff");
   EXPECT_EQ(color, viren2d::RGBa(234, 132, 53));
+
+  color = viren2d::ColorFromHexString("#ea843500");
+  EXPECT_EQ(color, viren2d::RGBa(234, 132, 53, 0));
+
+  color = viren2d::ColorFromHexString("#ea843534");
+  EXPECT_TRUE(CheckColor(color, 234.0/255, 132.0/255, 53.0/255, 0.2039));
 }
 
 

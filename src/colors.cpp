@@ -439,7 +439,7 @@ Color::ToRGBa() const {
 
 
 std::string Color::ToHexString() const {
-  std::string webcode("#000000");
+  std::string webcode("#00000000");
   // RGB is easier to work with
   auto RGBa = ToRGBa();
 
@@ -472,6 +472,13 @@ std::string Color::ToHexString() const {
   rem = static_cast<unsigned char>(std::get<2>(RGBa) % 16);
   webcode[5] = hex2char[div];
   webcode[6] = hex2char[rem];
+
+  // Scale alpha to [0, 255]
+  auto a = static_cast<unsigned char>(alpha * 255);
+  div = static_cast<unsigned char>(a / 16);
+  rem = static_cast<unsigned char>(a % 16);
+  webcode[7] = hex2char[div];
+  webcode[8] = hex2char[rem];
 
   return webcode;
 }
@@ -567,9 +574,9 @@ Color RGBa(double R, double G, double B, double alpha)
 
 Color ColorFromHexString(const std::string &webcode, double alpha) {
   const size_t len = webcode.length();
-  if (len != 7) {
+  if (len != 7 && len != 9) {
     std::stringstream s;
-    s << "Input must have a leading '#' and exactly 6 hex digits, "
+    s << "Input must have a leading '#' and either 6 or 8 hex digits, "
       << "but was: \"" << webcode << "\".";
     throw std::invalid_argument(s.str());
   }
@@ -587,6 +594,21 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
 
     rgb[idx] = (upper << 4) | lower;
   }
+
+  // Parse alpha code - if provided, it overrules the
+  // optional function parameter
+  if (len == 9) {
+    unsigned char upper = hex[7];
+    upper = (upper <= '9') ? (upper - '0')
+                           : (upper - 'a' + 10);
+
+    unsigned char lower = hex[8];
+    lower = (lower <= '9') ? (lower - '0')
+                           : (lower - 'a' + 10);
+
+    alpha = static_cast<double>((upper << 4) | lower) / 255.0;
+  }
+
   return Color(rgb[0] / 255.0, rgb[1] / 255.0,
                rgb[2] / 255.0, alpha);
 }

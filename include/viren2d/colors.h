@@ -103,7 +103,7 @@ std::string NamedColorToString(NamedColor color);
  * * For convenience, a color can be constructed from various
  *   different inputs:
  *   * Via @see rgba() and @see RGBa() specification
- *   * Via webcodes: "#00ff00", "#abcdef"
+ *   * Via webcodes: "#00ff00", "#abcdefaa"
  *   * Via the @see NamedColor enumeration: NamedColor::Black
  *   * Via a string representation of the corresponding
  *     @see NamedColor, e.g. "black", "navy-blue"
@@ -223,7 +223,7 @@ class Color {
   ToRGBa() const;
 
 
-  /** @brief Returns the web color code, e.g. "#dcdce4" (alpha value is ignored). */
+  /** @brief Returns the web color code, e.g. "#dcdce4ff". */
   std::string ToHexString() const;
 
 
@@ -277,7 +277,12 @@ Color rgba(double r, double g, double b, double alpha=1.0);
 Color RGBa(double R, double G, double B, double alpha=1.0);
 
 
-/** Creates a Color from the given (6-digit) webcode, e.g. "#abcdef". */
+/**
+ * @brief Creates a Color from the given webcode, e.g. "#abcdef".
+ *
+ * If the hexstring/webcode has 8 digits, its alpha specification will
+ * overrule the "alpha" parameter.
+ */
 Color ColorFromHexString(const std::string &webcode, double alpha=1.0);
 
 } // namespace viren2d

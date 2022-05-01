@@ -451,7 +451,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("alpha")=1.0)
       .def(py::init<const std::string &, double>(),
            "Initialize from a string represenation:\n"
-           "* Hex/Webcodes (6-digit):\n '#00ff00'\n"
+           "* Hex/Webcodes:\n '#00ff00', '#a0b0c0f0'\n"
            "* A color name, e.g. 'black', 'navy-blue'.\n"
            "  See color_names() for a list of available\n"
            "  color names.\n"
@@ -512,7 +512,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "where all components are in[0, 1].")
       .def("as_hex", &viren2d::Color::ToHexString,
            "Returns the hex web color code representation,\n"
-           "e.g. '#0011ff' (alpha is ignored).")
+           "e.g. '#0011ffff' (all components are scaled to [0, 255]).")
       .def("with_alpha", &viren2d::Color::WithAlpha,
            "Return a color with the same r,g,b components, but the given alpha.",
            py::arg("alpha"))
@@ -764,17 +764,6 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def(py::self != py::self)
       .def("is_valid", &viren2d::ArrowStyle::IsValid,
            "Check if the style would lead to a drawable arrow.")
-//      .def_readwrite("line_width", &viren2d::LineStyle::line_width,
-//                     "Width in pixels (best results for even values).")
-//      .def_readwrite("color", &viren2d::LineStyle::color, "Line color (rgba).")
-//      .def_readwrite("dash_pattern", &viren2d::LineStyle::dash_pattern,
-//                     "Dash pattern defined as list of on/off strokes (lengths in\n"
-//                     "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
-//                     "line will be drawn solid.")
-//      .def_readwrite("line_cap", &viren2d::LineStyle::line_cap,
-//                     "How to render the endpoints of the line (or dash strokes).")
-//      .def_readwrite("line_join", &viren2d::LineStyle::line_join,
-//                     "How to render the junction of two lines/segments.")
       .def_readwrite("tip_length", &viren2d::ArrowStyle::tip_length) //TODO doc
       .def_readwrite("tip_angle", &viren2d::ArrowStyle::tip_angle) //TODO doc
       .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed) //TODO doc
