@@ -1,6 +1,7 @@
 import pytest
 import viren2d
 import pathlib
+import pickle
 
 
 def test_viren2d_version():
@@ -135,6 +136,11 @@ def test_webcodes():
     color = viren2d.Color("#ea8435")
     assert color == viren2d.RGBa(234, 132, 53)
 
+    color = viren2d.rgba(1, 0, 0.5)
+    assert color.as_rgba() == (1, 0, 0.5, 1.0)
+    assert color.as_RGBa() == (255, 0, 127, 1.0)
+    assert color.as_hex() == '#ff007f'
+
 
 def test_color_names():
     # We should be able to create each named color:
@@ -150,6 +156,9 @@ def test_color_names():
 def test_complementary_colors():
     color = viren2d.Color("black");
     assert color.inverse() == viren2d.Color.White
+
+    color = viren2d.rgba(1, 0, 0.5)
+    assert color == color.inverse().inverse()
 
     assert viren2d.Color.White.inverse() ==\
            viren2d.Color.Black
@@ -230,4 +239,12 @@ def test_operators():
 
     add = cp - color
     assert add == viren2d.rgba(0.4, 0.3, 0.4, 0.7)
+
+
+def test_pickling():
+    color = viren2d.Color("orchid!99")
+    data = pickle.dumps(color)
+    restored = pickle.loads(data)
+    assert color == restored
+    assert restored == "orchid!99"
 

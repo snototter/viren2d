@@ -7,6 +7,17 @@ def vector_test_helper(vec, zero):
     assert vec.ndim >= 2
     assert vec.ndim == zero.ndim
 
+    # Test indexing
+    with pytest.raises(IndexError):
+        vec[vec.ndim]
+
+    with pytest.raises(IndexError):
+        vec[-vec.ndim - 1]
+
+    for i in range(vec.ndim):
+        assert vec[vec.ndim - i - 1] == vec[-(i+1)]
+
+    # Make a copy for later
     cp = vec.copy()
     assert cp == vec
 

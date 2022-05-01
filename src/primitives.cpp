@@ -474,9 +474,12 @@ Vec<_Tp, dim>::operator Vec<double, dim>() const {
 
 template<typename _Tp, int dim>
 const _Tp& Vec<_Tp, dim>::operator[](int i) const {
-  if (i >= dim) {
+  if (i < 0) {
+    i += dim;
+  }
+  if ((i < 0) ||(i >= dim)) {
     std::stringstream s;
-    s << "Index-out-of-bounds: cannot access ["
+    s << "Index-out-of-bounds: cannot access element at ["
       << i << "] for " << TypeName() << ".";
     throw std::out_of_range(s.str());
   }
@@ -486,9 +489,12 @@ const _Tp& Vec<_Tp, dim>::operator[](int i) const {
 
 template<typename _Tp, int dim>
 _Tp& Vec<_Tp, dim>::operator[](int i) {
-  if (i >= dim) {
+  if (i < 0) {
+    i += dim;
+  }
+  if ((i < 0) ||(i >= dim)) {
     std::stringstream s;
-    s << "Index-out-of-bounds: cannot access ["
+    s << "Index-out-of-bounds: cannot access element at ["
       << i << "] for " << TypeName() << ".";
     throw std::out_of_range(s.str());
   }

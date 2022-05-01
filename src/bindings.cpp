@@ -308,9 +308,9 @@ void RegisterVec(py::module &m) {
                     "Accesses the second dimension.")
       .def_property_readonly("ndim", [](const VC&) { return dim; },
                              "Number of dimensions.")
-      .def("__setitem__", [](VC &self, unsigned index, _Tp v)
+      .def("__setitem__", [](VC &self, int index, _Tp v)
                           { self[index] = v; })
-      .def("__getitem__", [](const VC &self, unsigned index)
+      .def("__getitem__", [](const VC &self, int index)
                           { return self[index]; })
       .def("copy", [](const VC &self) { return VC(self); },
            "Returns a copy of this vector.")
@@ -482,6 +482,10 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def("as_RGBa", &viren2d::Color::ToRGBa,
            "Returns the corresponding (R, G, B, a) tuple,\n"
            "where R, G, B in [0, 255] and alpha in [0, 1].")
+      .def("as_rgba", [](viren2d::Color& c)
+           { return py::make_tuple(c.red, c.green, c.blue, c.alpha); },
+           "Returns the corresponding (r, g, b, a) tuple,\n"
+           "where all components are in[0, 1].")
       .def("as_hex", &viren2d::Color::ToHexString,
            "Returns the hex web color code representation,\n"
            "e.g. '#0011ff' (alpha is ignored).")
@@ -514,7 +518,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                            "Read-only magenta color instantiation (for convenience).")
       .def_readonly_static("Yellow", &viren2d::Color::Yellow,
                            "Read-only yellow color instantiation (for convenience).")
-      .def("is_valid", &viren2d::Color::IsValid, //FUCK operator+
+      .def("is_valid", &viren2d::Color::IsValid,
            "Returns True if this is a valid rgba color, where all\n"
            "components are within [0, 1].")
       .def("inverse", &viren2d::Color::Inverse,

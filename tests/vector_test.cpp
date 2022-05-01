@@ -34,6 +34,15 @@ template<typename _Tp, int dim>
 void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
   EXPECT_GE(dim, 2);
 
+  // Test indexing
+  for (int i = 0; i < dim; ++i) {
+    EXPECT_EQ(vec.val[dim - i - 1], vec[-(i+1)]);
+  }
+
+  // Test out-of-bounds
+  EXPECT_THROW(vec[dim], std::out_of_range);
+  EXPECT_THROW(vec[-dim-1], std::out_of_range);
+
   // Create a copy
   auto copy = viren2d::Vec<_Tp, dim>(vec);
 
