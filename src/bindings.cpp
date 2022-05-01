@@ -180,6 +180,11 @@ public:
   }
 
 
+  void DrawArrow(const viren2d::Vec2d &from, const viren2d::Vec2d &to,
+                 const viren2d::ArrowStyle &arrow_style) {
+    painter_->DrawArrow(from, to, arrow_style);
+  }
+
   void DrawCircle(const viren2d::Vec2d &center, double radius,
                   const viren2d::LineStyle &line_style,
                   const viren2d::Color &fill) {
@@ -771,18 +776,18 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("shaft_length"))
       .def("tip_length_for_shaft",
            static_cast<double (viren2d::ArrowStyle::*)(const viren2d::Vec2d&, const viren2d::Vec2d&) const>(&viren2d::ArrowStyle::TipLengthForShaft),
-            "Computes the length of the arrow head/tip for the given shaft.",
-            py::arg("shaft_from"), py::arg("shaft_to"))
+           "Computes the length of the arrow head/tip for the given shaft.",
+           py::arg("shaft_from"), py::arg("shaft_to"))
       .def_readwrite("tip_length", &viren2d::ArrowStyle::tip_length,
-            "Length of the tip. If this value is in [0, 1], the tip\n"
-            "length will be this fraction of the shaft length.\n"
-            "Otherwise, this value specifies the absolute tip length\n"
-            "in pixels.")
+           "Length of the tip. If this value is in [0, 1], the tip\n"
+           "length will be this fraction of the shaft length.\n"
+           "Otherwise, this value specifies the absolute tip length\n"
+           "in pixels.")
       .def_readwrite("tip_angle", &viren2d::ArrowStyle::tip_angle,
-            "Angle between tip lines and the shaft in degrees.")
+           "Angle between tip lines and the shaft in degrees.")
       .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed,
-            "If True, the arrow head/tip will be filled. Otherwise,\n"
-            "the tip will be open.");
+           "If True, the arrow head/tip will be filled. Otherwise,\n"
+           "the tip will be open.");
   //TODO add implicit initialization from tuple (similar to linestyle)
 
   //------------------------------------------------- Drawing - Painter
@@ -851,16 +856,25 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("angle1"), py::arg("angle2"),
            py::arg("line_style"),
            py::arg("fill")=viren2d::Color(0, 0, 0, 0))
+      .def("draw_arrow", &moddef::Painter::DrawArrow,
+           "Draws a line between the two Vec2d coordinates using the\n"
+           "ArrowStyle specification.",
+           py::arg("pt1"), py::arg("pt2"),
+           py::arg("arrow_style") = viren2d::ArrowStyle())
       .def("draw_circle", &moddef::Painter::DrawCircle,
            "Draws a circle at the given Vec2d position using the\n"
            "LineStyle specification. The circle will be filled if\n"
            "a fill color with alpha > 0 is given.",
-           py::arg("center"), py::arg("radius"), py::arg("line_style"),
+           py::arg("center"), py::arg("radius"),
+           py::arg("line_style") = viren2d::LineStyle(),
            py::arg("fill")=viren2d::Color(0, 0, 0, 0))
+//      .def("draw_grid", &moddef::Painter::DrawGrid,
+//           "Draws a grid") // TODO documentation!
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",
-           py::arg("pt1"), py::arg("pt2"), py::arg("line_style"))
+           py::arg("pt1"), py::arg("pt2"),
+           py::arg("line_style") = viren2d::LineStyle())
       .def("draw_rect", &moddef::Painter::DrawRect,
            "Draws a rectangle using the LineStyle specification.\n\n"
            "* The rectangle will be filled if fill color has alpha > 0.\n"
