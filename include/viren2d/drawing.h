@@ -21,6 +21,7 @@ struct LineStyle {
     Square
   };
 
+
   /** @brief How to render the junction of two lines/segments. */
   enum class Join : unsigned char {
     Miter = 0,
@@ -35,12 +36,14 @@ struct LineStyle {
   Cap line_cap;
   Join line_join;
 
+
   LineStyle(double width, const Color &col,
             const std::vector<double> &dash=std::vector<double>(),
             Cap cap=Cap::Butt, Join join=Join::Miter)
     : line_width(width), color(col), dash_pattern(dash),
       line_cap(cap), line_join(join)
   {}
+
 
   std::string ToString() const;
 };
@@ -170,6 +173,7 @@ protected:
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                             const Color &fill) = 0;
 };
+
 
 std::unique_ptr<Painter> CreateImagePainter();
 

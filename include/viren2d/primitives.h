@@ -322,6 +322,15 @@ struct Rect {
     os << r.ToString();
     return os;
   }
+
+
+  //TODO nice-to-have operator overloads
+  // +(Vec2d) translates
+  // *(double) scales the box
+  // +(double) rotates
+  // ---> add these only if needed, e.g. if we frequently
+  //      need to shift/scale/rotate rects when drawing
+  //      (which I highly doubt atm)
 };
 
 

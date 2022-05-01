@@ -1,12 +1,12 @@
 # viren2d - Vision & Rendering 2D
-This is a light-weight 2D rendering toolbox to easily (and aesthetically) visualize common computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
+This is a light-weight toolbox to easily (and aesthetically) visualize common computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
 
-This toolbox uses the [Cairo graphics library](https://www.cairographics.org/) under the hood, so visually unpleasing results will (hopefully) only be caused by questionable color choices :wink:.
+This toolbox uses the [Cairo graphics library](https://www.cairographics.org/) under the hood, so visually unpleasing results will (hopefully) only be caused by our questionable color choices :wink:.
 
 
 ## Roadmap
-* An initial version v1.0 will hopefully released in July/August 2022 (this is a hobby/leisure time project)
-* I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you)
+* An initial version v1.0 will hopefully released in August/September 2022 (this is a hobby/leisure time project)
+* I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you) - the API may change anytime (and I'm messing around in the main branch)
 
 
 ## Description

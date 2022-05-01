@@ -96,7 +96,7 @@ void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
 }
 
 
-TEST(VectorTest, Initialization) {
+TEST(VectorTest, All) {
   EXPECT_THROW(viren2d::Vec2d(1, 2, 3), std::invalid_argument);
   EXPECT_THROW(viren2d::Vec3d(2, 17), std::invalid_argument);
   EXPECT_THROW(viren2d::Vec4d(2, 17), std::invalid_argument);

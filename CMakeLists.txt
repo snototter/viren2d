@@ -239,6 +239,7 @@ if(viren2d_WITH_TESTS)
         src/helpers/enum.h
         tests/color_test.cpp
         tests/vector_test.cpp
+        tests/rectangle_test.cpp
         tests/imagebuffer_test.cpp)
 
     target_include_directories(viren2d_test
@@ -248,6 +249,11 @@ if(viren2d_WITH_TESTS)
         PRIVATE
         gtest_main
         viren2d::viren2d)
+
+    target_compile_definitions(viren2d_test PRIVATE
+        viren2d_EXAMPLE_IMAGE_FILE="${CMAKE_CURRENT_SOURCE_DIR}/examples/flamingo.jpg"
+        viren2d_EXAMPLE_IMAGE_WIDTH=400
+        viren2d_EXAMPLE_IMAGE_HEIGHT=400)
 
     include(GoogleTest)
     gtest_discover_tests(viren2d_test)

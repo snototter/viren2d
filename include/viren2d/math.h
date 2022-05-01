@@ -6,6 +6,7 @@
 
 #include <math.h>
 
+//TODO use cpputils::mathutils instead of copying this header
 namespace viren2d {
 
 inline double deg2rad(double deg) {
