@@ -2,6 +2,9 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <cmath>
+
+#include <iostream> //TODO remove after switching to spdlog
 
 // Custom
 #include <viren2d/math.h>
@@ -27,6 +30,70 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
   helpers::ApplyLineStyle(context, line_style);
   cairo_stroke(context);
   // Restore previous context
+  cairo_restore(context);
+}
+
+
+//---------------------------------------------------- Arrow
+void DrawArrow(cairo_surface_t *surface, cairo_t *context,
+               const Vec2d &from, const Vec2d &to,
+               const ArrowStyle &arrow_style) {
+  CheckCanvas(surface, context);
+
+  // Compute the two end points of the arrow head
+  auto diff = from - to;
+  const double shaft_angle_rad = std::atan2(diff.y(), diff.x());
+
+  const double tip_length = arrow_style.TipLengthForShaft(from, to);
+  const double tip_angle_rad = deg2rad(arrow_style.tip_angle);
+  auto tip1 = to + tip_length * Vec2d(std::cos(shaft_angle_rad + tip_angle_rad),
+                                      std::sin(shaft_angle_rad + tip_angle_rad));
+  auto tip2 = to + tip_length * Vec2d(std::cos(shaft_angle_rad - tip_angle_rad),
+                                      std::sin(shaft_angle_rad - tip_angle_rad));
+
+//  std::cout << "Drawing Arrow: " << tip_length << "; " << tip1 << " -- " << to << " -- " << tip2 << std::endl;
+//  std::cout << "--> " << from << " -- " << to << ": l=" << from.Distance(to) << "; tip length: " << arrow_style.tip_length << "; as.tiplenfor()=" << arrow_style.TipLengthForShaft(from, to) << std::endl;
+
+  // TODO looks weird with highly transparent colors
+  // Alternatives were even worse (would require the user to
+  // fiddle too much with line joins and manually adjusting
+  // the end points. Things tried: draw shaft twice; draw all in a single path; vary the line width (when filling)
+  // TODO open ideas:
+  // * 1) draw opaque (see cairo_stroke_extents; slow but exact bounding box)
+  //   2) copy with alpha
+  // ---> check also compositions; could be helpful (later on), https://zetcode.com/gfx/cairo/compositing/
+  // ---> we'll need something like cairo_surface_create_similar(); draw opaque and then combine them with alpha...
+  //
+  // * draw & simultaneously draw on a mask; next stroke/fill must be mask aware
+  //   sounds too complicated - I'm in favor of the opaque-then-blend solution!
+  //
+  // so back to the cleanest code version:
+
+  // Switch to given line style
+  cairo_save(context);
+  helpers::ApplyLineStyle(context, arrow_style);
+  // Draw shaft
+  cairo_move_to(context, from.x(), from.y());
+  cairo_line_to(context, to.x(), to.y());
+  cairo_stroke(context);
+
+  // Arrow tip:
+  cairo_move_to(context, tip1.x(), tip1.y());
+  cairo_line_to(context, to.x(), to.y());
+  cairo_line_to(context, tip2.x(), tip2.y());
+  // Fill if needed
+  if (arrow_style.tip_closed) {
+    cairo_fill_preserve(context);
+  }
+  // The filled area excludes the contour/path, thus we
+  // always have to draw the tip stroke:
+  cairo_stroke(context);
+
+  //FIXME python bindings grid
+  //FIXME python bindings arrow
+  //FIXME support transparent arrows via opaque-then-blend
+
+  // Restore context
   cairo_restore(context);
 }
 

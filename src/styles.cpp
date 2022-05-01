@@ -80,6 +80,24 @@ std::string ArrowStyle::ToString() const {
 }
 
 
+double ArrowStyle::TipLengthForShaft(double shaft_length) const {
+  if (tip_length > 1.0) {
+    return tip_length;
+  } else {
+    return tip_length * shaft_length;
+  }
+}
+
+
+double ArrowStyle::TipLengthForShaft(const viren2d::Vec2d &from, const viren2d::Vec2d &to) const {
+  if (tip_length > 1.0) {
+    return tip_length;
+  } else {
+    return TipLengthForShaft(from.Distance(to));
+  }
+}
+
+
 bool ArrowStyle::Equals(const ArrowStyle &other) const {
   if (!eps_equal(tip_length, other.tip_length))
     return false;

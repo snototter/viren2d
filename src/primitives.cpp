@@ -641,7 +641,7 @@ double Vec<_Tp, dim>::LengthSquared() const {
 
 
 template<typename _Tp, int dim>
-double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other) {
+double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other) const {
   auto diff = *this - other;
   return diff.Length();
 }

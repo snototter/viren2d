@@ -93,6 +93,10 @@ public:
   }
 
 
+  virtual void DrawArrow(const Vec2d &from, const Vec2d &to,
+                         const ArrowStyle &arrow_style) = 0;
+
+
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
                   const Color &fill = Color(0, 0, 0, 0)) {

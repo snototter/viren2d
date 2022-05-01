@@ -146,6 +146,8 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
 //------------------------------------------------- Vectors/Coordinates
 /**
  * @brief Template class to represent a vector/coordinate.
+ *
+ * FIXME extend documentation
  */
 template<typename _Tp, int dim>
 class Vec {
@@ -207,10 +209,7 @@ class Vec {
   double LengthSquared() const;
 
   /** @brief Computes the distance between this and the other. */
-  double Distance(const Vec<_Tp, dim>& other);
-
-  /** @brief Returns the class type name, e.g. "Vec2d". */
-  static std::string TypeName();
+  double Distance(const Vec<_Tp, dim>& other) const;
 
   std::string ToString() const;
 
@@ -218,6 +217,9 @@ class Vec {
     os << vec.ToString();
     return os;
   }
+
+  /** @brief Returns the class type name, e.g. "Vec2d". */
+  static std::string TypeName();
 };
 
 

@@ -51,6 +51,21 @@ TEST(StyleTest, ArrowStyle) {
 }
 
 
+TEST(StyleTest, ArrowTipLength) {
+  auto style = viren2d::ArrowStyle();
+  style.tip_length = 0.1;
+
+  EXPECT_DOUBLE_EQ(style.TipLengthForShaft(200.0), 20.0);
+  EXPECT_DOUBLE_EQ(style.TipLengthForShaft(viren2d::Vec2d(10, 10), viren2d::Vec2d(10, 30)), 2.0);
+
+  style.tip_length = 90;
+  EXPECT_DOUBLE_EQ(style.TipLengthForShaft(200.0), 90.0);
+  EXPECT_DOUBLE_EQ(style.TipLengthForShaft(30.0), 90.0);
+}
+
+//FIXME test arrowstyle::TipLengthForShaft
+
+
 TEST(StyleTest, LineOperators) {
   // Compare 2 LineStyle objects
   auto line_style1 = viren2d::LineStyle();

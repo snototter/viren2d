@@ -59,6 +59,24 @@ def test_arrow_style():
     assert not style.is_valid()
     style.tip_length = 3
     assert style.is_valid()
+    
+
+def test_arrow_tip_length():
+    # Default initialization should yield a valid style
+    style = viren2d.ArrowStyle()
+    style.tip_length = 0.2
+    assert style.tip_length_for_shaft(200.0) == pytest.approx(40.0)
+
+    style.tip_length = 0.9
+    assert style.tip_length_for_shaft(200.0) == pytest.approx(180.0)
+    
+    style.tip_length = 0.1
+    assert style.tip_length_for_shaft(viren2d.Vec2d(90, 100), viren2d.Vec2d(110, 100)) == pytest.approx(2.0)
+
+    style.tip_length = 90
+    assert style.tip_length_for_shaft(200.0) == pytest.approx(90.0)
+    style.tip_length = 2
+    assert style.tip_length_for_shaft(30.0) == pytest.approx(2.0)
 
 
 def test_line_operators():

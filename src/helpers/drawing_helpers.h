@@ -115,6 +115,10 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
              const LineStyle &line_style, const Color &fill);
 
 
+void DrawArrow(cairo_surface_t *surface, cairo_t *context,
+               const Vec2d &from, const Vec2d &to,
+               const ArrowStyle &arrow_style);
+
 inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
                        const Vec2d &center, double radius,
                        const LineStyle &line_style, const Color &fill) {

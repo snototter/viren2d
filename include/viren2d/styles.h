@@ -6,6 +6,7 @@
 #include <ostream>
 
 #include <viren2d/colors.h>
+#include <viren2d/primitives.h>
 
 
 namespace viren2d {
@@ -30,12 +31,11 @@ enum class LineJoin : unsigned char {
 
 /** @brief Style definitions for lines & contours. */
 struct LineStyle {
- public:
-  double line_width;
-  Color color;
-  std::vector<double> dash_pattern;
-  LineCap line_cap;
-  LineJoin line_join;
+  double line_width;   /**< Line width (thickness) in pixels. */
+  Color color;         /**< Color (rgb & alpha). */
+  std::vector<double> dash_pattern; /**< Dash pattern defined as series of on-off segments (lengths in pixels). Line is solid if empty. */
+  LineCap line_cap;    /**< How to render the endpoints. */
+  LineJoin line_join;  /**< How to render the junction of two lines/segments. */
 
 
   LineStyle(double width=2.0,
@@ -51,10 +51,16 @@ struct LineStyle {
   /** @brief Checks if this line style would lead to a renderable line. */
   virtual bool IsValid() const;
 
-  virtual std::string ToString() const;
 
+  /** @brief Returns true if this and the other specify the same line. */
   bool Equals(const LineStyle &other) const;
 
+
+  /** @brief Returns a human-readable string representation. */
+  virtual std::string ToString() const;
+
+
+  /** @brief Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const LineStyle &style) {
     os << style.ToString();
     return os;
@@ -67,9 +73,9 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
 
 //-------------------------------------------------  ArrowStyle
 struct ArrowStyle : public LineStyle {
-  double tip_length; /**< Length of the tip (percentage if in [0, 1]; else absolute in pixels). */
-  double tip_angle;  /**< Angle between tip lines and the shaft in degrees. */
-  bool tip_closed;   /**< How to draw the tip: only lines (false) or as a filled triangle (true). */
+  double tip_length;  /**< Length of the tip (percentage if in [0, 1]; else absolute in pixels). */
+  double tip_angle;   /**< Angle between tip lines and the shaft in degrees. */
+  bool tip_closed;    /**< How to draw the tip: only lines (false) or as a filled triangle (true). */
 
   ArrowStyle(double width = 2.0,
              const Color &col = Color(NamedColor::Azure),
@@ -85,13 +91,28 @@ struct ArrowStyle : public LineStyle {
 
   ~ArrowStyle() {}
 
-  /** @brief Checks if this line style would lead to a renderable arrow. */
+
+  /** @brief Checks if this style would lead to a renderable arrow. */
   virtual bool IsValid() const override;
 
-  virtual std::string ToString() const override;
 
+  /** @brief Computes the length of the arrow head/tip for the given shaft length. */
+  double TipLengthForShaft(double shaft_length) const;
+
+
+  /** @brief Computes the length of the arrow head/tip for the given shaft. */
+  double TipLengthForShaft(const Vec2d &from, const Vec2d &to) const;
+
+
+  /** @brief Returns true if this and the other specify the same arrow style. */
   bool Equals(const ArrowStyle &other) const;
 
+
+  /** @brief Returns a human-readable string representation. */
+  virtual std::string ToString() const override;
+
+
+  /** @brief Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const ArrowStyle &style) {
     os << style.ToString();
     return os;

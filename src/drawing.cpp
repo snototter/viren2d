@@ -136,6 +136,11 @@ public:
   ImageBuffer GetCanvas(bool copy) override;
 
 
+  void DrawArrow(const Vec2d &from, const Vec2d &to,
+                 const ArrowStyle &arrow_style) override {
+    helpers::DrawArrow(surface_, context_, from, to, arrow_style);
+  }
+
   void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
                           double spacing_x, double spacing_y,
                 const LineStyle &line_style) override {

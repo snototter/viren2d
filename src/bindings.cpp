@@ -765,11 +765,25 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def(py::self != py::self)
       .def("is_valid", &viren2d::ArrowStyle::IsValid,
            "Check if the style would lead to a drawable arrow.")
-      .def_readwrite("tip_length", &viren2d::ArrowStyle::tip_length) //TODO doc
-      .def_readwrite("tip_angle", &viren2d::ArrowStyle::tip_angle) //TODO doc
-      .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed) //TODO doc
-      ;
-  //TODO implicit from tuple!
+      .def("tip_length_for_shaft",
+           static_cast<double (viren2d::ArrowStyle::*)(double) const>(&viren2d::ArrowStyle::TipLengthForShaft),
+           "Computes the length of the arrow head/tip for the given shaft length.",
+           py::arg("shaft_length"))
+      .def("tip_length_for_shaft",
+           static_cast<double (viren2d::ArrowStyle::*)(const viren2d::Vec2d&, const viren2d::Vec2d&) const>(&viren2d::ArrowStyle::TipLengthForShaft),
+            "Computes the length of the arrow head/tip for the given shaft.",
+            py::arg("shaft_from"), py::arg("shaft_to"))
+      .def_readwrite("tip_length", &viren2d::ArrowStyle::tip_length,
+            "Length of the tip. If this value is in [0, 1], the tip\n"
+            "length will be this fraction of the shaft length.\n"
+            "Otherwise, this value specifies the absolute tip length\n"
+            "in pixels.")
+      .def_readwrite("tip_angle", &viren2d::ArrowStyle::tip_angle,
+            "Angle between tip lines and the shaft in degrees.")
+      .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed,
+            "If True, the arrow head/tip will be filled. Otherwise,\n"
+            "the tip will be open.");
+  //TODO add implicit initialization from tuple (similar to linestyle)
 
   //------------------------------------------------- Drawing - Painter
 
