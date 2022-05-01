@@ -16,6 +16,9 @@ FetchContent_Declare(
   GIT_TAG main
   GIT_SUBMODULES "libs/stb"
 )
+set(viren2d_WITH_PYTHON OFF CACHE BOOL "" FORCE)
+set(viren2d_WITH_TESTS OFF CACHE BOOL "" FORCE)
+set(viren2d_WITH_DEMO OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(viren2d)
 
 
@@ -24,5 +27,9 @@ add_executable(demo
     ${CMAKE_CURRENT_LIST_DIR}/../demo2d.cpp)
 
 # Add the viren2d dependency (include paths will be set up automatically)
-target_link_libraries(demo PRIVATE viren2d::viren2d++)
+target_link_libraries(demo PRIVATE viren2d++::viren2d++)
+
+# We need to specify the path to an exemplary image
+target_compile_definitions(demo PRIVATE
+        EXAMPLE_IMAGE_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../flamingo.jpg")
 

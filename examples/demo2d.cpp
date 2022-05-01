@@ -43,7 +43,11 @@ int main(int /*argc*/, char **/*argv*/) {
 //  //------------------------------------------------------
 
 //  // compare image.png cv-image.png diff.png
+#ifdef EXAMPLE_IMAGE_FILE
+  std::string image_filename(EXAMPLE_IMAGE_FILE);
+#else  // EXAMPLE_IMAGE_FILE
   std::string image_filename("../examples/flamingo.jpg");
+#endif  // EXAMPLE_IMAGE_FILE
   viren2d::ImageBuffer image_buffer = viren2d::LoadImage(image_filename, 4);
 
   auto painter = viren2d::CreateImagePainter();
