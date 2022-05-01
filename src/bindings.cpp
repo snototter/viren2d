@@ -109,6 +109,30 @@ viren2d::LineStyle DeserializeLineStyle(py::tuple tpl) {
                      tpl[4].cast<viren2d::LineJoin>());
   return ls;
 }
+
+//------------------------------------------------- ArrowStyle
+py::tuple SerializeArrowStyle(const viren2d::ArrowStyle &st) {
+  auto ls = static_cast<const viren2d::LineStyle &>(st);
+  auto ls_tpl = SerializeLineStyle(ls);
+
+  return py::make_tuple(ls_tpl, st.tip_length,
+                        st.tip_angle, st.tip_closed);
+}
+
+
+viren2d::ArrowStyle DeserializeArrowStyle(py::tuple tpl) {
+  if (tpl.size() != 4) {
+    std::stringstream s;
+    s << "Invalid viren2d.ArrowStyle state - expected 4 entries, got " << tpl.size() << "!";
+    throw std::invalid_argument(s.str());
+  }
+  auto ls = tpl[0].cast<viren2d::LineStyle>();
+  return viren2d::ArrowStyle(ls.line_width, ls.color,
+      tpl[1].cast<double>(), tpl[2].cast<double>(),
+      tpl[3].cast<bool>(), ls.dash_pattern,
+      ls.line_cap, ls.line_join);
+}
+
 } // namespace pickling
 
 
@@ -685,7 +709,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   line_style.def(py::init<>(&moddef::CreateLineStyle)) // init from tuple
       .def(py::init<double, viren2d::Color, std::vector<double>,
                     viren2d::LineCap, viren2d::LineJoin>(),
-           py::arg("line_width"), py::arg("color"),
+           py::arg("line_width") = 2.0,
+           py::arg("color") = viren2d::Color(viren2d::NamedColor::Azure),
            py::arg("dash_pattern")=std::vector<double>(),
            py::arg("line_cap")=viren2d::LineCap::Butt,
            py::arg("line_join")=viren2d::LineJoin::Miter)
@@ -697,6 +722,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                       &pickling::DeserializeLineStyle))
       .def(py::self == py::self)
       .def(py::self != py::self)
+      .def("is_valid", &viren2d::LineStyle::IsValid,
+           "Check if the style would lead to a drawable line.")
       .def_readwrite("line_width", &viren2d::LineStyle::line_width,
                      "Width in pixels (best results for even values).")
       .def_readwrite("color", &viren2d::LineStyle::color, "Line color (rgba).")
@@ -713,6 +740,46 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   // A LineStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::LineStyle>();
 
+
+  //------------------------------------------------- Drawing - ArrowStyle
+  py::class_<viren2d::ArrowStyle, viren2d::LineStyle>(m, "ArrowStyle",
+           "How an arrow should be drawn.")
+      .def(py::init<double, viren2d::Color, double, double, bool,
+                    std::vector<double>, viren2d::LineCap, viren2d::LineJoin>(),
+           py::arg("line_width") = 2.0,
+           py::arg("color") = viren2d::Color(viren2d::NamedColor::Azure),
+           py::arg("tip_length") = 0.1,
+           py::arg("tip_angle") = 30.0,
+           py::arg("tip_closed") = false,
+           py::arg("dash_pattern")=std::vector<double>(),
+           py::arg("line_cap")=viren2d::LineCap::Butt,
+           py::arg("line_join")=viren2d::LineJoin::Miter)
+      .def("__repr__",
+           [](const viren2d::ArrowStyle &st)
+           { return "<viren2d." + st.ToString() + ">"; })
+      .def("__str__", &viren2d::ArrowStyle::ToString)
+      .def(py::pickle(&pickling::SerializeArrowStyle,
+                      &pickling::DeserializeArrowStyle))
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def("is_valid", &viren2d::ArrowStyle::IsValid,
+           "Check if the style would lead to a drawable arrow.")
+//      .def_readwrite("line_width", &viren2d::LineStyle::line_width,
+//                     "Width in pixels (best results for even values).")
+//      .def_readwrite("color", &viren2d::LineStyle::color, "Line color (rgba).")
+//      .def_readwrite("dash_pattern", &viren2d::LineStyle::dash_pattern,
+//                     "Dash pattern defined as list of on/off strokes (lengths in\n"
+//                     "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
+//                     "line will be drawn solid.")
+//      .def_readwrite("line_cap", &viren2d::LineStyle::line_cap,
+//                     "How to render the endpoints of the line (or dash strokes).")
+//      .def_readwrite("line_join", &viren2d::LineStyle::line_join,
+//                     "How to render the junction of two lines/segments.")
+      .def_readwrite("tip_length", &viren2d::ArrowStyle::tip_length) //TODO doc
+      .def_readwrite("tip_angle", &viren2d::ArrowStyle::tip_angle) //TODO doc
+      .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed) //TODO doc
+      ;
+  //TODO implicit from tuple!
 
   //------------------------------------------------- Drawing - Painter
 
