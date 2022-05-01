@@ -1,6 +1,7 @@
 import pytest
 import viren2d
 import math
+import pickle
 
 
 def vector_test_helper(vec, zero):
@@ -72,11 +73,22 @@ def vector_test_helper(vec, zero):
       assert cross[0] == pytest.approx(expected[0])
       assert cross[1] == pytest.approx(expected[1])
       assert cross[2] == pytest.approx(expected[2])
-      
 
-def test_vec2d():
+
+def check_vector_zero(vec):
+    for i in range(vec.ndim):
+        assert vec[i] == pytest.approx(0)
+
+
+def test_vectors():
     zero2d = viren2d.Vec2d()
+    assert zero2d.ndim == 2
+    check_vector_zero(zero2d)
+
     zero3d = viren2d.Vec3d()
+    assert zero3d.ndim == 3
+    check_vector_zero(zero3d)
+
     vector_test_helper(viren2d.Vec2d(99, -45), zero2d)
 
     vector_test_helper(viren2d.Vec3d(1, 2, 3), zero3d)
@@ -84,7 +96,15 @@ def test_vec2d():
     vector_test_helper(viren2d.Vec3d(-171, 2, -3), zero3d)
 
 
-# pip install pytest pytest-cov
-# pytest tests/test_colors.py
-# open bug? https://github.com/pytorch/pytorch/issues/50481
+def test_pickling():
+    vecs = [viren2d.Vec2d(99, -45),
+            viren2d.Vec2d(0.0001, 0.0789),
+            viren2d.Vec2d(-0.03, -0.01234),
+            viren2d.Vec3d(1, 2, 3),
+            viren2d.Vec3d(-0.001, -0.0002, -0.0003)]
+
+    for vec in vecs:
+        data = pickle.dumps(vec)
+        restored = pickle.loads(data)
+        assert vec == restored
 
