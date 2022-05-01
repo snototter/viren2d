@@ -9,6 +9,7 @@
 
 namespace viren2d {
 
+//-------------------------------------------------  LineStyle
 bool LineStyle::IsValid() const {
   return (line_width > 0.0) && color.IsValid();
 }
@@ -23,31 +24,83 @@ std::string LineStyle::ToString() const {
 }
 
 
-bool operator==(const LineStyle &lhs, const LineStyle &rhs) {
-  if (!eps_equal(lhs.line_width, rhs.line_width))
+bool LineStyle::Equals(const LineStyle &other) const {
+  if (!eps_equal(line_width, other.line_width))
     return false;
 
-  if (lhs.color != rhs.color)
+  if (color != other.color)
     return false;
 
-  if (lhs.dash_pattern.size() != rhs.dash_pattern.size())
+  if (dash_pattern.size() != other.dash_pattern.size())
     return false;
 
-  for (size_t i = 0; i < lhs.dash_pattern.size(); ++i)
-    if (!eps_equal(lhs.dash_pattern[i], rhs.dash_pattern[i]))
+  for (size_t i = 0; i < other.dash_pattern.size(); ++i)
+    if (!eps_equal(dash_pattern[i], other.dash_pattern[i]))
       return false;
 
-  if (lhs.line_cap != rhs.line_cap)
+  if (line_cap != other.line_cap)
     return false;
 
-  if (lhs.line_join != rhs.line_join)
+  if (line_join != other.line_join)
     return false;
 
   return true;
 }
 
 
+bool operator==(const LineStyle &lhs, const LineStyle &rhs) {
+  return lhs.Equals(rhs);
+}
+
+
 bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
+  return !(lhs == rhs);
+}
+
+
+
+//-------------------------------------------------  ArrowStyle
+
+bool ArrowStyle::IsValid() const {
+  return (tip_length > 0.0) && (tip_angle > 0.0)
+      && LineStyle::IsValid();
+}
+
+
+std::string ArrowStyle::ToString() const {
+  std::stringstream s;
+  s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
+    << line_width << ", tl=" << tip_length
+    << ", ta=" << tip_angle << "°, "
+    << (tip_closed ? "filled" : "open") << ", "
+    << color.ToHexString() << ", "
+    << (dash_pattern.empty() ? "solid" : "dashed") << ", "
+    << ")";
+  return s.str();
+}
+
+
+bool ArrowStyle::Equals(const ArrowStyle &other) const {
+  if (!eps_equal(tip_length, other.tip_length))
+    return false;
+
+  if (!eps_equal(tip_angle, other.tip_angle))
+    return false;
+
+  if (tip_closed != other.tip_closed)
+    return false;
+
+  auto other_base = static_cast<const LineStyle &>(other);
+  return LineStyle::Equals(other_base);
+}
+
+
+bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs) {
+  return lhs.Equals(rhs);
+}
+
+
+bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
   return !(lhs == rhs);
 }
 

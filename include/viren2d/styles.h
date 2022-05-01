@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <ostream>
 
 #include <viren2d/colors.h>
 
@@ -29,6 +30,7 @@ enum class LineJoin : unsigned char {
 
 /** @brief Style definitions for lines & contours. */
 struct LineStyle {
+ public:
   double line_width;
   Color color;
   std::vector<double> dash_pattern;
@@ -47,9 +49,16 @@ struct LineStyle {
   virtual ~LineStyle() {}
 
   /** @brief Checks if this line style would lead to a renderable line. */
-  bool IsValid() const;
+  virtual bool IsValid() const;
 
-  std::string ToString() const;
+  virtual std::string ToString() const;
+
+  bool Equals(const LineStyle &other) const;
+
+  friend std::ostream &operator<<(std::ostream &os, const LineStyle &style) {
+    os << style.ToString();
+    return os;
+  }
 };
 
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
@@ -57,6 +66,40 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
 
 
 //-------------------------------------------------  ArrowStyle
+struct ArrowStyle : public LineStyle {
+  double tip_length; /**< Length of the tip (percentage if in [0, 1]; else absolute in pixels). */
+  double tip_angle;  /**< Angle between tip lines and the shaft in degrees. */
+  bool tip_closed;   /**< How to draw the tip: only lines (false) or as a filled triangle (true). */
+
+  ArrowStyle(double width = 2.0,
+             const Color &col = Color(NamedColor::Azure),
+             double tip_len = 0.1,
+             double angle = 30.0,
+             bool fill = false,
+             const std::vector<double> &dash = std::vector<double>(),
+             LineCap cap = LineCap::Butt,
+             LineJoin join = LineJoin::Miter)
+    : LineStyle(width, col, dash, cap, join),
+      tip_length(tip_len), tip_angle(angle), tip_closed(fill)
+  {}
+
+  ~ArrowStyle() {}
+
+  /** @brief Checks if this line style would lead to a renderable arrow. */
+  virtual bool IsValid() const override;
+
+  virtual std::string ToString() const override;
+
+  bool Equals(const ArrowStyle &other) const;
+
+  friend std::ostream &operator<<(std::ostream &os, const ArrowStyle &style) {
+    os << style.ToString();
+    return os;
+  }
+};
+
+bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs);
+bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);
 
 } // namespace viren2d
 
