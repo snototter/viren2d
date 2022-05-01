@@ -523,6 +523,13 @@ style.line_width = 20
 p.draw_arrow((20, 20), (380, 280), style)
 imvis.imshow(img)
 
+
+p.set_canvas_rgb(400, 300)
+style.tip_closed = False
+style.line_width = 20
+p.draw_arrow((20, 20), (380, 280), style)
+img = np.array(p.get_canvas(), copy=False)
+imvis.imshow(img)
 ```
 
 
