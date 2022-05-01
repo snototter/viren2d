@@ -100,6 +100,11 @@ public:
   }
 
 
+  virtual void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
+                        double spacing_x, double spacing_y,
+                        const LineStyle &line_style) = 0;
+
+
   virtual void DrawLine(const Vec2d &from, const Vec2d &to,
                         const LineStyle &line_style) = 0;
 

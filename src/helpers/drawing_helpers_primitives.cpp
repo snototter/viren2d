@@ -26,7 +26,45 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
 
   helpers::ApplyLineStyle(context, line_style);
   cairo_stroke(context);
-  // Restore context
+  // Restore previous context
+  cairo_restore(context);
+}
+
+
+//---------------------------------------------------- Grid
+void DrawGrid(cairo_surface_t *surface, cairo_t *context,
+              const Vec2d &top_left, const Vec2d &bottom_right,
+              double spacing_x, double spacing_y,
+              const LineStyle &line_style) {
+  CheckCanvas(surface, context);
+
+  // Switch to given line style
+  cairo_save(context);
+  helpers::ApplyLineStyle(context, line_style);
+
+  // Check grid limits
+  double left = top_left.x();
+  double right = bottom_right.x();
+  double top = top_left.y();
+  double bottom = bottom_right.y();
+  // Should the grid span the whole canvas?
+  if (top_left == bottom_right) {
+    right = static_cast<double>(cairo_image_surface_get_width(surface));
+    bottom = static_cast<double>(cairo_image_surface_get_height(surface));
+  }
+
+  // Draw the grid
+  for (double x = left; x <= right; x += spacing_x) {
+    cairo_move_to(context, x, top);
+    cairo_line_to(context, x, bottom);
+    cairo_stroke(context);
+  }
+  for (double y = top; y <= bottom; y += spacing_y) {
+    cairo_move_to(context, left, y);
+    cairo_line_to(context, right, y);
+    cairo_stroke(context);
+  }
+  // Restore previous context
   cairo_restore(context);
 }
 
@@ -36,7 +74,7 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
               const Vec2d &from, const Vec2d &to,
               const LineStyle &line_style) {
   CheckCanvas(surface, context);
-
+  // Switch to given line style
   cairo_save(context);
   helpers::ApplyLineStyle(context, line_style);
   // Draw line

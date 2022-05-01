@@ -122,6 +122,11 @@ inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
 }
 
 
+void DrawGrid(cairo_surface_t *surface, cairo_t *context,
+              const Vec2d &top_left, const Vec2d &bottom_right,
+              double spacing_x, double spacing_y,
+              const LineStyle &line_style);
+
 
 void DrawLine(cairo_surface_t *surface, cairo_t *context,
               const Vec2d &from, const Vec2d &to,

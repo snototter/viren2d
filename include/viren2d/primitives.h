@@ -159,6 +159,11 @@ class Vec {
 
   Vec(const Vec<_Tp, dim>& other);
 
+  ~Vec() {}
+
+  Vec(Vec &&other) noexcept = default; // move c'tor
+  Vec &operator=(const Vec &other) = default; // copy assignment
+  Vec &operator=(Vec &&other) noexcept = default; // move assignment
 
   /** @brief Allow casting each vector to its double-precision counterpart.
    *  Needed because we work with cairo, which heavily uses doubles.

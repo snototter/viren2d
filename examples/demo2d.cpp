@@ -11,7 +11,47 @@
 #include <viren2d/viren2d.h>
 
 
+/** Helper to show and save the canvas. */
+void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
+  // Save to disk
+  try {
+    viren2d::SaveImage(filename, canvas);
+  }  catch (const std::runtime_error &e) {
+    std::cerr << "Could not save canvas to \""
+              << filename << "\": " << e.what()
+              << std::endl;
+  }
+
+#ifdef WITH_OPENCV
+  viren2d::ImageBuffer copy(canvas);
+  copy.RGB2BGR(); // Warning: Currently, the buffer is shared!!
+  cv::Mat cv_buffer(copy.height, copy.width,
+                    CV_MAKETYPE(CV_8U, copy.channels),
+                    copy.data, copy.stride);
+  cv::imshow("Painter's Canvas", cv_buffer);
+  cv::waitKey();
+#else  // WITH_OPENCV
+  std::cerr << "OpenCV is not available - cannot display the canvas." << std::endl;
+#endif  // WITH_OPENCV
+}
+
+void DemoArrow() {
+  auto painter = viren2d::CreateImagePainter();
+  painter->SetCanvas(600, 400, viren2d::Color::White);
+
+  painter->DrawGrid(viren2d::Vec2d(), viren2d::Vec2d(), 10, 10, viren2d::LineStyle(0.5, "black"));
+
+  painter->DrawLine({10, 10}, {60, 60}, viren2d::LineStyle(1, "navy-blue!80"));
+
+  ShowCanvas(painter->GetCanvas(true), "demo-output-arrow.png");
+}
+
 int main(int /*argc*/, char **/*argv*/) {
+  DemoArrow();
+
+  if (true)
+    return 0;
+
   std::cout << viren2d::Color(viren2d::NamedColor::Black).ToString() << std::endl
             << viren2d::Color("white").ToString() << std::endl
             << viren2d::Color("red").ToHexString() << std::endl

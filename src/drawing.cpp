@@ -135,6 +135,15 @@ public:
 
   ImageBuffer GetCanvas(bool copy) override;
 
+
+  void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
+                          double spacing_x, double spacing_y,
+                const LineStyle &line_style) override {
+    helpers::DrawGrid(surface_, context_, top_left, bottom_right,
+                      spacing_x, spacing_y, line_style);
+  }
+
+
   void DrawLine(const Vec2d &from, const Vec2d &to,
                 const LineStyle &line_style) override {
     helpers::DrawLine(surface_, context_, from, to, line_style);
