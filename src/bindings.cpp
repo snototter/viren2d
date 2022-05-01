@@ -609,7 +609,6 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   py::implicitly_convertible<py::tuple, viren2d::Rect>();
 
 
-  //TODO line? (overkill, not needed now)
   //TODO plane? maybe - either use vec4d or make a full-blown plane class
   //     preferably reuse vec4d - nobody expects a visualization toolbox to
   //     be the go-to resource for (easy to use) geometric datatypes

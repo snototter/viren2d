@@ -95,3 +95,6 @@ TEST(ImageBufferTest, Conversion) {
   // TODO ImageBuffer.RGB, ImageBuffer.RGBA, ...
   // Helpers: Gray2RGB(A), RGB(A)2RGB(A)
 }
+
+//TODO add pytests
+
