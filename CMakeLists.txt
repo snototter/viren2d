@@ -80,6 +80,7 @@ set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/math.h
     include/viren2d/primitives.h
     include/viren2d/string_utils.h  #TODO replace by cpputils::stringutils
+    include/viren2d/styles.h
     include/viren2d/version.h
     include/viren2d/viren2d.h)
 
@@ -93,6 +94,7 @@ set(viren2d_PRIVATE_HEADER_FILES
 set(viren2d_SOURCE_FILES
     src/primitives.cpp
     src/colors.cpp
+    src/styles.cpp
     src/drawing.cpp
     src/helpers/drawing_helpers_primitives.cpp)
 
@@ -249,7 +251,8 @@ if(viren2d_WITH_TESTS)
         tests/color_test.cpp
         tests/vector_test.cpp
         tests/rectangle_test.cpp
-        tests/imagebuffer_test.cpp)
+        tests/imagebuffer_test.cpp
+        tests/style_test.cpp)
 
     target_include_directories(${TARGET_CPP_TEST}
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

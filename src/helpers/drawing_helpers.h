@@ -2,11 +2,13 @@
 #define __VIREN2D_DRAWING_HELPERS_H__
 
 #include <stdexcept>
+#include <sstream>
 
 #include <math.h>
 #include <cairo/cairo.h>
 
 #include <viren2d/colors.h>
+#include <viren2d/styles.h>
 #include <viren2d/drawing.h>
 
 
@@ -33,31 +35,37 @@ inline void ApplyColor(cairo_t *context, const Color &color) {
 
 inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style) {
   switch (line_style.line_cap) {
-    case LineStyle::Cap::Butt:
+    case LineCap::Butt:
       return CAIRO_LINE_CAP_BUTT;
 
-    case LineStyle::Cap::Round:
+    case LineCap::Round:
       return CAIRO_LINE_CAP_ROUND;
 
-    case LineStyle::Cap::Square:
+    case LineCap::Square:
       return CAIRO_LINE_CAP_SQUARE;
   }
-  throw std::runtime_error("Line cap style is not yet mapped to Cairo type!");
+  std::stringstream s;
+  s << "Line cap style \"" << static_cast<int>(line_style.line_cap)
+    << "\" is not yet mapped to Cairo type!";
+  throw std::runtime_error(s.str());
 }
 
 
 inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
   switch (line_style.line_join) {
-    case LineStyle::Join::Miter:
+    case LineJoin::Miter:
       return CAIRO_LINE_JOIN_MITER;
 
-    case LineStyle::Join::Bevel:
+    case LineJoin::Bevel:
       return CAIRO_LINE_JOIN_BEVEL;
 
-    case LineStyle::Join::Round:
+    case LineJoin::Round:
       return CAIRO_LINE_JOIN_ROUND;
   }
-  throw std::runtime_error("Line join style is not yet mapped to Cairo type!");
+  std::stringstream s;
+  s << "Line join style \"" << static_cast<int>(line_style.line_join)
+    << "\" is not yet mapped to Cairo type!";
+  throw std::runtime_error(s.str());
 }
 
 

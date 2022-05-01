@@ -73,7 +73,7 @@ int main(int /*argc*/, char **/*argv*/) {
   //                    viren2d::LineStyle(10, viren2d::colors::Maroon(0.8)));
 
   painter->DrawLine({10.0, 10.0}, {image_buffer.width-10.0, image_buffer.height-10.0},
-                    viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineStyle::Cap::Round));
+                    viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineCap::Round));
 
   try {
     viren2d::SaveImage("test.jpg", painter->GetCanvas(false));

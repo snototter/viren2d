@@ -105,8 +105,8 @@ viren2d::LineStyle DeserializeLineStyle(py::tuple tpl) {
   viren2d::LineStyle ls(tpl[0].cast<double>(),
                      tpl[1].cast<viren2d::Color>(),
                      tpl[2].cast<std::vector<double>>(),
-                     tpl[3].cast<viren2d::LineStyle::Cap>(),
-                     tpl[4].cast<viren2d::LineStyle::Join>());
+                     tpl[3].cast<viren2d::LineCap>(),
+                     tpl[4].cast<viren2d::LineJoin>());
   return ls;
 }
 } // namespace pickling
@@ -212,10 +212,10 @@ viren2d::LineStyle CreateLineStyle(py::tuple tpl) {
     ls.dash_pattern = tpl[2].cast<std::vector<double>>();
 
   if (tpl.size() > 3)
-    ls.line_cap = tpl[3].cast<viren2d::LineStyle::Cap>();
+    ls.line_cap = tpl[3].cast<viren2d::LineCap>();
 
   if (tpl.size() > 4)
-    ls.line_join = tpl[4].cast<viren2d::LineStyle::Join>();
+    ls.line_join = tpl[4].cast<viren2d::LineJoin>();
 
   return ls;
 }
@@ -660,36 +660,35 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
 
   //------------------------------------------------- Drawing - LineStyle
-  py::class_<viren2d::LineStyle> line_style(m, "LineStyle",
-                                            "How a line should be drawn.");
-
-  py::enum_<viren2d::LineStyle::Cap>(line_style, "Cap",
-                                  "How to render the endpoints of the line (or dash strokes).")
-      .value("Butt", viren2d::LineStyle::Cap::Butt,
+  py::enum_<viren2d::LineCap>(m, "LineCap",
+             "How to render the endpoints of the line (or dash strokes).")
+      .value("Butt", viren2d::LineCap::Butt,
              "Start/stop the line exactly at the start/end point.")
-      .value("Round", viren2d::LineStyle::Cap::Round,
+      .value("Round", viren2d::LineCap::Round,
              "Round ending, center of the circle is the end point.")
-      .value("Square", viren2d::LineStyle::Cap::Square,
+      .value("Square", viren2d::LineCap::Square,
              "Square ending, center of the square is the end point.");
 
 
-  py::enum_<viren2d::LineStyle::Join>(line_style, "Join",
-                                   "How to render the junction of two lines/segments.")
-      .value("Miter", viren2d::LineStyle::Join::Miter,
+  py::enum_<viren2d::LineJoin>(m, "LineJoin",
+             "How to render the junction of two lines/segments.")
+      .value("Miter", viren2d::LineJoin::Miter,
              "Sharp (angled) corner.")
-      .value("Bevel", viren2d::LineStyle::Join::Bevel,
+      .value("Bevel", viren2d::LineJoin::Bevel,
              "Cut off the join at half the line width from the joint point.")
-      .value("Round", viren2d::LineStyle::Join::Round,
+      .value("Round", viren2d::LineJoin::Round,
              "Rounded join, where the center of the circle is the joint point.");
 
 
+  py::class_<viren2d::LineStyle> line_style(m, "LineStyle",
+                                            "How a line should be drawn.");
   line_style.def(py::init<>(&moddef::CreateLineStyle)) // init from tuple
       .def(py::init<double, viren2d::Color, std::vector<double>,
-                    viren2d::LineStyle::Cap, viren2d::LineStyle::Join>(),
+                    viren2d::LineCap, viren2d::LineJoin>(),
            py::arg("line_width"), py::arg("color"),
            py::arg("dash_pattern")=std::vector<double>(),
-           py::arg("line_cap")=viren2d::LineStyle::Cap::Butt,
-           py::arg("line_join")=viren2d::LineStyle::Join::Miter)
+           py::arg("line_cap")=viren2d::LineCap::Butt,
+           py::arg("line_join")=viren2d::LineJoin::Miter)
       .def("__repr__",
            [](const viren2d::LineStyle &st)
            { return "<viren2d." + st.ToString() + ">"; })

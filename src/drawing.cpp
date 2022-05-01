@@ -64,45 +64,6 @@ namespace viren2d {
 //}
 
 
-std::string LineStyle::ToString() const {
-  std::stringstream s;
-  s << "LineStyle(w=" << std::fixed << std::setprecision(1)
-    << line_width << ", " << color.ToString() << ", "
-    << (dash_pattern.empty() ? "solid" : "dashed") << ")";
-  return s.str();
-}
-
-
-bool operator==(const LineStyle &lhs, const LineStyle &rhs) {
-  if (!eps_equal(lhs.line_width, rhs.line_width))
-    return false;
-
-  if (lhs.color != rhs.color)
-    return false;
-
-  if (lhs.dash_pattern.size() != rhs.dash_pattern.size())
-    return false;
-
-  for (size_t i = 0; i < lhs.dash_pattern.size(); ++i)
-    if (!eps_equal(lhs.dash_pattern[i], rhs.dash_pattern[i]))
-      return false;
-
-  if (lhs.line_cap != rhs.line_cap)
-    return false;
-
-  if (lhs.line_join != rhs.line_join)
-    return false;
-
-  return true;
-}
-
-
-bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
-  return !(lhs == rhs);
-}
-
-
-
 class ImagePainter : public Painter {
 public:
   ImagePainter() : Painter(),

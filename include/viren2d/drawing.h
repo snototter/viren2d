@@ -7,55 +7,10 @@
 
 #include <viren2d/primitives.h>
 #include <viren2d/colors.h>
+#include <viren2d/styles.h>
 
 namespace viren2d {
 
-//-------------------------------------------------  LineStyle
-
-/** @brief Style definitions for lines & contours. */
-struct LineStyle {
-  /** @brief How to render the endpoints of the line (or dash strokes). */
-  enum class Cap : unsigned char {
-    Butt = 0,
-    Round,
-    Square
-  };
-
-
-  /** @brief How to render the junction of two lines/segments. */
-  enum class Join : unsigned char {
-    Miter = 0,
-    Round,
-    Bevel
-  };
-
-
-  double line_width;
-  Color color;
-  std::vector<double> dash_pattern;
-  Cap line_cap;
-  Join line_join;
-
-
-  LineStyle(double width, const Color &col,
-            const std::vector<double> &dash=std::vector<double>(),
-            Cap cap=Cap::Butt, Join join=Join::Miter)
-    : line_width(width), color(col), dash_pattern(dash),
-      line_cap(cap), line_join(join)
-  {}
-
-
-  std::string ToString() const;
-};
-
-
-//-------------------------------------------------  Comparison operators
-
-bool operator==(const LineStyle &lhs, const LineStyle &rhs);
-bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
-
-
-//-------------------------------------------------  Painter
 /**
  * @brief The Painter supports drawing on a canvas.
  *
