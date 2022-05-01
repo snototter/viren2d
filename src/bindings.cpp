@@ -463,8 +463,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("colorspec"), py::arg("alpha")=1.0)
       .def("__repr__",
            [](const viren2d::Color &c)
-           { return "<viren2d.Color " + c.ToString() + ">"; })
-      .def("__str__", &viren2d::Color::ToString)
+           { return "<viren2d.Color " + c.ToHexString() + ">"; })
+      .def("__str__", &viren2d::Color::ToHexString)
       .def(py::pickle(&pickling::SerializeColor,
                       &pickling::DeserializeColor))
       .def(py::self == py::self,
