@@ -24,5 +24,5 @@ add_executable(demo
     ${CMAKE_CURRENT_LIST_DIR}/../demo2d.cpp)
 
 # Add the viren2d dependency (include paths will be set up automatically)
-target_link_libraries(demo PRIVATE viren2d::viren2d)
+target_link_libraries(demo PRIVATE viren2d::viren2d++)
 

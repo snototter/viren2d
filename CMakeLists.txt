@@ -9,7 +9,12 @@ endif()
     
 # Set up the project
 project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
-
+# * CPP library and CMake namespace will be named viren2d++
+# * Python bindings/library will be named viren2d
+set(TARGET_CPP_LIB    ${PROJECT_NAME}++)
+set(TARGET_CPP_TEST   ${PROJECT_NAME}-test)
+set(TARGET_CPP_DEMO   ${PROJECT_NAME}-demo)
+set(TARGET_PYTHON_LIB ${PROJECT_NAME})
 
 
 #TODO disable before v1 release (except for install)
@@ -41,8 +46,8 @@ endforeach()
 
 # Set compiler options
 set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
-set(CMAKE_CXX_EXTENSIONS OFF)  # only std c++11, not gnu++11
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)  # only std c++14, not gnu++14
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -62,6 +67,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #########################################################################################
 # C++ library
 
+# Auto-generate the version.h file
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/viren2d/version.h)
+
+
 # Header files
 set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
@@ -69,6 +80,7 @@ set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/math.h
     include/viren2d/primitives.h
     include/viren2d/string_utils.h  #TODO replace by cpputils::stringutils
+    include/viren2d/version.h
     include/viren2d/viren2d.h)
 
 
@@ -86,44 +98,41 @@ set(viren2d_SOURCE_FILES
 
 
 # Define the core library
-add_library(viren2d
+add_library(${TARGET_CPP_LIB}
     ${viren2d_PUBLIC_HEADER_FILES}
     ${viren2d_PRIVATE_HEADER_FILES}
     ${viren2d_SOURCE_FILES})
-
-
 # Add a namespace'd alias
-add_library(viren2d::viren2d ALIAS viren2d)
+add_library(${TARGET_CPP_LIB}::${TARGET_CPP_LIB} ALIAS ${TARGET_CPP_LIB})
 
 # ./cmake includes a custom FindCairo module
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Cairo REQUIRED)
-target_link_libraries(viren2d PRIVATE ${Cairo_LIBS})
+target_link_libraries(${TARGET_CPP_LIB} PRIVATE ${Cairo_LIBS})
 
 if(viren2d_WITH_IMWRITE)
-  target_compile_definitions(viren2d PRIVATE viren2d_WITH_IMWRITE)
+  target_compile_definitions(${TARGET_CPP_LIB} PRIVATE viren2d_WITH_IMWRITE)
 endif()
 
 
 # Set up the include paths for internal usage (PRIVATE), usage if this CMakeLists.txt is
 # included in another project (PUBLIC BUILD_INTERFACE) or if the installed library is
 # used (PUBLIC INSTALL_INTERFACE)
-target_include_directories(viren2d
+target_include_directories(${TARGET_CPP_LIB}
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src"
             "${CMAKE_CURRENT_SOURCE_DIR}/libs/stb"
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<INSTALL_INTERFACE:${INSTALL_DIR_INCLUDE}>)
 
 
-set_target_properties(viren2d PROPERTIES
+set_target_properties(${TARGET_CPP_LIB} PROPERTIES
     PUBLIC_HEADER "${viren2d_PUBLIC_HEADER_FILES}"
-    OUTPUT_NAME viren2d++
     DEBUG_POSTFIX "d")
 
 
 if(INSTALL_viren2d)
-    install(TARGETS viren2d
-        EXPORT viren2dTargets
+    install(TARGETS ${TARGET_CPP_LIB}
+        EXPORT ${TARGET_CPP_LIB}Targets
         # We don't have any installable executables, so we don't need RUNTIME
         # RUNTIME DESTINATION ${INSTALL_DIR_BIN}
         LIBRARY DESTINATION ${INSTALL_DIR_LIB}
@@ -134,9 +143,9 @@ if(INSTALL_viren2d)
         # .cmake file
         # INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
 
-    install(EXPORT viren2dTargets
-        FILE viren2d++Targets.cmake
-        NAMESPACE viren2d::
+    install(EXPORT ${TARGET_CPP_LIB}Targets
+        FILE ${TARGET_CPP_LIB}Targets.cmake
+        NAMESPACE ${TARGET_CPP_LIB}::
         DESTINATION ${INSTALL_DIR_CMAKE})
 endif()
 
@@ -145,26 +154,26 @@ endif()
 include(CMakePackageConfigHelpers)
 # Generate the version file for the config file
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/viren2d++ConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}ConfigVersion.cmake"
     VERSION "${viren2d_VERSION}"
     COMPATIBILITY AnyNewerVersion)
 
 # Create config file
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/viren2d++Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}Config.cmake"
     INSTALL_DESTINATION ${INSTALL_DIR_CMAKE})
 
 # Install config files
 if(INSTALL_viren2d)
     install(FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/viren2d++Config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/viren2d++ConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}Config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}ConfigVersion.cmake"
         DESTINATION ${INSTALL_DIR_CMAKE})
 
     # Generate the export targets for the build tree
-    export(EXPORT viren2dTargets
-        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/viren2d++Targets.cmake"
-        NAMESPACE viren2d::)
+    export(EXPORT ${TARGET_CPP_LIB}Targets
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/${TARGET_CPP_LIB}Targets.cmake"
+        NAMESPACE ${TARGET_CPP_LIB}::)
 endif()
 
 
@@ -173,23 +182,22 @@ endif()
 # C++ demo
 
 if(viren2d_WITH_DEMO)
-    add_executable(viren2d_demo
+    add_executable(${TARGET_CPP_DEMO}
         examples/demo2d.cpp)
 
-    target_link_libraries(viren2d_demo
-        PRIVATE viren2d::viren2d)
+    target_link_libraries(${TARGET_CPP_DEMO}
+        PRIVATE ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
 
-    set_target_properties(viren2d_demo PROPERTIES
-        OUTPUT_NAME "demo")
-
-    # OpenCV is optional, we would only need it to display the rendered images
+    # OpenCV is optional, we only use it to display the rendered images
     find_package(OpenCV QUIET)
     if(${OpenCV_FOUND})
         message(STATUS "The demo will use OpenCV::highgui to display images.")
-        target_compile_definitions(viren2d_demo PRIVATE
-            WITH_OPENCV)
-        target_link_libraries(viren2d_demo PRIVATE
-            ${OpenCV_LIBRARIES})
+
+        target_compile_definitions(${TARGET_CPP_DEMO}
+            PRIVATE WITH_OPENCV)
+
+        target_link_libraries(${TARGET_CPP_DEMO}
+            PRIVATE ${OpenCV_LIBRARIES})
     endif()
 endif()
 
@@ -202,17 +210,18 @@ if(viren2d_WITH_PYTHON)
     # pybind11 provides add_module which is basically a wrapper of CMake's add_library
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/pybind11)
 
-    pybind11_add_module(viren2d_python
+    pybind11_add_module(${TARGET_PYTHON_LIB}
         src/bindings.cpp)
 
-    target_compile_definitions(viren2d_python PRIVATE
+    target_compile_definitions(${TARGET_PYTHON_LIB} PRIVATE
         viren2d_VERSION_INFO=${viren2d_VERSION}
-        viren2d_PYMODULE_NAME=viren2d)
+        viren2d_PYMODULE_NAME=${PROJECT_NAME})
 
-    set_target_properties(viren2d_python PROPERTIES
-        OUTPUT_NAME viren2d)
+    set_target_properties(${TARGET_PYTHON_LIB} PROPERTIES
+        OUTPUT_NAME ${PROJECT_NAME})
 
-    target_link_libraries(viren2d_python PRIVATE viren2d::viren2d)
+    target_link_libraries(${TARGET_PYTHON_LIB}
+        PRIVATE ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
 endif()
 
 
@@ -235,28 +244,28 @@ if(viren2d_WITH_TESTS)
     
     enable_testing()
 
-    add_executable(viren2d_test
+    add_executable(${TARGET_CPP_TEST}
         src/helpers/enum.h
         tests/color_test.cpp
         tests/vector_test.cpp
         tests/rectangle_test.cpp
         tests/imagebuffer_test.cpp)
 
-    target_include_directories(viren2d_test
+    target_include_directories(${TARGET_CPP_TEST}
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-    target_link_libraries(viren2d_test
+    target_link_libraries(${TARGET_CPP_TEST}
         PRIVATE
         gtest_main
-        viren2d::viren2d)
+        ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
 
-    target_compile_definitions(viren2d_test PRIVATE
+    target_compile_definitions(${TARGET_CPP_TEST} PRIVATE
         viren2d_EXAMPLE_IMAGE_FILE="${CMAKE_CURRENT_SOURCE_DIR}/examples/flamingo.jpg"
         viren2d_EXAMPLE_IMAGE_WIDTH=400
         viren2d_EXAMPLE_IMAGE_HEIGHT=400)
 
     include(GoogleTest)
-    gtest_discover_tests(viren2d_test)
+    gtest_discover_tests(${TARGET_CPP_TEST})
 endif()
 
 
