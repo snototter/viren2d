@@ -223,7 +223,11 @@ class Color {
   ToRGBa() const;
 
 
-  /** @brief Returns the web color code, e.g. "#dcdce4ff". */
+  /**
+   * @brief Returns the web color code, e.g. "#dcdce4ff".
+   *
+   * If the color is invalid, the hex digits will be replaced by question marks.
+   */
   std::string ToHexString() const;
 
 

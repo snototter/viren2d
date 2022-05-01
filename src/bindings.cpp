@@ -463,7 +463,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("colorspec"), py::arg("alpha")=1.0)
       .def("__repr__",
            [](const viren2d::Color &c)
-           { return "<viren2d.Color " + c.ToHexString() + ">"; })
+           { return "<viren2d.Color " + (c.IsValid() ? c.ToHexString() : "(invalid)") + ">"; })
       .def("__str__", &viren2d::Color::ToHexString)
       .def(py::pickle(&pickling::SerializeColor,
                       &pickling::DeserializeColor))
@@ -512,7 +512,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "where all components are in[0, 1].")
       .def("as_hex", &viren2d::Color::ToHexString,
            "Returns the hex web color code representation,\n"
-           "e.g. '#0011ffff' (all components are scaled to [0, 255]).")
+           "e.g. '#0011ffff' (all components are scaled to [0, 255]).\n"
+           "If the color is invalid, #???????? will be returned instead.")
       .def("with_alpha", &viren2d::Color::WithAlpha,
            "Return a color with the same r,g,b components, but the given alpha.",
            py::arg("alpha"))

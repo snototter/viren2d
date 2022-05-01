@@ -141,6 +141,10 @@ def test_webcodes():
     assert color.as_RGBa() == (255, 0, 127, 1.0)
     assert color.as_hex() == '#ff007fff'
 
+    color = viren2d.Color()
+    assert not color.is_valid()
+    assert color.as_hex() == '#????????'
+
 
 def test_color_names():
     # We should be able to create each named color:

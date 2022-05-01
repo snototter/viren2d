@@ -234,6 +234,10 @@ TEST(ColorTest, Webcodes) {
 
   color = viren2d::ColorFromHexString("#ea843534");
   EXPECT_TRUE(CheckColor(color, 234.0/255, 132.0/255, 53.0/255, 0.2039));
+
+  color = viren2d::Color();
+  EXPECT_FALSE(color.IsValid());
+  EXPECT_EQ(color.ToHexString(), "#????????");
 }
 
 

@@ -439,9 +439,10 @@ Color::ToRGBa() const {
 
 
 std::string Color::ToHexString() const {
+  if (!IsValid())
+    return std::string("#????????");
+
   std::string webcode("#00000000");
-  // RGB is easier to work with
-  auto RGBa = ToRGBa();
 
   // Mapping from [0,15] to corresponding hex code character
   std::map<unsigned char, char> hex2char {
@@ -450,6 +451,9 @@ std::string Color::ToHexString() const {
     {10, 'a'}, {11, 'b'}, {12, 'c'}, {13, 'd'},
     {14, 'e'}, {15, 'f'}
   };
+
+  // RGB is easier to work with
+  auto RGBa = ToRGBa();
 
   // For now, tuple elements can't be accessed
   // in a loop. So bear with the following copy&paste.
