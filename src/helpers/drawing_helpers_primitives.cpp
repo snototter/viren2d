@@ -59,6 +59,7 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
   // fiddle too much with line joins and manually adjusting
   // the end points. Things tried: draw shaft twice; draw all in a single path; vary the line width (when filling)
   // TODO open ideas:
+  // * check operators in detail! https://cairographics.org/operators/
   // * 1) draw opaque (see cairo_stroke_extents; slow but exact bounding box)
   //   2) copy with alpha
   // ---> check also compositions; could be helpful (later on), https://zetcode.com/gfx/cairo/compositing/
@@ -69,29 +70,30 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
   //
   // so back to the cleanest code version:
 
+  // Works for almost everything, except for filled+transparent arrows:
+
   // Switch to given line style
   cairo_save(context);
   helpers::ApplyLineStyle(context, arrow_style);
-  // Draw shaft
+  // Path of the shaft
   cairo_move_to(context, from.x(), from.y());
   cairo_line_to(context, to.x(), to.y());
-  cairo_stroke(context);
 
-  // Arrow tip:
+  // Path of the arrow head:
   cairo_move_to(context, tip1.x(), tip1.y());
   cairo_line_to(context, to.x(), to.y());
   cairo_line_to(context, tip2.x(), tip2.y());
   // Fill if needed
   if (arrow_style.tip_closed) {
+    // Close the path explicitly or we would see the line caps
+    // at tip1/tip2 for very thick line width settings.
+    cairo_close_path(context);
     cairo_fill_preserve(context);
   }
-  // The filled area excludes the contour/path, thus we
-  // always have to draw the tip stroke:
+  // Draw the paths
+  //cairo_set_operator(context, CAIRO_OPERATOR_SOURCE); // same effect as ignoring transparency of the path
+  //cairo_set_operator(context, CAIRO_OPERATOR_SOURCE); // "cuts out" the path (i.e. strokes are black)
   cairo_stroke(context);
-
-  //FIXME python bindings grid
-  //FIXME python bindings arrow
-  //FIXME support transparent arrows via opaque-then-blend
 
   // Restore context
   cairo_restore(context);
@@ -124,13 +126,12 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
   for (double x = left; x <= right; x += spacing_x) {
     cairo_move_to(context, x, top);
     cairo_line_to(context, x, bottom);
-    cairo_stroke(context);
   }
   for (double y = top; y <= bottom; y += spacing_y) {
     cairo_move_to(context, left, y);
     cairo_line_to(context, right, y);
-    cairo_stroke(context);
   }
+  cairo_stroke(context);
   // Restore previous context
   cairo_restore(context);
 }

@@ -43,14 +43,16 @@ void DemoArrow() {
 
 //  painter->DrawLine({10, 10}, {60, 60}, viren2d::LineStyle(1, "navy-blue!80"));
 
-  painter->DrawArrow({20, 10}, {120, 140}, viren2d::ArrowStyle(4, "navy-blue", 0.2, 30, false));
+  painter->DrawArrow({20, 10}, {120, 140}, viren2d::ArrowStyle(4, "navy-blue", 0.2, 30, false, {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
 
   //FIXME: transparent arrows need a different approach (e.g. opaque-then-blend)
-  painter->DrawArrow({40, 40}, {200, 40}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, true));
+  painter->DrawArrow({40, 40}, {200, 40}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, true, {}, viren2d::LineCap::Round));
 
-  painter->DrawArrow({80, 80}, {200, 80}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, false));
+  painter->DrawArrow({80, 80}, {200, 80}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, false, {}, viren2d::LineCap::Round));
 
-  painter->DrawArrow({40, 200}, {200, 200}, viren2d::ArrowStyle(5, "crimson!50", 50, 45, false));
+  painter->DrawArrow({40, 200}, {200, 200}, viren2d::ArrowStyle(5, "crimson!50", 50, 45, false, {}, viren2d::LineCap::Round));
+
+  painter->DrawArrow({40, 250}, {400, 250}, viren2d::ArrowStyle(20, "crimson!50", 0.3, 50, true, {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
 
   ShowCanvas(painter->GetCanvas(true), "demo-output-arrow.png");
 }

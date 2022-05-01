@@ -500,6 +500,29 @@ img = np.array(p.get_canvas(), copy=False)
 imvis.imshow(img)
 
 
+
+
+
+######### arrows
+from vito import imvis
+import numpy as np
+import viren2d as vi
+
+p = vi.Painter()
+p.set_canvas_rgb(400, 300)
+p.draw_arrow((20, 20), (380, 280))
+img = np.array(p.get_canvas(), copy=False)
+imvis.imshow(img)
+
+style = vi.ArrowStyle(color='navy-blue!80')
+style.tip_length = 200
+p.draw_arrow((20, 20), (380, 280), style)
+imvis.imshow(img)
+style.tip_closed = True
+style.line_width = 20
+p.draw_arrow((20, 20), (380, 280), style)
+imvis.imshow(img)
+
 ```
 
 
