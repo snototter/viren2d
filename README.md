@@ -1,7 +1,6 @@
-# viren2d - Vision & Rendering 2D
-This is a light-weight toolbox to easily (and aesthetically) visualize common computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
-
-This toolbox uses the [Cairo graphics library](https://www.cairographics.org/) under the hood, so visually unpleasing results will (hopefully) only be caused by our questionable color choices :wink:.
+# Computer Vision Results, but Nice-Looking
+This is a light-weight toolbox to easily visualize common 2D computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
+Under the hood, `viren2d` uses the [Cairo graphics library](https://www.cairographics.org/), so visually unpleasing results will hopefully only be caused by questionable color/style choices :wink:.
 
 
 ## Roadmap
@@ -11,15 +10,15 @@ This toolbox uses the [Cairo graphics library](https://www.cairographics.org/) u
 
 ## Description
 **Why yet another toolbox?**  
-I became too tired (or lazy?) of to look up how to visualize some results within the software framework I currently have to work with.
-Ideally, I wanted something that can be easily used both within C++ and Python environments - as I have to switch between these two regularly.
+Frequently switching between different tasks and frameworks, looking up how to visualize results became tiring.
+Ideally, I wanted something that can be easily used both within C++ and Python environments as I have to switch between these two regularly.
 
 Previously, I experimented with a [similar toolbox (`vcp`)](https://github.com/snototter/vitocpp/) based on [OpenCV](https://github.com/opencv/opencv), but this has a few drawbacks (considering *ease-of-use*):  
-*a)* OpenCV is a quite heavy dependency (plus, did you ever get to enjoy a version mismatch between (unofficial) Python bindings in your virtualenv and your system's OpenCV library?)  
-*b)* it offers only limited drawing capabilities (it's an image processing library, thus not focusing on graphics pleasing to the eye), and  
+*a)* OpenCV is a quite heavy dependency - plus, did you ever get to enjoy a version mismatch between the [(unofficial) Python bindings](https://pypi.org/project/opencv-python/) in your virtual environment and your system's OpenCV library?  
+*b)* OpenCV is an image processing library, thus it offers only limited drawing capabilities, and  
 *c)* my `vcp` framework grew over the years (and suffers from the usual *"I will clean this mess up later"* quick-and-dirty extensions).
 
-**So here comes `viren2d`**, a toolbox with only a single purpose: easily create aesthetically pleasing visualizations.
+**So here comes `viren2d`**, a toolbox with only a single purpose: easily & quickly create nice-looking visualizations.
 
 Note on efficiency: I preferred code readability over efficiency. Nevertheless, compared to my previous attempt using OpenCV, the switch to Cairo immediately paid off (despite using CPU-only in-memory image surface rendering, which is by far the slowest usage of Cairo).
 
@@ -33,38 +32,58 @@ This is by the way also how you pronounce the German word *Viren* (viruses). I c
 ## Installation
 ### Platforms
 So far, `viren2d` has been tested on:  
-Ubuntu 18.04, Ubuntu 20.04
+* Ubuntu 18.04
+* Ubuntu 20.04
 
 There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([cairo](https://www.cairographics.org/download/), [ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
-Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.
+Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.  
+
+**Watch out Windows users:**  
+There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded path (`${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location.
+
 
 ### Prerequisites
-TODO add usage requirements (not dev versions)
+TODO doc  
+install via apt: libcairo2-dev, ninja-build, cmake>3.14
 
-install via apt: libcairo2-dev, ninja-build, cmake>3.12 (todo check or was it 3.15?)
 
 ### Direct Installation
 Requires a python package manager which supports [pyproject.toml](https://peps.python.org/pep-0518/), for example: `pip >= 10.0`
  ```bash
- # Set up a virtualenv:
+ # Set up a virtual environment with up-to-date pip:
  python3 -m venv venv
  source venv/bin/activate
  python -m pip install -U pip
-
- > python -m pip install git+https://github.com/snototter/viren2d.git
+ 
+ # Install viren2d
+ python -m pip install git+https://github.com/snototter/viren2d.git
  ```
-### Build from Source
-```bash
-# Clone recursively to set up the external libraries
 
+
+### Build from Source
+Clone this repository recursively to set up the external libraries. Then follow the standard CMake pipeline. In a nutshell:
+```bash
 git clone --recursive https://github.com/snototter/viren2d.git
 cd viren2d
-TODO c++ vs python
 
+
+###########################################
+# Install the Python library
+###########################################
 python -m pip install .
+
+
+###########################################
+# Build & install the C++ library locally
+###########################################
+mkdir build && cd build
+cmake ..
+cmake --build .
+cmake --build . --target install
 ```
 
-Note, if you want to re-install it, you may have to delete the CMake cache first (as it points to a Ninja binary, which is located within /tmp).
+**Note for Python users:**  
+If you want to re-install viren2d and run into a Ninja build error (Ninja binary not found in temporary directory), you should delete the CMake cache first:
 ```bash
 rm -r build/temp.*
 python -m pip install .
@@ -82,17 +101,19 @@ I'm planning to support visualization of the following primitives/objects:
 * [ ] Markers
 * [ ] Polygons
 * [x] Rectangles - from axis-aligned & box-shaped to rounded corners and rotated
-* [ ] Text (simple)
+* [ ] Textboxes (simple, i.e. with Cairo backend; text w/ and w/o colorized background)
 * [ ] Trajectories / Tracking results (plain paths vs fading effect)
 * [ ] Poses (e.g. human pose estimation results) - low priority feature
-* [ ] Image overlay
-* [ ] Pseudocoloring - depends on how I will integrate image support (external, lightweight library; if it supports different data types, pseudocoloring is on the feature list)
+* [ ] Image overlay (overlay/blending; clipping, e.g. circle/ellipse)
+* [ ] Pseudocoloring: similar to `vcp` and `vito`; but requires extension of the ImageBuffer class to support floating point buffers
 * [ ] Camera calibration-related: Ground plane, horizon, 3D bounding boxes (projected onto 2D image/canvas)
 
 
 # TODOs
-* [ ] Add colormaps & pseudocoloring (low priority, v2.0?)
-* [ ] Nice-to-have: color space conversion
-* [ ] use spdlog; set library-global debug level via interface function
+* [ ] Use spdlog; set library-global debug level via interface function
+* [ ] Add user-adjustable default styles (LineStyle, ArrowStyle, etc.)
+* [ ] Nice-to-have: Add colormaps & pseudocoloring (low priority, v2.0?)
+* [ ] Nice-to-have: Color space conversion
+* [ ] Nice-to-have: Curves & curved arrows
 
 
