@@ -62,6 +62,7 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
 //-------------------------------------------------  ArrowStyle
 
 bool ArrowStyle::IsValid() const {
+  // No need to check the boolean flags (tip_closed & double_headed)
   return (tip_length > 0.0) && (tip_angle > 0.0)
       && LineStyle::IsValid();
 }
@@ -73,6 +74,7 @@ std::string ArrowStyle::ToString() const {
     << line_width << ", tl=" << tip_length
     << ", ta=" << tip_angle << "°, "
     << (tip_closed ? "filled" : "open") << ", "
+    << (double_headed ? "double-headed, " : "")
     << color.ToHexString() << ", "
     << (dash_pattern.empty() ? "solid" : "dashed") << ", "
     << ")";

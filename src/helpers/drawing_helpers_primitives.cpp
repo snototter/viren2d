@@ -35,11 +35,12 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- Arrow
+
 void DrawArrow(cairo_surface_t *surface, cairo_t *context,
                Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
   CheckCanvas(surface, context);
 
-  //FIXME convert other function calls too, make dev note too
+  //FIXME convert other function calls & add dev note (for future draw_xxx implementations)
   from += 0.5;
   to += 0.5;
 
@@ -49,13 +50,70 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
   const double tip_length = arrow_style.TipLengthForShaft(from, to);
   const double tip_angle_rad = deg2rad(arrow_style.tip_angle);
-  auto tip1 = to + tip_length * Vec2d(std::cos(shaft_angle_rad + tip_angle_rad),
+  auto tip_dir_a = tip_length * Vec2d(std::cos(shaft_angle_rad + tip_angle_rad),
                                       std::sin(shaft_angle_rad + tip_angle_rad));
-  auto tip2 = to + tip_length * Vec2d(std::cos(shaft_angle_rad - tip_angle_rad),
+  auto tip_dir_b = tip_length * Vec2d(std::cos(shaft_angle_rad - tip_angle_rad),
                                       std::sin(shaft_angle_rad - tip_angle_rad));
+  // Compute points of the arrow tip/head
+  Vec2d tip_1st_a = to + tip_dir_a;
+  Vec2d tip_1st_b = to + tip_dir_b;
+  // If double-headed, we need a 2nd set of tip points:
+  Vec2d tip_2nd_a = arrow_style.double_headed ? (from - tip_dir_a) : Vec2d();
+  Vec2d tip_2nd_b = arrow_style.double_headed ? (from - tip_dir_b) : Vec2d();
 
-//  std::cout << "Drawing Arrow: " << tip_length << "; " << tip1 << " -- " << to << " -- " << tip2 << std::endl;
-//  std::cout << "--> " << from << " -- " << to << ": l=" << from.Distance(to) << "; tip length: " << arrow_style.tip_length << "; as.tiplenfor()=" << arrow_style.TipLengthForShaft(from, to) << std::endl;
+  // Switch to given line style
+  cairo_save(context);
+  helpers::ApplyLineStyle(context, arrow_style);
+
+  // Draw everything as a single path if the head(s) should be filled:
+  if (arrow_style.tip_closed) {
+    // Create path for the optional 2nd head (at the line start)
+    if (arrow_style.double_headed) {
+      auto shaft_point_2nd = ProjectPointOntoLine(tip_2nd_a, from, to);
+      cairo_move_to(context, shaft_point_2nd.x(), shaft_point_2nd.y());
+      cairo_line_to(context, tip_2nd_a.x(), tip_2nd_a.y());
+      cairo_line_to(context, from.x(), from.y());
+      cairo_line_to(context, tip_2nd_b.x(), tip_2nd_b.y());
+      cairo_line_to(context, shaft_point_2nd.x(), shaft_point_2nd.y());
+    } else {
+      cairo_move_to(context, from.x(), from.y());
+    }
+
+    // Add shaft & head (at the line end)
+    auto shaft_point_1st = ProjectPointOntoLine(tip_1st_a, from, to);
+    cairo_line_to(context, shaft_point_1st.x(), shaft_point_1st.y());
+    cairo_line_to(context, tip_1st_a.x(), tip_1st_a.y());
+    cairo_line_to(context, to.x(), to.y());
+    cairo_line_to(context, tip_1st_b.x(), tip_1st_b.y());
+    cairo_line_to(context, shaft_point_1st.x(), shaft_point_1st.y());
+
+    // Fill & draw the path
+    cairo_fill_preserve(context);
+    cairo_stroke(context);
+  } else {
+    // Path of the shaft:
+    cairo_move_to(context, from.x(), from.y());
+    cairo_line_to(context, to.x(), to.y());
+
+    // Path of the arrow head:
+    cairo_move_to(context, tip_1st_a.x(), tip_1st_a.y());
+    cairo_line_to(context, to.x(), to.y());
+    cairo_line_to(context, tip_1st_b.x(), tip_1st_b.y());
+
+    // Add the second head if needed:
+    if (arrow_style.double_headed) {
+      cairo_move_to(context, tip_2nd_a.x(), tip_2nd_a.y());
+      cairo_line_to(context, from.x(), from.y());
+      cairo_line_to(context, tip_2nd_b.x(), tip_2nd_b.y());
+    }
+
+    // Draw both paths
+    cairo_stroke(context);
+  }
+
+  // Restore context
+  cairo_restore(context);
+
 
   // TODO looks weird with highly transparent colors
   // Alternatives were even worse (would require the user to
@@ -75,31 +133,31 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
   // Works for almost everything, except for filled+transparent arrows:
 
-  // Switch to given line style
-  cairo_save(context);
-  helpers::ApplyLineStyle(context, arrow_style);
-  // Path of the shaft
-  cairo_move_to(context, from.x(), from.y());
-  cairo_line_to(context, to.x(), to.y());
+//  // Switch to given line style
+//  cairo_save(context);
+//  helpers::ApplyLineStyle(context, arrow_style);
+//  // Path of the shaft
+//  cairo_move_to(context, from.x(), from.y());
+//  cairo_line_to(context, to.x(), to.y());
 
-  // Path of the arrow head:
-  cairo_move_to(context, tip1.x(), tip1.y());
-  cairo_line_to(context, to.x(), to.y());
-  cairo_line_to(context, tip2.x(), tip2.y());
-  // Fill if needed
-  if (arrow_style.tip_closed) {
-    // Close the path explicitly or we would see the line caps
-    // at tip1/tip2 for very thick line width settings.
-    cairo_close_path(context);
-    cairo_fill_preserve(context);
-  }
-  // Draw the paths
-  //cairo_set_operator(context, CAIRO_OPERATOR_SOURCE); // same effect as ignoring transparency of the path
-  //cairo_set_operator(context, CAIRO_OPERATOR_SOURCE); // "cuts out" the path (i.e. strokes are black)
-  cairo_stroke(context);
+//  // Path of the arrow head:
+//  cairo_move_to(context, tip1.x(), tip1.y());
+//  cairo_line_to(context, to.x(), to.y());
+//  cairo_line_to(context, tip2.x(), tip2.y());
+//  // Fill if needed
+//  if (arrow_style.tip_closed) {
+//    // Close the path explicitly or we would see the line caps
+//    // at tip1/tip2 for very thick line width settings.
+//    cairo_close_path(context);
+//    cairo_fill_preserve(context);
+//  }
+//  // Draw the paths
+//  //cairo_set_operator(context, CAIRO_OPERATOR_SOURCE); // same effect as ignoring transparency of the path
+//  //cairo_set_operator(context, CAIRO_OPERATOR_SOURCE); // "cuts out" the path (i.e. strokes are black)
+//  cairo_stroke(context);
 
-  // Restore context
-  cairo_restore(context);
+//  // Restore context
+//  cairo_restore(context);
 }
 
 

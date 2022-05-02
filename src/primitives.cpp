@@ -683,6 +683,23 @@ double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other) const {
 }
 
 
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::DirectionVector(const Vec<_Tp, dim>& to) const {
+  return to - *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::UnitVector() const {
+  const double len = Length();
+
+  if (len > 0.0)
+    return *this / len;
+  else
+    return *this;
+}
+
+
 // Typename to char lookup:
 template<typename _Tp> char VecType();
 template<> char VecType<unsigned char>() { return 'b'; }
@@ -777,6 +794,7 @@ template class Vec<double, 4>;
 template class Vec<int, 2>;
 template class Vec<int, 3>;
 
+
 // Comparison Vec2d
 template bool operator==(const Vec2d& lhs, const Vec2d& rhs);
 template bool operator!=(const Vec2d& lhs, const Vec2d& rhs);
@@ -830,6 +848,19 @@ template Vec3i operator-(Vec3i lhs, const Vec3i& rhs);
 template Vec3i operator*(Vec3i lhs, double scale);
 template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
+
+
+//---------------------------------------------------- Vector Math
+Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
+  // Vector from line start to point:
+  const Vec2d v = line_from.DirectionVector(pt);
+
+  // Project onto line and get closest point on line:
+  const Vec2d unit_direction = line_from.DirectionVector(line_to).UnitVector();
+  const double lambda = unit_direction.Dot(v);
+  return line_from + lambda * unit_direction;
+}
+
 
 //---------------------------------------------------- Rectangle
 

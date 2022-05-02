@@ -45,16 +45,17 @@ void DemoArrow1() {
 
 //  painter->DrawLine({10, 10}, {60, 60}, viren2d::LineStyle(1, "navy-blue!80"));
 
-  painter->DrawArrow({20, 10}, {120, 140}, viren2d::ArrowStyle(4, "navy-blue", 0.2, 30, false, {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
+  painter->DrawArrow({20, 10}, {120, 140}, viren2d::ArrowStyle(4, "navy-blue", 0.2, 30, false, true,
+                                                               {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
 
-  //FIXME: transparent arrows need a different approach (e.g. opaque-then-blend)
-  painter->DrawArrow({40, 40}, {200, 40}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, true, {}, viren2d::LineCap::Round));
+  painter->DrawArrow({40, 40}, {200, 40}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, true, true,
+                                                              {}, viren2d::LineCap::Round));
 
-  painter->DrawArrow({80, 80}, {200, 80}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, false, {}, viren2d::LineCap::Round));
+  painter->DrawArrow({80, 80}, {200, 80}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, false, false, {}, viren2d::LineCap::Round));
 
-  painter->DrawArrow({40, 200}, {200, 200}, viren2d::ArrowStyle(5, "crimson!50", 50, 45, false, {}, viren2d::LineCap::Round));
+  painter->DrawArrow({40, 200}, {200, 200}, viren2d::ArrowStyle(5, "crimson!50", 50, 45, false, false, {}, viren2d::LineCap::Round));
 
-  painter->DrawArrow({40, 250}, {400, 250}, viren2d::ArrowStyle(20, "crimson!50", 0.3, 50, true, {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
+  painter->DrawArrow({40, 250}, {400, 250}, viren2d::ArrowStyle(20, "crimson!50", 0.3, 50, true, true, {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
 
   ShowCanvas(painter->GetCanvas(true), "demo-output-arrow1.png");
 }
@@ -64,9 +65,10 @@ void DemoArrow2() {
   painter->SetCanvas(800, 800, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!80"));
-  //TODO transparency+fill
-  auto style = viren2d::ArrowStyle(4, "navy-blue!40", 0.15, 20.0, true,
-                                   {}, viren2d::LineCap::Butt,
+
+  auto style = viren2d::ArrowStyle(4, "navy-blue!80", 0.15, 20.0,
+                                   true, false, {},
+                                   viren2d::LineCap::Butt,
                                    viren2d::LineJoin::Round);
 
   auto size = painter->GetCanvasSize();
@@ -80,7 +82,15 @@ void DemoArrow2() {
     painter->DrawArrow(center, tip, style);
   }
 
+  painter->DrawArrow({50, 50}, {200, 50},
+                     viren2d::ArrowStyle(4, "forest-green", 0.1, 30, true, true));
+
+  painter->DrawArrow({size.x() - 50.0, 50.0}, {size.x() - 200.0, 50.0},
+                     viren2d::ArrowStyle(4, "crimson", 0.1, 30, false, true,
+                                         {10, 10}));
+
   ShowCanvas(painter->GetCanvas(false), "demo-output-arrow2.png");
+  //FIXME arrowstyle::compute endpoints (s.t. tip points exactly to end point)
 }
 
 int main(int /*argc*/, char **/*argv*/) {

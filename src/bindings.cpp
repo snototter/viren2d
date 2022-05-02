@@ -116,12 +116,13 @@ py::tuple SerializeArrowStyle(const viren2d::ArrowStyle &st) {
   auto ls_tpl = SerializeLineStyle(ls);
 
   return py::make_tuple(ls_tpl, st.tip_length,
-                        st.tip_angle, st.tip_closed);
+                        st.tip_angle, st.tip_closed,
+                        st.double_headed);
 }
 
 
 viren2d::ArrowStyle DeserializeArrowStyle(py::tuple tpl) {
-  if (tpl.size() != 4) {
+  if (tpl.size() != 5) {
     std::stringstream s;
     s << "Invalid viren2d.ArrowStyle state - expected 4 entries, got " << tpl.size() << "!";
     throw std::invalid_argument(s.str());
@@ -129,8 +130,8 @@ viren2d::ArrowStyle DeserializeArrowStyle(py::tuple tpl) {
   auto ls = tpl[0].cast<viren2d::LineStyle>();
   return viren2d::ArrowStyle(ls.line_width, ls.color,
       tpl[1].cast<double>(), tpl[2].cast<double>(),
-      tpl[3].cast<bool>(), ls.dash_pattern,
-      ls.line_cap, ls.line_join);
+      tpl[3].cast<bool>(), tpl[4].cast<bool>(),
+      ls.dash_pattern, ls.line_cap, ls.line_join);
 }
 
 } // namespace pickling
@@ -750,13 +751,14 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Drawing - ArrowStyle
   py::class_<viren2d::ArrowStyle, viren2d::LineStyle>(m, "ArrowStyle",
            "How an arrow should be drawn.")
-      .def(py::init<double, viren2d::Color, double, double, bool,
+      .def(py::init<double, viren2d::Color, double, double, bool, bool,
                     std::vector<double>, viren2d::LineCap, viren2d::LineJoin>(),
            py::arg("line_width") = 2.0,
            py::arg("color") = viren2d::Color(viren2d::NamedColor::Azure),
            py::arg("tip_length") = 0.1,
            py::arg("tip_angle") = 30.0,
            py::arg("tip_closed") = false,
+           py::arg("double_headed") = false,
            py::arg("dash_pattern")=std::vector<double>(),
            py::arg("line_cap")=viren2d::LineCap::Butt,
            py::arg("line_join")=viren2d::LineJoin::Miter)
@@ -787,7 +789,10 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "Angle between tip lines and the shaft in degrees.")
       .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed,
            "If True, the arrow head/tip will be filled. Otherwise,\n"
-           "the tip will be open.");
+           "the tip will be open.")
+      .def_readwrite("double_headed", &viren2d::ArrowStyle::double_headed,
+           "If True, heads/tips will be drawn on both ends of the line.");
+
   //TODO add implicit initialization from tuple (similar to linestyle)
 
   //------------------------------------------------- Drawing - Painter

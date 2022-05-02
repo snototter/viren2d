@@ -218,12 +218,25 @@ class Vec {
   /** @brief Computes the distance between this and the other. */
   double Distance(const Vec<_Tp, dim>& other) const;
 
+  //TODO test
+  /** @brief Returns the direction vector from 'this' to 'to'. */
+  Vec<_Tp, dim> DirectionVector(const Vec<_Tp, dim>& to) const;
+
+  //TODO test
+  /** @brief Returns the unit vector. */
+  Vec<_Tp, dim> UnitVector() const;
+
+
+  /** @brief Returns a human-readable string representation. */
   std::string ToString() const;
 
+
+  /** @brief Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const Vec<_Tp, dim> &vec) {
     os << vec.ToString();
     return os;
   }
+
 
   /** @brief Returns the class type name, e.g. "Vec2d". */
   static std::string TypeName();
@@ -231,28 +244,41 @@ class Vec {
 
 
 //-------------------------------------------------  Comparison operators
+// If you implement another operator, don't forget
+// to add the corresponding explicit vector instantiation
+// in primitives.cpp
+
 template<typename _Tp, int dim>
 bool operator==(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs);
+
 template<typename _Tp, int dim>
 bool operator!=(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs);
 
 
 //-------------------------------------------------  Arithmetic operators
+// If you implement another operator, don't forget
+// to add the corresponding explicit vector instantiation
+// in primitives.cpp
+
 /** Vector addition. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator+(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
+
 
 /** Vector subtraction. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
 
+
 /** Multiply (rhs) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double rhs);
 
+
 /** Multiply (lhs) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(double lhs, Vec<_Tp, dim> rhs);
+
 
 /** Divide (scale) by scalar. */
 template<typename _Tp, int dim>
@@ -267,6 +293,12 @@ typedef Vec<double, 4> Vec4d;
 typedef Vec<int, 2> Vec2i;
 typedef Vec<int, 3> Vec3i;
 
+
+//-------------------------------------------------  Vector Math
+/** @brief Project point onto line. */
+Vec2d ProjectPointOntoLine(const Vec2d &pt,
+                           const Vec2d &line_from,
+                           const Vec2d &line_to);
 
 //-------------------------------------------------  Rectangle
 /**
