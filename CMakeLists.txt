@@ -231,6 +231,8 @@ if(viren2d_WITH_TESTS)
     set(BUILD_GMOCK OFF)
     
     include(FetchContent)
+    set(FETCHCONTENT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/dependencies")
+    
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git

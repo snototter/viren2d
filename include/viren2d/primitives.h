@@ -8,7 +8,30 @@
 
 #include <viren2d/math.h>
 
-// FIXME add type conversions to new types (initializer lists; built-in types for more convenient/less cluttered use)
+// FIXME dev notes
+// viren2d++
+// * For each custom type (where applicable), add c'tor using
+//   initializer_list (for less cluttered/more convenient use)
+// * All drawing functions should shift the user-given coordinates
+//   by 0.5 if needed to support sharp lines. For details see:
+//   see https://www.cairographics.org/FAQ/#sharp_lines
+// python bindings:
+// * Don't use python keywords as names of function arguments
+//   or you can't order the arguments via "f(arg_x=foo, arg_a=1)"
+// * Keep draw_xxx bindings in alphabetic order for maintainability
+// * How to bind a new class X:
+//   * Implement pickling::SerializeX
+//   * Implement pickling::DeserializeX
+//   * Implement __str__ & __repr__
+//   * nice-to-have: operator == and !=
+//   * Test initialization, pickling, comparison, etc.
+//   * Declare it py::implicitly_convertible if a simple/intuitive
+//     conversion exists
+//   * @deprecated Implement moddef::CreateX (init from py::tuple/list/whatever)
+//   * All this info does not hold for ImageBuffer - which exposes a
+//     buffer view (and we need to be able to convert to/from numpy
+//     arrays)
+
 
 namespace viren2d {
 //---------------------------------------------------- Image buffer
@@ -164,7 +187,7 @@ class Vec {
   Vec<_Tp, dim> &operator=(Vec<_Tp, dim> &&other) noexcept; // move assignment
 
   /** @brief Allow casting each vector to its double-precision counterpart.
-   *  Needed because we work with cairo, which heavily uses doubles.
+   *  Needed because we work with Cairo, which heavily uses doubles.
    */
   explicit operator Vec<double, dim>() const;
 

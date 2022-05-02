@@ -91,11 +91,8 @@ I'm planning to support visualization of the following primitives/objects:
 
 
 # TODOs
-* [ ] Change Fetch location to prj/libs
 * [ ] Add colormaps & pseudocoloring (low priority, v2.0?)
 * [ ] Nice-to-have: color space conversion
 * [ ] use spdlog; set library-global debug level via interface function
-* [ ] Python bindings for draw grid
-* [ ] Draw transparent arrows via opaque-then-blend
 
 

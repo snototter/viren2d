@@ -18,6 +18,7 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
   // Save to disk
   if (!filename.empty()) {
     viren2d::SaveImage(filename, canvas);
+    std::cout << "Canvas saved to '" << filename << "'." << std::endl;
   }
 
 #ifdef WITH_OPENCV

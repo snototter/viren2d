@@ -124,7 +124,6 @@ public:
 
   //TODO DrawPoints - how to handle alternating colors???
   //TODO DrawEllipse <-- (optionally rotated) rect!
-  //TODO DrawArrow
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
 
 protected:

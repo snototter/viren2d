@@ -10,6 +10,7 @@
 include(FindPackageHandleStandardArgs)
 
 if(WIN32)
+    # FIXME Windows - hardcoded path will easily break
     # Search for Cairo in extern/cairo-windows-1.15.12
     find_path(Cairo_ROOT "include/cairo.h" PATHS "${CMAKE_CURRENT_LIST_DIR}/../extern/cairo-windows-1.15.12" NO_DEFAULT_PATH)
     if(Cairo_ROOT)

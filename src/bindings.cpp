@@ -406,17 +406,7 @@ void RegisterVec(py::module &m) {
 
 
 //------------------------------------------------- Module definition
-// TODO How to bind a new class X:
-// * Implement moddef::CreateX (init from py::tuple/list/whatever)
-// * Implement pickling::SerializeX
-// * Implement pickling::DeserializeX
-// * Implement __str__ & __repr__
-// * nice-to-have: operator == and !=
-// * Declare it py::implicitly_convertible
-// * Check (in python) initialization, pickling, comparison, etc.
-// * All this info does not hold for ImageBuffer - which exposes a
-//   buffer view (and we need to be able to convert to/from numpy
-//   arrays)
+
 //
 // TODO low priority: DeserializeX could reuse CreateX (not sure if
 //      both are using the same inputs, tuples vs list vs ...)
@@ -810,6 +800,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "If True, heads/tips will be drawn on both ends of the line.");
 
   //TODO add implicit initialization from tuple (similar to linestyle)
+  //currently not needed, because: 1) create a default arrowstyle and
+  // 2) change the parameters as needed
+  // --> also remove the tuple initialization for line style and the others
 
   //------------------------------------------------- Drawing - Painter
 
@@ -864,8 +857,6 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "  numpy array:\n"
            "    img_np = np.array(p.get_canvas(True), copy=False)",
            py::arg("copy")=false)
-//------------------- TODO keep alphabetic order - easier to maintain!
-//----- FIXME: don't use python keywords as argument names!
       .def("draw_arc", &moddef::Painter::DrawArc,
            "Draws a circular arc of the given radius using the\n"
            "LineStyle specification. The arc will be filled if\n"
@@ -890,7 +881,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("line_style") = viren2d::LineStyle(),
            py::arg("fill")=viren2d::Color(0, 0, 0, 0))
 //      .def("draw_grid", &moddef::Painter::DrawGrid,
-//           "Draws a grid") // TODO documentation!
+//           "Draws a grid") // TODO documentation! FIXME FOO
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",

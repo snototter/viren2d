@@ -13,7 +13,6 @@ inline double deg2rad(double deg) {
   return deg * M_PI / 180.0;
 }
 
-//TODO check
 // Informative blog post about the caveats:
 // https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 template<typename T>

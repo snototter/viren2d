@@ -19,51 +19,8 @@
 // private viren2d headers
 #include <helpers/drawing_helpers.h>
 
-////TODO remove opencv dependencies!
-//#include <opencv2/opencv.hpp>
-////#include <opencv2/core/eigen.hpp>
-//#include <opencv2/highgui.hpp>
-
 namespace viren2d {
-////TODO remove opencv dependencies and conversion
-//@deprecated
-//cairo_surface_t *Mat2Cairo(const cv::Mat &mat)
-//{
-//  //TODO check stb usage: https://stackoverflow.com/a/68015791/400948
-//  assert(mat.type() == CV_8UC3 || mat.type() == CV_8UC4);
-//  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, mat.cols, mat.rows);
-//  if (mat.channels() == 3)
-//  {
-//    cv::Mat m4;
-//#if (CV_VERSION_MAJOR >= 4)
-//    cv::cvtColor(mat, m4, cv::COLOR_RGB2RGBA);
-//#else
-//    cv::cvtColor(mat, m4, CV_RGB2RGBA);
-//#endif
-//    std::memcpy(cairo_image_surface_get_data(surface),
-//                m4.data, 4*m4.cols*m4.rows); //TODO only valid if iscontiguous!
-//  }
-//  else
-//  {
-//    std::memcpy(cairo_image_surface_get_data(surface),
-//                mat.data, 4*mat.cols*mat.rows); //TODO only if iscontiguous!
-//  }
-//  // Mark the surface dirty after directly manipulating the memory!
-//  cairo_surface_mark_dirty(surface);
-//  return surface;
-//}
-
-//@deprecated
-//cv::Mat Cairo2Mat(cairo_surface_t *surface)
-//{
-//  cv::Mat from_cairo(cairo_image_surface_get_height(surface),
-//                     cairo_image_surface_get_width(surface),
-//                     CV_8UC4);
-//  std::memcpy(from_cairo.data, cairo_image_surface_get_data(surface), 4*cairo_image_surface_get_width(surface) * cairo_image_surface_get_height(surface));
-//  return from_cairo;
-//}
-
-
+/** Implements the Painter interface using a Cairo image surface. */
 class ImagePainter : public Painter {
 public:
   ImagePainter() : Painter(),
@@ -256,16 +213,9 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
                                           image_buffer.width, image_buffer.height);
     std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
                 4 * image_buffer.width * image_buffer.height);
-  //  {
-  //    surface_ = cairo_image_surface_create_for_data(image_buffer.data,
-  //                                                   CAIRO_FORMAT_ARGB32,
-  //                                                   image_buffer.width, image_buffer.height,
-  //                                                   image_buffer.stride);
-  //  }
     context_ = cairo_create(surface_);
     cairo_surface_mark_dirty(surface_);
 
-    ////FIXME parametrize or remove
     /// FIXME how to dim? image + transparent color; image + grayscale?
     //cairo_save(context_);
     //helpers::ApplyColor(context_, "white!50");
