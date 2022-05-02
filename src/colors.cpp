@@ -209,7 +209,7 @@ Color::Color(const NamedColor color, double alpha) {
   this->alpha = alpha;
   std::stringstream s;
 
-  switch(color) {
+  switch (color) {
     case NamedColor::Black:
       red = green = blue = 0.0; break;
 

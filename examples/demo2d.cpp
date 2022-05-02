@@ -16,12 +16,14 @@
 /** Helper to show and save the canvas. */
 void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
   // Save to disk
-  try {
-    viren2d::SaveImage(filename, canvas);
-  }  catch (const std::runtime_error &e) {
-    std::cerr << "Could not save canvas to \""
-              << filename << "\": " << e.what()
-              << std::endl;
+  if (!filename.empty()) {
+    try {
+      viren2d::SaveImage(filename, canvas);
+    }  catch (const std::runtime_error &e) {
+      std::cerr << "Could not save canvas to \""
+                << filename << "\": " << e.what()
+                << std::endl;
+    }
   }
 
 #ifdef WITH_OPENCV
@@ -35,6 +37,28 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 #else  // WITH_OPENCV
   std::cerr << "OpenCV is not available - cannot display the canvas." << std::endl;
 #endif  // WITH_OPENCV
+}
+
+void DemoLines() {
+  auto painter = viren2d::CreateImagePainter();
+  painter->SetCanvas(400, 400, viren2d::Color::White);
+
+  painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!50"));
+
+  viren2d::LineStyle line_style(20, "azure!60", {},
+                                viren2d::LineCap::Butt);
+  painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
+  //TODO add text linecapToString
+
+  line_style.line_cap = viren2d::LineCap::Round;
+  painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
+  //TODO add text linecapToString
+
+  line_style.line_cap = viren2d::LineCap::Square;
+  painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
+  //TODO add text linecapToString
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
 }
 
 void DemoArrow1() {
@@ -64,9 +88,10 @@ void DemoArrow2() {
   auto painter = viren2d::CreateImagePainter();
   painter->SetCanvas(800, 800, viren2d::Color::White);
 
-  painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!80"));
+  painter->DrawGrid({}, {}, 50, 50,
+                    viren2d::LineStyle(1.0, "gray!80"));
 
-  auto style = viren2d::ArrowStyle(4, "navy-blue!80", 0.15, 20.0,
+  auto style = viren2d::ArrowStyle(6, "navy-blue", 0.15, 20.0,
                                    true, false, {},
                                    viren2d::LineCap::Butt,
                                    viren2d::LineJoin::Round);
@@ -88,23 +113,23 @@ void DemoArrow2() {
 
   // Open solid arrow (top-right)
   painter->DrawArrow({size.x() - 50.0, 50.0}, {size.x() - 200.0, 50.0},
-                     viren2d::ArrowStyle(4, "crimson", 0.15, 30, false, true));
+                     viren2d::ArrowStyle(4, "crimson!80", 0.15, 30, false, true));
 
-  // Closed dashed arrow doesn't make much sense (fill + dashed stroke looks ugly)
-//  painter->DrawArrow({50, size.y() - 50.0}, {200, size.y() - 50.0},
-//                     viren2d::ArrowStyle(4, "forest-green", 0.1, 30, true, true, {20, 10}));
+  // Closed dashed arrow
+  painter->DrawArrow({50, size.y() - 50.0}, {200, size.y() - 50.0},
+                     viren2d::ArrowStyle(4, "forest-green", 0.15, 30, true, true, {15, 10}));
 
   // Open dashed arrow (bottom-right)
   painter->DrawArrow({size.x() - 50.0, size.y() - 50.0}, {size.x() - 200.0, size.y() - 50.0},
-                     viren2d::ArrowStyle(4, "crimson", 0.2, 30, false, true,
+                     viren2d::ArrowStyle(4, "crimson!60", 0.15, 30, false, true,
                                          {15, 10}));
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-arrow2.png");
-  //FIXME arrowstyle::compute endpoints (s.t. tip points exactly to end point)
 }
 
 int main(int /*argc*/, char **/*argv*/) {
-  DemoArrow1();
+  DemoLines();
+//  DemoArrow1();
   DemoArrow2();
 
   if (true)

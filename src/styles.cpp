@@ -1,13 +1,49 @@
 #include <utility>
 #include <sstream>
 #include <iomanip>
-#include <iostream> // TODO remove after switching to spdlog
 #include <stdexcept>
+#include <cmath>
+
+#include <iostream> // TODO remove after switching to spdlog
 
 #include <viren2d/styles.h>
 #include <viren2d/math.h>
 
 namespace viren2d {
+
+std::string LineCapToString(LineCap cap) {
+  switch (cap) {
+    case LineCap::Butt:
+      return "Butt";
+    case LineCap::Round:
+      return "Round";
+    case LineCap::Square:
+      return "Square";
+  }
+
+  std::stringstream s;
+  s << "LineCap [" << static_cast<int>(cap)
+    << "] is not yet supported in LineCapToString()!";
+  throw std::runtime_error(s.str());
+}
+
+
+std::string LineJoinToString(LineJoin join) {
+  switch (join) {
+    case LineJoin::Miter:
+      return "Miter";
+    case LineJoin::Round:
+      return "Round";
+    case LineJoin::Bevel:
+      return "Bevel";
+  }
+
+  std::stringstream s;
+  s << "LineJoin [" << static_cast<int>(join)
+    << "] is not yet supported in LineJoinToString()!";
+  throw std::runtime_error(s.str());
+}
+
 
 //-------------------------------------------------  LineStyle
 bool LineStyle::IsValid() const {
@@ -17,6 +53,37 @@ bool LineStyle::IsValid() const {
 
 bool LineStyle::IsDashed() const {
   return dash_pattern.size() > 0;
+}
+
+
+double LineStyle::CapOffset() const {
+  switch (line_cap) {
+    case LineCap::Butt:
+      return 0.0;
+
+    case LineCap::Round:
+    case LineCap::Square:
+      return line_width / 2.0;
+  }
+
+  std::stringstream s;
+  s << "LineCap::" << LineCapToString(line_cap)
+    << " is not yet supported in CapOffset()!";
+  throw std::runtime_error(s.str());
+}
+
+
+double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
+  // For a diagram of how to compute the miter length, see
+  //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
+  const double miter_length = line_width / std::max(1e-6, std::sin(deg2rad(interior_angle / 2.0)));
+  if (((miter_length / line_width) > miter_limit)  // Cairo would switch to BEVEL
+      || (line_join == LineJoin::Round)
+      || (line_join == LineJoin::Bevel)) {
+    return line_width / 2.0;
+  } else {
+    return miter_length / 2.0;
+  }
 }
 
 
@@ -102,6 +169,13 @@ double ArrowStyle::TipLengthForShaft(const viren2d::Vec2d &from, const viren2d::
   } else {
     return TipLengthForShaft(from.Distance(to));
   }
+}
+
+
+double ArrowStyle::TipOffset(double miter_limit) const {
+  // The interior angle between the two line segments of
+  // the arrow tip is 2 * the tip angle.
+  return JoinOffset(2.0 * tip_angle, miter_limit);
 }
 
 

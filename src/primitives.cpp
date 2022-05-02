@@ -469,6 +469,30 @@ Vec<_Tp, dim>::Vec(const Vec<_Tp, dim>& other) {
     val[i] = other.val[i];
 }
 
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec(Vec<_Tp, dim> &&other) noexcept {
+  for (int i = 0; i < dim; ++i)
+    val[i] = other.val[i];
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator=(const Vec<_Tp, dim> &other) {
+  for (int i = 0; i < dim; ++i)
+    val[i] = other.val[i];
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator=(Vec<_Tp, dim> &&other) noexcept {
+  for (int i = 0; i < dim; ++i)
+    val[i] = other.val[i];
+  return *this;
+}
+
+
 template<typename _Tp, int dim>
 Vec<_Tp, dim>::operator Vec<double, dim>() const {
   Vec<double, dim> conv;
@@ -627,15 +651,6 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale) {
   return *this;
 }
 
-template<typename _Tp, int dim>
-Vec<_Tp, dim> Vec<_Tp, dim>::operator+(double value) const {
-  auto cp = Vec(*this);
-  for (int i = 0; i < dim; ++i) {
-    cp[i] += value;
-  }
-  return cp;
-}
-
 
 template<typename _Tp, int dim>
 Vec<_Tp, dim> Vec<_Tp, dim>::operator-() const {
@@ -644,12 +659,6 @@ Vec<_Tp, dim> Vec<_Tp, dim>::operator-() const {
     cp[i] *= -1.0;
   }
   return cp;
-}
-
-
-template<typename _Tp, int dim>
-Vec<_Tp, dim> Vec<_Tp, dim>::operator-(double value) const {
-  return (*this + (-1.0 * value));
 }
 
 

@@ -7,12 +7,21 @@ def test_line_style():
     # Default initialization should yield a valid style
     style = viren2d.LineStyle()
     assert style.is_valid()
+    assert not style.is_dashed()
 
     style.line_width = 0
     assert not style.is_valid()
 
     style.line_width = 0.4
     assert style.is_valid()
+
+    style.dash_pattern = [20, 10]
+    assert style.is_valid()
+    assert style.is_dashed()
+
+    style.dash_pattern = []
+    assert style.is_valid()
+    assert not style.is_dashed()
 
     style.color = viren2d.Color()
     assert not style.color.is_valid()
@@ -43,11 +52,19 @@ def test_arrow_style():
     style.line_width = 0.4
     assert style.is_valid()
 
+    style.dash_pattern = [3, 7]
+    assert style.is_valid()
+    assert style.is_dashed()
+
     style.color = viren2d.Color()
     assert not style.color.is_valid()
     assert not style.is_valid()
     style.color = viren2d.Color("orchid!50")
     assert style.is_valid()
+
+    style.dash_pattern = []
+    assert style.is_valid()
+    assert not style.is_dashed()
 
     # Mess around with arrow-specific style
     style.tip_angle = 0
@@ -77,6 +94,35 @@ def test_arrow_tip_length():
     assert style.tip_length_for_shaft(200.0) == pytest.approx(90.0)
     style.tip_length = 2
     assert style.tip_length_for_shaft(30.0) == pytest.approx(2.0)
+
+
+def test_line_offsets():
+    style = viren2d.ArrowStyle()
+    # Default line cap should be butt:
+    assert style.line_cap == viren2d.LineCap.Butt
+    assert style.cap_offset() == pytest.approx(0.0)
+
+    style.line_cap = viren2d.LineCap.Round
+    assert style.cap_offset() == pytest.approx(style.line_width / 2.0)
+    
+    style.line_cap = viren2d.LineCap.Square
+    assert style.cap_offset() == pytest.approx(style.line_width / 2.0)
+
+    # Default join should be miter:
+    assert style.line_join == viren2d.LineJoin.Miter
+    assert style.join_offset(10) == pytest.approx(style.line_width / 2.0)
+    assert style.join_offset(12) == pytest.approx(9.5667722335056276)
+    assert style.join_offset(45) == pytest.approx(2.6131259297527532)
+
+    style.line_join = viren2d.LineJoin.Bevel
+    assert style.join_offset(10) == pytest.approx(style.line_width / 2.0)
+    assert style.join_offset(12) == pytest.approx(style.line_width / 2.0)
+    assert style.join_offset(90) == pytest.approx(style.line_width / 2.0)
+
+    style.line_join = viren2d.LineJoin.Round
+    assert style.join_offset(10) == pytest.approx(style.line_width / 2.0)
+    assert style.join_offset(12) == pytest.approx(style.line_width / 2.0)
+    assert style.join_offset(90) == pytest.approx(style.line_width / 2.0)
 
 
 def test_line_operators():

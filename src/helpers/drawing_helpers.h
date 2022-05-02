@@ -70,7 +70,9 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
 
 
 /** @brief Changes the given Cairo context to use the given LineStyle definitions. */
-inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style) {
+inline void ApplyLineStyle(cairo_t *context,
+                           const LineStyle &line_style,
+                           bool ignore_dash = false) {
   cairo_set_line_width(context, line_style.line_width);
   cairo_set_line_cap(context, LineCap2Cairo(line_style));
   cairo_set_line_join(context, LineJoin2Cairo(line_style));
@@ -82,7 +84,7 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style) {
   //- https://zetcode.com/gfx/cairo/gradients/
   //- https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-rgba
 
-  if (!line_style.dash_pattern.empty()) {
+  if (!line_style.dash_pattern.empty() && !ignore_dash) {
     // https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
     const double *dash = &line_style.dash_pattern[0];
     cairo_set_dash(context, dash,
@@ -132,7 +134,7 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
 
 
 void DrawLine(cairo_surface_t *surface, cairo_t *context,
-              const Vec2d &from, const Vec2d &to,
+              Vec2d from, Vec2d to,
               const LineStyle &line_style);
 
 

@@ -45,7 +45,6 @@ void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
 
   // Create a copy
   auto copy = viren2d::Vec<_Tp, dim>(vec);
-
   EXPECT_EQ(vec, copy);
 
   // Basic arithmetics
@@ -65,6 +64,14 @@ void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
 
   auto vec3 = vec + vec2 + copy;
   EXPECT_EQ(3 * vec, vec3);
+
+  // Test negation (unary operator-)
+  auto negated = -vec;
+
+  for (int i = 0; i < dim; ++i) {
+    EXPECT_DOUBLE_EQ(copy[i], vec[i]);
+    EXPECT_DOUBLE_EQ(negated[i], -vec[i]);
+  }
 
   // Distance/Length & dot product:
   auto dot1 = vec.Dot(vec);

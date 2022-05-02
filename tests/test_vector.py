@@ -40,6 +40,12 @@ def vector_test_helper(vec, zero):
     vec3 = vec + vec2 + cp;
     assert vec3 == 3 * vec
 
+    # Negation
+    neg = -vec
+    assert vec == cp
+    for i in range(vec.ndim):
+        assert neg[i] == pytest.approx(-vec[i])
+   
     # Distance/Length & dot product:
     dot1 = vec.dot(vec)
     dot3 = vec.dot(vec3)

@@ -21,6 +21,10 @@ enum class LineCap : unsigned char {
 };
 
 
+/** @brief Returns the string representation. */
+std::string LineCapToString(LineCap cap);
+
+
 /** @brief How to render the junction of two lines/segments. */
 enum class LineJoin : unsigned char {
   Miter = 0,  ///< Sharp/angled corner.
@@ -29,7 +33,29 @@ enum class LineJoin : unsigned char {
 };
 
 
-/** @brief Style definitions for lines & contours. */
+/** @brief Returns the string representation. */
+std::string LineJoinToString(LineJoin join);
+
+
+/**
+ * @brief Style definitions for lines & contours.
+ *
+ * Note: depending on the chosen line cap (or line join),
+ * the corresponding line (joints) may start/end not exactly
+ * where you specified.
+ * If you want pixel-accurate start/end in combination with
+ * a particular cap/join, use @see CapOffset() or
+ * @see JoinOffset(). For example:
+ * \code
+   // Given a line with start/end as Vec2d:
+   auto unit_dir = start.DirectionVector(end).UnitVector();
+   const double offset = line_style.CapOffset();
+   if (offset > 0.0) {
+     start += offset * unit_dir;
+     end -= offset * unit_dir;
+   }
+   \endcode
+ */
 struct LineStyle {
   double line_width;   /**< Line width (thickness) in pixels. */
   Color color;         /**< Color (rgb & alpha). */
@@ -48,12 +74,28 @@ struct LineStyle {
 
   virtual ~LineStyle() {}
 
+
   /** @brief Checks if this line style would lead to a renderable line. */
   virtual bool IsValid() const;
 
 
   /** @brief Returns true if this style contains a dash stroke pattern. */
   bool IsDashed() const;
+
+
+  /** @brief Computes how much the line cap will extend the line's start/end. */
+  double CapOffset() const;
+
+
+  /**
+   * @brief Computes how much a line join will extend the joint.
+   *
+   * The interior_angle is the angle between two line segments in degrees.
+   * This requires the miter_limit because Cairo switches from MITER to BEVEL
+   * if the miter_limit is exceeded, see
+   *   https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+   */
+  double JoinOffset(double interior_angle, double miter_limit = 10.0) const;
 
 
   /** @brief Returns true if this and the other specify the same line. */
@@ -82,7 +124,7 @@ struct ArrowStyle : public LineStyle {
   double tip_angle;    /**< Angle between tip lines and the shaft in degrees. */
   bool tip_closed;     /**< How to draw the tip: only lines (false) or as a filled triangle (true). */
   bool double_headed;  /**< Should the head be drawn on both ends of the line? */
-  //TODO bindings
+
 
   ArrowStyle(double width = 2.0,
              const Color &col = Color(NamedColor::Azure),
@@ -98,6 +140,7 @@ struct ArrowStyle : public LineStyle {
       tip_closed(fill), double_headed(two_heads)
   {}
 
+
   ~ArrowStyle() {}
 
 
@@ -111,6 +154,19 @@ struct ArrowStyle : public LineStyle {
 
   /** @brief Computes the length of the arrow head/tip for the given shaft. */
   double TipLengthForShaft(const Vec2d &from, const Vec2d &to) const;
+
+
+  /**
+   * @brief Computes how much the tip would extend the line's start/end point.
+   *
+   * This requires the miter_limit because Cairo switches from MITER to BEVEL
+   * if the miter_limit is exceeded, see
+   *  https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+   *
+   *  As this is only intended for internal library use, it will not
+   *  be exposed in the Python API.
+   */
+  double TipOffset(double miter_limit = 10.0) const;
 
 
   /** @brief Returns true if this and the other specify the same arrow style. */

@@ -50,6 +50,7 @@ py::list SerializeVec(const viren2d::Vec<_Tp, dim> &vec) {
   return lst;
 }
 
+
 template<typename _Tp, int dim>
 viren2d::Vec<_Tp, dim> DeserializeVec(py::list lst) {
   using VC = viren2d::Vec<_Tp, dim>;
@@ -355,6 +356,7 @@ void RegisterVec(py::module &m) {
       .def(py::self + py::self)
       .def(py::self += py::self)
       .def(py::self - py::self)
+      .def(-py::self)
 #ifdef __clang__
 // Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
 #pragma GCC diagnostic push
@@ -731,6 +733,20 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def(py::self != py::self)
       .def("is_valid", &viren2d::LineStyle::IsValid,
            "Check if the style would lead to a drawable line.")
+      .def("is_dashed", &viren2d::LineStyle::IsDashed,
+           "Check if this style contains a dash stroke pattern.")
+      .def("cap_offset", &viren2d::LineStyle::CapOffset,
+           "Computes how much the line cap will extend the\n"
+           "line's start/end.")
+      .def("join_offset", &viren2d::LineStyle::JoinOffset,
+           "Computes how much a line join will extend the joint.\n\n"
+           "The interior_angle is the angle between two line segments\n"
+           "in degrees.\n"
+           "This requires the miter_limit because Cairo switches from\n"
+           "MITER to BEVEL if the miter_limit is exceeded, see\n"
+           "https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit",
+           py::arg("interior_angle"),
+           py::arg("miter_limit") = 10.0)
       .def_readwrite("line_width", &viren2d::LineStyle::line_width,
                      "Width in pixels (best results for even values).")
       .def_readwrite("color", &viren2d::LineStyle::color, "Line color (rgba).")

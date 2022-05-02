@@ -144,11 +144,7 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
 
 
 //------------------------------------------------- Vectors/Coordinates
-/**
- * @brief Template class to represent a vector/coordinate.
- *
- * FIXME extend documentation
- */
+/** @brief Template class to represent a vector/coordinate. */
 template<typename _Tp, int dim>
 class Vec {
  public:
@@ -163,9 +159,9 @@ class Vec {
 
   ~Vec() {}
 
-  Vec(Vec &&other) noexcept = default; // move c'tor
-  Vec &operator=(const Vec &other) = default; // copy assignment
-  Vec &operator=(Vec &&other) noexcept = default; // move assignment
+  Vec(Vec<_Tp, dim> &&other) noexcept; // move c'tor
+  Vec<_Tp, dim> &operator=(const Vec<_Tp, dim> &other); // copy assignment
+  Vec<_Tp, dim> &operator=(Vec<_Tp, dim> &&other) noexcept; // move assignment
 
   /** @brief Allow casting each vector to its double-precision counterpart.
    *  Needed because we work with cairo, which heavily uses doubles.
@@ -198,26 +194,29 @@ class Vec {
   Vec<_Tp, dim> &operator*=(double scale);
   Vec<_Tp, dim> &operator/=(double scale);
 
-  // FIXME doc & test
-  Vec<_Tp, dim> operator+(double value) const;
+  /** Returns a vector where each dimension is negated. */
   Vec<_Tp, dim> operator-() const;
-  Vec<_Tp, dim> operator-(double value) const;
 
 
   /** @brief Computes the dot product. */
   _Tp Dot(const Vec<_Tp, dim>& other) const;
 
+
   /** @brief Returns the vector's length. */
   Vec<_Tp, dim> Cross(const Vec<_Tp, dim>& other) const;
+
 
   /** @brief Returns the vector's length. */
   double Length() const;
 
+
   /** @brief Returns the squared vector's length. */
   double LengthSquared() const;
 
+
   /** @brief Computes the distance between this and the other. */
   double Distance(const Vec<_Tp, dim>& other) const;
+
 
   //TODO test
   /** @brief Returns the direction vector from 'this' to 'to'. */
@@ -296,6 +295,7 @@ typedef Vec<int, 3> Vec3i;
 
 
 //-------------------------------------------------  Vector Math
+//TODO test
 /** @brief Project point onto line. */
 Vec2d ProjectPointOntoLine(const Vec2d &pt,
                            const Vec2d &line_from,
