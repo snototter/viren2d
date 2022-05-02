@@ -69,6 +69,9 @@ public:
   // * grayscale --> gray,gray,gray, alpha
   virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
 
+  //TODO doc
+  virtual Vec2i GetCanvasSize() const = 0;
+
 
   /**
    * @brief Returns the current visualization state (canvas) as ImageBuffer
@@ -78,7 +81,7 @@ public:
    * shares the Painter's memory (and thus your subsequent memory modifications
    * will directly affect the canvas).
    */
-  virtual ImageBuffer GetCanvas(bool copy) = 0;
+  virtual ImageBuffer GetCanvas(bool copy) const = 0;
 
 
   /** TODO doc
@@ -93,11 +96,20 @@ public:
   }
 
 
+  virtual void DrawArrow(const Vec2d &from, const Vec2d &to,
+                         const ArrowStyle &arrow_style) = 0;
+
+
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
                   const Color &fill = Color(0, 0, 0, 0)) {
     DrawCircleImpl(center, radius, line_style, fill);
   }
+
+
+  virtual void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
+                        double spacing_x, double spacing_y,
+                        const LineStyle &line_style) = 0;
 
 
   virtual void DrawLine(const Vec2d &from, const Vec2d &to,
@@ -112,7 +124,6 @@ public:
 
   //TODO DrawPoints - how to handle alternating colors???
   //TODO DrawEllipse <-- (optionally rotated) rect!
-  //TODO DrawArrow
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
 
 protected:

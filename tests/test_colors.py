@@ -112,11 +112,11 @@ def test_webcodes():
     # Test initialization via webcodes/hex codes
     color = viren2d.Color("#000000", 0.1);
     assert color == "black!10"
-    assert color.as_hex() == "#000000"
+    assert color.as_hex() == "#00000019"
 
     color = viren2d.Color("#fFfFfF", 0.3);
     assert color == 'white!30'
-    assert color.as_hex() == "#ffffff"
+    assert color.as_hex() == "#ffffff4c"
 
     # Invalid inputs
     with pytest.raises(ValueError):
@@ -124,7 +124,7 @@ def test_webcodes():
     with pytest.raises(ValueError):
         viren2d.Color("#abc")
     with pytest.raises(ValueError):
-        viren2d.Color("#abcdefgh")
+        viren2d.Color("#abcdefgha")
 
     # Hardcoded values:
     color = viren2d.Color("#0f5A12")
@@ -139,7 +139,11 @@ def test_webcodes():
     color = viren2d.rgba(1, 0, 0.5)
     assert color.as_rgba() == (1, 0, 0.5, 1.0)
     assert color.as_RGBa() == (255, 0, 127, 1.0)
-    assert color.as_hex() == '#ff007f'
+    assert color.as_hex() == '#ff007fff'
+
+    color = viren2d.Color()
+    assert not color.is_valid()
+    assert color.as_hex() == '#????????'
 
 
 def test_color_names():

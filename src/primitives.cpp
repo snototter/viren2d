@@ -11,10 +11,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#ifdef viren2d_WITH_IMWRITE
+
+#ifdef __GNUC__
+// GCC reports a lot of missing field initializers, which is known,
+// not easy to fix & not a real problem: https://github.com/nothings/stb/issues/1099
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif  // __GNUC__
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
-#endif  // viren2d_WITH_IMWRITE
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif  // __GNUC__
 
 #include <viren2d/primitives.h>
 #include <viren2d/math.h>
@@ -250,13 +258,6 @@ ImageBuffer LoadImage(const std::string &image_filename,
 
 void SaveImage(const std::string &image_filename,
                const ImageBuffer &image) {
-#ifndef viren2d_WITH_IMWRITE
-  (void)(image_filename);
-  (void)(image);
-  throw std::runtime_error("viren2d++ was built without image storage "
-                           "capabilities. Reconfigure with "
-                           "\"cmake -Dviren2d_WITH_IMWRITE\"!");
-#else  // viren2d_WITH_IMWRITE
   int stb_result = 0; // stb return code 0 indicates failure
 
   const std::string fn_lower = strings::Lower(image_filename);
@@ -291,7 +292,6 @@ void SaveImage(const std::string &image_filename,
     s << "Could not save ImageBuffer to '" << image_filename << "' - unknown error!";
     throw std::runtime_error(s.str());
   }
-#endif // viren2d_WITH_IMWRITE
 }
 
 
@@ -431,15 +431,21 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z) {
 
 template<typename _Tp, int dim>
 Vec<_Tp, dim>::Vec(std::initializer_list<_Tp> values) {
-  if (static_cast<size_t>(dim) != values.size()) {
+  if ((values.size() != 0) &&
+      (values.size() != static_cast<size_t>(dim))) {
     std::stringstream s;
     s << "You cannot initialize " << TypeName()
       << " with " << values.size() << " values";
     throw std::invalid_argument(s.str());
   }
 
-  for (size_t i = 0; i < values.size(); ++i)
-    val[i] = values.begin()[i];
+  if (values.size() == 0) {
+    for (int i = 0; i < dim; ++i)
+      val[i] = static_cast<_Tp>(0);
+  } else {
+    for (size_t i = 0; i < values.size(); ++i)
+      val[i] = values.begin()[i];
+  }
 }
 
 
@@ -462,6 +468,30 @@ Vec<_Tp, dim>::Vec(const Vec<_Tp, dim>& other) {
   for (int i = 0; i < dim; ++i)
     val[i] = other.val[i];
 }
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim>::Vec(Vec<_Tp, dim> &&other) noexcept {
+  for (int i = 0; i < dim; ++i)
+    val[i] = other.val[i];
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator=(const Vec<_Tp, dim> &other) {
+  for (int i = 0; i < dim; ++i)
+    val[i] = other.val[i];
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator=(Vec<_Tp, dim> &&other) noexcept {
+  for (int i = 0; i < dim; ++i)
+    val[i] = other.val[i];
+  return *this;
+}
+
 
 template<typename _Tp, int dim>
 Vec<_Tp, dim>::operator Vec<double, dim>() const {
@@ -583,9 +613,25 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(const Vec<_Tp, dim>& rhs) {
 
 
 template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(double value) {
+  for (int i = 0; i < dim; ++i)
+    val[i] += value;
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
 Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(const Vec<_Tp, dim>& rhs) {
   for (int i = 0; i < dim; ++i)
     val[i] -= rhs[i];
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(double value) {
+  for (int i = 0; i < dim; ++i)
+    val[i] -= value;
   return *this;
 }
 
@@ -603,6 +649,16 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale) {
   for (int i = 0; i < dim; ++i)
     val[i] /= scale;
   return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::operator-() const {
+  Vec<_Tp, dim> cp(*this);
+  for (int i = 0; i < dim; ++i) {
+    cp[i] *= -1.0;
+  }
+  return cp;
 }
 
 
@@ -641,9 +697,27 @@ double Vec<_Tp, dim>::LengthSquared() const {
 
 
 template<typename _Tp, int dim>
-double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other) {
+double Vec<_Tp, dim>::Distance(const Vec<_Tp, dim>& other) const {
   auto diff = *this - other;
   return diff.Length();
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::DirectionVector(const Vec<_Tp, dim>& to) const {
+  return to - *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<double, dim> Vec<_Tp, dim>::UnitVector() const {
+  const double len = Length();
+
+  if (len > 0.0) {
+    return static_cast<Vec<double, dim>>(*this) / len;
+  } else {
+    return static_cast<Vec<double, dim>>(*this);
+  }
 }
 
 
@@ -741,6 +815,7 @@ template class Vec<double, 4>;
 template class Vec<int, 2>;
 template class Vec<int, 3>;
 
+
 // Comparison Vec2d
 template bool operator==(const Vec2d& lhs, const Vec2d& rhs);
 template bool operator!=(const Vec2d& lhs, const Vec2d& rhs);
@@ -795,6 +870,19 @@ template Vec3i operator*(Vec3i lhs, double scale);
 template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
 
+
+//---------------------------------------------------- Vector Math
+Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
+  // Vector from line start to point:
+  const Vec2d v = line_from.DirectionVector(pt);
+
+  // Project onto line and get closest point on line:
+  const Vec2d unit_direction = line_from.DirectionVector(line_to).UnitVector();
+  const double lambda = unit_direction.Dot(v);
+  return line_from + lambda * unit_direction;
+}
+
+
 //---------------------------------------------------- Rectangle
 
 Rect::Rect(std::initializer_list<double> values) {
@@ -816,6 +904,34 @@ Rect::Rect(std::initializer_list<double> values) {
 
   if (values.size() > 5)
     radius = val[5];
+}
+
+
+Rect &Rect::operator+=(double offset) {
+  cx += offset;
+  cy += offset;
+  return *this;
+}
+
+
+Rect &Rect::operator-=(double offset) {
+  cx -= offset;
+  cy -= offset;
+  return *this;
+}
+
+
+Rect &Rect::operator+=(const Vec2d &offset) {
+  cx += offset.x();
+  cy += offset.y();
+  return *this;
+}
+
+
+Rect &Rect::operator-=(const Vec2d &offset) {
+  cx -= offset.x();
+  cy -= offset.y();
+  return *this;
 }
 
 

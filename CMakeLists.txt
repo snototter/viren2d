@@ -21,7 +21,6 @@ set(TARGET_PYTHON_LIB ${PROJECT_NAME})
 option(viren2d_WITH_DEMO "Build C++ demo." ON)
 option(viren2d_WITH_PYTHON "Build Python bindings." ON)
 option(viren2d_WITH_TESTS "Build test suite." ON)
-option(viren2d_WITH_IMWRITE "Include image saving capabilities via stb." OFF)
 option(INSTALL_viren2d "Configure installation target." ON)
 
 
@@ -111,10 +110,6 @@ add_library(${TARGET_CPP_LIB}::${TARGET_CPP_LIB} ALIAS ${TARGET_CPP_LIB})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Cairo REQUIRED)
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE ${Cairo_LIBS})
-
-if(viren2d_WITH_IMWRITE)
-  target_compile_definitions(${TARGET_CPP_LIB} PRIVATE viren2d_WITH_IMWRITE)
-endif()
 
 
 # Set up the include paths for internal usage (PRIVATE), usage if this CMakeLists.txt is
@@ -236,6 +231,7 @@ if(viren2d_WITH_TESTS)
     set(BUILD_GMOCK OFF)
     
     include(FetchContent)
+    
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git

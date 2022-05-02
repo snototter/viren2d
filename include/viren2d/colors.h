@@ -21,7 +21,7 @@ _Tp saturation_cast(_Tp val, _Tp low, _Tp high) {
  * @brief Enum to create a @see Color instance from these named premixes.
  */
 enum class NamedColor : unsigned short {
-  Black = 0,  /**< "Black" must be the first enum value. */
+  Black = 0,  ///< "Black" must be the first enum value.
   White,
   Gray,
   Grey = Gray,  // alias
@@ -63,7 +63,7 @@ enum class NamedColor : unsigned short {
   Turquoise,
   Yellow,
 
-  Invalid /**< "Invalid" must be the last element. */
+  Invalid ///< "Invalid" must be the last element.
 };
 
 
@@ -103,7 +103,7 @@ std::string NamedColorToString(NamedColor color);
  * * For convenience, a color can be constructed from various
  *   different inputs:
  *   * Via @see rgba() and @see RGBa() specification
- *   * Via webcodes: "#00ff00", "#abcdef"
+ *   * Via webcodes: "#00ff00", "#abcdefaa"
  *   * Via the @see NamedColor enumeration: NamedColor::Black
  *   * Via a string representation of the corresponding
  *     @see NamedColor, e.g. "black", "navy-blue"
@@ -115,10 +115,10 @@ std::string NamedColorToString(NamedColor color);
  */
 class Color {
  public:
-  double red;   /**< Red component within [0,1]. */
-  double green; /**< Green component within [0,1]. */
-  double blue;  /**< Blue component within [0,1]. */
-  double alpha; /**< Alpha (opacity) component within [0,1]. */
+  double red;    ///< Red component within [0,1].
+  double green;  ///< Green component within [0,1].
+  double blue;   ///< Blue component within [0,1].
+  double alpha;  ///< Alpha (opacity) component within [0,1].
 
 
   // For convenience, we provide the primary colors (and their
@@ -223,7 +223,11 @@ class Color {
   ToRGBa() const;
 
 
-  /** @brief Returns the web color code, e.g. "#dcdce4" (alpha value is ignored). */
+  /**
+   * @brief Returns the web color code, e.g. "#dcdce4ff".
+   *
+   * If the color is invalid, the hex digits will be replaced by question marks.
+   */
   std::string ToHexString() const;
 
 
@@ -277,7 +281,12 @@ Color rgba(double r, double g, double b, double alpha=1.0);
 Color RGBa(double R, double G, double B, double alpha=1.0);
 
 
-/** Creates a Color from the given (6-digit) webcode, e.g. "#abcdef". */
+/**
+ * @brief Creates a Color from the given webcode, e.g. "#abcdef".
+ *
+ * If the hexstring/webcode has 8 digits, its alpha specification will
+ * overrule the "alpha" parameter.
+ */
 Color ColorFromHexString(const std::string &webcode, double alpha=1.0);
 
 } // namespace viren2d

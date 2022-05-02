@@ -70,7 +70,9 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
 
 
 /** @brief Changes the given Cairo context to use the given LineStyle definitions. */
-inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style) {
+inline void ApplyLineStyle(cairo_t *context,
+                           const LineStyle &line_style,
+                           bool ignore_dash = false) {
   cairo_set_line_width(context, line_style.line_width);
   cairo_set_line_cap(context, LineCap2Cairo(line_style));
   cairo_set_line_join(context, LineJoin2Cairo(line_style));
@@ -82,7 +84,7 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style) {
   //- https://zetcode.com/gfx/cairo/gradients/
   //- https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-rgba
 
-  if (!line_style.dash_pattern.empty()) {
+  if (!line_style.dash_pattern.empty() && !ignore_dash) {
     // https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
     const double *dash = &line_style.dash_pattern[0];
     cairo_set_dash(context, dash,
@@ -94,13 +96,22 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &line_style) {
 
 /** Ensure that the canvas is set up correctly. Should be called within each drawing helper function. */
 inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
-  //TODO also check NIL surface (or if finalized, etc.)
-  if (!surface)
-    throw std::logic_error("Invalid cairo surface (nullptr)"
-                           " - did you forget to set up the canvas first?");
+  if (!surface) {
+    throw std::logic_error("Invalid cairo surface (nullptr)."
+                           " Did you forget to set up the canvas first?");
+  }
 
-  if (!context)
-    throw std::runtime_error("Invalid cairo context (nullptr) - cannot draw anymore.");
+  cairo_status_t surf_stat = cairo_surface_status(surface);
+  if (surf_stat != CAIRO_STATUS_SUCCESS) {
+    std::stringstream s;
+    s << "Invalid Cairo surface status (" << surf_stat
+      << "), check https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t for details.";
+    throw std::runtime_error(s.str());
+  }
+
+  if (!context) {
+    throw std::runtime_error("Invalid Cairo context (nullptr), cannot draw anymore.");
+  }
 }
 
 
@@ -110,31 +121,37 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
 // TODO keep list alphabetically sorted:
 
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
-             const Vec2d &center, double radius,
+             Vec2d center, double radius,
              double angle1, double angle2,
-             const LineStyle &line_style, const Color &fill);
+             const LineStyle &line_style,
+             const Color &fill);
+
+
+void DrawArrow(cairo_surface_t *surface, cairo_t *context,
+               Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
 
 inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
-                       const Vec2d &center, double radius,
-                       const LineStyle &line_style, const Color &fill) {
+                       Vec2d center, double radius,
+                       const LineStyle &line_style,
+                       const Color &fill) {
   DrawArc(surface, context, center, radius, 0, 360, line_style, fill);
 }
 
 
-
-void DrawLine(cairo_surface_t *surface, cairo_t *context,
-              const Vec2d &from, const Vec2d &to,
+void DrawGrid(cairo_surface_t *surface, cairo_t *context,
+              const Vec2d &top_left, const Vec2d &bottom_right,
+              double spacing_x, double spacing_y,
               const LineStyle &line_style);
 
 
+void DrawLine(cairo_surface_t *surface, cairo_t *context,
+              Vec2d from, Vec2d to, const LineStyle &line_style);
+
 
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
-              const Rect &rect, const LineStyle &line_style,
+              Rect rect, const LineStyle &line_style,
               const Color &fill);
-
-
-
 
 } // namespace helpers
 } // namespace viren2d

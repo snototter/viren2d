@@ -50,6 +50,7 @@ py::list SerializeVec(const viren2d::Vec<_Tp, dim> &vec) {
   return lst;
 }
 
+
 template<typename _Tp, int dim>
 viren2d::Vec<_Tp, dim> DeserializeVec(py::list lst) {
   using VC = viren2d::Vec<_Tp, dim>;
@@ -109,6 +110,31 @@ viren2d::LineStyle DeserializeLineStyle(py::tuple tpl) {
                      tpl[4].cast<viren2d::LineJoin>());
   return ls;
 }
+
+//------------------------------------------------- ArrowStyle
+py::tuple SerializeArrowStyle(const viren2d::ArrowStyle &st) {
+  auto ls = static_cast<const viren2d::LineStyle &>(st);
+  auto ls_tpl = SerializeLineStyle(ls);
+
+  return py::make_tuple(ls_tpl, st.tip_length,
+                        st.tip_angle, st.tip_closed,
+                        st.double_headed);
+}
+
+
+viren2d::ArrowStyle DeserializeArrowStyle(py::tuple tpl) {
+  if (tpl.size() != 5) {
+    std::stringstream s;
+    s << "Invalid viren2d.ArrowStyle state - expected 4 entries, got " << tpl.size() << "!";
+    throw std::invalid_argument(s.str());
+  }
+  auto ls = tpl[0].cast<viren2d::LineStyle>();
+  return viren2d::ArrowStyle(ls.line_width, ls.color,
+      tpl[1].cast<double>(), tpl[2].cast<double>(),
+      tpl[3].cast<bool>(), tpl[4].cast<bool>(),
+      ls.dash_pattern, ls.line_cap, ls.line_join);
+}
+
 } // namespace pickling
 
 
@@ -156,12 +182,23 @@ public:
   }
 
 
+  void DrawArrow(const viren2d::Vec2d &from, const viren2d::Vec2d &to,
+                 const viren2d::ArrowStyle &arrow_style) {
+    painter_->DrawArrow(from, to, arrow_style);
+  }
+
   void DrawCircle(const viren2d::Vec2d &center, double radius,
                   const viren2d::LineStyle &line_style,
                   const viren2d::Color &fill) {
     painter_->DrawCircle(center, radius, line_style, fill);
   }
 
+  void DrawGrid(double spacing_x, double spacing_y,
+                const viren2d::Vec2d &top_left, const viren2d::Vec2d &bottom_right,
+                const viren2d::LineStyle &line_style) {
+    painter_->DrawGrid(top_left, bottom_right, spacing_x, spacing_y,
+                       line_style);
+  }
 
   void DrawLine(const viren2d::Vec2d &from, const viren2d::Vec2d &to,
                 const viren2d::LineStyle &line_style) {
@@ -314,10 +351,21 @@ void RegisterVec(py::module &m) {
                           { return self[index]; })
       .def("copy", [](const VC &self) { return VC(self); },
            "Returns a copy of this vector.")
-      .def("dot", &VC::Dot, py::arg("other"))
-      .def("length", &VC::Length)
-      .def("length_squared", &VC::LengthSquared)
-      .def("distance", &VC::Distance, py::arg("other"))
+      .def("dot", &VC::Dot,
+           "Computes the dot product.",
+           py::arg("other"))
+      .def("length", &VC::Length,
+           "Returns the vector's length (i.e. magnitude).")
+      .def("length_squared", &VC::LengthSquared,
+           "Returns the squared length.")
+      .def("distance", &VC::Distance,
+           "Computes the L2 distance between 'self' and the 'other'.",
+           py::arg("other"))
+      .def("direction_vector", &VC::DirectionVector,
+           "Computes the direction vector from 'self' to the 'other'.",
+           py::arg("other"))
+      .def("unit_vector", &VC::UnitVector,
+           "Computes the unit vector of 'self'.")
       .def(py::pickle(&pickling::SerializeVec<_Tp, dim>,
                       &pickling::DeserializeVec<_Tp, dim>))
       .def(py::self == py::self)
@@ -325,6 +373,7 @@ void RegisterVec(py::module &m) {
       .def(py::self + py::self)
       .def(py::self += py::self)
       .def(py::self - py::self)
+      .def(-py::self)
 #ifdef __clang__
 // Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
 #pragma GCC diagnostic push
@@ -374,17 +423,7 @@ void RegisterVec(py::module &m) {
 
 
 //------------------------------------------------- Module definition
-// TODO How to bind a new class X:
-// * Implement moddef::CreateX (init from py::tuple/list/whatever)
-// * Implement pickling::SerializeX
-// * Implement pickling::DeserializeX
-// * Implement __str__ & __repr__
-// * nice-to-have: operator == and !=
-// * Declare it py::implicitly_convertible
-// * Check (in python) initialization, pickling, comparison, etc.
-// * All this info does not hold for ImageBuffer - which exposes a
-//   buffer view (and we need to be able to convert to/from numpy
-//   arrays)
+
 //
 // TODO low priority: DeserializeX could reuse CreateX (not sure if
 //      both are using the same inputs, tuples vs list vs ...)
@@ -427,7 +466,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("alpha")=1.0)
       .def(py::init<const std::string &, double>(),
            "Initialize from a string represenation:\n"
-           "* Hex/Webcodes (6-digit):\n '#00ff00'\n"
+           "* Hex/Webcodes:\n '#00ff00', '#a0b0c0f0'\n"
            "* A color name, e.g. 'black', 'navy-blue'.\n"
            "  See color_names() for a list of available\n"
            "  color names.\n"
@@ -439,8 +478,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("colorspec"), py::arg("alpha")=1.0)
       .def("__repr__",
            [](const viren2d::Color &c)
-           { return "<viren2d.Color " + c.ToString() + ">"; })
-      .def("__str__", &viren2d::Color::ToString)
+           { return "<viren2d.Color " + (c.IsValid() ? c.ToHexString() : "(invalid)") + ">"; })
+      .def("__str__", &viren2d::Color::ToHexString)
       .def(py::pickle(&pickling::SerializeColor,
                       &pickling::DeserializeColor))
       .def(py::self == py::self,
@@ -488,7 +527,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "where all components are in[0, 1].")
       .def("as_hex", &viren2d::Color::ToHexString,
            "Returns the hex web color code representation,\n"
-           "e.g. '#0011ff' (alpha is ignored).")
+           "e.g. '#0011ffff' (all components are scaled to [0, 255]).\n"
+           "If the color is invalid, #???????? will be returned instead.")
       .def("with_alpha", &viren2d::Color::WithAlpha,
            "Return a color with the same r,g,b components, but the given alpha.",
            py::arg("alpha"))
@@ -675,7 +715,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .value("Miter", viren2d::LineJoin::Miter,
              "Sharp (angled) corner.")
       .value("Bevel", viren2d::LineJoin::Bevel,
-             "Cut off the join at half the line width from the joint point.")
+             "The join is cut off at half the line width from the joint point.")
       .value("Round", viren2d::LineJoin::Round,
              "Rounded join, where the center of the circle is the joint point.");
 
@@ -685,7 +725,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   line_style.def(py::init<>(&moddef::CreateLineStyle)) // init from tuple
       .def(py::init<double, viren2d::Color, std::vector<double>,
                     viren2d::LineCap, viren2d::LineJoin>(),
-           py::arg("line_width"), py::arg("color"),
+           py::arg("line_width") = 2.0,
+           py::arg("color") = viren2d::Color(viren2d::NamedColor::Azure),
            py::arg("dash_pattern")=std::vector<double>(),
            py::arg("line_cap")=viren2d::LineCap::Butt,
            py::arg("line_join")=viren2d::LineJoin::Miter)
@@ -697,6 +738,22 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                       &pickling::DeserializeLineStyle))
       .def(py::self == py::self)
       .def(py::self != py::self)
+      .def("is_valid", &viren2d::LineStyle::IsValid,
+           "Check if the style would lead to a drawable line.")
+      .def("is_dashed", &viren2d::LineStyle::IsDashed,
+           "Check if this style contains a dash stroke pattern.")
+      .def("cap_offset", &viren2d::LineStyle::CapOffset,
+           "Computes how much the line cap will extend the\n"
+           "line's start/end.")
+      .def("join_offset", &viren2d::LineStyle::JoinOffset,
+           "Computes how much a line join will extend the joint.\n\n"
+           "The interior_angle is the angle between two line segments\n"
+           "in degrees.\n"
+           "This requires the miter_limit because Cairo switches from\n"
+           "MITER to BEVEL if the miter_limit is exceeded, see\n"
+           "https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit",
+           py::arg("interior_angle"),
+           py::arg("miter_limit") = 10.0)
       .def_readwrite("line_width", &viren2d::LineStyle::line_width,
                      "Width in pixels (best results for even values).")
       .def_readwrite("color", &viren2d::LineStyle::color, "Line color (rgba).")
@@ -713,6 +770,56 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   // A LineStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::LineStyle>();
 
+
+  //------------------------------------------------- Drawing - ArrowStyle
+  py::class_<viren2d::ArrowStyle, viren2d::LineStyle>(m, "ArrowStyle",
+           "How an arrow should be drawn.")
+      .def(py::init<double, viren2d::Color, double, double, bool, bool,
+                    std::vector<double>, viren2d::LineCap, viren2d::LineJoin>(),
+           py::arg("line_width") = 2.0,
+           py::arg("color") = viren2d::Color(viren2d::NamedColor::Azure),
+           py::arg("tip_length") = 0.1,
+           py::arg("tip_angle") = 30.0,
+           py::arg("tip_closed") = false,
+           py::arg("double_headed") = false,
+           py::arg("dash_pattern")=std::vector<double>(),
+           py::arg("line_cap")=viren2d::LineCap::Butt,
+           py::arg("line_join")=viren2d::LineJoin::Miter)
+      .def("__repr__",
+           [](const viren2d::ArrowStyle &st)
+           { return "<viren2d." + st.ToString() + ">"; })
+      .def("__str__", &viren2d::ArrowStyle::ToString)
+      .def(py::pickle(&pickling::SerializeArrowStyle,
+                      &pickling::DeserializeArrowStyle))
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def("is_valid", &viren2d::ArrowStyle::IsValid,
+           "Check if the style would lead to a drawable arrow.")
+      .def("tip_length_for_shaft",
+           static_cast<double (viren2d::ArrowStyle::*)(double) const>(&viren2d::ArrowStyle::TipLengthForShaft),
+           "Computes the length of the arrow head/tip for the given shaft length.",
+           py::arg("shaft_length"))
+      .def("tip_length_for_shaft",
+           static_cast<double (viren2d::ArrowStyle::*)(const viren2d::Vec2d&, const viren2d::Vec2d&) const>(&viren2d::ArrowStyle::TipLengthForShaft),
+           "Computes the length of the arrow head/tip for the given shaft.",
+           py::arg("shaft_from"), py::arg("shaft_to"))
+      .def_readwrite("tip_length", &viren2d::ArrowStyle::tip_length,
+           "Length of the tip. If this value is in [0, 1], the tip\n"
+           "length will be this fraction of the shaft length.\n"
+           "Otherwise, this value specifies the absolute tip length\n"
+           "in pixels.")
+      .def_readwrite("tip_angle", &viren2d::ArrowStyle::tip_angle,
+           "Angle between tip lines and the shaft in degrees.")
+      .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed,
+           "If True, the arrow head/tip will be filled. Otherwise,\n"
+           "the tip will be open.")
+      .def_readwrite("double_headed", &viren2d::ArrowStyle::double_headed,
+           "If True, heads/tips will be drawn on both ends of the line.");
+
+  //TODO add implicit initialization from tuple (similar to linestyle)
+  //currently not needed, because: 1) create a default arrowstyle and
+  // 2) change the parameters as needed
+  // --> also remove the tuple initialization for line style and the others
 
   //------------------------------------------------- Drawing - Painter
 
@@ -767,8 +874,6 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "  numpy array:\n"
            "    img_np = np.array(p.get_canvas(True), copy=False)",
            py::arg("copy")=false)
-//------------------- TODO keep alphabetic order - easier to maintain!
-//----- FIXME: don't use python keywords as argument names!
       .def("draw_arc", &moddef::Painter::DrawArc,
            "Draws a circular arc of the given radius using the\n"
            "LineStyle specification. The arc will be filled if\n"
@@ -780,16 +885,32 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("angle1"), py::arg("angle2"),
            py::arg("line_style"),
            py::arg("fill")=viren2d::Color(0, 0, 0, 0))
+      .def("draw_arrow", &moddef::Painter::DrawArrow,
+           "Draws a line between the two Vec2d coordinates using the\n"
+           "ArrowStyle specification.",
+           py::arg("pt1"), py::arg("pt2"),
+           py::arg("arrow_style") = viren2d::ArrowStyle())
       .def("draw_circle", &moddef::Painter::DrawCircle,
            "Draws a circle at the given Vec2d position using the\n"
            "LineStyle specification. The circle will be filled if\n"
            "a fill color with alpha > 0 is given.",
-           py::arg("center"), py::arg("radius"), py::arg("line_style"),
+           py::arg("center"), py::arg("radius"),
+           py::arg("line_style") = viren2d::LineStyle(),
            py::arg("fill")=viren2d::Color(0, 0, 0, 0))
+      .def("draw_grid", &moddef::Painter::DrawGrid,
+           "Draws a grid between 'top_left' and 'bottom_right', where\n"
+           "each cell is 'spacing_x' x 'spacing_y' pixels wide.\n"
+           "If you don't specify 'top_left' and 'bottom_right' (or if\n"
+           "they are the same), the grid will span the whole canvas.",
+           py::arg("spacing_x"), py::arg("spacing_y"),
+           py::arg("top_left") = viren2d::Vec2d(),
+           py::arg("bottom_right") = viren2d::Vec2d(),
+           py::arg("line_style") = viren2d::LineStyle())
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",
-           py::arg("pt1"), py::arg("pt2"), py::arg("line_style"))
+           py::arg("pt1"), py::arg("pt2"),
+           py::arg("line_style") = viren2d::LineStyle())
       .def("draw_rect", &moddef::Painter::DrawRect,
            "Draws a rectangle using the LineStyle specification.\n\n"
            "* The rectangle will be filled if fill color has alpha > 0.\n"

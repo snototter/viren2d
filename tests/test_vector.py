@@ -40,10 +40,18 @@ def vector_test_helper(vec, zero):
     vec3 = vec + vec2 + cp;
     assert vec3 == 3 * vec
 
+    # Negation
+    neg = -vec
+    assert vec == cp
+    for i in range(vec.ndim):
+        assert neg[i] == pytest.approx(-vec[i])
+   
     # Distance/Length & dot product:
     dot1 = vec.dot(vec)
     dot3 = vec.dot(vec3)
     assert 3 * dot1 == pytest.approx(dot3)
+    
+    assert vec.unit_vector().length() == pytest.approx(1)
 
     length = vec.length()
     assert math.sqrt(dot1) == pytest.approx(length)
@@ -94,6 +102,23 @@ def test_vectors():
     vector_test_helper(viren2d.Vec3d(1, 2, 3), zero3d)
     vector_test_helper(viren2d.Vec3d(0.01, 0.99, -15.3), zero3d)
     vector_test_helper(viren2d.Vec3d(-171, 2, -3), zero3d)
+    
+
+    v2d = viren2d.Vec2d(23, -17)
+    vector_test_helper(v2d, zero2d)
+    u2d = v2d.unit_vector()
+    assert u2d.length() == pytest.approx(1)
+    assert u2d.x == pytest.approx(23 / 28.600699292)
+    assert u2d.y == pytest.approx(-17 / 28.600699292)
+    
+    assert v2d.direction_vector(zero2d) == -v2d
+    assert v2d.direction_vector(v2d) == zero2d
+    
+    orth = v2d.copy()
+    orth[0] = v2d[1]
+    orth[1] = -v2d[0]
+    assert orth != v2d
+    assert v2d.dot(orth) == pytest.approx(0)
 
 
 def test_pickling():

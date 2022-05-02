@@ -8,7 +8,6 @@
 
 #include <viren2d/math.h>
 
-// FIXME add type conversions to new types (initializer lists; built-in types for more convenient/less cluttered use)
 
 namespace viren2d {
 //---------------------------------------------------- Image buffer
@@ -21,12 +20,12 @@ namespace viren2d {
  *        remains the caller's responsibility).
  */
 struct ImageBuffer {
-  unsigned char *data;
-  int width;
-  int height;
-  int channels;
-  int stride;    /**< Stride (number of bytes) per row. */
-  bool owns_data_; /**< Flag indicating if we own the memory (i.e. if we need to clean up). */
+  unsigned char *data;  ///< Pointer to the image data.
+  int width;            ///< Width of the image in pixels.
+  int height;           ///< Height of the image in pixels.
+  int channels;         ///< Number of channels.
+  int stride;           ///< Stride (number of bytes) per row.
+  bool owns_data_;      ///< Flag indicating if we own the memory (i.e. if we need to clean up).
 
 
   ImageBuffer()
@@ -144,27 +143,33 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
 
 
 //------------------------------------------------- Vectors/Coordinates
-/**
- * @brief Template class to represent a vector/coordinate.
- */
+/** @brief Template class to represent a vector/coordinate. */
 template<typename _Tp, int dim>
 class Vec {
  public:
+  //------------------------------------------------- Initialization
   Vec();
-
   Vec(_Tp x, _Tp y);
   Vec(_Tp x, _Tp y, _Tp z);
   Vec(_Tp x, _Tp y, _Tp z, _Tp w);
   Vec(std::initializer_list<_Tp> values);
 
+  ~Vec() {}
+
   Vec(const Vec<_Tp, dim>& other);
+  Vec(Vec<_Tp, dim> &&other) noexcept;
+  Vec<_Tp, dim> &operator=(const Vec<_Tp, dim> &other);
+  Vec<_Tp, dim> &operator=(Vec<_Tp, dim> &&other) noexcept;
 
 
-  /** @brief Allow casting each vector to its double-precision counterpart.
-   *  Needed because we work with cairo, which heavily uses doubles.
+  /**
+   * @brief Allow casting each vector to its double-precision counterpart.
+   * Needed because we work with Cairo, which heavily uses doubles.
    */
   explicit operator Vec<double, dim>() const;
 
+
+  //------------------------------------------------- Value access
   const _Tp& operator[](int i) const;
   _Tp& operator[](int i);
 
@@ -176,69 +181,109 @@ class Vec {
   _Tp& y();
   _Tp& z();
   _Tp& w();
+
   void SetX(_Tp x);
   void SetY(_Tp y);
   void SetZ(_Tp z);
   void SetW(_Tp w);
 
-  _Tp val[dim];
 
-  // Arithmetics
+  _Tp val[dim];  ///< Holds the values of this vector.
+
+
+  //------------------------------------------------- Arithmetics
   Vec<_Tp, dim> &operator+=(const Vec<_Tp, dim>& rhs);
+  Vec<_Tp, dim> &operator+=(double value);
   Vec<_Tp, dim> &operator-=(const Vec<_Tp, dim>& rhs);
+  Vec<_Tp, dim> &operator-=(double value);
   Vec<_Tp, dim> &operator*=(double scale);
   Vec<_Tp, dim> &operator/=(double scale);
+
+
+  /** @brief Returns a vector where each dimension is negated. */
+  Vec<_Tp, dim> operator-() const;
+
 
   /** @brief Computes the dot product. */
   _Tp Dot(const Vec<_Tp, dim>& other) const;
 
+
   /** @brief Returns the vector's length. */
   Vec<_Tp, dim> Cross(const Vec<_Tp, dim>& other) const;
+
 
   /** @brief Returns the vector's length. */
   double Length() const;
 
+
   /** @brief Returns the squared vector's length. */
   double LengthSquared() const;
 
+
   /** @brief Computes the distance between this and the other. */
-  double Distance(const Vec<_Tp, dim>& other);
+  double Distance(const Vec<_Tp, dim>& other) const;
 
-  /** @brief Returns the class type name, e.g. "Vec2d". */
-  static std::string TypeName();
 
+  /** @brief Returns the direction vector from 'this' to 'to'. */
+  Vec<_Tp, dim> DirectionVector(const Vec<_Tp, dim>& to) const;
+
+
+  /** @brief Returns the unit vector. */
+  Vec<double, dim> UnitVector() const;
+
+
+  /** @brief Returns a human-readable string representation. */
   std::string ToString() const;
 
+
+  /** @brief Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const Vec<_Tp, dim> &vec) {
     os << vec.ToString();
     return os;
   }
+
+
+  /** @brief Returns the class type name, e.g. "Vec2d". */
+  static std::string TypeName();
 };
 
 
 //-------------------------------------------------  Comparison operators
+// If you implement another operator, don't forget
+// to add the corresponding explicit vector instantiation
+// in primitives.cpp
+
 template<typename _Tp, int dim>
 bool operator==(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs);
+
 template<typename _Tp, int dim>
 bool operator!=(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs);
 
 
 //-------------------------------------------------  Arithmetic operators
+// If you implement another operator, don't forget
+// to add the corresponding explicit vector instantiation
+// in primitives.cpp
+
 /** Vector addition. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator+(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
+
 
 /** Vector subtraction. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
 
+
 /** Multiply (rhs) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double rhs);
 
+
 /** Multiply (lhs) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(double lhs, Vec<_Tp, dim> rhs);
+
 
 /** Divide (scale) by scalar. */
 template<typename _Tp, int dim>
@@ -254,6 +299,13 @@ typedef Vec<int, 2> Vec2i;
 typedef Vec<int, 3> Vec3i;
 
 
+//-------------------------------------------------  Vector Math
+//TODO test
+/** @brief Project point onto line. */
+Vec2d ProjectPointOntoLine(const Vec2d &pt,
+                           const Vec2d &line_from,
+                           const Vec2d &line_to);
+
 //-------------------------------------------------  Rectangle
 /**
  * @brief Rectangle for visualization.
@@ -263,12 +315,12 @@ typedef Vec<int, 3> Vec3i;
  * and a corner radius (for rounded rectangles).
  */
 struct Rect {
-  double cx; /**< Center coordinate in x direction. */
-  double cy; /**< Center coordinate in y direction. */
-  double width;  /**< Width of rectangle. */
-  double height; /**< Height of rectangle. */
-  double angle;  /**< Clockwise rotation in degrees. */
-  double radius; /**< Corner radius. Must be <= min(width, height)/2. */
+  double cx;      ///< Center coordinate in x direction.
+  double cy;      ///< Center coordinate in y direction.
+  double width;   ///< Width of rectangle.
+  double height;  ///< Height of rectangle.
+  double angle;   ///< Clockwise rotation in degrees.
+  double radius;  ///< Corner radius. Must be <= min(width, height)/2.
 
   Rect()
     : cx(0.0), cy(0.0), width(0.0), height(0.0),
@@ -295,42 +347,57 @@ struct Rect {
       angle(rot), radius(corner_radius)
   {}
 
+
   /**
-   * Construct from initializer list with 4 to 6 elements (refer
+   * @brief Construct from an initializer list with 4 to 6 elements (refer
    * to any other c'tor for the order of parameters).
    */
   Rect(std::initializer_list<double> values);
 
 
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Rect &operator+=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Rect &operator-=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Rect &operator+=(const Vec2d &offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Rect &operator-=(const Vec2d &offset);
+
+
+  /** @brief Returns half the width. */
   inline double half_width() const {
     return width / 2.0;
   }
 
 
+  /** @brief Returns half the height. */
   inline double half_height() const {
     return height / 2.0;
   }
 
 
+  /** @brief Returns true if this rectangle can be drawn. */
   bool IsValid() const {
     return width > 0.0 && height > 0.0;
   }
 
+
+  /** @brief Returns a human-readable string representation. */
   std::string ToString() const;
 
+
+  /** @brief Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const Rect &r) {
     os << r.ToString();
     return os;
   }
-
-
-  //TODO nice-to-have operator overloads
-  // +(Vec2d) translates
-  // *(double) scales the box
-  // +(double) rotates
-  // ---> add these only if needed, e.g. if we frequently
-  //      need to shift/scale/rotate rects when drawing
-  //      (which I highly doubt atm)
 };
 
 
