@@ -17,13 +17,7 @@
 void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
   // Save to disk
   if (!filename.empty()) {
-    try {
-      viren2d::SaveImage(filename, canvas);
-    }  catch (const std::runtime_error &e) {
-      std::cerr << "Could not save canvas to \""
-                << filename << "\": " << e.what()
-                << std::endl;
-    }
+    viren2d::SaveImage(filename, canvas);
   }
 
 #ifdef WITH_OPENCV
@@ -60,6 +54,7 @@ void DemoLines() {
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
 }
+
 
 void DemoArrow1() {
   auto painter = viren2d::CreateImagePainter();
@@ -202,11 +197,7 @@ int main(int /*argc*/, char **/*argv*/) {
   painter->DrawLine({10.0, 10.0}, {image_buffer.width-10.0, image_buffer.height-10.0},
                     viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineCap::Round));
 
-  try {
-    viren2d::SaveImage("test.jpg", painter->GetCanvas(false));
-  }  catch (const std::runtime_error &e) {
-    std::cerr << "Could not save canvas: " << e.what() << std::endl;
-  }
+  viren2d::SaveImage("test.jpg", painter->GetCanvas(false));
 
 #ifdef WITH_OPENCV
   // The last bit of OpenCV dependency (only for displaying the image ;-)

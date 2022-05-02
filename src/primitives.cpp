@@ -11,10 +11,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#ifdef viren2d_WITH_IMWRITE
+
+#ifdef __GNUC__
+// GCC reports a lot of missing field initializers, which is known,
+// not easy to fix & not a real problem: https://github.com/nothings/stb/issues/1099
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif  // __GNUC__
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
-#endif  // viren2d_WITH_IMWRITE
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif  // __GNUC__
 
 #include <viren2d/primitives.h>
 #include <viren2d/math.h>
@@ -250,13 +258,6 @@ ImageBuffer LoadImage(const std::string &image_filename,
 
 void SaveImage(const std::string &image_filename,
                const ImageBuffer &image) {
-#ifndef viren2d_WITH_IMWRITE
-  (void)(image_filename);
-  (void)(image);
-  throw std::runtime_error("viren2d++ was built without image storage "
-                           "capabilities. Reconfigure with "
-                           "\"cmake -Dviren2d_WITH_IMWRITE\"!");
-#else  // viren2d_WITH_IMWRITE
   int stb_result = 0; // stb return code 0 indicates failure
 
   const std::string fn_lower = strings::Lower(image_filename);
@@ -291,7 +292,6 @@ void SaveImage(const std::string &image_filename,
     s << "Could not save ImageBuffer to '" << image_filename << "' - unknown error!";
     throw std::runtime_error(s.str());
   }
-#endif // viren2d_WITH_IMWRITE
 }
 
 

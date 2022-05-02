@@ -96,13 +96,22 @@ inline void ApplyLineStyle(cairo_t *context,
 
 /** Ensure that the canvas is set up correctly. Should be called within each drawing helper function. */
 inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
-  //TODO also check NIL surface (or if finalized, etc.)
-  if (!surface)
-    throw std::logic_error("Invalid cairo surface (nullptr)"
-                           " - did you forget to set up the canvas first?");
+  if (!surface) {
+    throw std::logic_error("Invalid cairo surface (nullptr)."
+                           " Did you forget to set up the canvas first?");
+  }
 
-  if (!context)
-    throw std::runtime_error("Invalid cairo context (nullptr) - cannot draw anymore.");
+  cairo_status_t surf_stat = cairo_surface_status(surface);
+  if (surf_stat != CAIRO_STATUS_SUCCESS) {
+    std::stringstream s;
+    s << "Invalid cairo surface status (" << surf_stat
+      << "), check https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t for details.";
+    throw std::runtime_error(s.str());
+  }
+
+  if (!context) {
+    throw std::runtime_error("Invalid cairo context (nullptr), cannot draw anymore.");
+  }
 }
 
 
