@@ -82,12 +82,22 @@ void DemoArrow2() {
     painter->DrawArrow(center, tip, style);
   }
 
+  // Closed solid arrow (top-left)
   painter->DrawArrow({50, 50}, {200, 50},
-                     viren2d::ArrowStyle(4, "forest-green", 0.1, 30, true, true));
+                     viren2d::ArrowStyle(4, "forest-green", 0.15, 30, true, true));
 
+  // Open solid arrow (top-right)
   painter->DrawArrow({size.x() - 50.0, 50.0}, {size.x() - 200.0, 50.0},
-                     viren2d::ArrowStyle(4, "crimson", 0.1, 30, false, true,
-                                         {10, 10}));
+                     viren2d::ArrowStyle(4, "crimson", 0.15, 30, false, true));
+
+  // Closed dashed arrow doesn't make much sense (fill + dashed stroke looks ugly)
+//  painter->DrawArrow({50, size.y() - 50.0}, {200, size.y() - 50.0},
+//                     viren2d::ArrowStyle(4, "forest-green", 0.1, 30, true, true, {20, 10}));
+
+  // Open dashed arrow (bottom-right)
+  painter->DrawArrow({size.x() - 50.0, size.y() - 50.0}, {size.x() - 200.0, size.y() - 50.0},
+                     viren2d::ArrowStyle(4, "crimson", 0.2, 30, false, true,
+                                         {15, 10}));
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-arrow2.png");
   //FIXME arrowstyle::compute endpoints (s.t. tip points exactly to end point)

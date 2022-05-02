@@ -636,6 +636,17 @@ Vec<_Tp, dim> Vec<_Tp, dim>::operator+(double value) const {
   return cp;
 }
 
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::operator-() const {
+  Vec<_Tp, dim> cp(*this);
+  for (int i = 0; i < dim; ++i) {
+    cp[i] *= -1.0;
+  }
+  return cp;
+}
+
+
 template<typename _Tp, int dim>
 Vec<_Tp, dim> Vec<_Tp, dim>::operator-(double value) const {
   return (*this + (-1.0 * value));

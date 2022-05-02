@@ -200,6 +200,7 @@ class Vec {
 
   // FIXME doc & test
   Vec<_Tp, dim> operator+(double value) const;
+  Vec<_Tp, dim> operator-() const;
   Vec<_Tp, dim> operator-(double value) const;
 
 

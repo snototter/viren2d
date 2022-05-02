@@ -15,6 +15,11 @@ bool LineStyle::IsValid() const {
 }
 
 
+bool LineStyle::IsDashed() const {
+  return dash_pattern.size() > 0;
+}
+
+
 std::string LineStyle::ToString() const {
   std::stringstream s;
   s << "LineStyle(w=" << std::fixed << std::setprecision(1)

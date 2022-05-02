@@ -52,6 +52,10 @@ struct LineStyle {
   virtual bool IsValid() const;
 
 
+  /** @brief Returns true if this style contains a dash stroke pattern. */
+  bool IsDashed() const;
+
+
   /** @brief Returns true if this and the other specify the same line. */
   bool Equals(const LineStyle &other) const;
 
