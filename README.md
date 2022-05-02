@@ -75,7 +75,7 @@ python -m pip install .
 I'm planning to support visualization of the following primitives/objects:
 * [ ] 2D bounding boxes / Object detection results
 * [x] Arcs
-* [ ] Arrows
+* [x] Arrows (single-/double-headed, filled/open, solid/dashed)
 * [x] Circles
 * [ ] Ellipses
 * [x] Lines
