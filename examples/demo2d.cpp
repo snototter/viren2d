@@ -59,29 +59,6 @@ void DemoLines() {
 
 void DemoArrow1() {
   auto painter = viren2d::CreateImagePainter();
-  painter->SetCanvas(600, 400, viren2d::Color::White);
-
-  painter->DrawGrid(viren2d::Vec2d(), viren2d::Vec2d(), 10, 10, viren2d::LineStyle(0.5, "gray!80"));
-
-//  painter->DrawLine({10, 10}, {60, 60}, viren2d::LineStyle(1, "navy-blue!80"));
-
-  painter->DrawArrow({20, 10}, {120, 140}, viren2d::ArrowStyle(4, "navy-blue", 0.2, 30, false, true,
-                                                               {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
-
-  painter->DrawArrow({40, 40}, {200, 40}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, true, true,
-                                                              {}, viren2d::LineCap::Round));
-
-  painter->DrawArrow({80, 80}, {200, 80}, viren2d::ArrowStyle(6, "crimson!50", 50, 10, false, false, {}, viren2d::LineCap::Round));
-
-  painter->DrawArrow({40, 200}, {200, 200}, viren2d::ArrowStyle(5, "crimson!50", 50, 45, false, false, {}, viren2d::LineCap::Round));
-
-  painter->DrawArrow({40, 250}, {400, 250}, viren2d::ArrowStyle(20, "crimson!50", 0.3, 50, true, true, {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
-
-  ShowCanvas(painter->GetCanvas(true), "demo-output-arrow1.png");
-}
-
-void DemoArrow2() {
-  auto painter = viren2d::CreateImagePainter();
   painter->SetCanvas(800, 800, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50,
@@ -120,13 +97,18 @@ void DemoArrow2() {
                      viren2d::ArrowStyle(4, "crimson!60", 0.15, 30, false, true,
                                          {15, 10}));
 
-  ShowCanvas(painter->GetCanvas(false), "demo-output-arrow2.png");
+  ShowCanvas(painter->GetCanvas(false), "demo-output-arrow.png");
 }
+
+
+// TODO line demo
+// TODO arc/circle demo
+// TODO rect demo
+
 
 int main(int /*argc*/, char **/*argv*/) {
   DemoLines();
-//  DemoArrow1();
-  DemoArrow2();
+  DemoArrow1();
 
   if (true)
     return 0;

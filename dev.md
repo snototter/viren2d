@@ -12,6 +12,15 @@
   simple to edge-case use.  
   All other functionality should be tested, ideally both in C++
   and Python.
+* Task template for (almost) each new function:  
+  ```cpp
+  //TODO [ ] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  //TODO [ ] add C++ demo
+  //TODO [ ] add Python demo
+  ```
  
 `viren2d`, i.e. the Python bindings:
 * Don't use python keywords as names of function arguments
@@ -30,35 +39,6 @@
    buffer view (and we need to be able to convert to/from numpy
    arrays)
    
-   
-# TODO
-* readme - install/setup section
-* readme - quickstart
-* readme - make github banner with viren2d ;-)
-* TODO test - via pytest
-* separate example/tutorial doc
-
-
-
-TODO library sizes (apt)
-opencv
-
-apt-cache --no-all-versions show libopencv* | awk '
-function human(x) {
-        if (x<1000) {return x} else {x/=1024}
-        s="kMGTEPZY";
-        while (x>=1000 && length(s)>1)
-            {x/=1024; s=substr(s,2)}
-        return int(x+0.5) substr(s,1,1)
-    }
-$1 == "Package:" { p = $2 } $1 == "Installed-Size:"    { print p, $2, human($2)}'
-
-
-$1 == "Package:" { p = $2 } $1 == "Size:"    { print p, $2, human($2)}'
-
-https://unix.stackexchange.com/a/44087
-
-
 
 ## Examples
 
@@ -571,6 +551,34 @@ p.draw_arrow((20, 20), (380, 280), style)
 img = np.array(p.get_canvas(), copy=False)
 imvis.imshow(img)
 ```
+
+
+# TODO
+* readme - install/setup section
+* readme - quickstart
+* readme - make github banner with viren2d ;-)
+* TODO test - via pytest
+* separate example/tutorial doc
+
+
+
+TODO library sizes (apt)
+opencv
+
+apt-cache --no-all-versions show libopencv* | awk '
+function human(x) {
+        if (x<1000) {return x} else {x/=1024}
+        s="kMGTEPZY";
+        while (x>=1000 && length(s)>1)
+            {x/=1024; s=substr(s,2)}
+        return int(x+0.5) substr(s,1,1)
+    }
+$1 == "Package:" { p = $2 } $1 == "Installed-Size:"    { print p, $2, human($2)}'
+
+
+$1 == "Package:" { p = $2 } $1 == "Size:"    { print p, $2, human($2)}'
+
+https://unix.stackexchange.com/a/44087
 
 
 # Testing

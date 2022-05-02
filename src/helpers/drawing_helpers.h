@@ -121,17 +121,20 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
 // TODO keep list alphabetically sorted:
 
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
-             const Vec2d &center, double radius,
+             Vec2d center, double radius,
              double angle1, double angle2,
-             const LineStyle &line_style, const Color &fill);
+             const LineStyle &line_style,
+             const Color &fill);
 
 
 void DrawArrow(cairo_surface_t *surface, cairo_t *context,
                Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
+
 inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
-                       const Vec2d &center, double radius,
-                       const LineStyle &line_style, const Color &fill) {
+                       Vec2d center, double radius,
+                       const LineStyle &line_style,
+                       const Color &fill) {
   DrawArc(surface, context, center, radius, 0, 360, line_style, fill);
 }
 
@@ -143,17 +146,12 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
 
 
 void DrawLine(cairo_surface_t *surface, cairo_t *context,
-              Vec2d from, Vec2d to,
-              const LineStyle &line_style);
-
+              Vec2d from, Vec2d to, const LineStyle &line_style);
 
 
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
-              const Rect &rect, const LineStyle &line_style,
+              Rect rect, const LineStyle &line_style,
               const Color &fill);
-
-
-
 
 } // namespace helpers
 } // namespace viren2d

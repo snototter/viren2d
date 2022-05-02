@@ -21,7 +21,7 @@ _Tp saturation_cast(_Tp val, _Tp low, _Tp high) {
  * @brief Enum to create a @see Color instance from these named premixes.
  */
 enum class NamedColor : unsigned short {
-  Black = 0,  /**< "Black" must be the first enum value. */
+  Black = 0,  ///< "Black" must be the first enum value.
   White,
   Gray,
   Grey = Gray,  // alias
@@ -63,7 +63,7 @@ enum class NamedColor : unsigned short {
   Turquoise,
   Yellow,
 
-  Invalid /**< "Invalid" must be the last element. */
+  Invalid ///< "Invalid" must be the last element.
 };
 
 
@@ -115,10 +115,10 @@ std::string NamedColorToString(NamedColor color);
  */
 class Color {
  public:
-  double red;   /**< Red component within [0,1]. */
-  double green; /**< Green component within [0,1]. */
-  double blue;  /**< Blue component within [0,1]. */
-  double alpha; /**< Alpha (opacity) component within [0,1]. */
+  double red;    ///< Red component within [0,1].
+  double green;  ///< Green component within [0,1].
+  double blue;   ///< Blue component within [0,1].
+  double alpha;  ///< Alpha (opacity) component within [0,1].
 
 
   // For convenience, we provide the primary colors (and their

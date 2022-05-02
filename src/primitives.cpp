@@ -710,13 +710,14 @@ Vec<_Tp, dim> Vec<_Tp, dim>::DirectionVector(const Vec<_Tp, dim>& to) const {
 
 
 template<typename _Tp, int dim>
-Vec<_Tp, dim> Vec<_Tp, dim>::UnitVector() const {
+Vec<double, dim> Vec<_Tp, dim>::UnitVector() const {
   const double len = Length();
 
-  if (len > 0.0)
-    return *this / len;
-  else
-    return *this;
+  if (len > 0.0) {
+    return static_cast<Vec<double, dim>>(*this) / len;
+  } else {
+    return static_cast<Vec<double, dim>>(*this);
+  }
 }
 
 
@@ -903,6 +904,34 @@ Rect::Rect(std::initializer_list<double> values) {
 
   if (values.size() > 5)
     radius = val[5];
+}
+
+
+Rect &Rect::operator+=(double offset) {
+  cx += offset;
+  cy += offset;
+  return *this;
+}
+
+
+Rect &Rect::operator-=(double offset) {
+  cx -= offset;
+  cy -= offset;
+  return *this;
+}
+
+
+Rect &Rect::operator+=(const Vec2d &offset) {
+  cx += offset.x();
+  cy += offset.y();
+  return *this;
+}
+
+
+Rect &Rect::operator-=(const Vec2d &offset) {
+  cx -= offset.x();
+  cy -= offset.y();
+  return *this;
 }
 
 

@@ -20,12 +20,12 @@ namespace viren2d {
  *        remains the caller's responsibility).
  */
 struct ImageBuffer {
-  unsigned char *data;
-  int width;
-  int height;
-  int channels;
-  int stride;    /**< Stride (number of bytes) per row. */
-  bool owns_data_; /**< Flag indicating if we own the memory (i.e. if we need to clean up). */
+  unsigned char *data;  ///< Pointer to the image data.
+  int width;            ///< Width of the image in pixels.
+  int height;           ///< Height of the image in pixels.
+  int channels;         ///< Number of channels.
+  int stride;           ///< Stride (number of bytes) per row.
+  bool owns_data_;      ///< Flag indicating if we own the memory (i.e. if we need to clean up).
 
 
   ImageBuffer()
@@ -147,26 +147,29 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
 template<typename _Tp, int dim>
 class Vec {
  public:
+  //------------------------------------------------- Initialization
   Vec();
-
   Vec(_Tp x, _Tp y);
   Vec(_Tp x, _Tp y, _Tp z);
   Vec(_Tp x, _Tp y, _Tp z, _Tp w);
   Vec(std::initializer_list<_Tp> values);
 
-  Vec(const Vec<_Tp, dim>& other);
-
   ~Vec() {}
 
-  Vec(Vec<_Tp, dim> &&other) noexcept; // move c'tor
-  Vec<_Tp, dim> &operator=(const Vec<_Tp, dim> &other); // copy assignment
-  Vec<_Tp, dim> &operator=(Vec<_Tp, dim> &&other) noexcept; // move assignment
+  Vec(const Vec<_Tp, dim>& other);
+  Vec(Vec<_Tp, dim> &&other) noexcept;
+  Vec<_Tp, dim> &operator=(const Vec<_Tp, dim> &other);
+  Vec<_Tp, dim> &operator=(Vec<_Tp, dim> &&other) noexcept;
 
-  /** @brief Allow casting each vector to its double-precision counterpart.
-   *  Needed because we work with Cairo, which heavily uses doubles.
+
+  /**
+   * @brief Allow casting each vector to its double-precision counterpart.
+   * Needed because we work with Cairo, which heavily uses doubles.
    */
   explicit operator Vec<double, dim>() const;
 
+
+  //------------------------------------------------- Value access
   const _Tp& operator[](int i) const;
   _Tp& operator[](int i);
 
@@ -178,14 +181,17 @@ class Vec {
   _Tp& y();
   _Tp& z();
   _Tp& w();
+
   void SetX(_Tp x);
   void SetY(_Tp y);
   void SetZ(_Tp z);
   void SetW(_Tp w);
 
-  _Tp val[dim];
 
-  // Arithmetics
+  _Tp val[dim];  ///< Holds the values of this vector.
+
+
+  //------------------------------------------------- Arithmetics
   Vec<_Tp, dim> &operator+=(const Vec<_Tp, dim>& rhs);
   Vec<_Tp, dim> &operator+=(double value);
   Vec<_Tp, dim> &operator-=(const Vec<_Tp, dim>& rhs);
@@ -193,7 +199,8 @@ class Vec {
   Vec<_Tp, dim> &operator*=(double scale);
   Vec<_Tp, dim> &operator/=(double scale);
 
-  /** Returns a vector where each dimension is negated. */
+
+  /** @brief Returns a vector where each dimension is negated. */
   Vec<_Tp, dim> operator-() const;
 
 
@@ -217,13 +224,12 @@ class Vec {
   double Distance(const Vec<_Tp, dim>& other) const;
 
 
-  //TODO test
   /** @brief Returns the direction vector from 'this' to 'to'. */
   Vec<_Tp, dim> DirectionVector(const Vec<_Tp, dim>& to) const;
 
-  //TODO test
+
   /** @brief Returns the unit vector. */
-  Vec<_Tp, dim> UnitVector() const;
+  Vec<double, dim> UnitVector() const;
 
 
   /** @brief Returns a human-readable string representation. */
@@ -309,12 +315,12 @@ Vec2d ProjectPointOntoLine(const Vec2d &pt,
  * and a corner radius (for rounded rectangles).
  */
 struct Rect {
-  double cx; /**< Center coordinate in x direction. */
-  double cy; /**< Center coordinate in y direction. */
-  double width;  /**< Width of rectangle. */
-  double height; /**< Height of rectangle. */
-  double angle;  /**< Clockwise rotation in degrees. */
-  double radius; /**< Corner radius. Must be <= min(width, height)/2. */
+  double cx;      ///< Center coordinate in x direction.
+  double cy;      ///< Center coordinate in y direction.
+  double width;   ///< Width of rectangle.
+  double height;  ///< Height of rectangle.
+  double angle;   ///< Clockwise rotation in degrees.
+  double radius;  ///< Corner radius. Must be <= min(width, height)/2.
 
   Rect()
     : cx(0.0), cy(0.0), width(0.0), height(0.0),
@@ -341,42 +347,57 @@ struct Rect {
       angle(rot), radius(corner_radius)
   {}
 
+
   /**
-   * Construct from initializer list with 4 to 6 elements (refer
+   * @brief Construct from an initializer list with 4 to 6 elements (refer
    * to any other c'tor for the order of parameters).
    */
   Rect(std::initializer_list<double> values);
 
 
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Rect &operator+=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Rect &operator-=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Rect &operator+=(const Vec2d &offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Rect &operator-=(const Vec2d &offset);
+
+
+  /** @brief Returns half the width. */
   inline double half_width() const {
     return width / 2.0;
   }
 
 
+  /** @brief Returns half the height. */
   inline double half_height() const {
     return height / 2.0;
   }
 
 
+  /** @brief Returns true if this rectangle can be drawn. */
   bool IsValid() const {
     return width > 0.0 && height > 0.0;
   }
 
+
+  /** @brief Returns a human-readable string representation. */
   std::string ToString() const;
 
+
+  /** @brief Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const Rect &r) {
     os << r.ToString();
     return os;
   }
-
-
-  //TODO nice-to-have operator overloads
-  // +(Vec2d) translates
-  // *(double) scales the box
-  // +(double) rotates
-  // ---> add these only if needed, e.g. if we frequently
-  //      need to shift/scale/rotate rects when drawing
-  //      (which I highly doubt atm)
 };
 
 

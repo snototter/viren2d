@@ -5,7 +5,11 @@
 #include <viren2d/primitives.h>
 #include <viren2d/math.h>
 
-TEST(RectangleTest, All) {
+TEST(RectangleTest, Initialization) {
+  auto r = viren2d::Rect();
+  EXPECT_FALSE(r.IsValid());
+
+  // Grid-test both valid and invalid inputs:
   for (double cx : {-123.0, 0.0, 12.0, 0.3}) {
     for (double cy : {-3.0, 0.0, 768.0}) {
       for (double width : {-90, 0, 20}) {
@@ -22,9 +26,24 @@ TEST(RectangleTest, All) {
           rect.width = 1;
           rect.height = 2;
           EXPECT_TRUE(rect.IsValid());
+
+          rect += 17;
+          EXPECT_DOUBLE_EQ(rect.cx, cx + 17);
+          EXPECT_DOUBLE_EQ(rect.cy, cy + 17);
+
+          rect -= 23;
+          EXPECT_DOUBLE_EQ(rect.cx, cx - 6);
+          EXPECT_DOUBLE_EQ(rect.cy, cy - 6);
+
+          rect += viren2d::Vec2d(7, 9);
+          EXPECT_DOUBLE_EQ(rect.cx, cx + 1);
+          EXPECT_DOUBLE_EQ(rect.cy, cy + 3);
+
+          rect -= viren2d::Vec2d(3, 4);
+          EXPECT_DOUBLE_EQ(rect.cx, cx - 2);
+          EXPECT_DOUBLE_EQ(rect.cy, cy - 1);
         }
       }
     }
   }
 }
-

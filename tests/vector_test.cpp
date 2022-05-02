@@ -29,7 +29,7 @@ template<typename _Tp, int dim>
   return ::testing::AssertionSuccess();
 }
 
-
+//FIXME CHECK TESTS
 template<typename _Tp, int dim>
 void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
   EXPECT_GE(dim, 2);
@@ -118,8 +118,17 @@ TEST(VectorTest, All) {
   EXPECT_THROW(viren2d::Vec4d(2, 17), std::invalid_argument);
   EXPECT_THROW(viren2d::Vec4d(2, 17, 3), std::invalid_argument);
 
+  viren2d::Vec2d zero2d;
+
   viren2d::Vec2d v2d_a(23, 17);
   VectorTestHelper(v2d_a);
+
+  auto unit2d = v2d_a.UnitVector();
+  EXPECT_DOUBLE_EQ(unit2d.Length(), 1.0);
+  EXPECT_TRUE(std::fabs(unit2d.x() - 23 / 28.600699292) < 1e-6);
+  EXPECT_TRUE(std::fabs(unit2d.y() - 17 / 28.600699292) < 1e-6);
+  EXPECT_EQ(v2d_a.DirectionVector(zero2d), -v2d_a);
+  EXPECT_EQ(v2d_a.DirectionVector(v2d_a), zero2d);
 
   viren2d::Vec2d v2d_b(0.01, -9.001);
   VectorTestHelper(v2d_b);
@@ -138,6 +147,17 @@ TEST(VectorTest, All) {
   VectorTestHelper(v3d_c);
 
 
-  viren2d::Vec2i v2i(9, -3);
+  viren2d::Vec2i zero2i;
+  EXPECT_DOUBLE_EQ(zero2i.Length(), 0);
+  EXPECT_EQ(zero2i.UnitVector(), viren2d::Vec2d());
+
+  viren2d::Vec2i v2i(9, -2);
   VectorTestHelper(v2i);
+
+  auto unit2i = v2i.UnitVector();
+  EXPECT_DOUBLE_EQ(unit2i.Length(), 1.0);
+  EXPECT_TRUE(std::fabs(unit2i.x() - 9.0 / 9.219544457) < 1e-6);
+  EXPECT_TRUE(std::fabs(unit2i.y() + 2.0 / 9.219544457) < 1e-6);
+  EXPECT_EQ(v2i.DirectionVector(zero2i), -v2i);
+  EXPECT_EQ(v2i.DirectionVector(v2i), zero2i);
 }

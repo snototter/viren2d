@@ -351,10 +351,21 @@ void RegisterVec(py::module &m) {
                           { return self[index]; })
       .def("copy", [](const VC &self) { return VC(self); },
            "Returns a copy of this vector.")
-      .def("dot", &VC::Dot, py::arg("other"))
-      .def("length", &VC::Length)
-      .def("length_squared", &VC::LengthSquared)
-      .def("distance", &VC::Distance, py::arg("other"))
+      .def("dot", &VC::Dot,
+           "Computes the dot product.",
+           py::arg("other"))
+      .def("length", &VC::Length,
+           "Returns the vector's length (i.e. magnitude).")
+      .def("length_squared", &VC::LengthSquared,
+           "Returns the squared length.")
+      .def("distance", &VC::Distance,
+           "Computes the L2 distance between 'self' and the 'other'.",
+           py::arg("other"))
+      .def("direction_vector", &VC::DirectionVector,
+           "Computes the direction vector from 'self' to the 'other'.",
+           py::arg("other"))
+      .def("unit_vector", &VC::UnitVector,
+           "Computes the unit vector of 'self'.")
       .def(py::pickle(&pickling::SerializeVec<_Tp, dim>,
                       &pickling::DeserializeVec<_Tp, dim>))
       .def(py::self == py::self)

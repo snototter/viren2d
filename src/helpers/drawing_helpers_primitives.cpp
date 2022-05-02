@@ -11,18 +11,16 @@
 #include <helpers/drawing_helpers.h>
 
 
-//FIXME FOO implement +0.5
-//FIXME FOO arc/circle demo
-
 namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- Arc/Circle
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
-             const Vec2d &center, double radius,
+             Vec2d center, double radius,
              double angle1, double angle2,
              const LineStyle &line_style, const Color &fill) {
   CheckCanvas(surface, context);
 
+  center += 0.5;  // To be really at the center and avoid "smearing" thin lines
   cairo_save(context);
   cairo_arc(context, center.x(), center.y(), radius,
             deg2rad(angle1), deg2rad(angle2));
@@ -270,9 +268,12 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
 
 
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
-              const Rect &rect, const LineStyle &line_style,
+              Rect rect, const LineStyle &line_style,
               const Color &fill) {
   CheckCanvas(surface, context);
+
+  // Shift to the pixel center (so 1px borders are drawn correctly)
+  rect += 0.5;
 
   cairo_save(context);
   cairo_translate(context, rect.cx, rect.cy);
