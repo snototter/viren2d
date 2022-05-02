@@ -1,3 +1,36 @@
+# Development Guide
+`viren2d++`, i.e. the C++ library:
+* For each custom type (where applicable), add c'tor using
+  initializer_list (for less cluttered/more convenient use)
+* All drawing functions should shift the user-given coordinates
+  by 0.5 if needed to support sharp lines. For details see:
+  see https://www.cairographics.org/FAQ/#sharp_lines
+* Drawing functions won't be tested (mocking the Cairo C interface
+  would be a pain & I don't want to switch to cairomm or write
+  my own C++ wrapper).  
+  Instead, drawing stuff should have understandable demos: from
+  simple to edge-case use.  
+  All other functionality should be tested, ideally both in C++
+  and Python.
+ 
+`viren2d`, i.e. the Python bindings:
+* Don't use python keywords as names of function arguments
+ or you can't order the arguments via "f(arg_x=foo, arg_a=1)"
+* Keep draw_xxx bindings in alphabetic order for maintainability
+* How to bind a new class X:
+ * Implement pickling::SerializeX
+ * Implement pickling::DeserializeX
+ * Implement __str__ & __repr__
+ * nice-to-have: operator == and !=
+ * Test initialization, pickling, comparison, etc.
+ * Declare it py::implicitly_convertible if a simple/intuitive
+   conversion exists
+ * @deprecated Implement moddef::CreateX (init from py::tuple/list/whatever)
+ * All this info does not hold for ImageBuffer - which exposes a
+   buffer view (and we need to be able to convert to/from numpy
+   arrays)
+   
+   
 # TODO
 * readme - install/setup section
 * readme - quickstart
@@ -510,6 +543,13 @@ import viren2d as vi
 
 p = vi.Painter()
 p.set_canvas_rgb(400, 300)
+
+# grid
+grid_style = vi.LineStyle(1, "gray!80")
+p.draw_grid(20, 20, line_style=grid_style)
+
+
+# arrows #TODO double-headed, open/closed, dashed
 p.draw_arrow((20, 20), (380, 280))
 img = np.array(p.get_canvas(), copy=False)
 imvis.imshow(img)

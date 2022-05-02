@@ -193,6 +193,12 @@ public:
     painter_->DrawCircle(center, radius, line_style, fill);
   }
 
+  void DrawGrid(double spacing_x, double spacing_y,
+                const viren2d::Vec2d &top_left, const viren2d::Vec2d &bottom_right,
+                const viren2d::LineStyle &line_style) {
+    painter_->DrawGrid(top_left, bottom_right, spacing_x, spacing_y,
+                       line_style);
+  }
 
   void DrawLine(const viren2d::Vec2d &from, const viren2d::Vec2d &to,
                 const viren2d::LineStyle &line_style) {
@@ -880,8 +886,15 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("center"), py::arg("radius"),
            py::arg("line_style") = viren2d::LineStyle(),
            py::arg("fill")=viren2d::Color(0, 0, 0, 0))
-//      .def("draw_grid", &moddef::Painter::DrawGrid,
-//           "Draws a grid") // TODO documentation! FIXME FOO
+      .def("draw_grid", &moddef::Painter::DrawGrid,
+           "Draws a grid between 'top_left' and 'bottom_right', where\n"
+           "each cell is 'spacing_x' x 'spacing_y' pixels wide.\n"
+           "If you don't specify 'top_left' and 'bottom_right' (or if\n"
+           "they are the same), the grid will span the whole canvas.",
+           py::arg("spacing_x"), py::arg("spacing_y"),
+           py::arg("top_left") = viren2d::Vec2d(),
+           py::arg("bottom_right") = viren2d::Vec2d(),
+           py::arg("line_style") = viren2d::LineStyle())
       .def("draw_line", &moddef::Painter::DrawLine,
            "Draws a line between the two Vec2d coordinates using the\n"
            "LineStyle specification.",
