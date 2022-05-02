@@ -705,7 +705,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .value("Miter", viren2d::LineJoin::Miter,
              "Sharp (angled) corner.")
       .value("Bevel", viren2d::LineJoin::Bevel,
-             "Cut off the join at half the line width from the joint point.")
+             "The join is cut off at half the line width from the joint point.")
       .value("Round", viren2d::LineJoin::Round,
              "Rounded join, where the center of the circle is the joint point.");
 

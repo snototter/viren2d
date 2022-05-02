@@ -133,7 +133,9 @@ public:
 
   void SetCanvas(const ImageBuffer &image_buffer) override;
 
-  ImageBuffer GetCanvas(bool copy) override;
+  Vec2i GetCanvasSize() const override;
+
+  ImageBuffer GetCanvas(bool copy) const override;
 
 
   void DrawArrow(const Vec2d &from, const Vec2d &to,
@@ -274,9 +276,17 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
 }
 
 
-ImageBuffer ImagePainter::GetCanvas(bool copy) {
-  if (!surface_)
-    throw std::logic_error("Invalid cairo surface - did you forget to SetCanvas() first?");
+Vec2i ImagePainter::GetCanvasSize() const {
+  if (!IsValid())
+    throw std::logic_error("Invalid canvas - did you forget SetCanvas()?");
+
+  return Vec2i(cairo_image_surface_get_width(surface_),
+               cairo_image_surface_get_height(surface_));
+}
+
+ImageBuffer ImagePainter::GetCanvas(bool copy) const {
+  if (!IsValid())
+    throw std::logic_error("Invalid canvas - did you forget SetCanvas()?");
 
   assert(cairo_image_surface_get_format(surface_) == CAIRO_FORMAT_ARGB32);
   const int channels = 4;

@@ -192,9 +192,16 @@ class Vec {
 
   // Arithmetics
   Vec<_Tp, dim> &operator+=(const Vec<_Tp, dim>& rhs);
+  Vec<_Tp, dim> &operator+=(double value);
   Vec<_Tp, dim> &operator-=(const Vec<_Tp, dim>& rhs);
+  Vec<_Tp, dim> &operator-=(double value);
   Vec<_Tp, dim> &operator*=(double scale);
   Vec<_Tp, dim> &operator/=(double scale);
+
+  // FIXME doc & test
+  Vec<_Tp, dim> operator+(double value) const;
+  Vec<_Tp, dim> operator-(double value) const;
+
 
   /** @brief Computes the dot product. */
   _Tp Dot(const Vec<_Tp, dim>& other) const;

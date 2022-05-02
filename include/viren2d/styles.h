@@ -15,17 +15,17 @@ namespace viren2d {
 
 /** @brief How to render the endpoints of a line. */
 enum class LineCap : unsigned char {
-  Butt = 0,
-  Round,
-  Square
+  Butt = 0,  ///< Start/stop the line exactly at the start/end point.
+  Round,     ///< Rounded end, where the center of the circle is the line's start/end point.
+  Square     ///< Squared end, where the center of the square is the line's start/end point.
 };
 
 
 /** @brief How to render the junction of two lines/segments. */
 enum class LineJoin : unsigned char {
-  Miter = 0,
-  Round,
-  Bevel
+  Miter = 0,  ///< Sharp/angled corner.
+  Round,      ///< Rounded join, where the center of the circle is the joint point.
+  Bevel       ///< The join is cut off at half the line width from the joint point.
 };
 
 

@@ -36,9 +36,12 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
 
 //---------------------------------------------------- Arrow
 void DrawArrow(cairo_surface_t *surface, cairo_t *context,
-               const Vec2d &from, const Vec2d &to,
-               const ArrowStyle &arrow_style) {
+               Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
   CheckCanvas(surface, context);
+
+  //FIXME convert other function calls too, make dev note too
+  from += 0.5;
+  to += 0.5;
 
   // Compute the two end points of the arrow head
   auto diff = from - to;
@@ -123,16 +126,24 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
   }
 
   // Draw the grid
-  for (double x = left; x <= right; x += spacing_x) {
+  // We add 0.5 to the coordinates to get sharp lines (a grid
+  // will usually be drawn with very thin lines, i.e. 1 px)
+  // For details see https://www.cairographics.org/FAQ/#sharp_lines
+  auto num_steps = static_cast<int>(std::ceil((right - left) / spacing_x));
+  double x = left + 0.5;
+  for (int step = 0; step < num_steps; ++step, x += spacing_x) {
     cairo_move_to(context, x, top);
     cairo_line_to(context, x, bottom);
   }
-  for (double y = top; y <= bottom; y += spacing_y) {
+
+  num_steps = static_cast<int>(std::ceil((bottom - top) / spacing_y));
+  double y = top + 0.5;
+  for (int step = 0; step < num_steps; ++step, y += spacing_y) {
     cairo_move_to(context, left, y);
     cairo_line_to(context, right, y);
   }
   cairo_stroke(context);
-  // Restore previous context
+  // Restore previous state
   cairo_restore(context);
 }
 

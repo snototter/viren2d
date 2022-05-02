@@ -431,15 +431,21 @@ Vec<_Tp, dim>::Vec(_Tp x, _Tp y, _Tp z) {
 
 template<typename _Tp, int dim>
 Vec<_Tp, dim>::Vec(std::initializer_list<_Tp> values) {
-  if (static_cast<size_t>(dim) != values.size()) {
+  if ((values.size() != 0) &&
+      (values.size() != static_cast<size_t>(dim))) {
     std::stringstream s;
     s << "You cannot initialize " << TypeName()
       << " with " << values.size() << " values";
     throw std::invalid_argument(s.str());
   }
 
-  for (size_t i = 0; i < values.size(); ++i)
-    val[i] = values.begin()[i];
+  if (values.size() == 0) {
+    for (int i = 0; i < dim; ++i)
+      val[i] = static_cast<_Tp>(0);
+  } else {
+    for (size_t i = 0; i < values.size(); ++i)
+      val[i] = values.begin()[i];
+  }
 }
 
 
@@ -583,9 +589,25 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(const Vec<_Tp, dim>& rhs) {
 
 
 template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator+=(double value) {
+  for (int i = 0; i < dim; ++i)
+    val[i] += value;
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
 Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(const Vec<_Tp, dim>& rhs) {
   for (int i = 0; i < dim; ++i)
     val[i] -= rhs[i];
+  return *this;
+}
+
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> &Vec<_Tp, dim>::operator-=(double value) {
+  for (int i = 0; i < dim; ++i)
+    val[i] -= value;
   return *this;
 }
 
@@ -603,6 +625,20 @@ Vec<_Tp, dim> &Vec<_Tp, dim>::operator/=(double scale) {
   for (int i = 0; i < dim; ++i)
     val[i] /= scale;
   return *this;
+}
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::operator+(double value) const {
+  auto cp = Vec(*this);
+  for (int i = 0; i < dim; ++i) {
+    cp[i] += value;
+  }
+  return cp;
+}
+
+template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::operator-(double value) const {
+  return (*this + (-1.0 * value));
 }
 
 

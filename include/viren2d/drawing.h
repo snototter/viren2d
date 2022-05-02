@@ -69,6 +69,9 @@ public:
   // * grayscale --> gray,gray,gray, alpha
   virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
 
+  //TODO doc
+  virtual Vec2i GetCanvasSize() const = 0;
+
 
   /**
    * @brief Returns the current visualization state (canvas) as ImageBuffer
@@ -78,7 +81,7 @@ public:
    * shares the Painter's memory (and thus your subsequent memory modifications
    * will directly affect the canvas).
    */
-  virtual ImageBuffer GetCanvas(bool copy) = 0;
+  virtual ImageBuffer GetCanvas(bool copy) const = 0;
 
 
   /** TODO doc

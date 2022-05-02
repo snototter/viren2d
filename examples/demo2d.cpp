@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 //#include <Eigen/Dense>
 
@@ -9,6 +10,7 @@
 #endif // WITH_OPENCV
 
 #include <viren2d/viren2d.h>
+#include <viren2d/math.h>
 
 
 /** Helper to show and save the canvas. */
@@ -35,11 +37,11 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 #endif  // WITH_OPENCV
 }
 
-void DemoArrow() {
+void DemoArrow1() {
   auto painter = viren2d::CreateImagePainter();
   painter->SetCanvas(600, 400, viren2d::Color::White);
 
-//  painter->DrawGrid(viren2d::Vec2d(), viren2d::Vec2d(), 10, 10, viren2d::LineStyle(0.5, "black"));
+  painter->DrawGrid(viren2d::Vec2d(), viren2d::Vec2d(), 10, 10, viren2d::LineStyle(0.5, "gray!80"));
 
 //  painter->DrawLine({10, 10}, {60, 60}, viren2d::LineStyle(1, "navy-blue!80"));
 
@@ -54,11 +56,36 @@ void DemoArrow() {
 
   painter->DrawArrow({40, 250}, {400, 250}, viren2d::ArrowStyle(20, "crimson!50", 0.3, 50, true, {}, viren2d::LineCap::Round, viren2d::LineJoin::Round));
 
-  ShowCanvas(painter->GetCanvas(true), "demo-output-arrow.png");
+  ShowCanvas(painter->GetCanvas(true), "demo-output-arrow1.png");
+}
+
+void DemoArrow2() {
+  auto painter = viren2d::CreateImagePainter();
+  painter->SetCanvas(800, 800, viren2d::Color::White);
+
+  painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!80"));
+  //TODO transparency+fill
+  auto style = viren2d::ArrowStyle(4, "navy-blue!40", 0.15, 20.0, true,
+                                   {}, viren2d::LineCap::Butt,
+                                   viren2d::LineJoin::Round);
+
+  auto size = painter->GetCanvasSize();
+  viren2d::Vec2d center(size.x() / 2.0, size.y() / 2.0);
+  const double radius = std::min(size.x(), size.y()) / 2.0 - 50;
+
+  for (int angle = 0; angle < 360; angle += 15) {
+    const double angle_rad = viren2d::deg2rad(angle);
+    auto tip = center + radius * viren2d::Vec2d(std::cos(angle_rad),
+                                                std::sin(angle_rad));
+    painter->DrawArrow(center, tip, style);
+  }
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-arrow2.png");
 }
 
 int main(int /*argc*/, char **/*argv*/) {
-  DemoArrow();
+  DemoArrow1();
+  DemoArrow2();
 
   if (true)
     return 0;
