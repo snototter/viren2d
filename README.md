@@ -20,14 +20,11 @@ Previously, I experimented with a [similar toolbox (`vcp`)](https://github.com/s
 
 **So here comes `viren2d`**, a toolbox with only a single purpose: easily & quickly create nice-looking visualizations.
 
-Note on efficiency: I preferred code readability over efficiency. Nevertheless, compared to my previous attempt using OpenCV, the switch to Cairo immediately paid off (despite using CPU-only in-memory image surface rendering, which is by far the slowest usage of Cairo).
-
-Marginalia: Another reason to work on this library was that I wanted to brush up on my C++ knowledge, refresh my CMake foo, dive deeper into pybind11, etc.
-
 **How to pronounce viren2d?**  
 **"vi-ren-2d"**, with **vi** as in *vision*, plus **ren** as in *rendering*  
 This is by the way also how you pronounce the German word *Viren* (viruses). I could have been affected by the aftermath of the pandemic when picking a name...
 
+Marginalia: Another reason to work on this library was that I wanted to brush up on my C++ knowledge, refresh my CMake foo, dive deeper into pybind11, etc.
 
 ## Installation
 ### Platforms
@@ -35,11 +32,11 @@ So far, `viren2d` has been tested on:
 * Ubuntu 18.04
 * Ubuntu 20.04
 
-There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([cairo](https://www.cairographics.org/download/), [ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
+There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([Cairo](https://www.cairographics.org/download/), [Ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
 Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.  
 
 **Watch out Windows users:**  
-There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded path (`${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location.
+There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded path (i.e. `${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location. Adjust this path, or use your own `FindCairo.cmake` and please drop me a line (or PR) to update/simplify installation for future users.
 
 
 ### Prerequisites
