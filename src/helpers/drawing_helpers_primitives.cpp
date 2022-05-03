@@ -221,9 +221,6 @@ void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
     throw std::invalid_argument("Cannot draw an invalid ellipse!");
   }
 
-
-  std::cout << "FUCK: " << rect << std::endl;
-
   // Shift to the pixel center (so 1px borders are drawn correctly)
   rect += 0.5;
 
@@ -288,14 +285,14 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
   // For details see https://www.cairographics.org/FAQ/#sharp_lines
   auto num_steps = static_cast<int>(std::ceil((right - left) / spacing_x));
   double x = left + 0.5;
-  for (int step = 0; step < num_steps; ++step, x += spacing_x) {
+  for (int step = 0; step <= num_steps; ++step, x += spacing_x) {
     cairo_move_to(context, x, top);
     cairo_line_to(context, x, bottom);
   }
 
   num_steps = static_cast<int>(std::ceil((bottom - top) / spacing_y));
   double y = top + 0.5;
-  for (int step = 0; step < num_steps; ++step, y += spacing_y) {
+  for (int step = 0; step <= num_steps; ++step, y += spacing_y) {
     cairo_move_to(context, left, y);
     cairo_line_to(context, right, y);
   }

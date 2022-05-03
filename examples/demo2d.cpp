@@ -106,7 +106,7 @@ void DemoCircles() {
   painter->SetCanvas(500, 500, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50,
-                    viren2d::LineStyle(1.0, "gray!80"));
+                    viren2d::LineStyle(1.0, "gray!60"));
 
   auto style = viren2d::LineStyle(3, "navy-blue!90");
 
