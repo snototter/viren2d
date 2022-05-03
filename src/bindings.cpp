@@ -14,6 +14,16 @@
 
 namespace py = pybind11;
 
+std::string Qualified(const std::string &tpname, bool with_tags = false) {
+  std::stringstream s;
+  if (with_tags)
+    s << '<';
+  s << MACRO_STRINGIFY(viren2d_PYMODULE_NAME)
+    << '.' << tpname;
+  if (with_tags)
+    s << '>';
+  return s.str();
+}
 
 /** @brief Utilities to support pickling.
  *
@@ -34,7 +44,9 @@ py::tuple SerializeColor(const viren2d::Color &c) {
 viren2d::Color DeserializeColor(py::tuple tpl) {
   if (tpl.size() != 4) {
     std::stringstream s;
-    s << "Invalid viren2d.Color state - expected 4 values (rgba), got " << tpl.size() << "!";
+    s << "Invalid " << Qualified("Color", false)
+      << " state - expected 4 values (rgba), but got "
+      << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
   return viren2d::Color(tpl[0].cast<double>(), tpl[1].cast<double>(),
@@ -56,8 +68,8 @@ viren2d::Vec<_Tp, dim> DeserializeVec(py::list lst) {
   using VC = viren2d::Vec<_Tp, dim>;
   if (lst.size() != dim) {
     std::stringstream s;
-    s << "Invalid viren2d." << VC::TypeName()
-      << " state - expected " << dim << " values, found "
+    s << "Invalid " << Qualified(VC::TypeName(), false)
+      << " state - expected " << dim << " values, but got "
       << lst.size() << "!";
     throw std::invalid_argument(s.str());
   }
@@ -77,7 +89,9 @@ py::tuple SerializeRect(const viren2d::Rect &r) {
 viren2d::Rect DeserializeRect(py::tuple tpl) {
   if (tpl.size() != 6) {
     std::stringstream s;
-    s << "Invalid viren2d.Rect state - expected 6 entries, got " << tpl.size() << "!";
+    s << "Invalid " << Qualified("Rect", false)
+      << " state - expected 6 entries, but got "
+      << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
   return viren2d::Rect(tpl[0].cast<double>(), tpl[1].cast<double>(),
@@ -100,7 +114,9 @@ py::tuple SerializeLineStyle(const viren2d::LineStyle &c) {
 viren2d::LineStyle DeserializeLineStyle(py::tuple tpl) {
   if (tpl.size() != 5) {
     std::stringstream s;
-    s << "Invalid viren2d.LineStyle state - expected 5 entries, got " << tpl.size() << "!";
+    s << "Invalid " << Qualified("LineStyle", false)
+      << " state - expected 5 entries, but got "
+      << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
   viren2d::LineStyle ls(tpl[0].cast<double>(),
@@ -110,6 +126,7 @@ viren2d::LineStyle DeserializeLineStyle(py::tuple tpl) {
                      tpl[4].cast<viren2d::LineJoin>());
   return ls;
 }
+
 
 //------------------------------------------------- ArrowStyle
 py::tuple SerializeArrowStyle(const viren2d::ArrowStyle &st) {
@@ -125,7 +142,9 @@ py::tuple SerializeArrowStyle(const viren2d::ArrowStyle &st) {
 viren2d::ArrowStyle DeserializeArrowStyle(py::tuple tpl) {
   if (tpl.size() != 5) {
     std::stringstream s;
-    s << "Invalid viren2d.ArrowStyle state - expected 4 entries, got " << tpl.size() << "!";
+    s << "Invalid " << Qualified("ArrowStyle", false)
+      << "state - expected 4 entries, but got "
+      << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
   auto ls = tpl[0].cast<viren2d::LineStyle>();
@@ -173,12 +192,23 @@ public:
     return painter_->GetCanvas(copy);
   }
 
+  py::tuple GetCanvasSize() {
+    auto sz = painter_->GetCanvasSize();
+    return py::make_tuple(sz.x(), sz.y());
+  }
+
+  bool IsValid() {
+    return (painter_ != nullptr) && (painter_->IsValid());
+  }
+
 
   void DrawArc(const viren2d::Vec2d &center, double radius,
                double angle1, double angle2,
                const viren2d::LineStyle &line_style,
-               const viren2d::Color &fill) {
-    painter_->DrawArc(center, radius, angle1, angle2, line_style, fill);
+               bool include_center,
+               const viren2d::Color &fill_color) {
+    painter_->DrawArc(center, radius, angle1, angle2, line_style,
+                      include_center, fill_color);
   }
 
 
@@ -189,8 +219,8 @@ public:
 
   void DrawCircle(const viren2d::Vec2d &center, double radius,
                   const viren2d::LineStyle &line_style,
-                  const viren2d::Color &fill) {
-    painter_->DrawCircle(center, radius, line_style, fill);
+                  const viren2d::Color &fill_color) {
+    painter_->DrawCircle(center, radius, line_style, fill_color);
   }
 
   void DrawGrid(double spacing_x, double spacing_y,
@@ -207,8 +237,8 @@ public:
 
 
   void DrawRect(const viren2d::Rect &rect, const viren2d::LineStyle &line_style,
-                const viren2d::Color &fill) {
-    painter_->DrawRect(rect, line_style, fill);
+                const viren2d::Color &fill_color) {
+    painter_->DrawRect(rect, line_style, fill_color);
   }
 
 private:
@@ -221,7 +251,8 @@ private:
 viren2d::Color CreateColor(py::tuple tpl) {
   if (tpl.size() < 3 || tpl.size() > 4) {
     std::stringstream s;
-    s << "Cannot create viren2d.Color: expected 3 or 4 values, found tuple with"
+    s << "Cannot create " << Qualified("Color", false)
+      << ": expected 3 or 4 values, but got tuple with"
       << tpl.size() << "!";
     throw std::invalid_argument(s.str());
   }
@@ -238,7 +269,8 @@ viren2d::Color CreateColor(py::tuple tpl) {
 viren2d::LineStyle CreateLineStyle(py::tuple tpl) {
   if (tpl.size() < 2 || tpl.size() > 5) {
     std::stringstream s;
-    s << "Cannot create viren2d.LineStyle from tuple with"
+    s << "Cannot create " << Qualified("LineStyle", false)
+      << " from tuple with "
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
   }
@@ -260,21 +292,46 @@ viren2d::LineStyle CreateLineStyle(py::tuple tpl) {
 
 //-------------------------------------------------  Rectangle from tuple
 viren2d::Rect CreateRect(py::tuple tpl) {
-  if (tpl.size() < 4 || tpl.size() > 6) {
+  if (tpl.size() < 2 || tpl.size() > 6) {
     std::stringstream s;
-    s << "Cannot create viren2d.Rect from tuple with"
+    s << "Cannot create " << Qualified("Rect", false)
+      << " from tuple with "
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
   }
 
-  viren2d::Rect rect(tpl[0].cast<double>(),
-                  tpl[1].cast<double>(),
-                  tpl[2].cast<double>(),
-                  tpl[3].cast<double>());
-  if (tpl.size() > 4)
-    rect.angle = tpl[4].cast<double>();
-  if (tpl.size() > 5)
-    rect.radius = tpl[5].cast<double>();
+  size_t consumed_elements = 0;
+  viren2d::Rect rect;
+  try {
+    // Try initialization from viren2d types first
+    auto center = tpl[0].cast<viren2d::Vec2d>();
+    auto size = tpl[1].cast<viren2d::Vec2d>();
+    consumed_elements = 2;
+    rect = viren2d::Rect(center, size);
+  }  catch (const py::cast_error &) {
+    // If casting failed, we should have a (cx, cy, w, h) tuple
+    if (tpl.size() < 4) {
+      std::stringstream s;
+      s << "You wanted to create a " << Qualified("Rect", false)
+        << " from a (cx, cy, w, h) tuple, but provided only "
+        << tpl.size() << " entries!";
+      throw std::invalid_argument(s.str());
+    }
+    rect = viren2d::Rect(tpl[0].cast<double>(),
+        tpl[1].cast<double>(),
+        tpl[2].cast<double>(),
+        tpl[3].cast<double>());
+    consumed_elements = 4;
+  }
+
+  if (tpl.size() > consumed_elements) {
+    rect.angle = tpl[consumed_elements].cast<double>();
+    ++consumed_elements;
+  }
+
+  if (tpl.size() > consumed_elements) {
+    rect.radius = tpl[consumed_elements].cast<double>();
+  }
   return rect;
 }
 
@@ -305,7 +362,7 @@ viren2d::Vec<_Tp, dim> CreateVec(py::tuple tpl) {
   using VC = viren2d::Vec<_Tp, dim>;
   if (tpl.size() != dim) {
     std::stringstream s;
-    s << "Cannot create viren2d." << VC::TypeName()
+    s << "Cannot create " << Qualified(VC::TypeName(), false)
       << ": expected " << dim << " values, found tuple with"
       << tpl.size() << "!";
     throw std::invalid_argument(s.str());
@@ -325,19 +382,18 @@ void RegisterVec(py::module &m) {
   doc << "Vector in " << dim << "D space.";
 
   py::class_<VC> vec_cls(m, VC::TypeName().c_str(), doc.str().c_str());
-  //TODO optionally add py::dynamic_attr()
-  // (could be useful if we want to use these vecs more extensively in python)
 
   std::stringstream doc_tpl;
-  doc_tpl << "Initialize " << VC::TypeName() << " from "
-          << dim << "-element tuple.";
+  doc_tpl << "Initialize " << Qualified(VC::TypeName(), false)
+          << " from " << dim << "-element tuple.";
 
+  //TODO merge deserialize and createvec!
   vec_cls.def(py::init<>())
       .def(py::init<>(&CreateVec<_Tp, dim>),
            doc_tpl.str().c_str())
       .def("__repr__",
            [](const VC &v)
-           { return "<viren2d." + v.ToString() + ">"; })
+           { return Qualified(v.ToString(), true); })
       .def("__str__", &VC::ToString)
       .def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x), &VC::SetX,
                     "Accesses the first dimension.")
@@ -391,9 +447,14 @@ void RegisterVec(py::module &m) {
 
 
   // Specific for 2-dim vectors
-  if (dim == 2)
+  if (dim == 2) {
     vec_cls.def(py::init<_Tp, _Tp>(),
-                py::arg("x"), py::arg("y"));
+                py::arg("x"), py::arg("y"))
+        .def_property("width", static_cast<const _Tp &(VC::*)() const>(&VC::width), &VC::SetWidth,
+                      "Accesses the first dimension (use vector to define a size).")
+        .def_property("height", static_cast<const _Tp &(VC::*)() const>(&VC::height), &VC::SetHeight,
+                      "Accesses the second dimension (use vector to define a size).");
+  }
 
   // Specific for 3-dim vectors
   if (dim == 3)
@@ -428,14 +489,16 @@ void RegisterVec(py::module &m) {
 // TODO low priority: DeserializeX could reuse CreateX (not sure if
 //      both are using the same inputs, tuples vs list vs ...)
 
+
 PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   m.doc() = R"pbdoc(
-    Vision & Rendering 2D
+      Computer Vision Results, but Nice-Looking
+    ----------------------------------------------
+                Vision & Rendering 2D
 
-    This is a light-weight 2D rendering toolbox to
-    easily visualize the results of common computer
-    vision tasks, such as detections, trajectories,
-    and the like.
+    This is a light-weight 2D toolbox to easily
+    visualize common 2D computer vision results,
+    such as detections, trajectories, and the like.
   )pbdoc";
 
 
@@ -478,7 +541,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("colorspec"), py::arg("alpha")=1.0)
       .def("__repr__",
            [](const viren2d::Color &c)
-           { return "<viren2d.Color " + (c.IsValid() ? c.ToHexString() : "(invalid)") + ">"; })
+           { return "<" + Qualified("Color", false) + ", " + (c.IsValid() ? c.ToHexString() : "(invalid)") + ">"; })
       .def("__str__", &viren2d::Color::ToHexString)
       .def(py::pickle(&pickling::SerializeColor,
                       &pickling::DeserializeColor))
@@ -580,17 +643,19 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   // A Color can be initialized from a string representation directly.
   py::implicitly_convertible<py::str, viren2d::Color>();
 
-  m.def("rgba", &viren2d::rgba,
-        "Returns a viren2d.Color for the given rgba values.\n"
-        "r, g, b and alpha must be within [0, 1]",
+
+  // Convenience function "rgba"
+  auto doc = "Returns a " + Qualified("Color", false) + " for the given rgba values.\n"
+        "r, g, b and alpha must be within [0, 1]";
+  m.def("rgba", &viren2d::rgba, doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
-
-  m.def("RGBa", &viren2d::RGBa,
-        "Returns a viren2d.Color for the given RGBa values.\n"
+  doc = "Returns a " + Qualified("Color", false) + " for the given RGBa values.\n"
         "* R,G,B must be within [0, 255]\n"
-        "* alpha must be within [0, 1].",
+        "* alpha must be within [0, 1].";
+  m.def("RGBa", &viren2d::RGBa,
+        doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
@@ -604,50 +669,91 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
 
   //------------------------------------------------- Primitives - Rectangle
+  doc = "Initialize from tuple:\n"
+         "(center, size)\n"
+         "    With types: (" + Qualified(viren2d::Vec2d::TypeName()) + ", "
+         + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+         "    Axis-aligned rectangle.\n"
+         "(center, size, angle)\n"
+         "    With types: (" + Qualified(viren2d::Vec2d::TypeName()) + ", "
+         + Qualified(viren2d::Vec2d::TypeName()) + ", float)\n"
+         "    Rotated rectangle.\n"
+         "(center, size, angle, radius)\n"
+         "    With types: (" + Qualified(viren2d::Vec2d::TypeName()) + ", "
+         + Qualified(viren2d::Vec2d::TypeName()) + ", float, float)\n"
+         "    Rotated rectangle with rounded corners.\n"
+         "(cx, cy, w, h)\n"
+         "    Where each element is a float.\n"
+         "    Axis-aligned rectangle.\n"
+         "(cx, cy, w, h, angle)\n"
+         "    Where each element is a float.\n"
+         "    Rotated rectangle.\n"
+         "* (cx, cy, w, h, angle, radius)\n"
+         "    Where each element is a float.\n"
+         "    Rotated rectangle with rounded corners.\n";
   py::class_<viren2d::Rect>(m, "Rect",
            "Rectangle for visualization.\n\n"
-           "Note that a rectangle is defined by its CENTER,\n"
-           "width, height, angle (clockwise rotation in degrees),\n"
-           "and a corner radius (for rounded rectangles).")
-      .def(py::init<>(&moddef::CreateRect),
-           "Initialize from tuple:\n"
-           "* (cx, cy, w, h)\n"
-           "* (cx, cy, w, h, angle)\n"
-           "* (cx, cy, w, h, angle, radius)",
-           py::arg("tpl"))  // init from tuple
-      .def(py::init<double, double, double, double>(),
-           "Create an axis-aligned square box:\n"
-           "  Center coordinates and dimensions.",
-           py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"))
-      .def(py::init<double, double, double, double, double>(),
-           "Create a rotated square box:\n"
-           "  Center coordinates, dimensions and\n"
-           "  rotation (clockwise, in degrees).",
-           py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"),
-           py::arg("angle"))
-      .def(py::init<double, double, double, double, double, double>(),
-           "Create a rotated rounded rectangle:\n"
-           "  Center coordinates, dimensions, rotation (clockwise,\n"
-           "  in degrees), and corner radius (in pixels).",
-           py::arg("cx"), py::arg("cx"), py::arg("w"), py::arg("h"),
-           py::arg("angle"), py::arg("radius"))
+           "A rectangle is defined by its CENTER, width, height\n"
+           "angle (clockwise rotation in degrees), and a corner\n"
+           "radius (for rounded rectangles).")
+      .def(py::init<>(&moddef::CreateRect), doc.c_str(),
+           py::arg("tpl"))
+//      .def(py::init<double, double, double, double>(),
+//           "Create an axis-aligned square box:\n"
+//           "  Center coordinates and dimensions.",
+//           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"))
+//      .def(py::init<viren2d::Vec2d, viren2d::Vec2d>(),
+//           "Create an axis-aligned square box:\n"
+//           "  Center point and size.",
+//           py::arg("center"), py::arg("size"))
+//      .def(py::init<double, double, double, double, double>(),
+//           "Create a rotated square box:\n"
+//           "  Center coordinates, dimensions and\n"
+//           "  rotation (clockwise, in degrees).",
+//           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"),
+//           py::arg("angle"))
+//      .def(py::init<viren2d::Vec2d, viren2d::Vec2d, double>(),
+//           "Create a rotated square box:\n"
+//           "  Center point, size and rotation (clockwise, in degrees).",
+//           py::arg("center"), py::arg("size"), py::arg("angle"))
+//      .def(py::init<double, double, double, double, double, double>(),
+//           "Create a rotated rounded rectangle:\n"
+//           "  Center coordinates, dimensions, rotation (clockwise,\n"
+//           "  in degrees), and corner radius (in pixels).",
+//           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"),
+//           py::arg("angle"), py::arg("radius"))
+//      .def(py::init<viren2d::Vec2d, viren2d::Vec2d, double, double>(),
+//           "Create a rotated rounded rectangle:\n"
+//           "  Center point, size, rotation (clockwise, in degrees),\n"
+//           "  and corner radius (in pixels).",
+//           py::arg("center"), py::arg("size"),
+//           py::arg("angle"), py::arg("radius"))
       .def("__repr__",
            [](const viren2d::Rect &r)
-           { return "<viren2d." + r.ToString() + ">"; })
+           { return Qualified(r.ToString(), true); })
       .def("__str__", &viren2d::Rect::ToString)
       .def(py::pickle(&pickling::SerializeRect,
                       &pickling::DeserializeRect))
       .def(py::self == py::self)
       .def(py::self != py::self)
-      .def_readwrite("cx", &viren2d::Rect::cx, "Horizontal center.")
-      .def_readwrite("cy", &viren2d::Rect::cy, "Vertical center.")
-      .def_readwrite("width", &viren2d::Rect::width, "Rectangle width.")
-      .def_property_readonly("half_width", &viren2d::Rect::half_width, "Half the rectangle width (for us lazy folks).") // I mostly wanted to try pybind11's property definition
-      .def_property_readonly("half_height", &viren2d::Rect::half_height, "Half the rectangle height (for us lazy folks).")
-      .def_readwrite("height", &viren2d::Rect::height, "Rectangle height.")
-      .def_readwrite("angle", &viren2d::Rect::angle, "Angle in degrees (clockwise rotation).")
-      .def_readwrite("radius", &viren2d::Rect::radius, "Corner radius (for rounded rectangles).")
-      .def("is_valid", &viren2d::Rect::IsValid, "Returns True if both width & height are > 0.");
+      .def_readwrite("cx", &viren2d::Rect::cx,
+           "Horizontal center.")
+      .def_readwrite("cy", &viren2d::Rect::cy,
+           "Vertical center.")
+      .def_readwrite("width", &viren2d::Rect::width,
+           "Rectangle width.")
+      .def_property_readonly("half_width", &viren2d::Rect::half_width,
+           "Half the rectangle width.")
+      .def_property_readonly("half_height", &viren2d::Rect::half_height,
+           "Half the rectangle height.")
+      .def_readwrite("height", &viren2d::Rect::height,
+           "Rectangle height.")
+      .def_readwrite("angle", &viren2d::Rect::angle,
+           "Rotation angle (clockwise) in degrees.")
+      .def_readwrite("radius", &viren2d::Rect::radius,
+           "Corner radius (for rounded rectangles).")
+      .def("is_valid", &viren2d::Rect::IsValid,
+           "Returns True if both width & height are > 0.");
 
   // A Rect can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::Rect>();
@@ -658,10 +764,10 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //     be the go-to resource for (easy to use) geometric datatypes
 
   //------------------------------------------------- Primitives - ImageBuffer
-  // Info on numpy memory: https://stackoverflow.com/a/53099870/400948
+  // Info on numpy memory layout: https://stackoverflow.com/a/53099870/400948
   py::class_<viren2d::ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
-                                "An ImageBuffer holds 8-bit images (Grayscale, "
-                                "RGB or RGBA).")
+           "An ImageBuffer holds 8-bit images (Grayscale,\n"
+           "RGB or RGBA).")
       .def(py::init(&moddef::CreateImageBuffer),
            "Initialize from numpy array with dtype uint8.")
      .def_buffer([](viren2d::ImageBuffer &img) -> py::buffer_info {
@@ -685,15 +791,20 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "is already RGBA.")
       .def("__repr__",
            [](const viren2d::ImageBuffer &b)
-           { return "<viren2d." + b.ToString() + ">"; })
+           { return Qualified(b.ToString(), true); })
       .def("__str__", &viren2d::ImageBuffer::ToString)
-      .def_readonly("width", &viren2d::ImageBuffer::width, "Image width in pixels.")
-      .def_readonly("height", &viren2d::ImageBuffer::height, "Image height in pixels.")
-      .def_readonly("channels", &viren2d::ImageBuffer::channels, "Number of channels.")
-      .def_readonly("stride", &viren2d::ImageBuffer::stride, "Stride per row (in bytes).")
+      .def_readonly("width", &viren2d::ImageBuffer::width,
+           "Image width in pixels.")
+      .def_readonly("height", &viren2d::ImageBuffer::height,
+           "Image height in pixels.")
+      .def_readonly("channels", &viren2d::ImageBuffer::channels,
+           "Number of channels.")
+      .def_readonly("stride", &viren2d::ImageBuffer::stride,
+           "Stride per row (in bytes).")
       .def_readonly("owns_data", &viren2d::ImageBuffer::owns_data_,
-                    "Boolean flag indicating if it has ownership of the image data,\n"
-                    "i.e. whether it is responsible for memory cleanup.");
+           "Boolean flag indicating if this ImageBuffer is\n"
+           "the owner of the image data (and is thus responsible\n"
+           "for memory cleanup).");
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, viren2d::ImageBuffer>();
@@ -720,9 +831,11 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
              "Rounded join, where the center of the circle is the joint point.");
 
 
-  py::class_<viren2d::LineStyle> line_style(m, "LineStyle",
-                                            "How a line should be drawn.");
-  line_style.def(py::init<>(&moddef::CreateLineStyle)) // init from tuple
+  py::class_<viren2d::LineStyle>line_style(m, "LineStyle",
+           "How a line should be drawn.");
+  line_style.def(py::init<>(&moddef::CreateLineStyle),
+           "Initialize from tuple (see overloaded c'tors for\n"
+           "parameter order)")
       .def(py::init<double, viren2d::Color, std::vector<double>,
                     viren2d::LineCap, viren2d::LineJoin>(),
            py::arg("line_width") = 2.0,
@@ -732,7 +845,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("line_join")=viren2d::LineJoin::Miter)
       .def("__repr__",
            [](const viren2d::LineStyle &st)
-           { return "<viren2d." + st.ToString() + ">"; })
+           { return Qualified(st.ToString(), true); })
       .def("__str__", &viren2d::LineStyle::ToString)
       .def(py::pickle(&pickling::SerializeLineStyle,
                       &pickling::DeserializeLineStyle))
@@ -749,22 +862,26 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "Computes how much a line join will extend the joint.\n\n"
            "The interior_angle is the angle between two line segments\n"
            "in degrees.\n"
-           "This requires the miter_limit because Cairo switches from\n"
-           "MITER to BEVEL if the miter_limit is exceeded, see\n"
-           "https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit",
+           "This needs to know the miter_limit because Cairo switches\n"
+           "from MITER to BEVEL if the miter_limit is exceeded, see\n"
+           "https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit\n"
+           "for details.",
            py::arg("interior_angle"),
            py::arg("miter_limit") = 10.0)
-      .def_readwrite("line_width", &viren2d::LineStyle::line_width,
-                     "Width in pixels (best results for even values).")
-      .def_readwrite("color", &viren2d::LineStyle::color, "Line color (rgba).")
       .def_readwrite("dash_pattern", &viren2d::LineStyle::dash_pattern,
-                     "Dash pattern defined as list of on/off strokes (lengths in\n"
-                     "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
-                     "line will be drawn solid.")
+           "Dash pattern defined as list of on/off strokes (lengths in\n"
+           "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
+           "line will be drawn solid.")
       .def_readwrite("line_cap", &viren2d::LineStyle::line_cap,
-                     "How to render the endpoints of the line (or dash strokes).")
+           "How to render the endpoints of the line (or dash strokes).")
       .def_readwrite("line_join", &viren2d::LineStyle::line_join,
-                     "How to render the junction of two lines/segments.");
+           "How to render the junction of two lines/segments.")
+      .def_readwrite("line_width", &viren2d::LineStyle::line_width,
+           "Width/thickness in pixels.");
+
+  doc = "Line color as " + Qualified("Color") + ".";
+  line_style.def_readwrite("color", &viren2d::LineStyle::color,
+           doc.c_str());
 
 
   // A LineStyle can be initialized from a given tuple.
@@ -787,7 +904,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("line_join")=viren2d::LineJoin::Miter)
       .def("__repr__",
            [](const viren2d::ArrowStyle &st)
-           { return "<viren2d." + st.ToString() + ">"; })
+           { return Qualified(st.ToString(), true); })
       .def("__str__", &viren2d::ArrowStyle::ToString)
       .def(py::pickle(&pickling::SerializeArrowStyle,
                       &pickling::DeserializeArrowStyle))
@@ -823,24 +940,39 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   //------------------------------------------------- Drawing - Painter
 
-  py::class_<moddef::Painter>(m, "Painter",
+  py::class_<moddef::Painter> painter(m, "Painter",
           R"pbdoc(A Painter lets you draw on a canvas.
 
           Usage:
-          1. Create a Painter
+          1. Create a Painter:
+               import viren2d
+               painter = viren2d.Painter()
+
           2. Initialize the canvas via either:
-             * set_canvas_rgb(),
-             * set_canvas_image(), or
-             * set_canvas_filename()
-          3. Draw onto the canvas via draw_xxx()
-          4. When all objects have been drawn, retrieve
-             the visualization via get_canvas()
-          5. The painter can be reused for future
-             visualizations: start over at set_canvas_xxx()
-          )pbdoc")
-      .def(py::init<>())
-      .def("__repr__", [](const moddef::Painter &) { return "<viren2d.Painter>"; })
-      .def("__str__", [](const moddef::Painter &) { return "viren2d.Painter"; })
+               painter.set_canvas_rgb(...)
+               painter.set_canvas_image(...)
+               painter.set_canvas_filename()
+
+          3. Draw onto the canvas via draw_xxx(), for example:
+               painter.draw_arrow(...)
+               painter.draw_bounding_box(...)
+
+          4. When all objects have been drawn, retrieve the
+             visualization via get_canvas(...). For example,
+             to get a deeply copied image as numpy array:
+               import numpy as np
+               canvas = p.get_canvas(copy=True)
+               img_np = np.array(canvas, copy=False)
+
+          5. Either continue drawing or set a new canvas (the
+             painter object can be reused).
+          )pbdoc");
+
+  painter.def(py::init<>())
+      .def("__repr__", [](const moddef::Painter &) { return Qualified("Painter", true); })
+      .def("__str__", [](const moddef::Painter &) { return Qualified("Painter", false); })
+      .def("is_valid", &moddef::Painter::IsValid,
+           "Checks if the canvas has been set up correctly.")
       .def("set_canvas_rgb", &moddef::Painter::SetCanvasColor,
            "Initializes the canvas with the given color.",
            py::arg("width"), py::arg("height"),
@@ -848,18 +980,22 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def("set_canvas_filename", &moddef::Painter::SetCanvasFilename,
            "Initializes the canvas from the given image file.\n"
            "Supported formats are:\n"
-           "  JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM\n\n"
-           "Relies on the stb library, so check for updates if\n"
-           "your format is missing:\n"
+           "   JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM\n\n"
+           "Relies on the stb library, so check for its updates\n"
+           "if your format is missing:\n"
            "https://github.com/nothings/stb/blob/master/stb_image.h",
-           py::arg("image_filename"))
-      .def("set_canvas_image", &moddef::Painter::SetCanvasImage,
-           "Initializes the canvas from the given image, i.e. either\n"
-           "a numpy array (dtype uint8) or a viren2d.ImageBuffer.\n\n"
-           "Example:\n"
-           "  img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
-           "  painter.set_canvas_image(img_np)",
-           py::arg("image"))
+           py::arg("image_filename"));
+
+  doc = "Initializes the canvas from the given image, i.e. either\n"
+        "a numpy array (dtype uint8) or a " + Qualified("ImageBuffer", false) + ".\n\n"
+        "Example:\n"
+        "  img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
+        "  painter.set_canvas_image(img_np)";
+  painter.def("set_canvas_image", &moddef::Painter::SetCanvasImage,
+           doc.c_str(), py::arg("image"));
+
+  painter.def("get_canvas_size", &moddef::Painter::GetCanvasSize,
+           "Returns the size of the canvas in pixels as (W, H) tuple.")
       .def("get_canvas", &moddef::Painter::GetCanvas,
            "Returns the current state of the visualization.\n\n"
            "If you want a copy, set copy=True. Otherwise, the buffer\n"
@@ -873,55 +1009,105 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "* Retrieve a deep COPY of the canvas as\n"
            "  numpy array:\n"
            "    img_np = np.array(p.get_canvas(True), copy=False)",
-           py::arg("copy")=false)
-      .def("draw_arc", &moddef::Painter::DrawArc,
-           "Draws a circular arc of the given radius using the\n"
-           "LineStyle specification. The arc will be filled if\n"
-           "a fill color with alpha > 0 is given.\n"
-           "Angles are in degrees, where 0.0 is in the direction\n"
-           "of the positive X axis (in user space). The arc will\n"
-           "be drawn from angle1 to angle2 in clockwise direction.",
-           py::arg("center"), py::arg("radius"),
-           py::arg("angle1"), py::arg("angle2"),
-           py::arg("line_style"),
-           py::arg("fill")=viren2d::Color(0, 0, 0, 0))
-      .def("draw_arrow", &moddef::Painter::DrawArrow,
-           "Draws a line between the two Vec2d coordinates using the\n"
-           "ArrowStyle specification.",
-           py::arg("pt1"), py::arg("pt2"),
-           py::arg("arrow_style") = viren2d::ArrowStyle())
-      .def("draw_circle", &moddef::Painter::DrawCircle,
-           "Draws a circle at the given Vec2d position using the\n"
-           "LineStyle specification. The circle will be filled if\n"
-           "a fill color with alpha > 0 is given.",
-           py::arg("center"), py::arg("radius"),
-           py::arg("line_style") = viren2d::LineStyle(),
-           py::arg("fill")=viren2d::Color(0, 0, 0, 0))
-      .def("draw_grid", &moddef::Painter::DrawGrid,
-           "Draws a grid between 'top_left' and 'bottom_right', where\n"
-           "each cell is 'spacing_x' x 'spacing_y' pixels wide.\n"
-           "If you don't specify 'top_left' and 'bottom_right' (or if\n"
-           "they are the same), the grid will span the whole canvas.",
-           py::arg("spacing_x"), py::arg("spacing_y"),
-           py::arg("top_left") = viren2d::Vec2d(),
-           py::arg("bottom_right") = viren2d::Vec2d(),
-           py::arg("line_style") = viren2d::LineStyle())
-      .def("draw_line", &moddef::Painter::DrawLine,
-           "Draws a line between the two Vec2d coordinates using the\n"
-           "LineStyle specification.",
-           py::arg("pt1"), py::arg("pt2"),
-           py::arg("line_style") = viren2d::LineStyle())
-      .def("draw_rect", &moddef::Painter::DrawRect,
-           "Draws a rectangle using the LineStyle specification.\n\n"
-           "* The rectangle will be filled if fill color has alpha > 0.\n"
-           "* Draw a rotated rectangle by defining the rect's angle\n"
-           "  in degrees (clockwise rotation).\n"
-           "* By defining the rect's corner radius, you can draw\n"
-           "  a rounded rectangle.",
-           py::arg("rect"), py::arg("line_style"),
-           py::arg("fill")=viren2d::Color(0, 0, 0, 0))
+           py::arg("copy") = false);
+
+        //----------------------------------------------------------------------
+  doc = "Draws a circular arc.\n\n of the given radius using the\n"
+        ":center:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+        ":radius:  (float)"
+        "    Radius of the arc in pixels.\n\n"
+        ":angle1:  (float)\n"
+        ":angle2:  (float)\n"
+        "    The arc will be drawn from angle1 to angle2 in clockwise\n"
+        "    direction. Both angles are specified in degrees, where 0 degrees\n"
+        "    points in the direction of increasing X coordinates.\n\n"
+        ":line_style:  (" + Qualified("LineStyle") + ")\n"
+        "   How to draw the arc's outline. If line_width is 0, the outline\n"
+        "   will not be drawn (then you must define a 'fill_color').\n\n"
+        ":include_center:  (bool)\n"
+        "    If True (default), the center of the circle will be included\n"
+        "    when drawing the outline and filling the arc.\n\n"
+        ":fill_color:  (" + Qualified("Color") + ")\n"
+        "   Provide a valid color to fill the circle.";
+  painter.def("draw_arc", &moddef::Painter::DrawArc, doc.c_str(),
+              py::arg("center"), py::arg("radius"),
+              py::arg("angle1"), py::arg("angle2"),
+              py::arg("line_style") = viren2d::LineStyle(),
+              py::arg("include_center") = true,
+              py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+
+        //----------------------------------------------------------------------
+  doc = "Draws an arrow.\n\n"
+        ":pt1:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+        ":pt2:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+        "   Start/end coordinates of the arrow shaft.\n\n"
+        ":arrow_style:  (" + Qualified("ArrowStyle") + ")\n"
+        "   How to draw the arrow (specifies both line and head style).";
+  painter.def("draw_arrow", &moddef::Painter::DrawArrow, doc.c_str(),
+              py::arg("pt1"), py::arg("pt2"),
+              py::arg("arrow_style") = viren2d::ArrowStyle());
+
+        //----------------------------------------------------------------------
+  doc = "Draws a circle.\n\n"
+        ":center:  (" + Qualified("Vec2d") + ")\n"
+        "   Center position of the circle.\n\n"
+        ":line_style:  (" + Qualified("LineStyle") + ")\n"
+        "   How to draw the circle outline. If line_width is 0, the outline\n"
+        "   will not be drawn (then you *must* define a 'fill_color').\n\n"
+        ":fill_color:  (" + Qualified("Color") + ")\n"
+        "   Provide a valid color to fill the circle.";
+  painter.def("draw_circle", &moddef::Painter::DrawCircle, doc.c_str(),
+              py::arg("center"), py::arg("radius"),
+              py::arg("line_style") = viren2d::LineStyle(),
+              py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+
+        //----------------------------------------------------------------------
+  doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
+        "    Width & height of each grid cell.\n\n"
+        ":top_left:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+        ":bottom_right:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+        "    The grid will only be drawn within the defined region.\n"
+        "    If not provided, the grid will span the whole canvas.\n\n"
+        ":line_style:  (" + Qualified("LineStyle") + ")\n"
+        "    How to draw the grid lines.";
+  painter.def("draw_grid", &moddef::Painter::DrawGrid, doc.c_str(),
+              py::arg("spacing_x"), py::arg("spacing_y"),
+              py::arg("top_left") = viren2d::Vec2d(),
+              py::arg("bottom_right") = viren2d::Vec2d(),
+              py::arg("line_style") = viren2d::LineStyle());
+
+        //----------------------------------------------------------------------
+  doc = "Draws a line.\n\n"
+        ":pt1:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+        ":pt2:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
+        "   Start/end coordinates of the line.\n\n"
+        ":line_style:  (" + Qualified("LineStyle") + ")\n"
+        "    How to draw the line (stroke width, color, dash pattern).";
+  painter.def("draw_line", &moddef::Painter::DrawLine, doc.c_str(),
+              py::arg("pt1"), py::arg("pt2"),
+              py::arg("line_style") = viren2d::LineStyle());
+
+        //----------------------------------------------------------------------
+  doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
+        ":rect:  (" + Qualified("Rect") + ")\n"
+        "    The rectangle which should be drawn.\n\n"
+        ":line_style:  (" + Qualified("LineStyle") + ")\n"
+        "   How to draw the rectangle's outline. If line_width is 0, the\n"
+        "   outline will not be drawn (then you *must* define a 'fill_color').\n\n"
+        ":fill_color:  (" + Qualified("Color") + ")\n"
+        "   Provide a valid color to fill the rectangle.";
+  painter.def("draw_rect", &moddef::Painter::DrawRect, doc.c_str(),
+              py::arg("rect"),
+              py::arg("line_style") = viren2d::LineStyle(),
+              py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+
+
       //TODO add draw_xxx methods
-      ;
+  //TODO add convenience functions for plural draw_xxxS (e.g. in
+  // moddef::Painter "for (element in list) : painter_->DrawElement();"
+//FIXME copy python doc to cpp
+  //FIXME set default linestyle, arrowstyle, markerstyle, ...
+  //FIXME allow the user to change the default styles
 
 #ifdef viren2d_VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(viren2d_VERSION_INFO);

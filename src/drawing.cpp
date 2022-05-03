@@ -117,24 +117,26 @@ public:
 
 protected:
   void DrawArcImpl(const Vec2d &center, double radius,
-                             double angle1, double angle2,
-                             const LineStyle &line_style,
-                             const Color &fill) override {
+                   double angle1, double angle2,
+                   const LineStyle &line_style,
+                   bool include_center,
+                   const Color &fill_color) override {
     helpers::DrawArc(surface_, context_, center, radius,
-                     angle1, angle2, line_style, fill);
+                     angle1, angle2, line_style,
+                     include_center, fill_color);
   }
 
 
   void DrawCircleImpl(const Vec2d &center, double radius,
                       const LineStyle &line_style,
-                      const Color &fill) override {
-    helpers::DrawCircle(surface_, context_, center, radius, line_style, fill);
+                      const Color &fill_color) override {
+    helpers::DrawCircle(surface_, context_, center, radius, line_style, fill_color);
   }
 
 
   void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
-                    const Color &fill) override {
-    helpers::DrawRect(surface_, context_, rect, line_style, fill);
+                    const Color &fill_color) override {
+    helpers::DrawRect(surface_, context_, rect, line_style, fill_color);
   }
 
 

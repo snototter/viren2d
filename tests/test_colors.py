@@ -1,14 +1,7 @@
 import pytest
 import viren2d
-import pathlib
 import pickle
-
-
-def test_viren2d_version():
-    here = pathlib.Path(__file__).parent.parent.resolve()
-    expected_version = (here / "VERSION").read_text().strip()
-    assert expected_version == viren2d.__version__
-   
+ 
 
 def test_readonly_attributes():
     # Convenience color definitions inside Color are read-only:

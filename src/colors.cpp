@@ -419,12 +419,16 @@ bool Color::IsShadeOfGray(double epsilon) const {
 
 std::string Color::ToString() const {
   std::stringstream s;
-  const auto rgb = ToRGBa();
-  s << "RGBa(" << static_cast<int>(std::get<0>(rgb))
-    << ", " << static_cast<int>(std::get<1>(rgb))
-    << ", " << static_cast<int>(std::get<2>(rgb))
-    << ", " << std::fixed << std::setprecision(2)
-    << alpha << ")";
+  if (IsValid()) {
+    const auto rgb = ToRGBa();
+    s << "RGBa(" << static_cast<int>(std::get<0>(rgb))
+      << ", " << static_cast<int>(std::get<1>(rgb))
+      << ", " << static_cast<int>(std::get<2>(rgb))
+      << ", " << std::fixed << std::setprecision(2)
+      << alpha << ")";
+  } else {
+    s << "RGB(-1, -1, -1)";
+  }
   return s.str();
 }
 

@@ -5,12 +5,16 @@
 * All drawing functions should shift the user-given coordinates
   by 0.5 if needed to support sharp lines. For details see:
   see https://www.cairographics.org/FAQ/#sharp_lines
-* Drawing functions won't be tested (mocking the Cairo C interface
-  would be a pain & I don't want to switch to cairomm or write
-  my own C++ wrapper).  
-  Instead, drawing stuff should have understandable demos: from
-  simple to edge-case use.  
-  All other functionality should be tested, ideally both in C++
+* Each drawing function should call `CheckCanvas` and `CheckLineStyle`
+  (or a more suitable sanity check function).
+* Drawing functions won't be tested via mocking (because mocking
+  the Cairo C interface would be a pain & I don't want to switch
+  to cairomm or write my own C++ wrapper). There are, however,
+  tests to ensure we identify code changes that would break the
+  drawing API, see `tests/test_painter.py`.  
+  Besides these interface tests, drawing functionality should
+  have understandable demos.  
+* All other functionality should be tested, ideally both in C++
   and Python.
 * Task template for (almost) each new function:  
   ```cpp

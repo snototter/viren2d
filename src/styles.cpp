@@ -89,9 +89,12 @@ double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
 
 std::string LineStyle::ToString() const {
   std::stringstream s;
-  s << "LineStyle(w=" << std::fixed << std::setprecision(1)
+  s << "LineStyle(lw=" << std::fixed << std::setprecision(1)
     << line_width << ", " << color.ToString() << ", "
-    << (dash_pattern.empty() ? "solid" : "dashed") << ")";
+    << (dash_pattern.empty() ? "solid" : "dashed");
+  if (!IsValid())
+    s << ", invalid";
+  s << ")";
   return s.str();
 }
 
@@ -135,7 +138,8 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
 
 bool ArrowStyle::IsValid() const {
   // No need to check the boolean flags (tip_closed & double_headed)
-  return (tip_length > 0.0) && (tip_angle > 0.0)
+  return (tip_length > 0.0)
+      && (tip_angle > 0.0) && (tip_angle < 180.0)
       && LineStyle::IsValid();
 }
 
@@ -148,8 +152,10 @@ std::string ArrowStyle::ToString() const {
     << (tip_closed ? "filled" : "open") << ", "
     << (double_headed ? "double-headed, " : "")
     << color.ToHexString() << ", "
-    << (dash_pattern.empty() ? "solid" : "dashed") << ", "
-    << ")";
+    << (dash_pattern.empty() ? "solid" : "dashed");
+  if (!IsValid())
+    s << ", invalid";
+  s << ")";
   return s.str();
 }
 

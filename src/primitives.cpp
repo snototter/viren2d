@@ -545,6 +545,22 @@ const _Tp& Vec<_Tp, dim>::y() const {
 
 
 template<typename _Tp, int dim>
+const _Tp& Vec<_Tp, dim>::width() const {
+  if (dim != 2)
+    throw std::logic_error("Only 2D vectors support member access via width().");
+  return x();
+}
+
+
+template<typename _Tp, int dim>
+const _Tp& Vec<_Tp, dim>::height() const {
+  if (dim != 2)
+    throw std::logic_error("Only 2D vectors support member access via height().");
+  return y();
+}
+
+
+template<typename _Tp, int dim>
 const _Tp& Vec<_Tp, dim>::z() const {
   return (*this)[2];
 }
@@ -569,6 +585,22 @@ _Tp& Vec<_Tp, dim>::y() {
 
 
 template<typename _Tp, int dim>
+_Tp& Vec<_Tp, dim>::width() {
+  if (dim != 2)
+    throw std::logic_error("Only 2D vectors support member access via width().");
+  return x();
+}
+
+
+template<typename _Tp, int dim>
+_Tp& Vec<_Tp, dim>::height() {
+  if (dim != 2)
+    throw std::logic_error("Only 2D vectors support member access via height().");
+  return x();
+}
+
+
+template<typename _Tp, int dim>
 _Tp& Vec<_Tp, dim>::z() {
   return (*this)[2];
 }
@@ -589,6 +621,22 @@ void Vec<_Tp, dim>::SetX(_Tp x) {
 template<typename _Tp, int dim>
 void Vec<_Tp, dim>::SetY(_Tp y) {
   (*this)[1] = y;
+}
+
+
+template<typename _Tp, int dim>
+void Vec<_Tp, dim>::SetWidth(_Tp width) {
+  if (dim != 2)
+    throw std::logic_error("Only 2D vectors support setting the x dimension via SetWidth().");
+  SetX(width);
+}
+
+
+template<typename _Tp, int dim>
+void Vec<_Tp, dim>::SetHeight(_Tp height) {
+  if (dim != 2)
+    throw std::logic_error("Only 2D vectors support setting the x dimension via SetHeight().");
+  SetY(height);
 }
 
 
@@ -939,7 +987,12 @@ std::string Rect::ToString() const {
   std::stringstream s;
   s << "Rect(" << std::fixed << std::setprecision(1)
     << cx << ", " << cy << ", " << width << ", " << height
-    << "; rot=" << angle << "°, radius=" << radius << ")";
+    << "; rot=" << angle << "°, radius=" << radius;
+
+  if (!IsValid())
+    s << ", invalid";
+
+  s << ")";
   return s.str();
 }
 

@@ -91,8 +91,10 @@ public:
   void DrawArc(const Vec2d &center, double radius,
                double angle1, double angle2,
                const LineStyle &line_style,
-               const Color &fill = Color(0, 0, 0, 0)) {
-    DrawArcImpl(center, radius, angle1, angle2, line_style, fill);
+               bool include_center = true,
+               const Color &fill_color = Color(0, 0, 0, 0)) {
+    DrawArcImpl(center, radius, angle1, angle2, line_style,
+                include_center, fill_color);
   }
 
 
@@ -102,8 +104,8 @@ public:
 
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
-                  const Color &fill = Color(0, 0, 0, 0)) {
-    DrawCircleImpl(center, radius, line_style, fill);
+                  const Color &fill_color = Color(0, 0, 0, 0)) {
+    DrawCircleImpl(center, radius, line_style, fill_color);
   }
 
 
@@ -117,8 +119,8 @@ public:
 
 
   void DrawRect(const Rect &rect, const LineStyle &line_style,
-                const Color &fill = Color(0, 0, 0, 0)) {
-    DrawRectImpl(rect, line_style, fill);
+                const Color &fill_color = Color(0, 0, 0, 0)) {
+    DrawRectImpl(rect, line_style, fill_color);
   }
 
 
@@ -130,14 +132,15 @@ protected:
   virtual void DrawArcImpl(const Vec2d &center, double radius,
                            double angle1, double angle2,
                            const LineStyle &line_style,
-                           const Color &fill) = 0;
+                           bool include_center,
+                           const Color &fill_color) = 0;
 
   virtual void DrawCircleImpl(const Vec2d &center, double radius,
                               const LineStyle &line_style,
-                              const Color &fill) = 0;
+                              const Color &fill_color) = 0;
 
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
-                            const Color &fill) = 0;
+                            const Color &fill_color) = 0;
 };
 
 

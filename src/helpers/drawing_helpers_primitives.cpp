@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <exception>
 #include <cmath>
 
 #include <iostream> //TODO remove after switching to spdlog
@@ -13,19 +14,49 @@
 
 namespace viren2d {
 namespace helpers {
+void CheckLineStyle(const LineStyle &style) {
+  if (!style.IsValid()) {
+    std::stringstream s;
+    s << "Cannot draw with invalid style: " << style.ToString() << ".";
+    throw std::invalid_argument(s.str());
+  }
+}
+
+
+void CheckLineStyleAndFill(const LineStyle &style,
+                           const Color &fill_color) {
+  if (!style.IsValid() && !fill_color.IsValid()) {
+    std::stringstream s;
+    s << "Cannot draw with invalid line style & invalid fill color: "
+      << style.ToString() << " and " << fill_color.ToString() << ".";
+    throw std::invalid_argument(s.str());
+  }
+}
+
 //---------------------------------------------------- Arc/Circle
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
              Vec2d center, double radius,
              double angle1, double angle2,
-             const LineStyle &line_style, const Color &fill) {
+             const LineStyle &line_style,
+             bool include_center,
+             const Color &fill_color) {
   CheckCanvas(surface, context);
+  CheckLineStyleAndFill(line_style, fill_color);
 
-  center += 0.5;  // To be really at the center and avoid "smearing" thin lines
+  // Move to the center of the pixel coordinates:
+  center += 0.5;
+
   cairo_save(context);
   cairo_arc(context, center.x(), center.y(), radius,
             deg2rad(angle1), deg2rad(angle2));
-  if (fill.alpha > 0.0) {
-    helpers::ApplyColor(context, fill);
+
+  if (include_center) {
+    cairo_line_to(context, center.x(), center.y());
+    cairo_close_path(context);
+  }
+
+  if (fill_color.alpha > 0.0) {
+    helpers::ApplyColor(context, fill_color);
     cairo_fill_preserve(context);
   }
 
@@ -76,6 +107,7 @@ Vec2d HelperClosedHead(cairo_t *context, const Vec2d &pointy_end,
 void DrawArrow(cairo_surface_t *surface, cairo_t *context,
                Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
   CheckCanvas(surface, context);
+  CheckLineStyle(arrow_style);
 
   // Add 0.5 (half a pixel) to align the arrow exactly
   // with the given coordinates
@@ -178,10 +210,23 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
 //---------------------------------------------------- Grid
 void DrawGrid(cairo_surface_t *surface, cairo_t *context,
-              const Vec2d &top_left, const Vec2d &bottom_right,
+              Vec2d top_left, Vec2d bottom_right,
               double spacing_x, double spacing_y,
               const LineStyle &line_style) {
+  // Sanity checks
   CheckCanvas(surface, context);
+  CheckLineStyle(line_style);
+  if ((spacing_x <= 0.0) || (spacing_y <= 0.0)) {
+    throw std::invalid_argument("Cell spacing must be > 0.");
+  }
+
+  // Adjust corners if necessary
+  if (bottom_right.x() < top_left.x()) {
+    std::swap(top_left.val[0], bottom_right.val[0]);
+  }
+  if (bottom_right.y() < top_left.y()) {
+    std::swap(top_left.val[1], bottom_right.val[1]);
+  }
 
   // Switch to given line style
   cairo_save(context);
@@ -223,6 +268,7 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
 void DrawLine(cairo_surface_t *surface, cairo_t *context,
               Vec2d from, Vec2d to, const LineStyle &line_style) {
   CheckCanvas(surface, context);
+  CheckLineStyle(line_style);
 
   // Adjust coordinates to support thin (1px) lines
   from += 0.5;
@@ -248,14 +294,6 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
  *  rotated).
  */
 void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
-  if (rect.radius > std::min(rect.half_height(), rect.half_width())) {
-    std::stringstream s;
-    s << "Invalid rounded rect: radius " << std::fixed << std::setprecision(2)
-      << " must be less than half the smaller dimension (i.e. "
-      << std::min(rect.half_height(), rect.half_width()) << ")!";
-    throw std::out_of_range(s.str());
-  }
-
   const double half_width = rect.half_width() - rect.radius;
   const double half_height = rect.half_height() - rect.radius;
   cairo_move_to(context, -rect.half_width(), -half_height);
@@ -269,8 +307,12 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
 
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
               Rect rect, const LineStyle &line_style,
-              const Color &fill) {
+              const Color &fill_color) {
   CheckCanvas(surface, context);
+  CheckLineStyleAndFill(line_style, fill_color);
+  if (!rect.IsValid()) {
+    throw std::invalid_argument("Cannot draw invalid rectangle!");
+  }
 
   // Shift to the pixel center (so 1px borders are drawn correctly)
   rect += 0.5;
@@ -286,8 +328,8 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
     cairo_rectangle(context, -rect.half_width(), -rect.half_height(),
                     rect.width, rect.height);
 
-  if (fill.alpha > 0.0) {
-    helpers::ApplyColor(context, fill);
+  if (fill_color.alpha > 0.0) {
+    helpers::ApplyColor(context, fill_color);
     cairo_fill_preserve(context);
   }
 

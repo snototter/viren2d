@@ -120,7 +120,7 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
 //-------------------------------------------------  ArrowStyle
 /** @brief Style definitions for arrows. */
 struct ArrowStyle : public LineStyle {
-  double tip_length;   /**< Length of the tip (percentage if in [0, 1]; else absolute in pixels). */
+  double tip_length;   /**< Length of the tip (percentage if in (0, 1]; else absolute length in pixels). */
   double tip_angle;    /**< Angle between tip lines and the shaft in degrees. */
   bool tip_closed;     /**< How to draw the tip: only lines (false) or as a filled triangle (true). */
   bool double_headed;  /**< Should the head be drawn on both ends of the line? */

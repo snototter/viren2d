@@ -5,6 +5,7 @@
 #include <string>
 #include <ostream>
 #include <initializer_list>
+#include <cmath>
 
 #include <viren2d/math.h>
 
@@ -170,20 +171,47 @@ class Vec {
 
 
   //------------------------------------------------- Value access
-  const _Tp& operator[](int i) const;
-  _Tp& operator[](int i);
+  const _Tp &operator[](int i) const;
+  _Tp &operator[](int i);
 
-  const _Tp& x() const;
-  const _Tp& y() const;
-  const _Tp& z() const;
-  const _Tp& w() const;
-  _Tp& x();
-  _Tp& y();
-  _Tp& z();
-  _Tp& w();
+  const _Tp &x() const;
+  const _Tp &y() const;
+  const _Tp &width() const;
+  const _Tp &height() const;
+  const _Tp &z() const;
+  const _Tp &w() const;
+//  /**
+//   * Vectors with 2 dimensions can also define a size.
+//   * For clarity, I want to be able to access 'size' elements
+//   * as width() and height().
+//   *
+//   * Note that to perform SFINAE, the dummy template
+//   * argument (T = _Tp) must be specified. Otherwise, this would
+//   * not compile, because at compilation time, _Tp is already
+//   * known (from the class definition). Useful SO thread on SFINAE:
+//   * https://stackoverflow.com/a/13401982/400948
+//   */
+//  template<typename T = _Tp>
+//  const typename std::enable_if<(dim == 2), T>::type& width() const {
+//    return x();
+//  }
+//
+//  template<typename T = _Tp>
+//  const typename std::enable_if<(dim == 2), T>::type& height() const {
+//    return y();
+//  }
+
+  _Tp &x();
+  _Tp &y();
+  _Tp &width();
+  _Tp &height();
+  _Tp &z();
+  _Tp &w();
 
   void SetX(_Tp x);
   void SetY(_Tp y);
+  void SetWidth(_Tp width);
+  void SetHeight(_Tp height);
   void SetZ(_Tp z);
   void SetW(_Tp w);
 
@@ -334,6 +362,13 @@ struct Rect {
   {}
 
 
+  Rect(const Vec2d &center, const Vec2d &size)
+    : cx(center.x()), cy(center.y()),
+      width(size.width()), height(size.height()),
+      angle(0.0), radius(0.0)
+  {}
+
+
   Rect(double center_x, double center_y, double w, double h,
        double rot)
     : cx(center_x), cy(center_y), width(w), height(h),
@@ -341,9 +376,24 @@ struct Rect {
   {}
 
 
+  Rect(const Vec2d &center, const Vec2d &size, double rot)
+    : cx(center.x()), cy(center.y()),
+      width(size.width()), height(size.height()),
+      angle(rot), radius(0.0)
+  {}
+
+
   Rect(double center_x, double center_y, double w, double h,
        double rot, double corner_radius)
     : cx(center_x), cy(center_y), width(w), height(h),
+      angle(rot), radius(corner_radius)
+  {}
+
+
+  Rect(const Vec2d &center, const Vec2d &size,
+       double rot, double corner_radius)
+    : cx(center.x()), cy(center.y()),
+      width(size.width()), height(size.height()),
       angle(rot), radius(corner_radius)
   {}
 
@@ -385,7 +435,9 @@ struct Rect {
 
   /** @brief Returns true if this rectangle can be drawn. */
   bool IsValid() const {
-    return width > 0.0 && height > 0.0;
+    return (width > 0.0) && (height > 0.0)
+        && (radius < std::min(half_height(), half_width()))
+        && (radius >= 0.0);
   }
 
 

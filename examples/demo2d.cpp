@@ -57,7 +57,7 @@ void DemoLines() {
 }
 
 
-void DemoArrow1() {
+void DemoArrows() {
   auto painter = viren2d::CreateImagePainter();
   painter->SetCanvas(800, 800, viren2d::Color::White);
 
@@ -97,18 +97,62 @@ void DemoArrow1() {
                      viren2d::ArrowStyle(4, "crimson!60", 0.15, 30, false, true,
                                          {15, 10}));
 
-  ShowCanvas(painter->GetCanvas(false), "demo-output-arrow.png");
+  ShowCanvas(painter->GetCanvas(false), "demo-output-arrows.png");
 }
 
 
-// TODO line demo
-// TODO arc/circle demo
+void DemoCircles() {
+  auto painter = viren2d::CreateImagePainter();
+  painter->SetCanvas(500, 500, viren2d::Color::White);
+
+  painter->DrawGrid({}, {}, 50, 50,
+                    viren2d::LineStyle(1.0, "gray!80"));
+
+  auto style = viren2d::LineStyle(3, "navy-blue!90");
+
+  painter->DrawCircle({100, 100}, 50, style);
+
+  style.dash_pattern = {20, 15};
+  painter->DrawCircle({250, 100}, 50, style);
+
+  style.dash_pattern = {};
+  style.line_width = 0;
+  auto fill = viren2d::Color("blue!40");
+  painter->DrawCircle({400, 100}, 50, style, fill);
+
+  style.line_width = 4;
+  painter->DrawArc({100, 250}, 50,   0,  90, style, false);
+  painter->DrawArc({100, 250}, 50, 110, 160, style, false);
+  painter->DrawArc({100, 250}, 50, 180, 210, style, false);
+  painter->DrawArc({100, 250}, 50, 230, 250, style, false);
+
+  style.line_width = 2;
+  style.dash_pattern = {10, 4};
+  painter->DrawArc({250, 250}, 50,   0,  90, style);
+  painter->DrawArc({250, 250}, 50, 110, 160, style);
+  painter->DrawArc({250, 250}, 50, 180, 210, style);
+  painter->DrawArc({250, 250}, 50, 230, 250, style);
+
+  style.dash_pattern = {};
+  style.line_width = 0;
+  painter->DrawArc({400, 250}, 50, 0, 90, style, true, fill);
+  painter->DrawArc({400, 250}, 50, 110, 160, style, true, fill);
+  painter->DrawArc({400, 250}, 50, 180, 210, style, true, fill);
+  painter->DrawArc({400, 250}, 50, 230, 250, style, true, fill);
+
+  //TODO add ellipse
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-circles.png");
+}
+
+
 // TODO rect demo
 
 
 int main(int /*argc*/, char **/*argv*/) {
-  DemoLines();
-  DemoArrow1();
+//  DemoLines();
+//  DemoArrows();
+  DemoCircles();
 
   if (true)
     return 0;
