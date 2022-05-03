@@ -139,6 +139,11 @@ inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
 }
 
 
+void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
+                 Rect rect, const LineStyle &line_style,
+                 const Color &fill_color);
+
+
 void DrawGrid(cairo_surface_t *surface, cairo_t *context,
               Vec2d top_left, Vec2d bottom_right,
               double spacing_x, double spacing_y,

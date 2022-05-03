@@ -434,11 +434,7 @@ struct Rect {
 
 
   /** @brief Returns true if this rectangle can be drawn. */
-  bool IsValid() const {
-    return (width > 0.0) && (height > 0.0)
-        && (radius < std::min(half_height(), half_width()))
-        && (radius >= 0.0);
-  }
+  bool IsValid() const;
 
 
   /** @brief Returns a human-readable string representation. */

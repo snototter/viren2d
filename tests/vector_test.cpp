@@ -39,6 +39,32 @@ void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
     EXPECT_EQ(vec.val[dim - i - 1], vec[-(i+1)]);
   }
 
+  // Check usage as 2d size representation
+  if (dim == 2) {
+    EXPECT_DOUBLE_EQ(vec.x(), vec.width());
+    EXPECT_DOUBLE_EQ(vec.y(), vec.height());
+
+    vec.SetWidth(2 * vec.x());
+    vec.SetHeight(3 * vec.y());
+
+    EXPECT_DOUBLE_EQ(vec.x(), vec.width());
+    EXPECT_DOUBLE_EQ(vec.y(), vec.height());
+
+    // Restore original input vector
+    vec.val[0] /= 2;
+    vec.val[1] /= 3;
+
+    EXPECT_THROW(vec.z(), std::logic_error);
+    EXPECT_THROW(vec.w(), std::logic_error);
+  } else {
+    EXPECT_THROW(vec.width(), std::logic_error);
+    EXPECT_THROW(vec.height(), std::logic_error);
+
+    if (dim == 3) {
+      EXPECT_THROW(vec.w(), std::logic_error);
+    }
+  }
+
   // Test out-of-bounds
   EXPECT_THROW(vec[dim], std::out_of_range);
   EXPECT_THROW(vec[-dim-1], std::out_of_range);

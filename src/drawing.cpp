@@ -140,6 +140,12 @@ protected:
   }
 
 
+  void DrawEllipseImpl(const Rect &rect, const LineStyle &line_style,
+                       const Color &fill_color) override {
+    helpers::DrawEllipse(surface_, context_, rect, line_style, fill_color);
+  }
+
+
 private:
   cairo_surface_t *surface_;
   cairo_t *context_;

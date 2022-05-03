@@ -109,6 +109,12 @@ public:
   }
 
 
+  void DrawEllipse(const Rect &rect, const LineStyle &line_style,
+                   const Color &fill_color = Color(0, 0, 0, 0)) {
+    DrawEllipseImpl(rect, line_style, fill_color);
+  }
+
+
   virtual void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
                         double spacing_x, double spacing_y,
                         const LineStyle &line_style) = 0;
@@ -141,6 +147,9 @@ protected:
 
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                             const Color &fill_color) = 0;
+
+  virtual void DrawEllipseImpl(const Rect &rect, const LineStyle &line_style,
+                               const Color &fill_color) = 0;
 };
 
 

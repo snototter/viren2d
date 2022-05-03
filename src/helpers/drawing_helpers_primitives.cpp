@@ -208,6 +208,47 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 }
 
 
+//---------------------------------------------------- Ellipse
+void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
+                 Rect rect, const LineStyle &line_style,
+                 const Color &fill_color) {
+  CheckCanvas(surface, context);
+  CheckLineStyleAndFill(line_style, fill_color);
+  // Ensure that the radius doesn't influence the validity
+  // check (as it is ignored for drawing ellipses anyhow).
+  rect.radius = 0.0;
+  if (!rect.IsValid()) {
+    throw std::invalid_argument("Cannot draw an invalid ellipse!");
+  }
+
+
+  std::cout << "FUCK: " << rect << std::endl;
+
+  // Shift to the pixel center (so 1px borders are drawn correctly)
+  rect += 0.5;
+
+  cairo_save(context);
+  cairo_save(context); // Save context twice
+  cairo_translate(context, rect.cx, rect.cy);
+  cairo_rotate(context, deg2rad(rect.angle));
+  cairo_scale(context, rect.width / rect.height, 1);
+
+  cairo_arc(context, 0, 0, rect.half_height(), 0, deg2rad(360));
+  cairo_restore(context);
+
+  if (fill_color.alpha > 0.0) {
+    helpers::ApplyColor(context, fill_color);
+    cairo_fill_preserve(context);
+  }
+
+  helpers::ApplyLineStyle(context, line_style);
+  cairo_stroke(context);
+
+  // Restore context
+  cairo_restore(context);
+}
+
+
 //---------------------------------------------------- Grid
 void DrawGrid(cairo_surface_t *surface, cairo_t *context,
               Vec2d top_left, Vec2d bottom_right,
@@ -311,7 +352,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
   if (!rect.IsValid()) {
-    throw std::invalid_argument("Cannot draw invalid rectangle!");
+    throw std::invalid_argument("Cannot draw an invalid rectangle!");
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly)

@@ -596,7 +596,7 @@ template<typename _Tp, int dim>
 _Tp& Vec<_Tp, dim>::height() {
   if (dim != 2)
     throw std::logic_error("Only 2D vectors support member access via height().");
-  return x();
+  return y();
 }
 
 
@@ -983,10 +983,17 @@ Rect &Rect::operator-=(const Vec2d &offset) {
 }
 
 
+bool Rect::IsValid() const {
+  return (width > 0.0) && (height > 0.0)
+      && (radius < std::min(half_height(), half_width()))
+      && (radius >= 0.0);
+}
+
+
 std::string Rect::ToString() const {
   std::stringstream s;
-  s << "Rect(" << std::fixed << std::setprecision(1)
-    << cx << ", " << cy << ", " << width << ", " << height
+  s << "Rect(cx=" << std::fixed << std::setprecision(1)
+    << cx << ", cy=" << cy << ", w=" << width << ", h=" << height
     << "; rot=" << angle << "°, radius=" << radius;
 
   if (!IsValid())

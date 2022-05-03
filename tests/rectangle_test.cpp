@@ -9,7 +9,17 @@ TEST(RectangleTest, Initialization) {
   auto r = viren2d::Rect();
   EXPECT_FALSE(r.IsValid());
 
+  r = viren2d::Rect({100, 400}, {80, 60}, 70, 3);
+  EXPECT_TRUE(r.IsValid());
+  EXPECT_DOUBLE_EQ(r.cx, 100);
+  EXPECT_DOUBLE_EQ(r.cy, 400);
+  EXPECT_DOUBLE_EQ(r.width, 80);
+  EXPECT_DOUBLE_EQ(r.height, 60);
+  EXPECT_DOUBLE_EQ(r.angle, 70);
+  EXPECT_DOUBLE_EQ(r.radius, 3);
+
   // Grid-test both valid and invalid inputs:
+  //TODO also test angles and radii
   for (double cx : {-123.0, 0.0, 12.0, 0.3}) {
     for (double cy : {-3.0, 0.0, 768.0}) {
       for (double width : {-90, 0, 20}) {
