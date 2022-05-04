@@ -4,13 +4,13 @@ Under the hood, `viren2d` uses the [Cairo graphics library](https://www.cairogra
 
 
 ## Roadmap
-* An initial version v1.0 will hopefully released in August/September 2022 (this is a hobby/leisure time project)
+* An initial version v1.0 will hopefully released in September 2022 (this is a hobby/leisure time project)
 * I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you) - the API may change anytime (and I'm messing around in the main branch)
 
 
 ## Description
 **Why yet another toolbox?**  
-Frequently switching between different tasks and frameworks, looking up how to visualize results became tiring.
+Frequently switching between different tasks and frameworks, looking up how to visualize results became really tiring.
 Ideally, I wanted something that can be easily used both within C++ and Python environments as I have to switch between these two regularly.
 
 Previously, I experimented with a [similar toolbox (`vcp`)](https://github.com/snototter/vitocpp/) based on [OpenCV](https://github.com/opencv/opencv), but this has a few drawbacks (considering *ease-of-use*):  
@@ -27,21 +27,24 @@ This is by the way also how you pronounce the German word *Viren* (viruses). I c
 Marginalia: Another reason to work on this library was that I wanted to brush up on my C++ knowledge, refresh my CMake foo, dive deeper into pybind11, etc.
 
 ## Installation
-### Platforms
+### Prerequisites
+TODO doc  
+install via apt: libcairo2-dev, ninja-build, cmake>3.14  
+(don't plan on shipping binaries, thus everyone needs libcairo2-dev)
+
+
+### Platforms known to work
 So far, `viren2d` has been tested on:  
-* Ubuntu 18.04
-* Ubuntu 20.04
+* Ubuntu 20.04  
+  Works out of the box (TODO test with usage requirements instead of dev)
+* Ubuntu 18.04  
+  You need to install CMake via [Kitware's APT repositor](https://apt.kitware.com/), because the default Ubuntu repository is stuck at CMake 3.10.
 
 There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([Cairo](https://www.cairographics.org/download/), [Ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
 Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.  
 
 **Watch out Windows users:**  
 There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded path (i.e. `${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location. Adjust this path, or use your own `FindCairo.cmake` and please drop me a line (or PR) to update/simplify installation for future users.
-
-
-### Prerequisites
-TODO doc  
-install via apt: libcairo2-dev, ninja-build, cmake>3.14
 
 
 ### Direct Installation
