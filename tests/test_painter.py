@@ -58,7 +58,7 @@ def line_style_configurations():
     styles = list()
     style = viren2d.LineStyle()
     styles.append(style.copy())
-    for lw in [-2, 0, 0.1, 1, 3, 100]:
+    for lw in [-2, 0, 0.1, 1, 6]:
         style.line_width = lw
         for color in color_configurations():
             style.color = color
@@ -95,11 +95,10 @@ def test_draw_arc():
     p.draw_arc((1, 2), 10, 30, 40, style, False, "midnight-blue!80")
     p.draw_arc(angle1=20, angle2=300, center=(1, 2), radius=10, fill_color='black!40', line_style=style, include_center=False)
 
-    # Sweep valid and invalid configurations (all should work without exceptions)
-    # This includes drawing edge cases (outside image boundaries, degenerate geometries, ...)
-    for center in [(50, 50), (-100, -100), (1000, 100), (30, 30)]:
-        for radius in [0, 10, 50, -10]:
-            for angles in [(-90, -100), (-80, -30), (-10, 10), (0, 300), (300, 360), (380, 500)]:
+    # Sweep valid and invalid configurations
+    for center in [(50, 50), (-10, 0.1)]:
+        for radius in [-10, 0, 10]:
+            for angles in [(-90, -100), (-80, -30), (-10, 10), (0, 300)]:
                 for inc_center in [True, False]:
                     for style in line_style_configurations():
                         for fill_color in color_configurations():
@@ -202,10 +201,10 @@ def test_draw_grid():
     p.draw_grid(20, 20, line_style=style)
   
     # Sweep valid and invalid configurations
-    for tl in [(0, 0), (-10, 3), (100, 20), (5000, -70)]:
-      for br in [(0, 0), (-20, -70), (300, 30), (5000, -70)]:
-          for sx in [-5, 0, 1, 10, 1000]:
-            for sy in [-5, 0, 1, 10, 1000]:
+    for tl in [(0, 0), (-10, 3), (100, 20)]:
+      for br in [(0, 0), (-20, -70), (300, 30)]:
+          for sx in [-2, 0, 10]:
+            for sy in [-5, 0, 5]:
               for style in line_style_configurations():
                   if style.is_valid() and sx > 0 and sy > 0:
                       p.draw_grid(sx, sy, tl, br, style)
@@ -274,7 +273,7 @@ def test_draw_rect():
     # Rect as cx, cx, w, h, angle, radius
     p.draw_rect(viren2d.Rect(10, 20, 30, 50, 70, 3), style)
     # The above from kwargs
-    p.draw_rect(viren2d.Rect(cx=10, cy=20, w=30, h=50, angle=70, radius=3), style)
+    p.draw_rect(viren2d.Rect(cx=10, cy=20, w=30, h=50, rotation=70, radius=3), style)
 
     # Rect as center, size
     p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
@@ -284,7 +283,7 @@ def test_draw_rect():
     # Rect as center, size, angle, radius
     p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
     # The above from kwargs
-    p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50), angle=30, radius=0), style)
+    p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50), rotation=30, radius=0), style)
 
 
     ### Draw with implicit conversions
@@ -310,10 +309,10 @@ def test_draw_rect():
     ### Sweep valid and invalid configurations
     # Collect rectangles
     rects = list()
-    for center in [(-10, -100), (0, 0), (100, 300), (10000, 7000)]:
-        for size in [(-5, -3), (0, 0), (0, 10), (4, 0), (10, 20), (300, 500), (40000, 50000)]:
-            for angle in [-40, 0, 30, 380]:
-                for radius in [-10, 0, 5, 100, 30000]:
+    for center in [(-10, -100), (0, 0), (100, 300)]:
+        for size in [(-5, -3), (0, 10), (10, 20), (300, 500)]:
+            for angle in [-40, 0, 30]:
+                for radius in [-10, 0, 5, 100]:
                     rects.append(viren2d.Rect((center, size, angle, radius)))
     # Try to draw with different style variations
     for rect in rects:

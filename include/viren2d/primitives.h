@@ -232,6 +232,12 @@ class Vec {
   Vec<_Tp, dim> operator-() const;
 
 
+  _Tp MaxValue() const; //TODO test
+  _Tp MinValue() const; //TODO test
+  int MaxIndex() const; //TODO test
+  int MinIndex() const; //TODO test
+
+
   /** @brief Computes the dot product. */
   _Tp Dot(const Vec<_Tp, dim>& other) const;
 
@@ -327,13 +333,6 @@ typedef Vec<int, 2> Vec2i;
 typedef Vec<int, 3> Vec3i;
 
 
-//-------------------------------------------------  Vector Math
-//TODO test
-/** @brief Project point onto line. */
-Vec2d ProjectPointOntoLine(const Vec2d &pt,
-                           const Vec2d &line_from,
-                           const Vec2d &line_to);
-
 //-------------------------------------------------  Rectangle
 /**
  * @brief Rectangle for visualization.
@@ -343,62 +342,35 @@ Vec2d ProjectPointOntoLine(const Vec2d &pt,
  * and a corner radius (for rounded rectangles).
  */
 struct Rect {
-  double cx;      ///< Center coordinate in x direction.
-  double cy;      ///< Center coordinate in y direction.
-  double width;   ///< Width of rectangle.
-  double height;  ///< Height of rectangle.
-  double angle;   ///< Clockwise rotation in degrees.
-  double radius;  ///< Corner radius. Must be <= min(width, height)/2.
+  double cx;        ///< Center coordinate in x direction.
+  double cy;        ///< Center coordinate in y direction.
+  double width;     ///< Width of rectangle.
+  double height;    ///< Height of rectangle.
+  double rotation;  ///< Clockwise rotation in degrees.
+  double radius;    ///< Corner radius. Must be <= min(width, height)/2.
 
   Rect()
     : cx(0.0), cy(0.0), width(0.0), height(0.0),
-      angle(0.0), radius(0.0)
-  {}
-
-
-  Rect(double center_x, double center_y, double w, double h)
-    : cx(center_x), cy(center_y), width(w), height(h),
-      angle(0.0), radius(0.0)
-  {}
-
-
-  Rect(const Vec2d &center, const Vec2d &size)
-    : cx(center.x()), cy(center.y()),
-      width(size.width()), height(size.height()),
-      angle(0.0), radius(0.0)
+      rotation(0.0), radius(0.0)
   {}
 
 
   Rect(double center_x, double center_y, double w, double h,
-       double rot)
+       double rot = 0.0, double corner_radius = 0.0)
     : cx(center_x), cy(center_y), width(w), height(h),
-      angle(rot), radius(0.0)
-  {}
-
-
-  Rect(const Vec2d &center, const Vec2d &size, double rot)
-    : cx(center.x()), cy(center.y()),
-      width(size.width()), height(size.height()),
-      angle(rot), radius(0.0)
-  {}
-
-
-  Rect(double center_x, double center_y, double w, double h,
-       double rot, double corner_radius)
-    : cx(center_x), cy(center_y), width(w), height(h),
-      angle(rot), radius(corner_radius)
+      rotation(rot), radius(corner_radius)
   {}
 
 
   Rect(const Vec2d &center, const Vec2d &size,
-       double rot, double corner_radius)
+       double rot = 0.0, double corner_radius = 0.0)
     : cx(center.x()), cy(center.y()),
       width(size.width()), height(size.height()),
-      angle(rot), radius(corner_radius)
+      rotation(rot), radius(corner_radius)
   {}
 
 
-  // Nothing special about the color class, so we can have
+  // Nothing special about the rectangle class, so we can have
   // the default copy/assignment/move c'tors/operators:
   Rect(const Rect &other) = default;
   Rect& operator=(const Rect &other) = default;
@@ -407,8 +379,9 @@ struct Rect {
 
 
   /**
-   * @brief Construct from an initializer list with 4 to 6 elements (refer
-   * to any other c'tor for the order of parameters).
+   * @brief Construct from an initializer list with 4 to 6 elements.
+   * Minimum: {cx, cy, w, h}
+   * Maximum: {cx, cy, w, h, rotation, corner_radius}
    */
   Rect(std::initializer_list<double> values);
 
@@ -460,6 +433,114 @@ struct Rect {
 //-------------------------------------------------  Comparison operators
 bool operator==(const Rect& lhs, const Rect& rhs);
 bool operator!=(const Rect& lhs, const Rect& rhs);
+
+
+
+//-------------------------------------------------  Rectangle
+/**
+ * @brief Ellipse for visualization.
+ * //TODO doc
+ */
+struct Ellipse {
+  double cx;            ///< Center coordinate in x direction.
+  double cy;            ///< Center coordinate in y direction.
+  double major_axis;    ///< Length of major axis.
+  double minor_axis;    ///< Length of minor axis.
+  double rotation;      ///< Clockwise rotation in degrees.
+  double angle_from;    ///< Starting angle of contour/fill in degrees.
+  double angle_to;      ///< Ending angle of contour/fill in degrees.
+  bool include_center;  ///< Whether to include the center point in drawing/filling (only used if angle_from/angle_to are set).
+
+   //TODO test
+  Ellipse()
+    : cx(0.0), cy(0.0), major_axis(0.0), minor_axis(0.0),
+      rotation(0.0), angle_from(0.0), angle_to(360.0),
+      include_center(true)
+  {}
+
+  //TODO test
+  Ellipse(double center_x, double center_y,
+          double major, double minor,
+          double rotation_angle = 0.0,
+          double draw_angle1 = 0.0,
+          double draw_angle2 = 360.0,
+          bool center_included = true)
+    : cx(center_x), cy(center_y),
+      major_axis(major), minor_axis(minor),
+      rotation(rotation_angle),
+      angle_from(draw_angle1),
+      angle_to(draw_angle2),
+      include_center(center_included)
+  {}
+
+//TODO test
+  Ellipse(const Vec2d &center, const Vec2d &size,
+          double rotation_angle = 0.0,
+          double draw_angle1 = 0.0,
+          double draw_angle2 = 360.0,
+          bool center_included = true)
+    : cx(center.x()), cy(center.y()),
+      major_axis(size.MaxValue()),
+      minor_axis(size.MinValue()),
+      rotation(rotation_angle),
+      angle_from(draw_angle1),
+      angle_to(draw_angle2),
+      include_center(center_included)
+  {}
+
+
+  // Nothing special about the ellipse class, so we can have
+  // the default copy/assignment/move c'tors/operators:
+  Ellipse(const Ellipse &other) = default;
+  Ellipse& operator=(const Ellipse &other) = default;
+  Ellipse(Ellipse&&) = default;
+  Ellipse& operator=(Ellipse &&) = default;
+
+
+  /**
+   * @brief Construct from an initializer list with 4 to 7 elements.
+   * Minimum: {cx, cy, major, minor}
+   * Maximum: {cx, cy, major, minor, rotation, draw_angle1, draw_angle2}.
+   * This c'tor will always set include_center to true.
+   */
+  Ellipse(std::initializer_list<double> values);
+
+
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Ellipse &operator+=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Ellipse &operator-=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Ellipse &operator+=(const Vec2d &offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Ellipse &operator-=(const Vec2d &offset);
+
+
+  /** @brief Returns true if this rectangle can be drawn. */
+  bool IsValid() const;
+
+
+  /** @brief Returns a human-readable string representation. */
+  std::string ToString() const;
+
+
+  /** @brief Overloaded stream operator. */
+  friend std::ostream &operator<<(std::ostream &os, const Ellipse &e) {
+    os << e.ToString();
+    return os;
+  }
+};
+
+
+//-------------------------------------------------  Comparison operators
+bool operator==(const Ellipse& lhs, const Ellipse& rhs);
+bool operator!=(const Ellipse& lhs, const Ellipse& rhs);
 
 } // namespace viren2d
 

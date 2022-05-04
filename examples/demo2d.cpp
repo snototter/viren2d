@@ -141,14 +141,17 @@ void DemoCircles() {
   painter->DrawArc({400, 250}, 50, 230, 250, style, true, fill);
 
   style.line_width = 3;
-  painter->DrawEllipse(viren2d::Rect({100, 400}, {100, 50}, 20), style);
+  painter->DrawEllipse({100, 400, 100, 50, 0, 45, -45}, style);
+//  painter->DrawEllipse(viren2d::Ellipse({100, 400}, {100, 50}, 0, 45, -45), style);
 
   style.dash_pattern = {10, 10};
-  painter->DrawEllipse(viren2d::Rect({250, 400}, {100, 50}, 45), style);
+  painter->DrawEllipse(viren2d::Ellipse({250, 400}, {100, 50}, 45, 45, -45, false),
+                       style, fill);
 
   style.dash_pattern = {};
   style.line_width = 0;
-  painter->DrawEllipse(viren2d::Rect({400, 400}, {100, 50}, 80), style, fill);
+  painter->DrawEllipse(viren2d::Ellipse({400, 400}, {100, 50}, 180, 45, -45, true),
+                       style, fill);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-circles.png");
 }

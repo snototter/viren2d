@@ -15,7 +15,7 @@ TEST(RectangleTest, Initialization) {
   EXPECT_DOUBLE_EQ(r.cy, 400);
   EXPECT_DOUBLE_EQ(r.width, 80);
   EXPECT_DOUBLE_EQ(r.height, 60);
-  EXPECT_DOUBLE_EQ(r.angle, 70);
+  EXPECT_DOUBLE_EQ(r.rotation, 70);
   EXPECT_DOUBLE_EQ(r.radius, 3);
 
   // Grid-test both valid and invalid inputs:
@@ -30,7 +30,7 @@ TEST(RectangleTest, Initialization) {
           EXPECT_DOUBLE_EQ(rect.half_width(), width / 2.0);
           EXPECT_DOUBLE_EQ(rect.half_height(), height / 2.0);
 
-          EXPECT_TRUE(viren2d::eps_zero(rect.angle));
+          EXPECT_TRUE(viren2d::eps_zero(rect.rotation));
           EXPECT_TRUE(viren2d::eps_zero(rect.radius));
 
           rect.width = 1;

@@ -711,6 +711,50 @@ Vec<_Tp, dim> Vec<_Tp, dim>::operator-() const {
 
 
 template<typename _Tp, int dim>
+_Tp Vec<_Tp, dim>::MaxValue() const {
+  _Tp max = val[0];
+  for (int i = 1; i < dim; ++i) {
+    if (val[i] > max)
+      max = val[i];
+  }
+  return max;
+}
+
+
+template<typename _Tp, int dim>
+_Tp Vec<_Tp, dim>::MinValue() const {
+  _Tp min = val[0];
+  for (int i = 1; i < dim; ++i) {
+    if (val[i] < min)
+      min = val[i];
+  }
+  return min;
+}
+
+
+template<typename _Tp, int dim>
+int Vec<_Tp, dim>::MaxIndex() const {
+  int max_idx = 0;
+  for (int i = 1; i < dim; ++i) {
+    if (val[i] > val[max_idx])
+      max_idx = i;
+  }
+  return max_idx;
+}
+
+
+template<typename _Tp, int dim>
+int Vec<_Tp, dim>::MinIndex() const {
+  int min_idx = 0;
+  for (int i = 1; i < dim; ++i) {
+    if (val[i] < val[min_idx])
+      min_idx = i;
+  }
+  return min_idx;
+}
+
+
+template<typename _Tp, int dim>
 _Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other) const {
   _Tp s = static_cast<_Tp>(0);
   for (int i = 0; i < dim; ++i)
@@ -919,18 +963,6 @@ template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
 
 
-//---------------------------------------------------- Vector Math
-Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
-  // Vector from line start to point:
-  const Vec2d v = line_from.DirectionVector(pt);
-
-  // Project onto line and get closest point on line:
-  const Vec2d unit_direction = line_from.DirectionVector(line_to).UnitVector();
-  const double lambda = unit_direction.Dot(v);
-  return line_from + lambda * unit_direction;
-}
-
-
 //---------------------------------------------------- Rectangle
 
 Rect::Rect(std::initializer_list<double> values) {
@@ -948,7 +980,7 @@ Rect::Rect(std::initializer_list<double> values) {
   height = val[3];
 
   if (values.size() > 4)
-    angle = val[4];
+    rotation = val[4];
 
   if (values.size() > 5)
     radius = val[5];
@@ -994,7 +1026,7 @@ std::string Rect::ToString() const {
   std::stringstream s;
   s << "Rect(cx=" << std::fixed << std::setprecision(1)
     << cx << ", cy=" << cy << ", w=" << width << ", h=" << height
-    << "; rot=" << angle << "°, radius=" << radius;
+    << "; rot=" << rotation << "°, radius=" << radius;
 
   if (!IsValid())
     s << ", invalid";
@@ -1004,12 +1036,115 @@ std::string Rect::ToString() const {
 }
 
 bool operator==(const Rect& lhs, const Rect& rhs) {
-  return eps_equal(lhs.cx, rhs.cx) && eps_equal(lhs.cy, rhs.cy)
-      && eps_equal(lhs.width, rhs.width) && eps_equal(lhs.height, rhs.height)
-      && eps_equal(lhs.angle, rhs.angle) && eps_equal(lhs.radius, rhs.radius);
+  return eps_equal(lhs.cx, rhs.cx)
+      && eps_equal(lhs.cy, rhs.cy)
+      && eps_equal(lhs.width, rhs.width)
+      && eps_equal(lhs.height, rhs.height)
+      && eps_equal(lhs.rotation, rhs.rotation)
+      && eps_equal(lhs.radius, rhs.radius);
 }
 
 bool operator!=(const Rect& lhs, const Rect& rhs) {
+  return !(lhs == rhs);
+}
+
+
+
+//---------------------------------------------------- Ellipse
+
+Ellipse::Ellipse(std::initializer_list<double> values) {
+  if (values.size() < 4 || values.size() > 7) {
+    std::stringstream s;
+    s << "Ellipse c'tor requires 4 to 7 entries in initializer_list, "
+      << "but got " << values.size() << ".";
+    throw std::invalid_argument(s.str());
+  }
+
+  const auto val = values.begin();
+  cx = val[0];
+  cy = val[1];
+  major_axis = val[2];
+  minor_axis = val[3];
+
+  if (values.size() > 4)
+    rotation = val[4];
+
+  if (values.size() > 5)
+    angle_from = val[5];
+
+  if (values.size() > 6)
+    angle_to = val[6];
+
+  include_center = true;
+}
+
+
+Ellipse &Ellipse::operator+=(double offset) {
+  cx += offset;
+  cy += offset;
+  return *this;
+}
+
+
+Ellipse &Ellipse::operator-=(double offset) {
+  cx -= offset;
+  cy -= offset;
+  return *this;
+}
+
+
+Ellipse &Ellipse::operator+=(const Vec2d &offset) {
+  cx += offset.x();
+  cy += offset.y();
+  return *this;
+}
+
+
+Ellipse &Ellipse::operator-=(const Vec2d &offset) {
+  cx -= offset.x();
+  cy -= offset.y();
+  return *this;
+}
+
+
+bool Ellipse::IsValid() const {
+  return (major_axis > 0.0) && (minor_axis > 0.0)
+      && (major_axis >= minor_axis)
+      && !eps_equal(angle_from, angle_to);
+}
+
+
+std::string Ellipse::ToString() const {
+  std::stringstream s;
+  s << "Ellipse(cx=" << std::fixed << std::setprecision(1)
+    << cx << ", cy=" << cy << ", mj=" << major_axis
+    << ", mn=" << minor_axis << "; rot=" << rotation
+    << ", a1=" << angle_from << "°, a2=" << angle_to << "°";
+
+  if (!eps_zero(angle_from) || !eps_equal(angle_to, 360.0)) {
+    s << ", " << (include_center ? "w/" : "w/o") << " center";
+  }
+
+  if (!IsValid())
+    s << ", invalid";
+
+  s << ")";
+  return s.str();
+}
+
+
+bool operator==(const Ellipse& lhs, const Ellipse& rhs) {
+  return eps_equal(lhs.cx, rhs.cx) && eps_equal(lhs.cy, rhs.cy)
+      && eps_equal(lhs.major_axis, rhs.major_axis)
+      && eps_equal(lhs.minor_axis, rhs.minor_axis)
+      && eps_equal(lhs.rotation, rhs.rotation)
+      && eps_equal(lhs.angle_from, rhs.angle_from)
+      && eps_equal(lhs.angle_to, rhs.angle_to)
+      && (lhs.include_center == rhs.include_center);
+}
+
+
+bool operator!=(const Ellipse& lhs, const Ellipse& rhs) {
   return !(lhs == rhs);
 }
 

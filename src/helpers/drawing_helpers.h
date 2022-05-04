@@ -140,7 +140,7 @@ inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
 
 
 void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
-                 Rect rect, const LineStyle &line_style,
+                 Ellipse ellipse, const LineStyle &line_style,
                  const Color &fill_color);
 
 

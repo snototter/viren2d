@@ -33,6 +33,57 @@ void CheckLineStyleAndFill(const LineStyle &style,
   }
 }
 
+
+//---------------------------------------------------- Math/Geometry Helpers
+//TODO(snototter) These should be moved to math.h
+
+/** @brief Project point onto line. */
+Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
+  // Vector from line start to point:
+  const Vec2d v = line_from.DirectionVector(pt);
+  // Project point onto line via dot product:
+  const Vec2d unit_direction = line_from.DirectionVector(line_to).UnitVector();
+  const double lambda = unit_direction.Dot(v);
+  return line_from + lambda * unit_direction;
+}
+
+
+/** Computes the determinant of the two 2d vectors. */
+double Determinant(const Vec2d &a, const Vec2d &b) {
+  return a.x() * b.y() - b.x() * a.y();
+}
+
+
+/** Computes the angle (in radians) of a 2d direction vector w.r.t. the positive X axis. */
+double AngleRadFromDirectionVec(const Vec2d &vec) {
+  // Dot product is proportional to the cosine, whereas
+  // the determinant is proportional to the sine.
+  // See: https://math.stackexchange.com/a/879474
+  Vec2d ref(1, 0);
+  Vec2d unit = vec.UnitVector();
+  return std::atan2(Determinant(ref, unit), ref.Dot(unit));
+}
+
+
+/** Computes the angle (in degrees) of a 2d direction vector w.r.t. the positive X axis. */
+double AngleDegFromDirectionVec(const Vec2d &vec) {
+  return rad2deg(AngleRadFromDirectionVec(vec));
+}
+
+
+/** Computes the direction vector given its angle (in radians) w.r.t. the positive X axis. */
+Vec2d DirectionVecFromAngleRad(double rad) {
+  return Vec2d(std::cos(rad), std::sin(rad)); // TODO verify it's unit length
+}
+
+
+/** Computes the direction vector given its angle (in radians) w.r.t. the positive X axis. */
+Vec2d DirectionVecFromAngleDeg(double deg) {
+  return DirectionVecFromAngleRad(deg2rad(deg));
+}
+
+
+
 //---------------------------------------------------- Arc/Circle
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
              Vec2d center, double radius,
@@ -213,29 +264,83 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- Ellipse
+/**
+ * Computes the adjusted ellipse arc angle s.t. drawing
+ * the ellipse in the scaled Cairo context results in
+ * the desired user space angles.
+ */
+double AdjustEllipseAngle(double deg, double scale_x, double scale_y) {
+  // Compute the direction vector corresponding to
+  // the desired angle.
+  auto dir = DirectionVecFromAngleDeg(deg);
+  // Apply the inverse transformation (scaling).
+  dir.SetX(dir.x() / scale_x);
+  dir.SetY(dir.y() / scale_y);
+  // Compute the angle (w.r.t. to the positive X axis)
+  // which should be used to draw the path in cairo_arc
+  // after the context is transformed.
+  return AngleDegFromDirectionVec(dir);
+}
+
+
 void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
-                 Rect rect, const LineStyle &line_style,
+                 Ellipse ellipse, const LineStyle &line_style,
                  const Color &fill_color) {
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
 
-  // Ensure that the radius doesn't influence the validity
-  // check (as it is ignored for drawing ellipses anyhow).
-  rect.radius = 0.0;
-  if (!rect.IsValid()) {
+  if (!ellipse.IsValid()) {
     throw std::invalid_argument("Cannot draw an invalid ellipse!");
   }
 
-  // Shift to the pixel center (so 1px borders are drawn correctly)
-  rect += 0.5;
+  // Shift to the pixel center (so 1px borders are drawn correctly).
+  ellipse += 0.5;
 
+  // We'll scale the context, so we can draw the ellipse as a
+  // unit circle.
+  const double scale_x = ellipse.major_axis / 2.0;
+  const double scale_y = ellipse.minor_axis / 2.0;
+
+  // If only parts of the ellipse are drawn/filled, we
+  // have to adjust the angles, because we scale the
+  // Cairo context. Otherwise, the angles would be
+  // quite different from what the user expected.
+  bool is_partially_drawn = false;
+  if (!eps_zero(ellipse.angle_from)) {
+    //TODO log debug: adjusting angle1
+    ellipse.angle_from = AdjustEllipseAngle(ellipse.angle_from,
+                                            scale_x, scale_y);
+    is_partially_drawn = true;
+  }
+  if (!eps_equal(ellipse.angle_to, 360.0)) {
+    //TODO log debug: adjusting angle2
+    ellipse.angle_to = AdjustEllipseAngle(ellipse.angle_to,
+                                          scale_x, scale_y);
+    is_partially_drawn = true;
+  }
+
+  // Save context twice (the extra save is needed to draw even
+  // strokes after we applied the scaling). For details see
+  // https://www.cairographics.org/tutorial/#L2linewidth
   cairo_save(context);
-  cairo_save(context); // Save context twice
-  cairo_translate(context, rect.cx, rect.cy);
-  cairo_rotate(context, deg2rad(rect.angle));
-  cairo_scale(context, rect.width / rect.height, 1);
+  cairo_save(context);
+  cairo_translate(context, ellipse.cx, ellipse.cy);
+  cairo_rotate(context, deg2rad(ellipse.rotation));
+  cairo_scale(context, scale_x, scale_y);
 
-  cairo_arc(context, 0, 0, rect.half_height(), 0, deg2rad(360));
+  cairo_arc(context, 0, 0, 1,
+            deg2rad(ellipse.angle_from),
+            deg2rad(ellipse.angle_to));
+
+  // If we shouldn't draw a full circle in the scaled context,
+  // the user can decide whether to include the center point
+  // in the contour/fill or not. Similar to DrawArc(), this is
+  // needed because filling a "partial ellipse" without including
+  // the center can look irritating.
+  if (is_partially_drawn && ellipse.include_center) {
+    cairo_line_to(context, 0, 0);
+    cairo_close_path(context);
+  }
   cairo_restore(context);
 
   if (fill_color.alpha > 0.0) {
@@ -302,6 +407,7 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
     cairo_move_to(context, left, y);
     cairo_line_to(context, right, y);
   }
+
   cairo_stroke(context);
   // Restore previous state
   cairo_restore(context);
@@ -328,8 +434,6 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
   // Restore context
   cairo_restore(context);
 }
-
-
 
 
 //---------------------------------------------------- Rectangle (box, rounded, rotated)
@@ -364,7 +468,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
   cairo_save(context);
   cairo_translate(context, rect.cx, rect.cy);
-  cairo_rotate(context, deg2rad(rect.angle));
+  cairo_rotate(context, deg2rad(rect.rotation));
 
   // Draw a standard (box) rect or rounded rectangle:
   if (rect.radius > 0.0)

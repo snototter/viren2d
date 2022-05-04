@@ -140,9 +140,9 @@ protected:
   }
 
 
-  void DrawEllipseImpl(const Rect &rect, const LineStyle &line_style,
+  void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
                        const Color &fill_color) override {
-    helpers::DrawEllipse(surface_, context_, rect, line_style, fill_color);
+    helpers::DrawEllipse(surface_, context_, ellipse, line_style, fill_color);
   }
 
 

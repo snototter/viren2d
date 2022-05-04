@@ -82,7 +82,7 @@ viren2d::Vec<_Tp, dim> DeserializeVec(py::list lst) {
 
 //------------------------------------------------- Rectangle
 py::tuple SerializeRect(const viren2d::Rect &r) {
-  return py::make_tuple(r.cx, r.cy, r.width, r.height, r.angle, r.radius);
+  return py::make_tuple(r.cx, r.cy, r.width, r.height, r.rotation, r.radius);
 }
 
 
@@ -325,7 +325,7 @@ viren2d::Rect CreateRect(py::tuple tpl) {
   }
 
   if (tpl.size() > consumed_elements) {
-    rect.angle = tpl[consumed_elements].cast<double>();
+    rect.rotation = tpl[consumed_elements].cast<double>();
     ++consumed_elements;
   }
 
@@ -688,27 +688,27 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
          "    With types: (" + Qualified(viren2d::Vec2d::TypeName()) + ", "
          + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
          "    Axis-aligned rectangle.\n"
-         "(center, size, angle)\n"
+         "(center, size, rotation)\n"
          "    With types: (" + Qualified(viren2d::Vec2d::TypeName()) + ", "
          + Qualified(viren2d::Vec2d::TypeName()) + ", float)\n"
          "    Rotated rectangle.\n"
-         "(center, size, angle, radius)\n"
+         "(center, size, rotation, radius)\n"
          "    With types: (" + Qualified(viren2d::Vec2d::TypeName()) + ", "
          + Qualified(viren2d::Vec2d::TypeName()) + ", float, float)\n"
          "    Rotated rectangle with rounded corners.\n"
          "(cx, cy, w, h)\n"
          "    Where each element is a float.\n"
          "    Axis-aligned rectangle.\n"
-         "(cx, cy, w, h, angle)\n"
+         "(cx, cy, w, h, rotation)\n"
          "    Where each element is a float.\n"
          "    Rotated rectangle.\n"
-         "* (cx, cy, w, h, angle, radius)\n"
+         "* (cx, cy, w, h, rotation, radius)\n"
          "    Where each element is a float.\n"
          "    Rotated rectangle with rounded corners.\n";
   py::class_<viren2d::Rect>(m, "Rect",
            "Rectangle for visualization.\n\n"
            "A rectangle is defined by its CENTER, width, height\n"
-           "angle (clockwise rotation in degrees), and a corner\n"
+           "clockwise rotation (in degrees), and a corner\n"
            "radius (for rounded rectangles).")
       .def(py::init<>(&moddef::CreateRect), doc.c_str(),
            py::arg("tpl"))
@@ -717,14 +717,14 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "  Center coordinates, dimensions, rotation (clockwise,\n"
            "  in degrees), and corner radius (in pixels).",
            py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"),
-           py::arg("angle") = 0.0,
+           py::arg("rotation") = 0.0,
            py::arg("radius") = 0.0)
       .def(py::init<viren2d::Vec2d, viren2d::Vec2d, double, double>(),
            "Create a rotated rounded rectangle:\n"
            "  Center point, size, rotation (clockwise, in degrees),\n"
            "  and corner radius (in pixels).",
            py::arg("center"), py::arg("size"),
-           py::arg("angle") = 0.0,
+           py::arg("rotation") = 0.0,
            py::arg("radius") = 0.0)
       .def("copy", [](const viren2d::Rect &r) { return viren2d::Rect(r); },
            "Returns a deep copy.")
@@ -748,7 +748,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "Half the rectangle height.")
       .def_readwrite("height", &viren2d::Rect::height,
            "Rectangle height.")
-      .def_readwrite("angle", &viren2d::Rect::angle,
+      .def_readwrite("rotation", &viren2d::Rect::rotation,
            "Rotation angle (clockwise) in degrees.")
       .def_readwrite("radius", &viren2d::Rect::radius,
            "Corner radius (for rounded rectangles).")

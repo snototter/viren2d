@@ -109,9 +109,9 @@ public:
   }
 
 
-  void DrawEllipse(const Rect &rect, const LineStyle &line_style,
+  void DrawEllipse(const Ellipse &ellipse, const LineStyle &line_style,
                    const Color &fill_color = Color(0, 0, 0, 0)) {
-    DrawEllipseImpl(rect, line_style, fill_color);
+    DrawEllipseImpl(ellipse, line_style, fill_color);
   }
 
 
@@ -148,7 +148,7 @@ protected:
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                             const Color &fill_color) = 0;
 
-  virtual void DrawEllipseImpl(const Rect &rect, const LineStyle &line_style,
+  virtual void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
                                const Color &fill_color) = 0;
 };
 
