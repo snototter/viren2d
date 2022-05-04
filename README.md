@@ -44,7 +44,7 @@ Marginalia: Another reason to work on this library was that I wanted to brush up
   ```
 * If you want to build the Python bindings, you also need:
   * [Python](https://www.python.org/) >= 3.6
-  * [pip](https://pypi.org/project/pip/) >= 10.0.0 (to support `pyproject.toml`, for details see [PEP 518](https://peps.python.org/pep-0518/))
+  * [pip](https://pypi.org/project/pip/) >= 10.0.0
   * Highly recommended: [virtualenv](https://pypi.org/project/virtualenv/)
 
 
