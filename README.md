@@ -28,9 +28,24 @@ Marginalia: Another reason to work on this library was that I wanted to brush up
 
 ## Installation
 ### Prerequisites
-TODO doc  
-install via apt: libcairo2-dev, ninja-build, cmake>3.14  
-(don't plan on shipping binaries, thus everyone needs libcairo2-dev)
+* A C++ compiler supporting at least C++14
+* [CMake](https://cmake.org/) >= 3.14 and a [compatible build tool](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html), like [Make](https://www.gnu.org/software/make/), [Ninja](https://ninja-build.org/), etc.
+* The [Cairo](https://www.cairographics.org/download) 2D graphics library.  
+  Currently, there is no plan to ship `viren2d` binaries. Thus, you need the Cairo development packages (`-dev` or `-devel`) for your system. For example, on GNU/Linux distributions, you simply install Cairo via:
+  ```bash
+  # Debian & derivatives (like Ubuntu)
+  sudo apt install libcairo2-dev
+
+  # Fedora
+  sudo yum install cairo-devel
+
+  # openSUSE
+  zypper install cairo-devel
+  ```
+* If you want to build the Python bindings, you also need:
+  * [Python](https://www.python.org/) >= 3.6
+  * [pip](https://pypi.org/project/pip/) >= 10.0.0 (to support `pyproject.toml`, for details see [PEP 518](https://peps.python.org/pep-0518/))
+  * Highly recommended: [virtualenv](https://pypi.org/project/virtualenv/)
 
 
 ### Platforms known to work
@@ -38,7 +53,7 @@ So far, `viren2d` has been tested on:
 * Ubuntu 20.04  
   Works out of the box (TODO test with usage requirements instead of dev)
 * Ubuntu 18.04  
-  You need to install CMake via [Kitware's APT repositor](https://apt.kitware.com/), because the default Ubuntu repository is stuck at CMake 3.10.
+  You need to install CMake via [Kitware's APT repository](https://apt.kitware.com/), because the default Ubuntu repository is stuck at CMake 3.10.
 
 There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([Cairo](https://www.cairographics.org/download/), [Ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
 Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.  
@@ -83,7 +98,7 @@ cmake --build . --target install
 ```
 
 **Note for Python users:**  
-If you want to re-install viren2d and run into a Ninja build error (Ninja binary not found in temporary directory), you should delete the CMake cache first:
+If you want to re-install viren2d and run into a Ninja build error (Ninja binary not found in temporary directory), you should delete the build cache first:
 ```bash
 rm -r build/temp.*
 python -m pip install .
@@ -96,7 +111,7 @@ I'm planning to support visualization of the following primitives/objects:
 * [x] Arcs
 * [x] Arrows (single-/double-headed, filled/open, solid/dashed)
 * [x] Circles
-* [ ] Ellipses
+* [x] Ellipses
 * [x] Lines
 * [ ] Markers
 * [ ] Polygons
