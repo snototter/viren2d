@@ -398,6 +398,14 @@ struct Rect {
   {}
 
 
+  // Nothing special about the color class, so we can have
+  // the default copy/assignment/move c'tors/operators:
+  Rect(const Rect &other) = default;
+  Rect& operator=(const Rect &other) = default;
+  Rect(Rect&&) = default;
+  Rect& operator=(Rect &&) = default;
+
+
   /**
    * @brief Construct from an initializer list with 4 to 6 elements (refer
    * to any other c'tor for the order of parameters).

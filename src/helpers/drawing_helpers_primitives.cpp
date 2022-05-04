@@ -43,6 +43,10 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
 
+  if (radius <= 0.0) {
+    throw std::invalid_argument("Radius must be > 0.0!");
+  }
+
   // Move to the center of the pixel coordinates:
   center += 0.5;
 
@@ -214,6 +218,7 @@ void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
                  const Color &fill_color) {
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
+
   // Ensure that the radius doesn't influence the validity
   // check (as it is ignored for drawing ellipses anyhow).
   rect.radius = 0.0;
@@ -254,6 +259,7 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
   // Sanity checks
   CheckCanvas(surface, context);
   CheckLineStyle(line_style);
+
   if ((spacing_x <= 0.0) || (spacing_y <= 0.0)) {
     throw std::invalid_argument("Cell spacing must be > 0.");
   }
@@ -348,6 +354,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
               const Color &fill_color) {
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
+
   if (!rect.IsValid()) {
     throw std::invalid_argument("Cannot draw an invalid rectangle!");
   }

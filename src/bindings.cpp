@@ -406,7 +406,7 @@ void RegisterVec(py::module &m) {
       .def("__getitem__", [](const VC &self, int index)
                           { return self[index]; })
       .def("copy", [](const VC &self) { return VC(self); },
-           "Returns a copy of this vector.")
+           "Returns a deep copy of this vector.")
       .def("dot", &VC::Dot,
            "Computes the dot product.",
            py::arg("other"))
@@ -539,6 +539,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "   complementary color) by prepending '!' or '-':\n"
            "  '!blue!30' (would be equal to 'yellow!30')",
            py::arg("colorspec"), py::arg("alpha")=1.0)
+      .def("copy", [](const viren2d::Color &c) { return viren2d::Color(c); },
+           "Returns a deep copy.")
       .def("__repr__",
            [](const viren2d::Color &c)
            { return "<" + Qualified("Color", false) + ", " + (c.IsValid() ? c.ToHexString() : "(invalid)") + ">"; })
@@ -603,8 +605,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                      "Blue component within [0, 1].")
       .def_readwrite("alpha", &viren2d::Color::alpha,
                      "Opacity within [0, 1].")
-      // TODO pybind11 bug, documentation of static members is
-      //      not carried over to python: https://github.com/pybind/pybind11/issues/3815
+      // TODO(snototter) pybind11 bug, documentation of static members is missing in python, see
+      //     https://github.com/pybind/pybind11/issues/3815
       .def_readonly_static("White", &viren2d::Color::White,
                            "Read-only white color instantiation (for convenience).")
       .def_readonly_static("Black", &viren2d::Color::Black,
@@ -644,20 +646,32 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   py::implicitly_convertible<py::str, viren2d::Color>();
 
 
-  // Convenience function "rgba"
-  auto doc = "Returns a " + Qualified("Color", false) + " for the given rgba values.\n"
-        "r, g, b and alpha must be within [0, 1]";
+  auto doc = "Returns a " + Qualified("Color", false) + " for the given values.\n"
+        "red, green, blue and alpha must be within [0, 1]";
   m.def("rgba", &viren2d::rgba, doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
+  // Convenience function "rgb"
+  doc = "Returns a fully opaque " + Qualified("Color", false) + " for the given\n"
+        "values. red, green, and blue must be within [0, 1].";
+  m.def("rgb", [](double red, double green, double blue) { return viren2d::Color(red, green, blue, 1.0); },
+        doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
+
+
   doc = "Returns a " + Qualified("Color", false) + " for the given RGBa values.\n"
-        "* R,G,B must be within [0, 255]\n"
-        "* alpha must be within [0, 1].";
+        "R, G, and B must be within [0, 255]; alpha must be within [0, 1].";
   m.def("RGBa", &viren2d::RGBa,
         doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
+
+  // Convenience function "RGB"
+  doc = "Returns a fully opaque " + Qualified("Color", false) + " for the given\n"
+        "values. red, green, and blue must be within [0, 255]\n"
+        "* alpha must be within [0, 1].";
+  m.def("RGB",  [](double R, double G, double B) { return viren2d::RGBa(R, G, B, 1.0); },
+        doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
 
   //------------------------------------------------- Primitives - Vectors
   moddef::RegisterVec<double, 2>(m);
@@ -698,36 +712,22 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "radius (for rounded rectangles).")
       .def(py::init<>(&moddef::CreateRect), doc.c_str(),
            py::arg("tpl"))
-//      .def(py::init<double, double, double, double>(),
-//           "Create an axis-aligned square box:\n"
-//           "  Center coordinates and dimensions.",
-//           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"))
-//      .def(py::init<viren2d::Vec2d, viren2d::Vec2d>(),
-//           "Create an axis-aligned square box:\n"
-//           "  Center point and size.",
-//           py::arg("center"), py::arg("size"))
-//      .def(py::init<double, double, double, double, double>(),
-//           "Create a rotated square box:\n"
-//           "  Center coordinates, dimensions and\n"
-//           "  rotation (clockwise, in degrees).",
-//           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"),
-//           py::arg("angle"))
-//      .def(py::init<viren2d::Vec2d, viren2d::Vec2d, double>(),
-//           "Create a rotated square box:\n"
-//           "  Center point, size and rotation (clockwise, in degrees).",
-//           py::arg("center"), py::arg("size"), py::arg("angle"))
-//      .def(py::init<double, double, double, double, double, double>(),
-//           "Create a rotated rounded rectangle:\n"
-//           "  Center coordinates, dimensions, rotation (clockwise,\n"
-//           "  in degrees), and corner radius (in pixels).",
-//           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"),
-//           py::arg("angle"), py::arg("radius"))
-//      .def(py::init<viren2d::Vec2d, viren2d::Vec2d, double, double>(),
-//           "Create a rotated rounded rectangle:\n"
-//           "  Center point, size, rotation (clockwise, in degrees),\n"
-//           "  and corner radius (in pixels).",
-//           py::arg("center"), py::arg("size"),
-//           py::arg("angle"), py::arg("radius"))
+      .def(py::init<double, double, double, double, double, double>(),
+           "Create a rotated rounded rectangle:\n"
+           "  Center coordinates, dimensions, rotation (clockwise,\n"
+           "  in degrees), and corner radius (in pixels).",
+           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"),
+           py::arg("angle") = 0.0,
+           py::arg("radius") = 0.0)
+      .def(py::init<viren2d::Vec2d, viren2d::Vec2d, double, double>(),
+           "Create a rotated rounded rectangle:\n"
+           "  Center point, size, rotation (clockwise, in degrees),\n"
+           "  and corner radius (in pixels).",
+           py::arg("center"), py::arg("size"),
+           py::arg("angle") = 0.0,
+           py::arg("radius") = 0.0)
+      .def("copy", [](const viren2d::Rect &r) { return viren2d::Rect(r); },
+           "Returns a deep copy.")
       .def("__repr__",
            [](const viren2d::Rect &r)
            { return Qualified(r.ToString(), true); })
@@ -783,6 +783,12 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                 sizeof(unsigned char) } // Strides (in bytes) per dimension
           );
       })
+      .def("copy", [](const viren2d::ImageBuffer &buf) {
+             viren2d::ImageBuffer cp;
+             cp.CreateCopy(buf.data, buf.width, buf.height, buf.channels, buf.stride);
+             return cp;
+           }, "Returns a deep copy. This new ImageBuffer will always allocate\n"
+           "and copy the memory, even if you call copy() on a \"shared\" buffer.")
       .def("to_rgb", &viren2d::ImageBuffer::ToRGB,
            "Convert to RGB. Will always return a copy, even if this buffer\n"
            "is already RGB.")
@@ -843,6 +849,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("dash_pattern")=std::vector<double>(),
            py::arg("line_cap")=viren2d::LineCap::Butt,
            py::arg("line_join")=viren2d::LineJoin::Miter)
+      .def("copy", [](const viren2d::LineStyle &st) { return viren2d::LineStyle(st); },
+           "Returns a deep copy.")
       .def("__repr__",
            [](const viren2d::LineStyle &st)
            { return Qualified(st.ToString(), true); })
@@ -902,6 +910,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("dash_pattern")=std::vector<double>(),
            py::arg("line_cap")=viren2d::LineCap::Butt,
            py::arg("line_join")=viren2d::LineJoin::Miter)
+      .def("copy", [](const viren2d::ArrowStyle &st) { return viren2d::ArrowStyle(st); },
+           "Returns a deep copy.")
       .def("__repr__",
            [](const viren2d::ArrowStyle &st)
            { return Qualified(st.ToString(), true); })

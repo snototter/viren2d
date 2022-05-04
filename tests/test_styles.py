@@ -40,6 +40,21 @@ def test_line_style():
     tpl = (2.0, "magenta", [], viren2d.LineCap.Round, viren2d.LineJoin.Bevel)
     assert style == tpl
 
+    #TODO extend (validity checks should be swept through)
+    #TODO same sweeping logic should be tested for arrow styles, too
+    styles = list()
+    for lw in [-2, 0.1, 1, 3, 100]:
+        style.line_width = lw
+        for color in [viren2d.Color(), viren2d.rgb(0.3, 0.1, 0.2), viren2d.RGB(200, 1, 77), 'blue!40']:
+            style.color = color
+            for dp in [[], [10], [10, 20], [1, 2, 3]]:
+                style.dash_pattern = dp
+                styles.append(style.copy())
+                assert styles[-1] == style
+                if len(styles) < 2:
+                    continue
+                assert styles[-1] != styles[-2]
+
 
 def test_arrow_style():
     # Default initialization should yield a valid style

@@ -41,6 +41,40 @@ def test_painter_basics():
 # draw_xxx before setting up the canvas will raise
 # a RuntimeError
 
+def is_valid_line_or_fill(line_style, fill_color):
+    return line_style.is_valid() or fill_color.is_valid()
+
+
+def color_configurations():
+    colors = list()
+    colors.append(viren2d.Color())
+    colors.append(viren2d.rgb(0.3, 0.1, 0.2))
+    colors.append(viren2d.Color('blue!40'))
+    return colors
+
+
+def line_style_configurations():
+    # Returns various valid/invalid line style configurations
+    styles = list()
+    style = viren2d.LineStyle()
+    styles.append(style.copy())
+    for lw in [-2, 0, 0.1, 1, 3, 100]:
+        style.line_width = lw
+        for color in color_configurations():
+            style.color = color
+            for dp in [[], [10], [10, 20], [1, 2, 3]]:
+                style.dash_pattern = dp
+
+                styles.append(style.copy())
+                # Ensure that the list contains an exact copy
+                assert styles[-1] == style
+                if len(styles) < 2:
+                    continue
+                # Ensure that we're not accidentally using references
+                assert styles[-1] != styles[-2]
+    return styles
+
+
 
 def test_draw_arc():
     # Try drawing on uninitialized canvas
@@ -67,10 +101,9 @@ def test_draw_arc():
         for radius in [0, 10, 50, -10]:
             for angles in [(-90, -100), (-80, -30), (-10, 10), (0, 300), (300, 360), (380, 500)]:
                 for inc_center in [True, False]:
-                    for fill_color in [viren2d.Color(), viren2d.Color("red"), viren2d.Color("blue!10")]:
-                        for line_width in [0, 1, 20]:
-                            style.line_width = line_width
-                            if style.is_valid() or fill_color.is_valid():
+                    for style in line_style_configurations():
+                        for fill_color in color_configurations():
+                            if radius > 0 and is_valid_line_or_fill(style, fill_color):
                                 p.draw_arc(center, radius, angles[0], angles[1], style, inc_center, fill_color)
                             else:
                                 with pytest.raises(ValueError):
@@ -97,7 +130,7 @@ def test_draw_arrow():
     # Draw with implicit conversions
     p.draw_arrow((0, 30), (70, 80), style)
     p.draw_arrow(arrow_style=style, pt2=(10, 10), pt1=(50, 30))
-
+#TODO  arrow_style_configurations():
     # Sweep valid and invalid configurations
     for pt1 in [(10, 2), (-100, -300), (0.2, 1000), (50, 900)]:
         for pt2 in [(-99, -32), (10, 30), (100, 0.2), (90, 5)]:
@@ -138,10 +171,9 @@ def test_draw_circles():
     # Sweep valid and invalid configurations
     for center in [(10, 20), (0, 0), (-100, -30), (0.2, 3000)]:
         for radius in [-3, 0, 1, 5, 50, 170]:
-            for line_width in [-1, 0.5, 10]:
-                style.line_width = line_width
-                for fill_color in [viren2d.Color(), viren2d.Color("red"), viren2d.Color("blue!10")]:
-                    if style.is_valid() or fill_color.is_valid():
+            for style in line_style_configurations():
+                for fill_color in color_configurations():
+                    if radius > 0 and is_valid_line_or_fill(style, fill_color):
                         p.draw_circle(center, radius, style, fill_color)
                     else:
                         with pytest.raises(ValueError):
@@ -174,8 +206,7 @@ def test_draw_grid():
       for br in [(0, 0), (-20, -70), (300, 30), (5000, -70)]:
           for sx in [-5, 0, 1, 10, 1000]:
             for sy in [-5, 0, 1, 10, 1000]:
-              for line_width in [-1, 0.5, 10]:
-                  style.line_width = line_width
+              for style in line_style_configurations():
                   if style.is_valid() and sx > 0 and sy > 0:
                       p.draw_grid(sx, sy, tl, br, style)
                   else:
@@ -186,7 +217,7 @@ def test_draw_grid():
 
 
 def test_draw_line():
-    # Try drawing on uninitialized canvas
+    ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
     # Try drawing on invalid painter
@@ -196,34 +227,33 @@ def test_draw_line():
     p.set_canvas_rgb(400, 300)
     assert p.is_valid()
 
-    # Draw with explicit types
+    ### Draw with explicit types
     style = viren2d.LineStyle()
     p.draw_line(viren2d.Vec2d(0, 30), viren2d.Vec2d(70, 80), style)
+    # Same as above from kwargs
+    p.draw_line(pt2=viren2d.Vec2d(70, 80), pt1=viren2d.Vec2d(0, 30), line_style=style)
+    p.draw_line(pt2=viren2d.Vec2d(y=80, x=70), pt1=viren2d.Vec2d(x=0, y=30), line_style=style)
 
-    # Draw with implicit conversions
+    ### Draw with implicit conversions
     p.draw_line((0, 30), (70, 80), style)
+    # Using kwargs
     p.draw_line(line_style=style, pt2=(10, 10), pt1=(50, 30))
 
-    # Sweep valid and invalid configurations
-    for pt1 in [(10, 2), (-100, -300), (0.2, 1000), (50, 900)]:
-        for pt2 in [(-99, -32), (10, 30), (100, 0.2), (90, 5)]:
-            for lw in [-2, 0.1, 1, 3, 100]:
-                style.line_width = lw
-                for dp in [[], [10], [10, 20], [1, 2, 3]]:
-                    style.dash_pattern = dp
-                    for color in [viren2d.Color(), viren2d.Color("red"), viren2d.Color("blue!10")]:
-                        style.color = color
-                        if style.is_valid():
-                            p.draw_line(pt1, pt2, style)
-                        else:
-                            with pytest.raises(ValueError):
-                                p.draw_line(pt1, pt2, style)
-                        # Painter should always be kept in a valid state
-                        assert p.is_valid()
+    ### Sweep valid and invalid configurations
+    for style in line_style_configurations():
+        for pt1 in [(10, 2), (-100, -300), (0.2, 1000), (5000, 90000)]:
+            for pt2 in [(-99, -32), (10, 30), (100000, 0.2), (90, 5)]:
+                if style.is_valid():
+                    p.draw_line(pt1, pt2, style)
+                else:
+                    with pytest.raises(ValueError):
+                        p.draw_line(pt1, pt2, style)
+                # Painter should always be kept in a valid state
+                assert p.is_valid()
   
 
 def test_draw_rect():
-    # Try drawing on uninitialized canvas
+    ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
     # Try drawing on invalid painter
@@ -233,37 +263,68 @@ def test_draw_rect():
     p.set_canvas_rgb(400, 300)
     assert p.is_valid()
 
-    # Now drawing should work
-    style = viren2d.LineStyle()
-    p.draw_rect(viren2d.Rect((10, 20, 30, 50)), style)
 
-    # Draw with implicit conversions
+    ### Draw with explicit initialization
+    style = viren2d.LineStyle()
+    # Rect as cx, cx, w, h
+    p.draw_rect(viren2d.Rect(10, 20, 30, 50), style)
+    # The above from kwargs
+    p.draw_rect(viren2d.Rect(w=30, cy=20, cx=10, h=50), style)
+
+    # Rect as cx, cx, w, h, angle, radius
+    p.draw_rect(viren2d.Rect(10, 20, 30, 50, 70, 3), style)
+    # The above from kwargs
+    p.draw_rect(viren2d.Rect(cx=10, cy=20, w=30, h=50, angle=70, radius=3), style)
+
+    # Rect as center, size
+    p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
+    # The above from kwargs
+    p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50)), style)
+
+    # Rect as center, size, angle, radius
+    p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
+    # The above from kwargs
+    p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50), angle=30, radius=0), style)
+
+
+    ### Draw with implicit conversions
+    # Rect as tuple (cx, cy, w, h)
     p.draw_rect((10, 20, 30, 50), style)
+    # Same as above, but with kwargs
+    p.draw_rect(line_style=style, rect=(10, 20, 30, 50))
+    # Like above, but includes additional fill
+    p.draw_rect(rect=(10, 20, 30, 50), line_style=style, fill_color='green')
+
+    # Rect from tuple (cx, cy, w, h, angle)
     p.draw_rect((10, 20, 30, 50, 78), style)
+    # Rect from tuple (cx, cy, w, h, angle, radius)
     p.draw_rect((10, 20, 30, 50, 78, 5), style)
+    # Rect from tuple (center, size)
     p.draw_rect(((10, 20), (30, 50)), style)
+    # Rect from tuple (center, size, angle)
     p.draw_rect(((10, 20), (30, 50), 78), style)
+    # Rect from tuple (center, size, angle, radius)
     p.draw_rect(((10, 20), (30, 50), 78, 5), style)
 
-    # Corner radius too big
-    with pytest.raises(ValueError):
-        p.draw_rect((10, 20, 30, 50, 78, 30), style)
-
+    
+    ### Sweep valid and invalid configurations
+    # Collect rectangles
+    rects = list()
     for center in [(-10, -100), (0, 0), (100, 300), (10000, 7000)]:
         for size in [(-5, -3), (0, 0), (0, 10), (4, 0), (10, 20), (300, 500), (40000, 50000)]:
             for angle in [-40, 0, 30, 380]:
                 for radius in [-10, 0, 5, 100, 30000]:
-                    rect = viren2d.Rect((center, size, angle, radius))
-                    for lw in [-2, 0, 3, 50]:
-                        style.line_width = lw
-                        for fill_color in [viren2d.Color(), viren2d.Color("red"), viren2d.Color("blue!10")]:
-                            if rect.is_valid() and (style.is_valid() or fill_color.is_valid()):
-                                p.draw_rect(rect, style, fill_color)
-                            else:
-                                with pytest.raises(ValueError):
-                                    p.draw_rect(rect, style, fill_color)
+                    rects.append(viren2d.Rect((center, size, angle, radius)))
+    # Try to draw with different style variations
+    for rect in rects:
+        for style in line_style_configurations():
+            for fill_color in color_configurations():
+                if rect.is_valid() and is_valid_line_or_fill(style, fill_color):
+                    p.draw_rect(rect, style, fill_color)
+                else:
+                    with pytest.raises(ValueError):
+                        p.draw_rect(rect, style, fill_color)
 
-    # Sweep valid and invalid configurations
 #TODO add tests for other draw_xxx functions    
 
     
