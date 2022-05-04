@@ -51,15 +51,15 @@ Marginalia: Another reason to work on this library was that I wanted to brush up
 ### Platforms known to work
 So far, `viren2d` has been tested on:  
 * Ubuntu 20.04  
-  Works out of the box (TODO test with usage requirements instead of dev)
+  Works out of the box
 * Ubuntu 18.04  
-  You need to install CMake via [Kitware's APT repository](https://apt.kitware.com/), because the default Ubuntu repository is stuck at CMake 3.10.
+  You need to install CMake via [Kitware's APT repository](https://apt.kitware.com/), because the default Ubuntu repository is stuck at v3.10.
 
 There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([Cairo](https://www.cairographics.org/download/), [Ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
 Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.  
 
 **Watch out Windows users:**  
-There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded path (i.e. `${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location. Adjust this path, or use your own `FindCairo.cmake` and please drop me a line (or PR) to update/simplify installation for future users.
+There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded search path (i.e. `${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location. Adjust this path or use your own `FindCairo.cmake` (and please drop me a line or [create a PR](https://github.com/snototter/viren2d/pulls) to update/simplify the installation instructions for future users).
 
 
 ### Direct Installation
@@ -76,29 +76,33 @@ Requires a python package manager which supports [pyproject.toml](https://peps.p
 
 
 ### Build from Source
-Clone this repository recursively to set up the external libraries. Then follow the standard CMake pipeline. In a nutshell:
+Clone this repository recursively to set up the external libraries.
 ```bash
 git clone --recursive https://github.com/snototter/viren2d.git
 cd viren2d
+```
 
-
-###########################################
-# Install the Python library
-###########################################
+To build and install the Python library (assuming you already activated your virtual environment), simply run
+```bash
 python -m pip install .
+```
+(This will automatically build any C++ dependencies)
 
-
-###########################################
-# Build & install the C++ library locally
-###########################################
+To build and install the C++ library instead, follow the standard CMake pipeline:
+```bash
 mkdir build && cd build
+# Configure
 cmake ..
+
+# Build
 cmake --build .
+
+# Install (Note that viren2d sets a local CMAKE_INSTALL_PREFIX)
 cmake --build . --target install
 ```
 
 **Note for Python users:**  
-If you want to re-install viren2d and run into a Ninja build error (Ninja binary not found in temporary directory), you should delete the build cache first:
+If you want to re-install `viren2d` and run into a Ninja build error (Ninja binary not found in temporary directory), you should delete the build cache first:
 ```bash
 rm -r build/temp.*
 python -m pip install .
@@ -128,7 +132,6 @@ I'm planning to support visualization of the following primitives/objects:
 * [ ] Use spdlog; set library-global debug level via interface function
 * [ ] Add user-adjustable default styles (LineStyle, ArrowStyle, etc.)
 * [ ] Nice-to-have: Add colormaps & pseudocoloring (low priority, v2.0?)
-* [ ] Nice-to-have: Color space conversion
-* [ ] Nice-to-have: Curves & curved arrows
+* [ ] Nice-to-have: Curves & curved arrows (low priority)
 
 
