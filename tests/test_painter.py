@@ -181,6 +181,54 @@ def test_draw_circles():
                     assert p.is_valid()
 
 
+def test_draw_ellipse():
+    ### Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    # Try drawing on invalid painter
+    with pytest.raises(RuntimeError):
+        p.draw_ellipse(viren2d.Ellipse((150, 150), (100, 300)))
+    # Prepare canvas
+    p.set_canvas_rgb(400, 300)
+    assert p.is_valid()
+
+
+    ### Draw with explicit initialization
+    style = viren2d.LineStyle()
+    # Ellipse as cx, cy, major, minor
+    p.draw_ellipse(viren2d.Ellipse(150, 180, 300, 100), style)
+    # The above from kwargs
+    p.draw_ellipse(viren2d.Ellipse(minor_axis=100, major_axis=300, cx=150, cy=180), style)
+
+    # Ellipse as center, size
+    p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)), style)
+    # The above from kwargs
+    p.draw_ellipse(viren2d.Ellipse(axes=(300, 100), center=(150, 150)), style)
+
+    # Ellipse as cx, cy, major, minor, rotation, angle_from, angle_to, include_center
+    p.draw_ellipse(viren2d.Ellipse(150, 180, 300, 100, 90, 45, -45, False), style)
+    # The above from kwargs
+    p.draw_ellipse(ellipse=viren2d.Ellipse(minor_axis=100, major_axis=300, cx=150, cy=180,
+                                           rotation=90, angle_from=45, angle_to=-45,
+                                           include_center=False), line_style=style)
+
+    # Ellipse as center, size, rotation, angle_from, angle_to, include_center
+    p.draw_ellipse(viren2d.Ellipse((150, 200), (400, 300), 70, 80, 90, True), style)
+    # The above from kwargs
+    p.draw_ellipse(viren2d.Ellipse(axes=(400, 300), center=(150, 200),
+                                   rotation=70, angle_from=80, angle_to=90,
+                                   include_center=True), line_style=style,
+                                   fill_color='black!20')
+
+#TODO Ellipse from tuple calls
+    ### Draw with implicit conversions
+
+    
+#TODO    ### Sweep valid and invalid configurations
+    # Collect ellipses
+    # Try to draw with different style variations
+
+
 def test_draw_grid():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()

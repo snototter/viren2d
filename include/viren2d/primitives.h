@@ -333,110 +333,7 @@ typedef Vec<int, 2> Vec2i;
 typedef Vec<int, 3> Vec3i;
 
 
-//-------------------------------------------------  Rectangle
-/**
- * @brief Rectangle for visualization.
- *
- * Note that it is defined by its CENTER coordinates
- * width, height, angle (clockwise rotation in degrees),
- * and a corner radius (for rounded rectangles).
- */
-struct Rect {
-  double cx;        ///< Center coordinate in x direction.
-  double cy;        ///< Center coordinate in y direction.
-  double width;     ///< Width of rectangle.
-  double height;    ///< Height of rectangle.
-  double rotation;  ///< Clockwise rotation in degrees.
-  double radius;    ///< Corner radius. Must be <= min(width, height)/2.
-
-  Rect()
-    : cx(0.0), cy(0.0), width(0.0), height(0.0),
-      rotation(0.0), radius(0.0)
-  {}
-
-
-  Rect(double center_x, double center_y, double w, double h,
-       double rot = 0.0, double corner_radius = 0.0)
-    : cx(center_x), cy(center_y), width(w), height(h),
-      rotation(rot), radius(corner_radius)
-  {}
-
-
-  Rect(const Vec2d &center, const Vec2d &size,
-       double rot = 0.0, double corner_radius = 0.0)
-    : cx(center.x()), cy(center.y()),
-      width(size.width()), height(size.height()),
-      rotation(rot), radius(corner_radius)
-  {}
-
-
-  // Nothing special about the rectangle class, so we can have
-  // the default copy/assignment/move c'tors/operators:
-  Rect(const Rect &other) = default;
-  Rect& operator=(const Rect &other) = default;
-  Rect(Rect&&) = default;
-  Rect& operator=(Rect &&) = default;
-
-
-  /**
-   * @brief Construct from an initializer list with 4 to 6 elements.
-   * Minimum: {cx, cy, w, h}
-   * Maximum: {cx, cy, w, h, rotation, corner_radius}
-   */
-  Rect(std::initializer_list<double> values);
-
-
-  /** @brief Translate the center point by "offset" pixels in each dimension. */
-  Rect &operator+=(double offset);
-
-
-  /** @brief Translate the center point by "offset" pixels in each dimension. */
-  Rect &operator-=(double offset);
-
-
-  /** @brief Translate the center point by "offset" pixels. */
-  Rect &operator+=(const Vec2d &offset);
-
-
-  /** @brief Translate the center point by "offset" pixels. */
-  Rect &operator-=(const Vec2d &offset);
-
-
-  /** @brief Returns half the width. */
-  inline double half_width() const {
-    return width / 2.0;
-  }
-
-
-  /** @brief Returns half the height. */
-  inline double half_height() const {
-    return height / 2.0;
-  }
-
-
-  /** @brief Returns true if this rectangle can be drawn. */
-  bool IsValid() const;
-
-
-  /** @brief Returns a human-readable string representation. */
-  std::string ToString() const;
-
-
-  /** @brief Overloaded stream operator. */
-  friend std::ostream &operator<<(std::ostream &os, const Rect &r) {
-    os << r.ToString();
-    return os;
-  }
-};
-
-
-//-------------------------------------------------  Comparison operators
-bool operator==(const Rect& lhs, const Rect& rhs);
-bool operator!=(const Rect& lhs, const Rect& rhs);
-
-
-
-//-------------------------------------------------  Rectangle
+//-------------------------------------------------  Ellipse
 /**
  * @brief Ellipse for visualization.
  * //TODO doc
@@ -541,6 +438,109 @@ struct Ellipse {
 //-------------------------------------------------  Comparison operators
 bool operator==(const Ellipse& lhs, const Ellipse& rhs);
 bool operator!=(const Ellipse& lhs, const Ellipse& rhs);
+
+
+
+//-------------------------------------------------  Rectangle
+/**
+ * @brief Rectangle for visualization.
+ *
+ * Note that it is defined by its CENTER coordinates
+ * width, height, angle (clockwise rotation in degrees),
+ * and a corner radius (for rounded rectangles).
+ */
+struct Rect {
+  double cx;        ///< Center coordinate in x direction.
+  double cy;        ///< Center coordinate in y direction.
+  double width;     ///< Width of rectangle.
+  double height;    ///< Height of rectangle.
+  double rotation;  ///< Clockwise rotation in degrees.
+  double radius;    ///< Corner radius. Must be <= min(width, height)/2.
+
+  Rect()
+    : cx(0.0), cy(0.0), width(0.0), height(0.0),
+      rotation(0.0), radius(0.0)
+  {}
+
+
+  Rect(double center_x, double center_y, double w, double h,
+       double rot = 0.0, double corner_radius = 0.0)
+    : cx(center_x), cy(center_y), width(w), height(h),
+      rotation(rot), radius(corner_radius)
+  {}
+
+
+  Rect(const Vec2d &center, const Vec2d &size,
+       double rot = 0.0, double corner_radius = 0.0)
+    : cx(center.x()), cy(center.y()),
+      width(size.width()), height(size.height()),
+      rotation(rot), radius(corner_radius)
+  {}
+
+
+  // Nothing special about the rectangle class, so we can have
+  // the default copy/assignment/move c'tors/operators:
+  Rect(const Rect &other) = default;
+  Rect& operator=(const Rect &other) = default;
+  Rect(Rect&&) = default;
+  Rect& operator=(Rect &&) = default;
+
+
+  /**
+   * @brief Construct from an initializer list with 4 to 6 elements.
+   * Minimum: {cx, cy, w, h}
+   * Maximum: {cx, cy, w, h, rotation, corner_radius}
+   */
+  Rect(std::initializer_list<double> values);
+
+
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Rect &operator+=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  Rect &operator-=(double offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Rect &operator+=(const Vec2d &offset);
+
+
+  /** @brief Translate the center point by "offset" pixels. */
+  Rect &operator-=(const Vec2d &offset);
+
+
+  /** @brief Returns half the width. */
+  inline double half_width() const {
+    return width / 2.0;
+  }
+
+
+  /** @brief Returns half the height. */
+  inline double half_height() const {
+    return height / 2.0;
+  }
+
+
+  /** @brief Returns true if this rectangle can be drawn. */
+  bool IsValid() const;
+
+
+  /** @brief Returns a human-readable string representation. */
+  std::string ToString() const;
+
+
+  /** @brief Overloaded stream operator. */
+  friend std::ostream &operator<<(std::ostream &os, const Rect &r) {
+    os << r.ToString();
+    return os;
+  }
+};
+
+
+//-------------------------------------------------  Comparison operators
+bool operator==(const Rect& lhs, const Rect& rhs);
+bool operator!=(const Rect& lhs, const Rect& rhs);
 
 } // namespace viren2d
 

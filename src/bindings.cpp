@@ -223,6 +223,12 @@ public:
     painter_->DrawCircle(center, radius, line_style, fill_color);
   }
 
+  void DrawEllipse(const viren2d::Ellipse &ellipse,
+                   const viren2d::LineStyle &line_style,
+                   const viren2d::Color &fill_color) {
+    painter_->DrawEllipse(ellipse, line_style, fill_color);
+  }
+
   void DrawGrid(double spacing_x, double spacing_y,
                 const viren2d::Vec2d &top_left, const viren2d::Vec2d &bottom_right,
                 const viren2d::LineStyle &line_style) {
@@ -682,6 +688,60 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 //  moddef::RegisterVec<int, 3>(m);
 
 
+  //------------------------------------------------- Primitives - Ellipse
+  py::class_<viren2d::Ellipse>(m, "Ellipse", "TODO doc")
+//      .def(py::init<>(&moddef::CreateRect), doc.c_str(),
+//           py::arg("tpl"))
+      .def(py::init<double, double, double, double, double, double, double, bool>(),
+           "TODO",
+           py::arg("cx"), py::arg("cy"),
+           py::arg("major_axis"), py::arg("minor_axis"),
+           py::arg("rotation") = 0.0,
+           py::arg("angle_from") = 0.0,
+           py::arg("angle_to") = 360.0,
+           py::arg("include_center") = true)
+      .def(py::init<viren2d::Vec2d, viren2d::Vec2d, double, double, double, bool>(),
+           "TODO",
+           py::arg("center"), py::arg("axes"),
+           py::arg("rotation") = 0.0,
+           py::arg("angle_from") = 0.0,
+           py::arg("angle_to") = 360.0,
+           py::arg("include_center") = true)
+      .def("copy", [](const viren2d::Ellipse &e) { return viren2d::Ellipse(e); },
+           "Returns a deep copy.")
+      .def("__repr__",
+           [](const viren2d::Ellipse &o)
+           { return Qualified(o.ToString(), true); })
+      .def("__str__", &viren2d::Ellipse::ToString)
+//      .def(py::pickle(&pickling::SerializeEllipse,
+//                      &pickling::DeserializeEllipse))
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def_readwrite("cx", &viren2d::Ellipse::cx,
+           "Horizontal center.")
+      .def_readwrite("cy", &viren2d::Ellipse::cy,
+           "Vertical center.")
+      .def_readwrite("major_axis", &viren2d::Ellipse::major_axis,
+           "Length of major axis.")
+      .def_readwrite("minor_axis", &viren2d::Ellipse::minor_axis,
+           "Length of minor axis.")
+      .def_readwrite("rotation", &viren2d::Ellipse::rotation,
+           "Rotation angle (clockwise) in degrees.")
+      .def_readwrite("angle_from", &viren2d::Ellipse::angle_from,
+           "Drawing the contour/fill starts at 'angle_from' (clockwise in degrees).")
+      .def_readwrite("angle_to", &viren2d::Ellipse::angle_to,
+           "Drawing the contour/fill stops at 'angle_from' (clockwise in degrees).")
+      .def_readwrite("include_center", &viren2d::Ellipse::include_center,
+           "If you explicitly change 'angle_from'/'angle_to', you very likely\n"
+           "want to also include the center point in the rendering path. Otherwise,\n"
+           "filling can easily lead to irritating results.")
+      .def("is_valid", &viren2d::Ellipse::IsValid,
+           "Returns True if the ellipse is in a valid/drawable state.");
+
+//  // An ellipse can be initialized from a given tuple.
+//  py::implicitly_convertible<py::tuple, viren2d::Ellipse>();//TODO
+
+
   //------------------------------------------------- Primitives - Rectangle
   doc = "Initialize from tuple:\n"
          "(center, size)\n"
@@ -1070,6 +1130,21 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
               py::arg("center"), py::arg("radius"),
               py::arg("line_style") = viren2d::LineStyle(),
               py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+
+
+    //----------------------------------------------------------------------
+  doc = "Draws an ellipse.\n\n"
+    ":ellipse:  (" + Qualified("Ellipse") + ")\n"
+    "    The ellipse which should be drawn.\n\n"
+    ":line_style:  (" + Qualified("LineStyle") + ")\n"
+    "   How to draw it's outline. If line_width is 0, the outline\n"
+    "   will not be drawn (then you *must* define a 'fill_color').\n\n"
+    ":fill_color:  (" + Qualified("Color") + ")\n"
+    "   Provide a valid color to fill the ellipse.";
+  painter.def("draw_ellipse", &moddef::Painter::DrawEllipse, doc.c_str(),
+          py::arg("ellipse"),
+          py::arg("line_style") = viren2d::LineStyle(),
+          py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
 
         //----------------------------------------------------------------------
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"

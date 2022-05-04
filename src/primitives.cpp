@@ -963,93 +963,6 @@ template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
 
 
-//---------------------------------------------------- Rectangle
-
-Rect::Rect(std::initializer_list<double> values) {
-  if (values.size() < 4 || values.size() > 6) {
-    std::stringstream s;
-    s << "Rect c'tor requires 4 to 6 entries in initializer_list, "
-      << "but got " << values.size() << ".";
-    throw std::invalid_argument(s.str());
-  }
-
-  const auto val = values.begin();
-  cx = val[0];
-  cy = val[1];
-  width = val[2];
-  height = val[3];
-
-  if (values.size() > 4)
-    rotation = val[4];
-
-  if (values.size() > 5)
-    radius = val[5];
-}
-
-
-Rect &Rect::operator+=(double offset) {
-  cx += offset;
-  cy += offset;
-  return *this;
-}
-
-
-Rect &Rect::operator-=(double offset) {
-  cx -= offset;
-  cy -= offset;
-  return *this;
-}
-
-
-Rect &Rect::operator+=(const Vec2d &offset) {
-  cx += offset.x();
-  cy += offset.y();
-  return *this;
-}
-
-
-Rect &Rect::operator-=(const Vec2d &offset) {
-  cx -= offset.x();
-  cy -= offset.y();
-  return *this;
-}
-
-
-bool Rect::IsValid() const {
-  return (width > 0.0) && (height > 0.0)
-      && (radius < std::min(half_height(), half_width()))
-      && (radius >= 0.0);
-}
-
-
-std::string Rect::ToString() const {
-  std::stringstream s;
-  s << "Rect(cx=" << std::fixed << std::setprecision(1)
-    << cx << ", cy=" << cy << ", w=" << width << ", h=" << height
-    << "; rot=" << rotation << "°, radius=" << radius;
-
-  if (!IsValid())
-    s << ", invalid";
-
-  s << ")";
-  return s.str();
-}
-
-bool operator==(const Rect& lhs, const Rect& rhs) {
-  return eps_equal(lhs.cx, rhs.cx)
-      && eps_equal(lhs.cy, rhs.cy)
-      && eps_equal(lhs.width, rhs.width)
-      && eps_equal(lhs.height, rhs.height)
-      && eps_equal(lhs.rotation, rhs.rotation)
-      && eps_equal(lhs.radius, rhs.radius);
-}
-
-bool operator!=(const Rect& lhs, const Rect& rhs) {
-  return !(lhs == rhs);
-}
-
-
-
 //---------------------------------------------------- Ellipse
 
 Ellipse::Ellipse(std::initializer_list<double> values) {
@@ -1145,6 +1058,92 @@ bool operator==(const Ellipse& lhs, const Ellipse& rhs) {
 
 
 bool operator!=(const Ellipse& lhs, const Ellipse& rhs) {
+  return !(lhs == rhs);
+}
+
+
+//---------------------------------------------------- Rectangle
+
+Rect::Rect(std::initializer_list<double> values) {
+  if (values.size() < 4 || values.size() > 6) {
+    std::stringstream s;
+    s << "Rect c'tor requires 4 to 6 entries in initializer_list, "
+      << "but got " << values.size() << ".";
+    throw std::invalid_argument(s.str());
+  }
+
+  const auto val = values.begin();
+  cx = val[0];
+  cy = val[1];
+  width = val[2];
+  height = val[3];
+
+  if (values.size() > 4)
+    rotation = val[4];
+
+  if (values.size() > 5)
+    radius = val[5];
+}
+
+
+Rect &Rect::operator+=(double offset) {
+  cx += offset;
+  cy += offset;
+  return *this;
+}
+
+
+Rect &Rect::operator-=(double offset) {
+  cx -= offset;
+  cy -= offset;
+  return *this;
+}
+
+
+Rect &Rect::operator+=(const Vec2d &offset) {
+  cx += offset.x();
+  cy += offset.y();
+  return *this;
+}
+
+
+Rect &Rect::operator-=(const Vec2d &offset) {
+  cx -= offset.x();
+  cy -= offset.y();
+  return *this;
+}
+
+
+bool Rect::IsValid() const {
+  return (width > 0.0) && (height > 0.0)
+      && (radius < std::min(half_height(), half_width()))
+      && (radius >= 0.0);
+}
+
+
+std::string Rect::ToString() const {
+  std::stringstream s;
+  s << "Rect(cx=" << std::fixed << std::setprecision(1)
+    << cx << ", cy=" << cy << ", w=" << width << ", h=" << height
+    << "; rot=" << rotation << "°, radius=" << radius;
+
+  if (!IsValid())
+    s << ", invalid";
+
+  s << ")";
+  return s.str();
+}
+
+bool operator==(const Rect& lhs, const Rect& rhs) {
+  return eps_equal(lhs.cx, rhs.cx)
+      && eps_equal(lhs.cy, rhs.cy)
+      && eps_equal(lhs.width, rhs.width)
+      && eps_equal(lhs.height, rhs.height)
+      && eps_equal(lhs.rotation, rhs.rotation)
+      && eps_equal(lhs.radius, rhs.radius);
+}
+
+bool operator!=(const Rect& lhs, const Rect& rhs) {
   return !(lhs == rhs);
 }
 
