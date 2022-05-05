@@ -466,20 +466,20 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
   // Shift to the pixel center (so 1px borders are drawn correctly)
   rect += 0.5;
 
-  //FIXME
-  cairo_select_font_face(context, "xkcd", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(context, 50);
-  //TODO set font once
-  //add TextStyle (default is initialized by painter's context set up!)
-  // SetDefaultTextStyle()
-  // DrawText(TextStyle())
-  // if TextStyle != Default, set in current context
-  cairo_move_to(context, rect.cx, rect.cy);
-  cairo_text_extents_t extents;
-  cairo_text_extents(context, "Hello Cairo!", &extents);
-  std::cout << "Text extents: " << extents.width << " x " << extents.height << std::endl;
-  cairo_show_text(context, "Hello Cairo!");
-  //FIXME
+//  //FIXME
+//  cairo_select_font_face(context, "xkcd", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+//  cairo_set_font_size(context, 50);
+//  //TODO set font once
+//  //add TextStyle (default is initialized by painter's context set up!)
+//  // SetDefaultTextStyle()
+//  // DrawText(TextStyle())
+//  // if TextStyle != Default, set in current context
+//  cairo_move_to(context, rect.cx, rect.cy);
+//  cairo_text_extents_t extents;
+//  cairo_text_extents(context, "Hello Cairo!", &extents);
+//  std::cout << "Text extents: " << extents.width << " x " << extents.height << std::endl;
+//  cairo_show_text(context, "Hello Cairo!");
+//  //FIXME
 
   cairo_save(context);
   cairo_translate(context, rect.cx, rect.cy);

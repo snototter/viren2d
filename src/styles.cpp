@@ -146,12 +146,7 @@ bool LineStyle::Equals(const LineStyle &other) const {
 
 
 void SetDefaultLineStyle(const LineStyle &line_style) {
-  std::cout << "FUCKFUCK " << default_line_style << std::endl;
   default_line_style = line_style;
-
-  LineStyle ls(default_line_style);
-  std::cout << "FUCK" << default_line_style << " vs " << ls << std::endl;
-
 }
 
 
