@@ -455,7 +455,7 @@ struct Rect {
   double width;     ///< Width of rectangle.
   double height;    ///< Height of rectangle.
   double rotation;  ///< Clockwise rotation in degrees.
-  double radius;    ///< Corner radius. Must be <= min(width, height)/2.
+  double radius;    ///< Corner radius. Must be <= min(width, height)/2. TODO doc percentage if < 1
 
   Rect()
     : cx(0.0), cy(0.0), width(0.0), height(0.0),

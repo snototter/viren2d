@@ -157,13 +157,46 @@ void DemoCircles() {
 }
 
 
-// TODO rect demo
+void DemoRects() {
+  auto painter = viren2d::CreateImagePainter();
+  painter->SetCanvas(600, 600, viren2d::Color::White);
+
+  painter->DrawGrid({}, {}, 50, 50,
+                    viren2d::LineStyle(1.0, "gray!60"));
+
+  auto style = viren2d::LineStyle(3, "navy-blue!90");
+
+  auto rect = viren2d::Rect(100, 150, 100, 200);
+  painter->DrawRect(rect, style, "light-blue!30");
+
+  rect.cx += 150;
+  rect.radius = 0.5;
+  painter->DrawRect(rect, style);
+
+  rect.cx += 200;
+  rect.rotation = 45;
+  painter->DrawRect(rect, style);
+
+  rect.cx = 100;
+  rect.cy += 300;
+  rect.rotation = 10;
+  rect.radius = 0.1;
+  painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
+
+  rect.cx += 150;
+  rect.rotation += 10;
+  rect.radius = 30;
+  painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
+}
 
 
 int main(int /*argc*/, char **/*argv*/) {
-//  DemoLines();
+  DemoLines();
 //  DemoArrows();
   DemoCircles();
+  DemoRects();
 
   if (true)
     return 0;

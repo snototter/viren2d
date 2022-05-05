@@ -394,14 +394,14 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
 
   // Draw the grid. To support thin lines, we need to shift the coordinates.
   // For details see https://www.cairographics.org/FAQ/#sharp_lines
-  auto num_steps = static_cast<int>(std::ceil((right - left) / spacing_x));
+  auto num_steps = static_cast<int>(std::floor((right - left) / spacing_x));
   double x = left + 0.5;
   for (int step = 0; step <= num_steps; ++step, x += spacing_x) {
     cairo_move_to(context, x, top);
     cairo_line_to(context, x, bottom);
   }
 
-  num_steps = static_cast<int>(std::ceil((bottom - top) / spacing_y));
+  num_steps = static_cast<int>(std::floor((bottom - top) / spacing_y));
   double y = top + 0.5;
   for (int step = 0; step <= num_steps; ++step, y += spacing_y) {
     cairo_move_to(context, left, y);
@@ -466,16 +466,38 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
   // Shift to the pixel center (so 1px borders are drawn correctly)
   rect += 0.5;
 
+  //FIXME
+  cairo_select_font_face(context, "xkcd", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(context, 50);
+  //TODO set font once
+  //add TextStyle (default is initialized by painter's context set up!)
+  // SetDefaultTextStyle()
+  // DrawText(TextStyle())
+  // if TextStyle != Default, set in current context
+  cairo_move_to(context, rect.cx, rect.cy);
+  cairo_text_extents_t extents;
+  cairo_text_extents(context, "Hello Cairo!", &extents);
+  std::cout << "Text extents: " << extents.width << " x " << extents.height << std::endl;
+  cairo_show_text(context, "Hello Cairo!");
+  //FIXME
+
   cairo_save(context);
   cairo_translate(context, rect.cx, rect.cy);
   cairo_rotate(context, deg2rad(rect.rotation));
 
   // Draw a standard (box) rect or rounded rectangle:
-  if (rect.radius > 0.0)
+  if (rect.radius > 0.0) {
+    // If radius in [0, 1], we use it as a percentage
+    // Actually, due to the IsValid() check, it will
+    // either be (0, 0.5] or >= 1
+    if (rect.radius < 1.0) {
+      rect.radius *= std::min(rect.width, rect.height);
+    }
     PathHelperRoundedRect(context, rect);
-  else
+  } else {
     cairo_rectangle(context, -rect.half_width(), -rect.half_height(),
                     rect.width, rect.height);
+  }
 
   if (fill_color.alpha > 0.0) {
     helpers::ApplyColor(context, fill_color);

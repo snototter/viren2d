@@ -518,15 +518,31 @@ imvis.imshow(img)
 
 
 
+#### default line style
 
-
-######### arrows
 from vito import imvis
 import numpy as np
 import viren2d as vi
 
 p = vi.Painter()
 p.set_canvas_rgb(400, 300)
+
+p.draw_grid(50, 50, ())
+img_np = np.array(p.get_canvas())
+imvis.imshow(img_np)
+
+line_style = vi.LineStyle()
+line_style.color = 'midnight-blue!80'
+line_style.line_width = 3
+vi.set_default_line_style(line_style)
+
+p.draw_grid(50, 50, (), top_left=(25, 25), bottom_right=(375, 275))
+
+img_np = np.array(p.get_canvas())
+imvis.imshow(img_np)
+
+######### arrows
+
 
 # grid
 grid_style = vi.LineStyle(1, "gray!80")

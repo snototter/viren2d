@@ -63,14 +63,11 @@ struct LineStyle {
   LineCap line_cap;    /**< How to render the endpoints. */
   LineJoin line_join;  /**< How to render the junction of two lines/segments. */
 
+  LineStyle();
 
-  LineStyle(double width=2.0,
-            const Color &col=Color(NamedColor::Azure),
+  LineStyle(double width, const Color &col,
             const std::vector<double> &dash=std::vector<double>(),
-            LineCap cap=LineCap::Butt, LineJoin join=LineJoin::Miter)
-    : line_width(width), color(col), dash_pattern(dash),
-      line_cap(cap), line_join(join)
-  {}
+            LineCap cap=LineCap::Butt, LineJoin join=LineJoin::Miter);
 
   virtual ~LineStyle() {}
 
@@ -113,6 +110,9 @@ struct LineStyle {
   }
 };
 
+//TODO doc & test
+void SetDefaultLineStyle(const LineStyle &line_style);
+
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
 bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
 
@@ -136,6 +136,17 @@ struct ArrowStyle : public LineStyle {
              LineCap cap = LineCap::Butt,
              LineJoin join = LineJoin::Miter)
     : LineStyle(width, col, dash, cap, join),
+      tip_length(tip_len), tip_angle(angle),
+      tip_closed(fill), double_headed(two_heads)
+  {}
+
+
+  ArrowStyle(const LineStyle &line_style,
+             double tip_len = 0.1,
+             double angle = 20.0,
+             bool fill = false,
+             bool two_heads = false)
+    : LineStyle(line_style),
       tip_length(tip_len), tip_angle(angle),
       tip_closed(fill), double_headed(two_heads)
   {}

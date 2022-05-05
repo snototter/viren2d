@@ -10,6 +10,11 @@
 #include <viren2d/math.h>
 
 namespace viren2d {
+namespace {
+static LineStyle default_line_style = LineStyle(2.0, Color(NamedColor::ForestGreen, 80),
+                                                std::vector<double>(),
+                                                LineCap::Butt, LineJoin::Miter);
+} // anonymous namespace
 
 std::string LineCapToString(LineCap cap) {
   switch (cap) {
@@ -46,6 +51,23 @@ std::string LineJoinToString(LineJoin join) {
 
 
 //-------------------------------------------------  LineStyle
+LineStyle::LineStyle()
+  : line_width(default_line_style.line_width),
+    color(default_line_style.color),
+    dash_pattern(default_line_style.dash_pattern),
+    line_cap(default_line_style.line_cap),
+    line_join(default_line_style.line_join)
+{}
+
+
+LineStyle::LineStyle(double width, const Color &col,
+                     const std::vector<double> &dash,
+                     LineCap cap, LineJoin join)
+  : line_width(width), color(col), dash_pattern(dash),
+    line_cap(cap), line_join(join)
+{}
+
+
 bool LineStyle::IsValid() const {
   return (line_width > 0.0) && color.IsValid();
 }
@@ -120,6 +142,16 @@ bool LineStyle::Equals(const LineStyle &other) const {
     return false;
 
   return true;
+}
+
+
+void SetDefaultLineStyle(const LineStyle &line_style) {
+  std::cout << "FUCKFUCK " << default_line_style << std::endl;
+  default_line_style = line_style;
+
+  LineStyle ls(default_line_style);
+  std::cout << "FUCK" << default_line_style << " vs " << ls << std::endl;
+
 }
 
 

@@ -235,17 +235,20 @@ def test_draw_grid():
     assert not p.is_valid()
     # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
-        p.draw_grid(20, 20)
+        p.draw_grid(20, 20, viren2d.LineStyle())
     # Prepare canvas
     p.set_canvas_rgb(400, 300)
     assert p.is_valid()
     
     # Draw with explicit types
     style = viren2d.LineStyle()
-    p.draw_grid(20, 20, viren2d.Vec2d(), viren2d.Vec2d(), style)
+    p.draw_grid(20, 20, style)
+    p.draw_grid(20, 20, (), (), ())
+    p.draw_grid(20, 20, (), viren2d.Vec2d(), viren2d.Vec2d())
+    p.draw_grid(20, 20, style, viren2d.Vec2d(), viren2d.Vec2d())
 
     # Draw with implicit conversions
-    p.draw_grid(20, 20, (0, 0), (50, 50), style)
+    p.draw_grid(20, 20, style, (0, 0), (50, 50))
     p.draw_grid(20, 20, line_style=style)
   
     # Sweep valid and invalid configurations
@@ -255,10 +258,10 @@ def test_draw_grid():
             for sy in [-5, 0, 5]:
               for style in line_style_configurations():
                   if style.is_valid() and sx > 0 and sy > 0:
-                      p.draw_grid(sx, sy, tl, br, style)
+                      p.draw_grid(sx, sy, style, tl, br)
                   else:
                       with pytest.raises(ValueError):
-                          p.draw_grid(sx, sy, tl, br, style)
+                          p.draw_grid(sx, sy, style, tl, br)
                   # Painter should always be kept in a valid state
                   assert p.is_valid()
 
@@ -269,7 +272,7 @@ def test_draw_line():
     assert not p.is_valid()
     # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
-        p.draw_line((0, 0), (50, 50))
+        p.draw_line((0, 0), (50, 50), viren2d.LineStyle())
     # Prepare canvas
     p.set_canvas_rgb(400, 300)
     assert p.is_valid()
@@ -283,8 +286,10 @@ def test_draw_line():
 
     ### Draw with implicit conversions
     p.draw_line((0, 30), (70, 80), style)
+    p.draw_line((0, 30), (70, 80), ())
     # Using kwargs
     p.draw_line(line_style=style, pt2=(10, 10), pt1=(50, 30))
+    p.draw_line(line_style=(), pt2=(10, 10), pt1=(50, 30))
 
     ### Sweep valid and invalid configurations
     for style in line_style_configurations():

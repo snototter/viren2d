@@ -101,7 +101,8 @@ def test_vectors():
 
     vector_test_helper(viren2d.Vec3d(1, 2, 3), zero3d)
     vector_test_helper(viren2d.Vec3d(0.01, 0.99, -15.3), zero3d)
-    vector_test_helper(viren2d.Vec3d(-171, 2, -3), zero3d)
+    v3d = viren2d.Vec3d(-171, 2, -3)
+    vector_test_helper(v3d, zero3d)
     
 
     v2d = viren2d.Vec2d(23, -17)
@@ -120,13 +121,33 @@ def test_vectors():
     assert orth != v2d
     assert v2d.dot(orth) == pytest.approx(0)
 
+    # We can cast tuples/lists to Vec
+    assert v2d == viren2d.Vec2d((23, -17))  # tuple
+    assert v2d == viren2d.Vec2d([23, -17])  # list
 
+    assert v3d == viren2d.Vec3d((-171, 2, -3))  # tuple
+    assert v3d == viren2d.Vec3d([-171, 2, -3])  # list
+
+    # In python, we can even support named arguments
+    assert v2d == viren2d.Vec2d(y=-17, x=23)
+    with pytest.raises(TypeError):
+        assert v2d == viren2d.Vec2d(x=3, y=4, z=7)
+
+    # ... and this also works for 3d vectors:
+    assert v3d == viren2d.Vec3d(y=2, x=-171, z=-3)
+    with pytest.raises(TypeError):
+        viren2d.Vec3d(x=3, y=4)
+    with pytest.raises(TypeError):
+        viren2d.Vec3d(x=3, y=4, z=7, w=99)
+
+    
 def test_pickling():
     vecs = [viren2d.Vec2d(99, -45),
             viren2d.Vec2d(0.0001, 0.0789),
             viren2d.Vec2d(-0.03, -0.01234),
             viren2d.Vec3d(1, 2, 3),
-            viren2d.Vec3d(-0.001, -0.0002, -0.0003)]
+            viren2d.Vec3d(-0.001, -0.0002, -0.0003),
+            viren2d.Vec3d([1, 2, 3])]
 
     for vec in vecs:
         data = pickle.dumps(vec)

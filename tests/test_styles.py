@@ -3,7 +3,41 @@ import viren2d
 import pickle
 
 
+def color_configurations():
+    colors = list()
+    colors.append(viren2d.Color())
+    colors.append(viren2d.rgb(0.3, 0.1, 0.2))
+    colors.append(viren2d.Color('blue!40'))
+    return colors
+
+
+def line_style_configurations():
+    # Returns various valid/invalid line style configurations
+    styles = list()
+    style = viren2d.LineStyle()
+    styles.append(style.copy())
+    for lw in [-2, 0, 0.1, 1, 6]:
+        style.line_width = lw
+        for color in color_configurations():
+            style.color = color
+            for dp in [[], [10], [10, 20], [1, 2, 3]]:
+                style.dash_pattern = dp
+
+                styles.append(style.copy())
+                # Ensure that the list contains an exact copy
+                assert styles[-1] == style
+                if len(styles) < 2:
+                    continue
+                # Ensure that we're not accidentally using references
+                assert styles[-1] != styles[-2]
+    return styles
+
+
 def test_line_style():
+#FIXME default_line_style
+#FIXME init from empty tuple
+#FIXME init from tuple
+#FIXME init from kwargs
     # Default initialization should yield a valid style
     style = viren2d.LineStyle()
     assert style.is_valid()
@@ -39,21 +73,6 @@ def test_line_style():
 
     tpl = (2.0, "magenta", [], viren2d.LineCap.Round, viren2d.LineJoin.Bevel)
     assert style == tpl
-
-    #TODO extend (validity checks should be swept through)
-    #TODO same sweeping logic should be tested for arrow styles, too
-    styles = list()
-    for lw in [-2, 0.1, 1, 3, 100]:
-        style.line_width = lw
-        for color in [viren2d.Color(), viren2d.rgb(0.3, 0.1, 0.2), viren2d.RGB(200, 1, 77), 'blue!40']:
-            style.color = color
-            for dp in [[], [10], [10, 20], [1, 2, 3]]:
-                style.dash_pattern = dp
-                styles.append(style.copy())
-                assert styles[-1] == style
-                if len(styles) < 2:
-                    continue
-                assert styles[-1] != styles[-2]
 
 
 def test_arrow_style():
@@ -91,7 +110,20 @@ def test_arrow_style():
     assert not style.is_valid()
     style.tip_length = 3
     assert style.is_valid()
-    
+
+    for line_style in line_style_configurations():
+        style = viren2d.ArrowStyle(line_style)
+        assert line_style.is_valid() == style.is_valid()
+        for tl in [-3, 0, 0.3, 5, 500]:
+            style.tip_length = tl
+            for ta in [-3, 0, 45, 90, 179, 180, 190]:
+                style.tip_angle = ta
+                for fill in [True, False]:
+                    style.tip_closed = fill
+                    for dh in [True, False]:
+                        style.double_headed = dh
+                        assert style.is_valid() == (line_style.is_valid() and (tl > 0) and (ta > 0) and (ta < 180))
+
 
 def test_arrow_tip_length():
     # Default initialization should yield a valid style
@@ -174,11 +206,12 @@ def test_line_operators():
 
 def test_pickling():
     # Serialize line style
-    ls = viren2d.LineStyle(2.0, "orchid!30", [],
-                           viren2d.LineCap.Round, viren2d.LineJoin.Bevel)
-    data = pickle.dumps(ls)
-    restored = pickle.loads(data)
-    assert ls == restored
+    for ls in line_style_configurations():
+        ls = viren2d.LineStyle(2.0, "orchid!30", [],
+                               viren2d.LineCap.Round, viren2d.LineJoin.Bevel)
+        data = pickle.dumps(ls)
+        restored = pickle.loads(data)
+        assert ls == restored
 
     # Serialize arrow style
     arr = viren2d.ArrowStyle(tip_length=42, tip_angle=20, tip_closed=True)
