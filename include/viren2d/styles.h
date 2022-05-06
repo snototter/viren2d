@@ -63,11 +63,21 @@ struct LineStyle {
   LineCap line_cap;    /**< How to render the endpoints. */
   LineJoin line_join;  /**< How to render the junction of two lines/segments. */
 
+  /** Returns a default style (which can be changed via @see SetDefaultLineStyle). */
   LineStyle();
+
 
   LineStyle(double width, const Color &col,
             const std::vector<double> &dash=std::vector<double>(),
             LineCap cap=LineCap::Butt, LineJoin join=LineJoin::Miter);
+
+
+  // Nothing special about the LineStyle class, so we can have
+  // the default copy/assignment/move c'tors/operators:
+  LineStyle(const LineStyle &other) = default;
+  LineStyle& operator=(const LineStyle &other) = default;
+  LineStyle(LineStyle&&) = default;
+  LineStyle& operator=(LineStyle &&) = default;
 
   virtual ~LineStyle() {}
 
@@ -110,8 +120,12 @@ struct LineStyle {
   }
 };
 
-//TODO doc & test
+
+/** Changes the default line/contour style (used by the default LineStyle c'tor). */
 void SetDefaultLineStyle(const LineStyle &line_style);
+
+/** Returns the default line/contour style (alternatively, just use the default LineStyle() c'tor). */
+LineStyle GetDefaultLineStyle();
 
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
 bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
@@ -126,19 +140,15 @@ struct ArrowStyle : public LineStyle {
   bool double_headed;  /**< Should the head be drawn on both ends of the line? */
 
 
-  ArrowStyle(double width = 2.0,
-             const Color &col = Color(NamedColor::Azure),
-             double tip_len = 0.1,
-             double angle = 20.0,
-             bool fill = false,
-             bool two_heads = false,
+  /** Returns a default style (which can be changed via @see SetDefaultArrowStyle). */
+  ArrowStyle();
+
+
+  ArrowStyle(double width, const Color &col,
+             double tip_len = 0.1, double angle = 20.0,
+             bool fill = false, bool two_heads = false,
              const std::vector<double> &dash = std::vector<double>(),
-             LineCap cap = LineCap::Butt,
-             LineJoin join = LineJoin::Miter)
-    : LineStyle(width, col, dash, cap, join),
-      tip_length(tip_len), tip_angle(angle),
-      tip_closed(fill), double_headed(two_heads)
-  {}
+             LineCap cap = LineCap::Butt, LineJoin join = LineJoin::Miter);
 
 
   ArrowStyle(const LineStyle &line_style,
@@ -151,6 +161,13 @@ struct ArrowStyle : public LineStyle {
       tip_closed(fill), double_headed(two_heads)
   {}
 
+
+  // Nothing special about the LineStyle class, so we can have
+  // the default copy/assignment/move c'tors/operators:
+  ArrowStyle(const ArrowStyle &other) = default;
+  ArrowStyle& operator=(const ArrowStyle &other) = default;
+  ArrowStyle(ArrowStyle&&) = default;
+  ArrowStyle& operator=(ArrowStyle &&) = default;
 
   ~ArrowStyle() {}
 
@@ -194,6 +211,13 @@ struct ArrowStyle : public LineStyle {
     return os;
   }
 };
+
+
+/** Changes the default arrow style (used by the default ArrowStyle c'tor). */
+void SetDefaultArrowStyle(const ArrowStyle &arrow_style);
+
+/** Returns the default arrow style (alternatively, just use the default ArrowStyle() c'tor). */
+ArrowStyle GetDefaultArrowStyle();
 
 bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs);
 bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);

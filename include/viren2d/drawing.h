@@ -9,6 +9,7 @@
 #include <viren2d/colors.h>
 #include <viren2d/styles.h>
 
+
 namespace viren2d {
 
 /**
@@ -69,7 +70,7 @@ public:
   // * grayscale --> gray,gray,gray, alpha
   virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
 
-  //TODO doc
+  /** @brief Returns the size of the canvas. */
   virtual Vec2i GetCanvasSize() const = 0;
 
 
@@ -84,10 +85,22 @@ public:
   virtual ImageBuffer GetCanvas(bool copy) const = 0;
 
 
-  /** TODO doc
-   *  starts at angle1, draws (increasing angle, i.e. clockwise) until angle2
-   *  angle of 0.0 is in the direction of the positive X axis.
- angles in degrees*/
+  /**
+   * @brief Draws a circular arc.
+   *
+   * @param center:  Center of the arc
+   * @param radius:  Radius of the arc in pixels.
+   * @param angle1 & angle2:
+   *            The arc will be drawn from angle1 to angle2 in clockwise
+   *            direction. Both angles are specified in degrees, where 0 degrees
+   *            points in the direction of increasing X coordinates.
+   * @param line_style:
+   *            How to draw the arc's outline. If line_width is 0, the outline
+   *            will not be drawn (then you must define a 'fill_color').
+   * @param include_center:
+   *            If True (default), the center of the circle will be included
+   *            when drawing the outline and filling the arc.
+   */
   void DrawArc(const Vec2d &center, double radius,
                double angle1, double angle2,
                const LineStyle &line_style,
@@ -98,10 +111,29 @@ public:
   }
 
 
+  /**
+   * @brief Draws an arrow.
+   *
+   * @param from: Start point of the arrow shaft.
+   * @param to:   End point of the arrow shaft.
+   * @param arrow_style: How to draw the arrow (specifies
+   *              both line and head/tip style).
+   */
   virtual void DrawArrow(const Vec2d &from, const Vec2d &to,
                          const ArrowStyle &arrow_style) = 0;
 
 
+  /**
+   * @brief Draws a circle.
+   *
+   * @param center: Center point of the circle.
+   * @param radius: Radius in pixels.
+   * @param line_style: How to draw the outline. If its
+   *                line_width == 0, the outline will not
+   *                be drawn.
+   * @param fill_color: Provide a valid color to fill
+   *                the circle.
+   */
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
                   const Color &fill_color = Color(0, 0, 0, 0)) {
@@ -109,21 +141,60 @@ public:
   }
 
 
+  /**
+   * @brief Draws an ellipse.
+   *
+   * @param ellipse:    The ellipse to be drawn.
+   * @param line_style: How to draw the outline. If its
+   *                line_width == 0, the outline will not
+   *                be drawn.
+   * @param fill_color: Provide a valid color to fill
+   *                the circle.
+   */
   void DrawEllipse(const Ellipse &ellipse, const LineStyle &line_style,
                    const Color &fill_color = Color(0, 0, 0, 0)) {
     DrawEllipseImpl(ellipse, line_style, fill_color);
   }
 
 
+  /**
+   * @brief Draws a grid between top_left and bottom_right.
+   *
+   * @param top_left & bottom_right:
+   *                     If these are not the same, they define
+   *                     the canvas region which will be spanned
+   *                     by the grid.
+   * @param spacing_x:   Horizontal cell size in pixels.
+   * @param spacing_y:   Vertical cell size in pixels.
+   * @param line_style:  How to draw the grid lines.
+   */
   virtual void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
                         double spacing_x, double spacing_y,
                         const LineStyle &line_style) = 0;
 
 
+  /**
+   * @brief Draws a line.
+   *
+   * @param from:  Start point of the line.
+   * @param to:    End point of the line.
+   * @param line_style: How to draw the line.
+   */
   virtual void DrawLine(const Vec2d &from, const Vec2d &to,
                         const LineStyle &line_style) = 0;
 
 
+  /**
+   * @brief Draws a rectangle in various different shapes.
+   *
+   * @param rect:   Defines the rectangle (incl. optional
+   *                rotation & corner radius)
+   * @param line_style: How to draw the outline. If its
+   *                line_width == 0, the outline will not
+   *                be drawn.
+   * @param fill_color: Provide a valid color to fill
+   *                the circle.
+   */
   void DrawRect(const Rect &rect, const LineStyle &line_style,
                 const Color &fill_color = Color(0, 0, 0, 0)) {
     DrawRectImpl(rect, line_style, fill_color);
@@ -131,29 +202,36 @@ public:
 
 
   //TODO DrawPoints - how to handle alternating colors???
-  //TODO DrawEllipse <-- (optionally rotated) rect!
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
+  //            Scaling via cairo context!
 
 protected:
+  /** Internal helper to enable default values in public interface. */
   virtual void DrawArcImpl(const Vec2d &center, double radius,
                            double angle1, double angle2,
                            const LineStyle &line_style,
                            bool include_center,
                            const Color &fill_color) = 0;
 
+
+  /** Internal helper to enable default values in public interface. */
   virtual void DrawCircleImpl(const Vec2d &center, double radius,
                               const LineStyle &line_style,
                               const Color &fill_color) = 0;
 
+
+  /** Internal helper to enable default values in public interface. */
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                             const Color &fill_color) = 0;
 
+
+  /** Internal helper to enable default values in public interface. */
   virtual void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
                                const Color &fill_color) = 0;
 };
 
 
-std::unique_ptr<Painter> CreateImagePainter();
+std::unique_ptr<Painter> CreatePainter();
 
 } // namespace viren2d
 

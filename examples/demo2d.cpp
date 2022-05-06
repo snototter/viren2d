@@ -35,7 +35,7 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 }
 
 void DemoLines() {
-  auto painter = viren2d::CreateImagePainter();
+  auto painter = viren2d::CreatePainter();
   painter->SetCanvas(400, 400, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!50"));
@@ -58,7 +58,7 @@ void DemoLines() {
 
 
 void DemoArrows() {
-  auto painter = viren2d::CreateImagePainter();
+  auto painter = viren2d::CreatePainter();
   painter->SetCanvas(800, 800, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50,
@@ -102,7 +102,7 @@ void DemoArrows() {
 
 
 void DemoCircles() {
-  auto painter = viren2d::CreateImagePainter();
+  auto painter = viren2d::CreatePainter();
   painter->SetCanvas(500, 500, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50,
@@ -158,7 +158,7 @@ void DemoCircles() {
 
 
 void DemoRects() {
-  auto painter = viren2d::CreateImagePainter();
+  auto painter = viren2d::CreatePainter();
   painter->SetCanvas(600, 600, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50,
@@ -239,7 +239,7 @@ int main(int /*argc*/, char **/*argv*/) {
 #endif  // EXAMPLE_IMAGE_FILE
   viren2d::ImageBuffer image_buffer = viren2d::LoadImage(image_filename, 4);
 
-  auto painter = viren2d::CreateImagePainter();
+  auto painter = viren2d::CreatePainter();
 
 ////  painter->SetCanvas(image_filename);
   painter->SetCanvas(image_buffer);

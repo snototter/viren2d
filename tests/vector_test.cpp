@@ -29,12 +29,11 @@ template<typename _Tp, int dim>
   return ::testing::AssertionSuccess();
 }
 
-//FIXME CHECK TESTS
 template<typename _Tp, int dim>
 void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
   EXPECT_GE(dim, 2);
 
-  // Test indexing
+  // Test negative indexing
   for (int i = 0; i < dim; ++i) {
     EXPECT_EQ(vec.val[dim - i - 1], vec[-(i+1)]);
   }
@@ -57,6 +56,8 @@ void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
     EXPECT_THROW(vec.z(), std::logic_error);
     EXPECT_THROW(vec.w(), std::logic_error);
   } else {
+    // Other dimensional vectors should not support
+    // this functionality
     EXPECT_THROW(vec.width(), std::logic_error);
     EXPECT_THROW(vec.height(), std::logic_error);
 
@@ -91,6 +92,11 @@ void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
   auto vec3 = vec + vec2 + copy;
   EXPECT_EQ(3 * vec, vec3);
 
+  // Add 0 vector
+  viren2d::Vec<_Tp, dim> zero;
+  vec2 = vec + zero;
+  EXPECT_EQ(vec2, vec);
+
   // Test negation (unary operator-)
   auto negated = -vec;
 
@@ -109,7 +115,6 @@ void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {
 
   EXPECT_DOUBLE_EQ(1.0 * dot1, vec.LengthSquared());
 
-  viren2d::Vec<_Tp, dim> zero;
   auto dist = vec.Distance(zero);
   EXPECT_DOUBLE_EQ(dist, len);
 
@@ -157,13 +162,25 @@ TEST(VectorTest, All) {
   EXPECT_EQ(v2d_a.DirectionVector(v2d_a), zero2d);
 
   viren2d::Vec2d v2d_b(0.01, -9.001);
+  EXPECT_DOUBLE_EQ(v2d_b.MaxValue(), 0.01);
+  EXPECT_DOUBLE_EQ(v2d_b.MinValue(), -9.001);
+  EXPECT_EQ(v2d_b.MaxIndex(), 0);
+  EXPECT_EQ(v2d_b.MinIndex(), 1);
   VectorTestHelper(v2d_b);
 
   viren2d::Vec2d v2d_c(-735.008, -0.99);
+  EXPECT_DOUBLE_EQ(v2d_c.MaxValue(), -0.99);
+  EXPECT_DOUBLE_EQ(v2d_c.MinValue(), -735.008);
+  EXPECT_EQ(v2d_c.MaxIndex(), 1);
+  EXPECT_EQ(v2d_c.MinIndex(), 0);
   VectorTestHelper(v2d_c);
 
 
   viren2d::Vec3d v3d_a(1, 2, 3);
+  EXPECT_DOUBLE_EQ(v3d_a.MaxValue(), 3);
+  EXPECT_DOUBLE_EQ(v3d_a.MinValue(), 1);
+  EXPECT_EQ(v3d_a.MaxIndex(), 2);
+  EXPECT_EQ(v3d_a.MinIndex(), 0);
   VectorTestHelper(v3d_a);
 
   viren2d::Vec3d v3d_b(-0.1, 99, -15.3);

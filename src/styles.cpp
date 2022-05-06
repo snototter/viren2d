@@ -11,9 +11,13 @@
 
 namespace viren2d {
 namespace {
-static LineStyle default_line_style = LineStyle(2.0, Color(NamedColor::ForestGreen, 80),
+static LineStyle default_line_style = LineStyle(2.0, Color(NamedColor::NavyBlue, 80),
                                                 std::vector<double>(),
                                                 LineCap::Butt, LineJoin::Miter);
+
+static ArrowStyle default_arrow_style = ArrowStyle(default_line_style,
+                                                   0.1, 20.0, false, false);
+
 } // anonymous namespace
 
 std::string LineCapToString(LineCap cap) {
@@ -149,6 +153,11 @@ void SetDefaultLineStyle(const LineStyle &line_style) {
   default_line_style = line_style;
 }
 
+LineStyle GetDefaultLineStyle() {
+  return default_line_style;
+}
+
+
 
 bool operator==(const LineStyle &lhs, const LineStyle &rhs) {
   return lhs.Equals(rhs);
@@ -162,6 +171,21 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
 
 
 //-------------------------------------------------  ArrowStyle
+ArrowStyle::ArrowStyle() : LineStyle() {
+  *this = default_arrow_style;
+}
+
+
+ArrowStyle::ArrowStyle(double width, const Color &col,
+                       double tip_len, double angle,
+                       bool fill, bool two_heads,
+                       const std::vector<double> &dash,
+                       LineCap cap, LineJoin join)
+  : LineStyle(width, col, dash, cap, join),
+    tip_length(tip_len), tip_angle(angle),
+    tip_closed(fill), double_headed(two_heads)
+{}
+
 
 bool ArrowStyle::IsValid() const {
   // No need to check the boolean flags (tip_closed & double_headed)
@@ -224,6 +248,15 @@ bool ArrowStyle::Equals(const ArrowStyle &other) const {
 
   auto other_base = static_cast<const LineStyle &>(other);
   return LineStyle::Equals(other_base);
+}
+
+
+void SetDefaultArrowStyle(const ArrowStyle &arrow_style) {
+  default_arrow_style = arrow_style;
+}
+
+ArrowStyle GetDefaultArrowStyle() {
+  return default_arrow_style;
 }
 
 

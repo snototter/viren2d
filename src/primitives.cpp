@@ -199,13 +199,26 @@ ImageBuffer ImageBuffer::ToRGBA() const
 }
 
 
+bool ImageBuffer::IsValid() const {
+  return data != nullptr;
+}
+
+
 std::string ImageBuffer::ToString() const {
   std::stringstream s;
-  s << "ImageBuffer(" << width << "x" << height << "x" << channels;
-  if (owns_data_)
-    s << ", copied memory)";
-  else
-    s << ", shared memory)";
+  s << "ImageBuffer(";
+
+  if (IsValid()) {
+    s << width << "x" << height << "x" << channels;
+    if (owns_data_)
+      s << ", copied memory";
+    else
+      s << ", shared memory";
+  } else {
+    s << "invalid";
+  }
+  s << ")";
+
   return s.str();
 }
 

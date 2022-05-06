@@ -229,7 +229,7 @@ if(viren2d_WITH_TESTS)
     # Prevent gtest from adding itself to the install target
     set(INSTALL_GTEST OFF)
     set(BUILD_GMOCK OFF)
-    
+
     include(FetchContent)
     
     FetchContent_Declare(

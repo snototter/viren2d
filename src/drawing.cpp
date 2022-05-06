@@ -264,7 +264,7 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
 }
 
 
-std::unique_ptr<Painter> CreateImagePainter() {
+std::unique_ptr<Painter> CreatePainter() {
   return std::unique_ptr<Painter>(new ImagePainter());
 }
 

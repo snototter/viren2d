@@ -5,15 +5,29 @@
 #include <viren2d/primitives.h>
 
 TEST(ImageBufferTest, ImageLoading) {
+  viren2d::ImageBuffer empty;
+  EXPECT_EQ(empty.data, nullptr);
+  EXPECT_FALSE(empty.IsValid());
+
+  empty = viren2d::ImageBuffer(10, 20, 1);
+  EXPECT_TRUE(empty.IsValid());
+  EXPECT_EQ(empty.width, 10);
+  EXPECT_EQ(empty.height, 20);
+  EXPECT_EQ(empty.channels, 1);
+
   // Load non-existing file
   EXPECT_THROW(viren2d::LoadImage("this-file-does-not-exist.png"),
                std::runtime_error);
 
   // Load existing file in different modes
   auto buffer_gray = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 1);
+  EXPECT_TRUE(buffer_gray.IsValid());
   auto buffer_graya = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 2);
+  EXPECT_TRUE(buffer_graya.IsValid());
   auto buffer_rgb = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 3);
+  EXPECT_TRUE(buffer_rgb.IsValid());
   auto buffer_rgba = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 4);
+  EXPECT_TRUE(buffer_rgba.IsValid());
 
   // Check that the correct number of channels has been loaded
   EXPECT_EQ(buffer_gray.channels, 1);
@@ -75,9 +89,11 @@ TEST(ImageBufferTest, ImageLoading) {
         EXPECT_TRUE(tmp.data[px + 2] == ptrs[i]->data[px]);
       }
     } else {
-      // For gray/gray+alpha, we only verify that
-      // changing a few pixels of tmp does not affect
-      // the original buffer:
+      // Swapping red and blue is impossible for grayscale buffers:
+      EXPECT_THROW(ptrs[i]->RGB2BGR(), std::logic_error);
+
+      // Verify that changing a few pixels of the copied buffer
+      // does not affect the original buffer:
       tmp.data[0] = ptrs[i]->data[0] + 23;
       tmp.data[1] = ptrs[i]->data[1] + 77;
       tmp.data[2] = ptrs[i]->data[2] + 42;

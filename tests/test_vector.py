@@ -27,6 +27,8 @@ def vector_test_helper(vec, zero):
     assert vec != vec2
     assert 2 * vec == vec2
 
+    assert (vec + zero) == vec
+
     vec *= 2
     assert vec == vec2
 
@@ -39,6 +41,7 @@ def vector_test_helper(vec, zero):
 
     vec3 = vec + vec2 + cp;
     assert vec3 == 3 * vec
+    assert (vec3 - vec) == (2 * vec)
 
     # Negation
     neg = -vec
@@ -97,13 +100,27 @@ def test_vectors():
     assert zero3d.ndim == 3
     check_vector_zero(zero3d)
 
-    vector_test_helper(viren2d.Vec2d(99, -45), zero2d)
+    vec = viren2d.Vec2d(99, -45)
+    assert vec.max_value() == pytest.approx(99)
+    assert vec.max_index() == 0
+    assert vec.min_value() == pytest.approx(-45)
+    assert vec.min_index() == 1
+    vector_test_helper(vec, zero2d)
 
-    vector_test_helper(viren2d.Vec3d(1, 2, 3), zero3d)
-    vector_test_helper(viren2d.Vec3d(0.01, 0.99, -15.3), zero3d)
-    v3d = viren2d.Vec3d(-171, 2, -3)
-    vector_test_helper(v3d, zero3d)
+    vec = viren2d.Vec3d(0.01, 0.99, -15.3)
+    assert vec.max_value() == pytest.approx(0.99)
+    assert vec.max_index() == 1
+    assert vec.min_value() == pytest.approx(-15.3)
+    assert vec.min_index() == 2
+    vector_test_helper(vec, zero3d)
     
+    vector_test_helper(viren2d.Vec3d(1, 2, 3), zero3d)
+    v3d = viren2d.Vec3d(-171, 2, -3)
+    assert v3d.max_value() == pytest.approx(2)
+    assert v3d.max_index() == 1
+    assert v3d.min_value() == pytest.approx(-171)
+    assert v3d.min_index() == 0
+    vector_test_helper(v3d, zero3d)
 
     v2d = viren2d.Vec2d(23, -17)
     vector_test_helper(v2d, zero2d)

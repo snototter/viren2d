@@ -34,7 +34,6 @@ def line_style_configurations():
 
 
 def test_line_style():
-#FIXME default_line_style
 #FIXME init from empty tuple
 #FIXME init from tuple
 #FIXME init from kwargs
@@ -75,7 +74,33 @@ def test_line_style():
     assert style == tpl
 
 
+def test_default_line_style():
+    original_default = viren2d.get_default_line_style()
+    # In the second iteration, we'll have a different default style
+    for iteration in range(2):
+        # Check that the default c'tor yields the default style
+        ls = viren2d.LineStyle()
+        assert ls == viren2d.get_default_line_style()
+
+        if iteration > 0:
+            assert ls != original_default
+
+        # Change the line style
+        ls = viren2d.LineStyle(3, 'crimson' if iteration == 0 else 'azure')
+        assert ls != original_default
+        assert ls != viren2d.get_default_line_style()
+
+        # Set it as the new default
+        viren2d.set_default_line_style(ls)
+        assert viren2d.get_default_line_style() == ls
+    # Reset the original default style after this test
+    viren2d.set_default_line_style(original_default)
+
+
 def test_arrow_style():
+#FIXME init from empty tuple
+#FIXME init from tuple
+#FIXME init from kwargs
     # Default initialization should yield a valid style
     style = viren2d.ArrowStyle()
     assert style.is_valid()
@@ -125,10 +150,42 @@ def test_arrow_style():
                         assert style.is_valid() == (line_style.is_valid() and (tl > 0) and (ta > 0) and (ta < 180))
 
 
+def test_default_arrow_style():
+    original_default = viren2d.get_default_arrow_style()
+    # In the second iteration, we'll have a different default style
+    for iteration in range(2):
+        # Check that the default c'tor yields the default style
+        ls = viren2d.ArrowStyle()
+        assert ls == viren2d.get_default_arrow_style()
+
+        if iteration > 0:
+            assert ls != original_default
+
+        # Change the arrow style
+        ls = viren2d.ArrowStyle(3, 'crimson', tip_length = 0.3 if iteration == 0 else 30)
+        assert ls != original_default
+        assert ls != viren2d.get_default_arrow_style()
+
+        # Set it as the new default
+        viren2d.set_default_arrow_style(ls)
+        assert viren2d.get_default_arrow_style() == ls
+    # Reset the original default style after this test
+    viren2d.set_default_arrow_style(original_default)
+
+
 def test_arrow_tip_length():
     # Default initialization should yield a valid style
     style = viren2d.ArrowStyle()
+    assert style.is_valid()
+
+    style.tip_length = 0
+    assert not style.is_valid()
+
+    style.tip_length = -0.1
+    assert not style.is_valid()
+
     style.tip_length = 0.2
+    assert style.is_valid()
     assert style.tip_length_for_shaft(200.0) == pytest.approx(40.0)
 
     style.tip_length = 0.9
@@ -145,7 +202,10 @@ def test_arrow_tip_length():
 
 def test_line_offsets():
     style = viren2d.ArrowStyle()
-    # Default line cap should be butt:
+    # Default join should be miter:
+    assert style.line_join == viren2d.LineJoin.Miter
+
+    # Check offsets at start/end of a line (an ArrowStyle is derived from LineStyle)
     assert style.line_cap == viren2d.LineCap.Butt
     assert style.cap_offset() == pytest.approx(0.0)
 
@@ -155,8 +215,10 @@ def test_line_offsets():
     style.line_cap = viren2d.LineCap.Square
     assert style.cap_offset() == pytest.approx(style.line_width / 2.0)
 
-    # Default join should be miter:
-    assert style.line_join == viren2d.LineJoin.Miter
+    # Ensure that the object under test matches the style for which we
+    # computed the expected values
+    style.line_width = 2
+    style.line_join = viren2d.LineJoin.Miter    
     assert style.join_offset(10) == pytest.approx(style.line_width / 2.0)
     assert style.join_offset(12) == pytest.approx(9.5667722335056276)
     assert style.join_offset(45) == pytest.approx(2.6131259297527532)
@@ -214,7 +276,7 @@ def test_pickling():
         assert ls == restored
 
     # Serialize arrow style
-    arr = viren2d.ArrowStyle(tip_length=42, tip_angle=20, tip_closed=True)
+    arr = viren2d.ArrowStyle(line_style=ls, tip_length=42, tip_angle=20, tip_closed=True)
     data = pickle.dumps(arr)
     restored = pickle.loads(data)
     assert arr == restored

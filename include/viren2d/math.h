@@ -6,7 +6,7 @@
 
 #include <math.h>
 
-//TODO use cpputils::mathutils instead of copying this header
+//TODO(snototter) use cpputils::mathutils instead of copying this header
 namespace viren2d {
 
 inline double deg2rad(double deg) {
@@ -18,6 +18,9 @@ inline double rad2deg(double rad) {
   return rad * 180.0 / M_PI;
 }
 
+
+//TODO [ ] add documentation
+//TODO [ ] add C++ test (tests/xxx_test.cpp)
 // Informative blog post about the caveats:
 // https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 template<typename T>
@@ -30,6 +33,8 @@ inline bool eps_zero(T x) {
 }
 
 
+//TODO [x] add documentation
+//TODO [ ] add C++ test (tests/xxx_test.cpp)
 /**
  * @brief Uses the machine epsilon to check for equality based on the desired
  * precision in ULPs (units in the last place).
