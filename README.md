@@ -7,6 +7,26 @@ Under the hood, `viren2d` uses the [Cairo graphics library](https://www.cairogra
 * An initial version v1.0 will hopefully released in September 2022 (this is a hobby/leisure time project)
 * I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you) - the API may change anytime (and I'm messing around in the main branch)
 
+I'm planning to support visualization of the following primitives/objects:
+* [x] Arcs
+* [x] Arrows (single-/double-headed, filled/open, solid/dashed)
+* [x] Circles
+* [x] Ellipses
+* [x] Lines
+* [ ] Markers
+* [ ] Object detection results: 2D bounding boxes
+* [ ] Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
+* [ ] Polygons
+* [x] Rectangles - from axis-aligned & box-shaped to rounded corners and rotated
+* [ ] Text
+* [ ] Text boxes (i.e. text on colorized background)
+* [ ] Tracking results: Trajectories (plain paths vs fading effect)
+* [ ] Pose estimation results: needs a simple/easy-to-use interface s.t. users can define the pose graph themselves (too many different skeleton models to support them explicitly in viren2d) - low priority feature
+* [ ] Image overlay (overlay/blending; optionally clipping, e.g. via circle/ellipse) - low priority feature
+* [ ] Pseudocoloring: similar to `vcp` and `vito`; but requires extension of the ImageBuffer class to support floating point buffers
+* [ ] Camera calibration-related: Ground plane, horizon - low priority features
+* [ ] Nice-to-have: Curves & curved arrows - low priority
+
 
 ## Description
 **Why yet another toolbox?**  
@@ -107,28 +127,6 @@ If you want to re-install `viren2d` and run into a Ninja build error (Ninja bina
 rm -r build/temp.*
 python -m pip install .
 ```
-
-
-## Features
-I'm planning to support visualization of the following primitives/objects:
-* [x] Arcs
-* [x] Arrows (single-/double-headed, filled/open, solid/dashed)
-* [x] Circles
-* [x] Ellipses
-* [x] Lines
-* [ ] Markers
-* [ ] Object detection results: 2D bounding boxes
-* [ ] Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
-* [ ] Polygons
-* [x] Rectangles - from axis-aligned & box-shaped to rounded corners and rotated
-* [ ] Text
-* [ ] Text boxes (i.e. text on colorized background)
-* [ ] Tracking results: Trajectories (plain paths vs fading effect)
-* [ ] Pose estimation results: needs a simple/easy-to-use interface s.t. users can define the pose graph themselves (too many different skeleton models to support them explicitly in viren2d) - low priority feature
-* [ ] Image overlay (overlay/blending; optionally clipping, e.g. via circle/ellipse) - low priority feature
-* [ ] Pseudocoloring: similar to `vcp` and `vito`; but requires extension of the ImageBuffer class to support floating point buffers
-* [ ] Camera calibration-related: Ground plane, horizon - low priority features
-* [ ] Nice-to-have: Curves & curved arrows - low priority
 
 
 # TODOs
