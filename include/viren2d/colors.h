@@ -8,6 +8,14 @@
 #include <tuple>
 #include <ostream>
 
+//TODO(snototter) add tasks and progress to all:
+//TODO [ ] add documentation
+//TODO [ ] add C++ test (tests/xxx_test.cpp)
+//TODO [ ] add Python bindings
+//TODO [ ] add Python test (tests/test_xxx.py)
+//TODO [ ] add C++ demo
+//TODO [ ] add Python demo
+
 namespace viren2d {
 
 /** @brief Clips the given value to the range [low, high]. */
@@ -140,6 +148,7 @@ class Color {
   Color() : red(-1.0), green(-1.0), blue(-1.0), alpha(1.0)
   {}
 
+
   /** @brief Construct a color from the given components, clamped to [0, 1]. */
   Color(double red, double green, double blue, double alpha)
     : red(saturation_cast<double>(red, 0.0, 1.0)),
@@ -148,16 +157,19 @@ class Color {
       alpha(saturation_cast<double>(alpha, 0.0, 1.0))
   {}
 
+
   /** @brief Copy the other's rgb components and set a custom alpha. */
   Color(const Color &other, double alpha)
     : red(other.red), green(other.green), blue(other.blue),
       alpha(saturation_cast<double>(alpha, 0.0, 1.0))
   {}
 
+
   /** @brief Copy the others rgb & alpha components. */
   Color(const Color &other)
     : Color(other, other.alpha)
   {}
+
 
   /** @brief Construct a color from the NamedColor enumeration. */
   Color(const NamedColor color, double alpha=1.0);

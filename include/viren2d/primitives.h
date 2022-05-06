@@ -29,8 +29,8 @@ struct ImageBuffer {
   bool owns_data_;      ///< Flag indicating if we own the memory (i.e. if we need to clean up).
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** Creates an empty ImageBuffer. */
   ImageBuffer()
     : data(nullptr), width(0), height(0), channels(0), stride(0),
@@ -38,8 +38,8 @@ struct ImageBuffer {
   {}
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Allocates memory to hold a W x H x CH image. */
   ImageBuffer(int w, int h, int ch);
 
@@ -58,8 +58,8 @@ struct ImageBuffer {
   ImageBuffer &operator=(ImageBuffer &&other) noexcept; // move assignment
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /**
    * @brief Reuses the given image data.
    *
@@ -69,17 +69,17 @@ struct ImageBuffer {
   void CreateSharedBuffer(unsigned char *buffer, int width, int height, int channels, int stride);
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /**
    * @brief Copies the given image data.
    */
   void CreateCopy(unsigned char const *buffer, int width, int height, int channels, int stride);
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
   //TODO [ ] add Python test (tests/test_xxx.py)
   /**
    * @brief Flips the red and green components in-place.
@@ -91,9 +91,9 @@ struct ImageBuffer {
   void RGB2BGR();
 
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
+  //DONE [x] add Python bindings
   //TODO [ ] add Python test (tests/test_xxx.py)
   //TODO [ ] add C++ demo
   //TODO [ ] add Python demo
@@ -101,18 +101,18 @@ struct ImageBuffer {
   ImageBuffer ToRGB() const;
 
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
+  //DONE [x] add Python bindings
   //TODO [ ] add Python test (tests/test_xxx.py)
   //TODO [ ] add C++ demo
   //TODO [ ] add Python demo
   /** @brief Converts this image to RGBA. */
   ImageBuffer ToRGBA() const;
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
   //TODO [ ] add Python test (tests/test_xxx.py)
   /** @brief Returns true if this buffer points to a valid memory location. */
   bool IsValid() const;
@@ -125,9 +125,9 @@ private:
 };
 
 
-//TODO [x] add documentation
-//TODO [x] add C++ test (tests/xxx_test.cpp)
-//TODO [x] add Python bindings (via Painter)
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings (via Painter)
 //TODO [ ] add Python test (tests/test_xxx.py)
 //TODO [ ] add C++ demo
 //TODO [ ] add Python demo
@@ -158,9 +158,9 @@ private:
 ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=0);
 
 
-//TODO [x] add documentation
+//DONE [x] add documentation
 //TODO [ ] add C++ test (tests/xxx_test.cpp) - currently not planned
-//TODO [x] add C++ demo
+//DONE [x] add C++ demo
 /**
  * @brief Saves the ImageBuffer to disk as either JPEG or PNG.
  *
@@ -177,7 +177,7 @@ void SaveImage(const std::string &image_filename, const ImageBuffer &image);
 //TODO(snototter) rgb(a)2gray (single output channel vs 3 channels for drawing)
 
 
-//TODO [x] add documentation
+//DONE [x] add documentation
 //TODO [ ] add C++ test (tests/xxx_test.cpp)
 //TODO [ ] add Python bindings
 //TODO [ ] add Python test (tests/test_xxx.py)
@@ -187,7 +187,7 @@ void SaveImage(const std::string &image_filename, const ImageBuffer &image);
 ImageBuffer Gray2RGB(const ImageBuffer &img);
 
 
-//TODO [x] add documentation
+//DONE [x] add documentation
 //TODO [ ] add C++ test (tests/xxx_test.cpp)
 //TODO [ ] add Python bindings
 //TODO [ ] add Python test (tests/test_xxx.py)
@@ -197,7 +197,7 @@ ImageBuffer Gray2RGB(const ImageBuffer &img);
 ImageBuffer Gray2RGBA(const ImageBuffer &img);
 
 
-//TODO [x] add documentation
+//DONE [x] add documentation
 //TODO [ ] add C++ test (tests/xxx_test.cpp)
 //TODO [ ] add Python bindings
 //TODO [ ] add Python test (tests/test_xxx.py)
@@ -207,7 +207,7 @@ ImageBuffer Gray2RGBA(const ImageBuffer &img);
 ImageBuffer RGBA2RGB(const ImageBuffer &img);
 
 
-//TODO [x] add documentation
+//DONE [x] add documentation
 //TODO [ ] add C++ test (tests/xxx_test.cpp)
 //TODO [ ] add Python bindings
 //TODO [ ] add Python test (tests/test_xxx.py)
@@ -383,42 +383,42 @@ bool operator!=(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs);
 // to add the corresponding explicit vector instantiation
 // in primitives.cpp
 
-//TODO [x] add documentation
-//TODO [x] add C++ test (tests/xxx_test.cpp)
-//TODO [x] add Python bindings
-//TODO [x] add Python test (tests/test_xxx.py)
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Vector addition. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator+(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
 
-//TODO [x] add documentation
-//TODO [x] add C++ test (tests/xxx_test.cpp)
-//TODO [x] add Python bindings
-//TODO [x] add Python test (tests/test_xxx.py)
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Vector subtraction. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
 
-//TODO [x] add documentation
-//TODO [x] add C++ test (tests/xxx_test.cpp)
-//TODO [x] add Python bindings
-//TODO [x] add Python test (tests/test_xxx.py)
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Multiply (rhs) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double rhs);
 
-//TODO [x] add documentation
-//TODO [x] add C++ test (tests/xxx_test.cpp)
-//TODO [x] add Python bindings
-//TODO [x] add Python test (tests/test_xxx.py)
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Multiply (lhs) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(double lhs, Vec<_Tp, dim> rhs);
 
-//TODO [x] add documentation
-//TODO [x] add C++ test (tests/xxx_test.cpp)
-//TODO [x] add Python bindings
-//TODO [x] add Python test (tests/test_xxx.py)
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Divide (scale) by scalar. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator/(Vec<_Tp, dim> lhs, double rhs);
@@ -448,10 +448,10 @@ struct Ellipse {
   double angle_to;      ///< Ending angle of contour/fill in degrees.
   bool include_center;  ///< Whether to include the center point in drawing/filling (only used if angle_from/angle_to are set).
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings - not allowed
-  //TODO [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add Python bindings - not allowed
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** Default c'tor creates an invalid ellipse. */
   Ellipse()
     : cx(0.0), cy(0.0), major_axis(0.0), minor_axis(0.0),
@@ -459,10 +459,10 @@ struct Ellipse {
       include_center(true)
   {}
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
-  //TODO [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** Creates an ellipse. */
   Ellipse(double center_x, double center_y,
           double major, double minor,
@@ -478,10 +478,10 @@ struct Ellipse {
       include_center(center_included)
   {}
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
-  //TODO [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /**
    * Creates an ellipse. Major and minor axis will be set to
    * max/min of the size parameter, respectively.
@@ -509,7 +509,7 @@ struct Ellipse {
   Ellipse& operator=(Ellipse &&) = default;
 
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
   //TODO [ ] add C++ demo
   /**
@@ -521,35 +521,35 @@ struct Ellipse {
   Ellipse(std::initializer_list<double> values);
 
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
   //TODO [ ] add C++ demo
   /** @brief Translate the center point by "offset" pixels in each dimension. */
   Ellipse &operator+=(double offset);
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
   //TODO [ ] add C++ demo
   /** @brief Translate the center point by "offset" pixels in each dimension. */
   Ellipse &operator-=(double offset);
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
   //TODO [ ] add C++ demo
   /** @brief Translate the center point by "offset" pixels. */
   Ellipse &operator+=(const Vec2d &offset);
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
   //TODO [ ] add C++ demo
   /** @brief Translate the center point by "offset" pixels. */
   Ellipse &operator-=(const Vec2d &offset);
 
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
-  //TODO [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Returns true if this rectangle can be drawn. */
   bool IsValid() const;
 
@@ -588,10 +588,10 @@ struct Rect {
   double rotation;  ///< Clockwise rotation in degrees.
   double radius;    ///< Corner radius. Must be <= min(width, height)/2. TODO doc percentage if < 1
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings - not allowed
-  //TODO [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings - not allowed
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** Default c'tor creats an invalid rectangle. */
   Rect()
     : cx(0.0), cy(0.0), width(0.0), height(0.0),
@@ -599,10 +599,10 @@ struct Rect {
   {}
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
-  //TODO [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   //TODO [ ] add C++ demo
   //TODO [ ] add Python demo
   /** Create a rectangle. */
@@ -613,11 +613,11 @@ struct Rect {
   {}
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
-  //TODO [x] add Python test (tests/test_xxx.py)
-  //TODO [x] add C++ demo
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add C++ demo
   //TODO [ ] add Python demo
   /** Create a rectangle. */
   Rect(const Vec2d &center, const Vec2d &size,
@@ -635,7 +635,7 @@ struct Rect {
   Rect(Rect&&) = default;
   Rect& operator=(Rect &&) = default;
 
-  //TODO [x] add documentation
+  //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
   /**
    * @brief Construct from an initializer list with 4 to 6 elements.
@@ -645,46 +645,46 @@ struct Rect {
   Rect(std::initializer_list<double> values);
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Translate the center point by "offset" pixels in each dimension. */
   Rect &operator+=(double offset);
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Translate the center point by "offset" pixels in each dimension. */
   Rect &operator-=(double offset);
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Translate the center point by "offset" pixels. */
   Rect &operator+=(const Vec2d &offset);
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Translate the center point by "offset" pixels. */
   Rect &operator-=(const Vec2d &offset);
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Returns half the width. */
   inline double half_width() const {
     return width / 2.0;
   }
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Returns half the height. */
   inline double half_height() const {
     return height / 2.0;
   }
 
 
-  //TODO [x] add documentation
-  //TODO [x] add C++ test (tests/xxx_test.cpp)
-  //TODO [x] add Python bindings
-  //TODO [x] add Python test (tests/test_xxx.py)
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Returns true if this rectangle can be drawn. */
   bool IsValid() const;
 

@@ -8,6 +8,8 @@
 #include <vector>
 
 namespace viren2d {
+
+//TODO(snototter) use cpputils::stringutils instead of copying this header
 namespace strings {
 /**
  * @brief Checks if the given string ends with another string
@@ -134,8 +136,6 @@ inline std::string Replace(const std::string &str, const std::string &search, co
   } while (start_pos != std::string::npos);
   return s;
 }
-
-//TODO maybe include other vcp string utils
 
 } // namespace strings
 } // namespace viren2d

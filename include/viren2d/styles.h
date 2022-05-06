@@ -8,6 +8,13 @@
 #include <viren2d/colors.h>
 #include <viren2d/primitives.h>
 
+//TODO(snototter) add tasks and progress to all:
+//TODO [ ] add documentation
+//TODO [ ] add C++ test (tests/xxx_test.cpp)
+//TODO [ ] add Python bindings
+//TODO [ ] add Python test (tests/test_xxx.py)
+//TODO [ ] add C++ demo
+//TODO [ ] add Python demo
 
 namespace viren2d {
 

@@ -231,6 +231,7 @@ protected:
 };
 
 
+/** @brief Creates a Painter object for drawing. */
 std::unique_ptr<Painter> CreatePainter();
 
 } // namespace viren2d

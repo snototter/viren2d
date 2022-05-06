@@ -78,7 +78,7 @@ inline void ApplyLineStyle(cairo_t *context,
   cairo_set_line_join(context, LineJoin2Cairo(line_style));
   ApplyColor(context, line_style.color);
 
-  //TODO if we're adding patterns (e.g. color gradients), we
+  //TODO(snototter) if we're adding patterns (e.g. color gradients), we
   // could return a pointer (or add another parameter); a pattern
   // must be destroyed after use
   //- https://zetcode.com/gfx/cairo/gradients/
@@ -118,7 +118,7 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
 
 
 //---------------------------------------------------- Available drawing helpers
-// TODO keep list alphabetically sorted:
+// These declarations should stay alphabetically sorted:
 
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
              Vec2d center, double radius, double angle1, double angle2,

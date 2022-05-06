@@ -33,7 +33,7 @@ inline bool eps_zero(T x) {
 }
 
 
-//TODO [x] add documentation
+//DONE [x] add documentation
 //TODO [ ] add C++ test (tests/xxx_test.cpp)
 /**
  * @brief Uses the machine epsilon to check for equality based on the desired
