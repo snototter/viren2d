@@ -111,27 +111,27 @@ python -m pip install .
 
 ## Features
 I'm planning to support visualization of the following primitives/objects:
-* [ ] 2D bounding boxes / Object detection results
 * [x] Arcs
 * [x] Arrows (single-/double-headed, filled/open, solid/dashed)
 * [x] Circles
 * [x] Ellipses
 * [x] Lines
 * [ ] Markers
+* [ ] Object detection results: 2D bounding boxes
+* [ ] Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
 * [ ] Polygons
 * [x] Rectangles - from axis-aligned & box-shaped to rounded corners and rotated
-* [ ] Textboxes (simple, i.e. with Cairo backend; text w/ and w/o colorized background)
-* [ ] Trajectories / Tracking results (plain paths vs fading effect)
-* [ ] Poses (e.g. human pose estimation results) - low priority feature
-* [ ] Image overlay (overlay/blending; clipping, e.g. circle/ellipse)
+* [ ] Text
+* [ ] Text boxes (i.e. text on colorized background)
+* [ ] Tracking results: Trajectories (plain paths vs fading effect)
+* [ ] Pose estimation results: needs a simple/easy-to-use interface s.t. users can define the pose graph themselves (too many different skeleton models to support them explicitly in viren2d) - low priority feature
+* [ ] Image overlay (overlay/blending; optionally clipping, e.g. via circle/ellipse) - low priority feature
 * [ ] Pseudocoloring: similar to `vcp` and `vito`; but requires extension of the ImageBuffer class to support floating point buffers
-* [ ] Camera calibration-related: Ground plane, horizon, 3D bounding boxes (projected onto 2D image/canvas)
+* [ ] Camera calibration-related: Ground plane, horizon - low priority features
+* [ ] Nice-to-have: Curves & curved arrows - low priority
 
 
 # TODOs
 * [ ] Use spdlog; set library-global debug level via interface function
-* [ ] Add user-adjustable default styles (LineStyle, ArrowStyle, etc.)
-* [ ] Nice-to-have: Add colormaps & pseudocoloring (low priority, v2.0?)
-* [ ] Nice-to-have: Curves & curved arrows (low priority)
 
 
