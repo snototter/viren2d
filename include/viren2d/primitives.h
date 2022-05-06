@@ -128,9 +128,6 @@ private:
 //DONE [x] add documentation
 //DONE [x] add C++ test (tests/xxx_test.cpp)
 //DONE [x] add Python bindings (via Painter)
-//TODO [ ] add Python test (tests/test_xxx.py)
-//TODO [ ] add C++ demo
-//TODO [ ] add Python demo
 /**
  * @brief Loads an image from disk.
  *
@@ -218,6 +215,7 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
 
 
 //------------------------------------------------- Vectors/Coordinates
+//TODO(snototter) check detailed testing of vector class (with dev task list)!
 /** @brief Template class to represent a vector/coordinate. */
 template<typename _Tp, int dim>
 class Vec {
@@ -449,7 +447,7 @@ struct Ellipse {
   bool include_center;  ///< Whether to include the center point in drawing/filling (only used if angle_from/angle_to are set).
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings - not allowed
   //DONE [x] add Python test (tests/test_xxx.py)
   /** Default c'tor creates an invalid ellipse. */
@@ -460,7 +458,7 @@ struct Ellipse {
   {}
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
   /** Creates an ellipse. */
@@ -479,7 +477,7 @@ struct Ellipse {
   {}
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
   /**
@@ -510,8 +508,7 @@ struct Ellipse {
 
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add C++ demo
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /**
    * @brief Construct from an initializer list with 4 to 7 elements.
    * Minimum: {cx, cy, major, minor}
@@ -522,32 +519,32 @@ struct Ellipse {
 
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add C++ demo
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ demo
   /** @brief Translate the center point by "offset" pixels in each dimension. */
   Ellipse &operator+=(double offset);
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add C++ demo
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ demo
   /** @brief Translate the center point by "offset" pixels in each dimension. */
   Ellipse &operator-=(double offset);
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add C++ demo
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ demo
   /** @brief Translate the center point by "offset" pixels. */
   Ellipse &operator+=(const Vec2d &offset);
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add C++ demo
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ demo
   /** @brief Translate the center point by "offset" pixels. */
   Ellipse &operator-=(const Vec2d &offset);
 
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Returns true if this rectangle can be drawn. */
@@ -603,8 +600,6 @@ struct Rect {
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
   /** Create a rectangle. */
   Rect(double center_x, double center_y, double w, double h,
        double rot = 0.0, double corner_radius = 0.0)
@@ -617,8 +612,6 @@ struct Rect {
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  //DONE [x] add C++ demo
-  //TODO [ ] add Python demo
   /** Create a rectangle. */
   Rect(const Vec2d &center, const Vec2d &size,
        double rot = 0.0, double corner_radius = 0.0)
@@ -636,7 +629,7 @@ struct Rect {
   Rect& operator=(Rect &&) = default;
 
   //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /**
    * @brief Construct from an initializer list with 4 to 6 elements.
    * Minimum: {cx, cy, w, h}

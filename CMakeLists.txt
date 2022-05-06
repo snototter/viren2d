@@ -246,7 +246,7 @@ if(viren2d_WITH_TESTS)
         src/helpers/enum.h
         tests/color_test.cpp
         tests/vector_test.cpp
-        tests/rectangle_test.cpp
+        tests/primitives_test.cpp
         tests/imagebuffer_test.cpp
         tests/style_test.cpp)
 

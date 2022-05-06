@@ -1128,11 +1128,11 @@ Rect &Rect::operator-=(const Vec2d &offset) {
 
 
 bool Rect::IsValid() const {
-  if ((radius > 0.5) && (radius < 1.0)) { //TODO add test
+  if ((radius > 0.5) && (radius < 1.0)) {
     return false;
   }
   return (width > 0.0) && (height > 0.0)
-      && (radius < std::min(half_height(), half_width()))
+      && (radius <= std::min(half_height(), half_width()))
       && (radius >= 0.0);
 }
 
