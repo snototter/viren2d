@@ -6,28 +6,7 @@
 
 #include <viren2d/primitives.h>
 #include <viren2d/math.h>
-//#include <viren2d/string_utils.h>
-//#include <helpers/enum.h>
 
-template<typename _Tp, int dim>
-::testing::AssertionResult CheckVector(
-    const viren2d::Vec<_Tp, dim> &val,
-    std::initializer_list<_Tp> expect) {
-  // Sanity check
-  if (dim != static_cast<int>(expect.size()))
-    return ::testing::AssertionFailure()
-        << "Invalid number of vector elements for comparison: "
-        << val.TypeName() << " has " << dim
-        << ", but initializer_list has " << expect.size();
-
-  for (int i = 0; i < dim; ++i) {
-    if (!viren2d::eps_equal(val.val[i], expect.begin()[i]))
-      return ::testing::AssertionFailure()
-          << val.ToString() << " differs at val[" << i << "], found "
-          << val.val[i] << " but expected " << expect.begin()[i];
-  }
-  return ::testing::AssertionSuccess();
-}
 
 template<typename _Tp, int dim>
 void VectorTestHelper(viren2d::Vec<_Tp, dim> &vec) {

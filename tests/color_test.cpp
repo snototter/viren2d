@@ -24,6 +24,7 @@
 
 
 TEST(ColorTest, BasicInitialization) {
+  // Default initialization should yield an invalid color
   auto color = viren2d::Color();
   EXPECT_FALSE(color.IsValid());
 
@@ -148,16 +149,16 @@ TEST(ColorTest, AdvancedInitialization) {
   auto color = viren2d::Color("black", 0.75);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::Black, 0.75));
 
-  // Alpha in the string overwrites the parameter
+  // Alpha in the string specification overwrites the parameter
   color = viren2d::Color("black!50", 0.75);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::Black, 0.5));
 
   // Alpha must be an integer
   EXPECT_THROW(viren2d::Color("black!!", 0.3), std::invalid_argument);
   EXPECT_THROW(viren2d::Color("white!!70", 0.3), std::invalid_argument);
-  EXPECT_THROW(viren2d::Color("red!0.5", 0.3), std::invalid_argument);
+  EXPECT_THROW(viren2d::Color(std::string("red!0.5"), 0.3), std::invalid_argument);
   EXPECT_THROW(viren2d::Color("red!12.3", 0.3), std::invalid_argument);
-  EXPECT_NO_THROW(viren2d::Color("taupe!30", 0.3));
+  EXPECT_NO_THROW(viren2d::Color(std::string("taupe!30"), 0.3));
 
   // Alpha must be in [0, 100]
   EXPECT_THROW(viren2d::Color("black!-3", 0.3), std::invalid_argument);
@@ -242,7 +243,7 @@ TEST(ColorTest, Webcodes) {
 
 
 TEST(ColorTest, NamedColors) {
-  // Ensure that all NamedColors are properly mapped (from & to string)
+  // Ensure that all NamedColors are properly mapped (bothm from & to string)
   typedef viren2d::ContinuousEnumIterator<viren2d::NamedColor,
               viren2d::NamedColor::Black,
               viren2d::NamedColor::Invalid> NamedColorIterator;

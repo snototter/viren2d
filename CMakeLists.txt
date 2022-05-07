@@ -248,6 +248,7 @@ if(viren2d_WITH_TESTS)
         tests/vector_test.cpp
         tests/primitives_test.cpp
         tests/imagebuffer_test.cpp
+        tests/utils_test.cpp
         tests/style_test.cpp)
 
     target_include_directories(${TARGET_CPP_TEST}

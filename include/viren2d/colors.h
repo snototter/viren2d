@@ -8,16 +8,11 @@
 #include <tuple>
 #include <ostream>
 
-//TODO(snototter) add tasks and progress to all:
-//TODO [ ] add documentation
-//TODO [ ] add C++ test (tests/xxx_test.cpp)
-//TODO [ ] add Python bindings
-//TODO [ ] add Python test (tests/test_xxx.py)
-//TODO [ ] add C++ demo
-//TODO [ ] add Python demo
 
 namespace viren2d {
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
 /** @brief Clips the given value to the range [low, high]. */
 template<typename _Tp>
 _Tp saturation_cast(_Tp val, _Tp low, _Tp high) {
@@ -75,10 +70,18 @@ enum class NamedColor : unsigned short {
 };
 
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Returns the string representations of all defined NamedColor values. */
 std::vector<std::string> ListNamedColors();
 
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /**
  * @brief Converts a string representation to a premix enumeration value.
  *
@@ -90,6 +93,10 @@ std::vector<std::string> ListNamedColors();
 NamedColor NamedColorFromString(const std::string &name);
 
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Returns the string representation of a premix enumeration value. */
 std::string NamedColorToString(NamedColor color);
 
@@ -141,6 +148,10 @@ class Color {
   static const Color Yellow;
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /**
    * @brief Constructs an invalid color (used to indicate
    * "special" color handling in some drawing functions).
@@ -149,6 +160,10 @@ class Color {
   {}
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Construct a color from the given components, clamped to [0, 1]. */
   Color(double red, double green, double blue, double alpha)
     : red(saturation_cast<double>(red, 0.0, 1.0)),
@@ -158,6 +173,10 @@ class Color {
   {}
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Copy the other's rgb components and set a custom alpha. */
   Color(const Color &other, double alpha)
     : red(other.red), green(other.green), blue(other.blue),
@@ -165,32 +184,54 @@ class Color {
   {}
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Copy the others rgb & alpha components. */
   Color(const Color &other)
     : Color(other, other.alpha)
   {}
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Construct a color from the NamedColor enumeration. */
   Color(const NamedColor color, double alpha=1.0);
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** Create a color from the given color specification (std::string) and alpha value. */
   Color(const std::string &colorspec, double alpha);
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** Create a color from the given color specification (std::string). */
   explicit Color(const std::string &colorspec)
     : Color(colorspec, 1.0)
   {}
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** Create a color from the given color specification (C string) and alpha value. */
   Color(const char *colorspec, double alpha)
     : Color(std::string(colorspec), alpha)
   {}
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** Create a color from the given color specification (C string). */
   Color(const char *colorspec)
     : Color(colorspec, 1.0)
@@ -204,24 +245,36 @@ class Color {
   Color& operator=(Color &&) = default;
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /**
    * @brief Returns the inverse/complementary color.
    *
    * Except for shades of gray, this returns (1.0-r, 1.0-g, 1.0-b).
    * For gray values it will either return black or white. The alpha
    * value will always stay the same.
-   * Why special handling of gray? Complementary colors should be
-   * used to provide good contrast/highlights - thus, having the
+   * Why special handling of gray? Complementary colors are used in
+   * viren2d to provide good contrast/highlights - thus, having the
    * "true" inverse (i.e. 1-r|g|b) for "medium gray" (r|g|b close
    * to 127) would not be too useful.
    */
   Color Inverse() const;
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Checks if all rgba components are within [0, 1]. */
   bool IsValid() const;
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Checks if all rgb components almost the same (+/- the given epsilon). */
   bool IsShadeOfGray(double epsilon=0.02) const;
 
@@ -235,6 +288,10 @@ class Color {
   ToRGBa() const;
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /**
    * @brief Returns the web color code, e.g. "#dcdce4ff".
    *
@@ -243,22 +300,50 @@ class Color {
   std::string ToHexString() const;
 
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Return a color with the same r,g,b components, but the given alpha. */
   Color WithAlpha(double alpha) const;
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Scale rgb and clamp to [0, 1]. Alpha stays unchanged. */
   Color operator*(double scalar) const;
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   Color &operator*=(double scalar);
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Divide rgb by the factor and clamp to [0, 1]. Alpha stays unchanged. */
   Color operator/(double scalar) const;
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   Color &operator/=(double scalar);
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Adds the other's rgb and clamps the result to [0, 1]. Alpha stays unchanged. */
   Color &operator+=(const Color &rhs);
 
+  //DONE [x] add documentation
+  //DONE [x] add C++ test (tests/xxx_test.cpp)
+  //DONE [x] add Python bindings
+  //DONE [x] add Python test (tests/test_xxx.py)
   /** @brief Subtracts the other's rgb and clamps the result to [0, 1]. Alpha stays unchanged. */
   Color &operator-=(const Color &rhs);
 
@@ -278,26 +363,52 @@ bool operator!=(const Color& lhs, const Color& rhs);
 
 //-------------------------------------------------  Arithmetic operators
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 Color operator*(double scalar, Color rhs);
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 Color operator+(Color lhs, const Color& rhs);
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 Color operator-(Color lhs, const Color& rhs);
 
 
 //-------------------------------------------------  Convenience initialization for Color
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Convenience wrapper to initialize @see Color from rgb values in range [0,1]. */
 Color rgba(double r, double g, double b, double alpha=1.0);
 
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /** Convenience wrapper to initialize @see Color from RGB values in range [0,255]. Alpha must be in [0,1]. */
 Color RGBa(double R, double G, double B, double alpha=1.0);
 
 
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+//DONE [x] add Python bindings
+//DONE [x] add Python test (tests/test_xxx.py)
 /**
  * @brief Creates a Color from the given webcode, e.g. "#abcdef".
  *
  * If the hexstring/webcode has 8 digits, its alpha specification will
- * overrule the "alpha" parameter.
+ * overrule the given "alpha" parameter.
  */
 Color ColorFromHexString(const std::string &webcode, double alpha=1.0);
 

@@ -3,7 +3,114 @@
 
 #include <type_traits>
 
+// Provide bitwise operators for type-safe enums (must be in global scope)
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Bitwise OR */
+template<typename Enum>
+Enum operator |(Enum lhs, Enum rhs) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum> (
+    static_cast<underlying>(lhs) | static_cast<underlying>(rhs)
+  );
+}
+
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Bitwise OR assignment*/
+template<typename Enum>
+Enum& operator |=(Enum& lhs, Enum rhs) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  lhs = static_cast<Enum> (
+    static_cast<underlying>(lhs) | static_cast<underlying>(rhs)
+  );
+  return lhs;
+}
+
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Bitwise AND */
+template<typename Enum>
+Enum operator &(Enum lhs, Enum rhs) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum> (
+    static_cast<underlying>(lhs) & static_cast<underlying>(rhs)
+  );
+}
+
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Bitwise AND assignment */
+template<typename Enum>
+Enum& operator &=(Enum& lhs, Enum rhs) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  lhs = static_cast<Enum> (
+    static_cast<underlying>(lhs) & static_cast<underlying>(rhs)
+  );
+  return lhs;
+}
+
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Bitwise XOR */
+template<typename Enum>
+Enum operator ^(Enum lhs, Enum rhs) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum> (
+    static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs)
+  );
+}
+
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Bitwise XOR assignment */
+template<typename Enum>
+Enum& operator ^=(Enum& lhs, Enum rhs) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  lhs = static_cast<Enum> (
+    static_cast<underlying>(lhs) ^
+    static_cast<underlying>(rhs)
+  );
+  return lhs;
+}
+
+
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Bitwise NOT */
+template<typename Enum>
+Enum operator ~(Enum rhs) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum> (~static_cast<underlying>(rhs));
+}
+
+
+
 namespace viren2d {
+//DONE [x] add documentation
+//DONE [x] add C++ test (tests/xxx_test.cpp)
+/** Check if the given flag is set. */
+template<typename Enum>
+bool IsFlagSet(Enum value, Enum flag) {
+  static_assert(std::is_enum<Enum>::value, "Template parameter is not an enum type");
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<underlying>(value & flag) != 0;
+}
+
+
 /**
  * @brief Iterator listing all enum values.
  *

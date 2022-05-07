@@ -51,7 +51,7 @@ def test_color_init():
     assert c == 'white!30'
     
     # Manually create a color from r,g,b,a
-    color = viren2d.Color(0.3, 0.2, 0.5, 0.7);
+    color = viren2d.Color(0.3, 0.2, 0.5, 0.7)
     assert color.is_valid()
     check_color(color, 0.3, 0.2, 0.5, 0.7)
     # Copy c'tor
@@ -85,29 +85,29 @@ def test_saturation_casts():
 
 def test_shades_of_gray():
     # Is color a shade of gray?
-    c = viren2d.Color("black");
+    c = viren2d.Color("black")
     assert c.is_valid()
     
     assert c.is_shade_of_gray()
-    c.red = 0.02;
+    c.red = 0.02
     assert c.is_shade_of_gray()
-    c.red = 0.03;
+    c.red = 0.03
     assert not c.is_shade_of_gray()
     assert c.is_shade_of_gray(0.05)
 
-    c.red = c.green = c.blue = 0.77;
+    c.red = c.green = c.blue = 0.77
     assert c.is_shade_of_gray()
-    c.green = 0.9;
+    c.green = 0.9
     assert not c.is_shade_of_gray()
 
 
 def test_webcodes():
     # Test initialization via webcodes/hex codes
-    color = viren2d.Color("#000000", 0.1);
+    color = viren2d.Color("#000000", 0.1)
     assert color == "black!10"
     assert color.as_hex() == "#00000019"
 
-    color = viren2d.Color("#fFfFfF", 0.3);
+    color = viren2d.Color("#fFfFfF", 0.3)
     assert color == 'white!30'
     assert color.as_hex() == "#ffffff4c"
 
@@ -151,7 +151,7 @@ def test_color_names():
 
 
 def test_complementary_colors():
-    color = viren2d.Color("black");
+    color = viren2d.Color("black")
     assert color.inverse() == viren2d.Color.White
 
     color = viren2d.rgba(1, 0, 0.5)
@@ -172,10 +172,10 @@ def test_complementary_colors():
     # Special handling for shades of gray
     for v in range(0, 128):
       # Dark gray --> white
-      color = viren2d.RGBa(v, v, v).inverse();
+      color = viren2d.RGBa(v, v, v).inverse()
       assert color == viren2d.Color.White
       # Light gray --> Black
-      color = viren2d.RGBa(v + 128, v + 128, v + 128).inverse();
+      color = viren2d.RGBa(v + 128, v + 128, v + 128).inverse()
       assert color == viren2d.Color.Black
 
 
@@ -194,32 +194,32 @@ def test_operators():
     assert viren2d.Color.Red.with_alpha(0.9) == viren2d.Color("red!90")
 
     # Scalar multiplication (alpha should not be changed)
-    color = 0.5 * viren2d.Color.Cyan;
+    color = 0.5 * viren2d.Color.Cyan
     assert color == viren2d.Color(0.0, 0.5, 0.5, 1.0)
     # Values should be clamped
-    color.alpha = 0.7;
-    color *= 3;
+    color.alpha = 0.7
+    color *= 3
     assert color == viren2d.Color(0.0, 1.0, 1.0, 0.7)
 
-    color = viren2d.Color.White * 0.5;
+    color = viren2d.Color.White * 0.5
     assert color == viren2d.Color(0.5, 0.5, 0.5, 1.0)
-    color.alpha = 0.7;
-    cp = viren2d.Color(color);
-    color *= 1.5;
+    color.alpha = 0.7
+    cp = viren2d.Color(color)
+    color *= 1.5
     assert color == viren2d.Color(0.75, 0.75, 0.75, 0.7)
     assert (cp * 1.5) == color
 
     # Division by scalar (only rhs)
-    color = viren2d.Color.Magenta / 2.0;
+    color = viren2d.Color.Magenta / 2.0
     assert color == viren2d.Color(0.5, 0.0, 0.5, 1.0)
-    color.alpha = 0.7;
-    cp = viren2d.Color(color);
-    color /= 5;
+    color.alpha = 0.7
+    cp = viren2d.Color(color)
+    color /= 5
     assert color == viren2d.Color(0.1, 0.0, 0.1, 0.7)
     assert color == (viren2d.Color.Magenta.with_alpha(0.7) / 10.0)
 
     # Addition
-    add = color + color;
+    add = color + color
     assert (2 * color) == add
     cp.green = 0.3
     add += cp
