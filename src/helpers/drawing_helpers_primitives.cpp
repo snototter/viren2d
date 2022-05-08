@@ -537,40 +537,28 @@ Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position,
               TextAnchor text_anchor,
-              TextStyle desired_text_style,
-              TextStyle &painter_text_style) {
+              const TextStyle &desired_text_style,
+              const TextStyle &current_context_style) {
   CheckCanvas(surface, context);
 
   if (text.empty()) {
-    throw std::invalid_argument("Cannot draw empty text!");
+    // Nothing to do
+    return;
   }
 
-
-//  std::cout << "TODO text style madness:\n"
-//      << "desired: " << desired_text_style
-//      << "\npainter: " << painter_text_style
-//      << "\ndefault: " << GetDefaultTextStyle() << std::endl;
-
-  // Before saving the painter's current context, check
-  // if the default text style has changed (unbeknownst
-  // to the painter):
-  if (painter_text_style != GetDefaultTextStyle()) {
-//    std::cout << "TODO painter text style differs from default: " << painter_text_style << " vs def: " << GetDefaultTextStyle() << std::endl;
-    painter_text_style = GetDefaultTextStyle();
-    ApplyTextStyle(context, painter_text_style);
+  if (!desired_text_style.IsValid()) {
+    std::stringstream s;
+    s << "Cannot draw text with invalid style: "
+      << desired_text_style;
+    throw std::invalid_argument(s.str());
   }
 
   // Push the current context. Now, we just apply styles
   // specific to *this* DrawText call.
   cairo_save(context);
 
-  if (desired_text_style.IsValid()) {
-    if (desired_text_style != GetDefaultTextStyle()) {
-      std::cout << "TODO non-default text style: " << desired_text_style << " VS default: " << GetDefaultTextStyle() << std::endl;
-      ApplyTextStyle(context, desired_text_style);
-    }
-  } else {
-    desired_text_style = GetDefaultTextStyle();
+  if (desired_text_style != current_context_style) {
+    ApplyTextStyle(context, desired_text_style);
   }
 
   // We have to always apply font color in this context (as
@@ -611,10 +599,18 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   cairo_rectangle(context, tl.x(), tl.y(), extents.width, extents.height);
   cairo_stroke(context);
 
-  // Draw a box at the desired location, showing the
+  // Draw a box or circle at the desired location, showing the
   // size of the padded region
   ApplyLineStyle(context, LineStyle(1, Color::Black));
-  cairo_rectangle(context, desired_position.x() - padding, desired_position.y() - padding, 2*padding, 2*padding);
+  if (padding > 0) {
+    cairo_rectangle(context, desired_position.x() - padding,
+                    desired_position.y() - padding,
+                    2 * padding, 2 * padding);
+  } else {
+    // If we don't have padding, draw a small circle:
+    cairo_arc(context, desired_position.x(), desired_position.y(),
+              4, 0, 2 * M_PI);
+  }
   cairo_stroke(context);
 
   // how a text box with that padding would look like:

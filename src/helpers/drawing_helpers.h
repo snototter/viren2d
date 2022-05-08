@@ -171,8 +171,8 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position,
               TextAnchor text_anchor,
-              TextStyle desired_text_style,
-              TextStyle &painter_text_style); // painter text style can be changed (if you called SetDefaultTextStyle previously and the painter does not yet know...)
+              const TextStyle &desired_text_style,
+              const TextStyle &current_context_style);
 
 } // namespace helpers
 } // namespace viren2d

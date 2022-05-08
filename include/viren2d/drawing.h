@@ -85,6 +85,50 @@ public:
   virtual ImageBuffer GetCanvas(bool copy) const = 0;
 
 
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  /** @brief Changes the default line/contour style. */
+  virtual void SetDefaultLineStyle(const LineStyle &line_style) = 0;
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  /** @brief Returns this painter's default line/contour style. */
+  virtual LineStyle GetDefaultLineStyle() const = 0;
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  /** @brief Changes the default arrow style. */
+  virtual void SetDefaultArrowStyle(const ArrowStyle &arrow_style) = 0;
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  /** @brief Returns this painter's default arrow style. */
+  virtual ArrowStyle GetDefaultArrowStyle() const = 0;
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  /** @brief Changes the default text style. */
+  virtual void SetDefaultTextStyle(const TextStyle &text_style) = 0;
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  /** @brief Returns this painter's default text style. */
+  virtual TextStyle GetDefaultTextStyle() const = 0;
+
+
   /**
    * @brief Draws a circular arc.
    *
@@ -103,7 +147,7 @@ public:
    */
   void DrawArc(const Vec2d &center, double radius,
                double angle1, double angle2,
-               const LineStyle &line_style,
+               const LineStyle &line_style = LineStyle::Invalid, // FIXME :( for fillable primitives, the line style may be empty; and then, MUST NOT be changed to the default style
                bool include_center = true,
                const Color &fill_color = Color(0, 0, 0, 0)) {
     DrawArcImpl(center, radius, angle1, angle2, line_style,
@@ -195,7 +239,8 @@ public:
    * @param fill_color: Provide a valid color to fill
    *                the circle.
    */
-  void DrawRect(const Rect &rect, const LineStyle &line_style,
+  void DrawRect(const Rect &rect,
+                const LineStyle &line_style = LineStyle::InvalidStyle(), //FIXME use invalidstyle everywhere; + doc that this means "use the default"
                 const Color &fill_color = Color(0, 0, 0, 0)) {
     DrawRectImpl(rect, line_style, fill_color);
   }
@@ -204,7 +249,7 @@ public:
   //TODO
   void DrawText(const std::string &text, const Vec2d &position,
                 TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
-                const TextStyle &text_style = GetDefaultTextStyle()) {
+                const TextStyle &text_style = TextStyle::InvalidStyle()) {
     DrawTextImpl(text, position, text_anchor, text_style);
   }
 

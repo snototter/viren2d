@@ -1,6 +1,18 @@
 #ifndef __VIREN2D_STYLES_H__
 #define __VIREN2D_STYLES_H__
 
+//FIXME FIXME FIXME
+// How to handle special case "only fill"?
+// * valid linestyle + X --> draw contour & fill if X is valid
+// * invalid linestyle + valid fill color --> only fill
+// * invalid linestyle + invalid fill color --> should raise an exception
+// how can we select the default style?
+//
+//maybe create static fields:
+// Invalid
+// Default --> e.g. line_width -42
+//FIXME FIXME FIXME
+
 #include <vector>
 #include <string>
 #include <ostream>
@@ -15,6 +27,7 @@
 //TODO [ ] add Python test (tests/test_xxx.py)
 //TODO [ ] add C++ demo
 //TODO [ ] add Python demo
+
 
 namespace viren2d {
 
@@ -70,7 +83,7 @@ struct LineStyle {
   LineCap line_cap;    /**< How to render the endpoints. */
   LineJoin line_join;  /**< How to render the junction of two lines/segments. */
 
-  /** Returns a default style (which can be changed via @see SetDefaultLineStyle). */
+  /** Returns a default style. TODO doc */
   LineStyle();
 
 
@@ -125,14 +138,23 @@ struct LineStyle {
     os << style.ToString();
     return os;
   }
+
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  //TODO [ ] add C++ demo
+  //TODO [ ] add Python demo
+  /**
+    FIXME see notes at the top of the header
+
+   * The "invalid" style is used to switch to
+   * "special" painter behavior, e.g. not drawing
+   * the contour or using a default setting.
+   */
+  static const LineStyle Invalid;
 };
-
-
-/** Changes the default line/contour style (used by the default LineStyle c'tor). */
-void SetDefaultLineStyle(const LineStyle &line_style);
-
-/** Returns the default line/contour style (alternatively, just use the default LineStyle() c'tor). */
-LineStyle GetDefaultLineStyle();
 
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
 bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
@@ -147,7 +169,7 @@ struct ArrowStyle : public LineStyle {
   bool double_headed;  /**< Should the head be drawn on both ends of the line? */
 
 
-  /** Returns a default style (which can be changed via @see SetDefaultArrowStyle). */
+  /** Returns an invalid style. TODO doc */
   ArrowStyle();
 
 
@@ -217,14 +239,20 @@ struct ArrowStyle : public LineStyle {
     os << style.ToString();
     return os;
   }
+
+  //TODO [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  //TODO [ ] add C++ demo
+  //TODO [ ] add Python demo
+  /**
+   * Returns an invalid style which is used by the painter
+   * to indicate that the user wants to use the default
+   * style settings.
+   */
+  static ArrowStyle InvalidStyle();
 };
-
-
-/** Changes the default arrow style (used by the default ArrowStyle c'tor). */
-void SetDefaultArrowStyle(const ArrowStyle &arrow_style);
-
-/** Returns the default arrow style (alternatively, just use the default ArrowStyle() c'tor). */
-ArrowStyle GetDefaultArrowStyle();
 
 bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs);
 bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);
@@ -251,7 +279,7 @@ struct TextStyle {
   bool font_bold;
   bool font_italic;
 
-  /** Returns a default style (which can be changed via @see SetDefaultTextStyle). */
+  /** Returns an invalid style. TODO doc */
   TextStyle();
 
 
@@ -260,7 +288,11 @@ struct TextStyle {
             const Color &color = Color::Black,
             bool bold = false, bool italic = false);
 
-  /** Returns an invalid style which is used by the painter to denote missing context initialization. */
+  /**
+   * Returns an invalid style which is used by the painter
+   * to indicate that the user wants to use the default
+   * style settings.
+   */
   static TextStyle InvalidStyle();
 
 //  // Nothing special about the TextStyle class, so we can have
@@ -292,12 +324,6 @@ struct TextStyle {
   }
 };
 
-
-/** Changes the default arrow style (used by the default TextStyle c'tor). */
-void SetDefaultTextStyle(const TextStyle &text_style);
-
-/** Returns the default text style (alternatively, just use the default TextStyle() c'tor). */
-TextStyle GetDefaultTextStyle();
 
 bool operator==(const TextStyle &lhs, const TextStyle &rhs);
 bool operator!=(const TextStyle &lhs, const TextStyle &rhs);

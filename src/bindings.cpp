@@ -1143,13 +1143,13 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   // A LineStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::LineStyle>();
 
-  doc = "Change the default " + Qualified("LineStyle") + ".";
-  m.def("set_default_line_style", &viren2d::SetDefaultLineStyle,
-        doc.c_str(), py::arg("line_style"));
-
-  doc = "Returns the default " + Qualified("LineStyle") + ".\n"
-        "Alternatively, the same specification is returned by the default c'tor.";
-  m.def("get_default_line_style", &viren2d::GetDefaultLineStyle, doc.c_str());
+//  doc = "Change the default " + Qualified("LineStyle") + ".";
+//  m.def("set_default_line_style", &viren2d::SetDefaultLineStyle,
+//        doc.c_str(), py::arg("line_style"));
+//FIXME
+//  doc = "Returns the default " + Qualified("LineStyle") + ".\n"
+//        "Alternatively, the same specification is returned by the default c'tor.";
+//  m.def("get_default_line_style", &viren2d::GetDefaultLineStyle, doc.c_str());
 
   //------------------------------------------------- Drawing - ArrowStyle
   py::class_<viren2d::ArrowStyle, viren2d::LineStyle> arrow_style(m, "ArrowStyle",
@@ -1270,13 +1270,13 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   // An ArrowStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::ArrowStyle>();
 
-  doc = "Change the default " + Qualified("ArrowStyle") + ".";
-  m.def("set_default_arrow_style", &viren2d::SetDefaultArrowStyle,
-        doc.c_str(), py::arg("arrow_style"));
-
-  doc = "Returns the default " + Qualified("ArrowStyle") + ".\n"
-        "Alternatively, the same specification is returned by the default c'tor.";
-  m.def("get_default_arrow_style", &viren2d::GetDefaultArrowStyle, doc.c_str());
+//  doc = "Change the default " + Qualified("ArrowStyle") + ".";
+//  m.def("set_default_arrow_style", &viren2d::SetDefaultArrowStyle,
+//        doc.c_str(), py::arg("arrow_style"));
+//FIXME
+//  doc = "Returns the default " + Qualified("ArrowStyle") + ".\n"
+//        "Alternatively, the same specification is returned by the default c'tor.";
+//  m.def("get_default_arrow_style", &viren2d::GetDefaultArrowStyle, doc.c_str());
 
   //------------------------------------------------- Drawing - Painter
   py::class_<moddef::Painter> painter(m, "Painter",

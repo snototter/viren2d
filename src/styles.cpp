@@ -14,20 +14,6 @@
 #include <helpers/enum.h>
 
 namespace viren2d {
-namespace {
-static LineStyle default_line_style = LineStyle(2.0, Color(NamedColor::NavyBlue, 80),
-                                                std::vector<double>(),
-                                                LineCap::Butt, LineJoin::Miter);
-
-static ArrowStyle default_arrow_style = ArrowStyle(default_line_style,
-                                                   0.1, 20.0, false, false);
-
-//TODO(snototter) change default font family
-static TextStyle default_text_style = TextStyle(16, "xkcd",
-                                                Color(NamedColor::MidnightBlue),
-                                                false, false);
-} // anonymous namespace
-
 std::string LineCapToString(LineCap cap) {
   switch (cap) {
     case LineCap::Butt:
@@ -63,12 +49,14 @@ std::string LineJoinToString(LineJoin join) {
 
 
 //-------------------------------------------------  LineStyle
+const LineStyle LineStyle::Invalid = LineStyle(-2, Color::Invalid);
+
 LineStyle::LineStyle()
-  : line_width(default_line_style.line_width),
-    color(default_line_style.color),
-    dash_pattern(default_line_style.dash_pattern),
-    line_cap(default_line_style.line_cap),
-    line_join(default_line_style.line_join)
+  : line_width(2),
+    color(Color(NamedColor::Azure)),
+    dash_pattern({}),
+    line_cap(LineCap::Butt),
+    line_join(LineJoin::Miter)
 {}
 
 
@@ -157,16 +145,6 @@ bool LineStyle::Equals(const LineStyle &other) const {
 }
 
 
-void SetDefaultLineStyle(const LineStyle &line_style) {
-  default_line_style = line_style;
-}
-
-LineStyle GetDefaultLineStyle() {
-  return default_line_style;
-}
-
-
-
 bool operator==(const LineStyle &lhs, const LineStyle &rhs) {
   return lhs.Equals(rhs);
 }
@@ -179,8 +157,10 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
 
 
 //-------------------------------------------------  ArrowStyle
-ArrowStyle::ArrowStyle() : LineStyle() {
-  *this = default_arrow_style;
+ArrowStyle::ArrowStyle()
+  : LineStyle(),
+    tip_length(-1), tip_angle(0),
+    tip_closed(false), double_headed(false) {
 }
 
 
@@ -259,15 +239,6 @@ bool ArrowStyle::Equals(const ArrowStyle &other) const {
 }
 
 
-void SetDefaultArrowStyle(const ArrowStyle &arrow_style) {
-  default_arrow_style = arrow_style;
-}
-
-ArrowStyle GetDefaultArrowStyle() {
-  return default_arrow_style;
-}
-
-
 bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs) {
   return lhs.Equals(rhs);
 }
@@ -280,8 +251,12 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 
 
 //-------------------------------------------------  TextStyle
-TextStyle::TextStyle() {
-  *this = default_text_style;
+TextStyle::TextStyle()
+  : font_size(-1),
+    font_family("monospace"),
+    font_color(Color::Invalid),
+    font_bold(false),
+    font_italic(false) {
 }
 
 
@@ -335,16 +310,6 @@ std::string TextStyle::ToString() const {
   }
   s << ")";
   return s.str();
-}
-
-
-void SetDefaultTextStyle(const TextStyle &text_style) {
-  default_text_style = text_style;
-}
-
-
-TextStyle GetDefaultTextStyle() {
-  return default_text_style;
 }
 
 

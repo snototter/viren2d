@@ -31,28 +31,28 @@ TEST(StyleTest, LineStyleBasics) {
 
 
 
-TEST(StyleTest, DefaultLineStyle) {
-  const auto original_default_style = viren2d::LineStyle();
-  // In the second iteration, the default style will be changed
-  for (int i = 0; i < 2; ++i) {
-    viren2d::LineStyle ls;
-    EXPECT_EQ(ls, viren2d::GetDefaultLineStyle());
+//TEST(StyleTest, DefaultLineStyle) {
+//  const auto original_default_style = viren2d::LineStyle();
+//  // In the second iteration, the default style will be changed
+//  for (int i = 0; i < 2; ++i) {
+//    viren2d::LineStyle ls;
+//    EXPECT_EQ(ls, viren2d::GetDefaultLineStyle());
 
-    if (i > 0) {
-      EXPECT_NE(ls, original_default_style);
-    }
+//    if (i > 0) {
+//      EXPECT_NE(ls, original_default_style);
+//    }
 
-    // Change the style
-    ls = viren2d::LineStyle(3 + i, "forest-green");
-    EXPECT_NE(ls, original_default_style);
-    EXPECT_NE(ls, viren2d::GetDefaultLineStyle());
+//    // Change the style
+//    ls = viren2d::LineStyle(3 + i, "forest-green");
+//    EXPECT_NE(ls, original_default_style);
+//    EXPECT_NE(ls, viren2d::GetDefaultLineStyle());
 
-    // Make it the new default
-    viren2d::SetDefaultLineStyle(ls);
-    EXPECT_EQ(ls, viren2d::GetDefaultLineStyle());
-  }
-  viren2d::SetDefaultLineStyle(original_default_style);
-}
+//    // Make it the new default
+//    // FIXME defaults are now per painter! viren2d::SetDefaultLineStyle(ls);
+//    EXPECT_EQ(ls, viren2d::GetDefaultLineStyle());
+//  }
+//  // FIXME defaults are now per painter! viren2d::SetDefaultLineStyle(original_default_style);
+//}
 
 
 TEST(StyleTest, ArrowStyleBasics) {
@@ -90,28 +90,29 @@ TEST(StyleTest, ArrowStyleBasics) {
 }
 
 
-TEST(StyleTest, DefaultArrowStyle) {
-  const viren2d::ArrowStyle original_default_style;
-  // In the second iteration, the default style will be changed
-  for (int i = 0; i < 2; ++i) {
-    viren2d::ArrowStyle ls;
-    EXPECT_EQ(ls, viren2d::GetDefaultArrowStyle());
+//TEST(StyleTest, DefaultArrowStyle) {
+//  // FIXME defaults are now per painter!
+//  const viren2d::ArrowStyle original_default_style;
+//  // In the second iteration, the default style will be changed
+//  for (int i = 0; i < 2; ++i) {
+//    viren2d::ArrowStyle ls;
+//    EXPECT_EQ(ls, viren2d::GetDefaultArrowStyle());
 
-    if (i > 0) {
-      EXPECT_NE(ls, original_default_style);
-    }
+//    if (i > 0) {
+//      EXPECT_NE(ls, original_default_style);
+//    }
 
-    // Change the style
-    ls = viren2d::ArrowStyle(3 + i, "lavender", 0.3);
-    EXPECT_NE(ls, original_default_style);
-    EXPECT_NE(ls, viren2d::GetDefaultArrowStyle());
+//    // Change the style
+//    ls = viren2d::ArrowStyle(3 + i, "lavender", 0.3);
+//    EXPECT_NE(ls, original_default_style);
+//    EXPECT_NE(ls, viren2d::GetDefaultArrowStyle());
 
-    // Make it the new default
-    viren2d::SetDefaultArrowStyle(ls);
-    EXPECT_EQ(ls, viren2d::GetDefaultArrowStyle());
-  }
-  viren2d::SetDefaultArrowStyle(original_default_style);
-}
+//    // Make it the new default
+//    viren2d::SetDefaultArrowStyle(ls);
+//    EXPECT_EQ(ls, viren2d::GetDefaultArrowStyle());
+//  }
+//  viren2d::SetDefaultArrowStyle(original_default_style);
+//}
 
 
 TEST(StyleTest, ArrowTipLength) {
