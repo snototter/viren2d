@@ -83,7 +83,8 @@ struct LineStyle {
   LineCap line_cap;    /**< How to render the endpoints. */
   LineJoin line_join;  /**< How to render the junction of two lines/segments. */
 
-  /** Returns a default style. TODO doc */
+  /** Returns a library-wide pre-set default style.
+   *  To use the painter's default style, you should use LineStyle::Default !!! TODO doc FIXME "special" default, "special " invalid or "some initialized" ??? */
   LineStyle();
 
 
@@ -104,6 +105,11 @@ struct LineStyle {
 
   /** @brief Checks if this line style would lead to a renderable line. */
   virtual bool IsValid() const;
+
+  //TODO doc & test
+  virtual bool IsSpecialInvalid() const;
+  virtual bool IsSpecialDefault() const;
+
 
 
   /** @brief Returns true if this style contains a dash stroke pattern. */
@@ -154,6 +160,7 @@ struct LineStyle {
    * the contour or using a default setting.
    */
   static const LineStyle Invalid;
+  static const LineStyle Default;
 };
 
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
@@ -169,7 +176,7 @@ struct ArrowStyle : public LineStyle {
   bool double_headed;  /**< Should the head be drawn on both ends of the line? */
 
 
-  /** Returns an invalid style. TODO doc */
+  /** FIXME see linestyle doc! */
   ArrowStyle();
 
 
@@ -202,8 +209,12 @@ struct ArrowStyle : public LineStyle {
 
 
   /** @brief Checks if this style would lead to a renderable arrow. */
-  virtual bool IsValid() const override;
+  bool IsValid() const override;
 
+
+  //FIXME
+  bool IsSpecialInvalid() const override;
+  bool IsSpecialDefault() const override;
 
   /** @brief Computes the length of the arrow head/tip for the given shaft length. */
   double TipLengthForShaft(double shaft_length) const;
@@ -246,12 +257,9 @@ struct ArrowStyle : public LineStyle {
   //TODO [ ] add Python test (tests/test_xxx.py)
   //TODO [ ] add C++ demo
   //TODO [ ] add Python demo
-  /**
-   * Returns an invalid style which is used by the painter
-   * to indicate that the user wants to use the default
-   * style settings.
-   */
-  static ArrowStyle InvalidStyle();
+  //FIXME
+  static const ArrowStyle Invalid;
+  static const ArrowStyle Default;
 };
 
 bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs);
@@ -271,29 +279,24 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);
 
 
 struct TextStyle {
-  unsigned int font_size;
+  int font_size;
   std::string font_family;
   Color font_color;
 //  FontSlant font_slant;
 //  FontWeight font_weight;
   bool font_bold;
   bool font_italic;
+  unsigned int padding;
 
-  /** Returns an invalid style. TODO doc */
+  /**FIXME see linestyle doc*/
   TextStyle();
 
 
   TextStyle(unsigned int size,
             const std::string &family,
             const Color &color = Color::Black,
-            bool bold = false, bool italic = false);
-
-  /**
-   * Returns an invalid style which is used by the painter
-   * to indicate that the user wants to use the default
-   * style settings.
-   */
-  static TextStyle InvalidStyle();
+            bool bold = false, bool italic = false,
+            unsigned int box_padding = 0);
 
 //  // Nothing special about the TextStyle class, so we can have
 //  // the default copy/assignment/move c'tors/operators:
@@ -309,6 +312,12 @@ struct TextStyle {
   bool IsValid() const;
 
 
+  //FIXME
+  bool IsSpecialInvalid() const;
+  bool IsSpecialDefault() const;
+
+
+
   /** @brief Returns true if this and the other specify the same text style. */
   bool Equals(const TextStyle &other) const;
 
@@ -322,6 +331,9 @@ struct TextStyle {
     os << style.ToString();
     return os;
   }
+
+  static const TextStyle Invalid;
+  static const TextStyle Default;
 };
 
 

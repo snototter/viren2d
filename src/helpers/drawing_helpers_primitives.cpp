@@ -489,7 +489,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
                     rect.width, rect.height);
   }
 
-  if (fill_color.alpha > 0.0) {
+  if (fill_color.IsValid()) {
     helpers::ApplyColor(context, fill_color);
     cairo_fill_preserve(context);
   }
@@ -504,7 +504,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 //---------------------------------------------------- Text (plain & boxed)
 Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
                             const cairo_text_extents_t &extents,
-                            double padding) {
+                            unsigned int padding) {
   //TODO add padding (default = 0) parameter, then we can reuse it for bounding box & text box!
   // Default Cairo text position is bottom-left
 
@@ -561,17 +561,14 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
     ApplyTextStyle(context, desired_text_style);
   }
 
-  // We have to always apply font color in this context (as
-  // Cairo uses the default source rgba values, which could
-  // have been overwritten since setting the default font
-  // style)
-  ApplyColor(context, desired_text_style.font_color);
+  // Shift to the pixel center, and move to the origin of the
+  // first glyph. Then, we can let Cairo render the text
+  position += 0.5;
 
 #define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   const auto desired_position = position;
 #endif  // VIREN2D_DEBUG_TEXT_EXTENT
-  double padding = 0; // TODO parametrization!
   //TODO extend drawText to support text boxes
 
   //FIXME default styles:
@@ -583,14 +580,8 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // the position according to the desired text anchor:
   cairo_text_extents_t extents;
   cairo_text_extents(context, text.c_str(), &extents);
-  position = GetTextAnchorPosition(position, text_anchor,
-                                   extents, padding);
-
-  // Shift to the pixel center, and move to the origin of the
-  // first glyph. Then, we can let Cairo render the text
-  position += 0.5;
-  cairo_move_to(context, position.x(), position.y());
-  cairo_show_text(context, text.c_str());
+  position = GetTextAnchorPosition(position, text_anchor, extents,
+                                   desired_text_style.padding);
 
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   // Draw a box showing the text extent
@@ -602,10 +593,10 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // Draw a box or circle at the desired location, showing the
   // size of the padded region
   ApplyLineStyle(context, LineStyle(1, Color::Black));
-  if (padding > 0) {
-    cairo_rectangle(context, desired_position.x() - padding,
-                    desired_position.y() - padding,
-                    2 * padding, 2 * padding);
+  if (desired_text_style.padding > 0) {
+    cairo_rectangle(context, desired_position.x() - desired_text_style.padding,
+                    desired_position.y() - desired_text_style.padding,
+                    2 * desired_text_style.padding, 2 * desired_text_style.padding);
   } else {
     // If we don't have padding, draw a small circle:
     cairo_arc(context, desired_position.x(), desired_position.y(),
@@ -614,12 +605,22 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   cairo_stroke(context);
 
   // how a text box with that padding would look like:
-  ApplyColor(context, "gray!40");
-  cairo_rectangle(context, tl.x() - padding, tl.y() - padding,
-                  extents.width + 2 * padding,
-                  extents.height + 2 * padding);
+  ApplyColor(context, desired_text_style.font_color.Inverse(0.7));
+  cairo_rectangle(context, tl.x() - desired_text_style.padding,
+                  tl.y() - desired_text_style.padding,
+                  extents.width + 2 * desired_text_style.padding,
+                  extents.height + 2 * desired_text_style.padding);
   cairo_fill(context);
 #endif  // VIREN2D_DEBUG_TEXT_EXTENT
+
+  // We have to always apply font color in this context (as
+  // Cairo uses the default source rgba values, which could
+  // have been overwritten since setting the default font
+  // style)
+  ApplyColor(context, desired_text_style.font_color);
+
+  cairo_move_to(context, position.x(), position.y());
+  cairo_show_text(context, text.c_str());
 
   // Pop the original context
   cairo_restore(context);

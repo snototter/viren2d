@@ -147,9 +147,9 @@ public:
    */
   void DrawArc(const Vec2d &center, double radius,
                double angle1, double angle2,
-               const LineStyle &line_style = LineStyle::Invalid, // FIXME :( for fillable primitives, the line style may be empty; and then, MUST NOT be changed to the default style
+               const LineStyle &line_style = LineStyle::Default, // FIXME :( for fillable primitives, the line style may be empty; and then, MUST NOT be changed to the default style
                bool include_center = true,
-               const Color &fill_color = Color(0, 0, 0, 0)) {
+               const Color &fill_color = Color::Invalid) {
     DrawArcImpl(center, radius, angle1, angle2, line_style,
                 include_center, fill_color);
   }
@@ -164,7 +164,7 @@ public:
    *              both line and head/tip style).
    */
   virtual void DrawArrow(const Vec2d &from, const Vec2d &to,
-                         const ArrowStyle &arrow_style) = 0;
+                         const ArrowStyle &arrow_style) = 0; //FIXME use ::Default and ..Impl
 
 
   /**
@@ -179,8 +179,8 @@ public:
    *                the circle.
    */
   void DrawCircle(const Vec2d &center, double radius,
-                  const LineStyle &line_style,
-                  const Color &fill_color = Color(0, 0, 0, 0)) {
+                  const LineStyle &line_style = LineStyle::Default,
+                  const Color &fill_color = Color::Invalid) {
     DrawCircleImpl(center, radius, line_style, fill_color);
   }
 
@@ -195,8 +195,9 @@ public:
    * @param fill_color: Provide a valid color to fill
    *                the circle.
    */
-  void DrawEllipse(const Ellipse &ellipse, const LineStyle &line_style,
-                   const Color &fill_color = Color(0, 0, 0, 0)) {
+  void DrawEllipse(const Ellipse &ellipse,
+                   const LineStyle &line_style = LineStyle::Default,
+                   const Color &fill_color = Color::Invalid) {
     DrawEllipseImpl(ellipse, line_style, fill_color);
   }
 
@@ -214,7 +215,7 @@ public:
    */
   virtual void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
                         double spacing_x, double spacing_y,
-                        const LineStyle &line_style) = 0;
+                        const LineStyle &line_style = LineStyle::Default) = 0;
 
 
   /**
@@ -225,7 +226,7 @@ public:
    * @param line_style: How to draw the line.
    */
   virtual void DrawLine(const Vec2d &from, const Vec2d &to,
-                        const LineStyle &line_style) = 0;
+                        const LineStyle &line_style) = 0; //FIXME ::Default & use _Impl
 
 
   /**
@@ -240,8 +241,8 @@ public:
    *                the circle.
    */
   void DrawRect(const Rect &rect,
-                const LineStyle &line_style = LineStyle::InvalidStyle(), //FIXME use invalidstyle everywhere; + doc that this means "use the default"
-                const Color &fill_color = Color(0, 0, 0, 0)) {
+                const LineStyle &line_style = LineStyle::Default,
+                const Color &fill_color = Color::Invalid) {
     DrawRectImpl(rect, line_style, fill_color);
   }
 
@@ -249,7 +250,7 @@ public:
   //TODO
   void DrawText(const std::string &text, const Vec2d &position,
                 TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
-                const TextStyle &text_style = TextStyle::InvalidStyle()) {
+                const TextStyle &text_style = TextStyle::Default) {
     DrawTextImpl(text, position, text_anchor, text_style);
   }
 

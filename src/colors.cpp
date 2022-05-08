@@ -330,7 +330,9 @@ Color::Color(const NamedColor color, double alpha) {
       red = green = 1.0; blue = 0.0; break;
 
     case NamedColor::Invalid:
-      red = green = blue = -1.0; break;
+      red = green = blue = -1.0;
+      alpha = -1.0;  // For the special "invalid" color, we also set alpha
+      break;
 
     default:
       s << "No color code available for named color \""
@@ -385,7 +387,11 @@ Color::Color(const std::string &colorspec, double alpha) {
 }
 
 
-Color Color::Inverse() const {
+Color Color::Inverse(double alpha) const {
+  if (alpha < 0.0) {
+    alpha = this->alpha;
+  }
+
   if (IsValid()) {
     if (IsShadeOfGray()) {
       if (red < 0.5)

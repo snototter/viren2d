@@ -195,23 +195,31 @@ void DemoRects() {
   viren2d::TextStyle text_style(20, "monospace");
   painter->SetDefaultTextStyle(text_style);
   for (size_t i = 0; i < anchors.size(); ++i) {
+    std::stringstream txt;
+    txt << "Anchor: \"" << anchors[i] << "\"";
+
     if (i == 2) {
-      text_style.font_color = "crimson!50";
+      text_style.font_color = "navy-blue";
       painter->SetDefaultTextStyle(text_style);
     }
     if (i == 4) {
       text_style.font_family = "xkcd";
       painter->SetDefaultTextStyle(text_style);
     }
+    if (i == 6) {
+      text_style.padding = 5;
+      text_style.font_family = "Arial";
+      painter->SetDefaultTextStyle(text_style);
+    }
 
     if ((i == 6) || (i == 7)) {
       text_style.font_bold = true;
-      painter->DrawText(anchors[i], {300.0, 50.0 + i * 50},
+      painter->DrawText(txt.str(), {300.0, 50.0 + i * 50},
                         viren2d::TextAnchorFromString(anchors[i]),
                         text_style);
     } else {
       // before that, we'll use the library-wide default text style
-      painter->DrawText(anchors[i], {300.0, 50.0 + i * 50},
+      painter->DrawText(txt.str(), {300.0, 50.0 + i * 50},
                         viren2d::TextAnchorFromString(anchors[i]));
     }
   }

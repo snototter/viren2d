@@ -248,10 +248,11 @@ class Color {
   Color& operator=(Color &&) = default;
 
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //DONE [x] add Python test (tests/test_xxx.py)
+  //TODO [ ] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  //FIXME added alpha overwrite
   /**
    * @brief Returns the inverse/complementary color.
    *
@@ -263,7 +264,7 @@ class Color {
    * "true" inverse (i.e. 1-r|g|b) for "medium gray" (r|g|b close
    * to 127) would not be too useful.
    */
-  Color Inverse() const;
+  Color Inverse(double alpha = -1.0) const;
 
 
   //DONE [x] add documentation

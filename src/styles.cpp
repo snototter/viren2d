@@ -49,7 +49,9 @@ std::string LineJoinToString(LineJoin join) {
 
 
 //-------------------------------------------------  LineStyle
-const LineStyle LineStyle::Invalid = LineStyle(-2, Color::Invalid);
+const LineStyle LineStyle::Invalid = LineStyle(-1, Color::Invalid);
+const LineStyle LineStyle::Default = LineStyle(-42, Color::Invalid);
+
 
 LineStyle::LineStyle()
   : line_width(2),
@@ -70,6 +72,16 @@ LineStyle::LineStyle(double width, const Color &col,
 
 bool LineStyle::IsValid() const {
   return (line_width > 0.0) && color.IsValid();
+}
+
+
+bool LineStyle::IsSpecialInvalid() const {
+  return *this == Invalid;
+}
+
+
+bool LineStyle::IsSpecialDefault() const {
+  return *this == Default;
 }
 
 
@@ -110,6 +122,14 @@ double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
 
 
 std::string LineStyle::ToString() const {
+  if (IsSpecialInvalid()) {
+    return "LineStyle::Invalid";
+  }
+
+  if (IsSpecialDefault()) {
+    return "LineStyle::Default";
+  }
+
   std::stringstream s;
   s << "LineStyle(lw=" << std::fixed << std::setprecision(1)
     << line_width << ", " << color.ToString() << ", "
@@ -157,9 +177,12 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
 
 
 //-------------------------------------------------  ArrowStyle
+const ArrowStyle ArrowStyle::Invalid = ArrowStyle(-1, Color::Invalid, -1, -1);
+const ArrowStyle ArrowStyle::Default = ArrowStyle(-42, Color::Invalid, -42, -42);
+
 ArrowStyle::ArrowStyle()
   : LineStyle(),
-    tip_length(-1), tip_angle(0),
+    tip_length(0.2), tip_angle(20),
     tip_closed(false), double_headed(false) {
 }
 
@@ -183,7 +206,24 @@ bool ArrowStyle::IsValid() const {
 }
 
 
+bool ArrowStyle::IsSpecialInvalid() const {
+  return *this == ArrowStyle::Invalid;
+}
+
+
+bool ArrowStyle::IsSpecialDefault() const {
+  return *this == ArrowStyle::Default;
+}
+
 std::string ArrowStyle::ToString() const {
+  if (IsSpecialInvalid()) {
+    return "TextStyle::Invalid";
+  }
+
+  if (IsSpecialDefault()) {
+    return "TextStyle::Default";
+  }
+
   std::stringstream s;
   s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
     << line_width << ", tl=" << tip_length
@@ -251,30 +291,27 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 
 
 //-------------------------------------------------  TextStyle
-TextStyle::TextStyle()
-  : font_size(-1),
+const TextStyle TextStyle::Invalid = TextStyle(-1, std::string());
+const TextStyle TextStyle::Default = TextStyle(-42, std::string());
+
+TextStyle::TextStyle() //FIXME
+  : font_size(16),
     font_family("monospace"),
-    font_color(Color::Invalid),
+    font_color(Color::Black),
     font_bold(false),
-    font_italic(false) {
+    font_italic(false),
+    padding(0) {
 }
 
 
 TextStyle::TextStyle(unsigned int size,
                      const std::string &family,
                      const Color &color,
-                     bool bold, bool italic)
+                     bool bold, bool italic,
+                     unsigned int box_padding)
   : font_size(size), font_family(family),
-    font_color(color), font_bold(bold), font_italic(italic) {
-}
-
-
-TextStyle TextStyle::InvalidStyle() {
-  TextStyle def;
-  def.font_size = 0;
-  def.font_family = std::string();
-  def.font_color = Color::Invalid;
-  return def;
+    font_color(color), font_bold(bold),
+    font_italic(italic), padding(box_padding) {
 }
 
 
@@ -285,16 +322,37 @@ bool TextStyle::IsValid() const {
 }
 
 
+bool TextStyle::IsSpecialInvalid() const {
+  return *this == Invalid;
+}
+
+
+bool TextStyle::IsSpecialDefault() const {
+  return *this == Default;
+}
+
+
+
 bool TextStyle::Equals(const TextStyle &other) const {
   return (font_size == other.font_size)
       && (font_family.compare(other.font_family) == 0)
       && (font_color == other.font_color)
       && (font_bold == other.font_bold)
-      && (font_italic == other.font_italic);
+      && (font_italic == other.font_italic)
+      && (padding == other.padding);
 }
 
 
 std::string TextStyle::ToString() const {
+  //FIXME padding
+  if (IsSpecialInvalid()) {
+    return "TextStyle::Invalid";
+  }
+
+  if (IsSpecialDefault()) {
+    return "TextStyle::Default";
+  }
+
   std::stringstream s;
   s << "TextStyle(\"" << font_family << "\", "
     << font_size << "px";
@@ -366,7 +424,6 @@ TextAnchor TextAnchorFromString(const std::string &anchor) {
     << anchor << "\".";
   throw std::invalid_argument(s.str());
 }
-
 
 TextAnchor TextAnchorFromString(const char *anchor) {
   return TextAnchorFromString(std::string(anchor));
