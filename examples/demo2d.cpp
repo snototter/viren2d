@@ -188,14 +188,42 @@ void DemoRects() {
   rect.radius = 30;
   painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
 
+
+  //FIXME separate text demo
+  std::vector<std::string> anchors = {"north", "north east", "east", "south-east", "south",
+                                     "south-west", "west", "northwest", "center"};
+  viren2d::TextStyle text_style(20, "monospace");
+  viren2d::SetDefaultTextStyle(text_style);
+  for (size_t i = 0; i < anchors.size(); ++i) {
+    if (i == 2) {
+      text_style.font_color = "crimson!50";
+      viren2d::SetDefaultTextStyle(text_style);
+    }
+    if (i == 4) {
+      text_style.font_family = "xkcd";
+      viren2d::SetDefaultTextStyle(text_style);
+    }
+
+    if ((i == 6) || (i == 7)) {
+      text_style.font_bold = true;
+      painter->DrawText(anchors[i], {300.0, 50.0 + i * 50},
+                        viren2d::TextAnchorFromString(anchors[i]),
+                        text_style);
+    } else {
+      // before that, we'll use the library-wide default text style
+      painter->DrawText(anchors[i], {300.0, 50.0 + i * 50},
+                        viren2d::TextAnchorFromString(anchors[i]));
+    }
+  }
+
   ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
 }
 
 
 int main(int /*argc*/, char **/*argv*/) {
-  DemoLines();
+//  DemoLines();
 //  DemoArrows();
-  DemoCircles();
+//  DemoCircles();
   DemoRects();
 
   if (true)

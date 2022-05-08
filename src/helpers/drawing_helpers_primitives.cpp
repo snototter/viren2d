@@ -10,6 +10,7 @@
 // Custom
 #include <viren2d/math.h>
 #include <helpers/drawing_helpers.h>
+#include <helpers/enum.h>
 
 
 namespace viren2d {
@@ -17,7 +18,7 @@ namespace helpers {
 void CheckLineStyle(const LineStyle &style) {
   if (!style.IsValid()) {
     std::stringstream s;
-    s << "Cannot draw with invalid style: " << style.ToString() << ".";
+    s << "Cannot draw with invalid line style " << style.ToString() << "!";
     throw std::invalid_argument(s.str());
   }
 }
@@ -28,7 +29,7 @@ void CheckLineStyleAndFill(const LineStyle &style,
   if (!style.IsValid() && !fill_color.IsValid()) {
     std::stringstream s;
     s << "Cannot draw with invalid line style & invalid fill color: "
-      << style.ToString() << " and " << fill_color.ToString() << ".";
+      << style.ToString() << " and " << fill_color.ToString() << "!";
     throw std::invalid_argument(s.str());
   }
 }
@@ -290,7 +291,9 @@ void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
   CheckLineStyleAndFill(line_style, fill_color);
 
   if (!ellipse.IsValid()) {
-    throw std::invalid_argument("Cannot draw an invalid ellipse!");
+    std::stringstream s;
+    s << "Cannot draw an invalid ellipse: " << ellipse << "!";
+    throw std::invalid_argument(s.str());
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly).
@@ -366,7 +369,7 @@ void DrawGrid(cairo_surface_t *surface, cairo_t *context,
   CheckLineStyle(line_style);
 
   if ((spacing_x <= 0.0) || (spacing_y <= 0.0)) {
-    throw std::invalid_argument("Cell spacing must be > 0.");
+    throw std::invalid_argument("Cell spacing for grid must be > 0.");
   }
 
   // Adjust corners if necessary
@@ -460,26 +463,13 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
   CheckLineStyleAndFill(line_style, fill_color);
 
   if (!rect.IsValid()) {
-    throw std::invalid_argument("Cannot draw an invalid rectangle!");
+    std::stringstream s;
+    s << "Cannot draw an invalid rectangle: " << rect << "!";
+    throw std::invalid_argument(s.str());
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly)
   rect += 0.5;
-
-//  //FIXME
-//  cairo_select_font_face(context, "xkcd", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-//  cairo_set_font_size(context, 50);
-//  //TODO set font once
-//  //add TextStyle (default is initialized by painter's context set up!)
-//  // SetDefaultTextStyle()
-//  // DrawText(TextStyle())
-//  // if TextStyle != Default, set in current context
-//  cairo_move_to(context, rect.cx, rect.cy);
-//  cairo_text_extents_t extents;
-//  cairo_text_extents(context, "Hello Cairo!", &extents);
-//  std::cout << "Text extents: " << extents.width << " x " << extents.height << std::endl;
-//  cairo_show_text(context, "Hello Cairo!");
-//  //FIXME
 
   cairo_save(context);
   cairo_translate(context, rect.cx, rect.cy);
@@ -511,5 +501,132 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 }
 
 
+//---------------------------------------------------- Text (plain & boxed)
+Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
+                            const cairo_text_extents_t &extents,
+                            double padding) {
+  //TODO add padding (default = 0) parameter, then we can reuse it for bounding box & text box!
+  // Default Cairo text position is bottom-left
+
+  // Adjust horizontal alignment.
+  double x = position.x();
+  if (IsFlagSet(anchor, TextAnchor::CenterHorizontal)) {
+    x -= (extents.width / 2.0);
+  } else if (IsFlagSet(anchor, TextAnchor::Right)) {
+    x -= (extents.width + padding);
+  } else {  // Left-aligned
+    x += padding;
+  }
+  position.SetX(x);
+
+  // Adjust vertical alignment.
+  double y = position.y();
+  if (IsFlagSet(anchor, TextAnchor::CenterVertical)) {
+    y += (extents.height / 2.0);
+  } else if (IsFlagSet(anchor, TextAnchor::Top)) {
+    y += (extents.height + padding);
+  } else {  // Bottom-aligned
+    y -= padding;
+  }
+  position.SetY(y);
+
+  return position;
+}
+
+
+void DrawText(cairo_surface_t *surface, cairo_t *context,
+              const std::string &text, Vec2d position,
+              TextAnchor text_anchor,
+              TextStyle desired_text_style,
+              TextStyle &painter_text_style) {
+  CheckCanvas(surface, context);
+
+  if (text.empty()) {
+    throw std::invalid_argument("Cannot draw empty text!");
+  }
+
+
+//  std::cout << "TODO text style madness:\n"
+//      << "desired: " << desired_text_style
+//      << "\npainter: " << painter_text_style
+//      << "\ndefault: " << GetDefaultTextStyle() << std::endl;
+
+  // Before saving the painter's current context, check
+  // if the default text style has changed (unbeknownst
+  // to the painter):
+  if (painter_text_style != GetDefaultTextStyle()) {
+//    std::cout << "TODO painter text style differs from default: " << painter_text_style << " vs def: " << GetDefaultTextStyle() << std::endl;
+    painter_text_style = GetDefaultTextStyle();
+    ApplyTextStyle(context, painter_text_style);
+  }
+
+  // Push the current context. Now, we just apply styles
+  // specific to *this* DrawText call.
+  cairo_save(context);
+
+  if (desired_text_style.IsValid()) {
+    if (desired_text_style != GetDefaultTextStyle()) {
+      std::cout << "TODO non-default text style: " << desired_text_style << " VS default: " << GetDefaultTextStyle() << std::endl;
+      ApplyTextStyle(context, desired_text_style);
+    }
+  } else {
+    desired_text_style = GetDefaultTextStyle();
+  }
+
+  // We have to always apply font color in this context (as
+  // Cairo uses the default source rgba values, which could
+  // have been overwritten since setting the default font
+  // style)
+  ApplyColor(context, desired_text_style.font_color);
+
+#define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag
+#ifdef VIREN2D_DEBUG_TEXT_EXTENT
+  const auto desired_position = position;
+#endif  // VIREN2D_DEBUG_TEXT_EXTENT
+  double padding = 0; // TODO parametrization!
+  //TODO extend drawText to support text boxes
+
+  //FIXME default styles:
+  //viren2d - some sane presets for each style; not changeable!
+  //painter - init with presets; customizable by user!
+
+  // Now that the font face is set up, we can query
+  // the rendered text extents and use them to adjust
+  // the position according to the desired text anchor:
+  cairo_text_extents_t extents;
+  cairo_text_extents(context, text.c_str(), &extents);
+  position = GetTextAnchorPosition(position, text_anchor,
+                                   extents, padding);
+
+  // Shift to the pixel center, and move to the origin of the
+  // first glyph. Then, we can let Cairo render the text
+  position += 0.5;
+  cairo_move_to(context, position.x(), position.y());
+  cairo_show_text(context, text.c_str());
+
+#ifdef VIREN2D_DEBUG_TEXT_EXTENT
+  // Draw a box showing the text extent
+  ApplyLineStyle(context, LineStyle(1, desired_text_style.font_color));
+  auto tl = position + Vec2d(0, -extents.height);
+  cairo_rectangle(context, tl.x(), tl.y(), extents.width, extents.height);
+  cairo_stroke(context);
+
+  // Draw a box at the desired location, showing the
+  // size of the padded region
+  ApplyLineStyle(context, LineStyle(1, Color::Black));
+  cairo_rectangle(context, desired_position.x() - padding, desired_position.y() - padding, 2*padding, 2*padding);
+  cairo_stroke(context);
+
+  // how a text box with that padding would look like:
+  ApplyColor(context, "gray!40");
+  cairo_rectangle(context, tl.x() - padding, tl.y() - padding,
+                  extents.width + 2 * padding,
+                  extents.height + 2 * padding);
+  cairo_fill(context);
+#endif  // VIREN2D_DEBUG_TEXT_EXTENT
+
+  // Pop the original context
+  cairo_restore(context);
+}
 } // namespace helpers
 } // namespace viren2d

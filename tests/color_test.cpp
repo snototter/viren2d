@@ -28,6 +28,9 @@ TEST(ColorTest, BasicInitialization) {
   auto color = viren2d::Color();
   EXPECT_FALSE(color.IsValid());
 
+  EXPECT_FALSE(viren2d::Color::Invalid.IsValid());
+  EXPECT_TRUE(color == viren2d::Color::Invalid);
+
   // Init from rgba values
   color = viren2d::Color(0.3, 0.2, 0.5, 0.7);
   EXPECT_TRUE(color.IsValid());

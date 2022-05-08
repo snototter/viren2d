@@ -1371,7 +1371,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   painter.def("draw_arc", &moddef::Painter::DrawArc, doc.c_str(),
               py::arg("center"), py::arg("radius"),
               py::arg("angle1"), py::arg("angle2"),
-              py::arg("line_style") = viren2d::LineStyle(),
+              py::arg("line_style") = viren2d::LineStyle(),//FIXME such inits should be changed to painter::default_XXX_style
               py::arg("include_center") = true,
               py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
 

@@ -19,12 +19,18 @@
 // private viren2d headers
 #include <helpers/drawing_helpers.h>
 
+// FIXME: required Painter changes
+// default styles PER painter!!
+// library-wide defaults are a pain if you want to use the library in multiple
+// visualization components (and each assumes that they've set up the defaults
+// accordingly...)
 namespace viren2d {
 /** Implements the Painter interface using a Cairo image surface. */
 class ImagePainter : public Painter {
 public:
   ImagePainter() : Painter(),
-    surface_(nullptr), context_(nullptr) {
+    surface_(nullptr), context_(nullptr),
+    applied_text_style_(TextStyle::InvalidStyle()) {
     std::cout << "Inside ImagePainter::Constructor()" << std::endl; //TODO remove
   }
 
@@ -37,7 +43,9 @@ public:
   }
 
   ImagePainter(const ImagePainter &other) // copy constructor
-    : Painter(), surface_(nullptr), context_(nullptr) {
+    : Painter(),
+      surface_(nullptr), context_(nullptr),
+      applied_text_style_(TextStyle::InvalidStyle()) {
     std::cout << "Inside ImagePainter::CopyConstructor()" << std::endl;//TODO remove
     if (other.surface_)
     {
@@ -54,18 +62,18 @@ public:
 
       context_ = cairo_create(surface_); // TODO currently, we create a new context - the state is lost!
       //TODO no big deal - copy c'tor is never called when used via the factory (as intended)
+
+      ApplyDefaultStyles();  // Needed after each context change
     }
   }
 
   ImagePainter(ImagePainter &&other) noexcept // move constructor
     : Painter(),
       surface_(std::exchange(other.surface_, nullptr)),
-      context_(std::exchange(other.context_, nullptr)) {
+      context_(std::exchange(other.context_, nullptr)),
+      applied_text_style_(std::exchange(other.applied_text_style_, TextStyle::InvalidStyle())) {
+    // No need to ApplyDefaultStyles() - "other" should've already been set up
     std::cout << "Inside ImagePainter::MoveConstructor()" << std::endl; //TODO remove - was curious about pybind11 object creation/move/copy
-//    surface_ = other.surface_;
-//    context_ = other.context_;
-//    other.surface_ = nullptr;
-//    other.context_ = nullptr;
   }
 
   ImagePainter& operator=(const ImagePainter &other) { // Copy assignment
@@ -77,6 +85,7 @@ public:
     std::cout << "Inside ImagePainter::Move Assignment" << std::endl;//TODO remove
     std::swap(surface_, other.surface_);
     std::swap(context_, other.context_);
+    std::swap(applied_text_style_, other.applied_text_style_);
     return *this;
   }
 
@@ -114,7 +123,6 @@ public:
   }
 
 
-
 protected:
   void DrawArcImpl(const Vec2d &center, double radius,
                    double angle1, double angle2,
@@ -134,21 +142,31 @@ protected:
   }
 
 
-  void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
-                    const Color &fill_color) override {
-    helpers::DrawRect(surface_, context_, rect, line_style, fill_color);
-  }
-
-
   void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
                        const Color &fill_color) override {
     helpers::DrawEllipse(surface_, context_, ellipse, line_style, fill_color);
   }
 
 
+  void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
+                    const Color &fill_color) override {
+    helpers::DrawRect(surface_, context_, rect, line_style, fill_color);
+  }
+
+
+  void DrawTextImpl(const std::string &text, const Vec2d &position,
+                TextAnchor text_anchor, const TextStyle &text_style) override {
+    helpers::DrawText(surface_, context_, text, position,
+                      text_anchor, text_style, applied_text_style_);
+  }
+
+
 private:
   cairo_surface_t *surface_;
   cairo_t *context_;
+  TextStyle applied_text_style_;
+
+  void ApplyDefaultStyles();
 };
 
 
@@ -174,8 +192,10 @@ void ImagePainter::SetCanvas(int width, int height,
   if (!surface_)
     surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                           width, height);
-  if (!context_)
+  if (!context_) {
     context_ = cairo_create(surface_);
+    ApplyDefaultStyles();  // Needed after each context change
+  }
 
   // Now simply fill the canvas with the given color:
   cairo_save(context_);
@@ -222,6 +242,11 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
     std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
                 4 * image_buffer.width * image_buffer.height);
     context_ = cairo_create(surface_);
+
+    ApplyDefaultStyles();  // Needed after each context change
+
+    // Needed to ensure that the underlying image surface
+    // will be rendered:
     cairo_surface_mark_dirty(surface_);
 
     /// FIXME how to dim? image + transparent color; image + grayscale?
@@ -261,6 +286,14 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
     buffer.CreateSharedBuffer(data, width, height, channels, stride);
   }
   return buffer;
+}
+
+
+void ImagePainter::ApplyDefaultStyles() {
+  helpers::ApplyLineStyle(context_, GetDefaultLineStyle(), false);
+
+  applied_text_style_ = GetDefaultTextStyle();
+  helpers::ApplyTextStyle(context_, applied_text_style_);
 }
 
 

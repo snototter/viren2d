@@ -203,12 +203,17 @@ const Color Color::Blue    = Color(NamedColor::Blue);
 const Color Color::Cyan    = Color(NamedColor::Cyan);
 const Color Color::Magenta = Color(NamedColor::Magenta);
 const Color Color::Yellow  = Color(NamedColor::Yellow);
+const Color Color::Invalid = Color(NamedColor::Invalid);
 
 
 Color::Color(const NamedColor color, double alpha) {
   this->alpha = alpha;
   std::stringstream s;
 
+  // For the following color component assignments,
+  // I prefer multiple assignments (e.g. x = y = 1)
+  // as I think it's easier to read than the standard
+  // single assignments.
   switch (color) {
     case NamedColor::Black:
       red = green = blue = 0.0; break;

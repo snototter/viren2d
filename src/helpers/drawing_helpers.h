@@ -94,6 +94,15 @@ inline void ApplyLineStyle(cairo_t *context,
 }
 
 
+/** @brief Changes the given Cairo context to use the given TextStyle definitions. */
+inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style) {
+  cairo_select_font_face(context, text_style.font_family.c_str(),
+                         (text_style.font_italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
+                         (text_style.font_bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));
+  cairo_set_font_size(context, static_cast<double>(text_style.font_size));
+}
+
+
 /** Ensure that the canvas is set up correctly. Should be called within each drawing helper function. */
 inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
   if (!surface) {
@@ -157,6 +166,13 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
               Rect rect, const LineStyle &line_style,
               const Color &fill_color);
+
+
+void DrawText(cairo_surface_t *surface, cairo_t *context,
+              const std::string &text, Vec2d position,
+              TextAnchor text_anchor,
+              TextStyle desired_text_style,
+              TextStyle &painter_text_style); // painter text style can be changed (if you called SetDefaultTextStyle previously and the painter does not yet know...)
 
 } // namespace helpers
 } // namespace viren2d

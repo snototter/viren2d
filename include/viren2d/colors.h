@@ -147,6 +147,9 @@ class Color {
   static const Color Magenta;
   static const Color Yellow;
 
+  // Also for convenience keep an "invalid" color
+  static const Color Invalid;
+
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)

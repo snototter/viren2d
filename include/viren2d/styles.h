@@ -229,6 +229,97 @@ ArrowStyle GetDefaultArrowStyle();
 bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs);
 bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);
 
+//-------------------------------------------------  TextStyle
+//enum class FontSlant : unsigned char {
+//  Normal = 0,  ///< Upright font.
+//  Italic = 1   ///< Italic font face.
+//};
+
+
+//enum class FontWeight : unsigned char {
+//  Normal = 0,  ///< Default font weight.
+//  Bold = 1     ///< Bold font face.
+//};
+
+
+struct TextStyle {
+  unsigned int font_size;
+  std::string font_family;
+  Color font_color;
+//  FontSlant font_slant;
+//  FontWeight font_weight;
+  bool font_bold;
+  bool font_italic;
+
+  /** Returns a default style (which can be changed via @see SetDefaultTextStyle). */
+  TextStyle();
+
+
+  TextStyle(unsigned int size,
+            const std::string &family,
+            const Color &color = Color::Black,
+            bool bold = false, bool italic = false);
+
+  /** Returns an invalid style which is used by the painter to denote missing context initialization. */
+  static TextStyle InvalidStyle();
+
+//  // Nothing special about the TextStyle class, so we can have
+//  // the default copy/assignment/move c'tors/operators:
+//  TextStyle(const TextStyle &other) = default;
+//  TextStyle& operator=(const TextStyle &other) = default;
+//  TextStyle(TextStyle&&) = default;
+//  TextStyle& operator=(TextStyle &&) = default;
+
+//  virtual ~TextStyle() {}
+
+
+  /** @brief Checks if this line style would lead to a renderable line. */
+  bool IsValid() const;
+
+
+  /** @brief Returns true if this and the other specify the same text style. */
+  bool Equals(const TextStyle &other) const;
+
+
+  /** @brief Returns a human-readable string representation. */
+  std::string ToString() const;
+
+
+  /** @brief Overloaded stream operator. */
+  friend std::ostream &operator<<(std::ostream &os, const TextStyle &style) {
+    os << style.ToString();
+    return os;
+  }
+};
+
+
+/** Changes the default arrow style (used by the default TextStyle c'tor). */
+void SetDefaultTextStyle(const TextStyle &text_style);
+
+/** Returns the default text style (alternatively, just use the default TextStyle() c'tor). */
+TextStyle GetDefaultTextStyle();
+
+bool operator==(const TextStyle &lhs, const TextStyle &rhs);
+bool operator!=(const TextStyle &lhs, const TextStyle &rhs);
+
+
+// only for draw_text
+enum class TextAnchor : unsigned char {
+  Left             = 1,
+  CenterHorizontal = 1 << 1,
+  CenterHorz = CenterHorizontal,  // Alias
+  Right            = 1 << 2,
+
+  Top              = 1 << 3,
+  CenterVertical   = 1 << 4,
+  CenterVert = CenterVertical,  // Alias
+  Bottom           = 1 << 5
+};
+
+
+TextAnchor TextAnchorFromString(const std::string &anchor);
+TextAnchor TextAnchorFromString(const char *anchor);
+
 } // namespace viren2d
 
 #endif // __VIREN2D_STYLES_H__

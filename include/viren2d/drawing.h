@@ -201,6 +201,14 @@ public:
   }
 
 
+  //TODO
+  void DrawText(const std::string &text, const Vec2d &position,
+                TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
+                const TextStyle &text_style = GetDefaultTextStyle()) {
+    DrawTextImpl(text, position, text_anchor, text_style);
+  }
+
+
   //TODO DrawPoints - how to handle alternating colors???
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
   //            Scaling via cairo context!
@@ -221,13 +229,19 @@ protected:
 
 
   /** Internal helper to enable default values in public interface. */
+  virtual void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
+                               const Color &fill_color) = 0;
+
+
+  /** Internal helper to enable default values in public interface. */
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                             const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
-  virtual void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
-                               const Color &fill_color) = 0;
+  /** Internal helper to allow default values in public interface. */
+  virtual void DrawTextImpl(const std::string &text, const Vec2d &position,
+                            TextAnchor text_anchor,
+                            const TextStyle &text_style) = 0;
 };
 
 

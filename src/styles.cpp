@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <utility>
 #include <sstream>
 #include <iomanip>
@@ -8,6 +9,9 @@
 
 #include <viren2d/styles.h>
 #include <viren2d/math.h>
+#include <viren2d/string_utils.h>
+
+#include <helpers/enum.h>
 
 namespace viren2d {
 namespace {
@@ -18,6 +22,10 @@ static LineStyle default_line_style = LineStyle(2.0, Color(NamedColor::NavyBlue,
 static ArrowStyle default_arrow_style = ArrowStyle(default_line_style,
                                                    0.1, 20.0, false, false);
 
+//TODO(snototter) change default font family
+static TextStyle default_text_style = TextStyle(16, "xkcd",
+                                                Color(NamedColor::MidnightBlue),
+                                                false, false);
 } // anonymous namespace
 
 std::string LineCapToString(LineCap cap) {
@@ -269,5 +277,134 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
   return !(lhs == rhs);
 }
 
+
+
+//-------------------------------------------------  TextStyle
+TextStyle::TextStyle() {
+  *this = default_text_style;
+}
+
+
+TextStyle::TextStyle(unsigned int size,
+                     const std::string &family,
+                     const Color &color,
+                     bool bold, bool italic)
+  : font_size(size), font_family(family),
+    font_color(color), font_bold(bold), font_italic(italic) {
+}
+
+
+TextStyle TextStyle::InvalidStyle() {
+  TextStyle def;
+  def.font_size = 0;
+  def.font_family = std::string();
+  def.font_color = Color::Invalid;
+  return def;
+}
+
+
+bool TextStyle::IsValid() const {
+  return !(font_family.empty())
+      && (font_size > 0)
+      && font_color.IsValid();
+}
+
+
+bool TextStyle::Equals(const TextStyle &other) const {
+  return (font_size == other.font_size)
+      && (font_family.compare(other.font_family) == 0)
+      && (font_color == other.font_color)
+      && (font_bold == other.font_bold)
+      && (font_italic == other.font_italic);
+}
+
+
+std::string TextStyle::ToString() const {
+  std::stringstream s;
+  s << "TextStyle(\"" << font_family << "\", "
+    << font_size << "px";
+
+  if (font_bold) {
+    s << ", bold";
+  }
+  if (font_italic) {
+    s << ", italic";
+  }
+  if (!IsValid()) {
+    s << ", invalid";
+  }
+  s << ")";
+  return s.str();
+}
+
+
+void SetDefaultTextStyle(const TextStyle &text_style) {
+  default_text_style = text_style;
+}
+
+
+TextStyle GetDefaultTextStyle() {
+  return default_text_style;
+}
+
+
+bool operator==(const TextStyle &lhs, const TextStyle &rhs) {
+  return lhs.Equals(rhs);
+}
+
+
+bool operator!=(const TextStyle &lhs, const TextStyle &rhs) {
+  return !(lhs == rhs);
+}
+
+
+
+TextAnchor TextAnchorFromString(const std::string &anchor) {
+  std::string slug = viren2d::strings::Lower(anchor);
+  slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
+      return ::isspace(ch) || (ch == '-') || (ch == '_');
+    }), slug.end());
+
+  // We support:
+  // * Standard corner terminology (bottom right, top, center, ...)
+  // * Eight principal compass directions (south, north-west, east, ...)
+  if (slug.compare("center") == 0) {
+    return TextAnchor::CenterHorz | TextAnchor::CenterVert;
+  } else if ((slug.compare("right") == 0)
+             || (slug.compare("east") == 0)) {
+    return TextAnchor::Right | TextAnchor::CenterVert;
+  } else if ((slug.compare("bottomright") == 0)
+             || (slug.compare("southeast") == 0)) {
+    return TextAnchor::Right | TextAnchor::Bottom;
+  } else if ((slug.compare("bottom") == 0)
+             || (slug.compare("south") == 0)) {
+    return TextAnchor::CenterHorz | TextAnchor::Bottom;
+  } else if ((slug.compare("bottomleft") == 0)
+             || (slug.compare("southwest") == 0)) {
+    return TextAnchor::Left | TextAnchor::Bottom;
+  } else if ((slug.compare("left") == 0)
+             || (slug.compare("west") == 0)) {
+    return TextAnchor::Left | TextAnchor::CenterVert;
+  } else if ((slug.compare("topleft") == 0)
+             || (slug.compare("northwest") == 0)) {
+    return TextAnchor::Left | TextAnchor::Top;
+  } else if ((slug.compare("top") == 0)
+             || (slug.compare("north") == 0)) {
+    return TextAnchor::CenterHorizontal | TextAnchor::Top;
+  } else if ((slug.compare("topright") == 0)
+             || (slug.compare("northeast") == 0)) {
+    return TextAnchor::Right | TextAnchor::Top;
+  }
+
+  std::stringstream s;
+  s << "Could not deduce TextAnchor from string \""
+    << anchor << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+
+TextAnchor TextAnchorFromString(const char *anchor) {
+  return TextAnchorFromString(std::string(anchor));
+}
 
 } // namespace viren2d
