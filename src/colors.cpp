@@ -387,11 +387,7 @@ Color::Color(const std::string &colorspec, double alpha) {
 }
 
 
-Color Color::Inverse(double alpha) const {
-  if (alpha < 0.0) {
-    alpha = this->alpha;
-  }
-
+Color Color::Inverse() const {
   if (IsValid()) {
     if (IsShadeOfGray()) {
       if (red < 0.5)

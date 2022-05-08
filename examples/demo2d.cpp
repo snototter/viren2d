@@ -188,43 +188,72 @@ void DemoRects() {
   rect.radius = 30;
   painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
 
+  ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
+}
 
-  //FIXME separate text demo
-  std::vector<std::string> anchors = {"north", "north east", "east", "south-east", "south",
-                                     "south-west", "west", "northwest", "center"};
-  viren2d::TextStyle text_style(20, "monospace");
-  painter->SetDefaultTextStyle(text_style);
-  for (size_t i = 0; i < anchors.size(); ++i) {
-    std::stringstream txt;
-    txt << "Anchor: \"" << anchors[i] << "\"";
 
-    if (i == 2) {
-      text_style.font_color = "navy-blue";
-      painter->SetDefaultTextStyle(text_style);
-    }
-    if (i == 4) {
-      text_style.font_family = "xkcd";
-      painter->SetDefaultTextStyle(text_style);
-    }
-    if (i == 6) {
-      text_style.padding = 5;
-      text_style.font_family = "Arial";
-      painter->SetDefaultTextStyle(text_style);
-    }
+void DemoText() {
+  auto painter = viren2d::CreatePainter();
+  painter->SetCanvas(600, 600, viren2d::Color::White);
 
-    if ((i == 6) || (i == 7)) {
-      text_style.font_bold = true;
-      painter->DrawText(txt.str(), {300.0, 50.0 + i * 50},
-                        viren2d::TextAnchorFromString(anchors[i]),
-                        text_style);
-    } else {
-      // before that, we'll use the library-wide default text style
-      painter->DrawText(txt.str(), {300.0, 50.0 + i * 50},
-                        viren2d::TextAnchorFromString(anchors[i]));
+  painter->DrawGrid({}, {}, 50, 50,
+                    viren2d::LineStyle(1.0, "gray!40"));
+
+  const std::vector<std::string> anchors = {
+    "center", "north", "north-east",
+    "east", "south-east", "south",
+    "south-west", "west", "north-west"
+  };
+
+  const std::vector<std::string> families = {"monospace", "sans-serif", "xkcd"};
+
+
+  const auto original_default_style = painter->GetDefaultTextStyle();
+
+  for (size_t idx_family = 0; idx_family < families.size(); ++idx_family) {
+    auto text_style = original_default_style;
+    text_style.font_size = 20;
+
+    std::stringstream s;
+    s << "\"" << families[idx_family] << "\"";
+    viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 50.0};
+    painter->DrawText(s.str(), pos,
+                      viren2d::TextAnchor::Bottom, //viren2d::TextAnchorFromString("bottom"),
+                      text_style);
+
+    text_style.font_size = 14;
+    text_style.font_family = families[idx_family];
+    text_style.font_color = "navy-blue";
+    painter->SetDefaultTextStyle(text_style);
+
+    for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
+      std::stringstream txt;
+//      txt << "\"" << anchors[idx_anchor] << "\"";
+      txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor]));
+      if (idx_anchor == 3) {
+        text_style.padding = 5;
+        painter->SetDefaultTextStyle(text_style);
+      } else if (idx_anchor == 6) {
+        text_style.padding = 10;
+        painter->SetDefaultTextStyle(text_style);
+      }
+
+      pos.SetY(100.0 + idx_anchor * 50.0);
+      if ((idx_anchor == 6) || (idx_anchor == 7)) {
+        text_style.font_bold = true;
+//        txt << " (custom style)";
+        painter->DrawText(txt.str(), pos,
+                          viren2d::TextAnchorFromString(anchors[idx_anchor]),
+                          text_style);
+      } else {
+//        txt << " (default style)";
+        painter->DrawText(txt.str(), pos,
+                          viren2d::TextAnchorFromString(anchors[idx_anchor]));
+      }
     }
   }
 
-  ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
+  ShowCanvas(painter->GetCanvas(false), "demo-output-text.png");
 }
 
 
@@ -232,7 +261,8 @@ int main(int /*argc*/, char **/*argv*/) {
 //  DemoLines();
 //  DemoArrows();
 //  DemoCircles();
-  DemoRects();
+//  DemoRects();
+  DemoText();
 
   if (true)
     return 0;

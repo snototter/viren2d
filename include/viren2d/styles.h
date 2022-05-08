@@ -342,21 +342,35 @@ bool operator!=(const TextStyle &lhs, const TextStyle &rhs);
 
 
 // only for draw_text
+// TODO doc & test
+// public use: prefer Center, Left, ... over combining Horz & Vert
 enum class TextAnchor : unsigned char {
-  Left             = 1,
-  CenterHorizontal = 1 << 1,
-  CenterHorz = CenterHorizontal,  // Alias
-  Right            = 1 << 2,
+  HorzLeft   = 1,
+  HorzCenter = 1 << 1,
+  HorzRight  = 1 << 2,
 
-  Top              = 1 << 3,
-  CenterVertical   = 1 << 4,
-  CenterVert = CenterVertical,  // Alias
-  Bottom           = 1 << 5
+  VertTop    = 1 << 3,
+  VertCenter = 1 << 4,
+  VertBottom = 1 << 5,
+
+  // To be used by callers:
+  Center = HorzCenter | VertCenter,
+
+  Left = HorzLeft | VertCenter,
+  Right = HorzRight | VertCenter,
+  Top = HorzCenter | VertTop,
+  Bottom = HorzCenter | VertBottom,
+
+  TopLeft = Top | Left,
+  TopRight = Top | Right,
+  BottomLeft = Bottom | Left,
+  BottomRight = Bottom | Right
 };
 
-
+//TODO doc, test, etc
 TextAnchor TextAnchorFromString(const std::string &anchor);
 TextAnchor TextAnchorFromString(const char *anchor);
+std::string TextAnchorToString(TextAnchor anchor);
 
 } // namespace viren2d
 

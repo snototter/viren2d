@@ -355,7 +355,7 @@ std::string TextStyle::ToString() const {
 
   std::stringstream s;
   s << "TextStyle(\"" << font_family << "\", "
-    << font_size << "px";
+    << font_size << "px";//FIXME it's not pixels, it's the font scale (size of the em square)
 
   if (font_bold) {
     s << ", bold";
@@ -363,6 +363,9 @@ std::string TextStyle::ToString() const {
   if (font_italic) {
     s << ", italic";
   }
+
+
+
   if (!IsValid()) {
     s << ", invalid";
   }
@@ -391,32 +394,33 @@ TextAnchor TextAnchorFromString(const std::string &anchor) {
   // We support:
   // * Standard corner terminology (bottom right, top, center, ...)
   // * Eight principal compass directions (south, north-west, east, ...)
+  //TODO support abbreviations? n,e,s,w; t,r,b,l;
   if (slug.compare("center") == 0) {
-    return TextAnchor::CenterHorz | TextAnchor::CenterVert;
+    return TextAnchor::Center;
   } else if ((slug.compare("right") == 0)
              || (slug.compare("east") == 0)) {
-    return TextAnchor::Right | TextAnchor::CenterVert;
+    return TextAnchor::Right;
   } else if ((slug.compare("bottomright") == 0)
              || (slug.compare("southeast") == 0)) {
-    return TextAnchor::Right | TextAnchor::Bottom;
+    return TextAnchor::BottomRight;
   } else if ((slug.compare("bottom") == 0)
              || (slug.compare("south") == 0)) {
-    return TextAnchor::CenterHorz | TextAnchor::Bottom;
+    return TextAnchor::Bottom;
   } else if ((slug.compare("bottomleft") == 0)
              || (slug.compare("southwest") == 0)) {
-    return TextAnchor::Left | TextAnchor::Bottom;
+    return TextAnchor::BottomLeft;
   } else if ((slug.compare("left") == 0)
              || (slug.compare("west") == 0)) {
-    return TextAnchor::Left | TextAnchor::CenterVert;
+    return TextAnchor::Left;
   } else if ((slug.compare("topleft") == 0)
              || (slug.compare("northwest") == 0)) {
-    return TextAnchor::Left | TextAnchor::Top;
+    return TextAnchor::TopLeft;
   } else if ((slug.compare("top") == 0)
              || (slug.compare("north") == 0)) {
-    return TextAnchor::CenterHorizontal | TextAnchor::Top;
+    return TextAnchor::Top;
   } else if ((slug.compare("topright") == 0)
              || (slug.compare("northeast") == 0)) {
-    return TextAnchor::Right | TextAnchor::Top;
+    return TextAnchor::TopRight;
   }
 
   std::stringstream s;
@@ -428,5 +432,52 @@ TextAnchor TextAnchorFromString(const std::string &anchor) {
 TextAnchor TextAnchorFromString(const char *anchor) {
   return TextAnchorFromString(std::string(anchor));
 }
+
+
+std::string TextAnchorToString(TextAnchor anchor) {
+  switch (anchor) {
+    case TextAnchor::Center:
+      return "center";
+
+    case TextAnchor::Top:
+      return "top";
+
+    case TextAnchor::TopRight:
+      return "top-right";
+
+    case TextAnchor::Right:
+      return "right";
+
+    case TextAnchor::BottomRight:
+      return "bottom-right";
+
+    case TextAnchor::Bottom:
+      return "bottom";
+
+    case TextAnchor::BottomLeft:
+      return "bottom-left";
+
+    case TextAnchor::Left:
+      return "left";
+
+    case TextAnchor::TopLeft:
+      return "top-left";
+
+    default:
+      throw std::invalid_argument("Incomplete text anchor: you must specify both horizontal & vertical alignment");
+  }
+
+//FIXME throw exception?
+
+//  std::stringstream s;
+//  if (IsFlagSet(anchor, TextAnchor::Top)) {
+//    s << "top-";
+//  } else {
+//    s << "bottom-";
+//  }
+
+//  return s.str();
+}
+
 
 } // namespace viren2d

@@ -510,9 +510,9 @@ Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
 
   // Adjust horizontal alignment.
   double x = position.x();
-  if (IsFlagSet(anchor, TextAnchor::CenterHorizontal)) {
+  if (IsFlagSet(anchor, TextAnchor::HorzCenter)) {
     x -= (extents.width / 2.0);
-  } else if (IsFlagSet(anchor, TextAnchor::Right)) {
+  } else if (IsFlagSet(anchor, TextAnchor::HorzRight)) {
     x -= (extents.width + padding);
   } else {  // Left-aligned
     x += padding;
@@ -521,9 +521,9 @@ Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
 
   // Adjust vertical alignment.
   double y = position.y();
-  if (IsFlagSet(anchor, TextAnchor::CenterVertical)) {
+  if (IsFlagSet(anchor, TextAnchor::VertCenter)) {
     y += (extents.height / 2.0);
-  } else if (IsFlagSet(anchor, TextAnchor::Top)) {
+  } else if (IsFlagSet(anchor, TextAnchor::VertTop)) {
     y += (extents.height + padding);
   } else {  // Bottom-aligned
     y -= padding;
@@ -605,7 +605,7 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   cairo_stroke(context);
 
   // how a text box with that padding would look like:
-  ApplyColor(context, desired_text_style.font_color.Inverse(0.7));
+  ApplyColor(context, desired_text_style.font_color.Inverse().WithAlpha(0.7));
   cairo_rectangle(context, tl.x() - desired_text_style.padding,
                   tl.y() - desired_text_style.padding,
                   extents.width + 2 * desired_text_style.padding,
