@@ -36,6 +36,7 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 
 void DemoLines() {
   auto painter = viren2d::CreatePainter();
+  std::stringstream lbl;
   painter->SetCanvas(400, 400, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!50"));
@@ -43,15 +44,23 @@ void DemoLines() {
   viren2d::LineStyle line_style(20, "azure!60", {},
                                 viren2d::LineCap::Butt);
   painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
-  //TODO add text linecapToString
+  lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
+  painter->DrawText(lbl.str(), {100, 200}, viren2d::TextAnchor::Center);
+  lbl.str(std::string());
+  //TODO with rotation ;-)
+
 
   line_style.line_cap = viren2d::LineCap::Round;
   painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
-  //TODO add text linecapToString
+  lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
+  painter->DrawText(lbl.str(), {200, 200}, viren2d::TextAnchor::Center);
+  lbl.str(std::string());
 
   line_style.line_cap = viren2d::LineCap::Square;
   painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
-  //TODO add text linecapToString
+  lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
+  painter->DrawText(lbl.str(), {300, 200}, viren2d::TextAnchor::Center);
+  lbl.str(std::string());
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
 }
@@ -217,39 +226,49 @@ void DemoText() {
     std::stringstream s;
     s << "\"" << families[idx_family] << "\"";
     viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 50.0};
-    painter->DrawText(s.str(), pos,
-                      viren2d::TextAnchor::Bottom, //viren2d::TextAnchorFromString("bottom"),
-                      text_style);
+    painter->DrawText(s.str(), pos, viren2d::TextAnchor::Bottom,
+                      text_style); //, {0, 1});
 
     text_style.font_size = 14;
     text_style.font_family = families[idx_family];
     text_style.font_color = "navy-blue";
-    painter->SetDefaultTextStyle(text_style);
+//    painter->SetDefaultTextStyle(text_style);
+
+//    viren2d::Vec2d padding(idx_family * 5,
+//                           (idx_family > 0) ? (idx_family - 1) * 10 : 0);
+    auto padding = viren2d::Vec2d::All(idx_family * 5);
+
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
       std::stringstream txt;
-//      txt << "\"" << anchors[idx_anchor] << "\"";
       txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor]));
-      if (idx_anchor == 3) {
-        text_style.padding = 5;
-        painter->SetDefaultTextStyle(text_style);
-      } else if (idx_anchor == 6) {
-        text_style.padding = 10;
-        painter->SetDefaultTextStyle(text_style);
-      }
+//      txt << anchors[idx_anchor];
+
 
       pos.SetY(100.0 + idx_anchor * 50.0);
-      if ((idx_anchor == 6) || (idx_anchor == 7)) {
-        text_style.font_bold = true;
-//        txt << " (custom style)";
-        painter->DrawText(txt.str(), pos,
-                          viren2d::TextAnchorFromString(anchors[idx_anchor]),
-                          text_style);
+      painter->DrawCircle(pos, 5, viren2d::LineStyle::Invalid, "black!40");
+      if (idx_family < 1) {
+        painter->DrawText(txt.str(), pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
+                          text_style, padding);
       } else {
-//        txt << " (default style)";
-        painter->DrawText(txt.str(), pos,
-                          viren2d::TextAnchorFromString(anchors[idx_anchor]));
+        painter->DrawTextBox(txt.str(), pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
+                             text_style, padding,
+                             painter->GetDefaultLineStyle());
+//                             viren2d::LineStyle::Invalid,
+//                             text_style.font_color.Inverse().WithAlpha(0.8),
+//                             0.2);
       }
+//      if ((idx_anchor == 6) || (idx_anchor == 7)) {
+//        text_style.font_bold = true;
+////        txt << " (custom style)";
+//        painter->DrawText(txt.str(), pos,
+//                          viren2d::TextAnchorFromString(anchors[idx_anchor]),
+//                          text_style, padding);
+//      } else {
+////        txt << " (default style)";
+//        painter->DrawText(txt.str(), pos,
+//                          viren2d::TextAnchorFromString(anchors[idx_anchor]));
+//      }
     }
   }
 
@@ -258,7 +277,7 @@ void DemoText() {
 
 
 int main(int /*argc*/, char **/*argv*/) {
-//  DemoLines();
+  DemoLines();
 //  DemoArrows();
 //  DemoCircles();
 //  DemoRects();

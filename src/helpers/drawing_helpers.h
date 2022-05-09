@@ -108,7 +108,16 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style) {
   cairo_select_font_face(context, text_style.font_family.c_str(),
                          (text_style.font_italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
                          (text_style.font_bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));
-  cairo_set_font_size(context, static_cast<double>(text_style.font_size));
+  // For image painting, the device to user
+  // scaling factor should always be 1.
+  // Nevertheless, check if we need to adjust
+  // the given font size (in case we ever change
+  // to an SVG painter).
+  double ux = 1.0;
+  double uy = 1.0;
+  cairo_device_to_user_distance(context, &ux, &uy);
+  double px = (ux > uy) ? ux : uy;
+  cairo_set_font_size(context, static_cast<double>(text_style.font_size) * px);
 }
 
 
@@ -178,10 +187,10 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
-              const std::string &text, Vec2d position,
-              TextAnchor text_anchor,
-              const TextStyle &desired_text_style,
-              const TextStyle &current_context_style);
+              const std::string &text, Vec2d position, TextAnchor text_anchor,
+              const TextStyle &desired_text_style, const TextStyle &current_context_style,
+              const Vec2d &padding, const LineStyle &box_line_style,
+              const Color &box_fill_color, double box_corner_radius);
 
 } // namespace helpers
 } // namespace viren2d

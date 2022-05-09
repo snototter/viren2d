@@ -1,18 +1,6 @@
 #ifndef __VIREN2D_STYLES_H__
 #define __VIREN2D_STYLES_H__
 
-//FIXME FIXME FIXME
-// How to handle special case "only fill"?
-// * valid linestyle + X --> draw contour & fill if X is valid
-// * invalid linestyle + valid fill color --> only fill
-// * invalid linestyle + invalid fill color --> should raise an exception
-// how can we select the default style?
-//
-//maybe create static fields:
-// Invalid
-// Default --> e.g. line_width -42
-//FIXME FIXME FIXME
-
 #include <vector>
 #include <string>
 #include <ostream>
@@ -286,7 +274,7 @@ struct TextStyle {
 //  FontWeight font_weight;
   bool font_bold;
   bool font_italic;
-  unsigned int padding;
+  //TODO add line_spacing default 1.2
 
   /**FIXME see linestyle doc*/
   TextStyle();
@@ -295,8 +283,7 @@ struct TextStyle {
   TextStyle(unsigned int size,
             const std::string &family,
             const Color &color = Color::Black,
-            bool bold = false, bool italic = false,
-            unsigned int box_padding = 0);
+            bool bold = false, bool italic = false);
 
 //  // Nothing special about the TextStyle class, so we can have
 //  // the default copy/assignment/move c'tors/operators:
@@ -359,10 +346,10 @@ enum class TextAnchor : unsigned char {
   Top = HorzCenter | VertTop,
   Bottom = HorzCenter | VertBottom,
 
-  TopLeft = Top | Left,
-  TopRight = Top | Right,
-  BottomLeft = Bottom | Left,
-  BottomRight = Bottom | Right
+  TopLeft = VertTop | HorzLeft,
+  TopRight = VertTop | HorzRight,
+  BottomLeft = VertBottom | HorzLeft,
+  BottomRight = VertBottom | HorzRight
 };
 
 //TODO doc, test, etc

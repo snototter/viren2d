@@ -206,7 +206,7 @@ public:
                    const Color &fill_color = Color::Invalid) {
     DrawEllipseImpl(ellipse, line_style, fill_color);
   }
-//FIXME bind .Default and .Invalid
+
 
   /**
    * @brief Draws a grid between top_left and bottom_right.
@@ -258,8 +258,21 @@ public:
   //TODO
   void DrawText(const std::string &text, const Vec2d &position,
                 TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
-                const TextStyle &text_style = TextStyle::Default) {
-    DrawTextImpl(text, position, text_anchor, text_style);
+                const TextStyle &text_style = TextStyle::Default,
+                const Vec2d &padding = {0, 0}) {
+    DrawTextImpl(text, position, text_anchor, text_style, padding);
+  }
+
+
+  void DrawTextBox(const std::string &text, const Vec2d &position,
+                   TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
+                   const TextStyle &text_style = TextStyle::Default,
+                   const Vec2d &padding = {6, 6},
+                   const LineStyle &box_line_style = LineStyle::Invalid,
+                   const Color &box_fill_color = Color::White.WithAlpha(0.6),
+                   double box_corner_radius = 0.2) {
+    DrawTextBoxImpl(text, position, text_anchor, text_style, padding,
+                    box_line_style, box_fill_color, box_corner_radius);
   }
 
 
@@ -303,8 +316,15 @@ protected:
 
   /** Internal helper to allow default values in public interface. */
   virtual void DrawTextImpl(const std::string &text, const Vec2d &position,
-                            TextAnchor text_anchor,
-                            const TextStyle &text_style) = 0;
+                            TextAnchor text_anchor, const TextStyle &text_style,
+                            const Vec2d &padding) = 0;
+
+
+  /** Internal helper to allow default values in public interface. */
+  virtual void DrawTextBoxImpl(const std::string &text, const Vec2d &position,
+                               TextAnchor text_anchor, const TextStyle &text_style,
+                               const Vec2d &padding, const LineStyle &box_line_style,
+                               const Color &box_fill_color, double box_corner_radius) = 0;
 };
 
 

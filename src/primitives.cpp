@@ -843,6 +843,16 @@ std::string Vec<_Tp, dim>::TypeName() {
 
 
 template<typename _Tp, int dim>
+Vec<_Tp, dim> Vec<_Tp, dim>::All(_Tp value) {
+  Vec<_Tp, dim> vec;
+  for (int i = 0; i < dim; ++i) {
+    vec.val[i] = value;
+  }
+  return vec;
+}
+
+
+template<typename _Tp, int dim>
 std::string Vec<_Tp, dim>::ToString() const {
   std::stringstream s;
   s << Vec<_Tp, dim>::TypeName() << "("
@@ -891,6 +901,13 @@ Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs) {
 
 
 template<typename _Tp, int dim>
+Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, double rhs) {
+  lhs -= rhs;
+  return lhs;
+}
+
+
+template<typename _Tp, int dim>
 Vec<_Tp, dim> operator*(Vec<_Tp, dim> lhs, double scale) {
   lhs *= scale;
   return lhs;
@@ -927,6 +944,7 @@ template bool operator!=(const Vec2d& lhs, const Vec2d& rhs);
 // Arithmetic Vec2d
 template Vec2d operator+(Vec2d lhs, const Vec2d& rhs);
 template Vec2d operator-(Vec2d lhs, const Vec2d& rhs);
+template Vec2d operator-(Vec2d lhs, double rhs);
 template Vec2d operator*(Vec2d lhs, double scale);
 template Vec2d operator*(double scale, Vec2d rhs);
 template Vec2d operator/(Vec2d lhs, double scale);
@@ -938,6 +956,7 @@ template bool operator!=(const Vec3d& lhs, const Vec3d& rhs);
 // Arithmetic Vec3d
 template Vec3d operator+(Vec3d lhs, const Vec3d& rhs);
 template Vec3d operator-(Vec3d lhs, const Vec3d& rhs);
+template Vec3d operator-(Vec3d lhs, double rhs);
 template Vec3d operator*(Vec3d lhs, double scale);
 template Vec3d operator*(double scale, Vec3d rhs);
 template Vec3d operator/(Vec3d lhs, double scale);
@@ -949,6 +968,7 @@ template bool operator!=(const Vec4d& lhs, const Vec4d& rhs);
 // Arithmetic Vec4d
 template Vec4d operator+(Vec4d lhs, const Vec4d& rhs);
 template Vec4d operator-(Vec4d lhs, const Vec4d& rhs);
+template Vec4d operator-(Vec4d lhs, double rhs);
 template Vec4d operator*(Vec4d lhs, double scale);
 template Vec4d operator*(double scale, Vec4d rhs);
 template Vec4d operator/(Vec4d lhs, double scale);
@@ -960,6 +980,7 @@ template bool operator!=(const Vec2i& lhs, const Vec2i& rhs);
 // Arithmetic Vec2i
 template Vec2i operator+(Vec2i lhs, const Vec2i& rhs);
 template Vec2i operator-(Vec2i lhs, const Vec2i& rhs);
+template Vec2i operator-(Vec2i lhs, double rhs);
 template Vec2i operator*(Vec2i lhs, double scale);
 template Vec2i operator*(double scale, Vec2i rhs);
 template Vec2i operator/(Vec2i lhs, double scale);
@@ -971,6 +992,7 @@ template bool operator!=(const Vec3i& lhs, const Vec3i& rhs);
 // Arithmetic Vec3i
 template Vec3i operator+(Vec3i lhs, const Vec3i& rhs);
 template Vec3i operator-(Vec3i lhs, const Vec3i& rhs);
+template Vec3i operator-(Vec3i lhs, double rhs);
 template Vec3i operator*(Vec3i lhs, double scale);
 template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
@@ -1126,6 +1148,25 @@ Rect &Rect::operator-=(const Vec2d &offset) {
   return *this;
 }
 
+double Rect::left() const {
+  return cx - half_width();
+}
+
+
+double Rect::right() const {
+  return cx + half_width();
+}
+
+
+double Rect::top() const {
+  return cy - half_height();
+}
+
+
+double Rect::bottom() const {
+  return cy + half_height();
+}
+
 
 bool Rect::IsValid() const {
   if ((radius > 0.5) && (radius < 1.0)) {
@@ -1149,6 +1190,17 @@ std::string Rect::ToString() const {
   s << ")";
   return s.str();
 }
+
+
+Rect RectFromLTWH(double left, double top, double width, double height) {
+  return Rect(left + width / 2.0, top + height / 2.0, width, height);
+}
+
+
+Rect RectFromTLWH(const Vec2d &tl, const Vec2d &size) {
+  return RectFromLTWH(tl.x(), tl.y(), size.width(), size.height());
+}
+
 
 bool operator==(const Rect& lhs, const Rect& rhs) {
   return eps_equal(lhs.cx, rhs.cx)

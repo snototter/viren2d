@@ -129,10 +129,22 @@ protected:
 
 
   void DrawTextImpl(const std::string &text, const Vec2d &position,
-                    TextAnchor text_anchor, const TextStyle &text_style) override {
+                    TextAnchor text_anchor, const TextStyle &text_style,
+                    const Vec2d &padding) override {
     helpers::DrawText(surface_, context_, text, position, text_anchor,
-                      CheckInputStyle(text_style),
-                      default_text_style_);
+                      CheckInputStyle(text_style), default_text_style_,
+                      padding, LineStyle::Invalid, Color::Invalid, 0.0);
+  }
+
+
+  void DrawTextBoxImpl(const std::string &text, const Vec2d &position,
+                       TextAnchor text_anchor, const TextStyle &text_style,
+                       const Vec2d &padding, const LineStyle &box_line_style,
+                       const Color &box_fill_color, double box_corner_radius) override {
+    helpers::DrawText(surface_, context_, text, position, text_anchor,
+                      CheckInputStyle(text_style), default_text_style_,
+                      padding, CheckInputStyle(box_line_style), box_fill_color,
+                      box_corner_radius);
   }
 
 

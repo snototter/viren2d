@@ -36,7 +36,7 @@ void CheckLineStyleAndFill(const LineStyle &style,
 
 
 //---------------------------------------------------- Math/Geometry Helpers
-//TODO(snototter) These should be moved to math.h
+//FIXME(snototter) These should be moved to math.h
 
 /** @brief Project point onto line. */
 Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
@@ -502,41 +502,35 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- Text (plain & boxed)
-Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
-                            const cairo_text_extents_t &extents,
-                            unsigned int padding) {
-  // Default Cairo text position is bottom-left
-  //TODO move urls to here
-  //FIXME define how to handle descent
-  // --> query cairo_font_extents
-  // add textstyle option (enum) to toggle between
-  // * bottom = text-baseline
-  // * bottom = text-bottom
-  // * font-baseline (=baseline + descent)
-  // * font-bottom (baseline + descent)
-  // Here:
-  // 1) compute bounding box, 2) align according to anchor, 3) return text reference point
-  auto tl = position + Vec2d(extents.x_bearing, extents.y_bearing);
+Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
+                                const cairo_text_extents_t &extents,
+                                Vec2d padding) {
+  // Default Cairo text `position` is bottom-left,
+  // indicating the "reference point".
+  // Check these useful resources:
+  // https://www.cairographics.org/tutorial/#L1understandingtext
+  // https://www.cairographics.org/tutorial/textextents.c
+  // https://www.cairographics.org/samples/text_align_center/
 
   // Adjust horizontal alignment.
   double x = position.x();
   if (IsFlagSet(anchor, TextAnchor::HorzCenter)) {
-    x -= (extents.width / 2.0);
+    x -= (extents.width / 2.0 + extents.x_bearing);
   } else if (IsFlagSet(anchor, TextAnchor::HorzRight)) {
-    x -= (extents.width + padding);
+    x -= (extents.width + padding.x() + extents.x_bearing);
   } else {  // Left-aligned
-    x += padding;
+    x += padding.x() - extents.x_bearing;
   }
   position.SetX(x);
 
   // Adjust vertical alignment.
   double y = position.y();
   if (IsFlagSet(anchor, TextAnchor::VertCenter)) {
-    y += (extents.height / 2.0);
+    y -= (extents.height / 2.0 + extents.y_bearing);
   } else if (IsFlagSet(anchor, TextAnchor::VertTop)) {
-    y += (extents.height + padding);
+    y += (padding.y() - extents.y_bearing);
   } else {  // Bottom-aligned
-    y -= padding;
+    y -= (extents.height + extents.y_bearing + padding.y());
   }
   position.SetY(y);
 
@@ -545,11 +539,14 @@ Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
 
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
-              const std::string &text, Vec2d position,
-              TextAnchor text_anchor,
-              const TextStyle &desired_text_style,
-              const TextStyle &current_context_style) {
+              const std::string &text, Vec2d position, TextAnchor text_anchor,
+              const TextStyle &desired_text_style, const TextStyle &current_context_style,
+              const Vec2d &padding, const LineStyle &box_line_style,
+              const Color &box_fill_color, double box_corner_radius) {
   CheckCanvas(surface, context);
+
+  //TODO for rendering multi-line text:
+  // https://github.com/cubicool/cairou/blob/master/src/cairou-text.cpp
 
   if (text.empty()) {
     // Nothing to do
@@ -571,37 +568,24 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
     ApplyTextStyle(context, desired_text_style);
   }
 
-  // Shift to the pixel center, and move to the origin of the
-  // first glyph. Then, we can let Cairo render the text
-  position += 0.5;
+//  //TODO nice-to-have: text rotation (the following works awesome!)
+//  cairo_translate(context, position.x(), position.y());
+//  cairo_rotate(context, deg2rad(AngleDegFromDirectionVec(Vec2d(50, 50).DirectionVector({150,350}))-90));
+//  position = {0, 0};
 
-#define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag
+//#define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   const auto desired_position = position;
 #endif  // VIREN2D_DEBUG_TEXT_EXTENT
-  //TODO extend drawText to support text boxes
-
-  //FIXME default styles:
-  //viren2d - some sane presets for each style; not changeable!
-  //painter - init with presets; customizable by user!
 
   // Now that the font face is set up, we can query
   // the rendered text extents and use them to adjust
   // the position according to the desired text anchor:
   cairo_text_extents_t extents;
   cairo_text_extents(context, text.c_str(), &extents);
-  position = GetTextAnchorPosition(position, text_anchor, extents,
-                                   desired_text_style.padding);
-  double ux=1, uy=1;
-  cairo_device_to_user_distance(context, &ux, &uy);
-  double px = (ux > uy) ? ux : uy;
-  std::cout << "Text extent \"" << text << "\": " << extents.width << " x " << extents.height << ", bearing: " << extents.x_bearing << ", " << extents.y_bearing << std::endl
-            << "Pixel scaling: " << px << std::endl;
+  position = GetAnchoredReferencePoint(position, text_anchor,
+                                       extents, padding);
 
-  // https://www.cairographics.org/tutorial/#L1understandingtext
-  // https://www.cairographics.org/tutorial/textextents.c
-  // TODO need to include bearing https://www.cairographics.org/samples/text_align_center/
-  // https://github.com/cubicool/cairou/blob/master/src/cairou-text.cpp
 
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   // Draw a box showing the text extent
@@ -614,25 +598,31 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // Draw a box or circle at the desired location, showing the
   // size of the padded region
   ApplyLineStyle(context, LineStyle(1, Color::Black));
-  if (desired_text_style.padding > 0) {
-    cairo_rectangle(context, desired_position.x() - desired_text_style.padding,
-                    desired_position.y() - desired_text_style.padding,
-                    2 * desired_text_style.padding, 2 * desired_text_style.padding);
+  if (padding.LengthSquared() > 0) {
+    cairo_rectangle(context, desired_position.x() - padding.x(),
+                    desired_position.y() - padding.y(),
+                    2 * padding.x(), 2 * padding.y());
   } else {
     // If we don't have padding, draw a small circle:
     cairo_arc(context, desired_position.x(), desired_position.y(),
               4, 0, 2 * M_PI);
   }
   cairo_stroke(context);
-
-  // how a text box with that padding would look like:
-  ApplyColor(context, desired_text_style.font_color.Inverse().WithAlpha(0.7));
-  cairo_rectangle(context, tl.x() - desired_text_style.padding,
-                  tl.y() - desired_text_style.padding,
-                  extents.width + 2 * desired_text_style.padding,
-                  extents.height + 2 * desired_text_style.padding);
-  cairo_fill(context);
 #endif  // VIREN2D_DEBUG_TEXT_EXTENT
+
+  // Reuse DrawRect if we need to draw a text box:
+  if (box_fill_color.IsValid() || box_line_style.IsValid()) {
+    const auto center = position
+        + Vec2d(extents.x_bearing, extents.y_bearing)
+        + Vec2d(extents.width / 2.0, extents.height / 2.0);
+//        - 0.5; // DrawRect will also adjust the position
+    const auto rect = Rect(center, Vec2d(extents.width + 2 * padding.x(),
+                                         extents.height + 2 * padding.y()),
+                           0, box_corner_radius);
+    //TODO text rotation --> 1) transformation 2) rect [rotation=0] 3) text
+
+    DrawRect(surface, context, rect, box_line_style, box_fill_color);
+  }
 
   // We have to always apply font color in this context (as
   // Cairo uses the default source rgba values, which could
@@ -640,6 +630,9 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // style)
   ApplyColor(context, desired_text_style.font_color);
 
+  // Shift to the pixel center, and move to the origin of the
+  // first glyph. Then, we can let Cairo render the text
+  position += 0.5;
   cairo_move_to(context, position.x(), position.y());
   cairo_show_text(context, text.c_str());
 

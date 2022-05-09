@@ -361,6 +361,9 @@ class Vec {
 
   /** @brief Returns the class type name, e.g. "Vec2d". */
   static std::string TypeName();
+
+  //TODO doc, test, bind
+  static Vec<_Tp, dim> All(_Tp value);
 };
 
 
@@ -396,6 +399,13 @@ Vec<_Tp, dim> operator+(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
 /** Vector subtraction. */
 template<typename _Tp, int dim>
 Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, const Vec<_Tp, dim>& rhs);
+
+
+//TODO doc, test, bind
+//TODO same for lhs(?); same for op+!
+// add explicit instantiation of these operators in .cpp!
+template<typename _Tp, int dim>
+Vec<_Tp, dim> operator-(Vec<_Tp, dim> lhs, double rhs);
 
 //DONE [x] add documentation
 //DONE [x] add C++ test (tests/xxx_test.cpp)
@@ -674,6 +684,19 @@ struct Rect {
   }
 
 
+  //TODO doc & test & bind
+//  Vec2d Center() const;
+  double left() const;
+  double right() const;
+  double top() const;
+  double bottom() const;
+//  Vec2d TopLeft() const;
+//  Vec2d TopRight() const;
+//  Vec2d BottomLeft() const;
+//  Vec2d BottomRight() const;
+
+
+
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
@@ -693,6 +716,9 @@ struct Rect {
   }
 };
 
+//TODO doc, test, bind
+Rect RectFromLTWH(double left, double top, double width, double height);
+Rect RectFromTLWH(const Vec2d &tl, const Vec2d &size);
 
 //-------------------------------------------------  Comparison operators
 bool operator==(const Rect& lhs, const Rect& rhs);

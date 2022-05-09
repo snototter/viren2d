@@ -293,24 +293,22 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 //-------------------------------------------------  TextStyle
 const TextStyle TextStyle::Default = TextStyle(-42, std::string());
 
-TextStyle::TextStyle() //FIXME
+TextStyle::TextStyle()
   : font_size(16),
     font_family("monospace"),
     font_color(Color::Black),
     font_bold(false),
-    font_italic(false),
-    padding(0) {
+    font_italic(false) {
 }
 
 
 TextStyle::TextStyle(unsigned int size,
                      const std::string &family,
                      const Color &color,
-                     bool bold, bool italic,
-                     unsigned int box_padding)
+                     bool bold, bool italic)
   : font_size(size), font_family(family),
     font_color(color), font_bold(bold),
-    font_italic(italic), padding(box_padding) {
+    font_italic(italic) {
 }
 
 
@@ -332,22 +330,18 @@ bool TextStyle::Equals(const TextStyle &other) const {
       && (font_family.compare(other.font_family) == 0)
       && (font_color == other.font_color)
       && (font_bold == other.font_bold)
-      && (font_italic == other.font_italic)
-      && (padding == other.padding);
+      && (font_italic == other.font_italic); //TODO check line_spacing
 }
 
 
 std::string TextStyle::ToString() const {
-  //FIXME add padding (should we differ horizontal and vertical ? )
-
   if (IsSpecialDefault()) {
     return "TextStyle::Default";
   }
 
   std::stringstream s;
   s << "TextStyle(\"" << font_family << "\", "
-    << font_size << "px";//FIXME it's not pixels, it's the font scale (size of the em square)
-  // For the imagepainter it is in pixels (device-to-unit scale is 1:1)
+    << font_size << "px";
 
   if (font_bold) {
     s << ", bold";
@@ -355,7 +349,6 @@ std::string TextStyle::ToString() const {
   if (font_italic) {
     s << ", italic";
   }
-
 
 
   if (!IsValid()) {
@@ -458,17 +451,6 @@ std::string TextAnchorToString(TextAnchor anchor) {
     default:
       throw std::invalid_argument("Incomplete text anchor: you must specify both horizontal & vertical alignment");
   }
-
-//FIXME throw exception?
-
-//  std::stringstream s;
-//  if (IsFlagSet(anchor, TextAnchor::Top)) {
-//    s << "top-";
-//  } else {
-//    s << "bottom-";
-//  }
-
-//  return s.str();
 }
 
 
