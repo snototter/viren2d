@@ -15,6 +15,8 @@ namespace viren2d {
 /**
  * @brief The Painter supports drawing on a canvas.
  *
+ *TODO replace doc by pybind module doc
+ *
  * Workflow:
  * 1. Create a Painter
  * 2. SetCanvas()
@@ -139,15 +141,17 @@ public:
    *            direction. Both angles are specified in degrees, where 0 degrees
    *            points in the direction of increasing X coordinates.
    * @param line_style:
-   *            How to draw the arc's outline. If line_width is 0, the outline
-   *            will not be drawn (then you must define a 'fill_color').
+   *            How to draw the arc's outline. To skip drawing the contour,
+   *            pass LineStyle::Invalid (then you must specify a valid 'fill_color').
    * @param include_center:
    *            If True (default), the center of the circle will be included
    *            when drawing the outline and filling the arc.
+   * @param fill_color: Provide a valid color to fill
+   *            the arc.
    */
   void DrawArc(const Vec2d &center, double radius,
                double angle1, double angle2,
-               const LineStyle &line_style = LineStyle::Default, // FIXME :( for fillable primitives, the line style may be empty; and then, MUST NOT be changed to the default style
+               const LineStyle &line_style = LineStyle::Default,
                bool include_center = true,
                const Color &fill_color = Color::Invalid) {
     DrawArcImpl(center, radius, angle1, angle2, line_style,
@@ -163,8 +167,10 @@ public:
    * @param arrow_style: How to draw the arrow (specifies
    *              both line and head/tip style).
    */
-  virtual void DrawArrow(const Vec2d &from, const Vec2d &to,
-                         const ArrowStyle &arrow_style) = 0; //FIXME use ::Default and ..Impl
+  void DrawArrow(const Vec2d &from, const Vec2d &to,
+                 const ArrowStyle &arrow_style = ArrowStyle::Default) {
+    DrawArrowImpl(from, to, arrow_style);
+  }
 
 
   /**
@@ -172,9 +178,9 @@ public:
    *
    * @param center: Center point of the circle.
    * @param radius: Radius in pixels.
-   * @param line_style: How to draw the outline. If its
-   *                line_width == 0, the outline will not
-   *                be drawn.
+   * @param line_style: How to draw the outline. To skip drawing the contour,
+   *                pass LineStyle::Invalid (then you must specify a
+   *                valid 'fill_color').
    * @param fill_color: Provide a valid color to fill
    *                the circle.
    */
@@ -189,18 +195,18 @@ public:
    * @brief Draws an ellipse.
    *
    * @param ellipse:    The ellipse to be drawn.
-   * @param line_style: How to draw the outline. If its
-   *                line_width == 0, the outline will not
-   *                be drawn.
+   * @param line_style: How to draw the outline. To skip drawing
+   *                    the contour, pass LineStyle::Invalid (then
+   *                    you must specify a valid 'fill_color').
    * @param fill_color: Provide a valid color to fill
-   *                the circle.
+   *                    the ellipse.
    */
   void DrawEllipse(const Ellipse &ellipse,
                    const LineStyle &line_style = LineStyle::Default,
                    const Color &fill_color = Color::Invalid) {
     DrawEllipseImpl(ellipse, line_style, fill_color);
   }
-
+//FIXME bind .Default and .Invalid
 
   /**
    * @brief Draws a grid between top_left and bottom_right.
@@ -225,8 +231,10 @@ public:
    * @param to:    End point of the line.
    * @param line_style: How to draw the line.
    */
-  virtual void DrawLine(const Vec2d &from, const Vec2d &to,
-                        const LineStyle &line_style) = 0; //FIXME ::Default & use _Impl
+  void DrawLine(const Vec2d &from, const Vec2d &to,
+                const LineStyle &line_style = LineStyle::Default) {
+    DrawLineImpl(from, to, line_style);
+  }
 
 
   /**
@@ -234,11 +242,11 @@ public:
    *
    * @param rect:   Defines the rectangle (incl. optional
    *                rotation & corner radius)
-   * @param line_style: How to draw the outline. If its
-   *                line_width == 0, the outline will not
-   *                be drawn.
+   * @param line_style: How to draw the outline. To skip drawing
+   *                the contour, pass LineStyle::Invalid (then
+   *                you must specify a valid 'fill_color').
    * @param fill_color: Provide a valid color to fill
-   *                the circle.
+   *                the rectangle.
    */
   void DrawRect(const Rect &rect,
                 const LineStyle &line_style = LineStyle::Default,
@@ -269,6 +277,11 @@ protected:
 
 
   /** Internal helper to enable default values in public interface. */
+  virtual void DrawArrowImpl(const Vec2d &from, const Vec2d &to,
+                             const ArrowStyle &arrow_style) = 0;
+
+
+  /** Internal helper to enable default values in public interface. */
   virtual void DrawCircleImpl(const Vec2d &center, double radius,
                               const LineStyle &line_style,
                               const Color &fill_color) = 0;
@@ -277,6 +290,10 @@ protected:
   /** Internal helper to enable default values in public interface. */
   virtual void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
                                const Color &fill_color) = 0;
+
+  /** Internal helper to enable default values in public interface. */
+  virtual void DrawLineImpl(const Vec2d &from, const Vec2d &to,
+                            const LineStyle &line_style) = 0;
 
 
   /** Internal helper to enable default values in public interface. */

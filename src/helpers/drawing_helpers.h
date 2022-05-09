@@ -28,8 +28,10 @@ namespace helpers {
  * This seemed to be the easiest/least confusing option.
  */
 inline void ApplyColor(cairo_t *context, const Color &color) {
-  cairo_set_source_rgba(context, color.blue, color.green,
-                        color.red, color.alpha);
+  if (context) {
+    cairo_set_source_rgba(context, color.blue, color.green,
+                          color.red, color.alpha);
+  }
 }
 
 
@@ -73,6 +75,10 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
 inline void ApplyLineStyle(cairo_t *context,
                            const LineStyle &line_style,
                            bool ignore_dash = false) {
+  if (!context) {
+    return;
+  }
+
   cairo_set_line_width(context, line_style.line_width);
   cairo_set_line_cap(context, LineCap2Cairo(line_style));
   cairo_set_line_join(context, LineJoin2Cairo(line_style));
@@ -96,6 +102,9 @@ inline void ApplyLineStyle(cairo_t *context,
 
 /** @brief Changes the given Cairo context to use the given TextStyle definitions. */
 inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style) {
+  if (!context) {
+    return;
+  }
   cairo_select_font_face(context, text_style.font_family.c_str(),
                          (text_style.font_italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
                          (text_style.font_bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));

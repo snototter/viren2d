@@ -38,7 +38,7 @@ def test_color_init():
     assert c == "black!30"
 
     # Copy
-    c2 = viren2d.Color(c)
+    c2 = c.copy()
     assert c2 == c
     c2.alpha = 0.9
     assert c2 != c
@@ -54,8 +54,8 @@ def test_color_init():
     color = viren2d.Color(0.3, 0.2, 0.5, 0.7)
     assert color.is_valid()
     check_color(color, 0.3, 0.2, 0.5, 0.7)
-    # Copy c'tor
-    c2 = viren2d.Color(color)
+
+    c2 = color.copy()
     assert color == c2
     c2 = viren2d.Color(0.3, 0.2, 0.5, 0.8)
     assert color != c2
@@ -204,7 +204,7 @@ def test_operators():
     color = viren2d.Color.White * 0.5
     assert color == viren2d.Color(0.5, 0.5, 0.5, 1.0)
     color.alpha = 0.7
-    cp = viren2d.Color(color)
+    cp = color.copy()
     color *= 1.5
     assert color == viren2d.Color(0.75, 0.75, 0.75, 0.7)
     assert (cp * 1.5) == color
@@ -213,7 +213,7 @@ def test_operators():
     color = viren2d.Color.Magenta / 2.0
     assert color == viren2d.Color(0.5, 0.0, 0.5, 1.0)
     color.alpha = 0.7
-    cp = viren2d.Color(color)
+    cp = color.copy()
     color /= 5
     assert color == viren2d.Color(0.1, 0.0, 0.1, 0.7)
     assert color == (viren2d.Color.Magenta.with_alpha(0.7) / 10.0)

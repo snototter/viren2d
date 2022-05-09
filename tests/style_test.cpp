@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <viren2d/styles.h>
+#include <viren2d/drawing.h>
 
 
 TEST(StyleTest, LineStyleBasics) {
@@ -31,28 +32,35 @@ TEST(StyleTest, LineStyleBasics) {
 
 
 
-//TEST(StyleTest, DefaultLineStyle) {
-//  const auto original_default_style = viren2d::LineStyle();
-//  // In the second iteration, the default style will be changed
-//  for (int i = 0; i < 2; ++i) {
-//    viren2d::LineStyle ls;
-//    EXPECT_EQ(ls, viren2d::GetDefaultLineStyle());
+TEST(StyleTest, DefaultLineStyle) {
+  const auto original_library_default= viren2d::LineStyle();
 
-//    if (i > 0) {
-//      EXPECT_NE(ls, original_default_style);
-//    }
+  viren2d::LineStyle ls;
+  EXPECT_EQ(ls, original_library_default);
 
-//    // Change the style
-//    ls = viren2d::LineStyle(3 + i, "forest-green");
-//    EXPECT_NE(ls, original_default_style);
-//    EXPECT_NE(ls, viren2d::GetDefaultLineStyle());
+  ls.line_width += 3;
+  ls.line_cap = viren2d::LineCap::Round;
+  ls.color = viren2d::rgba(0.1, 0.2, 0.3, 0.2);
+  EXPECT_NE(ls, original_library_default);
 
-//    // Make it the new default
-//    // FIXME defaults are now per painter! viren2d::SetDefaultLineStyle(ls);
-//    EXPECT_EQ(ls, viren2d::GetDefaultLineStyle());
-//  }
-//  // FIXME defaults are now per painter! viren2d::SetDefaultLineStyle(original_default_style);
-//}
+  auto painter = viren2d::CreatePainter();
+  EXPECT_NE(ls, painter->GetDefaultLineStyle());
+
+  painter->SetDefaultLineStyle(ls);
+  EXPECT_EQ(ls, painter->GetDefaultLineStyle());
+  EXPECT_NE(original_library_default, painter->GetDefaultLineStyle());
+
+  // Default c'tor should yield the library-wide default
+  EXPECT_NE(viren2d::LineStyle(), painter->GetDefaultLineStyle());
+  EXPECT_EQ(viren2d::LineStyle(), original_library_default);
+
+  ls.line_width = -3;
+  EXPECT_THROW(painter->SetDefaultLineStyle(ls), std::invalid_argument);
+
+  // Testing whether the painter uses its default
+  // line style for drawing would require first
+  // wrapping, then mocking the Cairo C interface.
+}
 
 
 TEST(StyleTest, ArrowStyleBasics) {
@@ -90,29 +98,45 @@ TEST(StyleTest, ArrowStyleBasics) {
 }
 
 
-//TEST(StyleTest, DefaultArrowStyle) {
-//  // FIXME defaults are now per painter!
-//  const viren2d::ArrowStyle original_default_style;
-//  // In the second iteration, the default style will be changed
-//  for (int i = 0; i < 2; ++i) {
-//    viren2d::ArrowStyle ls;
-//    EXPECT_EQ(ls, viren2d::GetDefaultArrowStyle());
+TEST(StyleTest, DefaultArrowStyle) {
+  const auto original_library_default= viren2d::ArrowStyle();
 
-//    if (i > 0) {
-//      EXPECT_NE(ls, original_default_style);
-//    }
+  viren2d::ArrowStyle ls;
+  EXPECT_EQ(ls, original_library_default);
 
-//    // Change the style
-//    ls = viren2d::ArrowStyle(3 + i, "lavender", 0.3);
-//    EXPECT_NE(ls, original_default_style);
-//    EXPECT_NE(ls, viren2d::GetDefaultArrowStyle());
+  ls.tip_length = 17;
+  EXPECT_NE(ls, original_library_default);
 
-//    // Make it the new default
-//    viren2d::SetDefaultArrowStyle(ls);
-//    EXPECT_EQ(ls, viren2d::GetDefaultArrowStyle());
-//  }
-//  viren2d::SetDefaultArrowStyle(original_default_style);
-//}
+  ls.line_width += 3;
+  EXPECT_NE(ls, original_library_default);
+
+  auto painter = viren2d::CreatePainter();
+  EXPECT_NE(ls, painter->GetDefaultArrowStyle());
+
+  painter->SetDefaultArrowStyle(ls);
+  EXPECT_EQ(ls, painter->GetDefaultArrowStyle());
+  EXPECT_NE(original_library_default, painter->GetDefaultArrowStyle());
+
+  // Default c'tor should yield the library-wide default
+  EXPECT_NE(viren2d::ArrowStyle(), painter->GetDefaultArrowStyle());
+  EXPECT_EQ(viren2d::ArrowStyle(), original_library_default);
+
+  // An arrow style can also be used as its base class
+  painter->SetDefaultLineStyle(ls);
+  EXPECT_EQ(static_cast<viren2d::LineStyle>(ls), painter->GetDefaultLineStyle());
+
+  ls.line_width = -3;
+  EXPECT_THROW(painter->SetDefaultArrowStyle(ls), std::invalid_argument);
+
+  // An arrow style could also be used to try to
+  // inject an invalid default line style
+  EXPECT_THROW(painter->SetDefaultLineStyle(ls), std::invalid_argument);
+
+  // Testing whether the painter uses its default
+  // arrow style for drawing would require first
+  // wrapping, then mocking the Cairo C interface.
+}
+
 
 
 TEST(StyleTest, ArrowTipLength) {

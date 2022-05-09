@@ -313,7 +313,6 @@ struct TextStyle {
 
 
   //FIXME
-  bool IsSpecialInvalid() const;
   bool IsSpecialDefault() const;
 
 
@@ -332,7 +331,6 @@ struct TextStyle {
     return os;
   }
 
-  static const TextStyle Invalid;
   static const TextStyle Default;
 };
 

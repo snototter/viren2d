@@ -505,8 +505,18 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 Vec2d GetTextAnchorPosition(Vec2d position, TextAnchor anchor,
                             const cairo_text_extents_t &extents,
                             unsigned int padding) {
-  //TODO add padding (default = 0) parameter, then we can reuse it for bounding box & text box!
   // Default Cairo text position is bottom-left
+  //TODO move urls to here
+  //FIXME define how to handle descent
+  // --> query cairo_font_extents
+  // add textstyle option (enum) to toggle between
+  // * bottom = text-baseline
+  // * bottom = text-bottom
+  // * font-baseline (=baseline + descent)
+  // * font-bottom (baseline + descent)
+  // Here:
+  // 1) compute bounding box, 2) align according to anchor, 3) return text reference point
+  auto tl = position + Vec2d(extents.x_bearing, extents.y_bearing);
 
   // Adjust horizontal alignment.
   double x = position.x();
@@ -582,11 +592,22 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   cairo_text_extents(context, text.c_str(), &extents);
   position = GetTextAnchorPosition(position, text_anchor, extents,
                                    desired_text_style.padding);
+  double ux=1, uy=1;
+  cairo_device_to_user_distance(context, &ux, &uy);
+  double px = (ux > uy) ? ux : uy;
+  std::cout << "Text extent \"" << text << "\": " << extents.width << " x " << extents.height << ", bearing: " << extents.x_bearing << ", " << extents.y_bearing << std::endl
+            << "Pixel scaling: " << px << std::endl;
+
+  // https://www.cairographics.org/tutorial/#L1understandingtext
+  // https://www.cairographics.org/tutorial/textextents.c
+  // TODO need to include bearing https://www.cairographics.org/samples/text_align_center/
+  // https://github.com/cubicool/cairou/blob/master/src/cairou-text.cpp
 
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   // Draw a box showing the text extent
   ApplyLineStyle(context, LineStyle(1, desired_text_style.font_color));
-  auto tl = position + Vec2d(0, -extents.height);
+  //auto tl = position + Vec2d(0, -extents.height);
+  auto tl = position + Vec2d(extents.x_bearing, extents.y_bearing);
   cairo_rectangle(context, tl.x(), tl.y(), extents.width, extents.height);
   cairo_stroke(context);
 

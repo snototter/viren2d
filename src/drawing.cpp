@@ -19,15 +19,16 @@
 // private viren2d headers
 #include <helpers/drawing_helpers.h>
 
-// FIXME: required Painter changes
-// default styles PER painter!!
-// library-wide defaults are a pain if you want to use the library in multiple
-// visualization components (and each assumes that they've set up the defaults
-// accordingly...)
 namespace viren2d {
 namespace {
+/** Predefined default line style - can be replaced separately within each @see Painter. */
 const static LineStyle kdefault_line_style = LineStyle(2, Color(NamedColor::Azure));
+
+
+/** Predefined default arrow style - can be replaced separately within each @see Painter. */
 const static ArrowStyle kdefault_arrow_style = ArrowStyle(4, Color(NamedColor::ForestGreen), 0.1, 20);
+
+/** Predefined default text style - can be replaced separately within each @see Painter. */
 const static TextStyle kdefault_text_style = TextStyle(16, "monospace", Color::Black);
 }  // anonymous namespace
 
@@ -59,7 +60,6 @@ public:
 
   ImageBuffer GetCanvas(bool copy) const override;
 
-
   void SetDefaultLineStyle(const LineStyle &line_style) override;
   LineStyle GetDefaultLineStyle() const override;
 
@@ -70,24 +70,11 @@ public:
   TextStyle GetDefaultTextStyle() const override;
 
 
-  void DrawArrow(const Vec2d &from, const Vec2d &to,
-                 const ArrowStyle &arrow_style) override {
-    helpers::DrawArrow(surface_, context_, from, to,
-                       CheckInputStyle(arrow_style));
-  }
-
   void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
                           double spacing_x, double spacing_y,
                 const LineStyle &line_style) override {
     helpers::DrawGrid(surface_, context_, top_left, bottom_right,
                       spacing_x, spacing_y,
-                      CheckInputStyle(line_style));
-  }
-
-
-  void DrawLine(const Vec2d &from, const Vec2d &to,
-                const LineStyle &line_style) override {
-    helpers::DrawLine(surface_, context_, from, to,
                       CheckInputStyle(line_style));
   }
 
@@ -105,6 +92,13 @@ protected:
   }
 
 
+  void DrawArrowImpl(const Vec2d &from, const Vec2d &to,
+                     const ArrowStyle &arrow_style) override {
+    helpers::DrawArrow(surface_, context_, from, to,
+                       CheckInputStyle(arrow_style));
+  }
+
+
   void DrawCircleImpl(const Vec2d &center, double radius,
                       const LineStyle &line_style,
                       const Color &fill_color) override {
@@ -117,6 +111,13 @@ protected:
                        const Color &fill_color) override {
     helpers::DrawEllipse(surface_, context_, ellipse,
                          CheckInputStyle(line_style), fill_color);
+  }
+
+
+  void DrawLineImpl(const Vec2d &from, const Vec2d &to,
+                    const LineStyle &line_style) override {
+    helpers::DrawLine(surface_, context_, from, to,
+                      CheckInputStyle(line_style));
   }
 
 
@@ -404,32 +405,38 @@ TextStyle ImagePainter::GetDefaultTextStyle() const {
 
 
 void ImagePainter::ApplyDefaultStyles() {
-  helpers::ApplyLineStyle(context_, default_line_style_, false);
+  if (context_) {
+    helpers::ApplyLineStyle(context_, default_line_style_, false);
 
-  // The arrow style will not be preset in the context (as
-  // an arrow is basically just a line and would thus overwrite
-  // the default line style)
+    // The arrow style will not be preset in the context (as
+    // an arrow is basically just a line and would thus overwrite
+    // the default line style)
 
-  helpers::ApplyTextStyle(context_, default_text_style_);
+    helpers::ApplyTextStyle(context_, default_text_style_);
+  }
 }
 
 
 const LineStyle &
 ImagePainter::CheckInputStyle(const LineStyle &user_input) const {
-  if (user_input.IsValid()) {
-    return user_input;
-  } else {
+  if (user_input.IsSpecialDefault()) {
     return default_line_style_;
+  } else {
+    return user_input;
   }
 }
 
 
 const ArrowStyle &
 ImagePainter::CheckInputStyle(const ArrowStyle &user_input) const {
-  if (user_input.IsValid()) {
-    return user_input;
-  } else {
+  if (user_input.IsSpecialInvalid()) {
+    throw std::invalid_argument("ArrowStyle::Invalid is not supported as input.");
+  }
+
+  if (user_input.IsSpecialDefault()) {
     return default_arrow_style_;
+  } else {
+    return user_input;
   }
 }
 

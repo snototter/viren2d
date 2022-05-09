@@ -35,42 +35,80 @@ namespace moddef {
 //------------------------------------------------- Wrapper for the Painter
 
 /**
- * @brief A wrapper to viren2d::Painter
+ * @brief A wrapper for the abstract `viren2d::Painter`
  *
  * This is necessary because I don't want to expose
- * the ImagePainter (I like the factory method; public
- * headers are quite clean). Thus, I cannot use the
- * pybind11 trampoline mechanism.
+ * the `ImagePainter` (I like the current factory method
+ * layout because the public headers are quite clean).
+ * Thus, I cannot (read "don't want to") use the
+ * pybind11's trampoline mechanism.
  */
 class Painter {
 public:
   Painter() : painter_(viren2d::CreatePainter())
   {}
 
+
   void SetCanvasColor(int width, int height, const viren2d::Color &color) {
     painter_->SetCanvas(width, height, color);
   }
+
 
   void SetCanvasFilename(const std::string &image_filename) {
     painter_->SetCanvas(image_filename);
   }
 
+
   void SetCanvasImage(const viren2d::ImageBuffer &image) {
     painter_->SetCanvas(image);
   }
 
+
   viren2d::ImageBuffer GetCanvas(bool copy) {
     return painter_->GetCanvas(copy);
   }
+
 
   py::tuple GetCanvasSize() {
     auto sz = painter_->GetCanvasSize();
     return py::make_tuple(sz.x(), sz.y());
   }
 
+
   bool IsValid() {
     return (painter_ != nullptr) && (painter_->IsValid());
   }
+
+
+  void SetDefaultLineStyle(const viren2d::LineStyle &line_style) {
+    return painter_->SetDefaultLineStyle(line_style);
+  }
+
+
+  viren2d::LineStyle GetDefaultLineStyle() const {
+    return painter_->GetDefaultLineStyle();
+  }
+
+
+  void SetDefaultArrowStyle(const viren2d::ArrowStyle &arrow_style) {
+    painter_->SetDefaultArrowStyle(arrow_style);
+  }
+
+
+  viren2d::ArrowStyle GetDefaultArrowStyle() const {
+    return painter_->GetDefaultArrowStyle();
+  }
+
+
+  void SetDefaultTextStyle(const viren2d::TextStyle &text_style) {
+    painter_->SetDefaultTextStyle(text_style);
+  }
+
+
+  viren2d::TextStyle GetDefaultTextStyle() const {
+    return painter_->GetDefaultTextStyle();
+  }
+
 
 
   void DrawArc(const viren2d::Vec2d &center, double radius,
@@ -88,17 +126,20 @@ public:
     painter_->DrawArrow(from, to, arrow_style);
   }
 
+
   void DrawCircle(const viren2d::Vec2d &center, double radius,
                   const viren2d::LineStyle &line_style,
                   const viren2d::Color &fill_color) {
     painter_->DrawCircle(center, radius, line_style, fill_color);
   }
 
+
   void DrawEllipse(const viren2d::Ellipse &ellipse,
                    const viren2d::LineStyle &line_style,
                    const viren2d::Color &fill_color) {
     painter_->DrawEllipse(ellipse, line_style, fill_color);
   }
+
 
   void DrawGrid(double spacing_x, double spacing_y,
                 const viren2d::LineStyle &line_style,
@@ -107,6 +148,7 @@ public:
     painter_->DrawGrid(top_left, bottom_right,
                        spacing_x, spacing_y, line_style);
   }
+
 
   void DrawLine(const viren2d::Vec2d &from, const viren2d::Vec2d &to,
                 const viren2d::LineStyle &line_style) {
@@ -172,7 +214,7 @@ viren2d::LineStyle LineStyleFromTuple(py::tuple tpl) {
 
   if (tpl.size() > 5) {
     std::stringstream s;
-    s << "Cannot create " << Qualified("LineStyle", false)
+    s << "Cannot create " << Qualified("LineStyle")
       << " from tuple with " << tpl.size()
       << (tpl.size() == 1 ? " entry!" : " entries!");
     throw std::invalid_argument(s.str());
@@ -217,7 +259,7 @@ viren2d::ArrowStyle ArrowStyleFromTuple(py::tuple tpl) {
 
   if (tpl.size() > 5) {
     std::stringstream s;
-    s << "Cannot create " << Qualified("ArrowStyle", false)
+    s << "Cannot create " << Qualified("ArrowStyle")
       << " from tuple with "
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
@@ -238,6 +280,54 @@ viren2d::ArrowStyle ArrowStyleFromTuple(py::tuple tpl) {
 
   if (tpl.size() > 4) {
     style.double_headed = tpl[4].cast<bool>();
+  }
+
+  return style;
+}
+
+
+//-------------------------------------------------  TextStyle
+py::tuple TextStyleToTuple(const viren2d::TextStyle &obj) {
+  // FIXME(snototter) update once we text style properties are decided
+  return py::make_tuple(obj.font_size, obj.font_family,
+                        ColorToTuple(obj.font_color),
+                        obj.font_bold, obj.font_italic);
+}
+
+
+viren2d::TextStyle TextStyleFromTuple(py::tuple tpl) {
+  // FIXME(snototter) update once we text style properties are decided
+
+  // Convert empty tuple to pre-defined default style
+  if(tpl.empty()) {
+    return viren2d::TextStyle();
+  }
+
+  if (tpl.size() > 5) {
+    std::stringstream s;
+    s << "Cannot create " << Qualified("TextStyle")
+      << " from tuple with "
+      << tpl.size() << " entries!";
+    throw std::invalid_argument(s.str());
+  }
+
+  viren2d::TextStyle style;
+  style.font_size = tpl[0].cast<int>();
+
+  if (tpl.size() > 1) {
+    style.font_family = tpl[1].cast<std::string>();
+  }
+
+  if (tpl.size() > 2) {
+    style.font_color = ColorFromTuple(tpl[2]);
+  }
+
+  if (tpl.size() > 3) {
+    style.font_bold = tpl[3].cast<bool>();
+  }
+
+  if (tpl.size() > 4) {
+    style.font_italic = tpl[4].cast<bool>();
   }
 
   return style;
@@ -280,7 +370,8 @@ viren2d::Ellipse EllipseFromTupleOrList(py::object object) {
     consumed_elements = 2;
     obj = viren2d::Ellipse(center, size);
   }  catch (const py::cast_error &) {
-    // If casting failed, we should have a (cx, cy, mj, mn, ...) tuple
+    // If casting failed, we should have a
+    // (cx, cy, mj, mn, ...) tuple:
     if (tpl.size() < 4) {
       std::stringstream s;
       s << "You wanted to create a " << Qualified("Ellipse")
@@ -363,7 +454,7 @@ viren2d::Rect RectFromTupleOrList(py::object object) {
     // If casting failed, we should have a (cx, cy, w, h, ...) tuple
     if (tpl.size() < 4) {
       std::stringstream s;
-      s << "You wanted to create a " << Qualified("Rect", false)
+      s << "You wanted to create a " << Qualified("Rect")
         << " from a (cx, cy, w, h, ...) tuple, but provided only "
         << tpl.size() << " entries!";
       throw std::invalid_argument(s.str());
@@ -469,8 +560,8 @@ void RegisterVec(py::module &m) {
   py::class_<VC> vec_cls(m, VC::TypeName().c_str(), doc.str().c_str());
 
   std::stringstream doc_tpl;
-  doc_tpl << "Initialize " << Qualified(VC::TypeName(), false)
-          << " from " << dim << "-element tuple.";
+  doc_tpl << "Initialize `" << Qualified(VC::TypeName())
+          << "` from " << dim << "-element `tuple`.";
 
   vec_cls.def(py::init<>())
       .def(py::init<>(&VecFromTupleOrList<_Tp, dim>),
@@ -492,28 +583,28 @@ void RegisterVec(py::module &m) {
       .def("copy", [](const VC &self) { return VC(self); },
            "Returns a deep copy of this vector.")
       .def("max_value", &VC::MaxValue,
-           "Returns max(self.val[i]).")
+           "Returns `max(self.val[i])`.")
       .def("min_value", &VC::MinValue,
-           "Returns min(self.val[i]).")
+           "Returns `min(self.val[i])`.")
       .def("max_index", &VC::MaxIndex,
-           "Returns j, s.t. self.val[j] == max(self.val[i]).")
+           "Returns index `j`, s.t. `self.val[j] == max(self.val[i])`.")
       .def("min_index", &VC::MinIndex,
-           "Returns j, s.t. self.val[j] == min(self.val[i]).")
+           "Returns index `j`, s.t. `self.val[j] == min(self.val[i])`.")
       .def("dot", &VC::Dot,
            "Computes the dot product.",
            py::arg("other"))
       .def("length", &VC::Length,
-           "Returns the vector's length (i.e. magnitude).")
+           "Returns the vector's length.")
       .def("length_squared", &VC::LengthSquared,
            "Returns the squared length.")
       .def("distance", &VC::Distance,
-           "Computes the L2 distance between 'self' and the 'other'.",
+           "Computes the L2 distance between `self` and the `other`.",
            py::arg("other"))
       .def("direction_vector", &VC::DirectionVector,
-           "Computes the direction vector from 'self' to the 'other'.",
+           "Computes the direction vector from `self` to the `other`.",
            py::arg("other"))
       .def("unit_vector", &VC::UnitVector,
-           "Computes the unit vector of 'self'.")
+           "Computes the unit vector of `self`.")
       .def(py::pickle(&VecToList<_Tp, dim>,
                       &VecFromList<_Tp, dim>))
       .def(py::self == py::self)
@@ -543,9 +634,11 @@ void RegisterVec(py::module &m) {
     vec_cls.def(py::init<_Tp, _Tp>(),
                 py::arg("x"), py::arg("y"))
         .def_property("width", static_cast<const _Tp &(VC::*)() const>(&VC::width), &VC::SetWidth,
-                      "Accesses the first dimension (use vector to define a size).")
+                      "Accesses the first dimension (if you\n"
+                      "use this vector to represent a 2D size).")
         .def_property("height", static_cast<const _Tp &(VC::*)() const>(&VC::height), &VC::SetHeight,
-                      "Accesses the second dimension (use vector to define a size).");
+                      "Accesses the second dimension (if you\n"
+                      "use this vector to represent a 2D size).");
   }
 
   // Specific for 3-dim vectors
@@ -554,7 +647,7 @@ void RegisterVec(py::module &m) {
     vec_cls.def(py::init<_Tp, _Tp, _Tp>(),
                 py::arg("x"), py::arg("y"), py::arg("z"));
     vec_cls.def("cross", &VC::Cross,
-                "Cross product", py::arg("other"));
+                "Computes the cross product.", py::arg("other"));
   }
 
   if (dim > 2)
@@ -588,39 +681,38 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
     visualization of common 2D computer vision results,
     such as detections, trajectories, and the like.
 
-    For example:
-      import viren2d
-      import numpy as np
+    Example:
+        >>> import viren2d
+        >>> import numpy as np
 
-      painter = viren2d.Painter()
-      painter.set_canvas_rgb(300, 400, 'white')
-      painter.draw_bounding_box(...)
+        >>> painter = viren2d.Painter()
+        >>> painter.set_canvas_rgb(300, 400, 'white')
+        >>> painter.draw_bounding_box(...)
 
-      img_np = np.array(painter.get_canvas())
-  )pbdoc";
+        >>> img_np = np.array(painter.get_canvas())
+    )pbdoc";
   // TODO(snototter) finish example in module documentation once we support bounding boxes
 
 
   //------------------------------------------------- Color
-  m.def("color_names", &viren2d::ListNamedColors,
-        "Returns the names of premixed colors. These names\n"
-        "can be used to initialize a Color object.");
+  auto doc = "Returns all available predefined colors as a `List[str]`.\n"
+        "Each of these names can be used to initialize a\n`"
+        + Qualified("Color") + "` object.";
+  m.def("color_names", &viren2d::ListNamedColors, doc.c_str());
 
   py::class_<viren2d::Color>(m, "Color",
-           "Represents a color in rgba format, i.e. each component is within [0,1].")
+           "Represents a color in rgba format, i.e. each component\n"
+           "is within [0,1].")
       .def(py::init<>(),
-           "Initializes an 'invalid color' (r,g,b < 0) which can\n"
-           "be used in several Painter methods to request special\n"
-           "color handling (e.g. switching to the inverse color).")
-      .def(py::init<const viren2d::Color &>(),
-           "Initializes a color as copy. If you want the same color\n"
-           "with a different alpha, use with_alpha() instead.",
-           py::arg("color"))
+           "Initializes an 'invalid color' (`r,g,b < 0`) which can\n"
+           "be used in several `Painter` methods to request special\n"
+           "color handling (e.g. switching to the inverse color or\n"
+           "to skip filling).")
       .def(py::init<>(&moddef::ColorFromTuple),
-           "Initialize from tuple (all values must\n"
-           "be a floating point number within [0, 1]):\n"
-           "* (red, green, blue)\n"
-           "* (red, green, blue, alpha)")
+           "Initialize from `tuple`. Each value must\n"
+           "be a floating point number within [0, 1].\n\nExample:\n"
+           "    >>> color = (red, green, blue)\n"
+           "    >>> color = (red, green, blue, alpha)")
       .def(py::init<double, double, double, double>(),
            "Initialize with the given color components. All values\n"
            "will be clamped to [0, 1].",
@@ -628,21 +720,24 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("alpha")=1.0)
       .def(py::init<const std::string &, double>(),
            "Initialize from a string represenation:\n"
-           "* Hex/Webcodes:\n '#00ff00', '#a0b0c0f0'\n"
-           "* A color name, e.g. 'black', 'navy-blue'.\n"
-           "  See color_names() for a list of available\n"
-           "  color names.\n"
+           "* Hex/Webcodes:\n      >>> color = '#00ff00'\n"
+           "      >>> color = '#a0b0c0f0'\n\n"
+           "* A color name, see `color_names()` for\n"
+           "  a list of available color names.\n"
+           "      >>> color = 'black'\n"
+           "      >>> color = 'navy-blue'\n\n"
            "* A color name with alpha suffix (which must\n"
-           "  be an integer in [0, 100]):\n  'forest-green!50'\n"
+           "  be an integer in [0, 100]):\n"
+           "      >>> color = 'forest-green!50'\n\n"
            "* A color name can also be inverted (to get its\n"
            "   complementary color) by prepending '!' or '-':\n"
-           "  '!blue!30' (would be equal to 'yellow!30')",
+           "      >>> color = '!blue!30'  # Would be equal to 'yellow!30'",
            py::arg("colorspec"), py::arg("alpha")=1.0)
       .def("copy", [](const viren2d::Color &c) { return viren2d::Color(c); },
            "Returns a deep copy.")
       .def("__repr__",
            [](const viren2d::Color &c)
-           { return "<" + Qualified("Color", false) + ", " + (c.IsValid() ? c.ToHexString() : "(invalid)") + ">"; })
+           { return "<" + Qualified("Color") + ", " + (c.IsValid() ? c.ToHexString() : "(invalid)") + ">"; })
       .def("__str__", &viren2d::Color::ToHexString)
       .def(py::pickle(&moddef::ColorToTuple,
                       &moddef::ColorFromTuple))
@@ -690,8 +785,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "Returns the corresponding (r, g, b, a) tuple,\n"
            "where all components are in[0, 1].")
       .def("as_hex", &viren2d::Color::ToHexString,
-           "Returns the hex web color code representation,\n"
-           "e.g. '#0011ffff' (all components are scaled to [0, 255]).\n"
+           "Returns the hex web color code representation, for\n"
+           "example '#0011ffff' (all components are scaled to [0, 255]).\n"
            "If the color is invalid, #???????? will be returned instead.")
       .def("with_alpha", &viren2d::Color::WithAlpha,
            "Return a color with the same r,g,b components, but the given alpha.",
@@ -726,15 +821,15 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "components are within [0, 1].")
       .def("inverse", &viren2d::Color::Inverse,
            "Returns the inverse/complementary color.\n\n"
-           "Except for shades of gray, this returns (1.0-r, 1.0-g, 1.0-b).\n"
+           "Except for shades of gray, this returns `(1.0-r, 1.0-g, 1.0-b)`.\n"
            "For gray values it will either return black or white. The alpha\n"
            "value will always stay the same.\n"
            "Why special handling of gray? Complementary colors should be\n"
            "used to provide good contrast/highlights - thus, having the\n"
-           "true inverse (i.e. 1-r|g|b) for medium gray (r|g|b close to 127)\n"
+           "true inverse (i.e. `1-r|g|b`) for medium gray (`r|g|b` close to 127)\n"
            "would not be too useful.")
       .def("is_shade_of_gray", &viren2d::Color::IsShadeOfGray,
-           "Checks if all rgb components almost the same (+/- the given epsilon).",
+           "Checks if all rgb components are almost the same (+/- the given epsilon).",
            py::arg("eps")=0.02);
 
   // A Color can be initialized from a given tuple.
@@ -744,20 +839,20 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   py::implicitly_convertible<py::str, viren2d::Color>();
 
 
-  auto doc = "Returns a " + Qualified("Color", false) + " for the given values.\n"
+  doc = "Returns a " + Qualified("Color") + " for the given values.\n"
         "red, green, blue and alpha must be within [0, 1]";
   m.def("rgba", &viren2d::rgba, doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
   // Convenience function "rgb"
-  doc = "Returns a fully opaque " + Qualified("Color", false) + " for the given\n"
+  doc = "Returns a fully opaque " + Qualified("Color") + " for the given\n"
         "values. red, green, and blue must be within [0, 1].";
   m.def("rgb", [](double red, double green, double blue) { return viren2d::Color(red, green, blue, 1.0); },
         doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
 
 
-  doc = "Returns a " + Qualified("Color", false) + " for the given RGBa values.\n"
+  doc = "Returns a " + Qualified("Color") + " for the given RGBa values.\n"
         "R, G, and B must be within [0, 255]; alpha must be within [0, 1].";
   m.def("RGBa", &viren2d::RGBa,
         doc.c_str(),
@@ -765,7 +860,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
         py::arg("alpha")=1.0);
 
   // Convenience function "RGB"
-  doc = "Returns a fully opaque " + Qualified("Color", false) + " for the given\n"
+  doc = "Returns a fully opaque " + Qualified("Color") + " for the given\n"
         "values. red, green, and blue must be within [0, 255]\n"
         "* alpha must be within [0, 1].";
   m.def("RGB",  [](double R, double G, double B) { return viren2d::RGBa(R, G, B, 1.0); },
@@ -1066,27 +1161,32 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
 
 
-  py::class_<viren2d::LineStyle>line_style(m, "LineStyle", "How a line should be drawn.");
+  doc = "How a line/contour should be drawn.\n\nNote the special static members:\n"
+        "* Use `LineStyle.Default` to use the painter's default line style.\n"
+        "  This can be changed via `Painter.set_default_line_style()`.\n"
+        "* Use `LineStyle.Invalid` in supported `draw_xxx()` methods to skip\n"
+        "  drawing its outline (if you only want to fill the object).";
+  py::class_<viren2d::LineStyle>line_style(m, "LineStyle", doc.c_str());
 
-  doc = "Initialize from tuple:\n"
+  doc = "Initialize from `tuple`:\n"
          "Get the default line style via: ()\n"
-         "Only width & color:  (line_width, color)"
-         "Full configuration:  (line_width, color, dash_pattern,\n"
-         "                      line_cap, line_join)\n"
+         "Only width & color:  `(line_width, color)`"
+         "Full configuration:  `(line_width, color, dash_pattern,\n"
+         "                      line_cap, line_join)`\n"
          "With data types:\n"
-         ":line_width:    float\n"
-         ":color:         " + Qualified("Color") + "\n"
-         ":dash_pattern:  list[float]\n"
-         ":line_cap:      " + Qualified("LineCap") + "\n"
-         ":line_join:     " + Qualified("LineJoin");
+         ":line_width:    `float`\n"
+         ":color:         `" + Qualified("Color") + "`\n"
+         ":dash_pattern:  `List[float]`\n"
+         ":line_cap:      `" + Qualified("LineCap") + "`\n"
+         ":line_join:     `" + Qualified("LineJoin") + "`";
   line_style.def(py::init<>(&moddef::LineStyleFromTuple), doc.c_str());
 
   doc = "Customize your line style:\n"
-        ":line_width:    float\n"
-        ":color:         " + Qualified("Color") + "\n"
-        ":dash_pattern:  list[float]\n"
-        ":line_cap:      " + Qualified("LineCap") + "\n"
-        ":line_join:     " + Qualified("LineJoin");
+        ":line_width:    `float`\n"
+        ":color:         `" + Qualified("Color") + "`\n"
+        ":dash_pattern:  `List[float]`\n"
+        ":line_cap:      `" + Qualified("LineCap") + "`\n"
+        ":line_join:     `" + Qualified("LineJoin") + "`";
   line_style.def(py::init<double, viren2d::Color, std::vector<double>,
                           viren2d::LineCap, viren2d::LineJoin>(),
            doc.c_str(),
@@ -1096,8 +1196,10 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("line_cap") = viren2d::LineCap::Butt,
            py::arg("line_join") = viren2d::LineJoin::Miter);
 
-  line_style.def(py::init<>(), "Creates the default line style.\n"
-           "Change the default settings via set_default_line_style().")
+  line_style.def(py::init<>(), "Creates a default, library-wide preset line style.\n"
+           "Note that this default style is NOT the same as the\n"
+           "one you can set per painter. For that style,\n"
+           "see `Painter.set_default_line_style()`")
       .def("copy", [](const viren2d::LineStyle &st) { return viren2d::LineStyle(st); },
            "Returns a deep copy.")
       .def("__repr__",
@@ -1117,12 +1219,11 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "line's start/end.")
       .def("join_offset", &viren2d::LineStyle::JoinOffset,
            "Computes how much a line join will extend the joint.\n\n"
-           "The interior_angle is the angle between two line segments\n"
+           "The `interior_angle` is the angle between two line segments\n"
            "in degrees.\n"
-           "This needs to know the miter_limit because Cairo switches\n"
-           "from MITER to BEVEL if the miter_limit is exceeded, see\n"
-           "https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit\n"
-           "for details.",
+           "This needs to know the `miter_limit` because Cairo switches\n"
+           "from `MITER` to `BEVEL` if the `miter_limit` is exceeded,\n"
+           "according to [its documentation](https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit).",
            py::arg("interior_angle"),
            py::arg("miter_limit") = 10.0)
       .def_readwrite("dash_pattern", &viren2d::LineStyle::dash_pattern,
@@ -1134,70 +1235,75 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def_readwrite("line_join", &viren2d::LineStyle::line_join,
            "How to render the junction of two lines/segments.")
       .def_readwrite("line_width", &viren2d::LineStyle::line_width,
-           "Width/thickness in pixels.");
+           "Width/thickness in pixels.")
+      .def_readonly_static("Default", &viren2d::LineStyle::Default,
+            "Pass this to `Painter.draw_xxx()` to use its default line style.")
+      .def_readonly_static("Invalid", &viren2d::LineStyle::Invalid,
+            "Pass this to `Painter.draw_xxx()` to skip drawing the contour and\n"
+            "only fill the object instead.");
 
-  doc = "Line color as " + Qualified("Color") + ".";
+  doc = "Line color as `" + Qualified("Color") + "`.";
   line_style.def_readwrite("color", &viren2d::LineStyle::color,
            doc.c_str());
 
   // A LineStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::LineStyle>();
 
-//  doc = "Change the default " + Qualified("LineStyle") + ".";
-//  m.def("set_default_line_style", &viren2d::SetDefaultLineStyle,
-//        doc.c_str(), py::arg("line_style"));
-//FIXME
-//  doc = "Returns the default " + Qualified("LineStyle") + ".\n"
-//        "Alternatively, the same specification is returned by the default c'tor.";
-//  m.def("get_default_line_style", &viren2d::GetDefaultLineStyle, doc.c_str());
 
   //------------------------------------------------- Drawing - ArrowStyle
-  py::class_<viren2d::ArrowStyle, viren2d::LineStyle> arrow_style(m, "ArrowStyle",
-           "How an arrow should be drawn.");
+  doc = "How an arrow should be drawn.\n\nNote its special static members:\n"
+        "* Use `ArrowStyle.Default` to use the painter's default arrow style.\n"
+        "  This can be changed via `Painter.set_default_arrow_style()`.\n"
+        "* `ArrowStyle.Invalid` denotes an invalid style configuration.\n"
+        "  Currently, this is not supported by any `Painter` method. This\n"
+        "  member is only declared for compatibility with the parent\n"
+        "  `" + Qualified("LineStyle") + "` class.";
+  py::class_<viren2d::ArrowStyle, viren2d::LineStyle> arrow_style(m,
+        "ArrowStyle", doc.c_str());
 
-  doc = "Initialize from tuple:\n"
-         "Get the default arrow style via: ()\n"
-         "Only width & color:  (line_width, color)"
-         "Full configuration:  (line_width, color, tip_length,\n"
-         "                      tip_angle, tip_closed,\n"
-         "                      double_headed, dash_pattern,\n"
-         "                      line_cap, line_join)\n"
-         "With data types:\n"
-         ":line_width:    float\n"
-         ":color:         " + Qualified("Color") + "\n"
-         ":tip_length:    float\n"
-         "                Percentage of shaft length if [0, 1].\n"
-         "                Otherwise, absolute tip length in pixels.\n"
-         ":tip_angle:     float\n"
-         "                Interior angle (in degrees) between shaft\n"
-         "                and tip.\n"
-         ":tip_closed:    bool\n"
-         "                Set True to fill the tip.\n"
-         ":double_headed: bool\n"
-         "                Set True to draw a tip on both ends of\n"
-         "                the shaft.\n"
-         ":dash_pattern:  list[float]\n"
-         ":line_cap:      " + Qualified("LineCap") + "\n"
-         ":line_join:     " + Qualified("LineJoin");
+  doc = "Initialize from `tuple`:\n"
+        "Get the library-wide default arrow style via: `()`\n"
+        "Only width & color:  `(line_width, color)`"
+        "Full configuration:  `(line_width, color, tip_length,\n"
+        "                      tip_angle, tip_closed,\n"
+        "                      double_headed, dash_pattern,\n"
+        "                      line_cap, line_join)`\n"
+        "With data types:\n"
+        ":line_width:    `float`\n"
+        ":color:         `" + Qualified("Color") + "`\n"
+        ":tip_length:    `float`\n"
+        "                Percentage of shaft length if [0, 1].\n"
+        "                Otherwise, absolute tip length in pixels.\n"
+        ":tip_angle:     `float`\n"
+        "                Interior angle (in degrees) between shaft\n"
+        "                and tip.\n"
+        ":tip_closed:    `bool`\n"
+        "                Set `True` to fill the tip.\n"
+        ":double_headed: `bool`\n"
+        "                Set `True` to draw a tip on both ends of\n"
+        "                the shaft.\n"
+        ":dash_pattern:  `List[float]`\n"
+        ":line_cap:      `" + Qualified("LineCap") + "`\n"
+        ":line_join:     `" + Qualified("LineJoin") + "`";
   arrow_style.def(py::init<>(&moddef::ArrowStyleFromTuple), doc.c_str());
 
   doc = "Customize your arrow style:\n"
-        ":line_width:    float\n"
-        ":color:         " + Qualified("Color") + "\n"
-        ":tip_length:    float\n"
+        ":line_width:    `float`\n"
+        ":color:         `" + Qualified("Color") + "`\n"
+        ":tip_length:    `float`\n"
         "                Percentage of shaft length if [0, 1].\n"
         "                Otherwise, absolute tip length in pixels.\n"
-        ":tip_angle:     float\n"
+        ":tip_angle:     `float`\n"
         "                Interior angle (in degrees) between shaft\n"
         "                and tip.\n"
-        ":tip_closed:    bool\n"
-        "                Set True to fill the tip.\n"
-        ":double_headed: bool\n"
-        "                Set True to draw a tip on both ends of\n"
+        ":tip_closed:    `bool`\n"
+        "                Set `True` to fill the tip.\n"
+        ":double_headed: `bool`\n"
+        "                Set `True` to draw a tip on both ends of\n"
         "                the shaft.\n"
-        ":dash_pattern:  list[float]\n"
-        ":line_cap:      " + Qualified("LineCap") + "\n"
-        ":line_join:     " + Qualified("LineJoin");
+        ":dash_pattern:  `List[float]`\n"
+        ":line_cap:      `" + Qualified("LineCap") + "`\n"
+        ":line_join:     `" + Qualified("LineJoin") + "`";
   arrow_style.def(py::init<double, viren2d::Color,
                     double, double, bool, bool, std::vector<double>,
                     viren2d::LineCap, viren2d::LineJoin>(), doc.c_str(),
@@ -1211,19 +1317,20 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("line_cap")=viren2d::LineCap::Butt,
            py::arg("line_join")=viren2d::LineJoin::Miter);
 
+
   doc = "Customize your arrow style:\n"
-        ":line_style:    " + Qualified("LineStyle") + "\n"
+        ":line_style:    `" + Qualified("LineStyle") + "`\n"
         "                Customized line style.\n"
-        ":tip_length:    float\n"
+        ":tip_length:    `float`\n"
         "                Percentage of shaft length if [0, 1].\n"
         "                Otherwise, absolute tip length in pixels.\n"
-        ":tip_angle:     float\n"
+        ":tip_angle:     `float`\n"
         "                Interior angle (in degrees) between shaft\n"
         "                and tip.\n"
-        ":tip_closed:    bool\n"
-        "                Set True to fill the tip.\n"
-        ":double_headed: bool\n"
-        "                Set True to draw a tip on both ends of\n"
+        ":tip_closed:    `bool`\n"
+        "                Set `True` to fill the tip.\n"
+        ":double_headed: `bool`\n"
+        "                Set `True` to draw a tip on both ends of\n"
         "                the shaft.\n";
   arrow_style.def(py::init<viren2d::LineStyle,
                   double, double, bool, bool>(), doc.c_str(),
@@ -1232,8 +1339,10 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            py::arg("tip_angle") = 30.0,
            py::arg("tip_closed") = false,
            py::arg("double_headed") = false)
-      .def(py::init<>(), "Creates the default arrow style.\n"
-                 "Change the default settings via set_default_arrow_style().")
+      .def(py::init<>(), "Creates a default, library-wide preset arrow style.\n"
+                 "Note that this default style is NOT the same as the one\n"
+                 "you can set per painter. For that style,\n"
+                 "see `Painter.set_default_arrow_style()`.")
       .def("copy", [](const viren2d::ArrowStyle &st) { return viren2d::ArrowStyle(st); },
            "Returns a deep copy.")
       .def("__repr__",
@@ -1262,49 +1371,144 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def_readwrite("tip_angle", &viren2d::ArrowStyle::tip_angle,
            "Angle between tip lines and the shaft in degrees.")
       .def_readwrite("tip_closed", &viren2d::ArrowStyle::tip_closed,
-           "If True, the arrow head/tip will be filled. Otherwise,\n"
+           "If `True`, the arrow head/tip will be filled. Otherwise,\n"
            "the tip will be open.")
       .def_readwrite("double_headed", &viren2d::ArrowStyle::double_headed,
-           "If True, heads/tips will be drawn on both ends of the line.");
+           "If `True`, heads/tips will be drawn on both ends of the line.")
+      .def_readonly_static("Default", &viren2d::ArrowStyle::Default,
+            "Pass this to `Painter.draw_arrow()` to use its default arrow style.")
+      .def_readonly_static("Invalid", &viren2d::ArrowStyle::Invalid,
+            "Do NOT use this invalid arrow style - it is only declared for\n"
+            "compatibility reasons with its base `LineStyle` class.");
 
   // An ArrowStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::ArrowStyle>();
 
-//  doc = "Change the default " + Qualified("ArrowStyle") + ".";
-//  m.def("set_default_arrow_style", &viren2d::SetDefaultArrowStyle,
-//        doc.c_str(), py::arg("arrow_style"));
-//FIXME
-//  doc = "Returns the default " + Qualified("ArrowStyle") + ".\n"
-//        "Alternatively, the same specification is returned by the default c'tor.";
-//  m.def("get_default_arrow_style", &viren2d::GetDefaultArrowStyle, doc.c_str());
+
+  doc = "How text should be rendered.\n"
+        "To use the painter's default text style, use `TextStyle.Default` - this\n"
+        "can be changed via `Painter.set_default_text_style()`.";
+  py::class_<viren2d::TextStyle>text_style(m, "TextStyle", doc.c_str());
+
+  //FIXME
+  doc = "Initialize from `tuple`:\n"
+         "Get the default line style via: ()\n"
+         "Only width & color:  (line_width, color)"
+         "Full configuration:  (line_width, color, dash_pattern,\n"
+         "                      line_cap, line_join)\n"
+         "With data types:\n"
+         ":line_width:    float\n"
+         ":color:         " + Qualified("Color") + "\n"
+         ":dash_pattern:  list[float]\n"
+         ":line_cap:      " + Qualified("LineCap") + "\n"
+         ":line_join:     " + Qualified("LineJoin");
+//  text_style.def(py::init<>(&moddef::LineStyleFromTuple), doc.c_str());
+
+  //FIXME
+  doc = "Customize your text style:\n"
+        ":line_width:    float\n"
+        ":color:         " + Qualified("Color") + "\n"
+        ":dash_pattern:  list[float]\n"
+        ":line_cap:      " + Qualified("LineCap") + "\n"
+        ":line_join:     " + Qualified("LineJoin");
+//  line_style.def(py::init<double, viren2d::Color, std::vector<double>,
+//                          viren2d::LineCap, viren2d::LineJoin>(),
+//           doc.c_str(),
+//           py::arg("line_width"),
+//           py::arg("color"),
+//           py::arg("dash_pattern") = std::vector<double>(),
+//           py::arg("line_cap") = viren2d::LineCap::Butt,
+//           py::arg("line_join") = viren2d::LineJoin::Miter);
+
+  text_style.def(py::init<>(), "Creates a default, library-wide preset text style.\n"
+           "Note that this default style is NOT the same as the\n"
+           "one you can set per painter. For that style,\n"
+           "see `Painter.set_default_text_style()`.")
+      .def("copy", [](const viren2d::TextStyle &st) { return viren2d::TextStyle(st); },
+           "Returns a deep copy.")
+      .def("__repr__",
+           [](const viren2d::TextStyle &st)
+           { return Qualified(st.ToString(), true); })
+      .def("__str__", &viren2d::TextStyle::ToString)
+      .def(py::pickle(&moddef::TextStyleToTuple,
+                      &moddef::TextStyleFromTuple))
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def("is_valid", &viren2d::TextStyle::IsValid,
+           "Check if the style allows rendering text.")
+      .def_readwrite("font_size", &viren2d::TextStyle::font_size,
+           "TODO doc.")
+      .def_readwrite("font_family", &viren2d::TextStyle::font_family,
+           "TODO doc")
+      .def_readonly_static("Default", &viren2d::TextStyle::Default,
+            "Pass this to `Painter.draw_xxx()` to use its default text style.");
+
+  //TODO add other fields
+  doc = "Text color as " + Qualified("Color") + ".";
+  text_style.def_readwrite("font_color", &viren2d::TextStyle::font_color,
+           doc.c_str());
+
+  // A TextStyle can be initialized from a given tuple.
+  py::implicitly_convertible<py::tuple, viren2d::TextStyle>();
+
+
+
+  py::enum_<viren2d::TextAnchor>(m, "TextAnchor",
+             "TODO doc")
+      .value("Center", viren2d::TextAnchor::Center,
+             "Aligns text BOTH horizontally & vertically CENTERED.")
+      .value("Left", viren2d::TextAnchor::Left,
+             "Aligns text horizontally LEFT & vertically CENTERED.")
+      .value("Right", viren2d::TextAnchor::Right,
+             "Aligns text horizontally RIGHT & vertically CENTERED.")
+      .value("Top", viren2d::TextAnchor::Top,
+             "Aligns text horizontally CENTERED & vertically TOP-ALIGNED.")
+      .value("Bottom", viren2d::TextAnchor::Bottom,
+             "Aligns text horizontally CENTERED & vertically BOTTOM-ALIGNED.")
+      .value("TopLeft", viren2d::TextAnchor::TopLeft,
+             "Aligns text horizontally LEFT & vertically TOP-ALIGNED.")
+      .value("TopRight", viren2d::TextAnchor::TopRight,
+             "Aligns text horizontally RIGHT & vertically TOP-ALIGNED.")
+      .value("BottomLeft", viren2d::TextAnchor::BottomLeft,
+             "Aligns text horizontally LEFT & vertically BOTTOM-ALIGNED.")
+      .value("BottomRight", viren2d::TextAnchor::BottomRight,
+             "Aligns text horizontally RIGHT & vertically BOTTOM-ALIGNED.");
+
+  m.def("text_anchor",
+        static_cast<viren2d::TextAnchor (*)(const std::string &)>(&viren2d::TextAnchorFromString),
+        "TODO doc 'north', 'south-east', 'Left', ignore-case, ignores whitespace and dash/underscore, etc.",
+        py::arg("anchor_string"));
+
 
   //------------------------------------------------- Drawing - Painter
+  //FIXME change formating of code example (here and in module doc)
   py::class_<moddef::Painter> painter(m, "Painter",
-          R"pbdoc(A Painter lets you draw on a canvas.
+          R"pbdoc(A `Painter` lets you draw on a canvas.
 
-          Usage:
-          1. Create a Painter:
-               import viren2d
-               painter = viren2d.Painter()
+          Example usage:
+          1. Create a `Painter`:
+               >>> import viren2d
+               >>> painter = viren2d.Painter()
 
           2. Initialize the canvas via either:
-               painter.set_canvas_rgb(...)
-               painter.set_canvas_image(...)
-               painter.set_canvas_filename()
+               >>> painter.set_canvas_rgb(...)
+               >>> painter.set_canvas_image(...)
+               >>> painter.set_canvas_filename()
 
-          3. Draw onto the canvas via draw_xxx(), for example:
-               painter.draw_arrow(...)
-               painter.draw_bounding_box(...)
+          3. Draw onto the canvas via `draw_xxx(...)`, for
+             example:
+               >>> painter.draw_arrow(...)
+               >>> painter.draw_bounding_box(...)
 
-          4. When all objects have been drawn, retrieve the
-             visualization via get_canvas(...). For example,
+          4. After all objects have been drawn, retrieve the
+             visualization via `get_canvas(...)`. For example,
              to get a deeply copied image as numpy array:
-               import numpy as np
-               canvas = p.get_canvas(copy=True)
-               img_np = np.array(canvas, copy=False)
+               >>> import numpy as np
+               >>> canvas = p.get_canvas(copy=True)
+               >>> img_np = np.array(canvas, copy=False)
 
           5. Either continue drawing or set a new canvas (the
-             painter object can be reused).
+             same painter object can be reused).
           )pbdoc");
 
   painter.def(py::init<>())
@@ -1320,36 +1524,62 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "Initializes the canvas from the given image file.\n"
            "Supported formats are:\n"
            "   JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM\n\n"
-           "Relies on the stb library, so check for its updates\n"
-           "if your format is missing:\n"
-           "https://github.com/nothings/stb/blob/master/stb_image.h",
+           "This functionality uses the [`stb` library](https://github.com/nothings/stb/blob/master/stb_image.h).",
            py::arg("image_filename"));
 
   doc = "Initializes the canvas from the given image, i.e. either\n"
-        "a numpy array (dtype uint8) or a " + Qualified("ImageBuffer", false) + ".\n\n"
+        "a numpy `array` (with `dtype=uint8`) or a `" + Qualified("ImageBuffer") + "`.\n\n"
         "Example:\n"
-        "  img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
-        "  painter.set_canvas_image(img_np)";
+        "    >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
+        "    >>> painter.set_canvas_image(img_np)";
   painter.def("set_canvas_image", &moddef::Painter::SetCanvasImage,
            doc.c_str(), py::arg("image"));
 
   painter.def("get_canvas_size", &moddef::Painter::GetCanvasSize,
-           "Returns the size of the canvas in pixels as (W, H) tuple.")
+           "Returns the size of the canvas in pixels as `(W, H)` tuple.")
       .def("get_canvas", &moddef::Painter::GetCanvas,
            "Returns the current state of the visualization.\n\n"
-           "If you want a copy, set copy=True. Otherwise, the buffer\n"
-           "will just provide a view on the Painter's canvas.\n"
-           "--> If you keep on drawing, this will also affect the\n"
-           "    previously obtained canvas.\n\n"
+           "If you want a deep copy, set `copy = True`. Otherwise, the buffer\n"
+           "will just provide a view on the `Painter`'s canvas.\n"
+           "This means: If you keep on drawing, this view will also\n"
+           "            change.\n\n"
            "Examples:\n"
            "* Get canvas as numpy array, memory is\n"
            "  SHARED with the painter:\n"
-           "    img_np = np.array(p.get_canvas(), copy=False)\n\n"
+           "    >>> img_np = np.array(p.get_canvas(), copy=False)\n\n"
            "* Retrieve a deep COPY of the canvas as\n"
            "  numpy array:\n"
-           "    img_np = np.array(p.get_canvas(True), copy=False)",
+           "    >>> img_np = np.array(p.get_canvas(True), copy=False)",
            py::arg("copy") = false);
 
+  //---------------------------------------------------------------------- Default styles
+  doc = "Change the default `" + Qualified("LineStyle") + "` for this\n"
+        "`Painter` instance. This will NOT change the library-wide defaults.";
+  painter.def("set_default_line_style", &moddef::Painter::SetDefaultLineStyle,
+              doc.c_str(), py::arg("line_style"));
+  doc = "Returns this `Painter`'s default `" + Qualified("LineStyle") + "`.\n";
+  painter.def("get_default_line_style", &moddef::Painter::GetDefaultLineStyle,
+              doc.c_str());
+
+
+  doc = "Change the default `" + Qualified("ArrowStyle") + "` for this\n"
+        "`Painter` instance. This will NOT change the library-wide defaults.";
+  painter.def("set_default_arrow_style", &moddef::Painter::SetDefaultArrowStyle,
+              doc.c_str(), py::arg("arrow_style"));
+  doc = "Returns this `Painter`'s default `" + Qualified("ArrowStyle") + "`.\n";
+  painter.def("get_default_arrow_style", &moddef::Painter::GetDefaultArrowStyle,
+              doc.c_str());
+
+
+  doc = "Change the default `" + Qualified("TextStyle") + "` for this\n"
+        "`Painter` instance. This will NOT change the library-wide defaults.";
+  painter.def("set_default_text_style", &moddef::Painter::SetDefaultTextStyle,
+              doc.c_str(), py::arg("text_style"));
+  doc = "Returns this `Painter`'s default `" + Qualified("TextStyle") + "`.\n";
+  painter.def("get_default_text_style", &moddef::Painter::GetDefaultTextStyle,
+              doc.c_str());
+
+//TODO(snototter) use backticks for code in all draw_xxx method docstrings
         //----------------------------------------------------------------------
   doc = "Draws a circular arc.\n\n"
         ":center:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
@@ -1361,44 +1591,52 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
         "    direction. Both angles are specified in degrees, where 0 degrees\n"
         "    points in the direction of increasing X coordinates.\n\n"
         ":line_style:  (" + Qualified("LineStyle") + ")\n"
-        "   How to draw the arc's outline. If line_width is 0, the outline\n"
-        "   will not be drawn (then you must define a 'fill_color').\n\n"
+        "    How to draw the arc's outline.\n"
+        "    If you pass " + Qualified("LineStyle.Default") + ", the\n"
+        "    painter's default line style will be used.\n"
+        "    If you pass " + Qualified("LineStyle.Invalid") + ", the\n"
+        "    contour will not be drawn (then you must define a 'fill_color').\n\n"
         ":include_center:  (bool)\n"
         "    If True (default), the center of the circle will be included\n"
         "    when drawing the outline and filling the arc.\n\n"
         ":fill_color:  (" + Qualified("Color") + ")\n"
-        "   Provide a valid color to fill the circle.";
+        "    Provide a valid color to fill the circle.";
   painter.def("draw_arc", &moddef::Painter::DrawArc, doc.c_str(),
               py::arg("center"), py::arg("radius"),
               py::arg("angle1"), py::arg("angle2"),
-              py::arg("line_style") = viren2d::LineStyle(),//FIXME such inits should be changed to painter::default_XXX_style
+              py::arg("line_style") = viren2d::LineStyle::Default,
               py::arg("include_center") = true,
-              py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+              py::arg("fill_color") = viren2d::Color::Invalid);
 
         //----------------------------------------------------------------------
   doc = "Draws an arrow.\n\n"
         ":pt1:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
         ":pt2:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
-        "   Start/end coordinates of the arrow shaft.\n\n"
+        "    Start/end coordinates of the arrow shaft.\n\n"
         ":arrow_style:  (" + Qualified("ArrowStyle") + ")\n"
-        "   How to draw the arrow (specifies both line and head style).";
+        "    How to draw the arrow.\n"
+        "    If you pass " + Qualified("ArrowStyle.Default") + ", the\n"
+        "    painter's default arrow style will be used.";
   painter.def("draw_arrow", &moddef::Painter::DrawArrow, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
-              py::arg("arrow_style") = viren2d::ArrowStyle());
+              py::arg("arrow_style") = viren2d::ArrowStyle::Default);
 
         //----------------------------------------------------------------------
   doc = "Draws a circle.\n\n"
         ":center:  (" + Qualified("Vec2d") + ")\n"
-        "   Center position of the circle.\n\n"
+        "    Center position of the circle.\n\n"
         ":line_style:  (" + Qualified("LineStyle") + ")\n"
-        "   How to draw the circle outline. If line_width is 0, the outline\n"
-        "   will not be drawn (then you *must* define a 'fill_color').\n\n"
+        "    How to draw the circle's outline.\n"
+        "    If you pass " + Qualified("LineStyle.Default") + ", the\n"
+        "    painter's default line style will be used.\n"
+        "    If you pass " + Qualified("LineStyle.Invalid") + ", the\n"
+        "    contour will not be drawn (then you must define a 'fill_color').\n\n"
         ":fill_color:  (" + Qualified("Color") + ")\n"
-        "   Provide a valid color to fill the circle.";
+        "    Provide a valid color to fill the circle.";
   painter.def("draw_circle", &moddef::Painter::DrawCircle, doc.c_str(),
               py::arg("center"), py::arg("radius"),
-              py::arg("line_style") = viren2d::LineStyle(),
-              py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+              py::arg("line_style") = viren2d::LineStyle::Default,
+              py::arg("fill_color") = viren2d::Color::Invalid);
 
 
     //----------------------------------------------------------------------
@@ -1406,14 +1644,17 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
     ":ellipse:  (" + Qualified("Ellipse") + ")\n"
     "    The ellipse which should be drawn.\n\n"
     ":line_style:  (" + Qualified("LineStyle") + ")\n"
-    "   How to draw it's outline. If line_width is 0, the outline\n"
-    "   will not be drawn (then you *must* define a 'fill_color').\n\n"
+    "    How to draw the ellipse's outline.\n"
+    "    If you pass " + Qualified("LineStyle.Default") + ", the\n"
+    "    painter's default line style will be used.\n"
+    "    If you pass " + Qualified("LineStyle.Invalid") + ", the\n"
+    "    contour will not be drawn (then you must define a 'fill_color').\n\n"
     ":fill_color:  (" + Qualified("Color") + ")\n"
     "   Provide a valid color to fill the ellipse.";
   painter.def("draw_ellipse", &moddef::Painter::DrawEllipse, doc.c_str(),
           py::arg("ellipse"),
-          py::arg("line_style") = viren2d::LineStyle(),
-          py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+          py::arg("line_style") = viren2d::LineStyle::Default,
+          py::arg("fill_color") = viren2d::Color::Invalid);
 
         //----------------------------------------------------------------------
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
@@ -1421,13 +1662,15 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
         "    The grid will only be drawn within the defined region.\n"
         "    If not provided, the grid will span the whole canvas.\n\n"
         ":line_style:  (" + Qualified("LineStyle") + ")\n"
-        "    How to draw the grid lines."
+        "    How to draw the grid lines.\n"
+        "    If you pass " + Qualified("LineStyle.Default") + ", the\n"
+        "    painter's default line style will be used.\n\n"
         ":top_left:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
         ":bottom_right:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n";
 
   painter.def("draw_grid", &moddef::Painter::DrawGrid, doc.c_str(),
               py::arg("spacing_x"), py::arg("spacing_y"),
-              py::arg("line_style"),
+              py::arg("line_style") = viren2d::LineStyle::Default,
               py::arg("top_left") = viren2d::Vec2d(),
               py::arg("bottom_right") = viren2d::Vec2d());
 
@@ -1435,33 +1678,45 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   doc = "Draws a line.\n\n"
         ":pt1:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
         ":pt2:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
-        "   Start/end coordinates of the line.\n\n"
+        "    Start/end coordinates of the line.\n\n"
         ":line_style:  (" + Qualified("LineStyle") + ")\n"
-        "    How to draw the line (stroke width, color, dash pattern).";
+        "    How to draw the line (thickness, color, dash pattern).\n"
+        "    If you pass " + Qualified("LineStyle.Default") + ", the\n"
+        "    painter's default line style will be used.";
   painter.def("draw_line", &moddef::Painter::DrawLine, doc.c_str(),
-              py::arg("pt1"), py::arg("pt2"), py::arg("line_style"));
+              py::arg("pt1"), py::arg("pt2"),
+              py::arg("line_style") = viren2d::LineStyle::Default);
 
         //----------------------------------------------------------------------
   doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
         ":rect:  (" + Qualified("Rect") + ")\n"
         "    The rectangle which should be drawn.\n\n"
         ":line_style:  (" + Qualified("LineStyle") + ")\n"
-        "   How to draw the rectangle's outline. If line_width is 0, the\n"
-        "   outline will not be drawn (then you *must* define a 'fill_color').\n\n"
+        "    How to draw the rectangle's outline.\n"
+        "    If you pass " + Qualified("LineStyle.Default") + ", the\n"
+        "    painter's default line style will be used.\n"
+        "    If you pass " + Qualified("LineStyle.Invalid") + ", the\n"
+        "    contour will not be drawn (then you must define a 'fill_color').\n\n"
         ":fill_color:  (" + Qualified("Color") + ")\n"
-        "   Provide a valid color to fill the rectangle.";
+        "    Provide a valid color to fill the rectangle.";
   painter.def("draw_rect", &moddef::Painter::DrawRect, doc.c_str(),
               py::arg("rect"),
-              py::arg("line_style") = viren2d::LineStyle(),
-              py::arg("fill_color") = viren2d::Color(0, 0, 0, 0));
+              py::arg("line_style") = viren2d::LineStyle::Default,
+              py::arg("fill_color") = viren2d::Color::Invalid);
 
 
   //TODO(snototter) add draw_xxx methods
+
   //TODO(snototter) add convenience functions handling multiple inputs (plural draw_xxxS), e.g. via
-  // moddef::Painter "for (element in list) : painter_->DrawElement();"
+  //                moddef::Painter "for (element in list) : painter_->DrawElement();"
 
   //TODO(snototter) copy python documentation to cpp
+
   //TODO(snototter) default markerstyle, textstyle...
+
+  //TODO(snototter) dev notes: draw_xxx methods should use Style::Default (and maybe ::Invalid)
+
+  //TODO(snototter) generate documentation; check if all documented code uses backticks (we might need double backticks for sphinx?)
 
 
 #ifdef viren2d_VERSION_INFO

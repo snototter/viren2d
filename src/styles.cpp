@@ -217,11 +217,11 @@ bool ArrowStyle::IsSpecialDefault() const {
 
 std::string ArrowStyle::ToString() const {
   if (IsSpecialInvalid()) {
-    return "TextStyle::Invalid";
+    return "ArrowStyle::Invalid";
   }
 
   if (IsSpecialDefault()) {
-    return "TextStyle::Default";
+    return "ArrowStyle::Default";
   }
 
   std::stringstream s;
@@ -291,7 +291,6 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 
 
 //-------------------------------------------------  TextStyle
-const TextStyle TextStyle::Invalid = TextStyle(-1, std::string());
 const TextStyle TextStyle::Default = TextStyle(-42, std::string());
 
 TextStyle::TextStyle() //FIXME
@@ -322,11 +321,6 @@ bool TextStyle::IsValid() const {
 }
 
 
-bool TextStyle::IsSpecialInvalid() const {
-  return *this == Invalid;
-}
-
-
 bool TextStyle::IsSpecialDefault() const {
   return *this == Default;
 }
@@ -344,10 +338,7 @@ bool TextStyle::Equals(const TextStyle &other) const {
 
 
 std::string TextStyle::ToString() const {
-  //FIXME padding
-  if (IsSpecialInvalid()) {
-    return "TextStyle::Invalid";
-  }
+  //FIXME add padding (should we differ horizontal and vertical ? )
 
   if (IsSpecialDefault()) {
     return "TextStyle::Default";
@@ -356,6 +347,7 @@ std::string TextStyle::ToString() const {
   std::stringstream s;
   s << "TextStyle(\"" << font_family << "\", "
     << font_size << "px";//FIXME it's not pixels, it's the font scale (size of the em square)
+  // For the imagepainter it is in pixels (device-to-unit scale is 1:1)
 
   if (font_bold) {
     s << ", bold";

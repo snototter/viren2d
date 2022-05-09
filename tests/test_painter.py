@@ -41,8 +41,15 @@ def test_painter_basics():
 # draw_xxx before setting up the canvas will raise
 # a RuntimeError
 
+
+def is_valid_line(line_style):
+    return line_style.is_valid() \
+        or (line_style == viren2d.LineStyle.Default)
+
+
 def is_valid_line_or_fill(line_style, fill_color):
-    return line_style.is_valid() or fill_color.is_valid()
+    return line_style.is_valid() or fill_color.is_valid() \
+        or (line_style == viren2d.LineStyle.Default)
 
 
 def color_configurations():
@@ -58,6 +65,8 @@ def line_style_configurations():
     styles = list()
     style = viren2d.LineStyle()
     styles.append(style.copy())
+    styles.append(viren2d.LineStyle.Invalid)
+    styles.append(viren2d.LineStyle.Default)
     for lw in [-2, 0, 0.1, 1, 6]:
         style.line_width = lw
         for color in color_configurations():
@@ -257,7 +266,7 @@ def test_draw_grid():
           for sx in [-2, 0, 10]:
             for sy in [-5, 0, 5]:
               for style in line_style_configurations():
-                  if style.is_valid() and sx > 0 and sy > 0:
+                  if is_valid_line(style) and sx > 0 and sy > 0:
                       p.draw_grid(sx, sy, style, tl, br)
                   else:
                       with pytest.raises(ValueError):
@@ -295,7 +304,7 @@ def test_draw_line():
     for style in line_style_configurations():
         for pt1 in [(10, 2), (-100, -300), (0.2, 1000), (5000, 90000)]:
             for pt2 in [(-99, -32), (10, 30), (100000, 0.2), (90, 5)]:
-                if style.is_valid():
+                if is_valid_line(style):
                     p.draw_line(pt1, pt2, style)
                 else:
                     with pytest.raises(ValueError):

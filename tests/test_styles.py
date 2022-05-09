@@ -75,26 +75,28 @@ def test_line_style():
 
 
 def test_default_line_style():
-    original_default = viren2d.get_default_line_style()
-    # In the second iteration, we'll have a different default style
-    for iteration in range(2):
-        # Check that the default c'tor yields the default style
-        ls = viren2d.LineStyle()
-        assert ls == viren2d.get_default_line_style()
+    original_library_default = viren2d.LineStyle()
+    ls = viren2d.LineStyle()
+    assert ls == original_library_default
 
-        if iteration > 0:
-            assert ls != original_default
+    ls.line_width += 3
+    ls.line_cap = viren2d.LineCap.Round
+    assert ls != original_library_default
 
-        # Change the line style
-        ls = viren2d.LineStyle(3, 'crimson' if iteration == 0 else 'azure')
-        assert ls != original_default
-        assert ls != viren2d.get_default_line_style()
+    painter = viren2d.Painter()
+    assert ls != painter.get_default_line_style()
 
-        # Set it as the new default
-        viren2d.set_default_line_style(ls)
-        assert viren2d.get_default_line_style() == ls
-    # Reset the original default style after this test
-    viren2d.set_default_line_style(original_default)
+    painter.set_default_line_style(ls)
+    assert ls == painter.get_default_line_style()
+    assert original_library_default != painter.get_default_line_style()
+
+    # Default c'tor should yield the library-wide default
+    assert viren2d.LineStyle() != painter.get_default_line_style()
+    assert viren2d.LineStyle() == original_library_default
+
+    ls.line_width = -3;
+    with pytest.raises(ValueError):
+        painter.set_default_line_style(ls)
 
 
 def test_arrow_style():
@@ -151,26 +153,32 @@ def test_arrow_style():
 
 
 def test_default_arrow_style():
-    original_default = viren2d.get_default_arrow_style()
-    # In the second iteration, we'll have a different default style
-    for iteration in range(2):
-        # Check that the default c'tor yields the default style
-        ls = viren2d.ArrowStyle()
-        assert ls == viren2d.get_default_arrow_style()
+    original_library_default= viren2d.ArrowStyle()
 
-        if iteration > 0:
-            assert ls != original_default
+    ls = viren2d.ArrowStyle()
+    assert ls == original_library_default
 
-        # Change the arrow style
-        ls = viren2d.ArrowStyle(3, 'crimson', tip_length = 0.3 if iteration == 0 else 30)
-        assert ls != original_default
-        assert ls != viren2d.get_default_arrow_style()
+    ls.tip_length = 17
+    assert ls != original_library_default
 
-        # Set it as the new default
-        viren2d.set_default_arrow_style(ls)
-        assert viren2d.get_default_arrow_style() == ls
-    # Reset the original default style after this test
-    viren2d.set_default_arrow_style(original_default)
+    ls.line_width += 3
+    assert ls != original_library_default
+
+    painter = viren2d.Painter()
+    assert ls != painter.get_default_arrow_style()
+
+    painter.set_default_arrow_style(ls)
+    assert ls == painter.get_default_arrow_style()
+    assert original_library_default != painter.get_default_arrow_style()
+
+    # Default c'tor should yield the library-wide default
+    assert viren2d.ArrowStyle() != painter.get_default_arrow_style()
+    assert viren2d.ArrowStyle() == original_library_default
+
+    # We should not be able to set an invalid style
+    ls.line_width = -3;
+    with pytest.raises(ValueError):
+        painter.set_default_line_style(ls)
 
 
 def test_arrow_tip_length():
