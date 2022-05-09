@@ -566,11 +566,10 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
     const auto center = position
         + Vec2d(extents.x_bearing, extents.y_bearing)
         + Vec2d(extents.width / 2.0, extents.height / 2.0);
-//        - 0.5; // DrawRect will also adjust the position
+
     const auto rect = Rect(center, Vec2d(extents.width + 2 * padding.x(),
                                          extents.height + 2 * padding.y()),
                            0, box_corner_radius);
-    //TODO text rotation --> 1) transformation 2) rect [rotation=0] 3) text
 
     DrawRect(surface, context, rect, box_line_style, box_fill_color);
   }
