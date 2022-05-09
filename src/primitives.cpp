@@ -24,8 +24,8 @@
 #pragma GCC diagnostic pop
 #endif  // __GNUC__
 
-#include <viren2d/primitives.h>
 #include <viren2d/math.h>
+#include <viren2d/primitives.h>
 #include <viren2d/string_utils.h>
 
 
@@ -996,6 +996,47 @@ template Vec3i operator-(Vec3i lhs, double rhs);
 template Vec3i operator*(Vec3i lhs, double scale);
 template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
+
+
+//---------------------------------------------------- Math/Geometry Helpers
+Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
+  // Vector from line start to point:
+  const Vec2d v = line_from.DirectionVector(pt);
+  // Project point onto line via dot product:
+  const Vec2d unit_direction = line_from.DirectionVector(line_to).UnitVector();
+  const double lambda = unit_direction.Dot(v);
+  return line_from + lambda * unit_direction;
+}
+
+
+double Determinant(const Vec2d &a, const Vec2d &b) {
+  return a.x() * b.y() - b.x() * a.y();
+}
+
+
+double AngleRadFromDirectionVec(const Vec2d &vec) {
+  // Dot product is proportional to the cosine, whereas
+  // the determinant is proportional to the sine.
+  // See: https://math.stackexchange.com/a/879474
+  Vec2d ref(1, 0);
+  Vec2d unit = vec.UnitVector();
+  return std::atan2(Determinant(ref, unit), ref.Dot(unit));
+}
+
+
+double AngleDegFromDirectionVec(const Vec2d &vec) {
+  return rad2deg(AngleRadFromDirectionVec(vec));
+}
+
+
+Vec2d DirectionVecFromAngleRad(double rad) {
+  return Vec2d(std::cos(rad), std::sin(rad)); // TODO verify it's unit length
+}
+
+
+Vec2d DirectionVecFromAngleDeg(double deg) {
+  return DirectionVecFromAngleRad(deg2rad(deg));
+}
 
 
 //---------------------------------------------------- Ellipse

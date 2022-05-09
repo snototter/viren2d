@@ -41,25 +41,33 @@ void DemoLines() {
 
   painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!50"));
 
-  viren2d::LineStyle line_style(20, "azure!60", {},
+  viren2d::Vec2d pt1 {50, 50};
+  viren2d::Vec2d pt2 {150, 350};
+
+  const auto rotation = viren2d::AngleDegFromDirectionVec(pt1.DirectionVector(pt2));
+  painter->SetDefaultTextStyle(viren2d::TextStyle(18, "Arial"));
+
+  viren2d::LineStyle line_style(22, "azure!60", {},
                                 viren2d::LineCap::Butt);
   painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
-  painter->DrawText(lbl.str(), {100, 200}, viren2d::TextAnchor::Center);
-  lbl.str(std::string());
-  //TODO with rotation ;-)
+  painter->DrawText(lbl.str(), {100, 200}, viren2d::TextAnchor::Center,
+                    painter->GetDefaultTextStyle(), {0, 0}, rotation);
+  lbl.str(std::string());  // Reset stringstream
 
 
   line_style.line_cap = viren2d::LineCap::Round;
   painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
-  painter->DrawText(lbl.str(), {200, 200}, viren2d::TextAnchor::Center);
+  painter->DrawText(lbl.str(), {200, 200}, viren2d::TextAnchor::Center,
+                    painter->GetDefaultTextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
   line_style.line_cap = viren2d::LineCap::Square;
   painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
-  painter->DrawText(lbl.str(), {300, 200}, viren2d::TextAnchor::Center);
+  painter->DrawText(lbl.str(), {300, 200}, viren2d::TextAnchor::Center,
+                    painter->GetDefaultTextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
@@ -252,7 +260,7 @@ void DemoText() {
                           text_style, padding);
       } else {
         painter->DrawTextBox(txt.str(), pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
-                             text_style, padding,
+                             text_style, padding, 0.0,
                              painter->GetDefaultLineStyle());
 //                             viren2d::LineStyle::Invalid,
 //                             text_style.font_color.Inverse().WithAlpha(0.8),

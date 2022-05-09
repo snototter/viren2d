@@ -441,6 +441,32 @@ typedef Vec<int, 2> Vec2i;
 typedef Vec<int, 3> Vec3i;
 
 
+//---------------------------------------------------- Math/Geometry Helpers
+//TODO TEST all, bind
+/** @brief Project point onto line. */
+Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to);
+
+
+/** Computes the determinant of the two 2d vectors. */
+double Determinant(const Vec2d &a, const Vec2d &b);
+
+
+/** Computes the angle (in radians) of a 2d direction vector w.r.t. the positive X axis. */
+double AngleRadFromDirectionVec(const Vec2d &vec);
+
+
+/** Computes the angle (in degrees) of a 2d direction vector w.r.t. the positive X axis. */
+double AngleDegFromDirectionVec(const Vec2d &vec);
+
+
+/** Computes the direction vector given its angle (in radians) w.r.t. the positive X axis. */
+Vec2d DirectionVecFromAngleRad(double rad);
+
+
+/** Computes the direction vector given its angle (in radians) w.r.t. the positive X axis. */
+Vec2d DirectionVecFromAngleDeg(double deg);
+
+
 //-------------------------------------------------  Ellipse
 /**
  * @brief Ellipse for visualization.

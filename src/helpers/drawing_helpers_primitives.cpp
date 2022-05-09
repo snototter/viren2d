@@ -35,56 +35,6 @@ void CheckLineStyleAndFill(const LineStyle &style,
 }
 
 
-//---------------------------------------------------- Math/Geometry Helpers
-//FIXME(snototter) These should be moved to math.h
-
-/** @brief Project point onto line. */
-Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
-  // Vector from line start to point:
-  const Vec2d v = line_from.DirectionVector(pt);
-  // Project point onto line via dot product:
-  const Vec2d unit_direction = line_from.DirectionVector(line_to).UnitVector();
-  const double lambda = unit_direction.Dot(v);
-  return line_from + lambda * unit_direction;
-}
-
-
-/** Computes the determinant of the two 2d vectors. */
-double Determinant(const Vec2d &a, const Vec2d &b) {
-  return a.x() * b.y() - b.x() * a.y();
-}
-
-
-/** Computes the angle (in radians) of a 2d direction vector w.r.t. the positive X axis. */
-double AngleRadFromDirectionVec(const Vec2d &vec) {
-  // Dot product is proportional to the cosine, whereas
-  // the determinant is proportional to the sine.
-  // See: https://math.stackexchange.com/a/879474
-  Vec2d ref(1, 0);
-  Vec2d unit = vec.UnitVector();
-  return std::atan2(Determinant(ref, unit), ref.Dot(unit));
-}
-
-
-/** Computes the angle (in degrees) of a 2d direction vector w.r.t. the positive X axis. */
-double AngleDegFromDirectionVec(const Vec2d &vec) {
-  return rad2deg(AngleRadFromDirectionVec(vec));
-}
-
-
-/** Computes the direction vector given its angle (in radians) w.r.t. the positive X axis. */
-Vec2d DirectionVecFromAngleRad(double rad) {
-  return Vec2d(std::cos(rad), std::sin(rad)); // TODO verify it's unit length
-}
-
-
-/** Computes the direction vector given its angle (in radians) w.r.t. the positive X axis. */
-Vec2d DirectionVecFromAngleDeg(double deg) {
-  return DirectionVecFromAngleRad(deg2rad(deg));
-}
-
-
-
 //---------------------------------------------------- Arc/Circle
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
              Vec2d center, double radius,
@@ -541,7 +491,7 @@ Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position, TextAnchor text_anchor,
               const TextStyle &desired_text_style, const TextStyle &current_context_style,
-              const Vec2d &padding, const LineStyle &box_line_style,
+              const Vec2d &padding, double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius) {
   CheckCanvas(surface, context);
 
@@ -568,10 +518,11 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
     ApplyTextStyle(context, desired_text_style);
   }
 
-//  //TODO nice-to-have: text rotation (the following works awesome!)
-//  cairo_translate(context, position.x(), position.y());
-//  cairo_rotate(context, deg2rad(AngleDegFromDirectionVec(Vec2d(50, 50).DirectionVector({150,350}))-90));
-//  position = {0, 0};
+  // Shift the context to the desired anchor point
+  // and rotate
+  cairo_translate(context, position.x(), position.y());
+  cairo_rotate(context, deg2rad(rotation));
+  position = {0, 0};
 
 //#define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
