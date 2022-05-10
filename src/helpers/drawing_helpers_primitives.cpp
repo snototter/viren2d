@@ -575,13 +575,13 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   }
 
   // We have to always apply font color in this context (as
-  // Cairo uses the default source rgba values, which could
-  // have been overwritten since setting the default font
-  // style)
+  // Cairo uses the default source rgba values to render the
+  // font - these could have been overwritten by any other
+  // `DrawXXX()` call since setting the default font style).
   ApplyColor(context, desired_text_style.font_color);
 
   // Shift to the pixel center, and move to the origin of the
-  // first glyph. Then, we can let Cairo render the text
+  // first glyph. Then, let Cairo render the text:
   position += 0.5;
   cairo_move_to(context, position.x(), position.y());
   cairo_show_text(context, text.c_str());
