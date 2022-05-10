@@ -277,6 +277,10 @@ class Color {
   /** @brief Checks if all rgba components are within [0, 1]. */
   bool IsValid() const;
 
+  //TODO doc test bind
+  bool IsSpecialInvalid() const;
+  //TODO add special complementary
+
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
@@ -360,6 +364,8 @@ class Color {
     return os;
   }
 };
+
+//std::ostream& operator<<(std::ostream& os, const Color& c);
 
 
 //-------------------------------------------------  Comparison operators

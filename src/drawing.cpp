@@ -6,6 +6,13 @@
 #include <cassert>
 #include <cstring> // memcpy
 
+// TODO add cmake options to set log levels & disable debug:
+// https://github.com/gabime/spdlog/wiki/0.-FAQ#how-to-remove-all-debug-statements-at-compile-time-
+// different log levels (nice concise summary) - https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+//TODO Decide whether to trace each method invocation - or debug-log the "most" important (preference: trace each call, so we can actually trace what's going on if it should ever break)
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
 #include <math.h>
 
 #include <cairo/cairo.h>
@@ -18,6 +25,40 @@
 
 // private viren2d headers
 #include <helpers/drawing_helpers.h>
+
+
+
+//-------------------------------------------------
+// Preprocessor macros to initialize the
+// library upon loading. This is needed to
+// set up logging.
+// Macros taken from:
+// https://stackoverflow.com/a/2390626/400948
+
+#ifdef __cplusplus
+    #define INITIALIZER(f) \
+        static void f(void); \
+        struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_; \
+        static void f(void)
+#elif defined(_MSC_VER)
+    #pragma section(".CRT$XCU",read)
+    #define INITIALIZER2_(f,p) \
+        static void f(void); \
+        __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
+        __pragma(comment(linker,"/include:" p #f "_")) \
+        static void f(void)
+    #ifdef _WIN64
+        #define INITIALIZER(f) INITIALIZER2_(f,"")
+    #else
+        #define INITIALIZER(f) INITIALIZER2_(f,"_")
+    #endif
+#else
+    #define INITIALIZER(f) \
+        static void f(void) __attribute__((constructor)); \
+        static void f(void)
+#endif
+
+//-------------------------------------------------
 
 namespace viren2d {
 namespace {
@@ -32,6 +73,12 @@ const static ArrowStyle kdefault_arrow_style = ArrowStyle(4, Color(NamedColor::F
 const static TextStyle kdefault_text_style = TextStyle(16, "monospace", Color::Black);
 }  // anonymous namespace
 
+
+INITIALIZER(initialize)
+{
+  spdlog::set_level(spdlog::level::debug);
+//  spdlog::set_pattern("[%l][%@, %!] %v");
+}
 
 /** Implements the Painter interface using a Cairo image surface. */
 class ImagePainter : public Painter {
@@ -171,12 +218,12 @@ ImagePainter::ImagePainter() : Painter(),
   default_line_style_(kdefault_line_style),
   default_arrow_style_(kdefault_arrow_style),
   default_text_style_(kdefault_text_style) {
-  std::cout << "Inside ImagePainter::Constructor()" << std::endl; //TODO remove
+  SPDLOG_TRACE("ImagePainter::Default constructor.");
 }
 
 
 ImagePainter::~ImagePainter() {
-  std::cout << "Inside ImagePainter::Destructor()" << std::endl; //TODO remove
+  SPDLOG_TRACE("ImagePainter::Destructor.");
   if (context_)
     cairo_destroy(context_);
   if (surface_)
@@ -190,7 +237,7 @@ ImagePainter::ImagePainter(const ImagePainter &other) // copy constructor
     default_line_style_(other.default_line_style_),
     default_arrow_style_(other.default_arrow_style_),
     default_text_style_(other.default_text_style_) {
-  std::cout << "Inside ImagePainter::CopyConstructor()" << std::endl;//TODO remove
+  SPDLOG_DEBUG("ImagePainter::Copy constructor.");
   if (other.surface_)
   {
     cairo_format_t format = cairo_image_surface_get_format(other.surface_);
@@ -221,19 +268,21 @@ ImagePainter::ImagePainter(ImagePainter &&other) noexcept
     default_line_style_(other.default_line_style_),
     default_arrow_style_(other.default_arrow_style_),
     default_text_style_(other.default_text_style_) {
-  // No need to ApplyDefaultStyles() - "other" should've already set these up (and we're stealing their context)
-  std::cout << "Inside ImagePainter::MoveConstructor()" << std::endl; //TODO remove - was curious about pybind11 object creation/move/copy
+  SPDLOG_TRACE("ImagePainter::Move constructor.");
+  // No need to ApplyDefaultStyles() - the "other"
+  // should've already set these up (and we're
+  // simply stealing their context)
 }
 
 
 ImagePainter& ImagePainter::operator=(const ImagePainter &other) { // Copy assignment
-  std::cout << "Inside ImagePainter::Copy Assignment" << std::endl;//TODO remove
+  SPDLOG_TRACE("ImagePainter::Copy assignment operator.");
   return *this = ImagePainter(other);
 }
 
 
 ImagePainter& ImagePainter::operator=(ImagePainter &&other) noexcept { // Move assignment
-  std::cout << "Inside ImagePainter::Move Assignment" << std::endl;//TODO remove
+  SPDLOG_TRACE("ImagePainter::Move assignment operator.");
   std::swap(surface_, other.surface_);
   std::swap(context_, other.context_);
   std::swap(default_line_style_, other.default_line_style_);
@@ -244,12 +293,15 @@ ImagePainter& ImagePainter::operator=(ImagePainter &&other) noexcept { // Move a
 
 
 bool ImagePainter::IsValid() const {
+  SPDLOG_DEBUG("ImagePainter::IsValid().");
   return (surface_ != nullptr) && (context_ != nullptr);
 }
 
 
 void ImagePainter::SetCanvas(int width, int height,
                              const Color &color) {
+  SPDLOG_DEBUG("ImagePainter::SetCanvas(width={:d}, height={:d}, color={:s}).",
+               width, height, color);
   // Check if we can reuse the current image surface to
   // save ourselves the memory allocation:
   if (surface_) {

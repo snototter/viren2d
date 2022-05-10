@@ -439,6 +439,11 @@ bool Color::IsValid() const {
 }
 
 
+bool Color::IsSpecialInvalid() const {
+  return *this == Invalid;
+}
+
+
 bool Color::IsShadeOfGray(double epsilon) const {
   // No need to check red vs blue thanks to transitivity
   if ((red < (green - epsilon)) || (red > (green + epsilon))
@@ -448,18 +453,33 @@ bool Color::IsShadeOfGray(double epsilon) const {
 }
 
 std::string Color::ToString() const {
+  // TODO Check for being any special member
+  // BEFORE the isvalid() check (all special
+  // members are invalid colors!)
+
   std::stringstream s;
-  if (IsValid()) {
-    const auto rgb = ToRGBa();
-    s << "RGBa(" << static_cast<int>(std::get<0>(rgb))
-      << ", " << static_cast<int>(std::get<1>(rgb))
-      << ", " << static_cast<int>(std::get<2>(rgb))
-      << ", " << std::fixed << std::setprecision(2)
-      << alpha << ")";
+  s << "Color::";
+
+  if (!IsValid()) { // || IsSpecialInvalid()) {
+    s << "Invalid";
   } else {
-    s << "RGB(-1, -1, -1)";
+    s << ToHexString();
   }
   return s.str();
+
+
+//  std::stringstream s;
+//  if (IsValid()) {
+//    const auto rgb = ToRGBa();
+//    s << "RGBa(" << static_cast<int>(std::get<0>(rgb))
+//      << ", " << static_cast<int>(std::get<1>(rgb))
+//      << ", " << static_cast<int>(std::get<2>(rgb))
+//      << ", " << std::fixed << std::setprecision(2)
+//      << alpha << ")";
+//  } else {
+//    s << "RGB(-1, -1, -1)";
+//  }
+//  return s.str();
 }
 
 
