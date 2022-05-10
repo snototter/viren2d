@@ -74,7 +74,7 @@ Marginalia: Another reason to work on this library was that I wanted to brush up
   ```bash
   cd libs/spdlog
   mkdir build && cd build
-  cmake ..
+  cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   cmake --build .
   # Install location defaults to /usr/local
   # If you change the CMAKE_INSTALL_PREFIX, ensure that viren2d's CMakeLists.txt will
