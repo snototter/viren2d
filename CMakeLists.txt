@@ -109,7 +109,14 @@ add_library(${TARGET_CPP_LIB}::${TARGET_CPP_LIB} ALIAS ${TARGET_CPP_LIB})
 # ./cmake includes a custom FindCairo module
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Cairo REQUIRED)
-target_link_libraries(${TARGET_CPP_LIB} PRIVATE ${Cairo_LIBS})
+#target_link_libraries(${TARGET_CPP_LIB} PRIVATE ${Cairo_LIBS})
+target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
+
+
+# If you installed (via cmake --install) spdlog to the default location, CMake will
+# find spdlog. Otherwise, you'll have to adjust the following:
+find_package(spdlog REQUIRED)
+target_link_libraries(${TARGET_CPP_LIB} PRIVATE spdlog::spdlog)
 
 
 # Set up the include paths for internal usage (PRIVATE), usage if this CMakeLists.txt is
@@ -188,7 +195,7 @@ if(viren2d_WITH_DEMO)
     # OpenCV is optional, we only use it to display the rendered images
     find_package(OpenCV QUIET)
     if(${OpenCV_FOUND})
-        message(STATUS "The demo will use OpenCV::highgui to display images.")
+        message(STATUS "The demo will use OpenCV (core + highgui module) to display images.")
 
         target_compile_definitions(${TARGET_CPP_DEMO}
             PRIVATE WITH_OPENCV)
