@@ -7,6 +7,7 @@
 #include <vector>
 #include <tuple>
 #include <ostream>
+#include <initializer_list>
 
 
 namespace viren2d {
@@ -239,6 +240,9 @@ class Color {
   Color(const char *colorspec)
     : Color(colorspec, 1.0)
   {}
+
+
+  Color(std::initializer_list<double> values);
 
 
   // Nothing special about the color class, so we can have

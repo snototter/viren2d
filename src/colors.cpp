@@ -387,6 +387,29 @@ Color::Color(const std::string &colorspec, double alpha) {
 }
 
 
+Color::Color(std::initializer_list<double> values) {
+  if (values.size() == 0) {
+    *this = Color();
+  } else if (values.size() >= 3) {
+    const auto val = values.begin();
+    red = val[0];
+    green = val[1];
+    blue = val[2];
+
+    if (values.size() > 3) {
+      alpha = val[3];
+    } else {
+      alpha = 1.0;
+    }
+  } else {
+    std::stringstream s;
+    s << "Color c'tor requires 0, 3 or 4 elements in initializer_list, "
+      << "but got " << values.size() << ".";
+    throw std::invalid_argument(s.str());
+  }
+}
+
+
 Color Color::Inverse() const {
   if (IsValid()) {
     if (IsShadeOfGray()) {

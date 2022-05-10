@@ -20,9 +20,9 @@ namespace helpers {
  * @brief Sets the source color. Should be used by all
  * drawing methods (unless you know what you are doing).
  *
- * Issue in a nutshell: Cairo's ARGB format uses the same
- * memory layout as OpenCV's BGRA format. We, however,
- * want to work with RGB(A) images. Thus, we simply flip
+ * Issue in a nutshell: Cairo's `ARGB` format uses the same
+ * memory layout as OpenCV's `BGRA` format. We, however,
+ * want to work with `RGB(A)` images. Thus, we simply flip
  * red and blue when setting the color.
  *
  * This seemed to be the easiest/least confusing option.

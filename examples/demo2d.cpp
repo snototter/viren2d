@@ -70,6 +70,29 @@ void DemoLines() {
                     painter->GetDefaultTextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
+
+//  //FIXME fading line/trajectory
+//  line_style.color = {0.0, 0.0, 0.8};
+//  line_style.line_width = 1;
+//  double step_length = 10;
+//  int num_steps = static_cast<int>(painter->GetCanvasSize().width() / step_length);
+//  for (int i = 0; i < num_steps; ++i) {
+//    painter->DrawLine({0.0 + i * step_length, 10.0}, {50.0 + i * step_length, 10.0}, line_style);
+//    line_style.line_width += 0.3;
+//  }
+//  std::cout << "final line style: " << line_style << std::endl; //TODO remove trajectory test
+
+//  //FIXME trajectory test
+//  ApplyColor(context, Color({0.0, 0.0, 0.8}));
+//  cairo_move_to(context, 0, 30);
+//  const double lw = 13;
+//  cairo_set_line_width(context, 1);
+//  cairo_line_to(context, 400, 30-lw/2.0);
+//  cairo_line_to(context, 400, 30+lw/2.0);
+//  cairo_close_path(context);
+//  cairo_fill_preserve(context);
+//  cairo_stroke(context);
+
   ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
 }
 

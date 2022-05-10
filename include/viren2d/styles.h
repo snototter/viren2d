@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <ostream>
+#include <initializer_list>
 
 #include <viren2d/colors.h>
 #include <viren2d/primitives.h>
@@ -74,6 +75,9 @@ struct LineStyle {
   /** Returns a library-wide pre-set default style.
    *  To use the painter's default style, you should use LineStyle::Default !!! TODO doc FIXME "special" default, "special " invalid or "some initialized" ??? */
   LineStyle();
+
+//TODO test
+  LineStyle(std::initializer_list<double> values);
 
 
   LineStyle(double width, const Color &col,

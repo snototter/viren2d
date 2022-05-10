@@ -62,6 +62,20 @@ LineStyle::LineStyle()
 {}
 
 
+LineStyle::LineStyle(std::initializer_list<double> values) {
+  if (values.size() < 2) {
+    *this = LineStyle();
+    if (values.size() > 0) {
+      line_width = values.begin()[0];
+    }
+  } else {
+    std::stringstream s;
+    s << "LineStyle c'tor requires 0, or 1 elements in initializer_list, "
+      << "but got " << values.size() << ".";
+    throw std::invalid_argument(s.str());
+  }//TODO initializer lists for other styles, too
+}
+
 LineStyle::LineStyle(double width, const Color &col,
                      const std::vector<double> &dash,
                      LineCap cap, LineJoin join)
