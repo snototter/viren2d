@@ -468,4 +468,11 @@ std::string TextAnchorToString(TextAnchor anchor) {
 }
 
 
+std::ostream &operator<<(std::ostream &os, const TextAnchor &anchor) {
+  os << TextAnchorToString(anchor);
+  return os;
+}
+
+
+
 } // namespace viren2d

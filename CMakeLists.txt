@@ -85,6 +85,7 @@ set(viren2d_PUBLIC_HEADER_FILES
 
 
 set(viren2d_PRIVATE_HEADER_FILES
+    src/helpers/logging.h
     src/helpers/drawing_helpers.h
     src/helpers/enum.h)
 

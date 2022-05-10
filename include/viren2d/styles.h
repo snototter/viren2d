@@ -360,6 +360,7 @@ enum class TextAnchor : unsigned char {
 TextAnchor TextAnchorFromString(const std::string &anchor);
 TextAnchor TextAnchorFromString(const char *anchor);
 std::string TextAnchorToString(TextAnchor anchor);
+std::ostream &operator<<(std::ostream &os, const TextAnchor &anchor);
 
 } // namespace viren2d
 

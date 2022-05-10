@@ -205,18 +205,19 @@ bool ImageBuffer::IsValid() const {
 
 
 std::string ImageBuffer::ToString() const {
-  std::stringstream s;
-  s << "ImageBuffer(";
-
-  if (IsValid()) {
-    s << width << "x" << height << "x" << channels;
-    if (owns_data_)
-      s << ", copied memory";
-    else
-      s << ", shared memory";
-  } else {
-    s << "invalid";
+  if (!IsValid()) {
+    return "ImageBuffer::Invalid";
   }
+
+  std::stringstream s;
+  s << "ImageBuffer(" << width << "x" << height
+    << "x" << channels;
+
+  if (owns_data_)
+    s << ", copied memory";
+  else
+    s << ", shared memory";
+
   s << ")";
 
   return s.str();

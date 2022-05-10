@@ -94,6 +94,7 @@ void DemoLines() {
 //  cairo_stroke(context);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
+  painter.reset();
 }
 
 
@@ -138,6 +139,7 @@ void DemoArrows() {
                                          {15, 10}));
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-arrows.png");
+  painter.reset();
 }
 
 
@@ -194,6 +196,7 @@ void DemoCircles() {
                        style, fill);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-circles.png");
+  painter.reset();
 }
 
 
@@ -229,6 +232,7 @@ void DemoRects() {
   painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
+  painter.reset();
 }
 
 
@@ -304,6 +308,7 @@ void DemoText() {
   }
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-text.png");
+  painter.reset();
 }
 
 

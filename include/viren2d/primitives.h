@@ -120,6 +120,12 @@ struct ImageBuffer {
   /** @brief Returns a readable representation. */
   std::string ToString() const;
 
+  /** @brief Overloaded stream operator. */
+  friend std::ostream &operator<<(std::ostream &os, const ImageBuffer &buffer) {
+    os << buffer.ToString();
+    return os;
+  }
+
 private:
   void Cleanup();
 };

@@ -5,14 +5,8 @@
 #include <stdexcept>
 #include <cassert>
 #include <cstring> // memcpy
+#include <cstdlib> // atexit
 
-// TODO add cmake options to set log levels & disable debug:
-// https://github.com/gabime/spdlog/wiki/0.-FAQ#how-to-remove-all-debug-statements-at-compile-time-
-// different log levels (nice concise summary) - https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-//TODO Decide whether to trace each method invocation - or debug-log the "most" important (preference: trace each call, so we can actually trace what's going on if it should ever break)
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
 #include <math.h>
 
 #include <cairo/cairo.h>
@@ -25,6 +19,10 @@
 
 // private viren2d headers
 #include <helpers/drawing_helpers.h>
+#include <helpers/logging.h>
+
+//FIXME logging painter --> public interface (or first Impl()): debug
+// all others: trace
 
 
 
@@ -34,6 +32,10 @@
 // set up logging.
 // Macros taken from:
 // https://stackoverflow.com/a/2390626/400948
+
+// TODO: We place the initializer in drawing.cpp
+// because this will always be linked into the
+// library user's application.
 
 #ifdef __cplusplus
     #define INITIALIZER(f) \
@@ -74,10 +76,18 @@ const static TextStyle kdefault_text_style = TextStyle(16, "monospace", Color::B
 }  // anonymous namespace
 
 
-INITIALIZER(initialize)
-{
-  spdlog::set_level(spdlog::level::debug);
+void shutdown() {
+  SPDLOG_DEBUG("Shutting down viren2d++ library.");
+  spdlog::shutdown();
+}
+
+
+INITIALIZER(initialize) {
+  spdlog::set_level(spdlog::level::trace);
 //  spdlog::set_pattern("[%l][%@, %!] %v");
+  SPDLOG_DEBUG("Initializing viren2d++ library.");
+
+  std::atexit(shutdown);
 }
 
 /** Implements the Painter interface using a Cairo image surface. */
@@ -120,6 +130,7 @@ public:
   void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
                           double spacing_x, double spacing_y,
                 const LineStyle &line_style) override {
+    //TODO debug log here or in helpers?
     helpers::DrawGrid(surface_, context_, top_left, bottom_right,
                       spacing_x, spacing_y,
                       CheckInputStyle(line_style));
@@ -218,12 +229,12 @@ ImagePainter::ImagePainter() : Painter(),
   default_line_style_(kdefault_line_style),
   default_arrow_style_(kdefault_arrow_style),
   default_text_style_(kdefault_text_style) {
-  SPDLOG_TRACE("ImagePainter::Default constructor.");
+  SPDLOG_DEBUG("ImagePainter::Default constructor.");
 }
 
 
 ImagePainter::~ImagePainter() {
-  SPDLOG_TRACE("ImagePainter::Destructor.");
+  SPDLOG_DEBUG("ImagePainter::Destructor.");
   if (context_)
     cairo_destroy(context_);
   if (surface_)
@@ -237,9 +248,10 @@ ImagePainter::ImagePainter(const ImagePainter &other) // copy constructor
     default_line_style_(other.default_line_style_),
     default_arrow_style_(other.default_arrow_style_),
     default_text_style_(other.default_text_style_) {
-  SPDLOG_DEBUG("ImagePainter::Copy constructor.");
+  SPDLOG_DEBUG("ImagePainter::Copy constructor."); //TODO painter::tostring
   if (other.surface_)
   {
+    SPDLOG_TRACE("Copying other ImagePainter's surface.");
     cairo_format_t format = cairo_image_surface_get_format(other.surface_);
     assert(format == CAIRO_FORMAT_ARGB32 || format == CAIRO_FORMAT_RGB24);
     const int width = cairo_image_surface_get_width(other.surface_);
@@ -268,7 +280,7 @@ ImagePainter::ImagePainter(ImagePainter &&other) noexcept
     default_line_style_(other.default_line_style_),
     default_arrow_style_(other.default_arrow_style_),
     default_text_style_(other.default_text_style_) {
-  SPDLOG_TRACE("ImagePainter::Move constructor.");
+  SPDLOG_DEBUG("ImagePainter::Move constructor."); //TODO painter::tostring
   // No need to ApplyDefaultStyles() - the "other"
   // should've already set these up (and we're
   // simply stealing their context)
@@ -276,13 +288,13 @@ ImagePainter::ImagePainter(ImagePainter &&other) noexcept
 
 
 ImagePainter& ImagePainter::operator=(const ImagePainter &other) { // Copy assignment
-  SPDLOG_TRACE("ImagePainter::Copy assignment operator.");
+  SPDLOG_DEBUG("ImagePainter::Copy assignment operator."); //TODO painter::tostring
   return *this = ImagePainter(other);
 }
 
 
 ImagePainter& ImagePainter::operator=(ImagePainter &&other) noexcept { // Move assignment
-  SPDLOG_TRACE("ImagePainter::Move assignment operator.");
+  SPDLOG_DEBUG("ImagePainter::Move assignment operator."); //TODO painter::tostring
   std::swap(surface_, other.surface_);
   std::swap(context_, other.context_);
   std::swap(default_line_style_, other.default_line_style_);
@@ -300,14 +312,19 @@ bool ImagePainter::IsValid() const {
 
 void ImagePainter::SetCanvas(int width, int height,
                              const Color &color) {
-  SPDLOG_DEBUG("ImagePainter::SetCanvas(width={:d}, height={:d}, color={:s}).",
+  SPDLOG_DEBUG("ImagePainter::SetCanvas(width={:d},"
+               " height={:d}, color={:s}).",
                width, height, color);
   // Check if we can reuse the current image surface to
   // save ourselves the memory allocation:
   if (surface_) {
     int prev_width = cairo_image_surface_get_width(surface_);
     int prev_height = cairo_image_surface_get_height(surface_);
+
     if (prev_width != width || prev_height != height) {
+      SPDLOG_TRACE("Cannot reuse previous canvas, size "
+                   "mismatch: prev={:d}x{:d}, now={:d}x{:d}.",
+                   prev_width, prev_height, width, height);
       if (context_) {
         cairo_destroy(context_);
         context_ = nullptr;
@@ -319,14 +336,19 @@ void ImagePainter::SetCanvas(int width, int height,
 
   // If we couldn't reuse the surface (or we didn't have one
   // to start with), we have to create the canvas:
-  if (!surface_)
+  if (!surface_) {
+    SPDLOG_TRACE("Creating Cairo image surface for {:d}x{:d} canvas.",
+                 width, height);
     surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                           width, height);
+  }
   if (!context_) {
+    SPDLOG_TRACE("Creating Cairo context.");
     context_ = cairo_create(surface_);
     ApplyDefaultStyles();  // Needed after each context change
   }
 
+  SPDLOG_TRACE("Painting the canvas using {:s}.", color);
   // Now simply fill the canvas with the given color:
   cairo_save(context_);
   helpers::ApplyColor(context_, color);
@@ -336,6 +358,8 @@ void ImagePainter::SetCanvas(int width, int height,
 
 
 void ImagePainter::SetCanvas(const std::string &image_filename) {
+  SPDLOG_DEBUG("ImagePainter::SetCanvas(filename={:s}).",
+               image_filename);
   // Force to load 4 bytes per pixel (STBI_rgb_alpha), so we
   // can easily plug/copy it into the Cairo surface
   ImageBuffer buffer = LoadImage(image_filename, 4);
@@ -343,7 +367,10 @@ void ImagePainter::SetCanvas(const std::string &image_filename) {
 }
 
 void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
+  SPDLOG_DEBUG("ImagePainter::SetCanvas(image_buffer{:s}).",
+               image_buffer);
   if (image_buffer.channels != 4) {
+    SPDLOG_TRACE("Need to convert image buffer to RGBA format.");
     SetCanvas(image_buffer.ToRGBA());
   } else {
     // TODO Avoid premature optimization:
@@ -358,15 +385,18 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
     // * copy-flag false, existing data --> clean up data, reuse surface
     // * copy-flag false, no surface --> surface create_for_data
     if (context_) {
+      SPDLOG_TRACE("Releasing previous Cairo context.");
       cairo_destroy(context_);
       context_ = nullptr;
     }
 
     if (surface_) {
+      SPDLOG_TRACE("Releasing previous Cairo surface.");
       cairo_surface_destroy(surface_);
       surface_ = nullptr;
     }
 
+    SPDLOG_TRACE("Creating Cairo surface and context from image buffer.");
     surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                           image_buffer.width, image_buffer.height);
     std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
@@ -390,6 +420,7 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
 
 
 Vec2i ImagePainter::GetCanvasSize() const {
+  SPDLOG_DEBUG("ImagePainter::GetCanvasSize().");
   if (!IsValid())
     throw std::logic_error("Invalid canvas - did you forget SetCanvas()?");
 
@@ -398,6 +429,7 @@ Vec2i ImagePainter::GetCanvasSize() const {
 }
 
 ImageBuffer ImagePainter::GetCanvas(bool copy) const {
+  SPDLOG_DEBUG("ImagePainter::GetCanvas(copy={}).", copy);
   if (!IsValid())
     throw std::logic_error("Invalid canvas - did you forget SetCanvas()?");
 
@@ -420,57 +452,76 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
 
 
 void ImagePainter::SetDefaultLineStyle(const LineStyle &line_style) {
+  SPDLOG_DEBUG("ImagePainter::SetDefaultLineStyle({:s}).",
+               line_style);
+
   if (!line_style.IsValid()) {
     std::stringstream s;
     s << "Cannot change the default line style to an invalid configuration: "
       << line_style;
     throw std::invalid_argument(s.str());
   }
+
   default_line_style_ = line_style;
   ApplyDefaultStyles();
 }
 
 
 LineStyle ImagePainter::GetDefaultLineStyle() const {
+  SPDLOG_DEBUG("ImagePainter::GetDefaultLineStyle().");
   return default_line_style_;
 }
 
 
 void ImagePainter::SetDefaultArrowStyle(const ArrowStyle &arrow_style) {
+  SPDLOG_DEBUG("ImagePainter::SetDefaultArrowStyle({:s}).",
+               arrow_style);
+
   if (!arrow_style.IsValid()) {
     std::stringstream s;
     s << "Cannot change the default arrow style to an invalid configuration: "
       << arrow_style;
     throw std::invalid_argument(s.str());
   }
+
   default_arrow_style_ = arrow_style;
   ApplyDefaultStyles();
 }
 
 
 ArrowStyle ImagePainter::GetDefaultArrowStyle() const {
+  SPDLOG_DEBUG("ImagePainter::GetDefaultArrowStyle().");
   return default_arrow_style_;
 }
 
 
 void ImagePainter::SetDefaultTextStyle(const TextStyle &text_style) {
+  SPDLOG_DEBUG("ImagePainter::SetDefaultTextStyle({:s}).",
+               text_style);
+
   if (!text_style.IsValid()) {
     std::stringstream s;
     s << "Cannot change the default text style to an invalid configuration: "
       << text_style;
     throw std::invalid_argument(s.str());
   }
+
   default_text_style_ = text_style;
   ApplyDefaultStyles();
 }
 
 
 TextStyle ImagePainter::GetDefaultTextStyle() const {
+  SPDLOG_DEBUG("ImagePainter::GetDefaultTextStyle().");
   return default_text_style_;
 }
 
 
 void ImagePainter::ApplyDefaultStyles() {
+  SPDLOG_TRACE("ImagePainter::ApplyDefaultStyles: line={:s},"
+               " arrow={:s}, text={:s}.",
+               default_line_style_, default_arrow_style_,
+               default_text_style_);
   if (context_) {
     helpers::ApplyLineStyle(context_, default_line_style_, false);
 
@@ -485,9 +536,15 @@ void ImagePainter::ApplyDefaultStyles() {
 
 const LineStyle &
 ImagePainter::CheckInputStyle(const LineStyle &user_input) const {
+  SPDLOG_TRACE("ImagePainter::CheckInputStyle({:s}).", user_input);
+
   if (user_input.IsSpecialDefault()) {
+    SPDLOG_TRACE("User line style is 'Default', switching"
+                 " to painter's default style={:s}.",
+                 default_line_style_);
     return default_line_style_;
   } else {
+    SPDLOG_TRACE("Using the provided input line style.");
     return user_input;
   }
 }
@@ -495,13 +552,19 @@ ImagePainter::CheckInputStyle(const LineStyle &user_input) const {
 
 const ArrowStyle &
 ImagePainter::CheckInputStyle(const ArrowStyle &user_input) const {
+  SPDLOG_TRACE("ImagePainter::CheckInputStyle({:s}).", user_input);
+
   if (user_input.IsSpecialInvalid()) {
     throw std::invalid_argument("ArrowStyle::Invalid is not supported as input.");
   }
 
   if (user_input.IsSpecialDefault()) {
+    SPDLOG_TRACE("User arrow style is 'Default', switching"
+                 " to painter's default style={:s}.",
+                 default_arrow_style_);
     return default_arrow_style_;
   } else {
+    SPDLOG_TRACE("Using the provided input arrow style.");
     return user_input;
   }
 }
@@ -509,14 +572,22 @@ ImagePainter::CheckInputStyle(const ArrowStyle &user_input) const {
 
 const TextStyle &
 ImagePainter::CheckInputStyle(const TextStyle &user_input) const {
+  SPDLOG_TRACE("ImagePainter::CheckInputStyle({:s}).", user_input);
+
   if (user_input.IsValid()) {
+    SPDLOG_TRACE("Using the provided input text style.");
     return user_input;
   } else {
+    SPDLOG_TRACE("User text style is invalid, switching"
+                 " to painter's default style={:s}.",
+                 default_text_style_);
     return default_text_style_;
   }
 }
 
+
 std::unique_ptr<Painter> CreatePainter() {
+  SPDLOG_DEBUG("CreatePainter().");
   return std::unique_ptr<Painter>(new ImagePainter());
 }
 
