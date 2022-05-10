@@ -68,6 +68,22 @@ Marginalia: Another reason to work on this library was that I wanted to brush up
   * Highly recommended: [virtualenv](https://pypi.org/project/virtualenv/)
 
 
+### Dependencies
+* [pybind11](https://github.com/pybind/pybind11) TODO doc; header only; submodule
+* [spdlog](https://github.com/gabime/spdlog) TODO doc; submodule; several variants (packaged; header only; installed) - recommended: installed static lib; TODO doc install
+  ```bash
+  cd libs/spdlog
+  mkdir build && cd build
+  cmake ..
+  cmake --build .
+  # Install location defaults to /usr/local
+  # If you change the CMAKE_INSTALL_PREFIX, ensure that viren2d's CMakeLists.txt will
+  # find the installed spdlog library (i.e. it needs to locate the spdlogConfig* files
+  # which will be installed at /usr/local/lib/cmake/spdlog/)
+  sudo cmake --install .
+  ```
+* [stb](https://github.com/nothings/stb) TODO doc; header only; submodule
+
 ### Platforms known to work
 So far, `viren2d` has been tested on:  
 * Ubuntu 20.04  
