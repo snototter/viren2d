@@ -114,7 +114,8 @@ target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 
 
 # If you installed (via cmake --install) spdlog to the default location, CMake will
-# find spdlog. Otherwise, you'll have to adjust the following:
+# find spdlog. For other usage scenarios, refer to the spdlog examples, e.g.
+# https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt
 find_package(spdlog REQUIRED)
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE spdlog::spdlog)
 
