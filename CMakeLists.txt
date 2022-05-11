@@ -23,6 +23,10 @@ option(viren2d_WITH_PYTHON "Build Python bindings." ON)
 option(viren2d_WITH_TESTS "Build test suite." ON)
 option(INSTALL_viren2d "Configure installation target." ON)
 
+set(viren2d_LOG_LEVEL "info" CACHE STRING "Select log level")
+#TODO adjust: very likely viren2d will only use debug & trace
+set_property(CACHE viren2d_LOG_LEVEL PROPERTY STRINGS disable trace debug info warn error)
+
 
 # Offer the user the choice of overriding the installation (sub-)directories
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -76,15 +80,17 @@ configure_file(
 set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
     include/viren2d/drawing.h
-    include/viren2d/math.h
     include/viren2d/primitives.h
-    include/viren2d/string_utils.h  #TODO replace by cpputils::stringutils
     include/viren2d/styles.h
+    include/viren2d/logging.h
     include/viren2d/version.h
     include/viren2d/viren2d.h)
 
 
 set(viren2d_PRIVATE_HEADER_FILES
+    src/helpers/logging.h
+    src/helpers/math_utils.h    #TODO replace by cpputils::mathutils
+    src/helpers/string_utils.h  #TODO replace by cpputils::stringutils
     src/helpers/drawing_helpers.h
     src/helpers/enum.h)
 
@@ -95,6 +101,7 @@ set(viren2d_SOURCE_FILES
     src/colors.cpp
     src/styles.cpp
     src/drawing.cpp
+    src/helpers/logging.cpp
     src/helpers/drawing_helpers_primitives.cpp)
 
 
@@ -118,6 +125,29 @@ target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 # https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt
 find_package(spdlog REQUIRED)
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE spdlog::spdlog)
+
+# Set the user-configured log level (so we can disable verbose levels at compile time)
+if(${viren2d_LOG_LEVEL} STREQUAL "trace")
+    target_compile_definitions(${TARGET_CPP_LIB}
+        PRIVATE viren2d_LOG_LEVEL_TRACE)
+elseif(${viren2d_LOG_LEVEL} STREQUAL "debug")
+    target_compile_definitions(${TARGET_CPP_LIB}
+        PRIVATE viren2d_LOG_LEVEL_DEBUG)
+elseif(${viren2d_LOG_LEVEL} STREQUAL "info")
+    target_compile_definitions(${TARGET_CPP_LIB}
+        PRIVATE viren2d_LOG_LEVEL_INFO)
+elseif(${viren2d_LOG_LEVEL} STREQUAL "warn")
+    target_compile_definitions(${TARGET_CPP_LIB}
+        PRIVATE viren2d_LOG_LEVEL_WARN)
+elseif(${viren2d_LOG_LEVEL} STREQUAL "error")
+    target_compile_definitions(${TARGET_CPP_LIB}
+        PRIVATE viren2d_LOG_LEVEL_ERROR)
+elseif(${viren2d_LOG_LEVEL} STREQUAL "disable")
+    target_compile_definitions(${TARGET_CPP_LIB}
+        PRIVATE viren2d_LOG_LEVEL_OFF)
+else()
+    message(FATAL_ERROR "[${TARGET_CPP_LIB}] Invalid viren2d_LOG_LEVEL value (${viren2d_LOG_LEVEL})")
+endif()
 
 
 # Set up the include paths for internal usage (PRIVATE), usage if this CMakeLists.txt is
@@ -196,7 +226,7 @@ if(viren2d_WITH_DEMO)
     # OpenCV is optional, we only use it to display the rendered images
     find_package(OpenCV QUIET)
     if(${OpenCV_FOUND})
-        message(STATUS "The demo will use OpenCV (core + highgui module) to display images.")
+        message(STATUS "[${TARGET_CPP_DEMO}] The demo will use OpenCV (core + highgui module) to display images.")
 
         target_compile_definitions(${TARGET_CPP_DEMO}
             PRIVATE WITH_OPENCV)

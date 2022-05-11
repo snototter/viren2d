@@ -6,9 +6,11 @@
 #include <exception>
 
 #include <viren2d/colors.h>
-#include <viren2d/math.h>
-#include <viren2d/string_utils.h>
+
+#include <helpers/math_utils.h>
+#include <helpers/string_utils.h>
 #include <helpers/enum.h>
+#include <helpers/logging.h>
 
 
 namespace viren2d {
@@ -30,6 +32,7 @@ double cast_RGB(double v) {
 
 
 std::vector<std::string> ListNamedColors() {
+  SPDLOG_TRACE("ListNamedColors().");
   std::vector<std::string> lst;
   typedef ContinuousEnumIterator<NamedColor,
     NamedColor::Black, NamedColor::Invalid> NamedColorIterator;
@@ -53,6 +56,8 @@ NamedColor NamedColorFromString(const std::string &name) {
   if (pos != std::string::npos) {
     cname = cname.substr(0, pos);
   }
+  SPDLOG_TRACE("NamedColorFromString(\"{:s}\"), canonical"
+               " name=\"{:s}\".", name, cname);
 
   if (cname.compare("black") == 0) {
     return NamedColor::Black;
@@ -142,8 +147,7 @@ NamedColor NamedColorFromString(const std::string &name) {
 }
 
 
-std::string NamedColorToString(NamedColor color) {
-  std::stringstream s;
+std::string NamedColorToString(const NamedColor &color) {
   switch (color) {
     case NamedColor::Black: return "black";
     case NamedColor::White: return "white";
@@ -187,11 +191,18 @@ std::string NamedColorToString(NamedColor color) {
 
     case NamedColor::Invalid: return "invalid";
 
-    default:
+    default: {
+      std::stringstream s;
       s << "No string representation available for this NamedColor ("
         << static_cast<unsigned short>(color) << ")";
       throw std::runtime_error(s.str());
+    }
   }
+}
+
+std::ostream &operator<<(std::ostream &os, const NamedColor &ncolor) {
+  os << NamedColorToString(ncolor);
+  return os;
 }
 
 
@@ -207,6 +218,9 @@ const Color Color::Invalid = Color(NamedColor::Invalid);
 
 
 Color::Color(const NamedColor color, double alpha) {
+//  SPDLOG_TRACE("Constructing color from NamedColor({:s}),"
+//               " with alpha={:.2f}.", color, alpha);
+
   this->alpha = alpha;
   std::stringstream s;
 
@@ -331,7 +345,7 @@ Color::Color(const NamedColor color, double alpha) {
 
     case NamedColor::Invalid:
       red = green = blue = -1.0;
-      alpha = -1.0;  // For the special "invalid" color, we also set alpha
+      this->alpha = -1.0;  // For the special "invalid" color, we also set alpha
       break;
 
     default:
@@ -343,6 +357,9 @@ Color::Color(const NamedColor color, double alpha) {
 
 
 Color::Color(const std::string &colorspec, double alpha) {
+//  SPDLOG_TRACE("Constructing color from colorspec=\"{:s}\", alpha={:.2f}.",
+//               colorspec, alpha);
+
   if (colorspec.length() > 1 && colorspec[0] == '#') {
     *this = ColorFromHexString(colorspec, alpha);
   } else {
@@ -363,6 +380,8 @@ Color::Color(const std::string &colorspec, double alpha) {
       // If so, the "string alpha" (which must be an integer in [0, 100])
       // will overwrite the constructor's alpha parameter
       const std::string aspec_ = cspec_.substr(pos + 1);
+//      SPDLOG_TRACE("Overwriting alpha parameter {:.2f} with given string"
+//                   " specification \"{:s}\"%.", alpha, aspec_);
 
       // std::stoi will throw an invalid_argument if the input can't be parsed...
       this->alpha = std::stoi(aspec_) / 100.0;
@@ -388,6 +407,9 @@ Color::Color(const std::string &colorspec, double alpha) {
 
 
 Color::Color(std::initializer_list<double> values) {
+//  SPDLOG_TRACE("Constructing color from initializer list with"
+//               " {:d} values.", values.size());
+
   if (values.size() == 0) {
     *this = Color();
   } else if (values.size() >= 3) {
@@ -411,6 +433,9 @@ Color::Color(std::initializer_list<double> values) {
 
 
 Color Color::Inverse() const {
+  SPDLOG_TRACE("Computing the complementary color"
+               " to {:s}.", *this);
+
   if (IsValid()) {
     if (IsShadeOfGray()) {
       if (red < 0.5)
@@ -447,27 +472,33 @@ bool Color::IsSpecialInvalid() const {
 bool Color::IsShadeOfGray(double epsilon) const {
   // No need to check red vs blue thanks to transitivity
   if ((red < (green - epsilon)) || (red > (green + epsilon))
-      || (green < (blue - epsilon)) || (green > (blue + epsilon)))
+      || (green < (blue - epsilon)) || (green > (blue + epsilon))) {
+    SPDLOG_TRACE("{:s} is not a shade of gray (at eps={:.3f}).",
+                 *this, epsilon);
     return false;
-  return true;
+  } else {
+    SPDLOG_TRACE("{:s} is shade of gray (at eps={:.3f}).", *this, epsilon);
+    return true;
+  }
 }
 
 std::string Color::ToString() const {
-  // TODO Check for being any special member
-  // BEFORE the isvalid() check (all special
-  // members are invalid colors!)
+  // TODO
+  // Check for being any special member
+  // BEFORE the isvalid() check, because
+  // all special members are invalid colors!
 
   std::stringstream s;
-  s << "Color::";
+  s << "Color";
 
   if (!IsValid()) { // || IsSpecialInvalid()) {
-    s << "Invalid";
+    s << "::Invalid";
   } else {
-    s << ToHexString();
+    s << "(" << ToHexString() << ")";
   }
   return s.str();
 
-
+  // Alternatively as RGBa string:
 //  std::stringstream s;
 //  if (IsValid()) {
 //    const auto rgb = ToRGBa();
@@ -573,6 +604,8 @@ Color &Color::operator/=(double scalar) {
 
 
 Color &Color::operator+=(const Color &rhs) {
+//  SPDLOG_TRACE("Adding {:s} to {:s} (with saturation cast).",
+//               rhs, *this);
   red = cast_01(red + rhs.red);
   green = cast_01(green + rhs.green);
   blue = cast_01(blue + rhs.blue);
@@ -581,6 +614,8 @@ Color &Color::operator+=(const Color &rhs) {
 
 
 Color &Color::operator-=(const Color &rhs) {
+//  SPDLOG_TRACE("Subtracting {:s} from {:s} (with saturation cast).",
+//               rhs, *this);
   red = cast_01(red - rhs.red);
   green = cast_01(green - rhs.green);
   blue = cast_01(blue - rhs.blue);
@@ -631,6 +666,9 @@ Color RGBa(double R, double G, double B, double alpha)
 
 
 Color ColorFromHexString(const std::string &webcode, double alpha) {
+  SPDLOG_TRACE("ColorFromHexString(\"{:s}\", alpha={:.2f}).",
+               webcode, alpha);
+
   const size_t len = webcode.length();
   if (len != 7 && len != 9) {
     std::stringstream s;
@@ -669,13 +707,6 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
 
   return Color(rgb[0] / 255.0, rgb[1] / 255.0,
                rgb[2] / 255.0, alpha);
-}
-
-Color InvalidColor()
-{
-  Color c;
-  c.red = c.green = c.blue = c.alpha = -1.0;
-  return c;
 }
 
 } // namespace viren2d

@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <viren2d/primitives.h>
-#include <viren2d/math.h>
+#include <helpers/math_utils.h>
 
 TEST(PrimitivesTest, Rectangle) {
   auto r = viren2d::Rect();

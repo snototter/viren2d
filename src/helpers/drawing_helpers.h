@@ -11,6 +11,8 @@
 #include <viren2d/styles.h>
 #include <viren2d/drawing.h>
 
+#include <helpers/logging.h>
+
 
 namespace viren2d {
 namespace helpers {
@@ -28,7 +30,8 @@ namespace helpers {
  * This seemed to be the easiest/least confusing option.
  */
 inline void ApplyColor(cairo_t *context, const Color &color) {
-  if (context) {
+  if (color.IsValid() && context) {
+    SPDLOG_TRACE("helpers::ApplyColor: {:s}.", color);
     cairo_set_source_rgba(context, color.blue, color.green,
                           color.red, color.alpha);
   }
@@ -46,6 +49,7 @@ inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style) {
     case LineCap::Square:
       return CAIRO_LINE_CAP_SQUARE;
   }
+
   std::stringstream s;
   s << "Line cap style \"" << static_cast<int>(line_style.line_cap)
     << "\" is not yet mapped to Cairo type!";
@@ -54,6 +58,7 @@ inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style) {
 
 
 inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
+
   switch (line_style.line_join) {
     case LineJoin::Miter:
       return CAIRO_LINE_JOIN_MITER;
@@ -75,6 +80,9 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
 inline void ApplyLineStyle(cairo_t *context,
                            const LineStyle &line_style,
                            bool ignore_dash = false) {
+  SPDLOG_TRACE("helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
+               line_style, ignore_dash);
+
   if (!context) {
     return;
   }
@@ -102,6 +110,8 @@ inline void ApplyLineStyle(cairo_t *context,
 
 /** @brief Changes the given Cairo context to use the given TextStyle definitions. */
 inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style) {
+  SPDLOG_TRACE("helpers::ApplyTextStyle: {:s}.", text_style);
+
   if (!context) {
     return;
   }

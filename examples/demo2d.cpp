@@ -10,7 +10,6 @@
 #endif // WITH_OPENCV
 
 #include <viren2d/viren2d.h>
-#include <viren2d/math.h>
 
 
 /** Helper to show and save the canvas. */
@@ -94,6 +93,7 @@ void DemoLines() {
 //  cairo_stroke(context);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
+  painter.reset();
 }
 
 
@@ -114,7 +114,7 @@ void DemoArrows() {
   const double radius = std::min(size.x(), size.y()) / 2.0 - 50;
 
   for (int angle = 0; angle < 360; angle += 15) {
-    const double angle_rad = viren2d::deg2rad(angle);
+    const double angle_rad = angle * M_PI / 180.0;
     auto tip = center + radius * viren2d::Vec2d(std::cos(angle_rad),
                                                 std::sin(angle_rad));
     painter->DrawArrow(center, tip, style);
@@ -138,6 +138,7 @@ void DemoArrows() {
                                          {15, 10}));
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-arrows.png");
+  painter.reset();
 }
 
 
@@ -194,6 +195,7 @@ void DemoCircles() {
                        style, fill);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-circles.png");
+  painter.reset();
 }
 
 
@@ -229,6 +231,7 @@ void DemoRects() {
   painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
+  painter.reset();
 }
 
 
@@ -304,13 +307,19 @@ void DemoText() {
   }
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-text.png");
+  painter.reset();
 }
 
 
 int main(int /*argc*/, char **/*argv*/) {
+//  if (!viren2d::SetLogLevel("trace")) {
+//    std::cout << "Could not adjust log level - did you compile viren2d"
+//                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
+//              << std::endl;
+//  }
   DemoLines();
 //  DemoArrows();
-//  DemoCircles();
+  DemoCircles();
 //  DemoRects();
   DemoText();
 

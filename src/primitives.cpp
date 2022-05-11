@@ -24,15 +24,26 @@
 #pragma GCC diagnostic pop
 #endif  // __GNUC__
 
-#include <viren2d/math.h>
 #include <viren2d/primitives.h>
-#include <viren2d/string_utils.h>
+
+#include <helpers/logging.h>
+#include <helpers/math_utils.h>
+#include <helpers/string_utils.h>
 
 
 namespace viren2d {
 //---------------------------------------------------- Image buffer
+ImageBuffer::ImageBuffer()
+  : data(nullptr), width(0), height(0), channels(0), stride(0),
+  owns_data_(false) {
+  SPDLOG_DEBUG("ImageBuffer default constructor.");
+}
+
 
 ImageBuffer::ImageBuffer(int w, int h, int ch) {
+  SPDLOG_DEBUG("ImageBuffer constructor allocating"
+               " memory for {:d}x{:d}x{:d} image.",
+               w, h, ch);
   const int num_bytes = w * h * ch;
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
   width = w;
@@ -43,13 +54,15 @@ ImageBuffer::ImageBuffer(int w, int h, int ch) {
 }
 
 ImageBuffer::~ImageBuffer() {
+  SPDLOG_DEBUG("ImageBuffer destructor.");
   Cleanup();
 }
 
 ImageBuffer::ImageBuffer(const ImageBuffer &other) {
-  std::cout << "Inside ImageBuffer Copy Constructor" << std::endl; // TODO remove
+  SPDLOG_DEBUG("ImageBuffer copy constructor.");
   owns_data_ = other.owns_data_;
   if (other.owns_data_) {
+    SPDLOG_TRACE("Copying other's image buffer memory.");
     const int num_bytes = other.height * other.stride;
     data = static_cast<unsigned char*>(std::malloc(num_bytes));
     if (!data) {
@@ -58,7 +71,6 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other) {
       throw std::runtime_error(s.str());
     }
     std::memcpy(data, other.data, num_bytes);
-    std::cout << "ImageBuffer allocated " << num_bytes << " bytes" << std::endl; // TODO remove
   } else {
     data = other.data;
   }
@@ -74,7 +86,7 @@ ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
   : data(other.data), width(other.width), height(other.height),
     channels(other.channels), stride(other.stride),
     owns_data_(other.owns_data_) {
-  std::cout << "Inside ImageBuffer Move Constructor" << std::endl; // TODO remove
+  SPDLOG_DEBUG("ImageBuffer move constructor.");
   // Reset "other" but ensure that the memory won't be freed:
   other.owns_data_ = false;
   other.Cleanup();
@@ -82,13 +94,13 @@ ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
 
 
 ImageBuffer &ImageBuffer::operator=(const ImageBuffer &other) {
-  std::cout << "Inside ImageBuffer Copy Assignment" << std::endl; // TODO remove
+  SPDLOG_DEBUG("ImageBuffer copy assignment operator.");
   return *this = ImageBuffer(other);
 }
 
 
 ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
-  std::cout << "Inside ImageBuffer Move Assignment" << std::endl; // TODO remove
+  SPDLOG_DEBUG("ImageBuffer move assignment operator.");
   std::swap(data, other.data);
   std::swap(owns_data_, other.owns_data_);
   std::swap(width, other.width);
@@ -101,6 +113,8 @@ ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
 
 void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int height,
                                      int channels, int stride) {
+  SPDLOG_DEBUG("ImageBuffer::CreateSharedBuffer(w={:d}, h={:d},"
+               " ch={:d}, stride={:d}).", width, height, channels, stride);
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -115,6 +129,8 @@ void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int heigh
 
 void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
                              int channels, int stride) {
+  SPDLOG_DEBUG("ImageBuffer::CreateCopy(w={:d}, h={:d},"
+               " ch={:d}, stride={:d}).", width, height, channels, stride);
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -132,11 +148,12 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
   this->height = height;
   this->channels = channels;
   this->stride = stride;
-
-  std::cout << "ImageBuffer copied " << num_bytes << " bytes (CreateCopy)" << std::endl; // TODO remove
 }
 
 void ImageBuffer::RGB2BGR() {
+  SPDLOG_DEBUG("ImageBuffer::RGB2BGR changing"
+               " layer order in-place.");
+
   if (!data)
     return;
 
@@ -168,6 +185,8 @@ void ImageBuffer::RGB2BGR() {
 }
 
 ImageBuffer ImageBuffer::ToRGB() const {
+  SPDLOG_DEBUG("ImageBuffer::ToRGB().");
+
   if (channels != 1 && channels != 3 && channels != 4)
     throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGB!");
 
@@ -182,8 +201,9 @@ ImageBuffer ImageBuffer::ToRGB() const {
   }
 }
 
-ImageBuffer ImageBuffer::ToRGBA() const
-{
+ImageBuffer ImageBuffer::ToRGBA() const {
+  SPDLOG_DEBUG("ImageBuffer::ToRGBA().");
+
   if (channels != 1 && channels != 3 && channels != 4)
     throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGBA!");
 
@@ -205,18 +225,19 @@ bool ImageBuffer::IsValid() const {
 
 
 std::string ImageBuffer::ToString() const {
-  std::stringstream s;
-  s << "ImageBuffer(";
-
-  if (IsValid()) {
-    s << width << "x" << height << "x" << channels;
-    if (owns_data_)
-      s << ", copied memory";
-    else
-      s << ", shared memory";
-  } else {
-    s << "invalid";
+  if (!IsValid()) {
+    return "ImageBuffer::Invalid";
   }
+
+  std::stringstream s;
+  s << "ImageBuffer(" << width << "x" << height
+    << "x" << channels;
+
+  if (owns_data_)
+    s << ", copied memory";
+  else
+    s << ", shared memory";
+
   s << ")";
 
   return s.str();
@@ -224,8 +245,10 @@ std::string ImageBuffer::ToString() const {
 
 
 void ImageBuffer::Cleanup() {
+  SPDLOG_TRACE("ImageBuffer::Cleanup().");
   if (data && owns_data_) {
-    std::cout << "ImageBuffer freeing " << width*stride << " bytes" << std::endl; //TODO remove
+    SPDLOG_TRACE("ImageBuffer freeing {:d}x{:d}x{:d}={:d} bytes.",
+                 width, height, channels, width * height * channels);
     std::free(data);
   }
   data = nullptr;
@@ -239,6 +262,9 @@ void ImageBuffer::Cleanup() {
 
 ImageBuffer LoadImage(const std::string &image_filename,
                       int force_num_channels) {
+  SPDLOG_DEBUG("ImageBuffer::LoadImage(\"{:s}\", force_num_channels={:d}).",
+               image_filename, force_num_channels);
+
   int width, height, bytes_per_pixel;
   unsigned char *data = stbi_load(image_filename.c_str(),
                                   &width, &height,
@@ -271,6 +297,9 @@ ImageBuffer LoadImage(const std::string &image_filename,
 
 void SaveImage(const std::string &image_filename,
                const ImageBuffer &image) {
+  SPDLOG_DEBUG("ImageBuffer::SaveImage(\"{:s}\", {:s}).",
+               image_filename, image);
+
   int stb_result = 0; // stb return code 0 indicates failure
 
   const std::string fn_lower = strings::Lower(image_filename);
@@ -296,13 +325,16 @@ void SaveImage(const std::string &image_filename,
                                   image.channels, image.data,
                                   image.stride);
     } else {
-      throw std::invalid_argument("ImageBuffer can only be saved as JPEG or PNG. File extension must be '.jpg', '.jpeg' or '.png'.");
+      throw std::invalid_argument("ImageBuffer can only be saved"
+                  " as JPEG or PNG. File extension must be '.jpg',"
+                  " '.jpeg' or '.png'.");
     }
   }
 
   if (stb_result == 0) {
     std::stringstream s;
-    s << "Could not save ImageBuffer to '" << image_filename << "' - unknown error!";
+    s << "Could not save ImageBuffer to '" << image_filename
+      << "' - unknown error!";
     throw std::runtime_error(s.str());
   }
 }
@@ -310,6 +342,9 @@ void SaveImage(const std::string &image_filename,
 
 ImageBuffer ConversionHelperGray(const ImageBuffer &src,
                                  int channels_out) {
+  SPDLOG_DEBUG("ImageBuffer converting grayscale to {:d} channels.",
+               channels_out);
+
   if (src.channels != 1)
     throw std::invalid_argument("Input image must be grayscale!");
 
@@ -360,6 +395,9 @@ ImageBuffer Gray2RGBA(const ImageBuffer &img) {
 
 ImageBuffer ConversionHelperRGB(const ImageBuffer &src,
                                 int channels_out) {
+  SPDLOG_DEBUG("ImageBuffer converting RGB(A) to {:d} channels.",
+               channels_out);
+
   if (src.channels != 3 && src.channels != 4)
     throw std::invalid_argument("Input image must be RGB or RGBA!");
 
@@ -560,7 +598,8 @@ const _Tp& Vec<_Tp, dim>::y() const {
 template<typename _Tp, int dim>
 const _Tp& Vec<_Tp, dim>::width() const {
   if (dim != 2)
-    throw std::logic_error("Only 2D vectors support member access via width().");
+    throw std::logic_error("Only 2D vectors support"
+                           " member access via width().");
   return x();
 }
 
@@ -568,7 +607,8 @@ const _Tp& Vec<_Tp, dim>::width() const {
 template<typename _Tp, int dim>
 const _Tp& Vec<_Tp, dim>::height() const {
   if (dim != 2)
-    throw std::logic_error("Only 2D vectors support member access via height().");
+    throw std::logic_error("Only 2D vectors support"
+                           " member access via height().");
   return y();
 }
 
@@ -600,7 +640,8 @@ _Tp& Vec<_Tp, dim>::y() {
 template<typename _Tp, int dim>
 _Tp& Vec<_Tp, dim>::width() {
   if (dim != 2)
-    throw std::logic_error("Only 2D vectors support member access via width().");
+    throw std::logic_error("Only 2D vectors support"
+                           " member access via width().");
   return x();
 }
 
@@ -608,7 +649,8 @@ _Tp& Vec<_Tp, dim>::width() {
 template<typename _Tp, int dim>
 _Tp& Vec<_Tp, dim>::height() {
   if (dim != 2)
-    throw std::logic_error("Only 2D vectors support member access via height().");
+    throw std::logic_error("Only 2D vectors support"
+                           " member access via height().");
   return y();
 }
 
@@ -640,7 +682,8 @@ void Vec<_Tp, dim>::SetY(_Tp y) {
 template<typename _Tp, int dim>
 void Vec<_Tp, dim>::SetWidth(_Tp width) {
   if (dim != 2)
-    throw std::logic_error("Only 2D vectors support setting the x dimension via SetWidth().");
+    throw std::logic_error("Only 2D vectors support"
+                           " setting the x dimension via SetWidth().");
   SetX(width);
 }
 
@@ -648,7 +691,8 @@ void Vec<_Tp, dim>::SetWidth(_Tp width) {
 template<typename _Tp, int dim>
 void Vec<_Tp, dim>::SetHeight(_Tp height) {
   if (dim != 2)
-    throw std::logic_error("Only 2D vectors support setting the x dimension via SetHeight().");
+    throw std::logic_error("Only 2D vectors support"
+                           " setting the x dimension via SetHeight().");
   SetY(height);
 }
 
@@ -779,7 +823,7 @@ _Tp Vec<_Tp, dim>::Dot(const Vec<_Tp, dim>& other) const {
 template<typename _Tp, int dim>
 Vec<_Tp, dim> Vec<_Tp, dim>::Cross(const Vec<_Tp, dim>& other) const {
   if (dim != 3)
-    throw std::logic_error("Cross product is only defined for 3-dim vectors!");
+    throw std::logic_error("Cross product is only defined for 3d vectors!");
   // There's actually an analog for 2d space, but I didn't need
   // it yet: https://mathworld.wolfram.com/CrossProduct.html
 
@@ -998,8 +1042,14 @@ template Vec3i operator*(double scale, Vec3i rhs);
 template Vec3i operator/(Vec3i lhs, double scale);
 
 
+//TODO what to actually trace?
+//We could also trace Vec operations...
 //---------------------------------------------------- Math/Geometry Helpers
-Vec2d ProjectPointOntoLine(const Vec2d &pt, const Vec2d &line_from, const Vec2d &line_to) {
+Vec2d ProjectPointOntoLine(const Vec2d &pt,
+                           const Vec2d &line_from, const Vec2d &line_to) {
+  SPDLOG_TRACE("ProjectPointOntoLine(pt={:s}, l1={:s}, l2={:s}).",
+               pt, line_from, line_to);
+
   // Vector from line start to point:
   const Vec2d v = line_from.DirectionVector(pt);
   // Project point onto line via dot product:
@@ -1230,16 +1280,6 @@ std::string Rect::ToString() const {
 
   s << ")";
   return s.str();
-}
-
-
-Rect RectFromLTWH(double left, double top, double width, double height) {
-  return Rect(left + width / 2.0, top + height / 2.0, width, height);
-}
-
-
-Rect RectFromTLWH(const Vec2d &tl, const Vec2d &size) {
-  return RectFromLTWH(tl.x(), tl.y(), size.width(), size.height());
 }
 
 

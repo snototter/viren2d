@@ -3,8 +3,8 @@
 #include <gtest/gtest.h>
 
 #include <viren2d/colors.h>
-#include <viren2d/math.h>
-#include <viren2d/string_utils.h>
+#include <helpers/math_utils.h>
+#include <helpers/string_utils.h>
 #include <helpers/enum.h>
 
 ::testing::AssertionResult CheckColor(const viren2d::Color &color,
@@ -265,7 +265,7 @@ TEST(ColorTest, NamedColors) {
   EXPECT_TRUE(CheckColor(viren2d::Color("bLaCk", 0.3), 0.0, 0.0, 0.0, 0.3));
 
   // We can also instantiate an invalid color via enum/string:
-  EXPECT_TRUE(CheckColor(viren2d::Color("inVALid", 0.25), -1.0, -1.0, -1.0, 0.25));
+  EXPECT_TRUE(CheckColor(viren2d::Color("inVALid", 0.25), -1.0, -1.0, -1.0, -1.0));
   EXPECT_FALSE(viren2d::Color(viren2d::NamedColor::Invalid).IsValid());
 
   // String representations ignore white space, hyphen and underscores:

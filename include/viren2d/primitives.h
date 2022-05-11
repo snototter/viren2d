@@ -7,8 +7,6 @@
 #include <initializer_list>
 #include <cmath>
 
-#include <viren2d/math.h>
-
 
 namespace viren2d {
 //---------------------------------------------------- Image buffer
@@ -32,10 +30,7 @@ struct ImageBuffer {
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** Creates an empty ImageBuffer. */
-  ImageBuffer()
-    : data(nullptr), width(0), height(0), channels(0), stride(0),
-      owns_data_(false)
-  {}
+  ImageBuffer();
 
 
   //DONE [x] add documentation
@@ -119,6 +114,12 @@ struct ImageBuffer {
 
   /** @brief Returns a readable representation. */
   std::string ToString() const;
+
+  /** @brief Overloaded stream operator. */
+  friend std::ostream &operator<<(std::ostream &os, const ImageBuffer &buffer) {
+    os << buffer.ToString();
+    return os;
+  }
 
 private:
   void Cleanup();
@@ -742,9 +743,6 @@ struct Rect {
   }
 };
 
-//TODO doc, test, bind
-Rect RectFromLTWH(double left, double top, double width, double height);
-Rect RectFromTLWH(const Vec2d &tl, const Vec2d &size);
 
 //-------------------------------------------------  Comparison operators
 bool operator==(const Rect& lhs, const Rect& rhs);

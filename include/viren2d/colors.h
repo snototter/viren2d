@@ -99,7 +99,10 @@ NamedColor NamedColorFromString(const std::string &name);
 //DONE [x] add Python bindings
 //DONE [x] add Python test (tests/test_xxx.py)
 /** Returns the string representation of a premix enumeration value. */
-std::string NamedColorToString(NamedColor color);
+std::string NamedColorToString(const NamedColor &color);
+
+/** Overloaded ostream operator. */
+std::ostream &operator<<(std::ostream &os, const NamedColor &ncolor);
 
 
 /**
@@ -160,7 +163,7 @@ class Color {
    * @brief Constructs an invalid color (used to indicate
    * "special" color handling in some drawing functions).
    */
-  Color() : red(-1.0), green(-1.0), blue(-1.0), alpha(1.0)
+  Color() : red(-1.0), green(-1.0), blue(-1.0), alpha(-1.0)
   {}
 
 
@@ -290,7 +293,7 @@ class Color {
   bool IsShadeOfGray(double epsilon=0.02) const;
 
 
-  /** @brief Human readable RGBa representation. */
+  /** @brief Human readable representation. */
   std::string ToString() const;
 
 

@@ -5,10 +5,8 @@
 #include <exception>
 #include <cmath>
 
-#include <iostream> //TODO remove after switching to spdlog
-
 // Custom
-#include <viren2d/math.h>
+#include <helpers/math_utils.h>
 #include <helpers/drawing_helpers.h>
 #include <helpers/enum.h>
 
@@ -487,6 +485,8 @@ Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
   return position;
 }
 
+//FIXME painter --> public interface (or first Impl()): debug
+// all others: trace
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position, TextAnchor text_anchor,
@@ -499,7 +499,6 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // https://github.com/cubicool/cairou/blob/master/src/cairou-text.cpp
 
   if (text.empty()) {
-    // Nothing to do
     return;
   }
 
