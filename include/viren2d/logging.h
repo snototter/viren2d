@@ -6,6 +6,9 @@
 
 namespace viren2d {
 
+//TODO use consistent logging style: "Class::Method: parameters"
+//TODO doc
+
 enum class LogLevel : unsigned char {
   Off = 0,
   Trace,
