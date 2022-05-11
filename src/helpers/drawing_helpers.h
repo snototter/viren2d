@@ -30,10 +30,8 @@ namespace helpers {
  * This seemed to be the easiest/least confusing option.
  */
 inline void ApplyColor(cairo_t *context, const Color &color) {
-  SPDLOG_TRACE("ApplyColor({:s}).", color);
-  //FIXME [trace] [drawing_helpers.h:33] ApplyColor(Color::Invalid).
-
-  if (context) {
+  if (color.IsValid() && context) {
+    SPDLOG_TRACE("helpers::ApplyColor: {:s}.", color);
     cairo_set_source_rgba(context, color.blue, color.green,
                           color.red, color.alpha);
   }
@@ -82,7 +80,7 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
 inline void ApplyLineStyle(cairo_t *context,
                            const LineStyle &line_style,
                            bool ignore_dash = false) {
-  SPDLOG_TRACE("ApplyLineStyle(style={:s}, ignore_dash={:s}).",
+  SPDLOG_TRACE("helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
                line_style, ignore_dash);
 
   if (!context) {
@@ -112,7 +110,7 @@ inline void ApplyLineStyle(cairo_t *context,
 
 /** @brief Changes the given Cairo context to use the given TextStyle definitions. */
 inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style) {
-  SPDLOG_TRACE("ApplyTextStyle({:s}).", text_style);
+  SPDLOG_TRACE("helpers::ApplyTextStyle: {:s}.", text_style);
 
   if (!context) {
     return;

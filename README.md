@@ -147,5 +147,10 @@ python -m pip install .
 
 # TODOs
 * [ ] Use spdlog; set library-global debug level via interface function
-
+  * doc cmake options for cpp
+  * if installed via pip:
+    ```bash
+    CMAKE_ARGS="-Dviren2d_LOG_LEVEL=trace" python -m pip install .
+    ```
+  * in python, you have to call viren2d.set_log_level('debug')!
 

@@ -8,10 +8,12 @@
 #include <iostream> // TODO remove after switching to spdlog
 
 #include <viren2d/styles.h>
-#include <viren2d/math.h>
-#include <viren2d/string_utils.h>
 
+#include <helpers/math_utils.h>
+#include <helpers/string_utils.h>
 #include <helpers/enum.h>
+
+//TODO logging
 
 namespace viren2d {
 std::string LineCapToString(LineCap cap) {
@@ -136,12 +138,12 @@ double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
 
 
 std::string LineStyle::ToString() const {
-  if (IsSpecialInvalid()) {
-    return "LineStyle::Invalid";
-  }
-
   if (IsSpecialDefault()) {
     return "LineStyle::Default";
+  }
+
+  if (IsSpecialInvalid()) {
+    return "LineStyle::Invalid";
   }
 
   std::stringstream s;
@@ -428,10 +430,6 @@ TextAnchor TextAnchorFromString(const std::string &anchor) {
   throw std::invalid_argument(s.str());
 }
 
-TextAnchor TextAnchorFromString(const char *anchor) {
-  return TextAnchorFromString(std::string(anchor));
-}
-
 
 std::string TextAnchorToString(TextAnchor anchor) {
   switch (anchor) {
@@ -468,7 +466,7 @@ std::string TextAnchorToString(TextAnchor anchor) {
 }
 
 
-std::ostream &operator<<(std::ostream &os, const TextAnchor &anchor) {
+std::ostream &operator<<(std::ostream &os, TextAnchor anchor) {
   os << TextAnchorToString(anchor);
   return os;
 }

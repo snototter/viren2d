@@ -5,10 +5,8 @@
 #include <exception>
 #include <cmath>
 
-#include <iostream> //TODO remove after switching to spdlog
-
 // Custom
-#include <viren2d/math.h>
+#include <helpers/math_utils.h>
 #include <helpers/drawing_helpers.h>
 #include <helpers/enum.h>
 
@@ -409,9 +407,6 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
               Rect rect, const LineStyle &line_style,
               const Color &fill_color) {
-  SPDLOG_TRACE("DrawRect(rect={:s}, line={:s}, fill={:s}).",
-               rect, line_style, fill_color);
-
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
 
@@ -498,15 +493,12 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
               const TextStyle &desired_text_style, const TextStyle &current_context_style,
               const Vec2d &padding, double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius) {
-  SPDLOG_TRACE("DrawText({:d} char, pos={:s}, anchor={:s}).",
-               text.size(), position, text_anchor); //TODO extend
   CheckCanvas(surface, context);
 
   //TODO for rendering multi-line text:
   // https://github.com/cubicool/cairou/blob/master/src/cairou-text.cpp
 
   if (text.empty()) {
-    // Nothing to do
     return;
   }
 

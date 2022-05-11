@@ -358,9 +358,8 @@ enum class TextAnchor : unsigned char {
 
 //TODO doc, test, etc
 TextAnchor TextAnchorFromString(const std::string &anchor);
-TextAnchor TextAnchorFromString(const char *anchor);
 std::string TextAnchorToString(TextAnchor anchor);
-std::ostream &operator<<(std::ostream &os, const TextAnchor &anchor);
+std::ostream &operator<<(std::ostream &os, TextAnchor anchor);
 
 } // namespace viren2d
 

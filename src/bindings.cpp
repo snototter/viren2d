@@ -1718,6 +1718,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   //TODO(snototter) generate documentation; check if all documented code uses backticks (we might need double backticks for sphinx?)
 
+  //------------------------------------------------- Logging
+  m.def("set_log_level", static_cast<bool (*)(const std::string &)>(&viren2d::SetLogLevel), "TODO", py::arg(""));
+//  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
 
 #ifdef viren2d_VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(viren2d_VERSION_INFO);
