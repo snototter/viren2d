@@ -151,7 +151,8 @@ void DemoCircles() {
 
   auto style = viren2d::LineStyle(3, "navy-blue!90");
 
-  painter->DrawCircle({100, 100}, 50, style);
+  viren2d::SetLogLevel("trace");
+  painter->DrawCircle({100, 100}, 50, style, "red");
 
   style.dash_pattern = {20, 15};
   painter->DrawCircle({250, 100}, 50, style);

@@ -5,10 +5,11 @@
 #include <map>
 #include <exception>
 
+#include <werkzeugkiste/strings/strings.h>
+
 #include <viren2d/colors.h>
 
 #include <helpers/math_utils.h>
-#include <helpers/string_utils.h>
 #include <helpers/enum.h>
 #include <helpers/logging.h>
 
@@ -46,7 +47,7 @@ std::vector<std::string> ListNamedColors() {
 
 
 NamedColor NamedColorFromString(const std::string &name) {
-  std::string cname = strings::Lower(name);
+  std::string cname = werkzeugkiste::strings::Lower(name);
   cname.erase(std::remove_if(cname.begin(), cname.end(), [](char ch) -> bool {
       return ::isspace(ch) || (ch == '-') || (ch == '_');
     }), cname.end());
@@ -677,7 +678,7 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
     throw std::invalid_argument(s.str());
   }
 
-  const std::string hex = strings::Lower(webcode);
+  const std::string hex = werkzeugkiste::strings::Lower(webcode);
   unsigned char rgb[3];
   for (size_t idx = 0; idx < 3; ++idx) {
     unsigned char upper = hex[idx * 2 + 1];

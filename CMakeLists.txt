@@ -13,7 +13,7 @@ project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
 # * Python bindings/library will be named viren2d
 set(TARGET_CPP_LIB    ${PROJECT_NAME}++)
 set(TARGET_CPP_TEST   ${PROJECT_NAME}-test)
-set(TARGET_CPP_DEMO   ${PROJECT_NAME}-demo)
+set(TARGET_CPP_DEMO   demo-${PROJECT_NAME})
 set(TARGET_PYTHON_LIB ${PROJECT_NAME})
 
 
@@ -28,6 +28,7 @@ set(viren2d_LOG_LEVEL "info" CACHE STRING "Select log level")
 set_property(CACHE viren2d_LOG_LEVEL PROPERTY STRINGS disable trace debug info warn error)
 
 
+#FIXME use default paths, check werkzeugkiste!
 # Offer the user the choice of overriding the installation (sub-)directories
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     # will not take effect without FORCE
@@ -51,7 +52,7 @@ endforeach()
 set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # only std c++14, not gnu++14
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra") # TODO set per targets; check werkzeugkiste CMakeLists
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -90,7 +91,6 @@ set(viren2d_PUBLIC_HEADER_FILES
 set(viren2d_PRIVATE_HEADER_FILES
     src/helpers/logging.h
     src/helpers/math_utils.h    #TODO replace by cpputils::mathutils
-    src/helpers/string_utils.h  #TODO replace by cpputils::stringutils
     src/helpers/drawing_helpers.h
     src/helpers/enum.h)
 
@@ -119,6 +119,23 @@ find_package(Cairo REQUIRED)
 #target_link_libraries(${TARGET_CPP_LIB} PRIVATE ${Cairo_LIBS})
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 
+
+# Include the C++ werkzeugkiste utilities (ensure that CMake only sets up
+# the toolbox, no testing, to examples)
+set(werkzeugkiste_WITH_EXAMPLES OFF)
+set(werkzeugkiste_WITH_TESTS OFF)
+set(INSTALL_werkzeugkiste ON) # Werkzeugkiste needs to export its targets
+
+# Fetch the library:
+include(FetchContent)
+FetchContent_Declare(
+  werkzeugkiste
+  GIT_REPOSITORY https://github.com/snototter/werkzeugkiste.git
+  GIT_TAG main
+)
+FetchContent_MakeAvailable(werkzeugkiste)
+target_link_libraries(${TARGET_CPP_LIB} PRIVATE werkzeugkiste::strings)
+#TODO public werkzeugkiste::math
 
 # If you installed (via cmake --install) spdlog to the default location, CMake will
 # find spdlog. For other usage scenarios, refer to the spdlog examples, e.g.
@@ -295,6 +312,7 @@ if(viren2d_WITH_TESTS)
     target_link_libraries(${TARGET_CPP_TEST}
         PRIVATE
         gtest_main
+        werkzeugkiste::strings
         ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
 
     target_compile_definitions(${TARGET_CPP_TEST} PRIVATE

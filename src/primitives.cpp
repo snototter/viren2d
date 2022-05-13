@@ -24,11 +24,12 @@
 #pragma GCC diagnostic pop
 #endif  // __GNUC__
 
+#include <werkzeugkiste/strings/strings.h>
+
 #include <viren2d/primitives.h>
 
 #include <helpers/logging.h>
 #include <helpers/math_utils.h>
-#include <helpers/string_utils.h>
 
 
 namespace viren2d {
@@ -302,9 +303,9 @@ void SaveImage(const std::string &image_filename,
 
   int stb_result = 0; // stb return code 0 indicates failure
 
-  const std::string fn_lower = strings::Lower(image_filename);
-  if (strings::EndsWith(fn_lower, ".jpg")
-      || strings::EndsWith(fn_lower, ".jpeg")) {
+  const std::string fn_lower = werkzeugkiste::strings::Lower(image_filename);
+  if (werkzeugkiste::strings::EndsWith(fn_lower, ".jpg")
+      || werkzeugkiste::strings::EndsWith(fn_lower, ".jpeg")) {
     // stbi_write_jpg requires contiguous memory
     if (image.stride != image.channels * image.width) {
       std::stringstream s;
@@ -319,7 +320,7 @@ void SaveImage(const std::string &image_filename,
                                 image.channels, image.data,
                                 90);
   } else {
-    if (strings::EndsWith(fn_lower, ".png")) {
+    if (werkzeugkiste::strings::EndsWith(fn_lower, ".png")) {
       stb_result = stbi_write_png(image_filename.c_str(),
                                   image.width, image.height,
                                   image.channels, image.data,

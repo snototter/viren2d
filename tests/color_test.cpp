@@ -2,9 +2,10 @@
 
 #include <gtest/gtest.h>
 
+#include <werkzeugkiste/strings/strings.h>
+
 #include <viren2d/colors.h>
 #include <helpers/math_utils.h>
-#include <helpers/string_utils.h>
 #include <helpers/enum.h>
 
 ::testing::AssertionResult CheckColor(const viren2d::Color &color,
@@ -218,7 +219,7 @@ TEST(ColorTest, Webcodes) {
       webcode[idx+1] = (digit < 10) ? ('0' + digit)
                                   : ('A' + digit - 10);
       color = viren2d::Color(webcode);
-      EXPECT_EQ(viren2d::strings::Upper(color.ToHexString()),
+      EXPECT_EQ(werkzeugkiste::strings::Upper(color.ToHexString()),
                 webcode);
     }
   }

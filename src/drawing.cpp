@@ -9,6 +9,7 @@
 #include <math.h>
 
 #include <cairo/cairo.h>
+#include <werkzeugkiste/strings/strings.h>
 
 // public viren2d headers
 #include <viren2d/drawing.h>
@@ -16,7 +17,6 @@
 
 // private viren2d headers
 #include <helpers/math_utils.h>
-#include <helpers/string_utils.h>
 #include <helpers/drawing_helpers.h>
 #include <helpers/logging.h>
 
@@ -84,7 +84,7 @@ void shutdown() {
 INITIALIZER(initialize) {
 //  spdlog::set_level(spdlog::level::trace);
 //  spdlog::set_pattern("[%l][%@, %!] %v");
-  spdlog::set_level(viren2d_ACTIVE_SPDLOG_LEVEL);
+  spdlog::set_level(viren2d_ACTIVE_SPDLOG_LEVEL); //TODO change to default info/warn before release
   SPDLOG_DEBUG("Initializing the viren2d++ library.");
 
   std::atexit(shutdown);

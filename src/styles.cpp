@@ -5,12 +5,11 @@
 #include <stdexcept>
 #include <cmath>
 
-#include <iostream> // TODO remove after switching to spdlog
+#include <werkzeugkiste/strings/strings.h>
 
 #include <viren2d/styles.h>
 
 #include <helpers/math_utils.h>
-#include <helpers/string_utils.h>
 #include <helpers/enum.h>
 
 //TODO logging
@@ -387,7 +386,7 @@ bool operator!=(const TextStyle &lhs, const TextStyle &rhs) {
 
 
 TextAnchor TextAnchorFromString(const std::string &anchor) {
-  std::string slug = viren2d::strings::Lower(anchor);
+  std::string slug = werkzeugkiste::strings::Lower(anchor);
   slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
       return ::isspace(ch) || (ch == '-') || (ch == '_');
     }), slug.end());

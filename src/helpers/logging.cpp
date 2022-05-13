@@ -1,9 +1,11 @@
 #include <sstream>
 
-#include <viren2d/logging.h>
+#include <werkzeugkiste/strings/strings.h>
 
+// Public viren2d headers
+#include <viren2d/logging.h>
+// Private viren2d headers
 #include <helpers/logging.h>
-#include <helpers/string_utils.h>
 
 namespace viren2d {
 namespace  {
@@ -74,7 +76,7 @@ int ToSpdLogMacroLevel(LogLevel lvl) {
 LogLevel LogLevelFromString(const std::string &lvl) {
   SPDLOG_TRACE("LogLevelFromString(\"{:s}\").", lvl);
 
-  std::string level = strings::Lower(lvl);
+  std::string level = werkzeugkiste::strings::Lower(lvl);
 
   if (level.compare("off") == 0) {
     return LogLevel::Off;
