@@ -5,11 +5,15 @@
 #include <exception>
 #include <cmath>
 
+// non-STL, external
+#include <werkzeugkiste/geometry/utils.h>
+
 // Custom
-#include <helpers/math_utils.h>
 #include <helpers/drawing_helpers.h>
 #include <helpers/enum.h>
 
+
+namespace wgu = werkzeugkiste::geometry;
 
 namespace viren2d {
 namespace helpers {
@@ -52,7 +56,7 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
 
   cairo_save(context);
   cairo_arc(context, center.x(), center.y(), radius,
-            deg2rad(angle1), deg2rad(angle2));
+            wgu::deg2rad(angle1), wgu::deg2rad(angle2));
 
   if (include_center) {
     cairo_line_to(context, center.x(), center.y());
@@ -142,7 +146,7 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
   // Compute the offset/direction vectors from the line's
   // endpoints to the endpoints of each tip:
   const double tip_length = arrow_style.TipLengthForShaft(from, to);
-  const double tip_angle_rad = deg2rad(arrow_style.tip_angle);
+  const double tip_angle_rad = wgu::deg2rad(arrow_style.tip_angle);
   auto tip_dir_1st_a = tip_length * Vec2d(std::cos(shaft_angle_rad + tip_angle_rad),
                                           std::sin(shaft_angle_rad + tip_angle_rad));
   auto tip_dir_1st_b = tip_length * Vec2d(std::cos(shaft_angle_rad - tip_angle_rad),
@@ -257,13 +261,13 @@ void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
   // Cairo context. Otherwise, the angles would be
   // quite different from what the user expected.
   bool is_partially_drawn = false;
-  if (!eps_zero(ellipse.angle_from)) {
+  if (!wgu::eps_zero(ellipse.angle_from)) {
     //TODO log debug: adjusting angle1
     ellipse.angle_from = AdjustEllipseAngle(ellipse.angle_from,
                                             scale_x, scale_y);
     is_partially_drawn = true;
   }
-  if (!eps_equal(ellipse.angle_to, 360.0)) {
+  if (!wgu::eps_equal(ellipse.angle_to, 360.0)) {
     //TODO log debug: adjusting angle2
     ellipse.angle_to = AdjustEllipseAngle(ellipse.angle_to,
                                           scale_x, scale_y);
@@ -276,12 +280,12 @@ void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
   cairo_save(context);
   cairo_save(context);
   cairo_translate(context, ellipse.cx, ellipse.cy);
-  cairo_rotate(context, deg2rad(ellipse.rotation));
+  cairo_rotate(context, wgu::deg2rad(ellipse.rotation));
   cairo_scale(context, scale_x, scale_y);
 
   cairo_arc(context, 0, 0, 1,
-            deg2rad(ellipse.angle_from),
-            deg2rad(ellipse.angle_to));
+            wgu::deg2rad(ellipse.angle_from),
+            wgu::deg2rad(ellipse.angle_to));
 
   // If we shouldn't draw a full circle in the scaled context,
   // the user can decide whether to include the center point
@@ -396,10 +400,10 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
   const double half_width = rect.half_width() - rect.radius;
   const double half_height = rect.half_height() - rect.radius;
   cairo_move_to(context, -rect.half_width(), -half_height);
-  cairo_arc(context, -half_width, -half_height, rect.radius, deg2rad(180), deg2rad(270));
-  cairo_arc(context,  half_width, -half_height, rect.radius, deg2rad(-90), 0);
-  cairo_arc(context,  half_width,  half_height, rect.radius, 0, deg2rad(90));
-  cairo_arc(context, -half_width,  half_height, rect.radius, deg2rad(90), deg2rad(180));
+  cairo_arc(context, -half_width, -half_height, rect.radius, wgu::deg2rad(180), wgu::deg2rad(270));
+  cairo_arc(context,  half_width, -half_height, rect.radius, wgu::deg2rad(-90), 0);
+  cairo_arc(context,  half_width,  half_height, rect.radius, 0, wgu::deg2rad(90));
+  cairo_arc(context, -half_width,  half_height, rect.radius, wgu::deg2rad(90), wgu::deg2rad(180));
   cairo_close_path(context);
 }
 
@@ -421,7 +425,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
   cairo_save(context);
   cairo_translate(context, rect.cx, rect.cy);
-  cairo_rotate(context, deg2rad(rect.rotation));
+  cairo_rotate(context, wgu::deg2rad(rect.rotation));
 
   // Draw a standard (box) rect or rounded rectangle:
   if (rect.radius > 0.0) {
@@ -520,7 +524,7 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // Shift the context to the desired anchor point
   // and rotate
   cairo_translate(context, position.x(), position.y());
-  cairo_rotate(context, deg2rad(rotation));
+  cairo_rotate(context, wgu::deg2rad(rotation));
   position = {0, 0};
 
 //#define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag

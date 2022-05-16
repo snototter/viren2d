@@ -25,12 +25,14 @@
 #endif  // __GNUC__
 
 #include <werkzeugkiste/strings/strings.h>
+#include <werkzeugkiste/geometry/utils.h>
 
 #include <viren2d/primitives.h>
 
 #include <helpers/logging.h>
-#include <helpers/math_utils.h>
 
+
+namespace wgu = werkzeugkiste::geometry;
 
 namespace viren2d {
 //---------------------------------------------------- Image buffer
@@ -917,7 +919,7 @@ std::string Vec<_Tp, dim>::ToString() const {
 template<typename _Tp, int dim>
 bool operator==(const Vec<_Tp, dim>& lhs, const Vec<_Tp, dim>& rhs) {
   for (int i = 0; i < dim; ++i) {
-    if (!eps_equal(lhs.val[i], rhs.val[i])) {
+    if (!wgu::eps_equal(lhs.val[i], rhs.val[i])) {
       return false;
     }
   }
@@ -1076,7 +1078,7 @@ double AngleRadFromDirectionVec(const Vec2d &vec) {
 
 
 double AngleDegFromDirectionVec(const Vec2d &vec) {
-  return rad2deg(AngleRadFromDirectionVec(vec));
+  return wgu::rad2deg(AngleRadFromDirectionVec(vec));
 }
 
 
@@ -1086,7 +1088,7 @@ Vec2d DirectionVecFromAngleRad(double rad) {
 
 
 Vec2d DirectionVecFromAngleDeg(double deg) {
-  return DirectionVecFromAngleRad(deg2rad(deg));
+  return DirectionVecFromAngleRad(wgu::deg2rad(deg));
 }
 
 
@@ -1150,7 +1152,7 @@ Ellipse &Ellipse::operator-=(const Vec2d &offset) {
 bool Ellipse::IsValid() const {
   return (major_axis > 0.0) && (minor_axis > 0.0)
       && (major_axis >= minor_axis)
-      && !eps_equal(angle_from, angle_to);
+      && !wgu::eps_equal(angle_from, angle_to);
 }
 
 
@@ -1161,7 +1163,7 @@ std::string Ellipse::ToString() const {
     << ", mn=" << minor_axis << "; rot=" << rotation
     << ", a1=" << angle_from << "°, a2=" << angle_to << "°";
 
-  if (!eps_zero(angle_from) || !eps_equal(angle_to, 360.0)) {
+  if (!wgu::eps_zero(angle_from) || !wgu::eps_equal(angle_to, 360.0)) {
     s << ", " << (include_center ? "w/" : "w/o") << " center";
   }
 
@@ -1174,12 +1176,13 @@ std::string Ellipse::ToString() const {
 
 
 bool operator==(const Ellipse& lhs, const Ellipse& rhs) {
-  return eps_equal(lhs.cx, rhs.cx) && eps_equal(lhs.cy, rhs.cy)
-      && eps_equal(lhs.major_axis, rhs.major_axis)
-      && eps_equal(lhs.minor_axis, rhs.minor_axis)
-      && eps_equal(lhs.rotation, rhs.rotation)
-      && eps_equal(lhs.angle_from, rhs.angle_from)
-      && eps_equal(lhs.angle_to, rhs.angle_to)
+  return wgu::eps_equal(lhs.cx, rhs.cx)
+      && wgu::eps_equal(lhs.cy, rhs.cy)
+      && wgu::eps_equal(lhs.major_axis, rhs.major_axis)
+      && wgu::eps_equal(lhs.minor_axis, rhs.minor_axis)
+      && wgu::eps_equal(lhs.rotation, rhs.rotation)
+      && wgu::eps_equal(lhs.angle_from, rhs.angle_from)
+      && wgu::eps_equal(lhs.angle_to, rhs.angle_to)
       && (lhs.include_center == rhs.include_center);
 }
 
@@ -1285,12 +1288,12 @@ std::string Rect::ToString() const {
 
 
 bool operator==(const Rect& lhs, const Rect& rhs) {
-  return eps_equal(lhs.cx, rhs.cx)
-      && eps_equal(lhs.cy, rhs.cy)
-      && eps_equal(lhs.width, rhs.width)
-      && eps_equal(lhs.height, rhs.height)
-      && eps_equal(lhs.rotation, rhs.rotation)
-      && eps_equal(lhs.radius, rhs.radius);
+  return wgu::eps_equal(lhs.cx, rhs.cx)
+      && wgu::eps_equal(lhs.cy, rhs.cy)
+      && wgu::eps_equal(lhs.width, rhs.width)
+      && wgu::eps_equal(lhs.height, rhs.height)
+      && wgu::eps_equal(lhs.rotation, rhs.rotation)
+      && wgu::eps_equal(lhs.radius, rhs.radius);
 }
 
 bool operator!=(const Rect& lhs, const Rect& rhs) {

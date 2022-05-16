@@ -16,7 +16,6 @@
 #include <viren2d/colors.h>
 
 // private viren2d headers
-#include <helpers/math_utils.h>
 #include <helpers/drawing_helpers.h>
 #include <helpers/logging.h>
 

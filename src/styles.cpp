@@ -6,13 +6,15 @@
 #include <cmath>
 
 #include <werkzeugkiste/strings/strings.h>
+#include <werkzeugkiste/geometry/utils.h>
 
 #include <viren2d/styles.h>
 
-#include <helpers/math_utils.h>
 #include <helpers/enum.h>
 
 //TODO logging
+
+namespace wgu = werkzeugkiste::geometry;
 
 namespace viren2d {
 std::string LineCapToString(LineCap cap) {
@@ -125,7 +127,7 @@ double LineStyle::CapOffset() const {
 double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
   // For a diagram of how to compute the miter length, see
   //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
-  const double miter_length = line_width / std::max(1e-6, std::sin(deg2rad(interior_angle / 2.0)));
+  const double miter_length = line_width / std::max(1e-6, std::sin(wgu::deg2rad(interior_angle / 2.0)));
   if (((miter_length / line_width) > miter_limit)  // Cairo would switch to BEVEL
       || (line_join == LineJoin::Round)
       || (line_join == LineJoin::Bevel)) {
@@ -157,7 +159,7 @@ std::string LineStyle::ToString() const {
 
 
 bool LineStyle::Equals(const LineStyle &other) const {
-  if (!eps_equal(line_width, other.line_width))
+  if (!wgu::eps_equal(line_width, other.line_width))
     return false;
 
   if (color != other.color)
@@ -167,7 +169,7 @@ bool LineStyle::Equals(const LineStyle &other) const {
     return false;
 
   for (size_t i = 0; i < other.dash_pattern.size(); ++i)
-    if (!eps_equal(dash_pattern[i], other.dash_pattern[i]))
+    if (!wgu::eps_equal(dash_pattern[i], other.dash_pattern[i]))
       return false;
 
   if (line_cap != other.line_cap)
@@ -280,10 +282,10 @@ double ArrowStyle::TipOffset(double miter_limit) const {
 
 
 bool ArrowStyle::Equals(const ArrowStyle &other) const {
-  if (!eps_equal(tip_length, other.tip_length))
+  if (!wgu::eps_equal(tip_length, other.tip_length))
     return false;
 
-  if (!eps_equal(tip_angle, other.tip_angle))
+  if (!wgu::eps_equal(tip_angle, other.tip_angle))
     return false;
 
   if (tip_closed != other.tip_closed)

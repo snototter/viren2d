@@ -90,7 +90,6 @@ set(viren2d_PUBLIC_HEADER_FILES
 
 set(viren2d_PRIVATE_HEADER_FILES
     src/helpers/logging.h
-    src/helpers/math_utils.h    #TODO replace by cpputils::mathutils
     src/helpers/drawing_helpers.h
     src/helpers/enum.h)
 
@@ -134,7 +133,9 @@ FetchContent_Declare(
   GIT_TAG main
 )
 FetchContent_MakeAvailable(werkzeugkiste)
-target_link_libraries(${TARGET_CPP_LIB} PRIVATE werkzeugkiste::strings)
+target_link_libraries(${TARGET_CPP_LIB}
+                      PRIVATE werkzeugkiste::strings
+                      PUBLIC werkzeugkiste::geometry)
 #TODO public werkzeugkiste::math
 
 # If you installed (via cmake --install) spdlog to the default location, CMake will

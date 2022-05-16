@@ -6,13 +6,14 @@
 #include <exception>
 
 #include <werkzeugkiste/strings/strings.h>
+#include <werkzeugkiste/geometry/utils.h>
 
 #include <viren2d/colors.h>
 
-#include <helpers/math_utils.h>
 #include <helpers/enum.h>
 #include <helpers/logging.h>
 
+namespace wgu = werkzeugkiste::geometry;
 
 namespace viren2d {
 /** @brief Color utilities in anonymuous namespace. */
@@ -625,8 +626,8 @@ Color &Color::operator-=(const Color &rhs) {
 
 
 bool operator==(const Color& lhs, const Color& rhs) {
-  return eps_equal(lhs.red, rhs.red) && eps_equal(lhs.green, rhs.green)
-      && eps_equal(lhs.blue, rhs.blue) && eps_equal(lhs.alpha, rhs.alpha);
+  return wgu::eps_equal(lhs.red, rhs.red) && wgu::eps_equal(lhs.green, rhs.green)
+      && wgu::eps_equal(lhs.blue, rhs.blue) && wgu::eps_equal(lhs.alpha, rhs.alpha);
 }
 
 

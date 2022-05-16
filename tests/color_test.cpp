@@ -3,17 +3,19 @@
 #include <gtest/gtest.h>
 
 #include <werkzeugkiste/strings/strings.h>
+#include <werkzeugkiste/geometry/utils.h>
 
 #include <viren2d/colors.h>
-#include <helpers/math_utils.h>
 #include <helpers/enum.h>
+
+namespace wgu = werkzeugkiste::geometry;
 
 ::testing::AssertionResult CheckColor(const viren2d::Color &color,
                                       double red, double green,
                                       double blue, double alpha) {
-  if (viren2d::eps_equal(color.red, red)
-      && viren2d::eps_equal(color.green, green)
-      && viren2d::eps_equal(color.blue, blue)
+  if (wgu::eps_equal(color.red, red)
+      && wgu::eps_equal(color.green, green)
+      && wgu::eps_equal(color.blue, blue)
       && (std::fabs(color.alpha - alpha) < 0.001)) {
     return ::testing::AssertionSuccess();
   } else {

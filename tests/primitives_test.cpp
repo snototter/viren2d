@@ -2,8 +2,11 @@
 
 #include <gtest/gtest.h>
 
+#include <werkzeugkiste/geometry/utils.h>
+
 #include <viren2d/primitives.h>
-#include <helpers/math_utils.h>
+
+namespace wgu = werkzeugkiste::geometry;
 
 TEST(PrimitivesTest, Rectangle) {
   auto r = viren2d::Rect();
@@ -35,8 +38,8 @@ TEST(PrimitivesTest, Rectangle) {
           EXPECT_DOUBLE_EQ(rect.half_width(), width / 2.0);
           EXPECT_DOUBLE_EQ(rect.half_height(), height / 2.0);
 
-          EXPECT_TRUE(viren2d::eps_zero(rect.rotation));
-          EXPECT_TRUE(viren2d::eps_zero(rect.radius));
+          EXPECT_TRUE(wgu::eps_zero(rect.rotation));
+          EXPECT_TRUE(wgu::eps_zero(rect.radius));
 
           rect.width = 1;
           rect.height = 2;
@@ -133,9 +136,9 @@ TEST(PrimitivesTest, Ellipse) {
           viren2d::Ellipse ellipse(cx, cy, major, minor);
           EXPECT_EQ(ellipse.IsValid(), (major > 0) && (minor > 0) && (major >= minor));
 
-          EXPECT_TRUE(viren2d::eps_zero(ellipse.rotation));
-          EXPECT_TRUE(viren2d::eps_zero(ellipse.angle_from));
-          EXPECT_TRUE(viren2d::eps_equal(ellipse.angle_to, 360.0));
+          EXPECT_TRUE(wgu::eps_zero(ellipse.rotation));
+          EXPECT_TRUE(wgu::eps_zero(ellipse.angle_from));
+          EXPECT_TRUE(wgu::eps_equal(ellipse.angle_to, 360.0));
 
           ellipse.major_axis = 100;
           ellipse.minor_axis = 80;

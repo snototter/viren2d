@@ -7,7 +7,7 @@
 #include <initializer_list>
 #include <cmath>
 
-
+//TODO replace vec2d by werkzeugkiste
 namespace viren2d {
 //---------------------------------------------------- Image buffer
 /**
