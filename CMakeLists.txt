@@ -118,21 +118,30 @@ find_package(Cairo REQUIRED)
 #target_link_libraries(${TARGET_CPP_LIB} PRIVATE ${Cairo_LIBS})
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 
+#TODO refactor werkzeugkiste integration -- could provide this for downloads at werkzeugkiste/cmake/werkzeugkiste.cmake
+find_package(werkzeugkiste QUIET)
+if(werkzeugkiste_FOUND)
+    message(STATUS "Using werkzeugkiste v${werkzeugkiste_VERSION} (locally installed)")
+else()
+    ####message(STATUS "werkzeugkiste not found locally, falling back to FetchContent. If you installed the library, rerun with adjusted CMAKE_PREFIX_PATH.")
+    # We only need the toolbox (no examples, no testing)
+    set(werkzeugkiste_WITH_EXAMPLES OFF)
+    set(werkzeugkiste_WITH_TESTS OFF)
+    # We use werkzeugkiste in the public viren2d interface,
+    # thus we need to install it too
+    set(INSTALL_werkzeugkiste ON)
 
-# Include the C++ werkzeugkiste utilities (ensure that CMake only sets up
-# the toolbox, no testing, to examples)
-set(werkzeugkiste_WITH_EXAMPLES OFF)
-set(werkzeugkiste_WITH_TESTS OFF)
-set(INSTALL_werkzeugkiste ON) # Werkzeugkiste needs to export its targets
+    # Fetch the library:
+    include(FetchContent)
+    FetchContent_Declare(
+      werkzeugkiste
+      GIT_REPOSITORY https://github.com/snototter/werkzeugkiste.git
+      GIT_TAG main
+    )
+    FetchContent_MakeAvailable(werkzeugkiste)
+    message(STATUS "Using werkzeugkiste v${werkzeugkiste_VERSION} (via FetchContent)")
+endif()
 
-# Fetch the library:
-include(FetchContent)
-FetchContent_Declare(
-  werkzeugkiste
-  GIT_REPOSITORY https://github.com/snototter/werkzeugkiste.git
-  GIT_TAG main
-)
-FetchContent_MakeAvailable(werkzeugkiste)
 target_link_libraries(${TARGET_CPP_LIB}
                       PRIVATE werkzeugkiste::strings
                       PUBLIC werkzeugkiste::geometry)
@@ -244,7 +253,7 @@ if(viren2d_WITH_DEMO)
     # OpenCV is optional, we only use it to display the rendered images
     find_package(OpenCV QUIET)
     if(${OpenCV_FOUND})
-        message(STATUS "[${TARGET_CPP_DEMO}] The demo will use OpenCV (core + highgui module) to display images.")
+        message(STATUS "${PROJECT_NAME} demo will use OpenCV v${OpenCV_VERSION} to display images.")
 
         target_compile_definitions(${TARGET_CPP_DEMO}
             PRIVATE WITH_OPENCV)
@@ -301,7 +310,6 @@ if(viren2d_WITH_TESTS)
     add_executable(${TARGET_CPP_TEST}
         src/helpers/enum.h
         tests/color_test.cpp
-        tests/vector_test.cpp
         tests/primitives_test.cpp
         tests/imagebuffer_test.cpp
         tests/utils_test.cpp

@@ -506,9 +506,9 @@ viren2d::ImageBuffer CreateImageBuffer(
 
 //------------------------------------------------- Vec(tor) from tuple
 template<typename _Tp, int dim>
-viren2d::Vec<_Tp, dim> VecFromTupleOrList(py::object object) {
+werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(py::object object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
-  using VC = viren2d::Vec<_Tp, dim>;
+  using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
     std::stringstream s;
@@ -537,13 +537,13 @@ viren2d::Vec<_Tp, dim> VecFromTupleOrList(py::object object) {
 
 
 template<typename _Tp, int dim>
-viren2d::Vec<_Tp, dim> VecFromList(py::list lst) {
+werkzeugkiste::geometry::Vec<_Tp, dim> VecFromList(py::list lst) {
   return VecFromTupleOrList<_Tp, dim>(lst.cast<py::tuple>());
 }
 
 
 template<typename _Tp, int dim>
-py::list VecToList(const viren2d::Vec<_Tp, dim> &vec) {
+py::list VecToList(const werkzeugkiste::geometry::Vec<_Tp, dim> &vec) {
   py::list lst;
   for (int i = 0; i < dim; ++i)
     lst.append(vec.val[i]);
@@ -553,7 +553,7 @@ py::list VecToList(const viren2d::Vec<_Tp, dim> &vec) {
 
 template<typename _Tp, int dim>
 void RegisterVec(py::module &m) {
-  using VC = viren2d::Vec<_Tp, dim>;
+  using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
   std::stringstream doc;
   doc << "Vector in " << dim << "D space.";
 

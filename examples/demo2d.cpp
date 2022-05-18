@@ -43,7 +43,7 @@ void DemoLines() {
   viren2d::Vec2d pt1 {50, 50};
   viren2d::Vec2d pt2 {150, 350};
 
-  const auto rotation = viren2d::AngleDegFromDirectionVec(pt1.DirectionVector(pt2));
+  const auto rotation = werkzeugkiste::geometry::AngleDegFromDirectionVec(pt1.DirectionVector(pt2));
   painter->SetDefaultTextStyle(viren2d::TextStyle(18, "Arial"));
 
   viren2d::LineStyle line_style(22, "azure!60", {},

@@ -7,6 +7,7 @@
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
+#include <werkzeugkiste/geometry/vector.h>
 
 // Custom
 #include <helpers/drawing_helpers.h>
@@ -225,14 +226,14 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 double AdjustEllipseAngle(double deg, double scale_x, double scale_y) {
   // Compute the direction vector corresponding to
   // the desired angle.
-  auto dir = DirectionVecFromAngleDeg(deg);
+  auto dir = wgu::DirectionVecFromAngleDeg(deg);
   // Apply the inverse transformation (scaling).
   dir.SetX(dir.x() / scale_x);
   dir.SetY(dir.y() / scale_y);
   // Compute the angle (w.r.t. to the positive X axis)
   // which should be used to draw the path in cairo_arc
   // after the context is transformed.
-  return AngleDegFromDirectionVec(dir);
+  return wgu::AngleDegFromDirectionVec(dir);
 }
 
 

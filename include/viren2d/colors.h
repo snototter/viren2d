@@ -184,21 +184,8 @@ class Color {
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  /** @brief Copy the other's rgb components and set a custom alpha. */
-  Color(const Color &other, double alpha)
-    : red(other.red), green(other.green), blue(other.blue),
-      alpha(saturation_cast<double>(alpha, 0.0, 1.0))
-  {}
-
-
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //DONE [x] add Python test (tests/test_xxx.py)
-  /** @brief Copy the others rgb & alpha components. */
-  Color(const Color &other)
-    : Color(other, other.alpha)
-  {}
+  /** @brief Copy the other's rgb & alpha components. */
+  Color(const Color &other);
 
 
   //DONE [x] add documentation

@@ -219,6 +219,12 @@ const Color Color::Yellow  = Color(NamedColor::Yellow);
 const Color Color::Invalid = Color(NamedColor::Invalid);
 
 
+Color::Color(const Color &other)
+  : red(other.red), green(other.green),
+    blue(other.blue), alpha(other.alpha)
+{}
+
+
 Color::Color(const NamedColor color, double alpha) {
 //  SPDLOG_TRACE("Constructing color from NamedColor({:s}),"
 //               " with alpha={:.2f}.", color, alpha);
@@ -441,9 +447,9 @@ Color Color::Inverse() const {
   if (IsValid()) {
     if (IsShadeOfGray()) {
       if (red < 0.5)
-        return Color(White, alpha);
+        return Color::White.WithAlpha(alpha);
       else
-        return Color(Black, alpha);
+        return Color::Black.WithAlpha(alpha);
     } else {
       return Color(1.0 - red, 1.0 - green, 1.0 - blue, alpha);
     }
@@ -498,6 +504,7 @@ std::string Color::ToString() const {
   } else {
     s << "(" << ToHexString() << ")";
   }
+  s << " FIXME "  << IsSpecialInvalid();//FIXME cc'tor not working
   return s.str();
 
   // Alternatively as RGBa string:
@@ -576,7 +583,8 @@ std::string Color::ToHexString() const {
 
 
 Color Color::WithAlpha(double alpha) const {
-  return Color(*this, alpha);
+  return Color(this->red, this->green,
+               this->blue, alpha);
 }
 
 
