@@ -673,11 +673,10 @@ void RegisterVec(py::module &m) {
 
 PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   m.doc() = R"pbdoc(
-      Computer Vision Results, but Nice-Looking
-    ----------------------------------------------
-                Vision & Rendering 2D
+    Vision & Rendering 2D: Computer Vision Results, but Nice-Looking
+    ----------------------------------------------------------------
 
-    This is a light-weight 2D toolbox to simplify
+    This is a light-weight toolbox to simplify
     visualization of common 2D computer vision results,
     such as detections, trajectories, and the like.
 
