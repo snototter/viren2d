@@ -13,14 +13,8 @@ Under the hood, ``viren2d`` uses the `Cairo graphics library <https://www.cairog
    :maxdepth: 2
    :caption: Contents:
 
-   viren2d_python
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   examples-painter
+   examples-pseudocolor
+   python
 
 

@@ -79,3 +79,23 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ['_static']
 
 
+
+
+#autodoc_default_flags = ['members', 'private-members', 'special-members',
+#                         #'undoc-members',
+#                         'show-inheritance']
+
+#def autodoc_skip_member(app, what, name, obj, skip, options):
+#    # Ref: https://stackoverflow.com/a/21449475/
+#    exclusions = ('__weakref__',  # special-members
+#                  '__doc__', '__module__', '__dict__',  # undoc-members
+#                  )
+#    exclude = name in exclusions
+#    print(f'what {what}::: name {name}::: obj {obj}::: skip {skip}')
+#    # return True if (skip or exclude) else None  # Can interfere with subsequent skip functions.
+#    return True if exclude else None
+ 
+#def setup(app):
+#    app.connect('autodoc-skip-member', autodoc_skip_member)
+
+
