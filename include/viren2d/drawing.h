@@ -88,47 +88,47 @@ public:
 
 
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  /** @brief Changes the default line/contour style. */
-  virtual void SetDefaultLineStyle(const LineStyle &line_style) = 0;
+//  //TODO [x] add documentation
+//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+//  //TODO [ ] add Python bindings
+//  //TODO [ ] add Python test (tests/test_xxx.py)
+//  /** @brief Changes the default line/contour style. */
+//  virtual void SetDefaultLineStyle(const LineStyle &line_style) = 0;
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  /** @brief Returns this painter's default line/contour style. */
-  virtual LineStyle GetDefaultLineStyle() const = 0;
+//  //TODO [x] add documentation
+//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+//  //TODO [ ] add Python bindings
+//  //TODO [ ] add Python test (tests/test_xxx.py)
+//  /** @brief Returns this painter's default line/contour style. */
+//  virtual LineStyle GetDefaultLineStyle() const = 0;
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  /** @brief Changes the default arrow style. */
-  virtual void SetDefaultArrowStyle(const ArrowStyle &arrow_style) = 0;
+//  //TODO [x] add documentation
+//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+//  //TODO [ ] add Python bindings
+//  //TODO [ ] add Python test (tests/test_xxx.py)
+//  /** @brief Changes the default arrow style. */
+//  virtual void SetDefaultArrowStyle(const ArrowStyle &arrow_style) = 0;
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  /** @brief Returns this painter's default arrow style. */
-  virtual ArrowStyle GetDefaultArrowStyle() const = 0;
+//  //TODO [x] add documentation
+//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+//  //TODO [ ] add Python bindings
+//  //TODO [ ] add Python test (tests/test_xxx.py)
+//  /** @brief Returns this painter's default arrow style. */
+//  virtual ArrowStyle GetDefaultArrowStyle() const = 0;
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  /** @brief Changes the default text style. */
-  virtual void SetDefaultTextStyle(const TextStyle &text_style) = 0;
+//  //TODO [x] add documentation
+//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+//  //TODO [ ] add Python bindings
+//  //TODO [ ] add Python test (tests/test_xxx.py)
+//  /** @brief Changes the default text style. */
+//  virtual void SetDefaultTextStyle(const TextStyle &text_style) = 0;
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  /** @brief Returns this painter's default text style. */
-  virtual TextStyle GetDefaultTextStyle() const = 0;
+//  //TODO [x] add documentation
+//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+//  //TODO [ ] add Python bindings
+//  //TODO [ ] add Python test (tests/test_xxx.py)
+//  /** @brief Returns this painter's default text style. */
+//  virtual TextStyle GetDefaultTextStyle() const = 0;
 
 
   /**
@@ -151,7 +151,7 @@ public:
    */
   void DrawArc(const Vec2d &center, double radius,
                double angle1, double angle2,
-               const LineStyle &line_style = LineStyle::Default,
+               const LineStyle &line_style = LineStyle(),
                bool include_center = true,
                const Color &fill_color = Color::Invalid) {
     DrawArcImpl(center, radius, angle1, angle2, line_style,
@@ -168,7 +168,7 @@ public:
    *              both line and head/tip style).
    */
   void DrawArrow(const Vec2d &from, const Vec2d &to,
-                 const ArrowStyle &arrow_style = ArrowStyle::Default) {
+                 const ArrowStyle &arrow_style = ArrowStyle()) {
     DrawArrowImpl(from, to, arrow_style);
   }
 
@@ -196,7 +196,7 @@ public:
    *                the circle.
    */
   void DrawCircle(const Vec2d &center, double radius,
-                  const LineStyle &line_style = LineStyle::Default,
+                  const LineStyle &line_style = LineStyle(),
                   const Color &fill_color = Color::Invalid) {
     DrawCircleImpl(center, radius, line_style, fill_color);
   }
@@ -213,7 +213,7 @@ public:
    *                    the ellipse.
    */
   void DrawEllipse(const Ellipse &ellipse,
-                   const LineStyle &line_style = LineStyle::Default,
+                   const LineStyle &line_style = LineStyle(),
                    const Color &fill_color = Color::Invalid) {
     DrawEllipseImpl(ellipse, line_style, fill_color);
   }
@@ -230,9 +230,12 @@ public:
    * @param spacing_y:   Vertical cell size in pixels.
    * @param line_style:  How to draw the grid lines.
    */
-  virtual void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
-                        double spacing_x, double spacing_y,
-                        const LineStyle &line_style = LineStyle::Default) = 0;
+  void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
+                double spacing_x, double spacing_y,
+                const LineStyle &line_style = LineStyle()) {
+    DrawGridImpl(top_left, bottom_right, spacing_x, spacing_y,
+                 line_style);
+  }
 
 
   /**
@@ -243,7 +246,7 @@ public:
    * @param line_style: How to draw the line.
    */
   void DrawLine(const Vec2d &from, const Vec2d &to,
-                const LineStyle &line_style = LineStyle::Default) {
+                const LineStyle &line_style = LineStyle()) {
     DrawLineImpl(from, to, line_style);
   }
 
@@ -260,7 +263,7 @@ public:
    *                the rectangle.
    */
   void DrawRect(const Rect &rect,
-                const LineStyle &line_style = LineStyle::Default,
+                const LineStyle &line_style = LineStyle(),
                 const Color &fill_color = Color::Invalid) {
     DrawRectImpl(rect, line_style, fill_color);
   }
@@ -269,7 +272,7 @@ public:
   //TODO doc, test, bind
   void DrawText(const std::string &text, const Vec2d &position,
                 TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
-                const TextStyle &text_style = TextStyle::Default,
+                const TextStyle &text_style = TextStyle(),
                 const Vec2d &padding = {0.0, 0.0}, double rotation = 0.0) {
     DrawTextImpl(text, position, text_anchor, text_style,
                  padding, rotation);
@@ -279,7 +282,7 @@ public:
   //TODO doc, test, bind
   void DrawTextBox(const std::string &text, const Vec2d &position,
                    TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
-                   const TextStyle &text_style = TextStyle::Default,
+                   const TextStyle &text_style = TextStyle(),
                    const Vec2d &padding = {6.0, 6.0}, double rotation = 0.0, //TODO is default 6 good enough?
                    const LineStyle &box_line_style = LineStyle::Invalid,
                    const Color &box_fill_color = Color::White.WithAlpha(0.6),
@@ -322,6 +325,13 @@ protected:
   /** Internal helper to enable default values in public interface. */
   virtual void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
                                const Color &fill_color) = 0;
+
+
+  /** Internal helper to enable default values in public interface. */
+  virtual void DrawGridImpl(const Vec2d &top_left, const Vec2d &bottom_right,
+                            double spacing_x, double spacing_y,
+                            const LineStyle &line_style) = 0;
+
 
   /** Internal helper to enable default values in public interface. */
   virtual void DrawLineImpl(const Vec2d &from, const Vec2d &to,

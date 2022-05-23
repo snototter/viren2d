@@ -80,34 +80,34 @@ public:
   }
 
 
-  void SetDefaultLineStyle(const viren2d::LineStyle &line_style) {
-    return painter_->SetDefaultLineStyle(line_style);
-  }
+//  void SetDefaultLineStyle(const viren2d::LineStyle &line_style) {
+//    painter_->SetDefaultLineStyle(line_style);
+//  }
 
 
-  viren2d::LineStyle GetDefaultLineStyle() const {
-    return painter_->GetDefaultLineStyle();
-  }
+//  viren2d::LineStyle GetDefaultLineStyle() const {
+//    return painter_->GetDefaultLineStyle();
+//  }
 
 
-  void SetDefaultArrowStyle(const viren2d::ArrowStyle &arrow_style) {
-    painter_->SetDefaultArrowStyle(arrow_style);
-  }
+//  void SetDefaultArrowStyle(const viren2d::ArrowStyle &arrow_style) {
+//    painter_->SetDefaultArrowStyle(arrow_style);
+//  }
 
 
-  viren2d::ArrowStyle GetDefaultArrowStyle() const {
-    return painter_->GetDefaultArrowStyle();
-  }
+//  viren2d::ArrowStyle GetDefaultArrowStyle() const {
+//    return painter_->GetDefaultArrowStyle();
+//  }
 
 
-  void SetDefaultTextStyle(const viren2d::TextStyle &text_style) {
-    painter_->SetDefaultTextStyle(text_style);
-  }
+//  void SetDefaultTextStyle(const viren2d::TextStyle &text_style) {
+//    painter_->SetDefaultTextStyle(text_style);
+//  }
 
 
-  viren2d::TextStyle GetDefaultTextStyle() const {
-    return painter_->GetDefaultTextStyle();
-  }
+//  viren2d::TextStyle GetDefaultTextStyle() const {
+//    return painter_->GetDefaultTextStyle();
+//  }
 
 
 
@@ -1235,8 +1235,6 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "How to render the junction of two lines/segments.")
       .def_readwrite("line_width", &viren2d::LineStyle::line_width,
            "Width/thickness in pixels.")
-      .def_readonly_static("Default", &viren2d::LineStyle::Default,
-            "Pass this to `Painter.draw_xxx()` to use its default line style.")
       .def_readonly_static("Invalid", &viren2d::LineStyle::Invalid,
             "Pass this to `Painter.draw_xxx()` to skip drawing the contour and\n"
             "only fill the object instead.");
@@ -1373,12 +1371,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "If `True`, the arrow head/tip will be filled. Otherwise,\n"
            "the tip will be open.")
       .def_readwrite("double_headed", &viren2d::ArrowStyle::double_headed,
-           "If `True`, heads/tips will be drawn on both ends of the line.")
-      .def_readonly_static("Default", &viren2d::ArrowStyle::Default,
-            "Pass this to `Painter.draw_arrow()` to use its default arrow style.")
-      .def_readonly_static("Invalid", &viren2d::ArrowStyle::Invalid,
-            "Do NOT use this invalid arrow style - it is only declared for\n"
-            "compatibility reasons with its base `LineStyle` class.");
+           "If `True`, heads/tips will be drawn on both ends of the line.");
 
   // An ArrowStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, viren2d::ArrowStyle>();
@@ -1438,9 +1431,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def_readwrite("font_size", &viren2d::TextStyle::font_size,
            "TODO doc.")
       .def_readwrite("font_family", &viren2d::TextStyle::font_family,
-           "TODO doc")
-      .def_readonly_static("Default", &viren2d::TextStyle::Default,
-            "Pass this to `Painter.draw_xxx()` to use its default text style.");
+           "TODO doc");
 
   //TODO add other fields
   doc = "Text color as " + Qualified("Color") + ".";
@@ -1551,34 +1542,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "    >>> img_np = np.array(p.get_canvas(True), copy=False)",
            py::arg("copy") = false);
 
-  //---------------------------------------------------------------------- Default styles
-  doc = "Change the default `" + Qualified("LineStyle") + "` for this\n"
-        "`Painter` instance. This will NOT change the library-wide defaults.";
-  painter.def("set_default_line_style", &moddef::Painter::SetDefaultLineStyle,
-              doc.c_str(), py::arg("line_style"));
-  doc = "Returns this `Painter`'s default `" + Qualified("LineStyle") + "`.\n";
-  painter.def("get_default_line_style", &moddef::Painter::GetDefaultLineStyle,
-              doc.c_str());
 
-
-  doc = "Change the default `" + Qualified("ArrowStyle") + "` for this\n"
-        "`Painter` instance. This will NOT change the library-wide defaults.";
-  painter.def("set_default_arrow_style", &moddef::Painter::SetDefaultArrowStyle,
-              doc.c_str(), py::arg("arrow_style"));
-  doc = "Returns this `Painter`'s default `" + Qualified("ArrowStyle") + "`.\n";
-  painter.def("get_default_arrow_style", &moddef::Painter::GetDefaultArrowStyle,
-              doc.c_str());
-
-
-  doc = "Change the default `" + Qualified("TextStyle") + "` for this\n"
-        "`Painter` instance. This will NOT change the library-wide defaults.";
-  painter.def("set_default_text_style", &moddef::Painter::SetDefaultTextStyle,
-              doc.c_str(), py::arg("text_style"));
-  doc = "Returns this `Painter`'s default `" + Qualified("TextStyle") + "`.\n";
-  painter.def("get_default_text_style", &moddef::Painter::GetDefaultTextStyle,
-              doc.c_str());
-
-//TODO(snototter) use backticks for code in all draw_xxx method docstrings
+//TODO(snototter) use consistent coding style (Google Python Guide) for code in all draw_xxx method docstrings
         //----------------------------------------------------------------------
   doc = "Draws a circular arc.\n\n"
         ":center:  (" + Qualified(viren2d::Vec2d::TypeName()) + ")\n"
@@ -1603,7 +1568,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   painter.def("draw_arc", &moddef::Painter::DrawArc, doc.c_str(),
               py::arg("center"), py::arg("radius"),
               py::arg("angle1"), py::arg("angle2"),
-              py::arg("line_style") = viren2d::LineStyle::Default,
+              py::arg("line_style") = viren2d::LineStyle(),
               py::arg("include_center") = true,
               py::arg("fill_color") = viren2d::Color::Invalid);
 
@@ -1618,7 +1583,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
         "    painter's default arrow style will be used.";
   painter.def("draw_arrow", &moddef::Painter::DrawArrow, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
-              py::arg("arrow_style") = viren2d::ArrowStyle::Default);
+              py::arg("arrow_style") = viren2d::ArrowStyle());
 
         //----------------------------------------------------------------------
   doc = "Draws a circle.\n\n"
@@ -1634,7 +1599,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
         "    Provide a valid color to fill the circle.";
   painter.def("draw_circle", &moddef::Painter::DrawCircle, doc.c_str(),
               py::arg("center"), py::arg("radius"),
-              py::arg("line_style") = viren2d::LineStyle::Default,
+              py::arg("line_style") = viren2d::LineStyle(),
               py::arg("fill_color") = viren2d::Color::Invalid);
 
 
@@ -1652,7 +1617,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
     "   Provide a valid color to fill the ellipse.";
   painter.def("draw_ellipse", &moddef::Painter::DrawEllipse, doc.c_str(),
           py::arg("ellipse"),
-          py::arg("line_style") = viren2d::LineStyle::Default,
+          py::arg("line_style") = viren2d::LineStyle(),
           py::arg("fill_color") = viren2d::Color::Invalid);
 
         //----------------------------------------------------------------------
@@ -1669,7 +1634,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   painter.def("draw_grid", &moddef::Painter::DrawGrid, doc.c_str(),
               py::arg("spacing_x"), py::arg("spacing_y"),
-              py::arg("line_style") = viren2d::LineStyle::Default,
+              py::arg("line_style") = viren2d::LineStyle(),
               py::arg("top_left") = viren2d::Vec2d(),
               py::arg("bottom_right") = viren2d::Vec2d());
 
@@ -1684,7 +1649,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
         "    painter's default line style will be used.";
   painter.def("draw_line", &moddef::Painter::DrawLine, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
-              py::arg("line_style") = viren2d::LineStyle::Default);
+              py::arg("line_style") = viren2d::LineStyle());
 
         //----------------------------------------------------------------------
   doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
@@ -1700,7 +1665,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
         "    Provide a valid color to fill the rectangle.";
   painter.def("draw_rect", &moddef::Painter::DrawRect, doc.c_str(),
               py::arg("rect"),
-              py::arg("line_style") = viren2d::LineStyle::Default,
+              py::arg("line_style") = viren2d::LineStyle(),
               py::arg("fill_color") = viren2d::Color::Invalid);
 
 
@@ -1710,10 +1675,6 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //                moddef::Painter "for (element in list) : painter_->DrawElement();"
 
   //TODO(snototter) copy python documentation to cpp
-
-  //TODO(snototter) default markerstyle, textstyle...
-
-  //TODO(snototter) dev notes: draw_xxx methods should use Style::Default (and maybe ::Invalid)
 
   //TODO(snototter) generate documentation; check if all documented code uses backticks (we might need double backticks for sphinx?)
 

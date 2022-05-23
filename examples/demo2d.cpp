@@ -44,14 +44,14 @@ void DemoLines() {
   viren2d::Vec2d pt2 {150, 350};
 
   const auto rotation = werkzeugkiste::geometry::AngleDegFromDirectionVec(pt1.DirectionVector(pt2));
-  painter->SetDefaultTextStyle(viren2d::TextStyle(18, "Arial"));
+//  painter->SetDefaultTextStyle(viren2d::TextStyle(18, "Arial"));
 
   viren2d::LineStyle line_style(22, "azure!60", {},
                                 viren2d::LineCap::Butt);
   painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
   painter->DrawText(lbl.str(), {100, 200}, viren2d::TextAnchor::Center,
-                    painter->GetDefaultTextStyle(), {0, 0}, rotation);
+                    viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());  // Reset stringstream
 
 
@@ -59,14 +59,14 @@ void DemoLines() {
   painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
   painter->DrawText(lbl.str(), {200, 200}, viren2d::TextAnchor::Center,
-                    painter->GetDefaultTextStyle(), {0, 0}, rotation);
+                    viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
   line_style.line_cap = viren2d::LineCap::Square;
   painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
   painter->DrawText(lbl.str(), {300, 200}, viren2d::TextAnchor::Center,
-                    painter->GetDefaultTextStyle(), {0, 0}, rotation);
+                    viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
 
@@ -252,10 +252,8 @@ void DemoText() {
   const std::vector<std::string> families = {"monospace", "sans-serif", "xkcd"};
 
 
-  const auto original_default_style = painter->GetDefaultTextStyle();
-
   for (size_t idx_family = 0; idx_family < families.size(); ++idx_family) {
-    auto text_style = original_default_style;
+    auto text_style = viren2d::TextStyle();
     text_style.font_size = 20;
 
     std::ostringstream s;
@@ -288,7 +286,7 @@ void DemoText() {
       } else {
         painter->DrawTextBox(txt.str(), pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
                              text_style, padding, 0.0,
-                             painter->GetDefaultLineStyle());
+                             viren2d::LineStyle());
 //                             viren2d::LineStyle::Invalid,
 //                             text_style.font_color.Inverse().WithAlpha(0.8),
 //                             0.2);

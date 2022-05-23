@@ -169,8 +169,7 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
 void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
                        Rect rect, const std::string &label,
-                       const BoundingBox2DStyle &style,
-                       const TextStyle &current_context_text_style);
+                       const BoundingBox2DStyle &style);
 
 
 inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
@@ -204,8 +203,8 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position, TextAnchor text_anchor,
-              const TextStyle &desired_text_style, const TextStyle &current_context_style,
-              const Vec2d &padding, double rotation, const LineStyle &box_line_style,
+              const TextStyle &desired_text_style, const Vec2d &padding,
+              double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius);
 
 } // namespace helpers

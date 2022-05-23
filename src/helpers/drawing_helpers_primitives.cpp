@@ -240,8 +240,7 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 //---------------------------------------------------- BoundingBox 2D
 void BoundingBox2DLabelHelper(cairo_surface_t *surface, cairo_t *context,
                               Rect rect, const std::string &label,
-                              const BoundingBox2DStyle &style,
-                              const TextStyle &current_context_text_style) {
+                              const BoundingBox2DStyle &style) {
   cairo_save(context);
 //  Vec2d label_pos;
 //  VerticalAlignment valign;
@@ -280,8 +279,7 @@ void BoundingBox2DLabelHelper(cairo_surface_t *surface, cairo_t *context,
   // must potentially adjust the text box :/
   DrawText(surface, context, label, Vec2d(-rect.half_width(), -rect.half_height()),
            TextAnchor::TopLeft,
-           style.text_style, current_context_text_style,
-           style.LabelPadding(), 0, LineStyle::Invalid,
+           style.text_style, style.LabelPadding(), 0, LineStyle::Invalid,
            style.TextFillColor(), 0);
   cairo_restore(context);
 }
@@ -289,8 +287,7 @@ void BoundingBox2DLabelHelper(cairo_surface_t *surface, cairo_t *context,
 
 void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
                        Rect rect, const std::string &label,
-                       const BoundingBox2DStyle &style,
-                       const TextStyle &current_context_text_style) {
+                       const BoundingBox2DStyle &style) {
   CheckCanvas(surface, context);
 
   if (!style.IsValid()) {
@@ -318,7 +315,7 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
 
   // Draw the label
   BoundingBox2DLabelHelper(surface, context, rect, label,
-                           style, current_context_text_style);
+                           style);
 
   // Draw a standard (box) rect or rounded rectangle:
   if (rect.radius > 0.0) {
@@ -610,8 +607,8 @@ Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position, TextAnchor text_anchor,
-              const TextStyle &desired_text_style, const TextStyle &current_context_style,
-              const Vec2d &padding, double rotation, const LineStyle &box_line_style,
+              const TextStyle &desired_text_style, const Vec2d &padding,
+              double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius) {
   CheckCanvas(surface, context);
 
@@ -633,9 +630,7 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // specific to *this* DrawText call.
   cairo_save(context);
 
-  if (desired_text_style != current_context_style) {
-    ApplyTextStyle(context, desired_text_style);
-  }
+  ApplyTextStyle(context, desired_text_style);
 
   // Shift the context to the desired anchor point
   // and rotate

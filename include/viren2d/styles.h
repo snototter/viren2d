@@ -100,7 +100,7 @@ struct LineStyle {
 
   //TODO doc & test
   virtual bool IsSpecialInvalid() const;
-  virtual bool IsSpecialDefault() const;
+//  virtual bool IsSpecialDefault() const;
 
 
 
@@ -152,7 +152,7 @@ struct LineStyle {
    * the contour or using a default setting.
    */
   static const LineStyle Invalid;
-  static const LineStyle Default;
+//  static const LineStyle Default;
 };
 
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
@@ -205,8 +205,8 @@ struct ArrowStyle : public LineStyle {
 
 
   //FIXME
-  bool IsSpecialInvalid() const override;
-  bool IsSpecialDefault() const override;
+//  bool IsSpecialInvalid() const override;
+//  bool IsSpecialDefault() const override;
 
   /** @brief Computes the length of the arrow head/tip for the given shaft length. */
   double TipLengthForShaft(double shaft_length) const;
@@ -250,8 +250,8 @@ struct ArrowStyle : public LineStyle {
   //TODO [ ] add C++ demo
   //TODO [ ] add Python demo
   //FIXME
-  static const ArrowStyle Invalid;
-  static const ArrowStyle Default;
+//  static const ArrowStyle Invalid;
+//  static const ArrowStyle Default;
 };
 
 bool operator==(const ArrowStyle &lhs, const ArrowStyle &rhs);
@@ -304,7 +304,7 @@ struct TextStyle {
 
 
   //FIXME
-  bool IsSpecialDefault() const;
+//  bool IsSpecialDefault() const;
 
 
 
@@ -322,7 +322,7 @@ struct TextStyle {
     return os;
   }
 
-  static const TextStyle Default;
+//  static const TextStyle Default;
 };
 
 

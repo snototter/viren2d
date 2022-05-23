@@ -61,23 +61,23 @@
 //-------------------------------------------------
 
 namespace viren2d {
-namespace {
-/** Predefined default line style - can be replaced separately within each @see Painter. */
-const static LineStyle kdefault_line_style = LineStyle(2, Color(NamedColor::Azure));
+//namespace {
+///** Predefined default line style - can be replaced separately within each @see Painter. */
+//const static LineStyle kdefault_line_style = LineStyle(2, Color(NamedColor::Azure));
 
 
-/** Predefined default arrow style - can be replaced separately within each @see Painter. */
-const static ArrowStyle kdefault_arrow_style = ArrowStyle(4, Color(NamedColor::ForestGreen), 0.1, 20);
+///** Predefined default arrow style - can be replaced separately within each @see Painter. */
+//const static ArrowStyle kdefault_arrow_style = ArrowStyle(4, Color(NamedColor::ForestGreen), 0.1, 20);
 
-/** Predefined default text style - can be replaced separately within each @see Painter. */
-const static TextStyle kdefault_text_style = TextStyle(16, "monospace", Color::Black);
+///** Predefined default text style - can be replaced separately within each @see Painter. */
+//const static TextStyle kdefault_text_style = TextStyle(16, "monospace", Color::Black);
 
-const static BoundingBox2DStyle kdefault_bbox2d_style =
-    BoundingBox2DStyle(LineStyle(4, Color(NamedColor::Azure)),
-                       TextStyle(10, "monospace", Color::Black),
-                       0.2, 0.7, HorizontalAlignment::Left,
-                       BoundingBoxLabelPosition::Top, 5, true);
-}  // anonymous namespace
+//const static BoundingBox2DStyle kdefault_bbox2d_style =
+//    BoundingBox2DStyle(LineStyle(4, Color(NamedColor::Azure)),
+//                       TextStyle(10, "monospace", Color::Black),
+//                       0.2, 0.7, HorizontalAlignment::Left,
+//                       BoundingBoxLabelPosition::Top, 5, true);
+//}  // anonymous namespace
 
 
 void shutdown() {
@@ -122,27 +122,14 @@ public:
 
   ImageBuffer GetCanvas(bool copy) const override;
 
-  void SetDefaultLineStyle(const LineStyle &line_style) override;
-  LineStyle GetDefaultLineStyle() const override;
+//  void SetDefaultLineStyle(const LineStyle &line_style) override;
+//  LineStyle GetDefaultLineStyle() const override;
 
-  void SetDefaultArrowStyle(const ArrowStyle &arrow_style) override;
-  ArrowStyle GetDefaultArrowStyle() const override;
+//  void SetDefaultArrowStyle(const ArrowStyle &arrow_style) override;
+//  ArrowStyle GetDefaultArrowStyle() const override;
 
-  void SetDefaultTextStyle(const TextStyle &text_style) override;
-  TextStyle GetDefaultTextStyle() const override;
-
-
-  void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
-                          double spacing_x, double spacing_y,
-                const LineStyle &line_style) override {
-    SPDLOG_DEBUG("ImagePainter::DrawGrid: cells={:.1f}x{:.1f}, tl={:s}, br={:s},"
-                 " style={:s}.", spacing_x, spacing_y,
-                 top_left, bottom_right, line_style);
-
-    helpers::DrawGrid(surface_, context_, top_left, bottom_right,
-                      spacing_x, spacing_y,
-                      CheckInputStyle(line_style));
-  }
+//  void SetDefaultTextStyle(const TextStyle &text_style) override;
+//  TextStyle GetDefaultTextStyle() const override;
 
 
 protected:
@@ -157,8 +144,7 @@ protected:
                  line_style, include_center, fill_color);
 
     helpers::DrawArc(surface_, context_, center, radius,
-                     angle1, angle2,
-                     CheckInputStyle(line_style),
+                     angle1, angle2, line_style,
                      include_center, fill_color);
   }
 
@@ -167,8 +153,7 @@ protected:
     SPDLOG_DEBUG("ImagePainter::DrawArrow: p1={:s}, p2={:s}, style={:s}.",
                  from, to, arrow_style);
 
-    helpers::DrawArrow(surface_, context_, from, to,
-                       CheckInputStyle(arrow_style));
+    helpers::DrawArrow(surface_, context_, from, to, arrow_style);
   }
 
 
@@ -178,8 +163,7 @@ protected:
     SPDLOG_DEBUG("ImagePainter::DrawBoundingBox2D: {:s},"
                  " label=\"{:s}\", style={:s}.", rect, label, style);//TODO werkzeugkiste: string shortening!
     helpers::DrawBoundingBox2D(surface_, context_, rect,
-                               label, CheckInputStyle(style),
-                               default_text_style_); //TODO checkinputstyle!
+                               label, style);
   }
 
 
@@ -191,7 +175,7 @@ protected:
                  line_style, fill_color);
 
     helpers::DrawCircle(surface_, context_, center, radius,
-                        CheckInputStyle(line_style), fill_color);
+                        line_style, fill_color);
   }
 
 
@@ -202,7 +186,19 @@ protected:
                  line_style, fill_color);
 
     helpers::DrawEllipse(surface_, context_, ellipse,
-                         CheckInputStyle(line_style), fill_color);
+                         line_style, fill_color);
+  }
+
+
+  void DrawGridImpl(const Vec2d &top_left, const Vec2d &bottom_right,
+                    double spacing_x, double spacing_y,
+                    const LineStyle &line_style) override {
+    SPDLOG_DEBUG("ImagePainter::DrawGrid: cells={:.1f}x{:.1f}, tl={:s}, br={:s},"
+                 " style={:s}.", spacing_x, spacing_y,
+                 top_left, bottom_right, line_style);
+
+    helpers::DrawGrid(surface_, context_, top_left, bottom_right,
+                      spacing_x, spacing_y, line_style);
   }
 
 
@@ -212,7 +208,7 @@ protected:
                  from, to, line_style);
 
     helpers::DrawLine(surface_, context_, from, to,
-                      CheckInputStyle(line_style));
+                      line_style);
   }
 
 
@@ -223,7 +219,7 @@ protected:
                  line_style, fill_color);
 
     helpers::DrawRect(surface_, context_, rect,
-                      CheckInputStyle(line_style), fill_color);
+                      line_style, fill_color);
   }
 
 
@@ -236,8 +232,7 @@ protected:
                  position, text_anchor, text_style, padding, rotation);
 
     helpers::DrawText(surface_, context_, text, position, text_anchor,
-                      CheckInputStyle(text_style), default_text_style_,
-                      padding, rotation,
+                      text_style, padding, rotation,
                       LineStyle::Invalid, Color::Invalid, 0.0);
   }
 
@@ -254,8 +249,7 @@ protected:
                  box_line_style, box_fill_color, box_corner_radius);
 
     helpers::DrawText(surface_, context_, text, position, text_anchor,
-                      CheckInputStyle(text_style), default_text_style_,
-                      padding, rotation, CheckInputStyle(box_line_style),
+                      text_style, padding, rotation, box_line_style,
                       box_fill_color, box_corner_radius);
   }
 
@@ -265,26 +259,26 @@ private:
   cairo_surface_t *surface_;
   cairo_t *context_;
 
-  LineStyle default_line_style_;
-  ArrowStyle default_arrow_style_;
-  TextStyle default_text_style_;
-  BoundingBox2DStyle default_bbox2d_style_;
+//  LineStyle default_line_style_;
+//  ArrowStyle default_arrow_style_;
+//  TextStyle default_text_style_;
+//  BoundingBox2DStyle default_bbox2d_style_;
 
-  void ApplyDefaultStyles();
+//  void ApplyDefaultStyles();
 
-  const LineStyle &CheckInputStyle(const LineStyle &user_input) const;
-  const ArrowStyle &CheckInputStyle(const ArrowStyle &user_input) const;
-  const TextStyle &CheckInputStyle(const TextStyle &user_input) const;
-  BoundingBox2DStyle CheckInputStyle(const BoundingBox2DStyle &user_input) const;
+//  const LineStyle &CheckInputStyle(const LineStyle &user_input) const;
+//  const ArrowStyle &CheckInputStyle(const ArrowStyle &user_input) const;
+//  const TextStyle &CheckInputStyle(const TextStyle &user_input) const;
+//  BoundingBox2DStyle CheckInputStyle(const BoundingBox2DStyle &user_input) const;
 };
 
 
 ImagePainter::ImagePainter() : Painter(),
-  surface_(nullptr), context_(nullptr),
-  default_line_style_(kdefault_line_style),
-  default_arrow_style_(kdefault_arrow_style),
-  default_text_style_(kdefault_text_style),
-  default_bbox2d_style_(kdefault_bbox2d_style) {
+  surface_(nullptr), context_(nullptr) {
+//  default_line_style_(kdefault_line_style),
+//  default_arrow_style_(kdefault_arrow_style),
+//  default_text_style_(kdefault_text_style),
+//  default_bbox2d_style_(kdefault_bbox2d_style) {
   SPDLOG_DEBUG("ImagePainter default constructor.");
 }
 
@@ -300,10 +294,10 @@ ImagePainter::~ImagePainter() {
 
 ImagePainter::ImagePainter(const ImagePainter &other) // copy constructor
   : Painter(),
-    surface_(nullptr), context_(nullptr),
-    default_line_style_(other.default_line_style_),
-    default_arrow_style_(other.default_arrow_style_),
-    default_text_style_(other.default_text_style_) {
+    surface_(nullptr), context_(nullptr) {
+//    default_line_style_(other.default_line_style_),
+//    default_arrow_style_(other.default_arrow_style_),
+//    default_text_style_(other.default_text_style_) {
   SPDLOG_TRACE("ImagePainter copy constructor.");
   if (other.surface_)
   {
@@ -324,9 +318,9 @@ ImagePainter::ImagePainter(const ImagePainter &other) // copy constructor
     // afford the extra allocation
     context_ = cairo_create(surface_);
 
-    // We need to re-apply the default styles after every
-    // context switch:
-    ApplyDefaultStyles();
+//    // We need to re-apply the default styles after every
+//    // context switch:
+//    ApplyDefaultStyles();
   }
 }
 
@@ -334,12 +328,12 @@ ImagePainter::ImagePainter(const ImagePainter &other) // copy constructor
 ImagePainter::ImagePainter(ImagePainter &&other) noexcept
   : Painter(),
     surface_(std::exchange(other.surface_, nullptr)),
-    context_(std::exchange(other.context_, nullptr)),
-    default_line_style_(other.default_line_style_),
-    default_arrow_style_(other.default_arrow_style_),
-    default_text_style_(other.default_text_style_) {
+    context_(std::exchange(other.context_, nullptr)) {
+//    default_line_style_(other.default_line_style_),
+//    default_arrow_style_(other.default_arrow_style_),
+//    default_text_style_(other.default_text_style_) {
   SPDLOG_TRACE("ImagePainter move constructor.");
-  // No need to ApplyDefaultStyles() - the "other"
+//  TODO REMOVE// No need to ApplyDefaultStyles() - the "other"
   // should've already set these up (and we're
   // simply stealing their context)
 }
@@ -355,9 +349,9 @@ ImagePainter& ImagePainter::operator=(ImagePainter &&other) noexcept { // Move a
   SPDLOG_TRACE("ImagePainter move assignment operator.");
   std::swap(surface_, other.surface_);
   std::swap(context_, other.context_);
-  std::swap(default_line_style_, other.default_line_style_);
-  std::swap(default_arrow_style_, other.default_arrow_style_);
-  std::swap(default_text_style_, other.default_text_style_);
+//  std::swap(default_line_style_, other.default_line_style_);
+//  std::swap(default_arrow_style_, other.default_arrow_style_);
+//  std::swap(default_text_style_, other.default_text_style_);
   return *this;
 }
 
@@ -404,7 +398,7 @@ void ImagePainter::SetCanvas(int width, int height,
   if (!context_) {
     SPDLOG_TRACE("ImagePainter::SetCanvas: Creating Cairo context.");
     context_ = cairo_create(surface_);
-    ApplyDefaultStyles();  // Needed after each context change
+//    ApplyDefaultStyles();  // Needed after each context change
   }
 
   SPDLOG_TRACE("ImagePainter::SetCanvas: Painting the canvas using {:s}.", color);
@@ -461,7 +455,7 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
                 4 * image_buffer.width * image_buffer.height);
     context_ = cairo_create(surface_);
 
-    ApplyDefaultStyles();  // Needed after each context change
+//    ApplyDefaultStyles();  // Needed after each context change
 
     // Needed to ensure that the underlying image surface
     // will be rendered:
@@ -509,165 +503,165 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
 }
 
 
-void ImagePainter::SetDefaultLineStyle(const LineStyle &line_style) {
-  SPDLOG_DEBUG("ImagePainter::SetDefaultLineStyle({:s}).",
-               line_style);
+//void ImagePainter::SetDefaultLineStyle(const LineStyle &line_style) {
+//  SPDLOG_DEBUG("ImagePainter::SetDefaultLineStyle({:s}).",
+//               line_style);
 
-  if (!line_style.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot change the default line style to an invalid configuration: "
-      << line_style;
-    throw std::invalid_argument(s.str());
-  }
+//  if (!line_style.IsValid()) {
+//    std::ostringstream s;
+//    s << "Cannot change the default line style to an invalid configuration: "
+//      << line_style;
+//    throw std::invalid_argument(s.str());
+//  }
 
-  default_line_style_ = line_style;
-  ApplyDefaultStyles();
-}
-
-
-LineStyle ImagePainter::GetDefaultLineStyle() const {
-  SPDLOG_TRACE("ImagePainter::GetDefaultLineStyle().");
-  return default_line_style_;
-}
+//  default_line_style_ = line_style;
+//  ApplyDefaultStyles();
+//}
 
 
-void ImagePainter::SetDefaultArrowStyle(const ArrowStyle &arrow_style) {
-  SPDLOG_DEBUG("ImagePainter::SetDefaultArrowStyle({:s}).",
-               arrow_style);
-
-  if (!arrow_style.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot change the default arrow style to an invalid configuration: "
-      << arrow_style;
-    throw std::invalid_argument(s.str());
-  }
-
-  default_arrow_style_ = arrow_style;
-  ApplyDefaultStyles();
-}
+//LineStyle ImagePainter::GetDefaultLineStyle() const {
+//  SPDLOG_TRACE("ImagePainter::GetDefaultLineStyle().");
+//  return default_line_style_;
+//}
 
 
-ArrowStyle ImagePainter::GetDefaultArrowStyle() const {
-  SPDLOG_TRACE("ImagePainter::GetDefaultArrowStyle().");
-  return default_arrow_style_;
-}
+//void ImagePainter::SetDefaultArrowStyle(const ArrowStyle &arrow_style) {
+//  SPDLOG_DEBUG("ImagePainter::SetDefaultArrowStyle({:s}).",
+//               arrow_style);
+
+//  if (!arrow_style.IsValid()) {
+//    std::ostringstream s;
+//    s << "Cannot change the default arrow style to an invalid configuration: "
+//      << arrow_style;
+//    throw std::invalid_argument(s.str());
+//  }
+
+//  default_arrow_style_ = arrow_style;
+//  ApplyDefaultStyles();
+//}
 
 
-void ImagePainter::SetDefaultTextStyle(const TextStyle &text_style) {
-  SPDLOG_DEBUG("ImagePainter::SetDefaultTextStyle({:s}).",
-               text_style);
-
-  if (!text_style.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot change the default text style to an invalid configuration: "
-      << text_style;
-    throw std::invalid_argument(s.str());
-  }
-
-  default_text_style_ = text_style;
-  ApplyDefaultStyles();
-}
+//ArrowStyle ImagePainter::GetDefaultArrowStyle() const {
+//  SPDLOG_TRACE("ImagePainter::GetDefaultArrowStyle().");
+//  return default_arrow_style_;
+//}
 
 
-TextStyle ImagePainter::GetDefaultTextStyle() const {
-  SPDLOG_TRACE("ImagePainter::GetDefaultTextStyle().");
-  return default_text_style_;
-}
+//void ImagePainter::SetDefaultTextStyle(const TextStyle &text_style) {
+//  SPDLOG_DEBUG("ImagePainter::SetDefaultTextStyle({:s}).",
+//               text_style);
+
+//  if (!text_style.IsValid()) {
+//    std::ostringstream s;
+//    s << "Cannot change the default text style to an invalid configuration: "
+//      << text_style;
+//    throw std::invalid_argument(s.str());
+//  }
+
+//  default_text_style_ = text_style;
+//  ApplyDefaultStyles();
+//}
 
 
-void ImagePainter::ApplyDefaultStyles() {
-  SPDLOG_TRACE("ImagePainter::ApplyDefaultStyles: line={:s},"
-               " arrow={:s}, text={:s}.",
-               default_line_style_, default_arrow_style_,
-               default_text_style_);
-  if (context_) {
-    helpers::ApplyLineStyle(context_, default_line_style_, false);
-
-    // The arrow style will not be preset in the context (as
-    // an arrow is basically just a line and would thus overwrite
-    // the default line style)
-
-    helpers::ApplyTextStyle(context_, default_text_style_);
-  }
-}
+//TextStyle ImagePainter::GetDefaultTextStyle() const {
+//  SPDLOG_TRACE("ImagePainter::GetDefaultTextStyle().");
+//  return default_text_style_;
+//}
 
 
-const LineStyle &
-ImagePainter::CheckInputStyle(const LineStyle &user_input) const {
-  if (user_input.IsSpecialDefault()) {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User line style is "
-                 "'Default', switching to painter's default={:s}.",
-                 default_line_style_);
-    return default_line_style_;
-  } else {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user input {:s}",
-                 user_input);
-    return user_input;
-  }
-}
+//void ImagePainter::ApplyDefaultStyles() {
+//  SPDLOG_TRACE("ImagePainter::ApplyDefaultStyles: line={:s},"
+//               " arrow={:s}, text={:s}.",
+//               default_line_style_, default_arrow_style_,
+//               default_text_style_);
+//  if (context_) {
+//    helpers::ApplyLineStyle(context_, default_line_style_, false);
+
+//    // The arrow style will not be preset in the context (as
+//    // an arrow is basically just a line and would thus overwrite
+//    // the default line style)
+
+//    helpers::ApplyTextStyle(context_, default_text_style_);
+//  }
+//}
 
 
-const ArrowStyle &
-ImagePainter::CheckInputStyle(const ArrowStyle &user_input) const {
-  if (user_input.IsSpecialInvalid()) {
-    throw std::invalid_argument("ArrowStyle::Invalid is not supported as input.");
-  }
-
-  if (user_input.IsSpecialDefault()) {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User arrow style is "
-                 "'Default', switching to painter's default={:s}.",
-                 default_arrow_style_);
-    return default_arrow_style_;
-  } else {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user input {:s}",
-                 user_input);
-    return user_input;
-  }
-}
+//const LineStyle &
+//ImagePainter::CheckInputStyle(const LineStyle &user_input) const {
+//  if (user_input.IsSpecialDefault()) {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User line style is "
+//                 "'Default', switching to painter's default={:s}.",
+//                 default_line_style_);
+//    return default_line_style_;
+//  } else {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user input {:s}",
+//                 user_input);
+//    return user_input;
+//  }
+//}
 
 
-const TextStyle &
-ImagePainter::CheckInputStyle(const TextStyle &user_input) const {
-  if (user_input.IsValid()) {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user input {:s}",
-                 user_input);
-    return user_input;
-  } else {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User text style is "
-                 "invalid, switching to painter's default={:s}.",
-                 default_text_style_);
-    return default_text_style_;
-  }
-}
+//const ArrowStyle &
+//ImagePainter::CheckInputStyle(const ArrowStyle &user_input) const {
+//  if (user_input.IsSpecialInvalid()) {
+//    throw std::invalid_argument("ArrowStyle::Invalid is not supported as input.");
+//  }
 
-BoundingBox2DStyle
-ImagePainter::CheckInputStyle(const BoundingBox2DStyle &user_input) const {
-  //FIXME refactor the default style stuff - it's already too complex (don't need to handle each and every possibility/use case)
-  auto style(user_input);
-  // Do we need to replace the line style?
-  if (user_input.line_style.IsSpecialDefault()) {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User's bounding box line style is "
-                 "'Default', switching to painter's default={:s}.",
-                 default_bbox2d_style_.line_style);
-    style.line_style = default_bbox2d_style_.line_style;
-  } else {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user's bounding box line style {:s}",
-                 user_input.line_style);
-  }
+//  if (user_input.IsSpecialDefault()) {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User arrow style is "
+//                 "'Default', switching to painter's default={:s}.",
+//                 default_arrow_style_);
+//    return default_arrow_style_;
+//  } else {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user input {:s}",
+//                 user_input);
+//    return user_input;
+//  }
+//}
 
-  // Do we need to replace the text style?
-  if (user_input.text_style.IsValid()) {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user's bounding box text style {:s}",
-                 user_input.text_style);
-  } else {
-    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User's bounding box text style is "
-                 "invalid, switching to painter's default={:s}.",
-                 default_bbox2d_style_.text_style);
-    style.text_style = default_bbox2d_style_.text_style;
-  }
 
-  return style;
-}
+//const TextStyle &
+//ImagePainter::CheckInputStyle(const TextStyle &user_input) const {
+//  if (user_input.IsValid()) {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user input {:s}",
+//                 user_input);
+//    return user_input;
+//  } else {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User text style is "
+//                 "invalid, switching to painter's default={:s}.",
+//                 default_text_style_);
+//    return default_text_style_;
+//  }
+//}
+
+//BoundingBox2DStyle
+//ImagePainter::CheckInputStyle(const BoundingBox2DStyle &user_input) const {
+//  //FIXME refactor the default style stuff - it's already too complex (don't need to handle each and every possibility/use case)
+//  auto style(user_input);
+//  // Do we need to replace the line style?
+//  if (user_input.line_style.IsSpecialDefault()) {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User's bounding box line style is "
+//                 "'Default', switching to painter's default={:s}.",
+//                 default_bbox2d_style_.line_style);
+//    style.line_style = default_bbox2d_style_.line_style;
+//  } else {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user's bounding box line style {:s}",
+//                 user_input.line_style);
+//  }
+
+//  // Do we need to replace the text style?
+//  if (user_input.text_style.IsValid()) {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user's bounding box text style {:s}",
+//                 user_input.text_style);
+//  } else {
+//    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User's bounding box text style is "
+//                 "invalid, switching to painter's default={:s}.",
+//                 default_bbox2d_style_.text_style);
+//    style.text_style = default_bbox2d_style_.text_style;
+//  }
+
+//  return style;
+//}
 
 std::unique_ptr<Painter> CreatePainter() {
   SPDLOG_DEBUG("Creating image painter.");

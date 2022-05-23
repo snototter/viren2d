@@ -53,7 +53,7 @@ std::string LineJoinToString(LineJoin join) {
 
 //-------------------------------------------------  LineStyle
 const LineStyle LineStyle::Invalid = LineStyle(-1, Color::Invalid);
-const LineStyle LineStyle::Default = LineStyle(-42, Color::Invalid);
+//const LineStyle LineStyle::Default = LineStyle(-42, Color::Invalid);
 
 
 LineStyle::LineStyle()
@@ -97,9 +97,9 @@ bool LineStyle::IsSpecialInvalid() const {
 }
 
 
-bool LineStyle::IsSpecialDefault() const {
-  return *this == Default;
-}
+//bool LineStyle::IsSpecialDefault() const {
+//  return *this == Default;
+//}
 
 
 bool LineStyle::IsDashed() const {
@@ -139,9 +139,9 @@ double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
 
 
 std::string LineStyle::ToString() const {
-  if (IsSpecialDefault()) {
-    return "LineStyle::Default";
-  }
+//  if (IsSpecialDefault()) {
+//    return "LineStyle::Default";
+//  }
 
   if (IsSpecialInvalid()) {
     return "LineStyle::Invalid";
@@ -194,8 +194,8 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
 
 
 //-------------------------------------------------  ArrowStyle
-const ArrowStyle ArrowStyle::Invalid = ArrowStyle(-1, Color::Invalid, -1, -1);
-const ArrowStyle ArrowStyle::Default = ArrowStyle(-42, Color::Invalid, -42, -42);
+//const ArrowStyle ArrowStyle::Invalid = ArrowStyle(-1, Color::Invalid, -1, -1);
+//const ArrowStyle ArrowStyle::Default = ArrowStyle(-42, Color::Invalid, -42, -42);
 
 ArrowStyle::ArrowStyle()
   : LineStyle(),
@@ -223,23 +223,23 @@ bool ArrowStyle::IsValid() const {
 }
 
 
-bool ArrowStyle::IsSpecialInvalid() const {
-  return *this == ArrowStyle::Invalid;
-}
+//bool ArrowStyle::IsSpecialInvalid() const {
+//  return *this == ArrowStyle::Invalid;
+//}
 
 
-bool ArrowStyle::IsSpecialDefault() const {
-  return *this == ArrowStyle::Default;
-}
+//bool ArrowStyle::IsSpecialDefault() const {
+//  return *this == ArrowStyle::Default;
+//}
 
 std::string ArrowStyle::ToString() const {
-  if (IsSpecialInvalid()) {
-    return "ArrowStyle::Invalid";
-  }
+//  if (IsSpecialInvalid()) {
+//    return "ArrowStyle::Invalid";
+//  }
 
-  if (IsSpecialDefault()) {
-    return "ArrowStyle::Default";
-  }
+//  if (IsSpecialDefault()) {
+//    return "ArrowStyle::Default";
+//  }
 
   std::ostringstream s;
   s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
@@ -308,7 +308,7 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 
 
 //-------------------------------------------------  TextStyle
-const TextStyle TextStyle::Default = TextStyle(-42, std::string());
+//const TextStyle TextStyle::Default = TextStyle(-42, std::string());
 
 TextStyle::TextStyle()
   : font_size(16),
@@ -336,9 +336,9 @@ bool TextStyle::IsValid() const {
 }
 
 
-bool TextStyle::IsSpecialDefault() const {
-  return *this == Default;
-}
+//bool TextStyle::IsSpecialDefault() const {
+//  return *this == Default;
+//}
 
 
 
@@ -352,9 +352,9 @@ bool TextStyle::Equals(const TextStyle &other) const {
 
 
 std::string TextStyle::ToString() const {
-  if (IsSpecialDefault()) {
-    return "TextStyle::Default";
-  }
+//  if (IsSpecialDefault()) {
+//    return "TextStyle::Default";
+//  }
 
   std::ostringstream s;
   s << "TextStyle(\"" << font_family << "\", "
@@ -658,7 +658,7 @@ std::ostream &operator<<(std::ostream &os, BoundingBoxLabelPosition pos) {
 
 
 BoundingBox2DStyle::BoundingBox2DStyle()
-  : line_style(LineStyle::Default), text_style(TextStyle::Default),
+  : line_style(), text_style(),
     alpha_box_fill(0.0), alpha_text_fill(0.7),
     text_alignment(HorizontalAlignment::Left),
     label_position(BoundingBoxLabelPosition::Top),
