@@ -35,7 +35,7 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 
 void DemoLines() {
   auto painter = viren2d::CreatePainter();
-  std::stringstream lbl;
+  std::ostringstream lbl;
   painter->SetCanvas(400, 400, viren2d::Color::White);
 
   painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!50"));
@@ -258,7 +258,7 @@ void DemoText() {
     auto text_style = original_default_style;
     text_style.font_size = 20;
 
-    std::stringstream s;
+    std::ostringstream s;
     s << "\"" << families[idx_family] << "\"";
     viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 50.0};
     painter->DrawText(s.str(), pos, viren2d::TextAnchor::Bottom,
@@ -275,7 +275,7 @@ void DemoText() {
 
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
-      std::stringstream txt;
+      std::ostringstream txt;
       txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor]));
 //      txt << anchors[idx_anchor];
 
@@ -312,17 +312,40 @@ void DemoText() {
 }
 
 
+
+void DemoBoundingBox2D() {
+  auto painter = viren2d::CreatePainter();
+  painter->SetCanvas(600, 600, viren2d::Color::White);
+
+  painter->DrawGrid({}, {}, 50, 50,
+                    viren2d::LineStyle(1.0, "gray!60"));
+
+  viren2d::BoundingBox2DStyle style;
+  style.alpha_box_fill = 0.3;
+  style.alpha_text_fill = 0.3;
+  style.text_style = viren2d::TextStyle(10, "Arial");
+
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 50, 100, 250, 10, 0.2),
+                             "Class 1, Confidence 0.98", style);
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
+  painter.reset();
+}
+
+
+
 int main(int /*argc*/, char **/*argv*/) {
 //  if (!viren2d::SetLogLevel("trace")) {
 //    std::cout << "Could not adjust log level - did you compile viren2d"
 //                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
 //              << std::endl;
 //  }
-  DemoLines();
-//  DemoArrows();
-  DemoCircles();
+//  DemoLines();
+////  DemoArrows();
+//  DemoCircles();
 //  DemoRects();
   DemoText();
+  DemoBoundingBox2D();
 
   if (true)
     return 0;

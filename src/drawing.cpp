@@ -71,6 +71,12 @@ const static ArrowStyle kdefault_arrow_style = ArrowStyle(4, Color(NamedColor::F
 
 /** Predefined default text style - can be replaced separately within each @see Painter. */
 const static TextStyle kdefault_text_style = TextStyle(16, "monospace", Color::Black);
+
+const static BoundingBox2DStyle kdefault_bbox2d_style =
+    BoundingBox2DStyle(LineStyle(4, Color(NamedColor::Azure)),
+                       TextStyle(10, "monospace", Color::Black),
+                       0.2, 0.7, HorizontalAlignment::Left,
+                       BoundingBoxLabelPosition::Top, 5, true);
 }  // anonymous namespace
 
 
@@ -166,6 +172,17 @@ protected:
   }
 
 
+  void DrawBoundingBox2DImpl(const Rect &rect,
+                             const std::string &label,
+                             const BoundingBox2DStyle &style) override {
+    SPDLOG_DEBUG("ImagePainter::DrawBoundingBox2D: {:s},"
+                 " label=\"{:s}\", style={:s}.", rect, label, style);//TODO werkzeugkiste: string shortening!
+    helpers::DrawBoundingBox2D(surface_, context_, rect,
+                               label, CheckInputStyle(style),
+                               default_text_style_); //TODO checkinputstyle!
+  }
+
+
   void DrawCircleImpl(const Vec2d &center, double radius,
                       const LineStyle &line_style,
                       const Color &fill_color) override {
@@ -251,12 +268,14 @@ private:
   LineStyle default_line_style_;
   ArrowStyle default_arrow_style_;
   TextStyle default_text_style_;
+  BoundingBox2DStyle default_bbox2d_style_;
 
   void ApplyDefaultStyles();
 
   const LineStyle &CheckInputStyle(const LineStyle &user_input) const;
   const ArrowStyle &CheckInputStyle(const ArrowStyle &user_input) const;
   const TextStyle &CheckInputStyle(const TextStyle &user_input) const;
+  BoundingBox2DStyle CheckInputStyle(const BoundingBox2DStyle &user_input) const;
 };
 
 
@@ -264,7 +283,8 @@ ImagePainter::ImagePainter() : Painter(),
   surface_(nullptr), context_(nullptr),
   default_line_style_(kdefault_line_style),
   default_arrow_style_(kdefault_arrow_style),
-  default_text_style_(kdefault_text_style) {
+  default_text_style_(kdefault_text_style),
+  default_bbox2d_style_(kdefault_bbox2d_style) {
   SPDLOG_DEBUG("ImagePainter default constructor.");
 }
 
@@ -494,7 +514,7 @@ void ImagePainter::SetDefaultLineStyle(const LineStyle &line_style) {
                line_style);
 
   if (!line_style.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot change the default line style to an invalid configuration: "
       << line_style;
     throw std::invalid_argument(s.str());
@@ -516,7 +536,7 @@ void ImagePainter::SetDefaultArrowStyle(const ArrowStyle &arrow_style) {
                arrow_style);
 
   if (!arrow_style.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot change the default arrow style to an invalid configuration: "
       << arrow_style;
     throw std::invalid_argument(s.str());
@@ -538,7 +558,7 @@ void ImagePainter::SetDefaultTextStyle(const TextStyle &text_style) {
                text_style);
 
   if (!text_style.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot change the default text style to an invalid configuration: "
       << text_style;
     throw std::invalid_argument(s.str());
@@ -620,6 +640,34 @@ ImagePainter::CheckInputStyle(const TextStyle &user_input) const {
   }
 }
 
+BoundingBox2DStyle
+ImagePainter::CheckInputStyle(const BoundingBox2DStyle &user_input) const {
+  //FIXME refactor the default style stuff - it's already too complex (don't need to handle each and every possibility/use case)
+  auto style(user_input);
+  // Do we need to replace the line style?
+  if (user_input.line_style.IsSpecialDefault()) {
+    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User's bounding box line style is "
+                 "'Default', switching to painter's default={:s}.",
+                 default_bbox2d_style_.line_style);
+    style.line_style = default_bbox2d_style_.line_style;
+  } else {
+    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user's bounding box line style {:s}",
+                 user_input.line_style);
+  }
+
+  // Do we need to replace the text style?
+  if (user_input.text_style.IsValid()) {
+    SPDLOG_TRACE("ImagePainter::CheckInputStyle: Using user's bounding box text style {:s}",
+                 user_input.text_style);
+  } else {
+    SPDLOG_TRACE("ImagePainter::CheckInputStyle: User's bounding box text style is "
+                 "invalid, switching to painter's default={:s}.",
+                 default_bbox2d_style_.text_style);
+    style.text_style = default_bbox2d_style_.text_style;
+  }
+
+  return style;
+}
 
 std::unique_ptr<Painter> CreatePainter() {
   SPDLOG_DEBUG("Creating image painter.");

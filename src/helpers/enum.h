@@ -111,6 +111,18 @@ bool IsFlagSet(Enum value, Enum flag) {
 }
 
 
+template<typename EnumSpec, typename EnumBase>
+bool IsFlagSet(EnumSpec value, EnumBase flag) {
+  static_assert(std::is_enum<EnumSpec>::value, "Template parameter 'value' is not an enum type");
+  static_assert(std::is_enum<EnumBase>::value, "Template parameter 'flag' is not an enum type");
+  static_assert(std::is_same<typename std::underlying_type<EnumSpec>::type,
+                             typename std::underlying_type<EnumBase>::type>::value,
+                "Underlying type of both enums must be the same");
+  using underlying = typename std::underlying_type<EnumSpec>::type;
+  return (static_cast<underlying>(value) & static_cast<underlying>(flag)) != 0;
+}
+
+
 /**
  * @brief Iterator listing all enum values.
  *

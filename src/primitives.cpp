@@ -69,7 +69,7 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other) {
     const int num_bytes = other.height * other.stride;
     data = static_cast<unsigned char*>(std::malloc(num_bytes));
     if (!data) {
-      std::stringstream s;
+      std::ostringstream s;
       s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
       throw std::runtime_error(s.str());
     }
@@ -140,7 +140,7 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
   const int num_bytes = height * stride;
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
   if (!data) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
     throw std::runtime_error(s.str());
   }
@@ -161,7 +161,7 @@ void ImageBuffer::RGB2BGR() {
     return;
 
   if (channels != 4 && channels != 3) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot flip red & blue channel of an image with " << channels << " channels";
     throw std::logic_error(s.str());
   }
@@ -232,7 +232,7 @@ std::string ImageBuffer::ToString() const {
     return "ImageBuffer::Invalid";
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "ImageBuffer(" << width << "x" << height
     << "x" << channels;
 
@@ -274,7 +274,7 @@ ImageBuffer LoadImage(const std::string &image_filename,
                                   &bytes_per_pixel,
                                   force_num_channels);
   if (!data) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Could not load image from '" << image_filename << "'!";
     throw std::runtime_error(s.str());
   }
@@ -310,7 +310,7 @@ void SaveImage(const std::string &image_filename,
       || werkzeugkiste::strings::EndsWith(fn_lower, ".jpeg")) {
     // stbi_write_jpg requires contiguous memory
     if (image.stride != image.channels * image.width) {
-      std::stringstream s;
+      std::ostringstream s;
       s << "Cannot save JPEG because image memory is not contiguous. Expected "
         << image.channels * image.width << " bytes per row, but image buffer has "
         << image.stride << "!";
@@ -335,7 +335,7 @@ void SaveImage(const std::string &image_filename,
   }
 
   if (stb_result == 0) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Could not save ImageBuffer to '" << image_filename
       << "' - unknown error!";
     throw std::runtime_error(s.str());
@@ -455,7 +455,7 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img) {
 
 Ellipse::Ellipse(std::initializer_list<double> values) {
   if (values.size() < 4 || values.size() > 7) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Ellipse c'tor requires 4 to 7 entries in initializer_list, "
       << "but got " << values.size() << ".";
     throw std::invalid_argument(s.str());
@@ -516,7 +516,7 @@ bool Ellipse::IsValid() const {
 
 
 std::string Ellipse::ToString() const {
-  std::stringstream s;
+  std::ostringstream s;
   s << "Ellipse(cx=" << std::fixed << std::setprecision(1)
     << cx << ", cy=" << cy << ", mj=" << major_axis
     << ", mn=" << minor_axis << "; rot=" << rotation
@@ -555,7 +555,7 @@ bool operator!=(const Ellipse& lhs, const Ellipse& rhs) {
 
 Rect::Rect(std::initializer_list<double> values) {
   if (values.size() < 4 || values.size() > 6) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Rect c'tor requires 4 to 6 entries in initializer_list, "
       << "but got " << values.size() << ".";
     throw std::invalid_argument(s.str());
@@ -622,6 +622,26 @@ double Rect::bottom() const {
 }
 
 
+//Vec2d Rect::TopLeft() const {
+//  return Vec2d(left(), top());
+//}
+
+
+//Vec2d Rect::TopRight() const {
+//  return Vec2d(right(), top());
+//}
+
+
+//Vec2d Rect::BottomLeft() const {
+//  return Vec2d(left(), bottom());
+//}
+
+
+//Vec2d Rect::BottomRight() const {
+//  return Vec2d(right(), bottom());
+//}
+
+
 bool Rect::IsValid() const {
   if ((radius > 0.5) && (radius < 1.0)) {
     return false;
@@ -633,7 +653,7 @@ bool Rect::IsValid() const {
 
 
 std::string Rect::ToString() const {
-  std::stringstream s;
+  std::ostringstream s;
   s << "Rect(cx=" << std::fixed << std::setprecision(1)
     << cx << ", cy=" << cy << ", w=" << width << ", h=" << height
     << "; rot=" << rotation << "°, radius=" << radius;
@@ -643,6 +663,13 @@ std::string Rect::ToString() const {
 
   s << ")";
   return s.str();
+}
+
+
+Rect Rect::FromLRWH(double left, double top, double width, double height,
+                    double rot, double corner_radius) {
+  return Rect(left + width / 2.0, top + height / 2.0,
+              width, height, rot, corner_radius);
 }
 
 

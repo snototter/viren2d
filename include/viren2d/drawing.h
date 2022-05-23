@@ -174,6 +174,17 @@ public:
 
 
   /**
+   * @brief Draws a 2D bounding box.
+   * TODO
+   */
+  void DrawBoundingBox2D(const Rect &box,
+                         const std::string &label,
+                         const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
+    DrawBoundingBox2DImpl(box, label, style);
+  }
+
+
+  /**
    * @brief Draws a circle.
    *
    * @param center: Center point of the circle.
@@ -294,6 +305,12 @@ protected:
   /** Internal helper to enable default values in public interface. */
   virtual void DrawArrowImpl(const Vec2d &from, const Vec2d &to,
                              const ArrowStyle &arrow_style) = 0;
+
+
+  /** Internal helper to enable default values in public interface. */
+  virtual void DrawBoundingBox2DImpl(const Rect &box,
+                                     const std::string &label,
+                                     const BoundingBox2DStyle &style) = 0;
 
 
   /** Internal helper to enable default values in public interface. */

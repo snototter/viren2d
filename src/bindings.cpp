@@ -19,7 +19,7 @@ namespace py = pybind11;
  * optionally enclosed in pointy brackets.
  */
 std::string Qualified(const std::string &name, bool with_tags = false) {
-  std::stringstream s;
+  std::ostringstream s;
   if (with_tags)
     s << '<';
   s << MACRO_STRINGIFY(viren2d_PYMODULE_NAME)
@@ -175,7 +175,7 @@ viren2d::Color ColorFromTuple(py::tuple tpl) {
   }
 
   if (tpl.size() < 3 || tpl.size() > 4) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot create " << Qualified("Color")
       << " from tuple with " << tpl.size()
       << " values. Expected 3 or 4!";
@@ -213,7 +213,7 @@ viren2d::LineStyle LineStyleFromTuple(py::tuple tpl) {
   }
 
   if (tpl.size() > 5) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot create " << Qualified("LineStyle")
       << " from tuple with " << tpl.size()
       << (tpl.size() == 1 ? " entry!" : " entries!");
@@ -258,7 +258,7 @@ viren2d::ArrowStyle ArrowStyleFromTuple(py::tuple tpl) {
   }
 
   if (tpl.size() > 5) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot create " << Qualified("ArrowStyle")
       << " from tuple with "
       << tpl.size() << " entries!";
@@ -304,7 +304,7 @@ viren2d::TextStyle TextStyleFromTuple(py::tuple tpl) {
   }
 
   if (tpl.size() > 5) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot create " << Qualified("TextStyle")
       << " from tuple with "
       << tpl.size() << " entries!";
@@ -346,7 +346,7 @@ viren2d::Ellipse EllipseFromTupleOrList(py::object object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot cast " << type << " to " << Qualified("Ellipse")
       << ", we only support casting from tuples and lists.";
     throw std::invalid_argument(s.str());
@@ -354,7 +354,7 @@ viren2d::Ellipse EllipseFromTupleOrList(py::object object) {
 
   py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 8) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot create " << Qualified("Ellipse")
       << " from tuple with "
       << tpl.size() << " entries!";
@@ -373,7 +373,7 @@ viren2d::Ellipse EllipseFromTupleOrList(py::object object) {
     // If casting failed, we should have a
     // (cx, cy, mj, mn, ...) tuple:
     if (tpl.size() < 4) {
-      std::stringstream s;
+      std::ostringstream s;
       s << "You wanted to create a " << Qualified("Ellipse")
         << " from a (cx, cy, major, minor, ...) tuple, but provided only "
         << tpl.size() << " entries!";
@@ -426,7 +426,7 @@ viren2d::Rect RectFromTupleOrList(py::object object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot cast " << type << " to " << Qualified("Rect")
       << ", we only support casting from tuples and lists.";
     throw std::invalid_argument(s.str());
@@ -434,7 +434,7 @@ viren2d::Rect RectFromTupleOrList(py::object object) {
 
   py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 6) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot create a " << Qualified("Rect")
       << " from tuple with "
       << tpl.size() << " entries! Use (center, size, ...)"
@@ -453,7 +453,7 @@ viren2d::Rect RectFromTupleOrList(py::object object) {
   }  catch (const py::cast_error &) {
     // If casting failed, we should have a (cx, cy, w, h, ...) tuple
     if (tpl.size() < 4) {
-      std::stringstream s;
+      std::ostringstream s;
       s << "You wanted to create a " << Qualified("Rect")
         << " from a (cx, cy, w, h, ...) tuple, but provided only "
         << tpl.size() << " entries!";
@@ -511,7 +511,7 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(py::object object) {
   using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot cast " << type << " to " << Qualified(VC::TypeName())
       << ", we only support casting from tuples and lists.";
     throw std::invalid_argument(s.str());
@@ -519,7 +519,7 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(py::object object) {
 
   py::tuple tpl = object.cast<py::tuple>();
   if (!tpl.empty() && tpl.size() != dim) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot create " << Qualified(VC::TypeName())
       << " from " << tpl.size() << " values, expected "
       << dim << "!";
@@ -554,12 +554,12 @@ py::list VecToList(const werkzeugkiste::geometry::Vec<_Tp, dim> &vec) {
 template<typename _Tp, int dim>
 void RegisterVec(py::module &m) {
   using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
-  std::stringstream doc;
+  std::ostringstream doc;
   doc << "Vector in " << dim << "D space.";
 
   py::class_<VC> vec_cls(m, VC::TypeName().c_str(), doc.str().c_str());
 
-  std::stringstream doc_tpl;
+  std::ostringstream doc_tpl;
   doc_tpl << "Initialize `" << Qualified(VC::TypeName())
           << "` from " << dim << "-element `tuple`.";
 

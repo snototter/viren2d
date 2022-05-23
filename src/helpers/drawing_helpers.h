@@ -50,7 +50,7 @@ inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style) {
       return CAIRO_LINE_CAP_SQUARE;
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "Line cap style \"" << static_cast<int>(line_style.line_cap)
     << "\" is not yet mapped to Cairo type!";
   throw std::runtime_error(s.str());
@@ -69,7 +69,7 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
     case LineJoin::Round:
       return CAIRO_LINE_JOIN_ROUND;
   }
-  std::stringstream s;
+  std::ostringstream s;
   s << "Line join style \"" << static_cast<int>(line_style.line_join)
     << "\" is not yet mapped to Cairo type!";
   throw std::runtime_error(s.str());
@@ -140,7 +140,7 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
 
   cairo_status_t surf_stat = cairo_surface_status(surface);
   if (surf_stat != CAIRO_STATUS_SUCCESS) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Invalid Cairo surface status (" << surf_stat
       << "), check https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t for details.";
     throw std::runtime_error(s.str());
@@ -165,6 +165,12 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
 
 void DrawArrow(cairo_surface_t *surface, cairo_t *context,
                Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
+
+
+void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
+                       Rect rect, const std::string &label,
+                       const BoundingBox2DStyle &style,
+                       const TextStyle &current_context_text_style);
 
 
 inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,

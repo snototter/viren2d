@@ -330,36 +330,162 @@ bool operator==(const TextStyle &lhs, const TextStyle &rhs);
 bool operator!=(const TextStyle &lhs, const TextStyle &rhs);
 
 
+
+
+//TODO bindings!!!!
+//TODO to/from string!
+enum class HorizontalAlignment : unsigned char {
+  Left   = 1,
+  Center = 1 << 1,
+  Right  = 1 << 2
+};
+
+HorizontalAlignment HorizontalAlignmentFromString(const std::string &align);
+std::string HorizontalAlignmentToString(HorizontalAlignment align);
+std::ostream &operator<<(std::ostream &os, HorizontalAlignment align);
+
+//TODO bindings!!!!
+//TODO to/from string!
+enum class VerticalAlignment : unsigned char {
+  Top    = 1 << 3,
+  Center = 1 << 4,
+  Bottom = 1 << 5
+};
+
+VerticalAlignment VerticalAlignmentFromString(const std::string &align);
+std::string VerticalAlignmentToString(VerticalAlignment align);
+std::ostream &operator<<(std::ostream &os, VerticalAlignment align);
+
+// Macro to reuse the vertical/horizontal anchors in
+// the following position/anchor enum definitions
+#define ALIGNMENT(HORZ, VERT) \
+  static_cast<unsigned char>(HORZ) \
+    | static_cast<unsigned char>(VERT)
+
 // only for draw_text
 // TODO doc & test
 // public use: prefer Center, Left, ... over combining Horz & Vert
 enum class TextAnchor : unsigned char {
-  HorzLeft   = 1,
-  HorzCenter = 1 << 1,
-  HorzRight  = 1 << 2,
+  Center = ALIGNMENT(HorizontalAlignment::Center,
+                     VerticalAlignment::Center),
 
-  VertTop    = 1 << 3,
-  VertCenter = 1 << 4,
-  VertBottom = 1 << 5,
+  Left =   ALIGNMENT(HorizontalAlignment::Left,
+                     VerticalAlignment::Center),
+  Right =  ALIGNMENT(HorizontalAlignment::Right,
+                     VerticalAlignment::Center),
+  Top =    ALIGNMENT(HorizontalAlignment::Center,
+                     VerticalAlignment::Top),
+  Bottom = ALIGNMENT(HorizontalAlignment::Center,
+                     VerticalAlignment::Bottom),
 
-  // To be used by callers:
-  Center = HorzCenter | VertCenter,
-
-  Left = HorzLeft | VertCenter,
-  Right = HorzRight | VertCenter,
-  Top = HorzCenter | VertTop,
-  Bottom = HorzCenter | VertBottom,
-
-  TopLeft = VertTop | HorzLeft,
-  TopRight = VertTop | HorzRight,
-  BottomLeft = VertBottom | HorzLeft,
-  BottomRight = VertBottom | HorzRight
+  TopLeft =     ALIGNMENT(HorizontalAlignment::Left,
+                          VerticalAlignment::Top),
+  TopRight =    ALIGNMENT(HorizontalAlignment::Right,
+                          VerticalAlignment::Top),
+  BottomLeft =  ALIGNMENT(HorizontalAlignment::Left,
+                          VerticalAlignment::Bottom),
+  BottomRight = ALIGNMENT(HorizontalAlignment::Right,
+                          VerticalAlignment::Bottom)
 };
 
 //TODO doc, test, etc
+//TODO bindings!!!!
 TextAnchor TextAnchorFromString(const std::string &anchor);
 std::string TextAnchorToString(TextAnchor anchor);
 std::ostream &operator<<(std::ostream &os, TextAnchor anchor);
+
+
+enum class BoundingBoxLabelPosition : unsigned char {
+  Top = 1,
+  Bottom = 1 << 1,
+
+  Right = 1 << 2,
+  RightT2B = Right,
+  RightB2T = 1 << 3,
+
+  Left = 1 << 4,
+  LeftB2T = Left,
+  LeftT2B = 1 << 5
+};
+
+//TODO doc, test, etc
+//TODO bindings!!!!
+BoundingBoxLabelPosition BoundingBoxLabelPositionFromString(const std::string &pos);
+std::string BoundingBoxLabelPositionToString(BoundingBoxLabelPosition pos);
+std::ostream &operator<<(std::ostream &os, BoundingBoxLabelPosition pos);
+
+//FIXME rename to 2d!
+struct BoundingBox2DStyle {
+  LineStyle line_style;
+  TextStyle text_style;
+  double alpha_box_fill;
+  double alpha_text_fill;
+  HorizontalAlignment text_alignment;
+  BoundingBoxLabelPosition label_position;
+  double label_padding;
+  bool clip_label;
+
+  /** TODO Returns a library-wide pre-set default style.
+   *  To use the painter's default style, you should use LineStyle::Default !!! TODO doc FIXME "special" default, "special " invalid or "some initialized" ??? */
+  BoundingBox2DStyle();
+
+  BoundingBox2DStyle(const LineStyle &contour,
+                     const TextStyle &label_style,
+                     double bounding_box_alpha, double label_box_alpha,
+                     HorizontalAlignment label_alignment,
+                     BoundingBoxLabelPosition label_pos,
+                     double text_padding, bool clip_lbl);
+
+////TODO test
+//  BoundingBoxStyle(std::initializer_list<double> values);
+//  LineStyle(double width, const Color &col,
+//            const std::vector<double> &dash=std::vector<double>(),
+//            LineCap cap=LineCap::Butt, LineJoin join=LineJoin::Miter);
+
+
+  // Nothing special about the BoundingBoxStyle class, so we can have
+  // the default copy/assignment/move c'tors/operators:
+  BoundingBox2DStyle(const BoundingBox2DStyle &other) = default;
+  BoundingBox2DStyle& operator=(const BoundingBox2DStyle &other) = default;
+  BoundingBox2DStyle(BoundingBox2DStyle&&) = default;
+  BoundingBox2DStyle& operator=(BoundingBox2DStyle &&) = default;
+
+  ~BoundingBox2DStyle() {}
+
+
+  /** @brief Checks if this style would lead to a renderable bounding box. */
+  bool IsValid() const;
+
+  Vec2d LabelPadding() const;
+  Color BoxFillColor() const;
+  Color TextFillColor() const;
+
+
+  /** @brief Returns true if this and the other specify the same BoundingBoxStyle. */
+  bool Equals(const BoundingBox2DStyle &other) const;
+
+
+  /** @brief Returns a human-readable string representation. */
+  std::string ToString() const;
+
+
+  /** @brief Overloaded stream operator. */
+  friend std::ostream &operator<<(std::ostream &os, const BoundingBox2DStyle &style) {
+    os << style.ToString();
+    return os;
+  }
+
+
+  /**
+    FIXME add a default/customizable bbox style per painter
+   */
+//  static const BoundingBox2DStyle Default;
+};
+
+bool operator==(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs);
+bool operator!=(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs);
+
+
 
 } // namespace viren2d
 

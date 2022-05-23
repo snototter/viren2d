@@ -27,7 +27,7 @@ std::string LineCapToString(LineCap cap) {
       return "Square";
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "LineCap [" << static_cast<int>(cap)
     << "] is not yet supported in LineCapToString()!";
   throw std::runtime_error(s.str());
@@ -44,7 +44,7 @@ std::string LineJoinToString(LineJoin join) {
       return "Bevel";
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "LineJoin [" << static_cast<int>(join)
     << "] is not yet supported in LineJoinToString()!";
   throw std::runtime_error(s.str());
@@ -72,7 +72,7 @@ LineStyle::LineStyle(std::initializer_list<double> values) {
       line_width = values.begin()[0];
     }
   } else {
-    std::stringstream s;
+    std::ostringstream s;
     s << "LineStyle c'tor requires 0, or 1 elements in initializer_list, "
       << "but got " << values.size() << ".";
     throw std::invalid_argument(s.str());
@@ -117,7 +117,7 @@ double LineStyle::CapOffset() const {
       return line_width / 2.0;
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "LineCap::" << LineCapToString(line_cap)
     << " is not yet supported in CapOffset()!";
   throw std::runtime_error(s.str());
@@ -147,7 +147,7 @@ std::string LineStyle::ToString() const {
     return "LineStyle::Invalid";
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "LineStyle(lw=" << std::fixed << std::setprecision(1)
     << line_width << ", " << color.ToString() << ", "
     << (dash_pattern.empty() ? "solid" : "dashed");
@@ -241,7 +241,7 @@ std::string ArrowStyle::ToString() const {
     return "ArrowStyle::Default";
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
     << line_width << ", tl=" << tip_length
     << ", ta=" << tip_angle << "°, "
@@ -356,7 +356,7 @@ std::string TextStyle::ToString() const {
     return "TextStyle::Default";
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "TextStyle(\"" << font_family << "\", "
     << font_size << "px";
 
@@ -383,6 +383,115 @@ bool operator==(const TextStyle &lhs, const TextStyle &rhs) {
 
 bool operator!=(const TextStyle &lhs, const TextStyle &rhs) {
   return !(lhs == rhs);
+}
+
+
+
+
+
+HorizontalAlignment HorizontalAlignmentFromString(const std::string &align) {
+  std::string slug = werkzeugkiste::strings::Lower(align);
+  slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
+      return ::isspace(ch) || (ch == '-') || (ch == '_');
+    }), slug.end());
+
+  if ((slug.compare("left") == 0)
+      || (slug.compare("west") == 0)) {
+    return HorizontalAlignment::Left;
+  } else if ((slug.compare("center") == 0)
+             || (slug.compare("middle") == 0)) {
+    return HorizontalAlignment::Center;
+  } else if ((slug.compare("right") == 0)
+             || (slug.compare("east") == 0)) {
+    return HorizontalAlignment::Right;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce HorizontalAlignment from string \""
+    << align << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::string HorizontalAlignmentToString(HorizontalAlignment align) {
+  switch (align) {
+    case HorizontalAlignment::Left:
+      return "left";
+
+    case HorizontalAlignment::Center:
+      return "hcenter";
+
+    case HorizontalAlignment::Right:
+      return "right";
+
+    default: {
+        std::ostringstream s;
+        s << "HorizontalAlignment value ("
+          << static_cast<int>(align)
+          << ") has not been mapped to string representation!";
+        throw std::invalid_argument(s.str());
+      }
+  }
+}
+
+
+std::ostream &operator<<(std::ostream &os, HorizontalAlignment align) {
+  os << HorizontalAlignmentToString(align);
+  return os;
+}
+
+
+
+
+
+VerticalAlignment VerticalAlignmentFromString(const std::string &align) {
+  std::string slug = werkzeugkiste::strings::Lower(align);
+  slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
+      return ::isspace(ch) || (ch == '-') || (ch == '_');
+    }), slug.end());
+
+  if ((slug.compare("top") == 0)
+      || (slug.compare("north") == 0)) {
+    return VerticalAlignment::Top;
+  } else if ((slug.compare("center") == 0)
+             || (slug.compare("middle") == 0)) {
+    return VerticalAlignment::Center;
+  } else if ((slug.compare("bottom") == 0)
+             || (slug.compare("south") == 0)) {
+    return VerticalAlignment::Bottom;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce VerticalAlignment from string \""
+    << align << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+std::string VerticalAlignmentToString(VerticalAlignment align) {
+  switch (align) {
+    case VerticalAlignment::Top:
+      return "top";
+
+    case VerticalAlignment::Center:
+      return "vcenter";
+
+    case VerticalAlignment::Bottom:
+      return "bottom";
+
+    default: {
+        std::ostringstream s;
+        s << "VerticalAlignment value ("
+          << static_cast<int>(align)
+          << ") has not been mapped to string representation!";
+        throw std::invalid_argument(s.str());
+      }
+  }
+}
+
+
+std::ostream &operator<<(std::ostream &os, VerticalAlignment align) {
+  os << VerticalAlignmentToString(align);
+  return os;
 }
 
 
@@ -425,7 +534,7 @@ TextAnchor TextAnchorFromString(const std::string &anchor) {
     return TextAnchor::TopRight;
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "Could not deduce TextAnchor from string \""
     << anchor << "\".";
   throw std::invalid_argument(s.str());
@@ -472,6 +581,173 @@ std::ostream &operator<<(std::ostream &os, TextAnchor anchor) {
   return os;
 }
 
+
+
+BoundingBoxLabelPosition BoundingBoxLabelPositionFromString(const std::string &pos) {
+  std::string slug = werkzeugkiste::strings::Lower(pos);
+  slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
+      return ::isspace(ch) || (ch == '-') || (ch == '_');
+    }), slug.end());
+
+  if (slug.compare("top") == 0) {
+    return BoundingBoxLabelPosition::Top;
+  } else if (slug.compare("bottom") == 0) {
+    return BoundingBoxLabelPosition::Bottom;
+  } else if ((slug.compare("left") == 0)
+             || (slug.compare("leftb2t") == 0)) {
+    return BoundingBoxLabelPosition::LeftB2T;
+  } else if (slug.compare("leftt2b") == 0) {
+    return BoundingBoxLabelPosition::LeftT2B;
+  } else if ((slug.compare("right") == 0)
+             || (slug.compare("rightt2b") == 0)) {
+    return BoundingBoxLabelPosition::RightT2B;
+  } else if (slug.compare("rightb2t") == 0) {
+    return BoundingBoxLabelPosition::RightB2T;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce BoundingBoxLabelPosition from string \""
+    << pos << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::string BoundingBoxLabelPositionToString(BoundingBoxLabelPosition pos) {
+  switch (pos) {
+    case BoundingBoxLabelPosition::Top:
+      return "top";
+
+    case BoundingBoxLabelPosition::Bottom:
+      return "bottom";
+
+    case BoundingBoxLabelPosition::LeftB2T:
+      return "left-b2t";
+
+    case BoundingBoxLabelPosition::LeftT2B:
+      return "left-t2b";
+
+    case BoundingBoxLabelPosition::RightB2T:
+      return "right-b2t";
+
+    case BoundingBoxLabelPosition::RightT2B:
+      return "right-t2b";
+
+    default: {
+        std::ostringstream s;
+        s << "BoundingBoxLabelPosition value ("
+          << static_cast<int>(pos)
+          << ") has not been mapped to string representation!";
+        throw std::invalid_argument(s.str());
+      }
+  }
+}
+
+
+std::ostream &operator<<(std::ostream &os, BoundingBoxLabelPosition pos) {
+  os << BoundingBoxLabelPositionToString(pos);
+  return os;
+}
+
+
+//-------------------------------------------------  BoundingBoxStyle
+//const BoundingBox2DStyle BoundingBox2DStyle::Default = BoundingBox2DStyle(
+//      LineStyle(4, NamedColor::Azure),
+//      TextStyle(10, "monospace", Color::Black),
+//      0.2, 0.7, HorizontalAlignment::Left,
+//      BoundingBoxLabelPosition::Top, true);
+
+
+BoundingBox2DStyle::BoundingBox2DStyle()
+  : line_style(LineStyle::Default), text_style(TextStyle::Default),
+    alpha_box_fill(0.0), alpha_text_fill(0.7),
+    text_alignment(HorizontalAlignment::Left),
+    label_position(BoundingBoxLabelPosition::Top),
+    label_padding(5), clip_label(true)
+{}
+
+
+BoundingBox2DStyle::BoundingBox2DStyle(const LineStyle &contour,
+                                       const TextStyle &label_style,
+                                       double bounding_box_alpha,
+                                       double label_box_alpha,
+                                       HorizontalAlignment label_alignment,
+                                       BoundingBoxLabelPosition label_pos,
+                                       double text_padding,
+                                       bool clip_lbl)
+  : line_style(contour), text_style(label_style),
+    alpha_box_fill(bounding_box_alpha), alpha_text_fill(label_box_alpha),
+    text_alignment(label_alignment), label_position(label_pos),
+    label_padding(text_padding), clip_label(clip_lbl)
+{}
+
+
+bool BoundingBox2DStyle::IsValid() const {
+  return line_style.IsValid()
+      && text_style.IsValid()
+      && (alpha_box_fill >= 0.0) && (alpha_box_fill <= 1.0)
+      && (alpha_text_fill >= 0.0) && (alpha_text_fill <= 1.0);
+}
+
+
+Vec2d BoundingBox2DStyle::LabelPadding() const {
+  return Vec2d(label_padding, label_padding);
+}
+
+Color BoundingBox2DStyle::BoxFillColor() const {
+  if (alpha_box_fill > 0.0) {
+    return line_style.color.WithAlpha(alpha_box_fill);
+  } else {
+    return Color::Invalid;
+  }
+}
+
+
+Color BoundingBox2DStyle::TextFillColor() const {
+  if (alpha_text_fill > 0.0) {
+    return line_style.color.WithAlpha(alpha_text_fill);
+  } else {
+    return Color::Invalid;
+  }
+}
+
+
+bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
+  return (line_style == other.line_style)
+      && (text_style == other.text_style)
+      && wgu::eps_equal(alpha_box_fill, other.alpha_box_fill)
+      && wgu::eps_equal(alpha_text_fill, other.alpha_text_fill)
+      && (text_alignment == other.text_alignment)
+      && (label_position == other.label_position)
+      && (clip_label == other.clip_label);
+}
+
+
+std::string BoundingBox2DStyle::ToString() const {
+  std::ostringstream s;
+  s << "BoundingBox2DStyle("
+    << line_style << ", " << text_style
+    << "a_box=" << alpha_box_fill
+    << ", a_text=" << alpha_text_fill
+    << ", label: " << label_position
+    << "/" << text_alignment;
+
+  if (clip_label) {
+    s << ", clipped";
+  }
+
+  s << ")";
+  return s.str();
+}
+
+
+bool operator==(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs) {
+  return lhs.Equals(rhs);
+}
+
+
+bool operator!=(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs) {
+  return !(lhs == rhs);
+}
 
 
 } // namespace viren2d

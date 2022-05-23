@@ -30,7 +30,7 @@ spdlog::level::level_enum ToSpdLogLevel(LogLevel lvl) {
       return spdlog::level::err;
 
     default: {
-      std::stringstream s;
+      std::ostringstream s;
       s << LogLevelToString(lvl)
         << " has not been mapped to spdlog::level::level_enum.";
       throw std::runtime_error(s.str());
@@ -61,7 +61,7 @@ int ToSpdLogMacroLevel(LogLevel lvl) {
       return SPDLOG_LEVEL_ERROR;
 
     default: {
-      std::stringstream s;
+      std::ostringstream s;
       s << LogLevelToString(lvl)
         << " has not been mapped to its corresponding"
            "SPDLOG_LEVEL_xxx preprocessor definition.";
@@ -96,7 +96,7 @@ LogLevel LogLevelFromString(const std::string &lvl) {
     return LogLevel::Error;
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "Could not convert string \"" << lvl
     << "\" to LogLevel.";
   throw std::invalid_argument(s.str());
@@ -124,7 +124,7 @@ std::string LogLevelToString(LogLevel lvl) {
       return "error";
 
     default: {
-      std::stringstream s;
+      std::ostringstream s;
       s << "No string representation available for LogLevel ("
         << static_cast<int>(lvl) << ").";
       throw std::runtime_error(s.str());

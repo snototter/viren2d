@@ -18,9 +18,27 @@ namespace wgu = werkzeugkiste::geometry;
 
 namespace viren2d {
 namespace helpers {
+namespace {
+/** Creates a path for a rectangle with rounded corners.
+ *  Assumes that the viewport is already translated (and optionally
+ *  rotated).
+ */
+void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
+  const double half_width = rect.half_width() - rect.radius;
+  const double half_height = rect.half_height() - rect.radius;
+  cairo_move_to(context, -rect.half_width(), -half_height);
+  cairo_arc(context, -half_width, -half_height, rect.radius, wgu::deg2rad(180), wgu::deg2rad(270));
+  cairo_arc(context,  half_width, -half_height, rect.radius, wgu::deg2rad(-90), 0);
+  cairo_arc(context,  half_width,  half_height, rect.radius, 0, wgu::deg2rad(90));
+  cairo_arc(context, -half_width,  half_height, rect.radius, wgu::deg2rad(90), wgu::deg2rad(180));
+  cairo_close_path(context);
+}
+} // end anonymous namespace
+
+
 void CheckLineStyle(const LineStyle &style) {
   if (!style.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot draw with invalid line style " << style.ToString() << "!";
     throw std::invalid_argument(s.str());
   }
@@ -30,12 +48,13 @@ void CheckLineStyle(const LineStyle &style) {
 void CheckLineStyleAndFill(const LineStyle &style,
                            const Color &fill_color) {
   if (!style.IsValid() && !fill_color.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot draw with invalid line style & invalid fill color: "
       << style.ToString() << " and " << fill_color.ToString() << "!";
     throw std::invalid_argument(s.str());
   }
 }
+
 
 
 //---------------------------------------------------- Arc/Circle
@@ -217,6 +236,118 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 }
 
 
+
+//---------------------------------------------------- BoundingBox 2D
+void BoundingBox2DLabelHelper(cairo_surface_t *surface, cairo_t *context,
+                              Rect rect, const std::string &label,
+                              const BoundingBox2DStyle &style,
+                              const TextStyle &current_context_text_style) {
+  cairo_save(context);
+//  Vec2d label_pos;
+//  VerticalAlignment valign;
+
+//  switch (style.label_position) {
+//    case BoundingBoxLabelPosition::Top: {
+//        label_pos = rect.TopLeft();
+//        valign = VerticalAlignment::Top;
+//        break;
+//      }
+
+//    case BoundingBoxLabelPosition::Bottom: {
+//        label_pos = rect.BottomLeft();
+//        valign = VerticalAlignment::Bottom;
+//        break;
+//      }
+
+//    case BoundingBoxLabelPosition::LeftB2T: {
+//        break;
+//      }
+
+//    case BoundingBoxLabelPosition::LeftT2B: {
+//        break;
+//      }
+
+//    case BoundingBoxLabelPosition::RightB2T: {
+//        break;
+//      }
+
+//    case BoundingBoxLabelPosition::RightT2B: {
+//        break;
+//      }
+//  }
+
+  //TODO can't reuse DrawText; after horizontal alignment, we
+  // must potentially adjust the text box :/
+  DrawText(surface, context, label, Vec2d(-rect.half_width(), -rect.half_height()),
+           TextAnchor::TopLeft,
+           style.text_style, current_context_text_style,
+           style.LabelPadding(), 0, LineStyle::Invalid,
+           style.TextFillColor(), 0);
+  cairo_restore(context);
+}
+
+
+void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
+                       Rect rect, const std::string &label,
+                       const BoundingBox2DStyle &style,
+                       const TextStyle &current_context_text_style) {
+  CheckCanvas(surface, context);
+
+  if (!style.IsValid()) {
+    std::ostringstream s;
+    s << "Cannot draw a bounding box with an invalid style: "
+      << style;
+    throw std::invalid_argument(s.str());
+  }
+  //FIXME implement!
+
+  if (!rect.IsValid()) {
+    std::ostringstream s;
+    s << "Cannot draw an invalid bounding box: " << rect << "!";
+    throw std::invalid_argument(s.str());
+  }
+
+  // Shift to the pixel center (so 1px borders are drawn correctly)
+  rect += 0.5;
+
+  cairo_save(context);
+  cairo_translate(context, rect.cx, rect.cy);
+  cairo_rotate(context, wgu::deg2rad(rect.rotation));
+
+  //TODO try setting the clip region
+
+  // Draw the label
+  BoundingBox2DLabelHelper(surface, context, rect, label,
+                           style, current_context_text_style);
+
+  // Draw a standard (box) rect or rounded rectangle:
+  if (rect.radius > 0.0) {
+    // If radius in [0, 1], we use it as a percentage
+    // Actually, due to the IsValid() check, it will
+    // either be (0, 0.5] or >= 1
+    if (rect.radius < 1.0) {
+      rect.radius *= std::min(rect.width, rect.height);
+    }
+    PathHelperRoundedRect(context, rect);
+  } else {
+    cairo_rectangle(context, -rect.half_width(), -rect.half_height(),
+                    rect.width, rect.height);
+  }
+
+  SPDLOG_ERROR("FIXME BBOX STYLE: {:s}", style);
+  const auto bbox_fill = style.BoxFillColor();
+  if (bbox_fill.IsValid()) {
+    helpers::ApplyColor(context, bbox_fill);
+    cairo_fill_preserve(context);
+  }
+
+  helpers::ApplyLineStyle(context, style.line_style);
+  cairo_stroke(context);
+  // Restore context
+  cairo_restore(context);
+}
+
+
 //---------------------------------------------------- Ellipse
 /**
  * Computes the adjusted ellipse arc angle s.t. drawing
@@ -244,7 +375,7 @@ void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
   CheckLineStyleAndFill(line_style, fill_color);
 
   if (!ellipse.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot draw an invalid ellipse: " << ellipse << "!";
     throw std::invalid_argument(s.str());
   }
@@ -393,22 +524,6 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- Rectangle (box, rounded, rotated)
-/** Creates a path for a rectangle with rounded corners.
- *  Assumes that the viewport is already translated (and optionally
- *  rotated).
- */
-void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
-  const double half_width = rect.half_width() - rect.radius;
-  const double half_height = rect.half_height() - rect.radius;
-  cairo_move_to(context, -rect.half_width(), -half_height);
-  cairo_arc(context, -half_width, -half_height, rect.radius, wgu::deg2rad(180), wgu::deg2rad(270));
-  cairo_arc(context,  half_width, -half_height, rect.radius, wgu::deg2rad(-90), 0);
-  cairo_arc(context,  half_width,  half_height, rect.radius, 0, wgu::deg2rad(90));
-  cairo_arc(context, -half_width,  half_height, rect.radius, wgu::deg2rad(90), wgu::deg2rad(180));
-  cairo_close_path(context);
-}
-
-
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
               Rect rect, const LineStyle &line_style,
               const Color &fill_color) {
@@ -416,7 +531,7 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
   CheckLineStyleAndFill(line_style, fill_color);
 
   if (!rect.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot draw an invalid rectangle: " << rect << "!";
     throw std::invalid_argument(s.str());
   }
@@ -467,9 +582,9 @@ Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
 
   // Adjust horizontal alignment.
   double x = position.x();
-  if (IsFlagSet(anchor, TextAnchor::HorzCenter)) {
+  if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
     x -= (extents.width / 2.0 + extents.x_bearing);
-  } else if (IsFlagSet(anchor, TextAnchor::HorzRight)) {
+  } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
     x -= (extents.width + padding.x() + extents.x_bearing);
   } else {  // Left-aligned
     x += padding.x() - extents.x_bearing;
@@ -478,9 +593,9 @@ Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
 
   // Adjust vertical alignment.
   double y = position.y();
-  if (IsFlagSet(anchor, TextAnchor::VertCenter)) {
+  if (IsFlagSet(anchor, VerticalAlignment::Center)) {
     y -= (extents.height / 2.0 + extents.y_bearing);
-  } else if (IsFlagSet(anchor, TextAnchor::VertTop)) {
+  } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
     y += (padding.y() - extents.y_bearing);
   } else {  // Bottom-aligned
     y -= (extents.height + extents.y_bearing + padding.y());
@@ -508,7 +623,7 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   }
 
   if (!desired_text_style.IsValid()) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Cannot draw text with invalid style: "
       << desired_text_style;
     throw std::invalid_argument(s.str());

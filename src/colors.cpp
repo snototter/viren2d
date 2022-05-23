@@ -142,7 +142,7 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Invalid;
   }
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "Could not look up NamedColor corresponding to \""
     << name << "\".";
   throw std::invalid_argument(s.str());
@@ -194,7 +194,7 @@ std::string NamedColorToString(const NamedColor &color) {
     case NamedColor::Invalid: return "invalid";
 
     default: {
-      std::stringstream s;
+      std::ostringstream s;
       s << "No string representation available for this NamedColor ("
         << static_cast<unsigned short>(color) << ")";
       throw std::runtime_error(s.str());
@@ -230,7 +230,7 @@ Color::Color(const NamedColor color, double alpha) {
 //               " with alpha={:.2f}.", color, alpha);
 
   this->alpha = alpha;
-  std::stringstream s;
+  std::ostringstream s;
 
   // For the following color component assignments,
   // I prefer multiple assignments (e.g. x = y = 1)
@@ -394,7 +394,7 @@ Color::Color(const std::string &colorspec, double alpha) {
       // std::stoi will throw an invalid_argument if the input can't be parsed...
       this->alpha = std::stoi(aspec_) / 100.0;
       if (this->alpha < 0.0 || this->alpha > 1.0) {
-        std::stringstream s;
+        std::ostringstream s;
         s << "Alpha in \"" << colorspec
           << "\" must be an integer within [0, 100].";
         throw std::invalid_argument(s.str());
@@ -404,7 +404,7 @@ Color::Color(const std::string &colorspec, double alpha) {
       // representations (simply return the part before the comma). We
       // explicitly require alpha in the string to be an integer:
       if (!std::all_of(aspec_.begin(), aspec_.end(), ::isdigit)) {
-        std::stringstream s;
+        std::ostringstream s;
         s << "Alpha in \"" << colorspec
           << "\" must be an integer, but it contains non-digits.";
         throw std::invalid_argument(s.str());
@@ -432,7 +432,7 @@ Color::Color(std::initializer_list<double> values) {
       alpha = 1.0;
     }
   } else {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Color c'tor requires 0, 3 or 4 elements in initializer_list, "
       << "but got " << values.size() << ".";
     throw std::invalid_argument(s.str());
@@ -496,7 +496,7 @@ std::string Color::ToString() const {
   // BEFORE the isvalid() check, because
   // all special members are invalid colors!
 
-  std::stringstream s;
+  std::ostringstream s;
   s << "Color";
 
   if (!IsValid()) { // || IsSpecialInvalid()) {
@@ -504,11 +504,11 @@ std::string Color::ToString() const {
   } else {
     s << "(" << ToHexString() << ")";
   }
-  s << " FIXME "  << IsSpecialInvalid();//FIXME cc'tor not working
+  s << " FIXME isspecial_invalid("  << IsSpecialInvalid();//FIXME cc'tor not working?
   return s.str();
 
   // Alternatively as RGBa string:
-//  std::stringstream s;
+//  std::ostringstream s;
 //  if (IsValid()) {
 //    const auto rgb = ToRGBa();
 //    s << "RGBa(" << static_cast<int>(std::get<0>(rgb))
@@ -681,7 +681,7 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
 
   const size_t len = webcode.length();
   if (len != 7 && len != 9) {
-    std::stringstream s;
+    std::ostringstream s;
     s << "Input must have a leading '#' and either 6 or 8 hex digits, "
       << "but was: \"" << webcode << "\".";
     throw std::invalid_argument(s.str());
