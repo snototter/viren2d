@@ -321,10 +321,52 @@ void DemoBoundingBox2D() {
   viren2d::BoundingBox2DStyle style;
   style.alpha_box_fill = 0.3;
   style.alpha_text_fill = 0.3;
-  style.text_style = viren2d::TextStyle(10, "Arial");
+  style.clip_label = true;
+  style.text_style = viren2d::TextStyle(10, "xkcd");
 
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 50, 100, 250, 10, 0.2),
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 50, 100, 80, -10, 0.2),
                              "Class 1, Confidence 0.98", style);
+
+
+  style.alpha_box_fill = 0.3;
+  style.alpha_text_fill = 0.3;
+  style.clip_label = false;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 150, 100, 80, -10, 0.2),
+                             "Class 1, Confidence 0.98", style);
+
+
+  style.alpha_box_fill = 0.0;
+  style.alpha_text_fill = 0.3;
+  style.clip_label = false;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 250, 100, 80, -10, 0.2),
+                             "Class 1, Confidence 0.98", style);
+
+
+  style.alpha_box_fill = 0.3;
+  style.alpha_text_fill = 0.0;
+  style.clip_label = false;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 350, 100, 80, -10, 0.2),
+                             "Class 1, Confidence 0.98", style);
+
+  style.clip_label = true;
+  style.alpha_box_fill = 0.3;
+  style.alpha_text_fill = 0.0;
+  style.text_style = viren2d::TextStyle(14, "Arial", "black", true);
+
+  style.text_alignment = viren2d::HorizontalAlignment::Center;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(200, 50, 100, 250, 0, 0.4),
+                             "This!", style);
+
+
+  style.text_alignment = viren2d::HorizontalAlignment::Left;
+
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(350, 50, 100, 250),
+                             "This!", style);
+
+  style.alpha_box_fill = 0.0;
+  style.alpha_text_fill = 0.5;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(475, 50, 100, 250),
+                             "This!", style);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
   painter.reset();

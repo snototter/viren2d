@@ -33,6 +33,42 @@ void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
   cairo_arc(context, -half_width,  half_height, rect.radius, wgu::deg2rad(90), wgu::deg2rad(180));
   cairo_close_path(context);
 }
+
+
+Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
+                                const cairo_text_extents_t &extents,
+                                Vec2d padding) {
+  // Default Cairo text `position` is bottom-left,
+  // indicating the "reference point".
+  // Check these useful resources:
+  // https://www.cairographics.org/tutorial/#L1understandingtext
+  // https://www.cairographics.org/tutorial/textextents.c
+  // https://www.cairographics.org/samples/text_align_center/
+
+  // Adjust horizontal alignment.
+  double x = position.x();
+  if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
+    x -= (extents.width / 2.0 + extents.x_bearing);
+  } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
+    x -= (extents.width + padding.x() + extents.x_bearing);
+  } else {  // Left-aligned
+    x += padding.x() - extents.x_bearing;
+  }
+  position.SetX(x);
+
+  // Adjust vertical alignment.
+  double y = position.y();
+  if (IsFlagSet(anchor, VerticalAlignment::Center)) {
+    y -= (extents.height / 2.0 + extents.y_bearing);
+  } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
+    y += (padding.y() - extents.y_bearing);
+  } else {  // Bottom-aligned
+    y -= (extents.height + extents.y_bearing + padding.y());
+  }
+  position.SetY(y);
+
+  return position;
+}
 } // end anonymous namespace
 
 
@@ -238,50 +274,111 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- BoundingBox 2D
-void BoundingBox2DLabelHelper(cairo_surface_t *surface, cairo_t *context,
+void BoundingBox2DLabelHelper(cairo_t *context,
                               Rect rect, const std::string &label,
                               const BoundingBox2DStyle &style) {
-  cairo_save(context);
-//  Vec2d label_pos;
-//  VerticalAlignment valign;
+  double pos_y = 0.0;
+  VerticalAlignment valign = VerticalAlignment::Center;
 
-//  switch (style.label_position) {
-//    case BoundingBoxLabelPosition::Top: {
-//        label_pos = rect.TopLeft();
-//        valign = VerticalAlignment::Top;
-//        break;
-//      }
+  //TODO: rotate context, draw box, draw text, restore context
+  double half_width = rect.half_width();
+  double half_height = rect.half_height();
+  double pad_horz = style.LabelPadding().x();
+  double pad_vert = style.LabelPadding().y();
+  //FIXME bbox style: padding horz & vert!
 
-//    case BoundingBoxLabelPosition::Bottom: {
-//        label_pos = rect.BottomLeft();
-//        valign = VerticalAlignment::Bottom;
-//        break;
-//      }
+  switch (style.label_position) {
+    case BoundingBoxLabelPosition::Top: {
+//        pos_y = -half_height + rect.radius + pad_vert;
+        pos_y = -half_height + pad_vert;
+        valign = VerticalAlignment::Top;
+        break;
+      }
 
-//    case BoundingBoxLabelPosition::LeftB2T: {
-//        break;
-//      }
+    case BoundingBoxLabelPosition::Bottom: {
+//        pos_y = half_height - rect.radius - pad_vert;
+        pos_y = half_height - pad_vert;
+        valign = VerticalAlignment::Bottom;
+        break;
+      }
 
-//    case BoundingBoxLabelPosition::LeftT2B: {
-//        break;
-//      }
+    case BoundingBoxLabelPosition::LeftB2T: {
+        //TODO rotate & adjust h, w, pad_horz/vert
+        break;
+      }
 
-//    case BoundingBoxLabelPosition::RightB2T: {
-//        break;
-//      }
+    case BoundingBoxLabelPosition::LeftT2B: {
+        //TODO rotate & adjust h, w...pad_horz/vert
+        break;
+      }
 
-//    case BoundingBoxLabelPosition::RightT2B: {
-//        break;
-//      }
-//  }
+    case BoundingBoxLabelPosition::RightB2T: {
+        //TODO rotate & adjust h, w...pad_horz/vert
+        break;
+      }
 
-  //TODO can't reuse DrawText; after horizontal alignment, we
-  // must potentially adjust the text box :/
-  DrawText(surface, context, label, Vec2d(-rect.half_width(), -rect.half_height()),
-           TextAnchor::TopLeft,
-           style.text_style, style.LabelPadding(), 0, LineStyle::Invalid,
-           style.TextFillColor(), 0);
-  cairo_restore(context);
+    case BoundingBoxLabelPosition::RightT2B: {
+        //TODO rotate & adjust h, w...pad_horz/vert
+        break;
+      }
+  }
+
+  double pos_x = 0.0;
+  switch (style.text_alignment) {
+    case HorizontalAlignment::Left:
+//      pos_x = -half_width + rect.radius + pad_horz;
+      pos_x = -half_width + pad_horz;
+      break;
+
+    case HorizontalAlignment::Center:
+      pos_x = 0;
+      break;
+
+    case HorizontalAlignment::Right:
+//      pos_x = half_width - rect.radius - pad_horz;
+      pos_x = half_width - pad_horz;
+      break;
+  }
+  // Set clip region
+  cairo_clip_preserve(context);
+
+  ApplyTextStyle(context, style.text_style);
+  cairo_text_extents_t extents;
+  cairo_text_extents(context, label.c_str(), &extents);
+  auto rpos = GetAnchoredReferencePoint({pos_x, pos_y},
+            static_cast<TextAnchor>(static_cast<unsigned char>(style.text_alignment)
+                                    | static_cast<unsigned char>(valign)),
+            extents, {pad_horz, pad_vert});
+
+
+  // Fill text box
+  //TODO
+
+  // Reset clip region if we shouldn't clip the text
+  if (!style.clip_label) {
+    cairo_reset_clip(context);
+  }
+
+//  cairo_stroke_preserve(context);
+
+  // Shift to the pixel center, and move to the origin of the
+  // first glyph. Then, let Cairo render the text:
+  rpos += 0.5;
+  ApplyColor(context, style.text_style.font_color);
+  cairo_move_to(context, rpos.x(), rpos.y());
+  cairo_show_text(context, label.c_str());
+
+  // If we haven't reset the clip region before, do so now:
+  if (style.clip_label) {
+    cairo_reset_clip(context);
+  }
+
+  //FIXME implement multi-line text support first! (w/ textextents, etc)
+//  DrawText(surface, context, label, Vec2d(-rect.half_width(), -rect.half_height()),
+//           TextAnchor::TopLeft,
+//           style.text_style, style.LabelPadding(), 0, LineStyle::Invalid,
+//           style.TextFillColor(), 0);
+//  cairo_restore(context);
 }
 
 
@@ -290,13 +387,20 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
                        const BoundingBox2DStyle &style) {
   CheckCanvas(surface, context);
 
+  //FIXME:
+  // * always clip label
+  // * drawing order: fill, text-box, contour, text
+  // * start text at corner (eg TopLeft) + corner_radius + padding
+  //   --> default box style: radius 0.2; default padding: 0-2
+  // * optional (distant future): auto-wrap text
+
+
   if (!style.IsValid()) {
     std::ostringstream s;
     s << "Cannot draw a bounding box with an invalid style: "
       << style;
     throw std::invalid_argument(s.str());
   }
-  //FIXME implement!
 
   if (!rect.IsValid()) {
     std::ostringstream s;
@@ -312,10 +416,6 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   cairo_rotate(context, wgu::deg2rad(rect.rotation));
 
   //TODO try setting the clip region
-
-  // Draw the label
-  BoundingBox2DLabelHelper(surface, context, rect, label,
-                           style);
 
   // Draw a standard (box) rect or rounded rectangle:
   if (rect.radius > 0.0) {
@@ -338,8 +438,15 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
     cairo_fill_preserve(context);
   }
 
-  helpers::ApplyLineStyle(context, style.line_style);
+//  ApplyLineStyle(context, style.line_style);
+//  cairo_stroke_preserve(context);
+
+  // Draw the label
+  BoundingBox2DLabelHelper(context, rect, label, style);
+
+  ApplyLineStyle(context, style.line_style);
   cairo_stroke(context);
+
   // Restore context
   cairo_restore(context);
 }
@@ -567,41 +674,6 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- Text (plain & boxed)
-Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
-                                const cairo_text_extents_t &extents,
-                                Vec2d padding) {
-  // Default Cairo text `position` is bottom-left,
-  // indicating the "reference point".
-  // Check these useful resources:
-  // https://www.cairographics.org/tutorial/#L1understandingtext
-  // https://www.cairographics.org/tutorial/textextents.c
-  // https://www.cairographics.org/samples/text_align_center/
-
-  // Adjust horizontal alignment.
-  double x = position.x();
-  if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
-    x -= (extents.width / 2.0 + extents.x_bearing);
-  } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
-    x -= (extents.width + padding.x() + extents.x_bearing);
-  } else {  // Left-aligned
-    x += padding.x() - extents.x_bearing;
-  }
-  position.SetX(x);
-
-  // Adjust vertical alignment.
-  double y = position.y();
-  if (IsFlagSet(anchor, VerticalAlignment::Center)) {
-    y -= (extents.height / 2.0 + extents.y_bearing);
-  } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
-    y += (padding.y() - extents.y_bearing);
-  } else {  // Bottom-aligned
-    y -= (extents.height + extents.y_bearing + padding.y());
-  }
-  position.SetY(y);
-
-  return position;
-}
-
 //FIXME painter --> public interface (or first Impl()): debug
 // all others: trace
 

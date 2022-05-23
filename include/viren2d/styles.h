@@ -422,7 +422,7 @@ struct BoundingBox2DStyle {
   double alpha_text_fill;
   HorizontalAlignment text_alignment;
   BoundingBoxLabelPosition label_position;
-  double label_padding;
+  double label_padding; //TODO change to vec2d! different horz/vert padding
   bool clip_label;
 
   /** TODO Returns a library-wide pre-set default style.

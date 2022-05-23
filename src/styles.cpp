@@ -57,7 +57,7 @@ const LineStyle LineStyle::Invalid = LineStyle(-1, Color::Invalid);
 
 
 LineStyle::LineStyle()
-  : line_width(2),
+  : line_width(3),
     color(Color(NamedColor::Azure)),
     dash_pattern({}),
     line_cap(LineCap::Butt),
