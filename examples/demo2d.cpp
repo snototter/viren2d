@@ -325,28 +325,34 @@ void DemoBoundingBox2D() {
   style.text_style = viren2d::TextStyle(10, "xkcd");
 
   painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 50, 100, 80, -10, 0.2),
-                             "Class 1, Confidence 0.98", style);
+                             "abox 0.3, atxt 0.3, clip", style);
 
 
-  style.alpha_box_fill = 0.3;
+  style.alpha_box_fill = 0.1;
   style.alpha_text_fill = 0.3;
   style.clip_label = false;
   painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 150, 100, 80, -10, 0.2),
-                             "Class 1, Confidence 0.98", style);
+                             "abox 0.1, atxt 0.3, noclip", style);
 
 
   style.alpha_box_fill = 0.0;
   style.alpha_text_fill = 0.3;
   style.clip_label = false;
   painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 250, 100, 80, -10, 0.2),
-                             "Class 1, Confidence 0.98", style);
+                             "abox 0, atxt 0.3, noclip", style);
 
 
   style.alpha_box_fill = 0.3;
   style.alpha_text_fill = 0.0;
   style.clip_label = false;
   painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 350, 100, 80, -10, 0.2),
-                             "Class 1, Confidence 0.98", style);
+                             "abox 0.3, atxt 0, noclip", style);
+
+  style.alpha_box_fill = 0.0;
+  style.alpha_text_fill = 0.0;
+  style.clip_label = false;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 450, 100, 80, -10, 0.2),
+                             "abox 0, atxt 0, noclip", style);
 
   style.clip_label = true;
   style.alpha_box_fill = 0.3;
@@ -384,7 +390,7 @@ int main(int /*argc*/, char **/*argv*/) {
 ////  DemoArrows();
 //  DemoCircles();
 //  DemoRects();
-  DemoText();
+//  DemoText();
   DemoBoundingBox2D();
 
   if (true)

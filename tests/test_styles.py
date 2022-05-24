@@ -74,31 +74,6 @@ def test_line_style():
     assert style == tpl
 
 
-def test_default_line_style():
-    original_library_default = viren2d.LineStyle()
-    ls = viren2d.LineStyle()
-    assert ls == original_library_default
-
-    ls.line_width += 3
-    ls.line_cap = viren2d.LineCap.Round
-    assert ls != original_library_default
-
-    painter = viren2d.Painter()
-    assert ls != painter.get_default_line_style()
-
-    painter.set_default_line_style(ls)
-    assert ls == painter.get_default_line_style()
-    assert original_library_default != painter.get_default_line_style()
-
-    # Default c'tor should yield the library-wide default
-    assert viren2d.LineStyle() != painter.get_default_line_style()
-    assert viren2d.LineStyle() == original_library_default
-
-    ls.line_width = -3;
-    with pytest.raises(ValueError):
-        painter.set_default_line_style(ls)
-
-
 def test_arrow_style():
 #FIXME init from empty tuple
 #FIXME init from tuple
@@ -150,35 +125,6 @@ def test_arrow_style():
                     for dh in [True, False]:
                         style.double_headed = dh
                         assert style.is_valid() == (line_style.is_valid() and (tl > 0) and (ta > 0) and (ta < 180))
-
-
-def test_default_arrow_style():
-    original_library_default= viren2d.ArrowStyle()
-
-    ls = viren2d.ArrowStyle()
-    assert ls == original_library_default
-
-    ls.tip_length = 17
-    assert ls != original_library_default
-
-    ls.line_width += 3
-    assert ls != original_library_default
-
-    painter = viren2d.Painter()
-    assert ls != painter.get_default_arrow_style()
-
-    painter.set_default_arrow_style(ls)
-    assert ls == painter.get_default_arrow_style()
-    assert original_library_default != painter.get_default_arrow_style()
-
-    # Default c'tor should yield the library-wide default
-    assert viren2d.ArrowStyle() != painter.get_default_arrow_style()
-    assert viren2d.ArrowStyle() == original_library_default
-
-    # We should not be able to set an invalid style
-    ls.line_width = -3;
-    with pytest.raises(ValueError):
-        painter.set_default_line_style(ls)
 
 
 def test_arrow_tip_length():

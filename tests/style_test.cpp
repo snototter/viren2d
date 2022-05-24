@@ -187,7 +187,11 @@ TEST(StyleTest, Offsets) {
 
   // Default join should be miter
   EXPECT_EQ(style.line_join, viren2d::LineJoin::Miter);
+  style.line_width = 2.0;
   EXPECT_DOUBLE_EQ(style.JoinOffset(10), style.line_width / 2.0);
+  // By default, cairo switches to bevel joins at 10 deg
+  // interior angle
+  EXPECT_DOUBLE_EQ(style.JoinOffset(5), style.line_width / 2.0);
   EXPECT_DOUBLE_EQ(style.JoinOffset(12), 9.5667722335056276);
   EXPECT_DOUBLE_EQ(style.JoinOffset(45), 2.6131259297527532);
 

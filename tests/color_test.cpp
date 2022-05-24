@@ -78,6 +78,17 @@ TEST(ColorTest, BasicInitialization) {
   color = viren2d::RGBa(-3.0, 1000.0, -0.0001, 0.3);
   EXPECT_TRUE(color.IsValid());
   EXPECT_TRUE(CheckColor(color, 0.0, 1.0, 0.0, 0.3));
+
+  // Copy constructions
+  auto copy1(color);
+  EXPECT_EQ(color, copy1);
+
+  auto copy2(viren2d::Color::Invalid);
+  EXPECT_EQ(copy2, viren2d::Color::Invalid);
+
+  color = viren2d::RGBa(200, 0, 100, 0.6);
+  auto copy3(color);
+  EXPECT_EQ(copy3, color);
 }
 
 

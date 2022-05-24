@@ -44,6 +44,8 @@ Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
   // https://www.cairographics.org/tutorial/#L1understandingtext
   // https://www.cairographics.org/tutorial/textextents.c
   // https://www.cairographics.org/samples/text_align_center/
+  // font extent to compute height (multiline text): https://www.cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
+  //   first line is different --> height from text extent
 
   // Adjust horizontal alignment.
   double x = position.x();
@@ -350,6 +352,13 @@ void BoundingBox2DLabelHelper(cairo_t *context,
                                     | static_cast<unsigned char>(valign)),
             extents, {pad_horz, pad_vert});
 
+  //ApplyColor(context, style.TextFillColor());
+  cairo_save(context);
+  ApplyColor(context, Color::Magenta);
+  cairo_new_path(context);
+  cairo_rectangle(context, pos_x, pos_y, 2 * half_width, half_height / 2);
+  cairo_fill(context);
+  cairo_restore(context);
 
   // Fill text box
   //TODO
