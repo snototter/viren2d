@@ -1,6 +1,10 @@
 #ifndef __VIREN2D_HELPERS_LOGGING_H__
 #define __VIREN2D_HELPERS_LOGGING_H__
 
+
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
+
 // TODO add cmake options to set log levels & disable debug:
 // https://github.com/gabime/spdlog/wiki/0.-FAQ#how-to-remove-all-debug-statements-at-compile-time-
 // different log levels (nice concise summary) - https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
@@ -35,8 +39,5 @@
 //     provide it via rendering the library ill-formed:
 #error "No valid viren2d_LOG_LEVEL_xxx parameter has been specified."
 #endif  // viren2d_LOG_LEVEL definition
-
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
 
 #endif  // __VIREN2D_HELPERS_LOGGING_H__

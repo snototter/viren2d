@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <vector>
 
 #include <math.h>
 #include <cairo/cairo.h>
@@ -206,6 +207,11 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
               const TextStyle &desired_text_style, const Vec2d &padding,
               double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius);
+//void DrawText(cairo_surface_t *surface, cairo_t *context,
+//              const std::vector<std::string> &text, Vec2d position, TextAnchor text_anchor,
+//              const TextStyle &desired_text_style, const Vec2d &padding,
+//              double rotation, const LineStyle &box_line_style,
+//              const Color &box_fill_color, double box_corner_radius);
 
 } // namespace helpers
 } // namespace viren2d

@@ -219,6 +219,7 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img);
 
 //------------------------------------------------- Reuse vector class from werkzeugkiste library
 typedef werkzeugkiste::geometry::Vec2d Vec2d;
+typedef werkzeugkiste::geometry::Vec2d Size2d;
 typedef werkzeugkiste::geometry::Vec3d Vec3d;
 typedef werkzeugkiste::geometry::Vec4d Vec4d;
 

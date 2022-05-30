@@ -685,6 +685,106 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 //---------------------------------------------------- Text (plain & boxed)
 //FIXME painter --> public interface (or first Impl()): debug
 // all others: trace
+struct TextExtent {
+  double width;
+  double height;
+  double bearing_x;
+  double bearing_y;
+
+  TextExtent()
+    : width(0.0), height(0.0),
+      bearing_x(0.0), bearing_y(0.0)
+  {}
+
+  Vec2d TopLeft(Vec2d reference_point) const {
+    return reference_point + Vec2d(bearing_x, bearing_y);
+  }
+
+
+  Vec2d Size() const {
+    return Vec2d(width, height);
+  }
+
+
+  Vec2d Center(Vec2d reference_point) const {
+    return TopLeft(reference_point) + Vec2d(width / 2.0, height / 2.0);
+  }
+
+
+  Vec2d ReferencePoint(Vec2d position, TextAnchor anchor,
+                       Vec2d padding) const {
+    // Default Cairo text `position` is bottom-left,
+    // indicating the "reference point".
+    // Check these useful resources:
+    // https://www.cairographics.org/tutorial/#L1understandingtext
+    // https://www.cairographics.org/tutorial/textextents.c
+    // https://www.cairographics.org/samples/text_align_center/
+
+    // Adjust horizontal alignment.
+    double x = position.x();
+    if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
+      x -= (width / 2.0 + bearing_x);
+    } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
+      x -= (width + padding.x() + bearing_x);
+    } else {  // Left-aligned
+      x += padding.x() - bearing_x;
+    }
+    position.SetX(x);
+
+    // Adjust vertical alignment.
+    double y = position.y();
+    if (IsFlagSet(anchor, VerticalAlignment::Center)) {
+      y -= (height / 2.0 + bearing_y);
+    } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
+      y += (padding.y() - bearing_y);
+    } else {  // Bottom-aligned
+      y -= (height + bearing_y + padding.y());
+    }
+    position.SetY(y);
+
+    return position;
+  }
+
+
+  Rect BoundingBox(Vec2d reference_point, Vec2d padding = {0, 0}) const {
+    return Rect(Center(reference_point),
+                Size() + 2.0 * padding);
+  }
+
+
+  static TextExtent FromText(cairo_t *context, const std::string &txt, bool use_font_height) {
+    TextExtent extent;
+    cairo_text_extents_t cext;
+    cairo_text_extents(context, txt.c_str(), &cext);
+
+    extent.width = cext.width;
+    extent.bearing_x = cext.x_bearing;
+
+    if (use_font_height) {
+      cairo_font_extents_t fext;
+      cairo_font_extents(context, &fext);
+      //const double height_hint = fext.ascent + fext.descent; //fext.height; //-1.0; // TODO lines.size() > 1 ...
+    //https://www.cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
+
+      // FIXME bearing!
+      extent.height = fext.ascent + fext.descent;
+      extent.bearing_y = -fext.ascent;
+      SPDLOG_ERROR("txt {}, extent.height {} vs font.height {} vs asc+desc {}", txt, cext.height, fext.height, fext.ascent + fext.descent);
+    } else {
+      extent.height = cext.height;
+      extent.bearing_y = cext.y_bearing;
+    }
+
+    return extent;
+  }
+};
+//TODO move text stuff to drawing_helpers_text.cpp
+
+struct MultilineTextExtent {
+  //TODO vector
+};
+
+
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position, TextAnchor text_anchor,
@@ -719,27 +819,23 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   cairo_rotate(context, wgu::deg2rad(rotation));
   position = {0, 0};
 
-//#define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag
+#define VIREN2D_DEBUG_TEXT_EXTENT  // TODO undef & document the debug flag //FIXME
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   const auto desired_position = position;
 #endif  // VIREN2D_DEBUG_TEXT_EXTENT
 
   // Now that the font face is set up, we can query
   // the rendered text extents and use them to adjust
-  // the position according to the desired text anchor:
-  cairo_text_extents_t extents;
-  cairo_text_extents(context, text.c_str(), &extents);
-  position = GetAnchoredReferencePoint(position, text_anchor,
-                                       extents, padding);
+  // the position according to the desired text anchor.
+  auto extent = TextExtent::FromText(context, text, true);
+  position = extent.ReferencePoint(position, text_anchor, padding);
 
 
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   // Draw a box showing the text extent
-  ApplyLineStyle(context, LineStyle(1, desired_text_style.font_color));
-  //auto tl = position + Vec2d(0, -extents.height);
-  auto tl = position + Vec2d(extents.x_bearing, extents.y_bearing);
-  cairo_rectangle(context, tl.x(), tl.y(), extents.width, extents.height);
-  cairo_stroke(context);
+  DrawRect(surface, context, extent.BoundingBox(position),
+           LineStyle(1, desired_text_style.font_color),
+           Color::Invalid);
 
   // Draw a box or circle at the desired location, showing the
   // size of the padded region
@@ -758,15 +854,11 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
 
   // Reuse DrawRect if we need to draw a text box:
   if (box_fill_color.IsValid() || box_line_style.IsValid()) {
-    const auto center = position
-        + Vec2d(extents.x_bearing, extents.y_bearing)
-        + Vec2d(extents.width / 2.0, extents.height / 2.0);
+    auto rect = extent.BoundingBox(position, padding);
+    rect.radius = box_corner_radius;
 
-    const auto rect = Rect(center, Vec2d(extents.width + 2 * padding.x(),
-                                         extents.height + 2 * padding.y()),
-                           0, box_corner_radius);
-
-    DrawRect(surface, context, rect, box_line_style, box_fill_color);
+    DrawRect(surface, context, rect,
+             box_line_style, box_fill_color);
   }
 
   // We have to always apply font color in this context (as

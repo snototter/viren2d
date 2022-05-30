@@ -249,7 +249,7 @@ void DemoText() {
     "south-west", "west", "north-west"
   };
 
-  const std::vector<std::string> families = {"monospace", "sans-serif", "xkcd"};
+  const std::vector<std::string> families = {"monospace", "serif", "xkcd"};
 
 
   for (size_t idx_family = 0; idx_family < families.size(); ++idx_family) {
@@ -257,7 +257,8 @@ void DemoText() {
     text_style.font_size = 20;
 
     std::ostringstream s;
-    s << "\"" << families[idx_family] << "\"";
+
+    s << "\"" << families[idx_family] << "AqQT°²\"";
     viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 50.0};
     painter->DrawText(s.str(), pos, viren2d::TextAnchor::Bottom,
                       text_style); //, {0, 1});
@@ -274,7 +275,7 @@ void DemoText() {
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
       std::ostringstream txt;
-      txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor]));
+      txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor])) << "AqQT";
 //      txt << anchors[idx_anchor];
 
 
@@ -286,10 +287,9 @@ void DemoText() {
       } else {
         painter->DrawTextBox(txt.str(), pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
                              text_style, padding, 0.0,
-                             viren2d::LineStyle());
-//                             viren2d::LineStyle::Invalid,
-//                             text_style.font_color.Inverse().WithAlpha(0.8),
-//                             0.2);
+                             viren2d::LineStyle::Invalid,
+                             text_style.font_color.Inverse().WithAlpha(0.8),
+                             0.2);
       }
 //      if ((idx_anchor == 6) || (idx_anchor == 7)) {
 //        text_style.font_bold = true;
@@ -390,8 +390,8 @@ int main(int /*argc*/, char **/*argv*/) {
 ////  DemoArrows();
 //  DemoCircles();
 //  DemoRects();
-//  DemoText();
-  DemoBoundingBox2D();
+  DemoText();
+//  DemoBoundingBox2D();
 
   if (true)
     return 0;

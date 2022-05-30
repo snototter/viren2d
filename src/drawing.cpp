@@ -8,6 +8,8 @@
 
 #include <math.h>
 
+#include <spdlog/spdlog.h>
+
 #include <cairo/cairo.h>
 #include <werkzeugkiste/strings/strings.h>
 
