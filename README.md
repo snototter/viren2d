@@ -70,7 +70,10 @@ Marginalia: Another reason to work on this library was that I wanted to brush up
 
 ### Dependencies
 * [pybind11](https://github.com/pybind/pybind11) TODO doc; header only; submodule
-* [spdlog](https://github.com/gabime/spdlog) TODO doc; submodule; several variants (packaged; header only; installed) - recommended: installed static lib; TODO doc install
+* [spdlog](https://github.com/gabime/spdlog)  
+  TODO doc; submodule; several variants (packaged; header only; installed) - recommended: installed static lib; TODO doc install  
+  https://stackoverflow.com/a/29882995/400948  
+  ensure that you are on branch v1.x!
   ```bash
   cd libs/spdlog
   mkdir build && cd build
