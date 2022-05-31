@@ -258,7 +258,7 @@ void DemoText() {
 
     std::ostringstream s;
 
-    s << "\"" << families[idx_family] << "AqQT°²\"";
+    s << "\"" << families[idx_family] << "\""; // << "AqQT°²\"";
     viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 50.0};
     painter->DrawText(s.str(), pos, viren2d::TextAnchor::Bottom,
                       text_style); //, {0, 1});
@@ -275,7 +275,7 @@ void DemoText() {
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
       std::ostringstream txt;
-      txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor])) << "AqQT";
+      txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor]));
 //      txt << anchors[idx_anchor];
 
 
@@ -288,7 +288,7 @@ void DemoText() {
         painter->DrawTextBox(txt.str(), pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
                              text_style, padding, 0.0,
                              viren2d::LineStyle::Invalid,
-                             text_style.font_color.Inverse().WithAlpha(0.8),
+                             text_style.font_color.Inverse().WithAlpha(0.6),
                              0.2);
       }
 //      if ((idx_anchor == 6) || (idx_anchor == 7)) {

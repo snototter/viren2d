@@ -312,18 +312,21 @@ TextStyle::TextStyle()
     font_family("monospace"),
     font_color(Color::Black),
     font_bold(false),
-    font_italic(false) {
-}
+    font_italic(false),
+    use_font_height(true)
+{}
 
 
 TextStyle::TextStyle(unsigned int size,
                      const std::string &family,
                      const Color &color,
-                     bool bold, bool italic)
+                     bool bold, bool italic,
+                     bool use_font_height_hint)
   : font_size(size), font_family(family),
     font_color(color), font_bold(bold),
-    font_italic(italic) {
-}
+    font_italic(italic),
+    use_font_height(use_font_height_hint)
+{}
 
 
 bool TextStyle::IsValid() const {
@@ -360,10 +363,10 @@ std::string TextStyle::ToString() const {
   if (font_bold) {
     s << ", bold";
   }
+
   if (font_italic) {
     s << ", italic";
   }
-
 
   if (!IsValid()) {
     s << ", invalid";

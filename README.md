@@ -18,8 +18,8 @@ I'm planning to support visualization of the following primitives/objects:
 * [ ] Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
 * [ ] Polygons
 * [x] Rectangles - from axis-aligned & box-shaped to rounded corners and rotated
-* [ ] Text
-* [ ] Text boxes (i.e. text on colorized background)
+* [x] Text (single-/multi-line) - only latin fonts are supported
+* [x] Text boxes (single-/multi-line) - only latin fonts are supported
 * [ ] Tracking results: Trajectories (plain paths vs fading effect)
 * [ ] Pose estimation results: needs a simple/easy-to-use interface s.t. users can define the pose graph themselves (too many different skeleton models to support them explicitly in viren2d) - low priority feature
 * [ ] Image overlay (overlay/blending; optionally clipping, e.g. via circle/ellipse) - low priority feature

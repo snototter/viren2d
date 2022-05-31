@@ -10,6 +10,10 @@
 // different log levels (nice concise summary) - https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
 //TODO Decide whether to trace each method invocation - or debug-log the "most" important (preference: trace each call, so we can actually trace what's going on if it should ever break)
 
+#if defined(SPDLOG_ACTIVE_LEVEL)
+#undef SPDLOG_ACTIVE_LEVEL
+#endif  // unset SPDLOG_ACTIVE_LEVEL
+
 #if defined(viren2d_LOG_LEVEL_TRACE)
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #define viren2d_ACTIVE_SPDLOG_LEVEL spdlog::level::trace

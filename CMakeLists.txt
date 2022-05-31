@@ -103,6 +103,7 @@ set(viren2d_SOURCE_FILES
     src/styles.cpp
     src/drawing.cpp
     src/helpers/logging.cpp
+    src/helpers/drawing_helpers_text.cpp
     src/helpers/drawing_helpers_primitives.cpp)
 
 

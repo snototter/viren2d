@@ -153,6 +153,74 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
 }
 
 
+//---------------------------------------------------- Text metrics
+/**
+ * @brief Encapsulates text metrics.
+ *
+ * TODO doc height depends on @see TextStyle
+ * asc+desc
+ * https://www.cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
+ * or exact height
+ *
+ *
+ */
+struct TextExtent {
+  /** @brief Exact width of the bounding box. */
+  double width;
+
+  /**
+   * @brief Height of the bounding box (either exact or
+   * specified by the font metrics).
+   */
+  double height;
+
+  /**
+   * @brief Horizontal distance from the origin to the
+   * leftmost part of the glyphs
+   */
+  double bearing_x;
+
+  /**
+   * @brief Vertical distance from the origin to the
+   * top edge of the bounding box defined by this TextExtent
+   */
+  double bearing_y;
+
+
+  TextExtent();
+  TextExtent(const std::string &line, cairo_t *context, bool use_font_height);
+  TextExtent(const std::string &line, cairo_t *context, cairo_font_extents_t font_metrics);
+
+  Vec2d Size() const;
+
+  /**
+   * @brief Returns the reference point for cairo_show_text
+   *
+   * The reference point will be computed such that the text
+   * is aligned according to ``anchor`` at the desired ``position``.
+   */
+  Vec2d ReferencePoint(Vec2d position, TextAnchor anchor,
+                       Vec2d padding) const;
+
+
+  Rect BoundingBox(Vec2d reference_point,
+                   Vec2d padding = {0, 0}) const;
+
+
+private:
+  void InitFromText(cairo_t *context,
+                    cairo_font_extents_t *font_metrics,
+                    const std::string &line);
+
+  Vec2d TopLeft(Vec2d reference_point) const;
+
+  Vec2d Center(Vec2d reference_point) const;
+};
+
+
+struct MultilineTextExtent {
+  //TODO vector
+};
 
 
 //---------------------------------------------------- Available drawing helpers
@@ -204,14 +272,9 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::string &text, Vec2d position, TextAnchor text_anchor,
-              const TextStyle &desired_text_style, const Vec2d &padding,
+              const TextStyle &text_style, const Vec2d &padding,
               double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius);
-//void DrawText(cairo_surface_t *surface, cairo_t *context,
-//              const std::vector<std::string> &text, Vec2d position, TextAnchor text_anchor,
-//              const TextStyle &desired_text_style, const Vec2d &padding,
-//              double rotation, const LineStyle &box_line_style,
-//              const Color &box_fill_color, double box_corner_radius);
 
 } // namespace helpers
 } // namespace viren2d
