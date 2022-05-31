@@ -155,18 +155,31 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
 
 //---------------------------------------------------- Text metrics
 /**
- * @brief Encapsulates text metrics.
+ * @brief Encapsulates a single text line to be drawn onto the canvas.
  *
  * TODO doc height depends on @see TextStyle
  * asc+desc
  * https://www.cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
  * or exact height
- *
- *
  */
-struct TextExtent {
+struct TextLine {
+  /**
+   * @brief Pointer to the C-string text used to
+   * initialize this @see TextLine instance.
+   */
+  const char *text;
+
+
+  /**
+   * @brief Reference point for cairo_show_text, which
+   * will be set after @see Align().
+   */
+  Vec2d reference_point;
+
+
   /** @brief Exact width of the bounding box. */
   double width;
+
 
   /**
    * @brief Height of the bounding box (either exact or
@@ -174,11 +187,13 @@ struct TextExtent {
    */
   double height;
 
+
   /**
    * @brief Horizontal distance from the origin to the
    * leftmost part of the glyphs
    */
   double bearing_x;
+
 
   /**
    * @brief Vertical distance from the origin to the
@@ -187,39 +202,30 @@ struct TextExtent {
   double bearing_y;
 
 
-  TextExtent();
-  TextExtent(const std::string &line, cairo_t *context, bool use_font_height);
-  TextExtent(const std::string &line, cairo_t *context, cairo_font_extents_t font_metrics);
+//TODO doc
+  TextLine();
+  TextLine(const char *line, cairo_t *context, bool use_font_height);
+  TextLine(const char *line, cairo_t *context, cairo_font_extents_t font_metrics);
 
-  Vec2d Size() const;
+  void Align(Vec2d desired_position, TextAnchor anchor,
+             Vec2d padding);
 
-  /**
-   * @brief Returns the reference point for cairo_show_text
-   *
-   * The reference point will be computed such that the text
-   * is aligned according to ``anchor`` at the desired ``position``.
-   */
-  Vec2d ReferencePoint(Vec2d position, TextAnchor anchor,
-                       Vec2d padding) const;
+  Rect BoundingBox(Vec2d padding = {0, 0}, double corner_radius = 0.0) const;
 
-
-  Rect BoundingBox(Vec2d reference_point,
-                   Vec2d padding = {0, 0}) const;
-
+  void PlaceText(cairo_t *context) const;
 
 private:
-  void InitFromText(cairo_t *context,
-                    cairo_font_extents_t *font_metrics,
-                    const std::string &line);
-
-  Vec2d TopLeft(Vec2d reference_point) const;
-
-  Vec2d Center(Vec2d reference_point) const;
+  void Init(cairo_t *context,
+            cairo_font_extents_t *font_metrics);
 };
 
 
-struct MultilineTextExtent {
+struct MultilineText {
   //TODO vector
+  //TODO support ranged for, can simply reuse vector's iterator https://stackoverflow.com/a/31457319
+//  void Align(Vec2d desired_position, TextAnchor anchor, HorizontalAlignment alignment, Vec2d padding)
+//  void PlaceText(cairo_t *context) const;
+//  void Init(cairo_t *context);
 };
 
 
