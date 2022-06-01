@@ -3,18 +3,39 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-viren2d: Computer Vision Results, but Nice-Looking
-==================================================
+Visualize Common Computer Vision Results in 2D
+==============================================
 
-``viren2d`` is a light-weight toolbox to visualize common 2D computer vision results (read: *detections, trajectories, and the like*) in both **Python and C++** environments.
-Under the hood, ``viren2d`` uses the `Cairo graphics library <https://www.cairographics.org/>`_, so visually unpleasing results will hopefully only be caused by questionable color/style choices :wink:.
+``viren2d`` is a toolbox to visualize common 2D computer vision results in both
+**C++ and Python** environments.
+
+
+**What can I use it for?**
+  You can use it to easily overlay *detections, trajectories, text,* and more
+  on your image data.
+
+
+**What's under the hood?**
+   To ensure proper rendering of your visualizations, ``viren2d`` relies on the
+   `Cairo graphics library <https://www.cairographics.org/>`_.
+
+
+**How do I pronounce viren2d?**
+   "*vi-ren-2d*", with *vi* as in *vision* and *ren* as in *rendering*. This is
+   by the way also how you pronounce the German word *Viren* (viruses). I could
+   have been affected by the aftermath of the pandemic when picking a name...
+
+
+**Where do I find the documentation?**
+   * Look up the :ref:`installation instructions<installation>`
+   * Browse the :ref:`gallery and quickstart tutorial<quickstart>`
+   * Check the :ref:`API documentation<api-documentation>`
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :hidden:
 
-   examples-painter
-   examples-pseudocolor
-   python
-
+   installation
+   quickstart
+   api-documentation
 

@@ -1,9 +1,11 @@
+.. _api-documentation:
+
 API Documentation
 =================
 
-Contents
+Overview
 --------
-* Basic data types:
+**Basic data types:**
 
   .. autosummary::
 
@@ -14,7 +16,7 @@ Contents
      viren2d.Rect
 
 
-* Style definitions:
+**Style definitions:**
 
   .. autosummary::
 
@@ -22,19 +24,12 @@ Contents
      viren2d.ArrowStyle
      viren2d.TextStyle
 
-* Drawing:
+**Drawing:**
 
   .. autosummary::
   
      viren2d.Painter
 
-TODO add viren2d.Pseudocolor
-
-
-TODO TODO TODO
-
-TODO. automodule: viren2d
-TODO#   : members :
 
 Basic Data Types
 ----------------

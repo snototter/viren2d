@@ -32,7 +32,7 @@ release = version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-#  'sphinx_rtd_dark_mode',
+#  'sphinx.ext.autosectionlabel',
   'sphinx.ext.autodoc',
   'sphinx.ext.autosummary',
   'sphinx.ext.napoleon'  # Parse Google and NumPy docstrings
@@ -40,9 +40,6 @@ extensions = [
 
 
 # -- Options for the extension modules ---------------------------------------
-# First page visit should show the dark mode theme:
-# https://pypi.org/project/sphinx-rtd-dark-mode/
-default_dark_mode = True
 
 autosummary_generate = True
 
@@ -64,13 +61,6 @@ exclude_patterns = []
 #
 #html_theme = 'alabaster'
 
-#import sphinx_pdj_theme
-#html_theme = 'sphinx_pdj_theme'
-#htm_theme_path = [sphinx_pdj_theme.get_html_theme_path()]
-## sets the darker appearence
-#html_theme_options = {
-#    'style': 'darker'
-#}
 html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,

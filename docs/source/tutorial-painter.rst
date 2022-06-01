@@ -1,27 +1,39 @@
-Drawing with the Painter
-========================
+.. _tutorial-painter-usage:
 
-You need a painter to draw anything...
+Tutorial: The Painter
+---------------------
 
-.. py:class:: Painter
-   :module: viren2d
-   :noindex:
+TODO basic workflow: 
+
+1. You need to initialize a :py:class:`viren2d.Painter` before you can draw anything.
+2. Draw... TODO ref to subsections
+3. Retrieve the visualization (*i.e.* the painter's canvas).
+
+.. literalinclude:: ./code-snippets/python/painter-usage.py
+   :language: python
+   :caption: Python API - How to use the Painter
 
 
-.. cpp:class::Painter
-   :noindex:
+.. literalinclude:: ./code-snippets/python/painter-usage.py
+   :language: cpp
+   :caption: C++ API - How to use the Painter TODO
+
 
 .. tip::
    Using the shared view on the canvas avoids memory allocation...
 
 
-Draw Arcs & Circles
--------------------
+Draw Basic Geometric Primitives
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TODO arc, circle....
 
 .. function:: Draw arcs
    :noindex:
    
    TODO display image, include code to generate the example
+
+
 
 .. code-block:: python
    :caption: Python API
@@ -49,8 +61,8 @@ Draw Arcs & Circles
 
 
 
-Draw Rectangles
--------------------
+Draw 2D Bounding Boxes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TODO
 
