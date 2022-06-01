@@ -73,6 +73,9 @@ enum class TextAnchor : unsigned char {
                           VerticalAlignment::Bottom)
 };
 
+TextAnchor operator|(HorizontalAlignment lhs, VerticalAlignment rhs);
+TextAnchor operator|(VerticalAlignment lhs, HorizontalAlignment rhs);
+
 //TODO doc, test, etc
 //TODO bindings!!!!
 TextAnchor TextAnchorFromString(const std::string &anchor);

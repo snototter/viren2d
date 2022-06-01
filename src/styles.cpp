@@ -313,7 +313,9 @@ TextStyle::TextStyle()
     font_color(Color::Black),
     font_bold(false),
     font_italic(false),
-    use_font_height(true)
+    use_font_height(true),
+    line_spacing(1.2),
+    alignment(HorizontalAlignment::Left)
 {}
 
 
@@ -321,11 +323,15 @@ TextStyle::TextStyle(unsigned int size,
                      const std::string &family,
                      const Color &color,
                      bool bold, bool italic,
-                     bool use_font_height_hint)
+                     bool use_font_height_hint,
+                     double spacing,
+                     HorizontalAlignment align)
   : font_size(size), font_family(family),
     font_color(color), font_bold(bold),
     font_italic(italic),
-    use_font_height(use_font_height_hint)
+    use_font_height(use_font_height_hint),
+    line_spacing(spacing),
+    alignment(align)
 {}
 
 
@@ -367,6 +373,9 @@ std::string TextStyle::ToString() const {
   if (font_italic) {
     s << ", italic";
   }
+
+  s << ", ls=" << std::setprecision(2) << line_spacing
+    << ", " << alignment;
 
   if (!IsValid()) {
     s << ", invalid";

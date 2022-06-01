@@ -122,6 +122,24 @@ std::ostream &operator<<(std::ostream &os, VerticalAlignment align) {
 }
 
 
+TextAnchor operator|(HorizontalAlignment lhs, VerticalAlignment rhs) {
+  static_assert(std::is_same<typename std::underlying_type<TextAnchor>::type,
+                             typename std::underlying_type<HorizontalAlignment>::type>::value,
+                "Underlying type of TextAnchor and HorizontalAlignment must be the same");
+  static_assert(std::is_same<typename std::underlying_type<TextAnchor>::type,
+                             typename std::underlying_type<VerticalAlignment>::type>::value,
+                "Underlying type of TextAnchor and VerticalAlignment must be the same");
+  using underlying = typename std::underlying_type<TextAnchor>::type;
+  return static_cast<TextAnchor> (
+    static_cast<underlying>(lhs) | static_cast<underlying>(rhs)
+  );
+}
+
+
+TextAnchor operator|(VerticalAlignment lhs, HorizontalAlignment rhs) {
+  return rhs | lhs;
+}
+
 
 TextAnchor TextAnchorFromString(const std::string &anchor) {
   std::string slug = werkzeugkiste::strings::Lower(anchor);

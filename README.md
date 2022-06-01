@@ -68,6 +68,10 @@ Marginalia: Another reason to work on this library was that I wanted to brush up
   * Highly recommended: [virtualenv](https://pypi.org/project/virtualenv/)
 
 
+TODO
+documentation:
+pip install sphinx sphinx-rtd-theme
+
 ### Dependencies
 * [pybind11](https://github.com/pybind/pybind11) TODO doc; header only; submodule
 * [spdlog](https://github.com/gabime/spdlog)  

@@ -272,6 +272,8 @@ struct TextStyle {
   bool use_font_height; //TODO doc - if false, the exact glyph height will be used for height measurements (e.g. bounding boxes)
   //TODO recommendation: true for multi-line text
   //TODO or we only use it for the first line? - all others will be offset according to font height * spacing
+  double line_spacing;
+  HorizontalAlignment alignment;
 
   /**FIXME see linestyle doc*/
   TextStyle();
@@ -281,7 +283,9 @@ struct TextStyle {
             const std::string &family,
             const Color &color = Color::Black,
             bool bold = false, bool italic = false,
-            bool use_font_height_hint = true);
+            bool use_font_height_hint = true,
+            double spacing = 1.2,
+            HorizontalAlignment align = HorizontalAlignment::Left);
 
 //  // Nothing special about the TextStyle class, so we can have
 //  // the default copy/assignment/move c'tors/operators:

@@ -255,13 +255,20 @@ void DemoText() {
   for (size_t idx_family = 0; idx_family < families.size(); ++idx_family) {
     auto text_style = viren2d::TextStyle();
     text_style.font_size = 20;
+//    text_style.use_font_height = false;
+    text_style.line_spacing = 1.0;
+    text_style.alignment = viren2d::HorizontalAlignment::Center;
 
     std::ostringstream s;
 
     s << "\"" << families[idx_family] << "\""; // << "AqQT°²\"";
     viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 50.0};
-    painter->DrawText(s.str(), pos, viren2d::TextAnchor::Bottom,
-                      text_style); //, {0, 1});
+    /*painter->DrawText({s.str(), std::string("TTTT"), std::string("AAAA")},
+                      pos, viren2d::TextAnchor::Center, //viren2d::TextAnchor::Bottom,
+                      text_style);*/ //, {0, 1});
+    painter->DrawTextBox({s.str(), std::string("TTTT"), std::string("AAAA")},
+                      pos, viren2d::TextAnchor::Center, //viren2d::TextAnchor::Bottom,
+                         text_style, {0, 0}, 0, viren2d::LineStyle(1, "black"), "black!10");
 
     text_style.font_size = 14;
     text_style.font_family = families[idx_family];
@@ -270,7 +277,7 @@ void DemoText() {
 
 //    viren2d::Vec2d padding(idx_family * 5,
 //                           (idx_family > 0) ? (idx_family - 1) * 10 : 0);
-    auto padding = viren2d::Vec2d::All(idx_family * 5);
+    auto padding = viren2d::Vec2d::All(idx_family * 3);
 
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {

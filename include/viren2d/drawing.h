@@ -270,16 +270,42 @@ public:
 
 
   //TODO doc, test, bind
+  void DrawText(const std::vector<std::string> &text, const Vec2d &position,
+                TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
+                const TextStyle &text_style = TextStyle(),
+                const Vec2d &padding = {0.0, 0.0}, double rotation = 0.0) {
+    std::vector<const char*> lines;
+    for (const auto &line : text) {
+      lines.push_back(line.c_str());
+    }
+    DrawTextImpl(lines, position, text_anchor, text_style,
+                 padding, rotation);
+  }//TODO change interface!
   void DrawText(const std::string &text, const Vec2d &position,
                 TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
                 const TextStyle &text_style = TextStyle(),
                 const Vec2d &padding = {0.0, 0.0}, double rotation = 0.0) {
-    DrawTextImpl(text, position, text_anchor, text_style,
+    std::vector<const char*> lines{text.c_str()};
+    DrawTextImpl(lines, position, text_anchor, text_style,
                  padding, rotation);
   }
 
 
   //TODO doc, test, bind
+  void DrawTextBox(const std::vector<std::string> &text, const Vec2d &position,
+                   TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
+                   const TextStyle &text_style = TextStyle(),
+                   const Vec2d &padding = {6.0, 6.0}, double rotation = 0.0, //TODO is default 6 good enough?
+                   const LineStyle &box_line_style = LineStyle::Invalid,
+                   const Color &box_fill_color = Color::White.WithAlpha(0.6),
+                   double box_corner_radius = 0.2) {
+    std::vector<const char*> lines;
+    for (const auto &line : text) {
+      lines.push_back(line.c_str());
+    }
+    DrawTextBoxImpl(lines, position, text_anchor, text_style, padding, rotation,
+                    box_line_style, box_fill_color, box_corner_radius);
+  }//TODO change interface
   void DrawTextBox(const std::string &text, const Vec2d &position,
                    TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
                    const TextStyle &text_style = TextStyle(),
@@ -287,7 +313,8 @@ public:
                    const LineStyle &box_line_style = LineStyle::Invalid,
                    const Color &box_fill_color = Color::White.WithAlpha(0.6),
                    double box_corner_radius = 0.2) {
-    DrawTextBoxImpl(text, position, text_anchor, text_style, padding, rotation,
+    std::vector<const char*> lines{text.c_str()};
+    DrawTextBoxImpl(lines, position, text_anchor, text_style, padding, rotation,
                     box_line_style, box_fill_color, box_corner_radius);
   }
 
@@ -344,14 +371,16 @@ protected:
 
 
   /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextImpl(const std::string &text, const Vec2d &position,
-                            TextAnchor text_anchor, const TextStyle &text_style,
+  virtual void DrawTextImpl(const std::vector<const char*> &text,
+                            const Vec2d &position, TextAnchor text_anchor,
+                            const TextStyle &text_style,
                             const Vec2d &padding, double rotation) = 0;
 
 
   /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextBoxImpl(const std::string &text, const Vec2d &position,
-                               TextAnchor text_anchor, const TextStyle &text_style,
+  virtual void DrawTextBoxImpl(const std::vector<const char*> &text,
+                               const Vec2d &position, TextAnchor text_anchor,
+                               const TextStyle &text_style,
                                const Vec2d &padding, double rotation,
                                const LineStyle &box_line_style,
                                const Color &box_fill_color,

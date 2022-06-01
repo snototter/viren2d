@@ -226,7 +226,7 @@ protected:
 
 
   //TODO debug log here and trace in helpers!
-  void DrawTextImpl(const std::string &text, const Vec2d &position,
+  void DrawTextImpl(const std::vector<const char*> &text, const Vec2d &position,
                     TextAnchor text_anchor, const TextStyle &text_style,
                     const Vec2d &padding, double rotation) override {
     SPDLOG_DEBUG("ImagePainter::DrawText: {:d} chars at {:s}, {:s} "
@@ -239,7 +239,7 @@ protected:
   }
 
 
-  void DrawTextBoxImpl(const std::string &text, const Vec2d &position,
+  void DrawTextBoxImpl(const std::vector<const char*> &text, const Vec2d &position,
                        TextAnchor text_anchor, const TextStyle &text_style,
                        const Vec2d &padding, double rotation,
                        const LineStyle &box_line_style, const Color &box_fill_color,

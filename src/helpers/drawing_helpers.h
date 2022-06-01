@@ -205,7 +205,7 @@ struct TextLine {
 //TODO doc
   TextLine();
   TextLine(const char *line, cairo_t *context, bool use_font_height);
-  TextLine(const char *line, cairo_t *context, cairo_font_extents_t font_metrics);
+  TextLine(const char *line, cairo_t *context, cairo_font_extents_t *font_metrics);
 
   void Align(Vec2d desired_position, TextAnchor anchor,
              Vec2d padding);
@@ -221,11 +221,44 @@ private:
 
 
 struct MultilineText {
+//  typedef std::vector<TextLine> vector;
+
+  /**
+   * @brief Top left corner of the bounding box which
+   * contains all (properly spaced) text lines.
+   * Will be set after @see Align().
+   */
+  Vec2d top_left;
+
+  double width;
+  double height;
+
+  MultilineText(const std::vector<const char*> &text,
+                const TextStyle &text_style, cairo_t *context);
+
+  void Align(Vec2d desired_position, TextAnchor anchor,
+             Vec2d padding);
+
+  Rect BoundingBox(Vec2d padding = {0, 0}, double corner_radius = 0.0) const; //TODO make padding a member; set in Align; reuse in BoundingBox()
+
+  void PlaceText(cairo_t *context) const;
+
   //TODO vector
   //TODO support ranged for, can simply reuse vector's iterator https://stackoverflow.com/a/31457319
 //  void Align(Vec2d desired_position, TextAnchor anchor, HorizontalAlignment alignment, Vec2d padding)
 //  void PlaceText(cairo_t *context) const;
 //  void Init(cairo_t *context);
+//  vector::iterator begin() { return lines.begin(); }
+//  vector::iterator end()   { return lines.end(); }
+//  vector::const_iterator cbegin() const { return lines.begin(); }
+//  vector::const_iterator cend() const   { return lines.end(); }
+//  vector::const_iterator begin() const  { return lines.begin(); }
+//  vector::const_iterator end() const    { return lines.end(); }
+
+private:
+  TextStyle style;
+  std::vector<TextLine> lines;
+
 };
 
 
@@ -277,7 +310,8 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
-              const std::string &text, Vec2d position, TextAnchor text_anchor,
+              const std::vector<const char *> &text,
+              Vec2d position, TextAnchor text_anchor,
               const TextStyle &text_style, const Vec2d &padding,
               double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius);

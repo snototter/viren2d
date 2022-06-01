@@ -38,10 +38,10 @@ TextLine::TextLine(const char *line, cairo_t *context,
 
 TextLine::TextLine(const char *line,
                    cairo_t *context,
-                   cairo_font_extents_t font_metrics)
+                   cairo_font_extents_t *font_metrics)
   : text(line),
     reference_point(0.0, 0.0) {
-  Init(context, &font_metrics);
+  Init(context, font_metrics);
 }
 
 
@@ -127,9 +127,104 @@ void TextLine::Init(cairo_t *context,
 //}
 
 
+
+MultilineText::MultilineText(const std::vector<const char *> &text,
+                             const TextStyle &text_style, cairo_t *context)
+  : top_left(0.0, 0.0), width(0.0), height(0.0),
+    style(text_style){
+  cairo_font_extents_t font_extent {0.0, 0.0, 0.0, 0.0, 0.0};
+  if ((text.size() > 0)
+      || (text_style.use_font_height)) {
+    cairo_font_extents(context, &font_extent);
+  }
+
+  width = 0.0;
+  height = 0.0;
+  for (std::size_t idx = 0; idx < text.size(); ++idx) {
+    SPDLOG_WARN(".. append line number {}, use font height: {}, text \"{}\"", idx, (idx > 0) || (text_style.use_font_height), text[idx]);
+    lines.push_back(TextLine(text[idx], context,
+                             ((idx > 0) || (text_style.use_font_height))
+                             ? &font_extent : nullptr));
+    width = std::max(width, lines[idx].width);
+
+    height += (lines[idx].height * ((idx > 0) ? text_style.line_spacing : 1.0));
+  }
+  SPDLOG_CRITICAL("multilinetextbox: {}x{} - {:s}", width, height, text_style);
+}
+
+
+void MultilineText::Align(Vec2d desired_position, TextAnchor anchor,
+                          Vec2d padding) {
+
+  // Adjust left corner (without padding).
+  if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
+    top_left.SetX(desired_position.x() - width / 2.0);
+  } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
+    top_left.SetX(desired_position.x() - padding.x() - width);
+  } else {  // Left-aligned
+    top_left.SetX(desired_position.x() + padding.x());
+  }
+
+  // Adjust top corner (without padding).
+  if (IsFlagSet(anchor, VerticalAlignment::Center)) {
+    top_left.SetY(desired_position.y() - height / 2.0);
+  } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
+    top_left.SetY(desired_position.y() + padding.y());
+  } else {  // Bottom-aligned
+    top_left.SetY(desired_position.y() - padding.y() - height);
+  }
+
+  double x = top_left.x();
+  switch(style.alignment) {
+    case HorizontalAlignment::Left:
+      break;
+
+    case HorizontalAlignment::Center:
+      x += width / 2.0;
+      break;
+
+    case HorizontalAlignment::Right:
+      x += width;
+      break;
+  }
+
+  //TODO remove use_font_height member
+  //over-engineered; not needed - leads to too complex usage for such a simple task
+
+  //FIXME check if bottom-alignment works as intended with more than 1 lines!
+  // caveat: text w/ vs w/o descent (must also check TextLine::Init + Align)!
+  // --> move extent debug (rect visualization) to TextLine::PlaceText
+  double y = top_left.y();
+  bool first_line = true;
+  for (auto &line : lines) {
+    y += (line.height * (first_line ? 1.0 : style.line_spacing));
+    line.Align(Vec2d(x, y),
+               VerticalAlignment::Bottom | style.alignment,
+               {0.0, 0.0});
+    first_line = false;
+  }
+}
+
+
+Rect MultilineText::BoundingBox(Vec2d padding, double corner_radius) const {
+  return Rect(top_left.x() + width / 2.0,
+              top_left.y() + height / 2.0,
+              width + 2 * padding.x(), height + 2 * padding.y(),
+              0.0, corner_radius);
+}
+
+
+void MultilineText::PlaceText(cairo_t *context) const {
+  for (const auto &line : lines) {
+    line.PlaceText(context);
+  }
+}
+
+
 //---------------------------------------------------- Text (plain & boxed)
 void DrawText(cairo_surface_t *surface, cairo_t *context,
-              const std::string &text, Vec2d position, TextAnchor text_anchor,
+              const std::vector<const char*> &text,
+              Vec2d position, TextAnchor text_anchor,
               const TextStyle &text_style, const Vec2d &padding,
               double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius) {
@@ -161,13 +256,17 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // Now that the font face is set up, we can query
   // the rendered text extents and use them to adjust
   // the position according to the desired text anchor.
-  TextLine extent(text.c_str(), context, text_style.use_font_height);
-  extent.Align(position, text_anchor, padding);
+//  TextLine extent(text.c_str(), context, text_style.use_font_height);
+//  extent.Align(position, text_anchor, padding);
+
+//  std::vector<const char*> dummy{text.c_str()};
+  MultilineText mlt(text, text_style, context);
+  mlt.Align(position, text_anchor, padding);
 
 //#define VIREN2D_DEBUG_TEXT_EXTENT // TODO(snototter) document this debug flag
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   // Draw a box showing the text extent
-  DrawRect(surface, context, extent.BoundingBox(),
+  DrawRect(surface, context, mlt.BoundingBox(),
            LineStyle(1, text_style.font_color), Color::Invalid);
 
   // Draw a box or circle at the desired location, showing the
@@ -189,13 +288,13 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // Reuse DrawRect if we need to draw a text box:
   if (box_fill_color.IsValid() || box_line_style.IsValid()) {
     DrawRect(surface, context,
-             extent.BoundingBox(padding, box_corner_radius),
+             mlt.BoundingBox(padding, box_corner_radius),
              box_line_style, box_fill_color);
   }
 
   // Finally, place the aligned text onto the canvas
   ApplyColor(context, text_style.font_color);
-  extent.PlaceText(context);
+  mlt.PlaceText(context);
 
   // Pop the original context
   cairo_restore(context);
