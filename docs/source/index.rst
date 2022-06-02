@@ -6,7 +6,7 @@
 Visualize Common Computer Vision Results in 2D
 ==============================================
 
-``viren2d`` is a toolbox to visualize common 2D computer vision results in both
+``viren2d`` (*Visualize results not too disgraceful*) is a toolbox to visualize common 2D computer vision results in both
 **C++ and Python** environments.
 
 
@@ -26,7 +26,7 @@ Visualize Common Computer Vision Results in 2D
    have been affected by the aftermath of the pandemic when picking a name...
 
 
-**Where do I find the documentation?**
+**How do I get started?**
    * Look up the :ref:`installation instructions<installation>`
    * Browse the :ref:`gallery and quickstart tutorial<quickstart>`
    * Check the :ref:`API documentation<api-documentation>`
