@@ -33,6 +33,53 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 #endif  // WITH_OPENCV
 }
 
+
+void DemoColors() {
+  auto painter = viren2d::CreatePainter();
+  const int canvas_width = 750;
+  painter->SetCanvas(canvas_width, 448,
+                     viren2d::Color::White.WithAlpha(0.0));
+
+//  painter->DrawGrid({}, {}, 50, 50,
+//                    viren2d::LineStyle(1.0, "gray!60"));
+
+
+  auto text_style = viren2d::TextStyle(18, "xkcd",
+                                       viren2d::Color::Black,
+                                       false, false, 1.0,
+                                       viren2d::HorizontalAlignment::Center);
+  auto line_style = viren2d::LineStyle(1, viren2d::Color::Black);
+//TODO check horz alignment: single line vs multi-line text!!
+
+  const viren2d::Vec2d box_size{130.0, 36.0};
+  const double box_spacing = 20.0;
+  const double left = box_size.width() / 2.0 + box_spacing / 2.0;
+  double x = left;
+  double y = box_spacing / 2.0;
+  for (const auto &color_name : viren2d::ListNamedColors()) {
+    auto color = viren2d::Color(color_name);
+
+    text_style.font_color = color.Grayscale().Inverse();
+
+    painter->DrawTextBox({color_name}, {x, y},
+                         viren2d::TextAnchor::Top,
+                         text_style, {6, 6}, 0,
+                         line_style, //viren2d::LineStyle::Invalid,
+                         viren2d::Color(color_name),
+                         0.3, box_size);
+
+    x += box_size.width() + box_spacing;
+    if ((x + box_size.width() / 2.0 + box_spacing / 2.0) > canvas_width) {
+      x = left;
+      y += box_size.height() + box_spacing;
+    }
+  }
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-colors.png");
+  painter.reset();
+}
+
+
 void DemoLines() {
   auto painter = viren2d::CreatePainter();
   std::ostringstream lbl;
@@ -388,11 +435,12 @@ int main(int /*argc*/, char **/*argv*/) {
 //                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
 //              << std::endl;
 //  }
+  DemoColors();
 //  DemoLines();
 ////  DemoArrows();
 //  DemoCircles();
 //  DemoRects();
-  DemoText();
+//  DemoText();
 //  DemoBoundingBox2D();
 
   if (true)

@@ -128,20 +128,22 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
   this->padding = padding;
   this->fixed_size = fixed_size;
 
-  // Adjust left corner (without padding).
+  //FIXME ALIGNMENT must be refactored (fixed width; when to include padding)
+
+  // Adjust left corner
   if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
     top_left.SetX(anchor_point.x() - Width() / 2.0);
   } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
-    top_left.SetX(anchor_point.x() - padding.x() - Width());
+    top_left.SetX(anchor_point.x() - Width());
   } else {  // Left-aligned
-    top_left.SetX(anchor_point.x() + padding.x());
+    top_left.SetX(anchor_point.x());
   }
 
   // Adjust top corner (without padding).
   if (IsFlagSet(anchor, VerticalAlignment::Center)) {
     top_left.SetY(anchor_point.y() - Height() / 2.0);
   } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
-    top_left.SetY(anchor_point.y() + padding.y());
+    top_left.SetY(anchor_point.y());
   } else {  // Bottom-aligned
     top_left.SetY(anchor_point.y() - padding.y() - Height());
   }
@@ -149,23 +151,23 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
   // Compute the horizontal anchor coordinate
   // for each TextLine depending on the
   // user's TextStyle choice:
-  double x = top_left.x();
+  double x = 0.0;
   switch(style.alignment) {
     case HorizontalAlignment::Left:
-      // x is already 'left'
+      x = top_left.x() + padding.x();
       break;
 
     case HorizontalAlignment::Center:
-      x += width / 2.0;
+      x = top_left.x() + Width() / 2.0;
       break;
 
     case HorizontalAlignment::Right:
-      x += width;
+      x = top_left.x() + Width();
       break;
   }
 
   // Align each TextLine:
-  double y = top_left.y();
+  double y = top_left.y() + padding.y();
   bool first_line = true;
   for (auto &line : lines) {
     y += (line.Height() * (first_line ? 1.0 : style.line_spacing));
@@ -181,9 +183,7 @@ Rect MultilineText::BoundingBox(double corner_radius) const {
   double h = Height();
   return Rect(top_left.x() + w / 2.0,
               top_left.y() + h / 2.0,
-              w + 2 * padding.x(),
-              h + 2 * padding.y(),
-              0.0, corner_radius);
+              w, h, 0.0, corner_radius);
 }
 
 
@@ -196,13 +196,15 @@ void MultilineText::PlaceText(cairo_t *context) const {
 
 double MultilineText::Width() const {
   return (fixed_size.width() > 0.0)
-      ? fixed_size.width() : width;
+      ? fixed_size.width()
+      : (width + 2 * padding.x());
 }
 
 
 double MultilineText::Height() const {
   return (fixed_size.height() > 0.0)
-      ? fixed_size.height() : height;
+      ? fixed_size.height()
+      : (height + 2 * padding.y());
 }
 
 

@@ -43,7 +43,7 @@ std::ostream &operator<<(std::ostream &os, VerticalAlignment align);
 
 // Macro to reuse the vertical/horizontal anchors in
 // the following position/anchor enum definitions
-#define ALIGNMENT(HORZ, VERT) \
+#define __ALIGNMENT(HORZ, VERT) \
   static_cast<unsigned char>(HORZ) \
     | static_cast<unsigned char>(VERT)
 
@@ -51,26 +51,26 @@ std::ostream &operator<<(std::ostream &os, VerticalAlignment align);
 // TODO doc & test
 // public use: prefer Center, Left, ... over combining Horz & Vert
 enum class TextAnchor : unsigned char {
-  Center = ALIGNMENT(HorizontalAlignment::Center,
-                     VerticalAlignment::Center),
+  Center = __ALIGNMENT(HorizontalAlignment::Center,
+                       VerticalAlignment::Center),
 
-  Left =   ALIGNMENT(HorizontalAlignment::Left,
-                     VerticalAlignment::Center),
-  Right =  ALIGNMENT(HorizontalAlignment::Right,
-                     VerticalAlignment::Center),
-  Top =    ALIGNMENT(HorizontalAlignment::Center,
-                     VerticalAlignment::Top),
-  Bottom = ALIGNMENT(HorizontalAlignment::Center,
-                     VerticalAlignment::Bottom),
+  Left =   __ALIGNMENT(HorizontalAlignment::Left,
+                       VerticalAlignment::Center),
+  Right =  __ALIGNMENT(HorizontalAlignment::Right,
+                       VerticalAlignment::Center),
+  Top =    __ALIGNMENT(HorizontalAlignment::Center,
+                       VerticalAlignment::Top),
+  Bottom = __ALIGNMENT(HorizontalAlignment::Center,
+                       VerticalAlignment::Bottom),
 
-  TopLeft =     ALIGNMENT(HorizontalAlignment::Left,
-                          VerticalAlignment::Top),
-  TopRight =    ALIGNMENT(HorizontalAlignment::Right,
-                          VerticalAlignment::Top),
-  BottomLeft =  ALIGNMENT(HorizontalAlignment::Left,
-                          VerticalAlignment::Bottom),
-  BottomRight = ALIGNMENT(HorizontalAlignment::Right,
-                          VerticalAlignment::Bottom)
+  TopLeft =     __ALIGNMENT(HorizontalAlignment::Left,
+                            VerticalAlignment::Top),
+  TopRight =    __ALIGNMENT(HorizontalAlignment::Right,
+                            VerticalAlignment::Top),
+  BottomLeft =  __ALIGNMENT(HorizontalAlignment::Left,
+                            VerticalAlignment::Bottom),
+  BottomRight = __ALIGNMENT(HorizontalAlignment::Right,
+                            VerticalAlignment::Bottom)
 };
 
 TextAnchor operator|(HorizontalAlignment lhs, VerticalAlignment rhs);

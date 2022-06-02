@@ -260,6 +260,12 @@ class Color {
   Color Inverse() const;
 
 
+  /**
+   * @brief Computes the grayscale representation of this color.
+   */
+  Color Grayscale() const;
+
+
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings

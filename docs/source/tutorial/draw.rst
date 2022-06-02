@@ -11,6 +11,7 @@ TODO basic workflow:
    .. toctree::
       :maxdepth: 1
 
+      draw-color-styles
       draw-primitives
       draw-text
 

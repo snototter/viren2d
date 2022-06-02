@@ -459,6 +459,14 @@ Color Color::Inverse() const {
 }
 
 
+Color Color::Grayscale() const {
+  // Standard conversion ratio:
+  // L = 0.2989 R + 0.5870 G + 0.1141 B
+  const double luminance = (0.2989 * red) + (0.5870 * green) + (0.1141 * blue);
+  return Color(luminance, luminance, luminance, alpha);
+}
+
+
 bool Color::IsValid() const {
   if (red < 0.0 || red > 1.0)
     return false;
