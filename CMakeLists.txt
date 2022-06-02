@@ -251,7 +251,9 @@ if(viren2d_WITH_DEMO)
         examples/demo2d.cpp)
 
     target_link_libraries(${TARGET_CPP_DEMO}
-        PRIVATE ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
+        PRIVATE ${TARGET_CPP_LIB}::${TARGET_CPP_LIB}
+        werkzeugkiste::container) # ::container needed for the color demo (sorting utils)
+        
 
     # OpenCV is optional, we only use it to display the rendered images
     find_package(OpenCV QUIET)

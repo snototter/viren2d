@@ -3,7 +3,7 @@ Know the Basics
 
 
 **How do I draw "stuff"?**
-   You need to :ref:`initialize a painter<tutorial-painter-usage>` and use its
+   You simply :ref:`initialize a painter<tutorial-painter-usage>` and use its
    ``draw_...`` methods.
 
 
