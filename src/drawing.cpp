@@ -226,33 +226,39 @@ protected:
 
 
   //TODO debug log here and trace in helpers!
-  void DrawTextImpl(const std::vector<const char*> &text, const Vec2d &position,
-                    TextAnchor text_anchor, const TextStyle &text_style,
-                    const Vec2d &padding, double rotation) override {
-    SPDLOG_DEBUG("ImagePainter::DrawText: {:d} chars at {:s}, {:s} "
+  void DrawTextImpl(const std::vector<const char*> &text,
+                    const Vec2d &anchor_position, TextAnchor anchor,
+                    const TextStyle &text_style, const Vec2d &padding,
+                    double rotation) override {
+    SPDLOG_DEBUG("ImagePainter::DrawText: {:d} lines at {:s}, {:s} "
                  "style={:s}, padding={:s}, rotation={:.1f}°.", text.size(),
-                 position, text_anchor, text_style, padding, rotation);
+                 anchor_position, anchor, text_style, padding, rotation);
 
-    helpers::DrawText(surface_, context_, text, position, text_anchor,
+    helpers::DrawText(surface_, context_, text,
+                      anchor_position, anchor,
                       text_style, padding, rotation,
-                      LineStyle::Invalid, Color::Invalid, 0.0);
+                      LineStyle::Invalid, Color::Invalid,
+                      0.0, {-1.0, -1.0});
   }
 
 
-  void DrawTextBoxImpl(const std::vector<const char*> &text, const Vec2d &position,
-                       TextAnchor text_anchor, const TextStyle &text_style,
-                       const Vec2d &padding, double rotation,
-                       const LineStyle &box_line_style, const Color &box_fill_color,
-                       double box_corner_radius) override {
-    SPDLOG_DEBUG("ImagePainter::DrawTextBox: {:d} chars at {:s}, {:s} "
+  void DrawTextBoxImpl(const std::vector<const char*> &text,
+                       const Vec2d &anchor_position, TextAnchor anchor,
+                       const TextStyle &text_style, const Vec2d &padding,
+                       double rotation, const LineStyle &box_line_style,
+                       const Color &box_fill_color, double box_corner_radius,
+                       const Vec2d &fixed_box_size) override {
+    SPDLOG_DEBUG("ImagePainter::DrawTextBox: {:d} lines at {:s}, {:s} "
                  "style={:s}, padding={:s}, rotation={:.1f}°, box-style={:s}, "
-                 "box-fill={:s}, box-radius={:.1f}.", text.size(),
-                 position, text_anchor, text_style, padding, rotation,
-                 box_line_style, box_fill_color, box_corner_radius);
+                 "box-fill={:s}, box-radius={:.1f}, box-fixed-size={:d}x{:d}.",
+                 text.size(), anchor_position, anchor, text_style,
+                 padding, rotation, box_line_style, box_fill_color,
+                 box_corner_radius, (int)fixed_box_size.width(),
+                 (int)fixed_box_size.height());
 
-    helpers::DrawText(surface_, context_, text, position, text_anchor,
+    helpers::DrawText(surface_, context_, text, anchor_position, anchor,
                       text_style, padding, rotation, box_line_style,
-                      box_fill_color, box_corner_radius);
+                      box_fill_color, box_corner_radius, fixed_box_size);
   }
 
 

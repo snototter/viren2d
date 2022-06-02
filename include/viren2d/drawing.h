@@ -270,54 +270,38 @@ public:
 
 
   //TODO doc, test, bind
-  void DrawText(const std::vector<std::string> &text, const Vec2d &position,
-                TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
+  void DrawText(const std::vector<std::string> &text,
+                const Vec2d &anchor_position,
+                TextAnchor anchor = TextAnchorFromString("bottom-left"),
                 const TextStyle &text_style = TextStyle(),
                 const Vec2d &padding = {0.0, 0.0}, double rotation = 0.0) {
     std::vector<const char*> lines;
     for (const auto &line : text) {
       lines.push_back(line.c_str());
     }
-    DrawTextImpl(lines, position, text_anchor, text_style,
-                 padding, rotation);
-  }//TODO change interface!
-  void DrawText(const std::string &text, const Vec2d &position,
-                TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
-                const TextStyle &text_style = TextStyle(),
-                const Vec2d &padding = {0.0, 0.0}, double rotation = 0.0) {
-    std::vector<const char*> lines{text.c_str()};
-    DrawTextImpl(lines, position, text_anchor, text_style,
-                 padding, rotation);
+    DrawTextImpl(lines, anchor_position, anchor,
+                 text_style, padding, rotation);
   }
 
 
   //TODO doc, test, bind
-  void DrawTextBox(const std::vector<std::string> &text, const Vec2d &position,
-                   TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
+  void DrawTextBox(const std::vector<std::string> &text,
+                   const Vec2d &anchor_position,
+                   TextAnchor anchor = TextAnchorFromString("bottom-left"),
                    const TextStyle &text_style = TextStyle(),
                    const Vec2d &padding = {6.0, 6.0}, double rotation = 0.0, //TODO is default 6 good enough?
                    const LineStyle &box_line_style = LineStyle::Invalid,
                    const Color &box_fill_color = Color::White.WithAlpha(0.6),
-                   double box_corner_radius = 0.2) {
+                   double box_corner_radius = 0.2,
+                   const Vec2d &fixed_box_size = {-1.0, -1.0}) {
     std::vector<const char*> lines;
     for (const auto &line : text) {
       lines.push_back(line.c_str());
     }
-    DrawTextBoxImpl(lines, position, text_anchor, text_style, padding, rotation,
-                    box_line_style, box_fill_color, box_corner_radius);
-  }//TODO change interface
-  void DrawTextBox(const std::string &text, const Vec2d &position,
-                   TextAnchor text_anchor = TextAnchorFromString("bottom-left"),
-                   const TextStyle &text_style = TextStyle(),
-                   const Vec2d &padding = {6.0, 6.0}, double rotation = 0.0, //TODO is default 6 good enough?
-                   const LineStyle &box_line_style = LineStyle::Invalid,
-                   const Color &box_fill_color = Color::White.WithAlpha(0.6),
-                   double box_corner_radius = 0.2) {
-    std::vector<const char*> lines{text.c_str()};
-    DrawTextBoxImpl(lines, position, text_anchor, text_style, padding, rotation,
-                    box_line_style, box_fill_color, box_corner_radius);
+    DrawTextBoxImpl(lines, anchor_position, anchor, text_style,
+                    padding, rotation, box_line_style,
+                    box_fill_color, box_corner_radius, fixed_box_size);
   }
-
 
   //TODO DrawPoints - how to handle alternating colors???
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
@@ -384,7 +368,8 @@ protected:
                                const Vec2d &padding, double rotation,
                                const LineStyle &box_line_style,
                                const Color &box_fill_color,
-                               double box_corner_radius) = 0;
+                               double box_corner_radius,
+                               const Vec2d &fixed_box_size) = 0;
 };
 
 

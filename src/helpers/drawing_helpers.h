@@ -161,8 +161,26 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
  * asc+desc
  * https://www.cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
  * or exact height
+ *
  */
-struct TextLine {
+class TextLine {
+ public:
+//TODO doc
+  TextLine(const char *line, cairo_t *context,
+           cairo_font_extents_t *font_metrics);
+
+  void Align(Vec2d anchor_position, TextAnchor anchor);
+
+//  Rect BoundingBox(Vec2d padding = {0, 0}, double corner_radius = 0.0) const;
+
+  void PlaceText(cairo_t *context) const;
+
+  double Width() const { return width; }
+
+  double Height() const { return height; }
+
+
+private:
   /**
    * @brief Pointer to the C-string text used to
    * initialize this @see TextLine instance.
@@ -201,28 +219,33 @@ struct TextLine {
    */
   double bearing_y;
 
-
-//TODO doc
-  TextLine();
-  TextLine(const char *line, cairo_t *context, bool use_font_height);
-  TextLine(const char *line, cairo_t *context, cairo_font_extents_t *font_metrics);
-
-  void Align(Vec2d desired_position, TextAnchor anchor,
-             Vec2d padding);
-
-  Rect BoundingBox(Vec2d padding = {0, 0}, double corner_radius = 0.0) const;
-
-  void PlaceText(cairo_t *context) const;
-
-private:
   void Init(cairo_t *context,
             cairo_font_extents_t *font_metrics);
 };
 
+/**
+ * @brief The MultilineText class
+ *
+ * TODO doc
+ * TODO upon initialization, height/width are tight:
+ * * font height + exact text width
+ * after Align, ...
+ */
+class MultilineText {
+ public:
+  MultilineText(const std::vector<const char*> &text,
+                const TextStyle &text_style, cairo_t *context);
 
-struct MultilineText {
-//  typedef std::vector<TextLine> vector;
+  void Align(Vec2d anchor_point, TextAnchor anchor,
+             Vec2d padding, Vec2d fixed_size);
 
+  Rect BoundingBox(double corner_radius = 0.0) const; //TODO make padding a member; set in Align; reuse in BoundingBox()
+
+  void PlaceText(cairo_t *context) const;
+
+
+
+private:
   /**
    * @brief Top left corner of the bounding box which
    * contains all (properly spaced) text lines.
@@ -230,35 +253,20 @@ struct MultilineText {
    */
   Vec2d top_left;
 
+  Vec2d padding;
+
+  Vec2d fixed_size;
+
   double width;
+
   double height;
 
-  MultilineText(const std::vector<const char*> &text,
-                const TextStyle &text_style, cairo_t *context);
-
-  void Align(Vec2d desired_position, TextAnchor anchor,
-             Vec2d padding);
-
-  Rect BoundingBox(Vec2d padding = {0, 0}, double corner_radius = 0.0) const; //TODO make padding a member; set in Align; reuse in BoundingBox()
-
-  void PlaceText(cairo_t *context) const;
-
-  //TODO vector
-  //TODO support ranged for, can simply reuse vector's iterator https://stackoverflow.com/a/31457319
-//  void Align(Vec2d desired_position, TextAnchor anchor, HorizontalAlignment alignment, Vec2d padding)
-//  void PlaceText(cairo_t *context) const;
-//  void Init(cairo_t *context);
-//  vector::iterator begin() { return lines.begin(); }
-//  vector::iterator end()   { return lines.end(); }
-//  vector::const_iterator cbegin() const { return lines.begin(); }
-//  vector::const_iterator cend() const   { return lines.end(); }
-//  vector::const_iterator begin() const  { return lines.begin(); }
-//  vector::const_iterator end() const    { return lines.end(); }
-
-private:
   TextStyle style;
+
   std::vector<TextLine> lines;
 
+  double Width() const;
+  double Height() const;
 };
 
 
@@ -311,10 +319,11 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,
               const std::vector<const char *> &text,
-              Vec2d position, TextAnchor text_anchor,
+              Vec2d anchor_position, TextAnchor anchor,
               const TextStyle &text_style, const Vec2d &padding,
               double rotation, const LineStyle &box_line_style,
-              const Color &box_fill_color, double box_corner_radius);
+              const Color &box_fill_color, double box_corner_radius,
+              const Vec2d &fixed_box_size);
 
 } // namespace helpers
 } // namespace viren2d
