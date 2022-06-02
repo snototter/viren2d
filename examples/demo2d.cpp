@@ -40,16 +40,12 @@ void DemoColors() {
   painter->SetCanvas(canvas_width, 448,
                      viren2d::Color::White.WithAlpha(0.0));
 
-//  painter->DrawGrid({}, {}, 50, 50,
-//                    viren2d::LineStyle(1.0, "gray!60"));
-
-
   auto text_style = viren2d::TextStyle(18, "xkcd",
                                        viren2d::Color::Black,
                                        false, false, 1.0,
                                        viren2d::HorizontalAlignment::Center);
   auto line_style = viren2d::LineStyle(1, viren2d::Color::Black);
-//TODO check horz alignment: single line vs multi-line text!!
+//FIXME check horz alignment: single line vs multi-line text!!
 
   const viren2d::Vec2d box_size{130.0, 36.0};
   const double box_spacing = 20.0;

@@ -128,8 +128,6 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
   this->padding = padding;
   this->fixed_size = fixed_size;
 
-  //FIXME ALIGNMENT must be refactored (fixed width; when to include padding)
-
   // Adjust left corner
   if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
     top_left.SetX(anchor_point.x() - Width() / 2.0);
