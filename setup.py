@@ -58,7 +58,9 @@ class CMakeBuild(build_ext):
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
             f"-Dviren2d_VERSION={load_version()}",
-            "-Dviren2d_WITH_PYTHON=ON"
+            "-Dviren2d_WITH_PYTHON=ON",  # We obviously need the python bindings
+            "-Dviren2d_WITH_DEMO=OFF",   # ... but don't need the demo applications
+            "-Dviren2d_WITH_TESTS=OFF"   # ... and also don't need to run the tests
         ]
         build_args = []
         # Adding CMake arguments set as environment variable
