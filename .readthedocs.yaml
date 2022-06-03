@@ -18,7 +18,13 @@ build:
       - echo "Running 'pre_create_environment' at `date`"
     pre_install:
       - echo "Running 'pre_install' at `date`"
-      - cd li
+#FIXME to speed up building, we should compile spdlog
+#- cd libs/spdlog/ && mkdir build && cd build
+#- cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
+#- cmake --build .
+# BUT, on rtd, we can't use sudo
+# --> maybe we can change the env (CMAKE_INSTALL_PREFIX)?
+#!!  sudo cmake --install .
     post_install:
       - echo "Running 'post_install' at `date`"
     pre_build:
