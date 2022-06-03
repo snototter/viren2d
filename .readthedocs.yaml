@@ -19,7 +19,8 @@ build:
     post_install:
       - echo "Running 'post_install' at `date`"
     pre_build:
-      - echo "Running 'post_install' at `date`"
+      - echo "Running 'pre_build' at `date`"
+      - python -m pip install . 
     post_build:
       - echo "Running 'post_build' at `date`"
   
