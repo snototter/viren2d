@@ -1,0 +1,41 @@
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the version of Python and other tools you might need
+build:
+  os: ubuntu-20.04
+  apt_packages:
+  - cmake
+  - libcairo2-dev
+  tools:
+    python: "3.9"
+  jobs:
+    pre_create_environment:
+      - echo "Running 'pre_create_environment' at `date`"
+    post_install:
+      - echo "Running 'post_install' at `date`"
+    pre_build:
+      - echo "Running 'post_install' at `date`"
+    post_build:
+      - echo "Running 'post_build' at `date`"
+  
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  builder: html
+  configuration: docs/source/conf.py
+  fail_on_warning: false
+
+# If using Sphinx, optionally build your docs in additional formats such as PDF
+# formats:
+#    - pdf
+
+# Optionally declare the Python requirements required to build your docs
+python:
+  install:
+  - requirements: docs/requirements.txt
+
