@@ -12,7 +12,7 @@ build:
   - cmake
   - libcairo2-dev
   tools:
-    python: "3.9"
+    python: "3.8"
   jobs:
     pre_create_environment:
       - echo "Running 'pre_create_environment' at `date`"
@@ -20,10 +20,21 @@ build:
       - echo "Running 'post_install' at `date`"
     pre_build:
       - echo "Running 'pre_build' at `date`"
-      - python -m pip install . 
     post_build:
       - echo "Running 'post_build' at `date`"
-  
+
+
+# Install the viren2d package before building the docs
+python:
+  install:
+    - method: pip
+      path: .
+
+
+# RTD should checkout all submodules
+submodules:
+  include: all  
+  recursive: true
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
