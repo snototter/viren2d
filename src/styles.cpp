@@ -372,7 +372,8 @@ std::string TextStyle::ToString() const {
   }
 
   s << ", ls=" << std::setprecision(2) << line_spacing
-    << ", " << alignment;
+    << ", " << alignment
+    << ", " << font_color;
 
   if (!IsValid()) {
     s << ", invalid";

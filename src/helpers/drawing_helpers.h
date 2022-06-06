@@ -243,7 +243,8 @@ class MultilineText {
 
   void PlaceText(cairo_t *context) const;
 
-
+  double Width() const;
+  double Height() const;
 
 private:
   /**
@@ -264,9 +265,6 @@ private:
   TextStyle style;
 
   std::vector<TextLine> lines;
-
-  double Width() const;
-  double Height() const;
 };
 
 

@@ -333,7 +333,7 @@ struct BoundingBox2DStyle {
   TextStyle text_style;
   double alpha_box_fill;
   double alpha_text_fill;
-  HorizontalAlignment text_alignment;
+  HorizontalAlignment text_alignment;//FIXME remove (see alignment in textstyle)
   BoundingBoxLabelPosition label_position;
   double label_padding; //TODO change to vec2d! different horz/vert padding
   bool clip_label;

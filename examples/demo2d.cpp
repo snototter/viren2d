@@ -37,55 +37,55 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 
 
 
-viren2d::Vec3d rgb2hsv(const viren2d::Color &rgb) {
-  auto rgbvec = 255 * viren2d::Vec3d(rgb.red, rgb.green, rgb.blue);
-  double max = rgbvec.MaxValue();
-  double diff = max - rgbvec.MinValue();
+//viren2d::Vec3d rgb2hsv(const viren2d::Color &rgb) {
+//  auto rgbvec = 255 * viren2d::Vec3d(rgb.red, rgb.green, rgb.blue);
+//  double max = rgbvec.MaxValue();
+//  double diff = max - rgbvec.MinValue();
 
-  double saturation = (max > 0.0) ? (100.0 * diff / max) : 0.0;
-  const double r = rgbvec[0];
-  const double g = rgbvec[1];
-  const double b = rgbvec[2];
-  double hue;
-  if (saturation > 0.0) {
-    if (r == max) {
-      hue = 60.0 * (g-b) / diff;
-    } else if (g == max) {
-      hue = 120.0 + 60.0 * (b-r) / diff;
-    } else {
-      hue = 240.0 + 60.0 * (r-g) / diff;
-    }
-  } else {
-    hue = 0.0;
-  }
+//  double saturation = (max > 0.0) ? (100.0 * diff / max) : 0.0;
+//  const double r = rgbvec[0];
+//  const double g = rgbvec[1];
+//  const double b = rgbvec[2];
+//  double hue;
+//  if (saturation > 0.0) {
+//    if (r == max) {
+//      hue = 60.0 * (g-b) / diff;
+//    } else if (g == max) {
+//      hue = 120.0 + 60.0 * (b-r) / diff;
+//    } else {
+//      hue = 240.0 + 60.0 * (r-g) / diff;
+//    }
+//  } else {
+//    hue = 0.0;
+//  }
 
-  if (hue < 0.0) {
-    hue += 360.0;
-  }
+//  if (hue < 0.0) {
+//    hue += 360.0;
+//  }
 
-  return viren2d::Vec3d(std::round(hue),
-                        std::round(saturation),
-                        std::round(max * 100.0/255.0));
-}
+//  return viren2d::Vec3d(std::round(hue),
+//                        std::round(saturation),
+//                        std::round(max * 100.0/255.0));
+//}
 
 
-double hsv_dist(viren2d::Vec3d hsv) {
-  // ref hsv
-  double h1 = 0.0;
-  double s1 = 1.0;
-  double v1 = 0.5;
-  // https://math.stackexchange.com/a/4018304
-  double h2 = hsv[0];
-  double s2 = hsv[1] / 100.0;
-  double v2 = hsv[2] / 100.0;
-  double dist = std::sqrt((v2 - v1) * (v2 - v1)
-            + (s1*s1 * v1*v1) + (s2*s2 * v2*v2)
-            - 2 * s1 * s2 * v1 * v2 * std::cos(werkzeugkiste::geometry::deg2rad(h2 - h1)));
+//double hsv_dist(viren2d::Vec3d hsv) {
+//  // ref hsv
+//  double h1 = 0.0;
+//  double s1 = 1.0;
+//  double v1 = 0.5;
+//  // https://math.stackexchange.com/a/4018304
+//  double h2 = hsv[0];
+//  double s2 = hsv[1] / 100.0;
+//  double v2 = hsv[2] / 100.0;
+//  double dist = std::sqrt((v2 - v1) * (v2 - v1)
+//            + (s1*s1 * v1*v1) + (s2*s2 * v2*v2)
+//            - 2 * s1 * s2 * v1 * v2 * std::cos(werkzeugkiste::geometry::deg2rad(h2 - h1)));
 
-  std::cout << "FOOOOOOOOO " << hsv << ", " << dist << " T1: " << ((v2 - v1) * (v2 - v1)
-                                                                   + (s1*s1 * v1*v1) + (s2*s2 * v2*v2)) << std::endl;
-  return dist;
-}
+//  std::cout << "FOOOOOOOOO " << hsv << ", " << dist << " T1: " << ((v2 - v1) * (v2 - v1)
+//                                                                   + (s1*s1 * v1*v1) + (s2*s2 * v2*v2)) << std::endl;
+//  return dist;
+//}
 
 
 // TODO check resources linked at https://stackoverflow.com/a/35114586
@@ -109,23 +109,24 @@ void DemoColors() {
   double y = box_spacing / 2.0;
 
   auto color_names = viren2d::ListNamedColors();
-  std::vector<double> dists;
-  for (const auto &color_name : color_names) {
-    auto color = viren2d::Color(color_name);
-//    dists.push_back(color.blue + color.green * 2 + color.red * 3);
-    auto hsv = rgb2hsv(color);
-//    dists.push_back(hsv[0]); // we'll sort by hue
-    dists.push_back(hsv_dist(hsv));
-  }
-  color_names = werkzeugkiste::container::SortByExternalKeys(color_names, dists);
+//  std::vector<double> dists;
+//  for (const auto &color_name : color_names) {
+//    auto color = viren2d::Color(color_name);
+////    dists.push_back(color.blue + color.green * 2 + color.red * 3);
+//    auto hsv = rgb2hsv(color);
+////    dists.push_back(hsv[0]); // we'll sort by hue
+//    dists.push_back(hsv_dist(hsv));
+//  }
+//  color_names = werkzeugkiste::container::SortByExternalKeys(color_names, dists);
 
   for (const auto &color_name : color_names) { //viren2d::ListNamedColors()) {
     auto color = viren2d::Color(color_name);
 
     text_style.font_color = color.Grayscale().Inverse();
     std::ostringstream s;
-    auto hsv = rgb2hsv(color);
-    s << std::setprecision(5) << hsv_dist(hsv);
+    s << color_name;
+//    auto hsv = rgb2hsv(color);
+//    s << std::setprecision(5) << hsv_dist(hsv);
     painter->DrawTextBox({s.str()}, {x, y},
                          viren2d::TextAnchor::Top,
                          text_style, {6, 6}, 0,
@@ -436,37 +437,37 @@ void DemoBoundingBox2D() {
   style.alpha_box_fill = 0.3;
   style.alpha_text_fill = 0.3;
   style.clip_label = true;
-  style.text_style = viren2d::TextStyle(10, "xkcd");
+  style.text_style = viren2d::TextStyle(10, "monospace");
 
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 50, 100, 80, -10, 0.2),
-                             "abox 0.3, atxt 0.3, clip", style);
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 50, 100, 80, 0, 0.2),
+                             "fill B & T, clip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
 
 
   style.alpha_box_fill = 0.1;
   style.alpha_text_fill = 0.3;
   style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 150, 100, 80, -10, 0.2),
-                             "abox 0.1, atxt 0.3, noclip", style);
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 150, 100, 80, 0, 0.2),
+                             "fill B & T, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
 
 
   style.alpha_box_fill = 0.0;
   style.alpha_text_fill = 0.3;
   style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 250, 100, 80, -10, 0.2),
-                             "abox 0, atxt 0.3, noclip", style);
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 250, 100, 80, -5, 0.2),
+                             "fill T, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
 
 
   style.alpha_box_fill = 0.3;
   style.alpha_text_fill = 0.0;
   style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 350, 100, 80, -10, 0.2),
-                             "abox 0.3, atxt 0, noclip", style);
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 350, 100, 80, -5, 0.2),
+                             "fill B, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
 
   style.alpha_box_fill = 0.0;
   style.alpha_text_fill = 0.0;
   style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 450, 100, 80, -10, 0.2),
-                             "abox 0, atxt 0, noclip", style);
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 450, 100, 80, -5, 0.2),
+                             "nofill, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
 
   style.clip_label = true;
   style.alpha_box_fill = 0.3;
@@ -500,13 +501,13 @@ int main(int /*argc*/, char **/*argv*/) {
 //                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
 //              << std::endl;
 //  }
-  DemoColors();
+//  DemoColors();
 //  DemoLines();
 ////  DemoArrows();
 //  DemoCircles();
 //  DemoRects();
 //  DemoText();
-//  DemoBoundingBox2D();
+  DemoBoundingBox2D();
 
   if (true)
     return 0;

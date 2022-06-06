@@ -275,7 +275,7 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- BoundingBox 2D
-void BoundingBox2DLabelHelper(cairo_t *context,
+void BoundingBox2DLabelHelper(cairo_surface_t *surface, cairo_t *context,
                               Rect rect, const std::string &label,
                               const BoundingBox2DStyle &style) {
   double pos_y = 0.0;
@@ -342,22 +342,26 @@ void BoundingBox2DLabelHelper(cairo_t *context,
   }
   // Set clip region
   cairo_clip_preserve(context);
+  DrawText(surface, context, {label.c_str()}, {pos_x, pos_y}, style.text_alignment | valign,
+           style.text_style,
+          {0.0, 0.0}, 0.0, LineStyle::Invalid,
+           Color::Invalid, 0, {0, 0});
 
-  ApplyTextStyle(context, style.text_style);
-  cairo_text_extents_t extents;
-  cairo_text_extents(context, label.c_str(), &extents);
-  auto rpos = GetAnchoredReferencePoint({pos_x, pos_y},
-            static_cast<TextAnchor>(static_cast<unsigned char>(style.text_alignment)
-                                    | static_cast<unsigned char>(valign)),
-            extents, {pad_horz, pad_vert});
+//  ApplyTextStyle(context, style.text_style);
+//  cairo_text_extents_t extents;
+//  cairo_text_extents(context, label.c_str(), &extents);
+//  auto rpos = GetAnchoredReferencePoint({pos_x, pos_y},
+//            static_cast<TextAnchor>(static_cast<unsigned char>(style.text_alignment)
+//                                    | static_cast<unsigned char>(valign)),
+//            extents, {pad_horz, pad_vert});
 
   //ApplyColor(context, style.TextFillColor());
-  cairo_save(context);
-  ApplyColor(context, Color::Magenta);
-  cairo_new_path(context);
-  cairo_rectangle(context, pos_x, pos_y, 2 * half_width, half_height / 2);
-  cairo_fill(context);
-  cairo_restore(context);
+//  cairo_save(context);
+//  ApplyColor(context, Color::Magenta);
+//  cairo_new_path(context);
+//  cairo_rectangle(context, pos_x, pos_y, 2 * half_width, half_height / 2);
+//  cairo_fill(context);
+//  cairo_restore(context);
 
   // Fill text box
   //TODO
@@ -371,10 +375,10 @@ void BoundingBox2DLabelHelper(cairo_t *context,
 
   // Shift to the pixel center, and move to the origin of the
   // first glyph. Then, let Cairo render the text:
-  rpos += 0.5;
-  ApplyColor(context, style.text_style.font_color);
-  cairo_move_to(context, rpos.x(), rpos.y());
-  cairo_show_text(context, label.c_str());
+//  rpos += 0.5;
+//  ApplyColor(context, style.text_style.font_color);
+//  cairo_move_to(context, rpos.x(), rpos.y());
+//  cairo_show_text(context, label.c_str());
 
   // If we haven't reset the clip region before, do so now:
   if (style.clip_label) {
@@ -396,6 +400,8 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   CheckCanvas(surface, context);
 
   //FIXME:
+  // Must check preserve vs clip vs new path --> label fill color propagates to full box (despite creating a new path)
+  //
   // * always clip label
   // * drawing order: fill, text-box, contour, text
   // * start text at corner (eg TopLeft) + corner_radius + padding
@@ -423,11 +429,9 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   cairo_translate(context, rect.cx, rect.cy);
   cairo_rotate(context, wgu::deg2rad(rect.rotation));
 
-  //TODO try setting the clip region
-
   // Draw a standard (box) rect or rounded rectangle:
   if (rect.radius > 0.0) {
-    // If radius in [0, 1], we use it as a percentage
+    // If radius in (0, 0.5], we use it as a percentage
     // Actually, due to the IsValid() check, it will
     // either be (0, 0.5] or >= 1
     if (rect.radius < 1.0) {
@@ -439,18 +443,97 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
                     rect.width, rect.height);
   }
 
-  SPDLOG_ERROR("FIXME BBOX STYLE: {:s}", style);
+  // Fill bounding box
   const auto bbox_fill = style.BoxFillColor();
   if (bbox_fill.IsValid()) {
     helpers::ApplyColor(context, bbox_fill);
     cairo_fill_preserve(context);
   }
 
+
+
+  Vec2d top_left;
+  Vec2d padding = style.LabelPadding();
+  VerticalAlignment valign;
+  switch (style.label_position) {
+    case BoundingBoxLabelPosition::Top:
+      top_left.SetX(-rect.half_width());
+      top_left.SetY(-rect.half_height());
+      valign = VerticalAlignment::Top;
+      break;
+
+    case BoundingBoxLabelPosition::Bottom:
+      top_left.SetX(-rect.half_width());
+      top_left.SetY(rect.half_height());
+      valign = VerticalAlignment::Bottom;
+      break;
+
+    case BoundingBoxLabelPosition::LeftB2T:
+      //TODO rotate & adjust h, w, pad_horz/vert
+      break;
+
+    case BoundingBoxLabelPosition::LeftT2B:
+      //TODO rotate & adjust h, w...pad_horz/vert
+      break;
+
+    case BoundingBoxLabelPosition::RightB2T:
+      //TODO rotate & adjust h, w...pad_horz/vert
+      break;
+
+    case BoundingBoxLabelPosition::RightT2B:
+      //TODO rotate & adjust h, w...pad_horz/vert
+      break;
+  }
+
+  Vec2d text_anchor = top_left;
+  switch (style.text_alignment) {
+    case HorizontalAlignment::Left:
+      // Nothing to change
+      //TODO Unless we rotated!
+      break;
+
+    case HorizontalAlignment::Center:
+      text_anchor.SetX(0.0);
+      break;
+
+    case HorizontalAlignment::Right:
+      text_anchor.SetX(rect.half_width());
+      //TODO If we rotated, we need to switch x/y; w/h!
+      break;
+  }
+
+  //TODO fill text box (clip)
+
+  ApplyTextStyle(context, style.text_style);
+  MultilineText mlt({label.c_str()}, style.text_style, context);
+  mlt.Align(text_anchor, valign | style.text_style.alignment, padding, {-1, -1});
+
+  // Set clip region
+  cairo_clip_preserve(context);
+
+  if (style.TextFillColor().IsValid()) {
+    cairo_save(context);
+    ApplyColor(context, Color::Magenta);//style.TextFillColor());
+    cairo_rectangle(context, top_left.x(), top_left.y(),
+                    rect.width, mlt.Height());//TODO if rotated we need to switch w/h!
+
+    cairo_fill(context);
+    cairo_restore(context);
+  }
+
+  // Draw the label
+  if (!style.clip_label) {
+    cairo_reset_clip(context);
+  }
+
+  ApplyColor(context, style.text_style.font_color);
+  mlt.PlaceText(context);
+
 //  ApplyLineStyle(context, style.line_style);
 //  cairo_stroke_preserve(context);
 
   // Draw the label
-  BoundingBox2DLabelHelper(context, rect, label, style);
+//  BoundingBox2DLabelHelper(surface, context, rect, label, style);
 
   ApplyLineStyle(context, style.line_style);
   cairo_stroke(context);
