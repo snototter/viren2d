@@ -17,11 +17,7 @@ namespace wgu = werkzeugkiste::geometry;
 
 namespace viren2d {
 namespace helpers {
-namespace {
-/** Creates a path for a rectangle with rounded corners.
- *  Assumes that the viewport is already translated (and optionally
- *  rotated).
- */
+
 void PathHelperRoundedRect(cairo_t *context, Rect rect) {
   // If radius in (0, 0.5], we use it as a percentage.
   if (rect.radius <= 0.5) {
@@ -40,7 +36,6 @@ void PathHelperRoundedRect(cairo_t *context, Rect rect) {
             wgu::deg2rad(90), wgu::deg2rad(180));
   cairo_close_path(context);
 }
-} // end anonymous namespace
 
 
 void CheckLineStyle(const LineStyle &style) {
@@ -241,188 +236,6 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
   // Restore context
   cairo_restore(context);
 }
-
-
-
-//---------------------------------------------------- BoundingBox 2D
-
-void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
-                       Rect rect, const std::string &label,
-                       const BoundingBox2DStyle &style) {
-  CheckCanvas(surface, context);
-
-  //FIXME:
-  // Must check preserve vs clip vs new path --> label fill color propagates to full box (despite creating a new path)
-  //
-  // * always clip label
-  // * drawing order: fill, text-box, contour, text
-  // * start text at corner (eg TopLeft) + corner_radius + padding
-  //   --> default box style: radius 0.2; default padding: 0-2
-  // * optional (distant future): auto-wrap text
-
-
-  if (!style.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot draw a bounding box with an invalid style: "
-      << style;
-    throw std::invalid_argument(s.str());
-  }
-
-  if (!rect.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot draw an invalid bounding box: " << rect << "!";
-    throw std::invalid_argument(s.str());
-  }
-
-  // Shift to the pixel center (so 1px borders are drawn correctly)
-  rect += 0.5;
-
-  cairo_save(context);
-  cairo_translate(context, rect.cx, rect.cy);
-  cairo_rotate(context, wgu::deg2rad(rect.rotation));
-
-  // Draw a standard (square) rect or rounded rectangle:
-  if (rect.radius > 0.0) {
-    PathHelperRoundedRect(context, rect);
-  } else {
-    cairo_rectangle(context, -rect.half_width(), -rect.half_height(),
-                    rect.width, rect.height);
-  }
-
-  // We need a copy of the box path if we have to fill
-  // the label's text box
-  cairo_path_t *bbox_path = cairo_copy_path(context);
-
-  // Fill bounding box
-  const auto bbox_fill = style.BoxFillColor();
-  if (bbox_fill.IsValid()) {
-    helpers::ApplyColor(context, bbox_fill);
-    cairo_fill_preserve(context);
-  }
-
-  cairo_save(context);
-  Vec2d padding = style.label_padding;
-  Rect label_box;
-  VerticalAlignment valign;
-  double rotation = 0.0;
-  switch (style.label_position) {
-    case BoundingBoxLabelPosition::Top:
-      label_box = Rect::FromLTWH(-rect.half_width(),
-                                 -rect.half_height(),
-                                 rect.width, rect.height);
-      valign = VerticalAlignment::Top;
-      break;
-
-    case BoundingBoxLabelPosition::Bottom:
-      label_box = Rect::FromLTWH(-rect.half_width(),
-                                 -rect.half_height(),
-                                 rect.width, rect.height);
-      valign = VerticalAlignment::Bottom;
-      break;
-
-    case BoundingBoxLabelPosition::LeftB2T:
-      rotation = wgu::deg2rad(-90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
-      valign = VerticalAlignment::Top;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
-      break;
-
-    case BoundingBoxLabelPosition::LeftT2B:
-      rotation = wgu::deg2rad(90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
-      valign = VerticalAlignment::Bottom;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
-      break;
-
-    case BoundingBoxLabelPosition::RightB2T:
-      rotation = wgu::deg2rad(-90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
-      valign = VerticalAlignment::Bottom;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
-      break;
-
-    case BoundingBoxLabelPosition::RightT2B:
-      rotation = wgu::deg2rad(90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
-      valign = VerticalAlignment::Top;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
-      break;
-  }
-
-  Vec2d text_anchor {0.0, (valign == VerticalAlignment::Top) ? label_box.top()
-                                                             : label_box.bottom()};
-  switch (style.text_style.alignment) {
-    case HorizontalAlignment::Left:
-      text_anchor.SetX(label_box.left());
-      break;
-
-    case HorizontalAlignment::Center:
-      text_anchor.SetX(0.0);
-      break;
-
-    case HorizontalAlignment::Right:
-      text_anchor.SetX(label_box.right());
-      break;
-  }
-
-  cairo_rotate(context, rotation);
-  ApplyTextStyle(context, style.text_style, false);
-  MultilineText mlt({label.c_str()}, style.text_style, context);
-  mlt.Align(text_anchor, valign | style.text_style.alignment, padding, {-1, -1});
-  if (valign == VerticalAlignment::Top) {
-    label_box = Rect::FromLTWH(label_box.left(), label_box.top(),
-                               label_box.width, mlt.Height());
-  } else if (valign == VerticalAlignment::Bottom) {
-    label_box = Rect::FromLTWH(label_box.left(), label_box.bottom() - mlt.Height(),
-                               label_box.width, mlt.Height());
-  } else {
-    throw std::runtime_error("Internal vertical alignment in helpers::DrawBoundingBox2d must be Top or Bottom!");
-    //FIXME raise implementation error!
-  }
-
-  if (style.TextFillColor().IsValid()) {
-    cairo_clip(context);
-    ApplyColor(context, Color::Magenta);//style.TextFillColor());//FIXME
-    cairo_rectangle(context, label_box.left(), label_box.top(),
-                    label_box.width, label_box.height);//TODO if rotated we need to switch w/h!
-
-    cairo_fill(context);
-    cairo_reset_clip(context);
-  }
-  cairo_restore(context);
-
-  cairo_new_path(context);
-  ApplyLineStyle(context, style.line_style);
-  cairo_append_path(context, bbox_path);
-  cairo_path_destroy(bbox_path);
-  if (style.clip_label) {
-    cairo_stroke_preserve(context);
-    cairo_clip(context);
-  } else {
-    cairo_stroke(context);
-  }
-
-//  cairo_save(context);
-  // Always draw the label on top
-  cairo_rotate(context, rotation);
-  // Since we had to save/restore the context, we
-  // have to re-apply the text style
-  ApplyTextStyle(context, style.text_style, true);
-  mlt.PlaceText(context);
-//  cairo_restore(context);
-
-  // Restore context
-  cairo_restore(context);
-}
-
 
 //---------------------------------------------------- Ellipse
 /**

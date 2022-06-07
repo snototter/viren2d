@@ -178,9 +178,13 @@ public:
    * TODO
    */
   void DrawBoundingBox2D(const Rect &box,
-                         const std::string &label,
+                         const std::vector<std::string> &label,
                          const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    DrawBoundingBox2DImpl(box, label, style);
+    std::vector<const char*> lines;
+    for (const auto &line : label) {
+      lines.push_back(line.c_str());
+    }
+    DrawBoundingBox2DImpl(box, lines, style);
   }
 
 
@@ -323,7 +327,7 @@ protected:
 
   /** Internal helper to enable default values in public interface. */
   virtual void DrawBoundingBox2DImpl(const Rect &box,
-                                     const std::string &label,
+                                     const std::vector<const char*> &label,
                                      const BoundingBox2DStyle &style) = 0;
 
 

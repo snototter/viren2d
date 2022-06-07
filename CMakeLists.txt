@@ -104,6 +104,7 @@ set(viren2d_SOURCE_FILES
     src/drawing.cpp
     src/helpers/logging.cpp
     src/helpers/drawing_helpers_text.cpp
+    src/helpers/drawing_helpers_surveillance.cpp
     src/helpers/drawing_helpers_primitives.cpp)
 
 

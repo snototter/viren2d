@@ -136,7 +136,10 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
 }
 
 
-/** Ensure that the canvas is set up correctly. Should be called within each drawing helper function. */
+/**
+ * Ensure that the canvas is set up correctly. Should be
+ * called within each drawing helper function.
+ */
 inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
   if (!surface) {
     throw std::logic_error("Invalid cairo surface (nullptr)."
@@ -147,12 +150,15 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
   if (surf_stat != CAIRO_STATUS_SUCCESS) {
     std::ostringstream s;
     s << "Invalid Cairo surface status (" << surf_stat
-      << "), check https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t for details.";
+      << "), check "
+         "https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t "
+         "for details.";
     throw std::runtime_error(s.str());
   }
 
   if (!context) {
-    throw std::runtime_error("Invalid Cairo context (nullptr), cannot draw anymore.");
+    throw std::runtime_error("Invalid Cairo context (nullptr), "
+                             "cannot draw anymore.");
   }
 }
 
@@ -286,7 +292,7 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
 
 void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
-                       Rect rect, const std::string &label,
+                       Rect rect, const std::vector<const char *> &label,
                        const BoundingBox2DStyle &style);
 
 
@@ -326,6 +332,13 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
               double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius,
               const Vec2d &fixed_box_size);
+
+
+/** Creates a path for a rectangle with rounded corners.
+ *  Assumes that the viewport is already translated (and optionally
+ *  rotated).
+ */
+void PathHelperRoundedRect(cairo_t *context, Rect rect);
 
 } // namespace helpers
 } // namespace viren2d

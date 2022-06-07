@@ -456,7 +456,6 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
       && (text_style == other.text_style)
       && wgu::eps_equal(alpha_box_fill, other.alpha_box_fill)
       && wgu::eps_equal(alpha_text_fill, other.alpha_text_fill)
-//      && (text_alignment == other.text_alignment)
       && (label_position == other.label_position)
       && (clip_label == other.clip_label);
 }
@@ -469,7 +468,6 @@ std::string BoundingBox2DStyle::ToString() const {
     << "a_box=" << alpha_box_fill
     << ", a_text=" << alpha_text_fill
     << ", label: " << label_position;
-//    << "/" << text_alignment;
 
   if (clip_label) {
     s << ", clipped";
@@ -488,6 +486,5 @@ bool operator==(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs) {
 bool operator!=(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs) {
   return !(lhs == rhs);
 }
-
 
 } // namespace viren2d

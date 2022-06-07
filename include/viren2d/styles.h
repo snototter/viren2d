@@ -333,28 +333,17 @@ struct BoundingBox2DStyle {
   TextStyle text_style;
   double alpha_box_fill;
   double alpha_text_fill;
-//  HorizontalAlignment text_alignment;//FIXME remove (see alignment in textstyle)
   BoundingBoxLabelPosition label_position;
-  Vec2d label_padding; //TODO change to vec2d! different horz/vert padding
+  Vec2d label_padding;
   bool clip_label;
 
-  /** TODO Returns a library-wide pre-set default style.
-   *  To use the painter's default style, you should use LineStyle::Default !!! TODO doc FIXME "special" default, "special " invalid or "some initialized" ??? */
   BoundingBox2DStyle();
 
   BoundingBox2DStyle(const LineStyle &contour,
                      const TextStyle &label_style,
                      double bounding_box_alpha, double label_box_alpha,
-//                     HorizontalAlignment label_alignment,
                      BoundingBoxLabelPosition label_pos,
                      const Vec2d &text_padding, bool clip_lbl);
-
-////TODO test
-//  BoundingBoxStyle(std::initializer_list<double> values);
-//  LineStyle(double width, const Color &col,
-//            const std::vector<double> &dash=std::vector<double>(),
-//            LineCap cap=LineCap::Butt, LineJoin join=LineJoin::Miter);
-
 
   // Nothing special about the BoundingBoxStyle class, so we can have
   // the default copy/assignment/move c'tors/operators:
@@ -365,13 +354,11 @@ struct BoundingBox2DStyle {
 
   ~BoundingBox2DStyle() {}
 
-
   /** @brief Checks if this style would lead to a renderable bounding box. */
   bool IsValid() const;
 
   Color BoxFillColor() const;
   Color TextFillColor() const;
-
 
   /** @brief Returns true if this and the other specify the same BoundingBoxStyle. */
   bool Equals(const BoundingBox2DStyle &other) const;

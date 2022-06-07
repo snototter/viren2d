@@ -110,10 +110,8 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
   // Adjust left corner
   if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
     top_left.SetX(anchor_point.x() - Width() / 2.0);
-//    top_left.SetX(anchor_point.x() - width / 2.0);
   } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
     top_left.SetX(anchor_point.x() - Width());
-//    top_left.SetX(anchor_point.x() - width);
   } else {  // Left-aligned
     top_left.SetX(anchor_point.x());
   }
@@ -121,12 +119,10 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
   // Adjust top corner
   if (IsFlagSet(anchor, VerticalAlignment::Center)) {
     top_left.SetY(anchor_point.y() - Height() / 2.0);
-//    top_left.SetY(anchor_point.y() - height / 2.0);
   } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
     top_left.SetY(anchor_point.y());
   } else {  // Bottom-aligned
     top_left.SetY(anchor_point.y() - Height());
-//    top_left.SetY(anchor_point.y() - height);
   }
 
   // Compute the horizontal anchor coordinate
@@ -167,12 +163,14 @@ Rect MultilineText::BoundingBox(double corner_radius) const {
 
 
 void MultilineText::PlaceText(cairo_t *context) const {
-  cairo_save(context);//FIXME remove
+#ifdef VIREN2D_DEBUG_TEXT_EXTENT
+  cairo_save(context);
   ApplyLineStyle(context, LineStyle(1, Color::Black));
   auto bb = BoundingBox();
   cairo_rectangle(context, bb.left(), bb.top(), bb.width, bb.height);
   cairo_stroke(context);
   cairo_restore(context);
+#endif  // VIREN2D_DEBUG_TEXT_EXTENT
 
   for (const auto &line : lines) {
     line.PlaceText(context);

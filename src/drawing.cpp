@@ -160,7 +160,7 @@ protected:
 
 
   void DrawBoundingBox2DImpl(const Rect &rect,
-                             const std::string &label,
+                             const std::vector<const char*> &label,
                              const BoundingBox2DStyle &style) override {
     SPDLOG_DEBUG("ImagePainter::DrawBoundingBox2D: {:s},"
                  " label=\"{:s}\", style={:s}.", rect, label, style);//TODO werkzeugkiste: string shortening!
