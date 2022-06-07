@@ -333,9 +333,9 @@ struct BoundingBox2DStyle {
   TextStyle text_style;
   double alpha_box_fill;
   double alpha_text_fill;
-  HorizontalAlignment text_alignment;//FIXME remove (see alignment in textstyle)
+//  HorizontalAlignment text_alignment;//FIXME remove (see alignment in textstyle)
   BoundingBoxLabelPosition label_position;
-  double label_padding; //TODO change to vec2d! different horz/vert padding
+  Vec2d label_padding; //TODO change to vec2d! different horz/vert padding
   bool clip_label;
 
   /** TODO Returns a library-wide pre-set default style.
@@ -345,9 +345,9 @@ struct BoundingBox2DStyle {
   BoundingBox2DStyle(const LineStyle &contour,
                      const TextStyle &label_style,
                      double bounding_box_alpha, double label_box_alpha,
-                     HorizontalAlignment label_alignment,
+//                     HorizontalAlignment label_alignment,
                      BoundingBoxLabelPosition label_pos,
-                     double text_padding, bool clip_lbl);
+                     const Vec2d &text_padding, bool clip_lbl);
 
 ////TODO test
 //  BoundingBoxStyle(std::initializer_list<double> values);
@@ -369,7 +369,6 @@ struct BoundingBox2DStyle {
   /** @brief Checks if this style would lead to a renderable bounding box. */
   bool IsValid() const;
 
-  Vec2d LabelPadding() const;
   Color BoxFillColor() const;
   Color TextFillColor() const;
 

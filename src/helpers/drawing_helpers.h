@@ -110,7 +110,7 @@ inline void ApplyLineStyle(cairo_t *context,
 
 
 /** @brief Changes the given Cairo context to use the given TextStyle definitions. */
-inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style) {
+inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool apply_color) {
   SPDLOG_TRACE("helpers::ApplyTextStyle: {:s}.", text_style);
 
   if (!context) {
@@ -129,6 +129,10 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style) {
   cairo_device_to_user_distance(context, &ux, &uy);
   double px = (ux > uy) ? ux : uy;
   cairo_set_font_size(context, static_cast<double>(text_style.font_size) * px);
+
+  if (apply_color) {
+    ApplyColor(context, text_style.font_color);
+  }
 }
 
 

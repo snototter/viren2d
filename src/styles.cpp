@@ -404,9 +404,9 @@ bool operator!=(const TextStyle &lhs, const TextStyle &rhs) {
 BoundingBox2DStyle::BoundingBox2DStyle()
   : line_style(), text_style(),
     alpha_box_fill(0.0), alpha_text_fill(0.7),
-    text_alignment(HorizontalAlignment::Left),
+//    text_alignment(HorizontalAlignment::Left),
     label_position(BoundingBoxLabelPosition::Top),
-    label_padding(5), clip_label(true)
+    label_padding(5, 5), clip_label(true)
 {}
 
 
@@ -414,13 +414,13 @@ BoundingBox2DStyle::BoundingBox2DStyle(const LineStyle &contour,
                                        const TextStyle &label_style,
                                        double bounding_box_alpha,
                                        double label_box_alpha,
-                                       HorizontalAlignment label_alignment,
                                        BoundingBoxLabelPosition label_pos,
-                                       double text_padding,
+                                       const Vec2d &text_padding,
                                        bool clip_lbl)
   : line_style(contour), text_style(label_style),
     alpha_box_fill(bounding_box_alpha), alpha_text_fill(label_box_alpha),
-    text_alignment(label_alignment), label_position(label_pos),
+//    text_alignment(label_alignment),
+    label_position(label_pos),
     label_padding(text_padding), clip_label(clip_lbl)
 {}
 
@@ -432,10 +432,6 @@ bool BoundingBox2DStyle::IsValid() const {
       && (alpha_text_fill >= 0.0) && (alpha_text_fill <= 1.0);
 }
 
-
-Vec2d BoundingBox2DStyle::LabelPadding() const {
-  return Vec2d(label_padding, label_padding);
-}
 
 Color BoundingBox2DStyle::BoxFillColor() const {
   if (alpha_box_fill > 0.0) {
@@ -460,7 +456,7 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
       && (text_style == other.text_style)
       && wgu::eps_equal(alpha_box_fill, other.alpha_box_fill)
       && wgu::eps_equal(alpha_text_fill, other.alpha_text_fill)
-      && (text_alignment == other.text_alignment)
+//      && (text_alignment == other.text_alignment)
       && (label_position == other.label_position)
       && (clip_label == other.clip_label);
 }
@@ -472,8 +468,8 @@ std::string BoundingBox2DStyle::ToString() const {
     << line_style << ", " << text_style
     << "a_box=" << alpha_box_fill
     << ", a_text=" << alpha_text_fill
-    << ", label: " << label_position
-    << "/" << text_alignment;
+    << ", label: " << label_position;
+//    << "/" << text_alignment;
 
   if (clip_label) {
     s << ", clipped";

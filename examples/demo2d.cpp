@@ -392,6 +392,7 @@ void DemoText() {
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
       std::ostringstream txt;
+//      txt << "!nofill, noclip!";
       txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor]));
 //      txt << anchors[idx_anchor];
 
@@ -402,21 +403,21 @@ void DemoText() {
         // Just draw the text
         painter->DrawText({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
                           text_style, padding);
-      } else if (idx_family == 1) {
+      } else { //if (idx_family == 1) {
         // Draw a text box; size calculated from the text
         painter->DrawTextBox({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
                              text_style, padding, 0.0,
                              viren2d::LineStyle::Invalid,
                              "maroon!80",
                              0.25);
-      } else if (idx_family == 2) {
+      } /*else if (idx_family == 2) {
         // Draw a text box with a fixed size
         painter->DrawTextBox({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
                              text_style, padding, 0.0,
                              viren2d::LineStyle::Invalid,
                              "orchid!40",
                              0.25, {10, -1});
-      }
+      }*/
     }
   }
 
@@ -439,55 +440,60 @@ void DemoBoundingBox2D() {
   style.clip_label = true;
   style.text_style = viren2d::TextStyle(10, "monospace");
 
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 50, 100, 80, 0, 0.2),
-                             "fill B & T, clip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
+  style.label_position = viren2d::BoundingBoxLabelPosition::LeftT2B;
+  style.text_style.alignment = viren2d::HorizontalAlignment::Left;
+
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 50, 100, 80, 0, 0.2),
+                             "fill B & T, clip ABCDEFG", style);
 
 
-  style.alpha_box_fill = 0.1;
+  style.alpha_box_fill = 0.3;
   style.alpha_text_fill = 0.3;
   style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 150, 100, 80, 0, 0.2),
-                             "fill B & T, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 150, 100, 80, 0, 0.2),
+                             "fill B & T, noclip ABCDEFG", style);
 
 
   style.alpha_box_fill = 0.0;
   style.alpha_text_fill = 0.3;
-  style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 250, 100, 80, -5, 0.2),
-                             "fill T, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
+  style.clip_label = true;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 250, 100, 80, -5, 0.2),
+                             "fill T, clip ABCDEFG", style);
 
 
   style.alpha_box_fill = 0.3;
   style.alpha_text_fill = 0.0;
   style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 350, 100, 80, -5, 0.2),
-                             "fill B, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 350, 100, 80, -5, 0.2),
+                             "fill B, noclip ABCDEFG", style);
 
   style.alpha_box_fill = 0.0;
   style.alpha_text_fill = 0.0;
-  style.clip_label = false;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(50, 450, 100, 80, -5, 0.2),
-                             "nofill, noclip ABCDEFGHIJKLMNOPQRSTUVWXYZ", style);
+  style.clip_label = true;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 450, 100, 80, -5, 0),
+                             "!nofill, clip!", style);
+
 
   style.clip_label = true;
   style.alpha_box_fill = 0.3;
   style.alpha_text_fill = 0.0;
   style.text_style = viren2d::TextStyle(14, "Arial", "black", true);
 
-  style.text_alignment = viren2d::HorizontalAlignment::Center;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(200, 50, 100, 250, 0, 0.4),
-                             "This!", style);
+  style.text_style.alignment = viren2d::HorizontalAlignment::Center;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(200, 50, 100, 250, 0, 0.4),
+                             "Centered label", style);
 
 
-  style.text_alignment = viren2d::HorizontalAlignment::Left;
-
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(350, 50, 100, 250),
-                             "This!", style);
+  style.text_style.alignment = viren2d::HorizontalAlignment::Left;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(350, 50, 100, 250),
+                             "Left-aligned label", style);
 
   style.alpha_box_fill = 0.0;
   style.alpha_text_fill = 0.5;
-  painter->DrawBoundingBox2D(viren2d::Rect::FromLRWH(475, 50, 100, 250),
-                             "This!", style);
+//  style.clip_label = false;
+  style.text_style.alignment = viren2d::HorizontalAlignment::Right;
+  painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(475, 50, 100, 250),
+                             "Right-aligned label", style);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
   painter.reset();
@@ -506,7 +512,7 @@ int main(int /*argc*/, char **/*argv*/) {
 ////  DemoArrows();
 //  DemoCircles();
 //  DemoRects();
-//  DemoText();
+  DemoText();
   DemoBoundingBox2D();
 
   if (true)

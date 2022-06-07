@@ -22,53 +22,23 @@ namespace {
  *  Assumes that the viewport is already translated (and optionally
  *  rotated).
  */
-void PathHelperRoundedRect(cairo_t *context, const Rect &rect) {
+void PathHelperRoundedRect(cairo_t *context, Rect rect) {
+  // If radius in (0, 0.5], we use it as a percentage.
+  if (rect.radius <= 0.5) {
+    rect.radius *= std::min(rect.width, rect.height);
+  }
   const double half_width = rect.half_width() - rect.radius;
   const double half_height = rect.half_height() - rect.radius;
   cairo_move_to(context, -rect.half_width(), -half_height);
-  cairo_arc(context, -half_width, -half_height, rect.radius, wgu::deg2rad(180), wgu::deg2rad(270));
-  cairo_arc(context,  half_width, -half_height, rect.radius, wgu::deg2rad(-90), 0);
-  cairo_arc(context,  half_width,  half_height, rect.radius, 0, wgu::deg2rad(90));
-  cairo_arc(context, -half_width,  half_height, rect.radius, wgu::deg2rad(90), wgu::deg2rad(180));
+  cairo_arc(context, -half_width, -half_height, rect.radius,
+            wgu::deg2rad(180), wgu::deg2rad(270));
+  cairo_arc(context,  half_width, -half_height, rect.radius,
+            wgu::deg2rad(-90), 0);
+  cairo_arc(context,  half_width,  half_height, rect.radius,
+            0, wgu::deg2rad(90));
+  cairo_arc(context, -half_width,  half_height, rect.radius,
+            wgu::deg2rad(90), wgu::deg2rad(180));
   cairo_close_path(context);
-}
-
-
-Vec2d GetAnchoredReferencePoint(Vec2d position, TextAnchor anchor,
-                                const cairo_text_extents_t &extents,
-                                Vec2d padding) {
-  // Default Cairo text `position` is bottom-left,
-  // indicating the "reference point".
-  // Check these useful resources:
-  // https://www.cairographics.org/tutorial/#L1understandingtext
-  // https://www.cairographics.org/tutorial/textextents.c
-  // https://www.cairographics.org/samples/text_align_center/
-  // font extent to compute height (multiline text): https://www.cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
-  //   first line is different --> height from text extent
-
-  // Adjust horizontal alignment.
-  double x = position.x();
-  if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
-    x -= (extents.width / 2.0 + extents.x_bearing);
-  } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
-    x -= (extents.width + padding.x() + extents.x_bearing);
-  } else {  // Left-aligned
-    x += padding.x() - extents.x_bearing;
-  }
-  position.SetX(x);
-
-  // Adjust vertical alignment.
-  double y = position.y();
-  if (IsFlagSet(anchor, VerticalAlignment::Center)) {
-    y -= (extents.height / 2.0 + extents.y_bearing);
-  } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
-    y += (padding.y() - extents.y_bearing);
-  } else {  // Bottom-aligned
-    y -= (extents.height + extents.y_bearing + padding.y());
-  }
-  position.SetY(y);
-
-  return position;
 }
 } // end anonymous namespace
 
@@ -275,124 +245,6 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- BoundingBox 2D
-void BoundingBox2DLabelHelper(cairo_surface_t *surface, cairo_t *context,
-                              Rect rect, const std::string &label,
-                              const BoundingBox2DStyle &style) {
-  double pos_y = 0.0;
-  VerticalAlignment valign = VerticalAlignment::Center;
-
-  //TODO: rotate context, draw box, draw text, restore context
-  double half_width = rect.half_width();
-  double half_height = rect.half_height();
-  double pad_horz = style.LabelPadding().x();
-  double pad_vert = style.LabelPadding().y();
-  //FIXME bbox style: padding horz & vert!
-
-  switch (style.label_position) {
-    case BoundingBoxLabelPosition::Top: {
-//        pos_y = -half_height + rect.radius + pad_vert;
-        pos_y = -half_height + pad_vert;
-        valign = VerticalAlignment::Top;
-        break;
-      }
-
-    case BoundingBoxLabelPosition::Bottom: {
-//        pos_y = half_height - rect.radius - pad_vert;
-        pos_y = half_height - pad_vert;
-        valign = VerticalAlignment::Bottom;
-        break;
-      }
-
-    case BoundingBoxLabelPosition::LeftB2T: {
-        //TODO rotate & adjust h, w, pad_horz/vert
-        break;
-      }
-
-    case BoundingBoxLabelPosition::LeftT2B: {
-        //TODO rotate & adjust h, w...pad_horz/vert
-        break;
-      }
-
-    case BoundingBoxLabelPosition::RightB2T: {
-        //TODO rotate & adjust h, w...pad_horz/vert
-        break;
-      }
-
-    case BoundingBoxLabelPosition::RightT2B: {
-        //TODO rotate & adjust h, w...pad_horz/vert
-        break;
-      }
-  }
-
-  double pos_x = 0.0;
-  switch (style.text_alignment) {
-    case HorizontalAlignment::Left:
-//      pos_x = -half_width + rect.radius + pad_horz;
-      pos_x = -half_width + pad_horz;
-      break;
-
-    case HorizontalAlignment::Center:
-      pos_x = 0;
-      break;
-
-    case HorizontalAlignment::Right:
-//      pos_x = half_width - rect.radius - pad_horz;
-      pos_x = half_width - pad_horz;
-      break;
-  }
-  // Set clip region
-  cairo_clip_preserve(context);
-  DrawText(surface, context, {label.c_str()}, {pos_x, pos_y}, style.text_alignment | valign,
-           style.text_style,
-          {0.0, 0.0}, 0.0, LineStyle::Invalid,
-           Color::Invalid, 0, {0, 0});
-
-//  ApplyTextStyle(context, style.text_style);
-//  cairo_text_extents_t extents;
-//  cairo_text_extents(context, label.c_str(), &extents);
-//  auto rpos = GetAnchoredReferencePoint({pos_x, pos_y},
-//            static_cast<TextAnchor>(static_cast<unsigned char>(style.text_alignment)
-//                                    | static_cast<unsigned char>(valign)),
-//            extents, {pad_horz, pad_vert});
-
-  //ApplyColor(context, style.TextFillColor());
-//  cairo_save(context);
-//  ApplyColor(context, Color::Magenta);
-//  cairo_new_path(context);
-//  cairo_rectangle(context, pos_x, pos_y, 2 * half_width, half_height / 2);
-//  cairo_fill(context);
-//  cairo_restore(context);
-
-  // Fill text box
-  //TODO
-
-  // Reset clip region if we shouldn't clip the text
-  if (!style.clip_label) {
-    cairo_reset_clip(context);
-  }
-
-//  cairo_stroke_preserve(context);
-
-  // Shift to the pixel center, and move to the origin of the
-  // first glyph. Then, let Cairo render the text:
-//  rpos += 0.5;
-//  ApplyColor(context, style.text_style.font_color);
-//  cairo_move_to(context, rpos.x(), rpos.y());
-//  cairo_show_text(context, label.c_str());
-
-  // If we haven't reset the clip region before, do so now:
-  if (style.clip_label) {
-    cairo_reset_clip(context);
-  }
-
-  //FIXME implement multi-line text support first! (w/ textextents, etc)
-//  DrawText(surface, context, label, Vec2d(-rect.half_width(), -rect.half_height()),
-//           TextAnchor::TopLeft,
-//           style.text_style, style.LabelPadding(), 0, LineStyle::Invalid,
-//           style.TextFillColor(), 0);
-//  cairo_restore(context);
-}
-
 
 void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
                        Rect rect, const std::string &label,
@@ -429,19 +281,17 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   cairo_translate(context, rect.cx, rect.cy);
   cairo_rotate(context, wgu::deg2rad(rect.rotation));
 
-  // Draw a standard (box) rect or rounded rectangle:
+  // Draw a standard (square) rect or rounded rectangle:
   if (rect.radius > 0.0) {
-    // If radius in (0, 0.5], we use it as a percentage
-    // Actually, due to the IsValid() check, it will
-    // either be (0, 0.5] or >= 1
-    if (rect.radius < 1.0) {
-      rect.radius *= std::min(rect.width, rect.height);
-    }
     PathHelperRoundedRect(context, rect);
   } else {
     cairo_rectangle(context, -rect.half_width(), -rect.half_height(),
                     rect.width, rect.height);
   }
+
+  // We need a copy of the box path if we have to fill
+  // the label's text box
+  cairo_path_t *bbox_path = cairo_copy_path(context);
 
   // Fill bounding box
   const auto bbox_fill = style.BoxFillColor();
@@ -450,46 +300,68 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
     cairo_fill_preserve(context);
   }
 
-
-
-  Vec2d top_left;
-  Vec2d padding = style.LabelPadding();
+  cairo_save(context);
+  Vec2d padding = style.label_padding;
+  Rect label_box;
   VerticalAlignment valign;
+  double rotation = 0.0;
   switch (style.label_position) {
     case BoundingBoxLabelPosition::Top:
-      top_left.SetX(-rect.half_width());
-      top_left.SetY(-rect.half_height());
+      label_box = Rect::FromLTWH(-rect.half_width(),
+                                 -rect.half_height(),
+                                 rect.width, rect.height);
       valign = VerticalAlignment::Top;
       break;
 
     case BoundingBoxLabelPosition::Bottom:
-      top_left.SetX(-rect.half_width());
-      top_left.SetY(rect.half_height());
+      label_box = Rect::FromLTWH(-rect.half_width(),
+                                 -rect.half_height(),
+                                 rect.width, rect.height);
       valign = VerticalAlignment::Bottom;
       break;
 
     case BoundingBoxLabelPosition::LeftB2T:
-      //TODO rotate & adjust h, w, pad_horz/vert
+      rotation = wgu::deg2rad(-90.0);
+      label_box = Rect::FromLTWH(-rect.half_height(),
+                                 -rect.half_width(),
+                                 rect.height, rect.width);
+      valign = VerticalAlignment::Top;
+      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
 
     case BoundingBoxLabelPosition::LeftT2B:
-      //TODO rotate & adjust h, w...pad_horz/vert
+      rotation = wgu::deg2rad(90.0);
+      label_box = Rect::FromLTWH(-rect.half_height(),
+                                 -rect.half_width(),
+                                 rect.height, rect.width);
+      valign = VerticalAlignment::Bottom;
+      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
 
     case BoundingBoxLabelPosition::RightB2T:
-      //TODO rotate & adjust h, w...pad_horz/vert
+      rotation = wgu::deg2rad(-90.0);
+      label_box = Rect::FromLTWH(-rect.half_height(),
+                                 -rect.half_width(),
+                                 rect.height, rect.width);
+      valign = VerticalAlignment::Bottom;
+      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
 
     case BoundingBoxLabelPosition::RightT2B:
-      //TODO rotate & adjust h, w...pad_horz/vert
+      rotation = wgu::deg2rad(90.0);
+      label_box = Rect::FromLTWH(-rect.half_height(),
+                                 -rect.half_width(),
+                                 rect.height, rect.width);
+      valign = VerticalAlignment::Top;
+      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
   }
 
-  Vec2d text_anchor = top_left;
-  switch (style.text_alignment) {
+  Vec2d text_anchor {0.0, (valign == VerticalAlignment::Top) ? label_box.top()
+                                                             : label_box.bottom()};
+  switch (style.text_style.alignment) {
     case HorizontalAlignment::Left:
-      // Nothing to change
-      //TODO Unless we rotated!
+      text_anchor.SetX(label_box.left());
       break;
 
     case HorizontalAlignment::Center:
@@ -497,46 +369,55 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
       break;
 
     case HorizontalAlignment::Right:
-      text_anchor.SetX(rect.half_width());
-      //TODO If we rotated, we need to switch x/y; w/h!
+      text_anchor.SetX(label_box.right());
       break;
   }
 
-  //TODO fill text box (clip)
-
-  ApplyTextStyle(context, style.text_style);
+  cairo_rotate(context, rotation);
+  ApplyTextStyle(context, style.text_style, false);
   MultilineText mlt({label.c_str()}, style.text_style, context);
   mlt.Align(text_anchor, valign | style.text_style.alignment, padding, {-1, -1});
-
-  // Set clip region
-  cairo_clip_preserve(context);
+  if (valign == VerticalAlignment::Top) {
+    label_box = Rect::FromLTWH(label_box.left(), label_box.top(),
+                               label_box.width, mlt.Height());
+  } else if (valign == VerticalAlignment::Bottom) {
+    label_box = Rect::FromLTWH(label_box.left(), label_box.bottom() - mlt.Height(),
+                               label_box.width, mlt.Height());
+  } else {
+    throw std::runtime_error("Internal vertical alignment in helpers::DrawBoundingBox2d must be Top or Bottom!");
+    //FIXME raise implementation error!
+  }
 
   if (style.TextFillColor().IsValid()) {
-    cairo_save(context);
-    ApplyColor(context, Color::Magenta);//style.TextFillColor());
-    cairo_rectangle(context, top_left.x(), top_left.y(),
-                    rect.width, mlt.Height());//TODO if rotated we need to switch w/h!
+    cairo_clip(context);
+    ApplyColor(context, Color::Magenta);//style.TextFillColor());//FIXME
+    cairo_rectangle(context, label_box.left(), label_box.top(),
+                    label_box.width, label_box.height);//TODO if rotated we need to switch w/h!
 
     cairo_fill(context);
-    cairo_restore(context);
-  }
-
-  // Draw the label
-  if (!style.clip_label) {
     cairo_reset_clip(context);
   }
+  cairo_restore(context);
 
-  ApplyColor(context, style.text_style.font_color);
-  mlt.PlaceText(context);
-
-//  ApplyLineStyle(context, style.line_style);
-//  cairo_stroke_preserve(context);
-
-  // Draw the label
-//  BoundingBox2DLabelHelper(surface, context, rect, label, style);
-
+  cairo_new_path(context);
   ApplyLineStyle(context, style.line_style);
-  cairo_stroke(context);
+  cairo_append_path(context, bbox_path);
+  cairo_path_destroy(bbox_path);
+  if (style.clip_label) {
+    cairo_stroke_preserve(context);
+    cairo_clip(context);
+  } else {
+    cairo_stroke(context);
+  }
+
+//  cairo_save(context);
+  // Always draw the label on top
+  cairo_rotate(context, rotation);
+  // Since we had to save/restore the context, we
+  // have to re-apply the text style
+  ApplyTextStyle(context, style.text_style, true);
+  mlt.PlaceText(context);
+//  cairo_restore(context);
 
   // Restore context
   cairo_restore(context);
@@ -740,12 +621,6 @@ void DrawRect(cairo_surface_t *surface, cairo_t *context,
 
   // Draw a standard (box) rect or rounded rectangle:
   if (rect.radius > 0.0) {
-    // If radius in [0, 1], we use it as a percentage
-    // Actually, due to the IsValid() check, it will
-    // either be (0, 0.5] or >= 1
-    if (rect.radius < 1.0) {
-      rect.radius *= std::min(rect.width, rect.height);
-    }
     PathHelperRoundedRect(context, rect);
   } else {
     cairo_rectangle(context, -rect.half_width(), -rect.half_height(),

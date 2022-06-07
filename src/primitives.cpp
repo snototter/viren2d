@@ -666,7 +666,7 @@ std::string Rect::ToString() const {
 }
 
 
-Rect Rect::FromLRWH(double left, double top, double width, double height,
+Rect Rect::FromLTWH(double left, double top, double width, double height,
                     double rot, double corner_radius) {
   return Rect(left + width / 2.0, top + height / 2.0,
               width, height, rot, corner_radius);

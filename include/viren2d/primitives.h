@@ -501,7 +501,7 @@ struct Rect {
     return os;
   }
 
-  static Rect FromLRWH(double left, double top, double width, double height,
+  static Rect FromLTWH(double left, double top, double width, double height,
                        double rot = 0.0, double corner_radius = 0.0);
 };
 

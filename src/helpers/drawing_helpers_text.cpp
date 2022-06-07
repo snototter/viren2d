@@ -15,27 +15,6 @@ namespace wgu = werkzeugkiste::geometry;
 namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- Text metrics
-//TextLine::TextLine()
-//  : text(nullptr), reference_point(0.0, 0.0),
-//    width(0.0), height(0.0),
-//    bearing_x(0.0), bearing_y(0.0)
-//{}
-
-
-//TextLine::TextLine(const char *line, cairo_t *context,
-//                   bool use_font_height)
-//  : text(line),
-//    reference_point(0.0, 0.0) {
-//  if (use_font_height) {
-//    cairo_font_extents_t font_metrics;
-//    cairo_font_extents(context, &font_metrics);
-//    Init(context, &font_metrics);
-//  } else {
-//    Init(context, nullptr);
-//  }
-//}
-
-
 TextLine::TextLine(const char *line, cairo_t *context,
                    cairo_font_extents_t *font_metrics)
   : text(line),
@@ -125,25 +104,29 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
                           Vec2d padding, Vec2d fixed_size) {
   // Store padding & fixed size as we need it for the
   // subsequent PlaceText() call.
-  this->padding = padding;
   this->fixed_size = fixed_size;
+  this->padding = padding;
 
   // Adjust left corner
   if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
     top_left.SetX(anchor_point.x() - Width() / 2.0);
+//    top_left.SetX(anchor_point.x() - width / 2.0);
   } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
     top_left.SetX(anchor_point.x() - Width());
+//    top_left.SetX(anchor_point.x() - width);
   } else {  // Left-aligned
     top_left.SetX(anchor_point.x());
   }
 
-  // Adjust top corner (without padding).
+  // Adjust top corner
   if (IsFlagSet(anchor, VerticalAlignment::Center)) {
     top_left.SetY(anchor_point.y() - Height() / 2.0);
+//    top_left.SetY(anchor_point.y() - height / 2.0);
   } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
     top_left.SetY(anchor_point.y());
   } else {  // Bottom-aligned
-    top_left.SetY(anchor_point.y() - padding.y() - Height());
+    top_left.SetY(anchor_point.y() - Height());
+//    top_left.SetY(anchor_point.y() - height);
   }
 
   // Compute the horizontal anchor coordinate
@@ -160,18 +143,16 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
       break;
 
     case HorizontalAlignment::Right:
-      x = top_left.x() + Width();
+      x = top_left.x() + Width() - padding.x();
       break;
   }
 
   // Align each TextLine:
   double y = top_left.y() + padding.y();
-  bool first_line = true;
-  for (auto &line : lines) {
-    y += (line.Height() * (first_line ? 1.0 : style.line_spacing));
-    line.Align(Vec2d(x, y),
-               VerticalAlignment::Bottom | style.alignment);
-    first_line = false;
+  for (std::size_t idx = 0; idx < lines.size(); ++idx) {
+    y += (lines[idx].Height() * ((idx == 0) ? 1.0 : style.line_spacing));
+    lines[idx].Align(Vec2d(x, y),
+                     VerticalAlignment::Bottom | style.alignment);
   }
 }
 
@@ -186,6 +167,13 @@ Rect MultilineText::BoundingBox(double corner_radius) const {
 
 
 void MultilineText::PlaceText(cairo_t *context) const {
+  cairo_save(context);//FIXME remove
+  ApplyLineStyle(context, LineStyle(1, Color::Black));
+  auto bb = BoundingBox();
+  cairo_rectangle(context, bb.left(), bb.top(), bb.width, bb.height);
+  cairo_stroke(context);
+  cairo_restore(context);
+
   for (const auto &line : lines) {
     line.PlaceText(context);
   }
@@ -231,17 +219,15 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // specific to *this* DrawText call.
   cairo_save(context);
 
-  ApplyTextStyle(context, text_style);
-
   // Shift the context to the desired anchor point
   // and rotate.
   cairo_translate(context, anchor_position.x(), anchor_position.y());
   cairo_rotate(context, wgu::deg2rad(rotation));
   anchor_position = {0, 0};
 
-  // Now that the font face is set up, we can query
-  // the rendered text extents and use them to adjust
+  // Query the rendered text extents and use them to adjust
   // the position according to the desired text anchor.
+  ApplyTextStyle(context, text_style, false);
   MultilineText mlt(text, text_style, context);
   mlt.Align(anchor_position, anchor, padding, fixed_box_size);
 
@@ -276,11 +262,13 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
              box_line_style, box_fill_color);
   }
 
-  // Finally, place the aligned text onto the canvas
+  // Now that the optional text box has been drawn, we
+  // have to make sure that we plot the text in the
+  // correct color.
   ApplyColor(context, text_style.font_color);
   mlt.PlaceText(context);
 
-  // Pop the original context
+  // Pop the original context.
   cairo_restore(context);
 }
 } // namespace helpers
