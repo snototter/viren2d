@@ -332,7 +332,7 @@ struct BoundingBox2DStyle {
   LineStyle line_style;
   TextStyle text_style;
   double alpha_box_fill;
-  double alpha_text_fill;
+  double alpha_text_fill;//TODO change to color - but this requires a Color::Same/Special mechanism
   BoundingBoxLabelPosition label_position;
   Vec2d label_padding;
   bool clip_label;
@@ -373,18 +373,10 @@ struct BoundingBox2DStyle {
     os << style.ToString();
     return os;
   }
-
-
-  /**
-    FIXME add a default/customizable bbox style per painter
-   */
-//  static const BoundingBox2DStyle Default;
 };
 
 bool operator==(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs);
 bool operator!=(const BoundingBox2DStyle &lhs, const BoundingBox2DStyle &rhs);
-
-
 
 } // namespace viren2d
 

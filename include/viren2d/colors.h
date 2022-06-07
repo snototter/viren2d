@@ -275,7 +275,8 @@ class Color {
 
   //TODO doc test bind
   bool IsSpecialInvalid() const;
-  //TODO add special complementary
+  //TODO maybe add isspecialsame
+  //TODO double-check if we really need the isspecialinvalid logic
 
 
   //DONE [x] add documentation
