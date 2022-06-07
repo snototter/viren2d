@@ -512,7 +512,6 @@ std::string Color::ToString() const {
   } else {
     s << "(" << ToHexString() << ")";
   }
-  s << " FIXME isspecial_invalid("  << IsSpecialInvalid();//FIXME cc'tor not working?
   return s.str();
 
   // Alternatively as RGBa string:
