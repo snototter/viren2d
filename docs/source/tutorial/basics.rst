@@ -1,9 +1,8 @@
 Know the Basics
 ---------------
 
-
 **How do I draw "stuff"?**
-   You simply :ref:`initialize a painter<tutorial-painter-usage>` and use its
+   You need to :ref:`use a painter<tutorial-painter-usage>` and invoke its
    ``draw_...`` methods.
 
 

@@ -7,7 +7,7 @@
    ``viren2d`` has not yet reached a stable `v1.0` release. Currently,
    it is highly experimental and quite incomplete!
    
-   An initial stable version `v1.0` will hopefully be released around
+   An initial stable/almost-complete version might be released around
    September/October 2022 (this is only a hobby/leisure time project).
    I do NOT recommend using this toolbox before v1.0 - don't say I
    didn't warn you! Until then, the API may (and will) change anytime,
@@ -51,4 +51,12 @@ Visualize Common Computer Vision Results in 2D
    installation
    quickstart
    api-documentation
+
+
+.. role::  raw-html(raw)
+    :format: html
+
+:raw-html:`&#x2611;`
+
+:raw-html:`&#x2610;`
 
