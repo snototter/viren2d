@@ -80,37 +80,6 @@ public:
   }
 
 
-//  void SetDefaultLineStyle(const viren2d::LineStyle &line_style) {
-//    painter_->SetDefaultLineStyle(line_style);
-//  }
-
-
-//  viren2d::LineStyle GetDefaultLineStyle() const {
-//    return painter_->GetDefaultLineStyle();
-//  }
-
-
-//  void SetDefaultArrowStyle(const viren2d::ArrowStyle &arrow_style) {
-//    painter_->SetDefaultArrowStyle(arrow_style);
-//  }
-
-
-//  viren2d::ArrowStyle GetDefaultArrowStyle() const {
-//    return painter_->GetDefaultArrowStyle();
-//  }
-
-
-//  void SetDefaultTextStyle(const viren2d::TextStyle &text_style) {
-//    painter_->SetDefaultTextStyle(text_style);
-//  }
-
-
-//  viren2d::TextStyle GetDefaultTextStyle() const {
-//    return painter_->GetDefaultTextStyle();
-//  }
-
-
-
   void DrawArc(const viren2d::Vec2d &center, double radius,
                double angle1, double angle2,
                const viren2d::LineStyle &line_style,
@@ -555,7 +524,7 @@ template<typename _Tp, int dim>
 void RegisterVec(py::module &m) {
   using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
   std::ostringstream doc;
-  doc << "Vector in " << dim << "D space.";
+  doc << "A " << dim << "D vector.";
 
   py::class_<VC> vec_cls(m, VC::TypeName().c_str(), doc.str().c_str());
 
@@ -583,28 +552,28 @@ void RegisterVec(py::module &m) {
       .def("copy", [](const VC &self) { return VC(self); },
            "Returns a deep copy of this vector.")
       .def("max_value", &VC::MaxValue,
-           "Returns `max(self.val[i])`.")
+           "Returns ``max(self.val[i])``.")
       .def("min_value", &VC::MinValue,
-           "Returns `min(self.val[i])`.")
+           "Returns ``min(self.val[i])``.")
       .def("max_index", &VC::MaxIndex,
-           "Returns index `j`, s.t. `self.val[j] == max(self.val[i])`.")
+           "Returns index ``j``, s.t. ``self.val[j] == max(self.val[i])``.")
       .def("min_index", &VC::MinIndex,
-           "Returns index `j`, s.t. `self.val[j] == min(self.val[i])`.")
+           "Returns index ``j``, s.t. ``self.val[j] == min(self.val[i])``.")
       .def("dot", &VC::Dot,
-           "Computes the dot product.",
+           "Computes the dot product between ``self`` and the ``other``.",
            py::arg("other"))
       .def("length", &VC::Length,
            "Returns the vector's length.")
       .def("length_squared", &VC::LengthSquared,
            "Returns the squared length.")
       .def("distance", &VC::Distance,
-           "Computes the L2 distance between `self` and the `other`.",
+           "Computes the L2 distance between ``self`` and the ``other``.",
            py::arg("other"))
       .def("direction_vector", &VC::DirectionVector,
-           "Computes the direction vector from `self` to the `other`.",
+           "Computes the direction vector from ``self`` to the ``other``.",
            py::arg("other"))
       .def("unit_vector", &VC::UnitVector,
-           "Computes the unit vector of `self`.")
+           "Computes the unit vector of ``self``.")
       .def(py::pickle(&VecToList<_Tp, dim>,
                       &VecFromList<_Tp, dim>))
       .def(py::self == py::self)
@@ -633,10 +602,12 @@ void RegisterVec(py::module &m) {
   if (dim == 2) {
     vec_cls.def(py::init<_Tp, _Tp>(),
                 py::arg("x"), py::arg("y"))
-        .def_property("width", static_cast<const _Tp &(VC::*)() const>(&VC::width), &VC::SetWidth,
+        .def_property("width", static_cast<const _Tp &(VC::*)() const>(&VC::width),
+                      &VC::SetWidth,
                       "Accesses the first dimension (if you\n"
                       "use this vector to represent a 2D size).")
-        .def_property("height", static_cast<const _Tp &(VC::*)() const>(&VC::height), &VC::SetHeight,
+        .def_property("height", static_cast<const _Tp &(VC::*)() const>(&VC::height),
+                      &VC::SetHeight,
                       "Accesses the second dimension (if you\n"
                       "use this vector to represent a 2D size).");
   }
@@ -673,12 +644,11 @@ void RegisterVec(py::module &m) {
 
 PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   m.doc() = R"pbdoc(
-    Vision & Rendering 2D: Computer Vision Results, but Nice-Looking
-    ----------------------------------------------------------------
+    Vision & Rendering 2D: Visualize results not too disgraceful
+    ------------------------------------------------------------
 
-    This is a light-weight toolbox to simplify
-    visualization of common 2D computer vision results,
-    such as detections, trajectories, and the like.
+    This toolbox simplifies visualization of common 2D computer
+    vision results, such as detections, trajectories, and the like.
 
     Example:
         >>> import viren2d
@@ -700,37 +670,41 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   m.def("color_names", &viren2d::ListNamedColors, doc.c_str());
 
   py::class_<viren2d::Color>(m, "Color",
-           "Represents a color in rgba format, i.e. each component\n"
+           "A color in rgba format, *i.e.* each component\n"
            "is within [0,1].")
       .def(py::init<>(),
-           "Initializes an 'invalid color' (`r,g,b < 0`) which can\n"
-           "be used in several `Painter` methods to request special\n"
-           "color handling (e.g. switching to the inverse color or\n"
+           "Initializes an *invalid color* (``r,g,b < 0``) which can\n"
+           "be used in several :py:class:`viren2d.Painter` methods to request\n"
+           "special color handling (e.g. switching to the inverse color or\n"
            "to skip filling).")
       .def(py::init<>(&moddef::ColorFromTuple),
-           "Initialize from `tuple`. Each value must\n"
-           "be a floating point number within [0, 1].\n\nExample:\n"
-           "    >>> color = (red, green, blue)\n"
-           "    >>> color = (red, green, blue, alpha)")
+           "A ``tuple`` can be implicitly cast into a :py:class:`viren2d.Color`.\n"
+           "For this, each value must be a floating point number within [0, 1]."
+           "\n\nExample:\n"
+           "    >>> painter.draw_polygon(..., fill_color = (red, green, blue))\n"
+           "    >>> painter.draw_polygon(..., fill_color = (red, green, blue, alpha)",
+           py::arg("tpl"))
       .def(py::init<double, double, double, double>(),
-           "Initialize with the given color components. All values\n"
-           "will be clamped to [0, 1].",
+           "Initialize the color from the given rgba components. All values\n"
+           "**will be clamped** to [0, 1].",
            py::arg("red"), py::arg("green"), py::arg("blue"),
            py::arg("alpha")=1.0)
       .def(py::init<const std::string &, double>(),
-           "Initialize from a string represenation:\n"
-           "* Hex/Webcodes:\n      >>> color = '#00ff00'\n"
-           "      >>> color = '#a0b0c0f0'\n\n"
-           "* A color name, see `color_names()` for\n"
-           "  a list of available color names.\n"
-           "      >>> color = 'black'\n"
-           "      >>> color = 'navy-blue'\n\n"
-           "* A color name with alpha suffix (which must\n"
+           "Initialize the color from a string representation.\n\n"
+           "* Using its hex/webcode\n"
+           "      >>> painter.draw_rect(..., fill_color = '#00ff00')\n"
+           "      >>> painter.draw_rect(..., fill_color = '#a0b0c0f0')\n\n"
+           "* Using a color name, see :py:meth:`viren2d.color_names()` for\n"
+           "  a list of available color names\n"
+           "      >>> painter.draw_rect(..., fill_color = 'black')\n"
+           "      >>> painter.draw_rect(..., fill_color = 'navy-blue')\n\n"
+           "  A color name can also include an alpha suffix (which must\n"
            "  be an integer in [0, 100]):\n"
-           "      >>> color = 'forest-green!50'\n\n"
-           "* A color name can also be inverted (to get its\n"
-           "   complementary color) by prepending '!' or '-':\n"
-           "      >>> color = '!blue!30'  # Would be equal to 'yellow!30'",
+           "      >>> painter.draw_rect(..., fill_color = 'forest-green!50')\n\n"
+           "  Optionally, you can also invert a color name (to use its\n"
+           "  complementary color) by prepending ``!`` or ``-``\\:\n"
+           "      >>> # '!blue!30 is equal to 'yellow!30'\n"
+           "      >>> painter.draw_rect(..., fill_color = '!blue!30')",
            py::arg("colorspec"), py::arg("alpha")=1.0)
       .def("copy", [](const viren2d::Color &c) { return viren2d::Color(c); },
            "Returns a deep copy.")
@@ -788,7 +762,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
            "example '#0011ffff' (all components are scaled to [0, 255]).\n"
            "If the color is invalid, #???????? will be returned instead.")
       .def("with_alpha", &viren2d::Color::WithAlpha,
-           "Return a color with the same r,g,b components, but the given alpha.",
+           "Return a color with the same rgb components, but the given alpha.",
            py::arg("alpha"))
       .def_readwrite("red", &viren2d::Color::red,
                      "Red component within [0, 1].")
@@ -797,7 +771,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
       .def_readwrite("blue", &viren2d::Color::blue,
                      "Blue component within [0, 1].")
       .def_readwrite("alpha", &viren2d::Color::alpha,
-                     "Opacity within [0, 1].")
+                     "Opacity within [0, 1], where 0 is fully transparent\n"
+                     "and 1 is fully opaque.")
       // TODO(snototter) pybind11 bug, documentation of static members is missing in python, see https://github.com/pybind/pybind11/issues/3815
       .def_readonly_static("White", &viren2d::Color::White,
                            "Read-only white color instantiation.")
@@ -815,17 +790,22 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
                            "Read-only magenta color instantiation.")
       .def_readonly_static("Yellow", &viren2d::Color::Yellow,
                            "Read-only yellow color instantiation.")
+      .def_readonly_static("Invalid", &viren2d::Color::Invalid,
+                           "Read-only special color ``Invalid`` (*e.g.* to skip filling).")
+      .def_readonly_static("Same", &viren2d::Color::Same,
+                           "Read-only special color ``Same`` (*e.g.* to use the same\n"
+                           "color for filling as the object's contour).")
       .def("is_valid", &viren2d::Color::IsValid,
-           "Returns True if this is a valid rgba color, where all\n"
+           "Returns ``True`` if this is a valid rgba color, where all\n"
            "components are within [0, 1].")
       .def("inverse", &viren2d::Color::Inverse,
            "Returns the inverse/complementary color.\n\n"
-           "Except for shades of gray, this returns `(1.0-r, 1.0-g, 1.0-b)`.\n"
+           "Except for shades of gray, this returns ``(1.0-r, 1.0-g, 1.0-b)``.\n"
            "For gray values it will either return black or white. The alpha\n"
            "value will always stay the same.\n"
            "Why special handling of gray? Complementary colors should be\n"
            "used to provide good contrast/highlights - thus, having the\n"
-           "true inverse (i.e. `1-r|g|b`) for medium gray (`r|g|b` close to 127)\n"
+           "true inverse (*i.e.* ``1-r|g|b``) for medium gray (r,g,b close to 127)\n"
            "would not be too useful.")
       .def("is_shade_of_gray", &viren2d::Color::IsShadeOfGray,
            "Checks if all rgb components are almost the same (+/- the given epsilon).",
@@ -876,19 +856,18 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   //------------------------------------------------- Primitives - Ellipse
   py::class_<viren2d::Ellipse> ellipse(m, "Ellipse",
-             "Ellipse for visualization.\n\n"
+             "An ellipse for visualization.\n\n"
              "An ellipse is defined by its center point, length of\n"
              "its major axis, length of its minor axes and clockwise\n"
              "rotation (in degrees). At 0° rotation, the major axis\n"
              "is aligned with the X axis.\n"
              "Additionally, you can choose to draw the contour/fill the\n"
-             "ellipse only partially, i.e. starting at 'angle_from',\n"
-             "drawing clockwise (increasing angles) until 'angle_to'.\n"
+             "ellipse only partially, *i.e.* starting at ``angle_from``,\n"
+             "drawing clockwise (increasing angles) until ``angle_to``.\n"
              "In this case, you should consider adding the center point\n"
-             "to the drawn path via 'include_center' (which is the default).");
+             "to the drawn path via ``include_center`` (which is the default).");
 
-  doc = "Create an ellipse from its center, size, rotation & angle from/to\n"
-        "rendering settings.\n"
+  doc = "Create an ellipse from its center, size, rotation & from/to angles.\n"
         "Required:  center & axes, each as " + Qualified(viren2d::Vec2d::TypeName()) + ".\n"
         "Optional:  rotation   Clockwise rotation in degres.\n"
         "Optional:  angle_from & angle_to\n"

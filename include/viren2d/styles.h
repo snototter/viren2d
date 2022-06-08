@@ -264,14 +264,8 @@ struct TextStyle {
   int font_size;
   std::string font_family;
   Color font_color;
-//  FontSlant font_slant;
-//  FontWeight font_weight;
   bool font_bold;
   bool font_italic;
-  //TODO add line_spacing default 1.2
-//  bool use_font_height; //TODO doc - if false, the exact glyph height will be used for height measurements (e.g. bounding boxes)
-  //TODO recommendation: true for multi-line text
-  //TODO or we only use it for the first line? - all others will be offset according to font height * spacing
   double line_spacing;
   HorizontalAlignment alignment;
 
@@ -286,23 +280,16 @@ struct TextStyle {
             double spacing = 1.2,
             HorizontalAlignment align = HorizontalAlignment::Left);
 
-//  // Nothing special about the TextStyle class, so we can have
-//  // the default copy/assignment/move c'tors/operators:
-//  TextStyle(const TextStyle &other) = default;
-//  TextStyle& operator=(const TextStyle &other) = default;
-//  TextStyle(TextStyle&&) = default;
-//  TextStyle& operator=(TextStyle &&) = default;
-
-//  virtual ~TextStyle() {}
+  // Nothing special about the TextStyle class, so we can have
+  // the default copy/assignment/move c'tors/operators:
+  TextStyle(const TextStyle &other) = default;
+  TextStyle& operator=(const TextStyle &other) = default;
+  TextStyle(TextStyle&&) = default;
+  TextStyle& operator=(TextStyle &&) = default;
 
 
   /** @brief Checks if this line style would lead to a renderable line. */
   bool IsValid() const;
-
-
-  //FIXME
-//  bool IsSpecialDefault() const;
-
 
 
   /** @brief Returns true if this and the other specify the same text style. */
@@ -318,8 +305,6 @@ struct TextStyle {
     os << style.ToString();
     return os;
   }
-
-//  static const TextStyle Default;
 };
 
 
@@ -331,10 +316,15 @@ bool operator!=(const TextStyle &lhs, const TextStyle &rhs);
 struct BoundingBox2DStyle {
   LineStyle line_style;
   TextStyle text_style;
-//  double alpha_box_fill;
+  /**
+   * @brief Optional fill color of the bounding box.
+   * This is a public member for user convenience. Drawing
+   * methods, however, should use @see BoxFillColor() which
+   * takes care of "special" color choices (like "use the same
+   * color as the contour but with a different alpha").
+   */
   Color box_fill_color;
   Color text_fill_color;
-//  double alpha_text_fill;//TODO change to color - but this requires a Color::Same/Special mechanism
   BoundingBoxLabelPosition label_position;
   Vec2d label_padding;
   bool clip_label;

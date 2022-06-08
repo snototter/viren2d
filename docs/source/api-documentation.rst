@@ -43,11 +43,16 @@ Color
    .. automethod:: __init__
 
 
+.. autofunction:: viren2d.color_names
+
+
 Vector 2D
 ~~~~~~~~~
 
 .. autoclass:: viren2d.Vec2d
    :members:
+
+   .. automethod:: __init__
 
 
 Vector 3D
@@ -56,6 +61,8 @@ Vector 3D
 .. autoclass:: viren2d.Vec3d
    :members:
 
+   .. automethod:: __init__
+
 
 Ellipse
 ~~~~~~~
@@ -63,12 +70,16 @@ Ellipse
 .. autoclass:: viren2d.Ellipse
    :members:
 
+   .. automethod:: __init__
+
 
 Rectangle
 ~~~~~~~~~
 
 .. autoclass:: viren2d.Rect
    :members:
+
+   .. automethod:: __init__
 
 
 Defining Styles
@@ -80,6 +91,8 @@ Lines
 .. autoclass:: viren2d.LineStyle
    :members:
 
+   .. automethod:: __init__
+
 
 Arrows
 ~~~~~~
@@ -87,12 +100,22 @@ Arrows
 .. autoclass:: viren2d.ArrowStyle
    :members:
 
+   .. automethod:: __init__
+
 
 Text
 ~~~~
 
 .. autoclass:: viren2d.TextStyle
    :members:
+
+   .. automethod:: __init__
+
+
+2D Bounding Boxes
+~~~~~~~~~~~~~~~~~
+
+TODO
 
 
 Drawing
