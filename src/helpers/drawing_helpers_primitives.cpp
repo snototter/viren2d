@@ -48,10 +48,14 @@ void CheckLineStyle(const LineStyle &style) {
 
 
 void CheckLineStyleAndFill(const LineStyle &style,
-                           const Color &fill_color) {
+                           Color &fill_color) {
+  if (fill_color.IsSpecialSame()) {
+    fill_color = style.color.WithAlpha(fill_color.alpha);
+  }
+  // FIXME check usage of Color::Same in all fill... calls!
   if (!style.IsValid() && !fill_color.IsValid()) {
     std::ostringstream s;
-    s << "Cannot draw with invalid line style & invalid fill color: "
+    s << "Cannot draw with both invalid line style and invalid fill color: "
       << style.ToString() << " and " << fill_color.ToString() << "!";
     throw std::invalid_argument(s.str());
   }
@@ -65,7 +69,7 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
              double angle1, double angle2,
              const LineStyle &line_style,
              bool include_center,
-             const Color &fill_color) {
+             Color fill_color) {
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
 
@@ -85,7 +89,7 @@ void DrawArc(cairo_surface_t *surface, cairo_t *context,
     cairo_close_path(context);
   }
 
-  if (fill_color.alpha > 0.0) {
+  if (fill_color.IsValid()) {
     helpers::ApplyColor(context, fill_color);
     cairo_fill_preserve(context);
   }
@@ -259,7 +263,7 @@ double AdjustEllipseAngle(double deg, double scale_x, double scale_y) {
 
 void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
                  Ellipse ellipse, const LineStyle &line_style,
-                 const Color &fill_color) {
+                 Color fill_color) {
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
 
@@ -319,7 +323,7 @@ void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
   }
   cairo_restore(context);
 
-  if (fill_color.alpha > 0.0) {
+  if (fill_color.IsValid()) {
     helpers::ApplyColor(context, fill_color);
     cairo_fill_preserve(context);
   }
@@ -412,10 +416,42 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
 }
 
 
+//---------------------------------------------------- Polygon
+void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
+                 const std::vector<Vec2d> points,
+                 const LineStyle &line_style,
+                 Color fill_color) {
+  CheckCanvas(surface, context);
+  CheckLineStyleAndFill(line_style, fill_color);
+
+  if (points.size() < 3) {
+    throw std::invalid_argument("A polygon must have at least 3 points!");
+  }
+
+  cairo_save(context);
+  auto from = points[0] + 0.5;
+  cairo_move_to(context, from.x(), from.y());
+  for (std::size_t idx = 1; idx < points.size(); ++idx) {
+    auto to = points[idx] + 0.5;
+    cairo_line_to(context, to.x(), to.y());
+    from = to;
+  }
+  if (fill_color.IsValid()) {
+    helpers::ApplyColor(context, fill_color);
+    cairo_fill_preserve(context);
+  }
+
+  helpers::ApplyLineStyle(context, line_style);
+  cairo_stroke(context);
+
+  cairo_restore(context);
+}
+
+
 //---------------------------------------------------- Rectangle (box, rounded, rotated)
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
               Rect rect, const LineStyle &line_style,
-              const Color &fill_color) {
+              Color fill_color) {
   CheckCanvas(surface, context);
   CheckLineStyleAndFill(line_style, fill_color);
 

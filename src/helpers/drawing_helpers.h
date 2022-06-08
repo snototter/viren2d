@@ -284,7 +284,7 @@ private:
 void DrawArc(cairo_surface_t *surface, cairo_t *context,
              Vec2d center, double radius, double angle1, double angle2,
              const LineStyle &line_style, bool include_center,
-             const Color &fill_color);
+             Color fill_color);
 
 
 void DrawArrow(cairo_surface_t *surface, cairo_t *context,
@@ -307,7 +307,7 @@ inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
 
 void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
                  Ellipse ellipse, const LineStyle &line_style,
-                 const Color &fill_color);
+                 Color fill_color);
 
 
 void DrawGrid(cairo_surface_t *surface, cairo_t *context,
@@ -320,9 +320,15 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
               Vec2d from, Vec2d to, const LineStyle &line_style);
 
 
+void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
+                 const std::vector<Vec2d> points,
+                 const LineStyle &line_style,
+                 Color fill_color);
+
+
 void DrawRect(cairo_surface_t *surface, cairo_t *context,
               Rect rect, const LineStyle &line_style,
-              const Color &fill_color);
+              Color fill_color);
 
 
 void DrawText(cairo_surface_t *surface, cairo_t *context,

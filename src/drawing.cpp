@@ -187,6 +187,18 @@ protected:
   }
 
 
+  void DrawPolygonImpl(const std::vector<Vec2d> &points,
+                       const LineStyle &line_style,
+                       const Color &fill_color) override {
+    SPDLOG_DEBUG("ImagePainter::DrawPolygon: {:d} points,"
+                 " style={:s}, fill={:s}.", points.size(),
+                 line_style, fill_color);
+
+    helpers::DrawPolygon(surface_, context_, points,
+                         line_style, fill_color);
+  }
+
+
   void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
                     const Color &fill_color) override {
     SPDLOG_DEBUG("ImagePainter::DrawRect: {:s},"

@@ -1,10 +1,8 @@
 # Computer Vision Results, but Nice-Looking
-This is a light-weight toolbox to easily visualize common 2D computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
-Under the hood, `viren2d` uses the [Cairo graphics library](https://www.cairographics.org/), so visually unpleasing results will hopefully only be caused by questionable color/style choices :wink:.
-
+This is a [Cairo-based](https://www.cairographics.org/) visualization toolbox for common 2D computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
 
 ## Roadmap
-* An initial version v1.0 will hopefully released in September 2022 (this is a hobby/leisure time project)
+* An initial version v1.0 will be released around September/October 2022
 * I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you) - the API may change anytime (and I'm messing around in the main branch)
 
 I'm planning to support visualization of the following primitives/objects:
@@ -14,9 +12,9 @@ I'm planning to support visualization of the following primitives/objects:
 * [x] Ellipses
 * [x] Lines
 * [ ] Markers
-* [ ] Object detection results: 2D bounding boxes
+* [x] Object detection results: 2D bounding boxes
 * [ ] Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
-* [ ] Polygons
+* [x] Polygons
 * [x] Rectangles - from axis-aligned & box-shaped to rounded corners and rotated
 * [x] Text (single-/multi-line) - only latin fonts are supported
 * [x] Text boxes (single-/multi-line) - only latin fonts are supported
@@ -27,24 +25,6 @@ I'm planning to support visualization of the following primitives/objects:
 * [ ] Camera calibration-related: Ground plane, horizon - low priority features
 * [ ] Nice-to-have: Curves & curved arrows - low priority
 
-
-## Description
-**Why yet another toolbox?**  
-Frequently switching between different tasks and frameworks, looking up how to visualize results became really tiring.
-Ideally, I wanted something that can be easily used both within C++ and Python environments as I have to switch between these two regularly.
-
-Previously, I experimented with a [similar toolbox (`vcp`)](https://github.com/snototter/vitocpp/) based on [OpenCV](https://github.com/opencv/opencv), but this has a few drawbacks (considering *ease-of-use*):  
-*a)* OpenCV is a quite heavy dependency - plus, did you ever get to enjoy a version mismatch between the [(unofficial) Python bindings](https://pypi.org/project/opencv-python/) in your virtual environment and your system's OpenCV library?  
-*b)* OpenCV is an image processing library, thus it offers only limited drawing capabilities, and  
-*c)* my `vcp` framework grew over the years (and suffers from the usual *"I will clean this mess up later"* quick-and-dirty extensions).
-
-**So here comes `viren2d`**, a toolbox with only a single purpose: easily & quickly create nice-looking visualizations.
-
-**How to pronounce viren2d?**  
-**"vi-ren-2d"**, with **vi** as in *vision*, plus **ren** as in *rendering*  
-This is by the way also how you pronounce the German word *Viren* (viruses). I could have been affected by the aftermath of the pandemic when picking a name...
-
-Marginalia: Another reason to work on this library was that I wanted to brush up on my C++ knowledge, refresh my CMake foo, dive deeper into pybind11, etc.
 
 ## Installation
 ### Prerequisites

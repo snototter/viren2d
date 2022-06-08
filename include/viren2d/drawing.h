@@ -87,50 +87,6 @@ public:
   virtual ImageBuffer GetCanvas(bool copy) const = 0;
 
 
-
-//  //TODO [x] add documentation
-//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-//  //TODO [ ] add Python bindings
-//  //TODO [ ] add Python test (tests/test_xxx.py)
-//  /** @brief Changes the default line/contour style. */
-//  virtual void SetDefaultLineStyle(const LineStyle &line_style) = 0;
-
-//  //TODO [x] add documentation
-//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-//  //TODO [ ] add Python bindings
-//  //TODO [ ] add Python test (tests/test_xxx.py)
-//  /** @brief Returns this painter's default line/contour style. */
-//  virtual LineStyle GetDefaultLineStyle() const = 0;
-
-//  //TODO [x] add documentation
-//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-//  //TODO [ ] add Python bindings
-//  //TODO [ ] add Python test (tests/test_xxx.py)
-//  /** @brief Changes the default arrow style. */
-//  virtual void SetDefaultArrowStyle(const ArrowStyle &arrow_style) = 0;
-
-//  //TODO [x] add documentation
-//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-//  //TODO [ ] add Python bindings
-//  //TODO [ ] add Python test (tests/test_xxx.py)
-//  /** @brief Returns this painter's default arrow style. */
-//  virtual ArrowStyle GetDefaultArrowStyle() const = 0;
-
-//  //TODO [x] add documentation
-//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-//  //TODO [ ] add Python bindings
-//  //TODO [ ] add Python test (tests/test_xxx.py)
-//  /** @brief Changes the default text style. */
-//  virtual void SetDefaultTextStyle(const TextStyle &text_style) = 0;
-
-//  //TODO [x] add documentation
-//  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-//  //TODO [ ] add Python bindings
-//  //TODO [ ] add Python test (tests/test_xxx.py)
-//  /** @brief Returns this painter's default text style. */
-//  virtual TextStyle GetDefaultTextStyle() const = 0;
-
-
   /**
    * @brief Draws a circular arc.
    *
@@ -256,6 +212,20 @@ public:
 
 
   /**
+   * @brief Draws a polygon.
+   *
+   * @param points:  Points of the polygon.
+   * @param line_style: How to draw its contour.
+   * @param fill_color: How to fill the polygon.
+   */
+  void DrawPolygon(const std::vector<Vec2d> &points,
+                   const LineStyle &line_style = LineStyle(),
+                   const Color &fill_color = Color::Invalid) {
+    DrawPolygonImpl(points, line_style, fill_color);
+  }
+
+
+  /**
    * @brief Draws a rectangle in various different shapes.
    *
    * @param rect:   Defines the rectangle (incl. optional
@@ -352,6 +322,10 @@ protected:
   virtual void DrawLineImpl(const Vec2d &from, const Vec2d &to,
                             const LineStyle &line_style) = 0;
 
+  /** Internal helper to enable default values in public interface. */
+  virtual void DrawPolygonImpl(const std::vector<Vec2d> &points,
+                               const LineStyle &line_style,
+                               const Color &fill_color) = 0;
 
   /** Internal helper to enable default values in public interface. */
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,

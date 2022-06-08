@@ -298,6 +298,30 @@ void DemoCircles() {
 }
 
 
+void DemoPolygon() {
+  auto painter = viren2d::CreatePainter();
+  painter->SetCanvas(800, 800, viren2d::Color::White);
+
+  painter->DrawGrid({}, {}, 50, 50,
+                    viren2d::LineStyle(1.0, "gray!80"));
+
+  auto line_style = viren2d::LineStyle(3.0, "crimson");
+  painter->DrawPolygon({{10, 10}, {50, 50}, {70, 50}, {60, 60}, {20, 10}},
+                       line_style);
+
+  line_style.color = "azure";
+  painter->DrawPolygon({{100, 100}, {250, 350}, {180, 180}, {400, 200}},
+                       line_style, viren2d::Color::Same.WithAlpha(0.4));
+
+  line_style.color = "midnight-blue";
+  painter->DrawPolygon({{500, 100}, {600, 150}, {550, 300}, {500, 150}},
+                       line_style, "azure!20");
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-polygon.png");
+  painter.reset();
+}
+
+
 void DemoRects() {
   auto painter = viren2d::CreatePainter();
   painter->SetCanvas(600, 600, viren2d::Color::White);
@@ -501,7 +525,8 @@ int main(int /*argc*/, char **/*argv*/) {
 //  DemoCircles();
 //  DemoRects();
   DemoText();
-  DemoBoundingBox2D();
+//  DemoBoundingBox2D();
+  DemoPolygon();
 
   if (true)
     return 0;
