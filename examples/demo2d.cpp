@@ -346,7 +346,7 @@ void DemoRects() {
   rect.cy += 300;
   rect.rotation = 10;
   rect.radius = 0.1;
-  painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
+  painter->DrawRect(rect, style, viren2d::Color::Same.WithAlpha(0.4));// style.color.WithAlpha(0.4));
 
   rect.cx += 150;
   rect.rotation += 10;
@@ -360,10 +360,10 @@ void DemoRects() {
 
 void DemoText() {
   auto painter = viren2d::CreatePainter();
-  painter->SetCanvas(600, 600, viren2d::Color::White);
+  painter->SetCanvas(600, 550, viren2d::Color::White);
 
-  painter->DrawGrid({}, {}, 50, 50,
-                    viren2d::LineStyle(1.0, "gray!40"));
+//  painter->DrawGrid({}, {}, 50, 50,
+//                    viren2d::LineStyle(1.0, "gray!40"));
 
   const std::vector<std::string> anchors = {
     "center", "north", "north-east",
@@ -371,33 +371,27 @@ void DemoText() {
     "south-west", "west", "north-west"
   };
 
-  const std::vector<std::string> families = {"monospace", "serif", "xkcd"};
+  const std::vector<std::string> families = {"monospace", "sans-serif", "xkcd"};
 
 
   for (size_t idx_family = 0; idx_family < families.size(); ++idx_family) {
     auto text_style = viren2d::TextStyle();
     text_style.font_size = 16;
-//    text_style.use_font_height = false;
+    text_style.font_family = families[idx_family];
     text_style.line_spacing = 1.0;
     text_style.alignment = viren2d::HorizontalAlignment::Center;
 
-    std::ostringstream s;
-
-    s << "\"" << families[idx_family] << "\"";
-    viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 10.0};
-    painter->DrawTextBox({"Font:", s.str()},
-                         pos, viren2d::TextAnchor::Top,
-                         text_style, {6, 6}, 0, viren2d::LineStyle(1, "black"), "black!10");
-
-    text_style.font_size = 14;
-    text_style.font_family = families[idx_family];
-    text_style.font_color = "navy-blue";
-//    painter->SetDefaultTextStyle(text_style);
-
-//    viren2d::Vec2d padding(idx_family * 5,
-//                           (idx_family > 0) ? (idx_family - 1) * 10 : 0);
     auto padding = viren2d::Vec2d::All(idx_family * 3);
 
+    std::ostringstream s;
+    s << "Padding: " << static_cast<int>(padding.x());
+    viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 10.0};
+    painter->DrawTextBox({families[idx_family], s.str()},
+                         pos, viren2d::TextAnchor::Top,
+                         text_style, {6, 6}, 0, viren2d::LineStyle(1, "black"), "azure!40");
+
+    text_style.font_size = 14;
+    text_style.font_color = "navy-blue";
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
       std::ostringstream txt;
@@ -417,7 +411,7 @@ void DemoText() {
         painter->DrawTextBox({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
                              text_style, padding, 0.0,
                              viren2d::LineStyle::Invalid,
-                             "maroon!80",
+                             "azure!40",
                              0.25);
       } /*else if (idx_family == 2) {
         // Draw a text box with a fixed size
@@ -526,7 +520,7 @@ int main(int /*argc*/, char **/*argv*/) {
 //  DemoRects();
   DemoText();
 //  DemoBoundingBox2D();
-  DemoPolygon();
+//  DemoPolygon();
 
   if (true)
     return 0;
