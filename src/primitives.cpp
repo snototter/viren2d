@@ -602,6 +602,12 @@ Rect &Rect::operator-=(const Vec2d &offset) {
   return *this;
 }
 
+
+Vec2d Rect::Size() const {
+  return Vec2d(width, height);
+}
+
+
 double Rect::left() const {
   return cx - half_width();
 }
@@ -670,6 +676,15 @@ Rect Rect::FromLTWH(double left, double top, double width, double height,
                     double rot, double corner_radius) {
   return Rect(left + width / 2.0, top + height / 2.0,
               width, height, rot, corner_radius);
+}
+
+
+Rect Rect::FromLRTB(double left, double right, double top, double bottom,
+                    double rot, double corner_radius) {
+  const double w = right - left;
+  const double h = bottom - top;
+  return Rect(left + w / 2.0, top + h / 2.0,
+              w, h, rot, corner_radius);
 }
 
 

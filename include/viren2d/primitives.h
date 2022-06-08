@@ -471,6 +471,7 @@ struct Rect {
 
 
   //TODO doc & test & bind
+  Vec2d Size() const;
 //  Vec2d Center() const;
   double left() const;
   double right() const;
@@ -502,6 +503,9 @@ struct Rect {
   }
 
   static Rect FromLTWH(double left, double top, double width, double height,
+                       double rot = 0.0, double corner_radius = 0.0);
+
+  static Rect FromLRTB(double left, double right, double top, double bottom,
                        double rot = 0.0, double corner_radius = 0.0);
 };
 
