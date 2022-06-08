@@ -332,7 +332,8 @@ struct BoundingBox2DStyle {
   LineStyle line_style;
   TextStyle text_style;
   double alpha_box_fill;
-  double alpha_text_fill;//TODO change to color - but this requires a Color::Same/Special mechanism
+  Color text_fill_color;
+//  double alpha_text_fill;//TODO change to color - but this requires a Color::Same/Special mechanism
   BoundingBoxLabelPosition label_position;
   Vec2d label_padding;
   bool clip_label;
@@ -341,7 +342,9 @@ struct BoundingBox2DStyle {
 
   BoundingBox2DStyle(const LineStyle &contour,
                      const TextStyle &label_style,
-                     double bounding_box_alpha, double label_box_alpha,
+                     double bounding_box_alpha,
+                     const Color &label_box_color,
+                     //double label_box_alpha,
                      BoundingBoxLabelPosition label_pos,
                      const Vec2d &text_padding, bool clip_lbl);
 

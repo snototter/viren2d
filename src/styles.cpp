@@ -394,17 +394,10 @@ bool operator!=(const TextStyle &lhs, const TextStyle &rhs) {
 
 
 //-------------------------------------------------  BoundingBoxStyle
-//const BoundingBox2DStyle BoundingBox2DStyle::Default = BoundingBox2DStyle(
-//      LineStyle(4, NamedColor::Azure),
-//      TextStyle(10, "monospace", Color::Black),
-//      0.2, 0.7, HorizontalAlignment::Left,
-//      BoundingBoxLabelPosition::Top, true);
-
-
 BoundingBox2DStyle::BoundingBox2DStyle()
   : line_style(), text_style(),
-    alpha_box_fill(0.0), alpha_text_fill(0.7),
-//    text_alignment(HorizontalAlignment::Left),
+    alpha_box_fill(0.0), text_fill_color(Color::Same.WithAlpha(0.5)),
+    //alpha_text_fill(0.7),
     label_position(BoundingBoxLabelPosition::Top),
     label_padding(5, 5), clip_label(true)
 {}
@@ -413,12 +406,14 @@ BoundingBox2DStyle::BoundingBox2DStyle()
 BoundingBox2DStyle::BoundingBox2DStyle(const LineStyle &contour,
                                        const TextStyle &label_style,
                                        double bounding_box_alpha,
-                                       double label_box_alpha,
+                                       const Color &label_box_color,
                                        BoundingBoxLabelPosition label_pos,
                                        const Vec2d &text_padding,
                                        bool clip_lbl)
   : line_style(contour), text_style(label_style),
-    alpha_box_fill(bounding_box_alpha), alpha_text_fill(label_box_alpha),
+    alpha_box_fill(bounding_box_alpha),
+    text_fill_color(label_box_color),
+    //alpha_text_fill(label_box_color),
 //    text_alignment(label_alignment),
     label_position(label_pos),
     label_padding(text_padding), clip_label(clip_lbl)
@@ -428,8 +423,8 @@ BoundingBox2DStyle::BoundingBox2DStyle(const LineStyle &contour,
 bool BoundingBox2DStyle::IsValid() const {
   return line_style.IsValid()
       && text_style.IsValid()
-      && (alpha_box_fill >= 0.0) && (alpha_box_fill <= 1.0)
-      && (alpha_text_fill >= 0.0) && (alpha_text_fill <= 1.0);
+      && (alpha_box_fill >= 0.0) && (alpha_box_fill <= 1.0);
+//      && (alpha_text_fill >= 0.0) && (alpha_text_fill <= 1.0);
 }
 
 
@@ -443,10 +438,12 @@ Color BoundingBox2DStyle::BoxFillColor() const {
 
 
 Color BoundingBox2DStyle::TextFillColor() const {
-  if (alpha_text_fill > 0.0) {
-    return line_style.color.WithAlpha(alpha_text_fill);
+  if (text_fill_color.IsSpecialSame()) {
+    return line_style.color.WithAlpha(text_fill_color.alpha);
   } else {
-    return Color::Invalid;
+    // Otherwise, it's either a valid, user-selected color or
+    // invalid (and we won't draw it).
+    return text_fill_color;
   }
 }
 
@@ -455,7 +452,8 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
   return (line_style == other.line_style)
       && (text_style == other.text_style)
       && wgu::eps_equal(alpha_box_fill, other.alpha_box_fill)
-      && wgu::eps_equal(alpha_text_fill, other.alpha_text_fill)
+      && (text_fill_color == other.text_fill_color)
+//      && wgu::eps_equal(alpha_text_fill, other.alpha_text_fill)
       && (label_position == other.label_position)
       && (clip_label == other.clip_label);
 }
@@ -466,7 +464,7 @@ std::string BoundingBox2DStyle::ToString() const {
   s << "BoundingBox2DStyle("
     << line_style << ", " << text_style
     << "a_box=" << alpha_box_fill
-    << ", a_text=" << alpha_text_fill
+    << ", text fill="
     << ", label: " << label_position;
 
   if (clip_label) {

@@ -67,6 +67,7 @@ enum class NamedColor : unsigned short {
   Turquoise,
   Yellow,
 
+  Same,   ///< "Same" must be the second-to-last element.
   Invalid ///< "Invalid" must be the last element.
 };
 
@@ -151,7 +152,9 @@ class Color {
   static const Color Magenta;
   static const Color Yellow;
 
-  // Also for convenience keep an "invalid" color
+  // Also for convenience keep the special "same"
+  // and "invalid" colors.
+  static const Color Same;
   static const Color Invalid;
 
 
@@ -275,6 +278,7 @@ class Color {
 
   //TODO doc test bind
   bool IsSpecialInvalid() const;
+  bool IsSpecialSame() const;
   //TODO maybe add isspecialsame
   //TODO double-check if we really need the isspecialinvalid logic
 

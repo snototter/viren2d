@@ -40,8 +40,10 @@ std::vector<std::string> ListNamedColors() {
     NamedColor::Black, NamedColor::Invalid> NamedColorIterator;
 
   for (NamedColor cn: NamedColorIterator()) {
-    if (cn != NamedColor::Invalid)
+    if ((cn != NamedColor::Invalid)
+        && (cn != NamedColor::Same)) {
       lst.push_back(NamedColorToString(cn));
+    }
   }
   return lst;
 }
@@ -138,6 +140,8 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Turquoise;
   } else if (cname.compare("yellow") == 0) {
     return NamedColor::Yellow;
+  } else if (cname.compare("same") == 0) {
+    return NamedColor::Same;
   } else if (cname.compare("invalid") == 0) {
     return NamedColor::Invalid;
   }
@@ -191,6 +195,7 @@ std::string NamedColorToString(const NamedColor &color) {
     case NamedColor::Turquoise: return "turquoise";
     case NamedColor::Yellow: return "yellow";
 
+    case NamedColor::Same: return "same";
     case NamedColor::Invalid: return "invalid";
 
     default: {
@@ -216,6 +221,7 @@ const Color Color::Blue    = Color(NamedColor::Blue);
 const Color Color::Cyan    = Color(NamedColor::Cyan);
 const Color Color::Magenta = Color(NamedColor::Magenta);
 const Color Color::Yellow  = Color(NamedColor::Yellow);
+const Color Color::Same =    Color(NamedColor::Same);
 const Color Color::Invalid = Color(NamedColor::Invalid);
 
 
@@ -351,6 +357,10 @@ Color::Color(const NamedColor color, double alpha) {
     case NamedColor::Yellow:
       red = green = 1.0; blue = 0.0; break;
 
+    case NamedColor::Same:
+      red = green = blue = -0.5;
+      break;
+
     case NamedColor::Invalid:
       red = green = blue = -1.0;
       this->alpha = -1.0;  // For the special "invalid" color, we also set alpha
@@ -446,12 +456,14 @@ Color Color::Inverse() const {
 
   if (IsValid()) {
     if (IsShadeOfGray()) {
-      if (red < 0.5)
+      if (red < 0.5) {
         return Color::White.WithAlpha(alpha);
-      else
+      } else {
         return Color::Black.WithAlpha(alpha);
+      }
     } else {
-      return Color(1.0 - red, 1.0 - green, 1.0 - blue, alpha);
+      return Color(1.0 - red, 1.0 - green,
+                   1.0 - blue, alpha);
     }
   } else {
     return *this;
@@ -485,6 +497,14 @@ bool Color::IsSpecialInvalid() const {
 }
 
 
+bool Color::IsSpecialSame() const {
+  // Check color components but not alpha.
+  return wgu::eps_equal(red, Same.red)
+      && wgu::eps_equal(green, Same.green)
+      && wgu::eps_equal(blue, Same.blue);
+}
+
+
 bool Color::IsShadeOfGray(double epsilon) const {
   // No need to check red vs blue thanks to transitivity
   if ((red < (green - epsilon)) || (red > (green + epsilon))
@@ -507,10 +527,16 @@ std::string Color::ToString() const {
   std::ostringstream s;
   s << "Color";
 
-  if (!IsValid()) { // || IsSpecialInvalid()) {
-    s << "::Invalid";
+  if (IsSpecialSame()) {
+    s << "::Same(a=" << std::fixed
+      << std::setprecision(2) << alpha
+      << ")";
   } else {
-    s << "(" << ToHexString() << ")";
+    if (!IsValid()) {
+      s << "::Invalid";
+    } else {
+      s << "(" << ToHexString() << ")";
+    }
   }
   return s.str();
 
@@ -590,8 +616,12 @@ std::string Color::ToHexString() const {
 
 
 Color Color::WithAlpha(double alpha) const {
-  return Color(this->red, this->green,
-               this->blue, alpha);
+  // Explicitly use the copy c'tor, because we
+  // want to avoid the saturation cast of the
+  // default c'tor:
+  Color copy(*this);
+  copy.alpha = alpha;
+  return copy;
 }
 
 
