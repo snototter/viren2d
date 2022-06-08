@@ -185,7 +185,6 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
 
   // Optionally, fill the text box
   if (style.TextFillColor().IsValid()) {
-    SPDLOG_CRITICAL("FIXME text fill: {:s} --> {:s}", style.text_fill_color, style.TextFillColor());
     cairo_clip(context);
     ApplyColor(context, style.TextFillColor());
     cairo_rectangle(context, label_box.left(), label_box.top(),
