@@ -13,11 +13,16 @@ def demo_ninja():
 
     # Arrow
     arrow_style = viren2d.ArrowStyle(line_width=3, color='crimson', tip_length=0.3)
-    painter.draw_arrow((210, 20), (240, 50), arrow_style)
+    painter.draw_arrow((210, 30), (240, 50), arrow_style)
     text_style = viren2d.TextStyle()
-    text_style.alignment = viren2d.HorizontalAlignment.Right
-    test_style.font_family = 'xkcd'
-    painter.draw_text(['Mildly', 'infuriated'], position=(210, 20), anchor=viren2d.TextAnchor.Right, text_style=text_style, padding=(5, 5))
+    text_style.alignment = viren2d.HorizontalAlignment.Center
+    text_style.font_family = 'xkcd'
+    text_style.line_spacing = 1.0
+    text_style.bold = True
+    text_style.color = "crimson"
+    
+    painter.draw_textbox(['Mildly', 'infuriated'], position=(210, 30), anchor=viren2d.TextAnchor.Right, text_style=text_style, padding=(5, 5), fill_color="white!80",
+                         line_style=line_style)
     
     # Tabi #TODO draw a bounding box instead
     rect_tabi = viren2d.Rect(center=(252, 148), size=(60, 30), rotation=15, radius=0.25)

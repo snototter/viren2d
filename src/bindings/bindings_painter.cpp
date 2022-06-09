@@ -116,6 +116,18 @@ public:
                        text_style, padding, rotation);
   }
 
+  void DrawTextBox(const std::vector<std::string> &text,
+                   const Vec2d &anchor_position, TextAnchor anchor,
+                   const TextStyle &text_style, const Vec2d &padding,
+                   double rotation, const LineStyle &box_line_style,
+                   const Color &box_fill_color, double box_corner_radius,
+                   const Vec2d &fixed_box_size) {
+    painter_->DrawTextBox(text, anchor_position, anchor, text_style,
+                          padding, rotation, box_line_style, box_fill_color,
+                          box_corner_radius, fixed_box_size);
+  }
+
+
 private:
   std::unique_ptr<Painter> painter_;
 };
@@ -341,6 +353,21 @@ void RegisterPainter(py::module &m) {
               py::arg("text_style") = TextStyle(),
               py::arg("padding") = Vec2d(0.0, 0.0),
               py::arg("rotation") = 0.0);
+
+
+
+        //----------------------------------------------------------------------
+  doc = "TODO doc";
+  painter.def("draw_textbox", &PainterWrapper::DrawTextBox, doc.c_str(),
+              py::arg("text"), py::arg("position"),
+              py::arg("anchor") = TextAnchor::BottomLeft,
+              py::arg("text_style") = TextStyle(),
+              py::arg("padding") = Vec2d::All(6.0),
+              py::arg("rotation") = 0.0,
+              py::arg("line_style") = LineStyle::Invalid,
+              py::arg("fill_color") = Color::White.WithAlpha(0.6),
+              py::arg("radius") = 0.2,
+              py::arg("fixed_size") = Vec2d::All(-1.0));
 
 
   //TODO(snototter) add draw_xxx methods
