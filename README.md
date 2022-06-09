@@ -1,4 +1,7 @@
 # Computer Vision Results, but Nice-Looking
+[![RTD Status](https://readthedocs.org/projects/viren2d/badge/?version=latest&style=flat)](https://viren2d.readthedocs.io)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/snototter/viren2d/blob/main/LICENSE?raw=true)
+
 This is a [Cairo-based](https://www.cairographics.org/) visualization toolbox for common 2D computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
 
 ## Roadmap
