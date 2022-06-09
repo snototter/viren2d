@@ -108,6 +108,14 @@ public:
     painter_->DrawRect(rect, line_style, fill_color);
   }
 
+  void DrawText(const std::vector<std::string> &text,
+                const Vec2d &anchor_position, TextAnchor anchor,
+                const TextStyle &text_style, const Vec2d &padding,
+                double rotation) {
+    painter_->DrawText(text, anchor_position, anchor,
+                       text_style, padding, rotation);
+  }
+
 private:
   std::unique_ptr<Painter> painter_;
 };
@@ -317,6 +325,22 @@ void RegisterPainter(py::module &m) {
               py::arg("rect"),
               py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
+        //----------------------------------------------------------------------
+  doc = "Places the given text on the canvas.\n\n"
+        "Args:\n"
+        "  text: A list of strings to be drawn.\n"
+        "  position: Position of the reference point as :class:`"
+      + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  anchor: How to orient the text w.r.t. the reference point.\n"
+        "    See :class:`" + FullyQualifiedType("TextAnchor")
+      + "` and :func:`" + FullyQualifiedType("text_anchor") + "`.\n"
+                                                              "TODO finish doc.";
+  painter.def("draw_text", &PainterWrapper::DrawText, doc.c_str(),
+              py::arg("text"), py::arg("position"),
+              py::arg("anchor") = TextAnchor::BottomLeft,
+              py::arg("text_style") = TextStyle(),
+              py::arg("padding") = Vec2d(0.0, 0.0),
+              py::arg("rotation") = 0.0);
 
 
   //TODO(snototter) add draw_xxx methods

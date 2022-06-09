@@ -9,6 +9,13 @@
 #include <viren2d/colors.h>
 #include <viren2d/styles.h>
 
+//TODO trajectory
+// linear pattern https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-linear
+// idea: compute trajectory length
+//       for each segment, create the corresponding linear pattern (linpat needs start/end point)
+//       color progression depends on distance "travelled"
+//       to check: memory clean up
+
 
 namespace viren2d {
 

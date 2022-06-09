@@ -117,8 +117,8 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
     return;
   }
   cairo_select_font_face(context, text_style.font_family.c_str(),
-                         (text_style.font_italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
-                         (text_style.font_bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));
+                         (text_style.italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
+                         (text_style.bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));
   // For image painting, the device to user
   // scaling factor should always be 1.
   // Nevertheless, check if we need to adjust
@@ -131,7 +131,7 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
   cairo_set_font_size(context, static_cast<double>(text_style.font_size) * px);
 
   if (apply_color) {
-    ApplyColor(context, text_style.font_color);
+    ApplyColor(context, text_style.color);
   }
 }
 

@@ -12,10 +12,10 @@ namespace viren2d {
 namespace bindings {
 //-------------------------------------------------  TextStyle
 py::tuple TextStyleToTuple(const TextStyle &obj) {
-  // FIXME(snototter) update once we text style properties are decided
   return py::make_tuple(obj.font_size, obj.font_family,
-                        ColorToTuple(obj.font_color),
-                        obj.font_bold, obj.font_italic);
+                        ColorToTuple(obj.color),
+                        obj.bold, obj.italic,
+                        obj.line_spacing, obj.alignment);
 }
 
 
@@ -27,7 +27,7 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
     return TextStyle();
   }
 
-  if (tpl.size() > 5) {
+  if (tpl.size() > 7) {
     std::ostringstream s;
     s << "Cannot create " << FullyQualifiedType("TextStyle")
       << " from tuple with "
@@ -43,15 +43,23 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
   }
 
   if (tpl.size() > 2) {
-    style.font_color = ColorFromTuple(tpl[2]);
+    style.color = ColorFromTuple(tpl[2]);
   }
 
   if (tpl.size() > 3) {
-    style.font_bold = tpl[3].cast<bool>();
+    style.bold = tpl[3].cast<bool>();
   }
 
   if (tpl.size() > 4) {
-    style.font_italic = tpl[4].cast<bool>();
+    style.italic = tpl[4].cast<bool>();
+  }
+
+  if (tpl.size() > 5) {
+    style.line_spacing = tpl[5].cast<double>();
+  }
+
+  if (tpl.size() > 6) {
+    style.alignment = tpl[6].cast<HorizontalAlignment>();
   }
 
   return style;
@@ -60,9 +68,9 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
 void RegisterAnchors(py::module &m) {
   py::enum_<HorizontalAlignment>(m, "HorizontalAlignment",
              "Specifies horizontal alignment.")
-      .value("Left", HorizontalAlignment::Left)
-      .value("Center", HorizontalAlignment::Center)
-      .value("Right", HorizontalAlignment::Right);
+      .value("Left", HorizontalAlignment::Left, "Horizontally left-aligned.")
+      .value("Center", HorizontalAlignment::Center, "Horizontally centered.")
+      .value("Right", HorizontalAlignment::Right, "Horizontally right-aligned.");
 
   std::string doc = "Parses a string into a :class:`"
       + FullyQualifiedType("HorizontalAlignment") + "`.";
@@ -74,9 +82,9 @@ void RegisterAnchors(py::module &m) {
 
   py::enum_<VerticalAlignment>(m, "VerticalAlignment",
              "Specifies vertical alignment.")
-      .value("Top", VerticalAlignment::Top)
-      .value("Center", VerticalAlignment::Center)
-      .value("Bottom", VerticalAlignment::Bottom);
+      .value("Top", VerticalAlignment::Top, "Vertically top-aligned.")
+      .value("Center", VerticalAlignment::Center, "Vertically centered.")
+      .value("Bottom", VerticalAlignment::Bottom, "Vertically bottom-aligned.");
 
   doc = "Parses a string into a :class:`"
         + FullyQualifiedType("VerticalAlignment") + "`.";
@@ -88,13 +96,13 @@ void RegisterAnchors(py::module &m) {
   py::enum_<TextAnchor>(m, "TextAnchor",
              "TODO doc")
       .value("Center", TextAnchor::Center,
-             "Aligns text BOTH horizontally & vertically CENTERED.")
+             "Aligns text **both** horizontally & vertically **centered**.")
       .value("Left", TextAnchor::Left,
-             "Aligns text horizontally LEFT & vertically CENTERED.")
+             "Aligns text **horizontally left** & **vertically centered**.")
       .value("Right", TextAnchor::Right,
-             "Aligns text horizontally RIGHT & vertically CENTERED.")
+             "Aligns text **horizontally right** & **vertically centered**.")
       .value("Top", TextAnchor::Top,
-             "Aligns text horizontally CENTERED & vertically TOP-ALIGNED.")
+             "Aligns text horizontally CENTERED & vertically TOP-ALIGNED.") //TODO formatting
       .value("Bottom", TextAnchor::Bottom,
              "Aligns text horizontally CENTERED & vertically BOTTOM-ALIGNED.")
       .value("TopLeft", TextAnchor::TopLeft,
@@ -156,7 +164,7 @@ void RegisterTextStyle(py::module &m) {
          ":dash_pattern:  list[float]\n"
          ":line_cap:      " + FullyQualifiedType("LineCap") + "\n"
          ":line_join:     " + FullyQualifiedType("LineJoin");
-//  text_style.def(py::init<>(&moddef::LineStyleFromTuple), doc.c_str());
+  text_style.def(py::init<>(&TextStyleFromTuple), "TODO doc");
 
   //FIXME
   doc = "Customize your text style:\n"
@@ -165,6 +173,17 @@ void RegisterTextStyle(py::module &m) {
         ":dash_pattern:  list[float]\n"
         ":line_cap:      " + FullyQualifiedType("LineCap") + "\n"
         ":line_join:     " + FullyQualifiedType("LineJoin");
+  text_style.def(py::init<unsigned int, const std::string &,
+                          const Color &, bool, bool, double,
+                          HorizontalAlignment>(),
+                 "TODO doc",
+                 py::arg("font_size"),
+                 py::arg("font_family"),
+                 py::arg("color") = Color::Black,
+                 py::arg("bold") = false,
+                 py::arg("italic") = false,
+                 py::arg("line_spacing") = 1.2,
+                 py::arg("alignment") = HorizontalAlignment::Left);
 //  line_style.def(py::init<double, Color, std::vector<double>,
 //                          LineCap, LineJoin>(),
 //           doc.c_str(),
@@ -174,10 +193,7 @@ void RegisterTextStyle(py::module &m) {
 //           py::arg("line_cap") = LineCap::Butt,
 //           py::arg("line_join") = LineJoin::Miter);
 
-  text_style.def(py::init<>(), "Creates a default, library-wide preset text style.\n"
-           "Note that this default style is NOT the same as the\n"
-           "one you can set per painter. For that style,\n"
-           "see `Painter.set_default_text_style()`.")
+  text_style.def(py::init<>(), "Creates a default, library-wide preset text style.")
       .def("copy", [](const TextStyle &st) { return TextStyle(st); },
            "Returns a deep copy.")
       .def("__repr__",
@@ -191,14 +207,23 @@ void RegisterTextStyle(py::module &m) {
       .def("is_valid", &TextStyle::IsValid,
            "Check if the style allows rendering text.")
       .def_readwrite("font_size", &TextStyle::font_size,
-           "TODO doc.")
+           "Font size in pixels.")
       .def_readwrite("font_family", &TextStyle::font_family,
-           "TODO doc");
+           "Font family TODO see cairo doc: https://www.cairographics.org/manual/cairo-text.html#cairo-select-font-face")
+      .def_readwrite("bold", &TextStyle::bold,
+                     "TODO")
+      .def_readwrite("italic", &TextStyle::italic,
+                     "TODO")
+      .def_readwrite("line_spacing", &TextStyle::line_spacing,
+                     "TODO");
 
-  //TODO add other fields
-  doc = "Text color as " + FullyQualifiedType("Color") + ".";
-  text_style.def_readwrite("font_color", &TextStyle::font_color,
-           doc.c_str());
+  doc = "Text color as :class:`" + FullyQualifiedType("Color") + "`.";
+  text_style.def_readwrite("color", &TextStyle::color,
+                           doc.c_str());
+
+  doc = "Text alignment as :class:`" + FullyQualifiedType("HorizontalAlignment") + "`.";
+  text_style.def_readwrite("alignment", &TextStyle::alignment,
+                           doc.c_str());
 
   // A TextStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, TextStyle>();

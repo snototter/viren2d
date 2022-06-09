@@ -263,7 +263,7 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // Now that the optional text box has been drawn, we
   // have to make sure that we plot the text in the
   // correct color.
-  ApplyColor(context, text_style.font_color);
+  ApplyColor(context, text_style.color);
   mlt.PlaceText(context);
 
   // Pop the original context.

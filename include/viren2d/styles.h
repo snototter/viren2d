@@ -263,9 +263,9 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);
 struct TextStyle {
   int font_size;
   std::string font_family;
-  Color font_color;
-  bool font_bold;
-  bool font_italic;
+  Color color;
+  bool bold;
+  bool italic;
   double line_spacing;
   HorizontalAlignment alignment;
 
@@ -275,8 +275,8 @@ struct TextStyle {
 
   TextStyle(unsigned int size,
             const std::string &family,
-            const Color &color = Color::Black,
-            bool bold = false, bool italic = false,
+            const Color &font_color = Color::Black,
+            bool font_bold = false, bool font_italic = false,
             double spacing = 1.2,
             HorizontalAlignment align = HorizontalAlignment::Left);
 

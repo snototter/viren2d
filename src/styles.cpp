@@ -293,9 +293,9 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 TextStyle::TextStyle()
   : font_size(16),
     font_family("monospace"),
-    font_color(Color::Black),
-    font_bold(false),
-    font_italic(false),
+    color(Color::Black),
+    bold(false),
+    italic(false),
     line_spacing(1.2),
     alignment(HorizontalAlignment::Left)
 {}
@@ -303,13 +303,13 @@ TextStyle::TextStyle()
 
 TextStyle::TextStyle(unsigned int size,
                      const std::string &family,
-                     const Color &color,
-                     bool bold, bool italic,
+                     const Color &font_color,
+                     bool font_bold, bool font_italic,
                      double spacing,
                      HorizontalAlignment align)
   : font_size(size), font_family(family),
-    font_color(color), font_bold(bold),
-    font_italic(italic),
+    color(font_color), bold(font_bold),
+    italic(font_italic),
     line_spacing(spacing),
     alignment(align)
 {}
@@ -318,7 +318,7 @@ TextStyle::TextStyle(unsigned int size,
 bool TextStyle::IsValid() const {
   return !(font_family.empty())
       && (font_size > 0)
-      && font_color.IsValid();
+      && color.IsValid();
 }
 
 
@@ -331,9 +331,9 @@ bool TextStyle::IsValid() const {
 bool TextStyle::Equals(const TextStyle &other) const {
   return (font_size == other.font_size)
       && (font_family.compare(other.font_family) == 0)
-      && (font_color == other.font_color)
-      && (font_bold == other.font_bold)
-      && (font_italic == other.font_italic); //TODO check line_spacing
+      && (color == other.color)
+      && (bold == other.bold)
+      && (italic == other.italic); //TODO check line_spacing
 }
 
 
@@ -346,17 +346,17 @@ std::string TextStyle::ToString() const {
   s << "TextStyle(\"" << font_family << "\", "
     << font_size << "px";
 
-  if (font_bold) {
+  if (bold) {
     s << ", bold";
   }
 
-  if (font_italic) {
+  if (italic) {
     s << ", italic";
   }
 
   s << ", ls=" << std::setprecision(2) << line_spacing
     << ", " << alignment
-    << ", " << font_color;
+    << ", " << color;
 
   if (!IsValid()) {
     s << ", invalid";

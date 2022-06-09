@@ -360,7 +360,19 @@ void RegisterRectangle(py::module &m) {
            "of min(w, h) if radius in (0, 0.5].\n"
            "Values within (0.5, 1) lead to invalid rectangles.")
       .def("is_valid", &Rect::IsValid,
-           "Returns True if both width & height are > 0.");
+           "Returns True if both width & height are > 0.")
+      .def_static("from_ltwh", &Rect::FromLTWH,
+           "Initializes a rectangle from the LTWH representation, *i.e.*\n"
+           "``left``, ``top``, ``width`` and ``height``.",
+           py::arg("left"), py::arg("top"),
+           py::arg("width"), py::arg("height"),
+           py::arg("rotation") = 0.0, py::arg("radius") = 0.0)
+      .def_static("from_lrtb", &Rect::FromLRTB,
+           "Initializes a rectangle from the LRTB representation, *i.e.*\n"
+           "``left``, ``right``, ``top`` and ``bottom``.",
+           py::arg("left"), py::arg("right"),
+           py::arg("top"), py::arg("bottom"),
+           py::arg("rotation") = 0.0, py::arg("radius") = 0.0);
 
   // A Rect can be initialized from a given tuple/list.
   py::implicitly_convertible<py::tuple, Rect>();

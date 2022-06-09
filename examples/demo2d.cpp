@@ -111,7 +111,7 @@ void DemoColors() {
   for (const auto &color_name : viren2d::ListNamedColors()) {
     auto color = viren2d::Color(color_name);
 
-    text_style.font_color = color.Grayscale().Inverse();
+    text_style.color = color.Grayscale().Inverse();
     painter->DrawTextBox({color_name}, {x, y},
                          viren2d::TextAnchor::Top,
                          text_style, {6, 6}, 0,
@@ -391,7 +391,7 @@ void DemoText() {
                          text_style, {6, 6}, 0, viren2d::LineStyle(1, "black"), "azure!40");
 
     text_style.font_size = 14;
-    text_style.font_color = "navy-blue";
+    text_style.color = "navy-blue";
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
       std::ostringstream txt;
