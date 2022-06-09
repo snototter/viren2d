@@ -125,17 +125,13 @@ void RegisterAnchors(py::module &m) {
       .value("Bottom", BoundingBoxLabelPosition::Bottom,
              "At the bottom of the bounding box.")
       .value("Left", BoundingBoxLabelPosition::Left,
-             "Along the left edge of the bounding box, from\n"
-             "bottom to top.")
+             "Along the left edge of the bounding box, from bottom to top.")
       .value("LeftT2B", BoundingBoxLabelPosition::LeftT2B,
-             "Along the left edge of the bounding box, from\n"
-             "top to bottom.")
+             "Along the left edge of the bounding box, from top to bottom.")
       .value("Right", BoundingBoxLabelPosition::Right,
-             "Along the right edge of the bounding box, from\n"
-             "top to bottom.")
+             "Along the right edge of the bounding box, from top to bottom.")
       .value("RightB2T", BoundingBoxLabelPosition::RightB2T,
-             "Along the right edge of the bounding box, from\n"
-             "bottom to top.");
+             "Along the right edge of the bounding box, from bottom to top.");
 
   m.def("label_position",
         static_cast<BoundingBoxLabelPosition (*)(const std::string &)>(&BoundingBoxLabelPositionFromString),
