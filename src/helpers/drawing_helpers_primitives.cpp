@@ -149,8 +149,8 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
   to += 0.5;
 
 
-  // Adjust endpoints s.t. the "pointy ends" point exactly to
-  // the given endpoints. My implementation ensures that for
+  // Adjust endpoints s.t. the "pointy end" points exactly to
+  // the given endpoint. My implementation ensures that for
   // any ArrowStyle, the "pointy end" will always be rendered
   // as a line joint.
   const double tip_offset = arrow_style.TipOffset(cairo_get_miter_limit(context));

@@ -525,17 +525,16 @@ std::string Color::ToString() const {
   // all special members are invalid colors!
 
   std::ostringstream s;
-  s << "Color";
 
   if (IsSpecialSame()) {
-    s << "::Same(a=" << std::fixed
+    s << "Color::Same(a=" << std::fixed
       << std::setprecision(2) << alpha
       << ")";
   } else {
     if (!IsValid()) {
-      s << "::Invalid";
+      s << "Color::Invalid";
     } else {
-      s << "(" << ToHexString() << ")";
+      s << ToHexString();
     }
   }
   return s.str();

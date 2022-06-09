@@ -279,11 +279,22 @@ if(viren2d_WITH_PYTHON)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/pybind11)
 
     pybind11_add_module(${TARGET_PYTHON_LIB}
+        src/bindings/binding_helpers.h
+        src/bindings/bindings_common.cpp
+        src/bindings/bindings_imagebuffer.cpp
+        src/bindings/bindings_primitives.cpp
+        src/bindings/bindings_styles.cpp
+        src/bindings/bindings_text.cpp
+        src/bindings/bindings_painter.cpp
+        src/bindings/bindings_vector.cpp
         src/bindings.cpp)
 
     target_compile_definitions(${TARGET_PYTHON_LIB} PRIVATE
         viren2d_VERSION_INFO=${viren2d_VERSION}
         viren2d_PYMODULE_NAME=${PROJECT_NAME})
+
+    target_include_directories(${TARGET_PYTHON_LIB} PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
     set_target_properties(${TARGET_PYTHON_LIB} PROPERTIES
         OUTPUT_NAME ${PROJECT_NAME})

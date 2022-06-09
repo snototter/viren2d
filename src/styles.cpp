@@ -143,10 +143,10 @@ std::string LineStyle::ToString() const {
   if (IsSpecialInvalid()) {
     return "LineStyle::Invalid";
   }
-
+//TODO check if shortened tostring (color and linestyle) makes more sense; then apply for all classes
   std::ostringstream s;
-  s << "LineStyle(lw=" << std::fixed << std::setprecision(1)
-    << line_width << ", " << color.ToString() << ", "
+  s << "LineStyle(" << std::fixed << std::setprecision(1)
+    << line_width << "px, " << color.ToString() << ", "
     << (dash_pattern.empty() ? "solid" : "dashed");
   if (!IsValid())
     s << ", invalid";
@@ -220,24 +220,7 @@ bool ArrowStyle::IsValid() const {
 }
 
 
-//bool ArrowStyle::IsSpecialInvalid() const {
-//  return *this == ArrowStyle::Invalid;
-//}
-
-
-//bool ArrowStyle::IsSpecialDefault() const {
-//  return *this == ArrowStyle::Default;
-//}
-
 std::string ArrowStyle::ToString() const {
-//  if (IsSpecialInvalid()) {
-//    return "ArrowStyle::Invalid";
-//  }
-
-//  if (IsSpecialDefault()) {
-//    return "ArrowStyle::Default";
-//  }
-
   std::ostringstream s;
   s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
     << line_width << ", tl=" << tip_length
@@ -462,7 +445,7 @@ std::string BoundingBox2DStyle::ToString() const {
     << line_style << ", " << text_style
     << ", box fill=" << box_fill_color
     << ", text fill=" << text_fill_color
-    << ", label: " << label_position;
+    << ", label at " << label_position;
 
   if (clip_label) {
     s << ", clipped";
