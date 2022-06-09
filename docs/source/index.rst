@@ -13,6 +13,15 @@
    didn't warn you! Until then, the API may (and will) change anytime,
    most features are still not properly tested, python bindings are
    incomplete, *etc.*
+   
+.. role::  raw-html(raw)
+    :format: html
+
+
+.. |checked| replace:: :raw-html:`&#x2611;`
+
+
+.. |unchecked|  replace:: :raw-html:`&#x2610;`
 
 
 Visualize Common Computer Vision Results in 2D
@@ -43,6 +52,29 @@ Visualize Common Computer Vision Results in 2D
    * Look up the :ref:`installation instructions<installation>`
    * Browse the :ref:`quickstart tutorial<quickstart>`
    * Check the :ref:`API documentation<api-documentation>`
+   
+
+**Which features are available?**
+   Already implemented features are marked by |checked|
+   
+   * |checked| Arcs
+   * |checked| Arrows
+   * |checked| Circles
+   * |checked| Ellipses
+   * |checked| Lines
+   * |unchecked| Markers
+   * |checked| Object detection results: 2D bounding boxes
+   * |unchecked| Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
+   * |checked| Polygons
+   * |checked| Rectangles
+   * |checked| Text (single-/multi-line)
+   * |checked| Text boxes (single-/multi-line)
+   * |unchecked| Trajectories
+   * |unchecked| Pose estimation results - low priority feature
+   * |unchecked| Image overlay - low priority feature
+   * |unchecked| Pseudocoloring - low priority feature
+   * |unchecked| Camera calibration-related: Ground plane, horizon, axes - low priority features
+
 
 .. toctree::
    :maxdepth: 2
@@ -51,12 +83,4 @@ Visualize Common Computer Vision Results in 2D
    installation
    quickstart
    api-documentation
-
-
-.. role::  raw-html(raw)
-    :format: html
-
-:raw-html:`&#x2611;`
-
-:raw-html:`&#x2610;`
 

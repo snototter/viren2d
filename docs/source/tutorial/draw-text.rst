@@ -19,3 +19,9 @@ TODO
    painter->DrawCircle(...);
 
 
+.. figure:: images/demo-boxes.png
+   :width: 750
+   :alt: TODO
+   :align: center
+
+   TODO boxes + text
