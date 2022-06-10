@@ -32,12 +32,13 @@ def demo_ninja():
     line_style.line_width = 4
     line_style.line_cap = viren2d.LineCap.Round
     line_style.color = 'navy-blue'
-    painter.draw_trajectory(traj_sword, line_style, "white!50")
+    painter.draw_trajectory(traj_sword, line_style, "white!100")
 
 
     # Arrow
     arrow_style = viren2d.ArrowStyle(line_width=3, color='crimson', tip_length=0.3)
     painter.draw_arrow((210, 30), (240, 50), arrow_style)
+
     text_style = viren2d.TextStyle()
     text_style.alignment = viren2d.HorizontalAlignment.Center
     text_style.font_family = 'xkcd'
@@ -45,7 +46,8 @@ def demo_ninja():
     text_style.bold = True
     text_style.color = "crimson"
     
-    painter.draw_textbox(['Mildly', 'infuriated'], position=(210, 30), anchor=viren2d.TextAnchor.Right, text_style=text_style, padding=(5, 5), fill_color="white!80",
+    line_style.line_width = 2
+    painter.draw_textbox(['Mildly', 'infuriated'], position=(210, 30), anchor=viren2d.TextAnchor.Right, text_style=text_style, padding=(5, 5), fill_color="white!60",
                          line_style=line_style)
 
     

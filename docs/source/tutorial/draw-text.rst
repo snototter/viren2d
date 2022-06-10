@@ -19,8 +19,8 @@ TODO
    painter->DrawCircle(...);
 
 
-.. figure:: images/demo-boxes.png
-   :width: 750
+.. figure:: images/demo-ninja.png
+   :width: 341
    :alt: TODO
    :align: center
 
