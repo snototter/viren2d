@@ -276,14 +276,14 @@ void RegisterPainter(py::module &m) {
               py::arg("arrow_style") = ArrowStyle());
 
 
-  //----------------------------------------------------------------------
+  //----------------------------------------------------------------------TODO doc
   doc = "TODO doc";
   painter.def("draw_bounding_box_2d", &PainterWrapper::DrawBoundingBox2D,
               doc.c_str(), py::arg("rect"), py::arg("label"),
               py::arg("style") = BoundingBox2DStyle());
   // Create an alias
   painter.def("draw_bbox2d", &PainterWrapper::DrawBoundingBox2D,
-              doc.c_str(), py::arg("rect"), py::arg("label"),
+              "Alias for :meth:`draw_bounding_box_2d`.", py::arg("rect"), py::arg("label"),
               py::arg("style") = BoundingBox2DStyle());
 
 
@@ -300,30 +300,28 @@ void RegisterPainter(py::module &m) {
         "  fill_color: If you provide a valid :class:`" + FullyQualifiedType("Color") + "`,\n"
         "    the circle will be filled.";
   painter.def("draw_circle", &PainterWrapper::DrawCircle, doc.c_str(),
-              py::arg("center"), py::arg("radius"),
-              py::arg("line_style") = LineStyle(),
-              py::arg("fill_color") = Color::Invalid);
+        py::arg("center"), py::arg("radius"),
+        py::arg("line_style") = LineStyle(),
+        py::arg("fill_color") = Color::Invalid);
 
 
   //----------------------------------------------------------------------
   doc = "Draws an ellipse.\n\n"
-    ":ellipse:  (" + FullyQualifiedType("Ellipse") + ")\n"
-    "    The ellipse which should be drawn.\n\n"
-    ":line_style:  (" + FullyQualifiedType("LineStyle") + ")\n"
-    "    How to draw the ellipse's outline.\n"
-    "    If you pass " + FullyQualifiedType("LineStyle.Default") + ", the\n"
-    "    painter's default line style will be used.\n"
-    "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
-    "    contour will not be drawn (then you must define a 'fill_color').\n\n"
-    ":fill_color:  (" + FullyQualifiedType("Color") + ")\n"
-    "   Provide a valid color to fill the ellipse.";
+        "Args:\n"
+        "  ellipse: The :class:`" + FullyQualifiedType("Ellipse") + "` to be drawn.\n"
+        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "` specifying how\n"
+        "    to draw the ellipse's outline.\n"
+        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
+        "    contour will not be drawn (then you must define a ``fill_color``).\n"
+        "  fill_color: If you provide a valid :class:`" + FullyQualifiedType("Color") + "`,\n"
+        "    the ellipse will be filled.";
   painter.def("draw_ellipse", &PainterWrapper::DrawEllipse, doc.c_str(),
-          py::arg("ellipse"),
-          py::arg("line_style") = LineStyle(),
-          py::arg("fill_color") = Color::Invalid);
+        py::arg("ellipse"),
+        py::arg("line_style") = LineStyle(),
+        py::arg("fill_color") = Color::Invalid);
 
 
-  //----------------------------------------------------------------------
+  //----------------------------------------------------------------------TODO doc
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
         "    Width & height of each grid cell.\n\n"
         "    The grid will only be drawn within the defined region.\n"
@@ -336,27 +334,25 @@ void RegisterPainter(py::module &m) {
         ":bottom_right:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n";
 
   painter.def("draw_grid", &PainterWrapper::DrawGrid, doc.c_str(),
-              py::arg("spacing_x"), py::arg("spacing_y"),
-              py::arg("line_style") = LineStyle(),
-              py::arg("top_left") = Vec2d(),
-              py::arg("bottom_right") = Vec2d());
+        py::arg("spacing_x"), py::arg("spacing_y"),
+        py::arg("line_style") = LineStyle(),
+        py::arg("top_left") = Vec2d(),
+        py::arg("bottom_right") = Vec2d());
 
 
   //----------------------------------------------------------------------
   doc = "Draws a line.\n\n"
-        ":pt1:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
-        ":pt2:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
-        "    Start/end coordinates of the line.\n\n"
-        ":line_style:  (" + FullyQualifiedType("LineStyle") + ")\n"
-        "    How to draw the line (thickness, color, dash pattern).\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Default") + ", the\n"
-        "    painter's default line style will be used.";
-  painter.def("draw_line", &PainterWrapper::DrawLine, doc.c_str(),
-              py::arg("pt1"), py::arg("pt2"),
-              py::arg("line_style") = LineStyle());
+        "Args:\n"
+        "  pt1: Start point of the line as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  pt2: End point of the line as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "`, specifying how\n"
+        "    to draw the line (thickness, color, dash pattern).";
+  painter.def("draw_line", &PainterWrapper::DrawLine,
+        doc.c_str(), py::arg("pt1"), py::arg("pt2"),
+        py::arg("line_style") = LineStyle());
 
 
-  //----------------------------------------------------------------------
+  //----------------------------------------------------------------------TODO doc
   doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
         ":rect:  (" + FullyQualifiedType("Rect") + ")\n"
         "    The rectangle which should be drawn.\n\n"

@@ -18,6 +18,7 @@ API Documentation
   .. autosummary::
 
      viren2d.Color
+     viren2d.rgb
      viren2d.Vec2d
      viren2d.Vec3d
      viren2d.Ellipse
@@ -31,6 +32,7 @@ API Documentation
      viren2d.LineStyle
      viren2d.ArrowStyle
      viren2d.TextStyle
+     viren2d.BoundingBox2DStyle
 
 
 **Positioning:**

@@ -413,23 +413,42 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def("is_valid", &BoundingBox2DStyle::IsValid,
-           "Check if the style allows rendering a 2D bounding box.")
-      .def_readwrite("line_style", &BoundingBox2DStyle::line_style,
-           "How to draw the bounding box contour.")
-      .def_readwrite("text_style", &BoundingBox2DStyle::text_style,
-           "How to render the label.")
-      .def_readwrite("box_fill_color", &BoundingBox2DStyle::box_fill_color,
-           "Fill color of the bounding box.")
-      .def_readwrite("box_fill_color", &BoundingBox2DStyle::box_fill_color,
-           "Fill color of the bounding box.")
-      .def_readwrite("text_fill_color", &BoundingBox2DStyle::text_fill_color,
-           "Fill color of the text box (label background).")
-      .def_readwrite("label_position", &BoundingBox2DStyle::label_position,
-           "Where to place the label within the box.")
-      .def_readwrite("label_padding", &BoundingBox2DStyle::label_padding,
-           "Padding between bounding box edges and label text.")
-      .def_readwrite("clip_label", &BoundingBox2DStyle::clip_label,
-           "Whether to clip the label at the bounding box edges.");
+           "Check if the style allows rendering a 2D bounding box.");
+
+  doc = ":class:`" + FullyQualifiedType("LineStyle")
+      + "`: How to draw the bounding box contour.";
+  bbox_style.def_readwrite("line_style", &BoundingBox2DStyle::line_style,
+                           doc.c_str());
+
+  doc = ":class:`" + FullyQualifiedType("TextStyle")
+      + "`: How to render the label.";
+  bbox_style.def_readwrite("text_style", &BoundingBox2DStyle::text_style,
+                           doc.c_str());
+
+  doc = ":class:`" + FullyQualifiedType("Color")
+      + "`: Fill color of the bounding box.";
+  bbox_style.def_readwrite("box_fill_color", &BoundingBox2DStyle::box_fill_color,
+                           doc.c_str());
+
+  //FIXME type doc needed for ALL members of all bound classes :/
+
+  doc = ":class:`" + FullyQualifiedType("Color")
+      + "`: Fill color of the text box (*i.e.* the label background).";
+  bbox_style.def_readwrite("text_fill_color", &BoundingBox2DStyle::text_fill_color,
+                           doc.c_str());
+
+  doc = ":class:`" + FullyQualifiedType("BoundingBoxLabelPosition")
+      + "`: Where to place the label within the box.";
+  bbox_style.def_readwrite("label_position", &BoundingBox2DStyle::label_position,
+                           doc.c_str());
+
+  doc = ":class:`" + FullyQualifiedType("Vec2d")
+      + "`: Padding between bounding box edges and label text.";
+  bbox_style.def_readwrite("label_padding", &BoundingBox2DStyle::label_padding,
+                           doc.c_str());
+
+  bbox_style.def_readwrite("clip_label", &BoundingBox2DStyle::clip_label,
+           "bool: Whether to clip the label at the bounding box edges.");
 }
 } // namespace bindings
 } // namespace viren2d

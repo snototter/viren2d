@@ -33,4 +33,8 @@ Text
 2D Bounding Boxes
 ~~~~~~~~~~~~~~~~~
 
-TODO
+.. autoclass:: viren2d.BoundingBox2DStyle
+   :members:
+   
+   .. automethod:: __init__
+
