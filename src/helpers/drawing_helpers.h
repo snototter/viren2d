@@ -321,7 +321,7 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
 
 
 void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
-                 const std::vector<Vec2d> points,
+                 const std::vector<Vec2d> &points,
                  const LineStyle &line_style,
                  Color fill_color);
 
@@ -338,6 +338,11 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
               double rotation, const LineStyle &box_line_style,
               const Color &box_fill_color, double box_corner_radius,
               const Vec2d &fixed_box_size);
+
+
+void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
+                    const std::vector<Vec2d> &points, const LineStyle &style,
+                    Color color_fade_out, bool oldest_position_first);
 
 
 /** Creates a path for a rectangle with rounded corners.

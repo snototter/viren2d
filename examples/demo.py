@@ -10,6 +10,30 @@ def demo_ninja():
     painter.set_canvas_image(img)
     
     line_style = viren2d.LineStyle(line_width=3, color='navy-blue!80')
+    
+    
+    # Tabi #TODO draw a bounding box instead
+    line_style.color = "teal-green"
+    rect_tabi = viren2d.Rect(center=(252, 148), size=(60, 30), rotation=15, radius=0.25)
+    painter.draw_rect(rect_tabi, line_style, fill_color=line_style.color.with_alpha(0.3))
+    
+#        ((80, 68, 150, 90, -10), (0, 255, 255), 'Lens')],
+
+    # Katana
+#    line_style.color = "teal-green"
+#    painter.draw_rect(viren2d.Rect.from_ltwh(177, 76, 147, 53, 0, 0.25), line_style, fill_color=line_style.color.with_alpha(0.3))
+
+
+    # Trajectory
+    traj_sword = [(323, 96), (321, 83), (317, 68), (310, 54), (305, 44), (294, 35),
+        (283, 29), (273, 27), (261, 26), (246, 28), (231, 33), (217, 40), (207, 49),
+        (201, 62), (196, 74), (192, 87), (183, 100), (175, 112), (159, 120), (144, 123),
+        (128, 123), (115, 119)]
+    line_style.line_width = 4
+    line_style.line_cap = viren2d.LineCap.Round
+    line_style.color = 'navy-blue'
+    painter.draw_trajectory(traj_sword, line_style, "white!50")
+
 
     # Arrow
     arrow_style = viren2d.ArrowStyle(line_width=3, color='crimson', tip_length=0.3)
@@ -23,16 +47,7 @@ def demo_ninja():
     
     painter.draw_textbox(['Mildly', 'infuriated'], position=(210, 30), anchor=viren2d.TextAnchor.Right, text_style=text_style, padding=(5, 5), fill_color="white!80",
                          line_style=line_style)
-    
-    # Tabi #TODO draw a bounding box instead
-    rect_tabi = viren2d.Rect(center=(252, 148), size=(60, 30), rotation=15, radius=0.25)
-    painter.draw_rect(rect_tabi, line_style, fill_color=line_style.color.with_alpha(0.3))
-    
-#        ((80, 68, 150, 90, -10), (0, 255, 255), 'Lens')],
 
-    # Katana
-    line_style.color = "teal-green"
-    painter.draw_rect(viren2d.Rect.from_ltwh(177, 76, 147, 53, 0, 0.25), line_style, fill_color=line_style.color.with_alpha(0.3))
     
     img_np = np.array(painter.get_canvas(copy=False), copy=False)
     imvis.imshow(img_np)

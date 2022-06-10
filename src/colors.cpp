@@ -70,6 +70,9 @@ NamedColor NamedColorFromString(const std::string &name) {
   } else if ((cname.compare("gray") == 0)
              || (cname.compare("grey") == 0)) {
     return NamedColor::Gray;
+  } else if ((cname.compare("lightgray") == 0)
+             || (cname.compare("lightgrey") == 0)) {
+    return NamedColor::LightGray;
   } else if (cname.compare("red") == 0) {
     return NamedColor::Red;
   } else if (cname.compare("green") == 0) {
@@ -158,6 +161,8 @@ std::string NamedColorToString(const NamedColor &color) {
     case NamedColor::Black: return "black";
     case NamedColor::White: return "white";
     case NamedColor::Gray: return "gray";
+    case NamedColor::LightGray: return "light-gray";
+
     case NamedColor::Red: return "red";
     case NamedColor::Green: return "green";
     case NamedColor::Blue: return "blue";
@@ -251,6 +256,9 @@ Color::Color(const NamedColor color, double alpha) {
 
     case NamedColor::Gray:  // "Grey" is just an alias
       red = green = blue = 0.5; break;
+
+    case NamedColor::LightGray:  // "LightGrey" is just an alias
+      red = green = blue = 0.78; break;
 
     case NamedColor::Red:
       red = 1.0; green = blue = 0.0; break;
@@ -479,6 +487,12 @@ Color Color::Grayscale() const {
 }
 
 
+Color Color::Mix(const Color &other, double percentage_other) const {
+  percentage_other = saturation_cast<double>(percentage_other, 0.0, 1.0);
+  return (percentage_other * other) + ((1.0 - percentage_other) * (*this));
+}
+
+
 bool Color::IsValid() const {
   if (red < 0.0 || red > 1.0)
     return false;
@@ -617,7 +631,8 @@ std::string Color::ToHexString() const {
 Color Color::WithAlpha(double alpha) const {
   // Explicitly use the copy c'tor, because we
   // want to avoid the saturation cast of the
-  // default c'tor:
+  // default c'tor (so we can use the special
+  // "Same" color, but with a different alpha):
   Color copy(*this);
   copy.alpha = alpha;
   return copy;
@@ -625,9 +640,8 @@ Color Color::WithAlpha(double alpha) const {
 
 
 Color Color::operator*(double scalar) const {
-  // Scale the color components (but not the alpha)
   return Color(red * scalar, green * scalar,
-               blue * scalar, alpha);
+               blue * scalar, alpha * scalar);
 }
 
 
@@ -639,7 +653,7 @@ Color &Color::operator*=(double scalar) {
 
 Color Color::operator/(double scalar) const {
   return Color(red / scalar, green / scalar,
-               blue / scalar, alpha);
+               blue / scalar, alpha / scalar);
 }
 
 
@@ -655,16 +669,16 @@ Color &Color::operator+=(const Color &rhs) {
   red = cast_01(red + rhs.red);
   green = cast_01(green + rhs.green);
   blue = cast_01(blue + rhs.blue);
+  alpha = cast_01(alpha + rhs.alpha);
   return *this;
 }
 
 
 Color &Color::operator-=(const Color &rhs) {
-//  SPDLOG_TRACE("Subtracting {:s} from {:s} (with saturation cast).",
-//               rhs, *this);
   red = cast_01(red - rhs.red);
   green = cast_01(green - rhs.green);
   blue = cast_01(blue - rhs.blue);
+  alpha = cast_01(alpha - rhs.alpha);
   return *this;
 }
 

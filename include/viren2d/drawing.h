@@ -284,6 +284,14 @@ public:
                     box_fill_color, box_corner_radius, fixed_box_size);
   }
 
+
+  //TODO doc, test, bind
+  void DrawTrajectory(const std::vector<Vec2d> &points, const LineStyle &style,
+                      const Color &color_fade_out = Color::White.WithAlpha(0.4),
+                      bool oldest_position_first = false) {
+    DrawTrajectoryImpl(points, style, color_fade_out, oldest_position_first);
+  }
+
   //TODO DrawPoints - how to handle alternating colors???
   //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
   //            Scaling via cairo context!
@@ -329,10 +337,12 @@ protected:
   virtual void DrawLineImpl(const Vec2d &from, const Vec2d &to,
                             const LineStyle &line_style) = 0;
 
+
   /** Internal helper to enable default values in public interface. */
   virtual void DrawPolygonImpl(const std::vector<Vec2d> &points,
                                const LineStyle &line_style,
                                const Color &fill_color) = 0;
+
 
   /** Internal helper to enable default values in public interface. */
   virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
@@ -355,6 +365,13 @@ protected:
                                const Color &box_fill_color,
                                double box_corner_radius,
                                const Vec2d &fixed_box_size) = 0;
+
+
+  /** Internal helper to allow default values in public interface. */
+  virtual void DrawTrajectoryImpl(const std::vector<Vec2d> &points,
+                                  const LineStyle &style,
+                                  const Color &color_fade_out,
+                                  bool oldest_position_first) = 0;
 };
 
 

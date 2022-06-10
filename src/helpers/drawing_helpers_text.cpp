@@ -203,6 +203,7 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   CheckCanvas(surface, context);
 
   if (text.empty()) {
+    SPDLOG_WARN("Cannot draw an empty text!");
     return;
   }
 

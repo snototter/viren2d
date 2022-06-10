@@ -247,6 +247,17 @@ protected:
   }
 
 
+  void DrawTrajectoryImpl(const std::vector<Vec2d> &points, const LineStyle &style,
+                          const Color &color_fade_out, bool oldest_position_first) override {
+    SPDLOG_DEBUG("ImagePainter::DrawTrajectory: {:d} points, style={:s}, "
+                 "fade_out={:s}, oldest_first={:s}", points.size(), style,
+                 color_fade_out, oldest_position_first);
+
+    helpers::DrawTrajectory(surface_, context_, points, style,
+                            color_fade_out, oldest_position_first);
+  }
+
+
 private:
   //TODO document
   cairo_surface_t *surface_;

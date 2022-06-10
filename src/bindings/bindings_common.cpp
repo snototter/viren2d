@@ -145,7 +145,7 @@ void RegisterColor(py::module &m) {
       .def("as_RGBa", &Color::ToRGBa,
            "Returns the corresponding (R, G, B, a) tuple,\n"
            "where R, G, B in [0, 255] and alpha in [0, 1].")
-      .def("as_rgba", [](Color& c)
+      .def("as_rgba", [](const Color& c)
            { return py::make_tuple(c.red, c.green, c.blue, c.alpha); },
            "Returns the corresponding (r, g, b, a) tuple,\n"
            "where all components are in[0, 1].")

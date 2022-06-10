@@ -237,5 +237,76 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   cairo_restore(context);
 }
 
+
+//---------------------------------------------------- Trajectory 2D
+void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
+                    const std::vector<Vec2d> &points, const LineStyle &style,
+                    Color color_fade_out, bool oldest_position_first) {
+  CheckCanvas(surface, context);
+
+  if (!style.IsValid()) {
+    std::ostringstream s;
+    s << "Cannot draw a trajectory with an invalid line style: "
+      << style;
+    throw std::invalid_argument(s.str());
+  }
+
+  if (points.size() < 2) {
+    SPDLOG_WARN("Input trajectory must have at least 2 points!");
+    return;
+  }
+
+  if (color_fade_out.IsSpecialSame()) {
+    color_fade_out = style.color.WithAlpha(color_fade_out.alpha);
+  }
+  const bool fade_out = color_fade_out.IsValid() && (color_fade_out != style.color);
+
+  const double total_length = wgu::LengthPolygon(points);
+  double processed_length = 0.0;
+  double progress = 0.0;
+  Color color_from = oldest_position_first ? color_fade_out : style.color;
+  Color color_to;
+  cairo_save(context);
+  ApplyLineStyle(context, style);
+  if (fade_out) {
+    // Fading out requires a separate path for each line segment,
+    // so that we can apply the color gradient.
+    for (std::size_t idx = 1; idx < points.size(); ++idx) {
+      cairo_pattern_t *pattern = cairo_pattern_create_linear(
+          points[idx-1].x(), points[idx-1].y(),
+          points[idx].x(), points[idx].y());
+      // See ApplyColor() why we have to use bgra
+      cairo_pattern_add_color_stop_rgba(pattern, 0.0,
+          color_from.blue, color_from.green,
+          color_from.red, color_from.alpha);
+      // Color gradient stops depend on how far we are along
+      // the trajectory:
+      processed_length += points[idx-1].Distance(points[idx]);
+      progress = processed_length / total_length;
+      color_to = oldest_position_first ? color_fade_out.Mix(style.color, progress)
+                                       : style.color.Mix(color_fade_out, progress);
+      cairo_pattern_add_color_stop_rgba(pattern, 1.0,
+          color_to.blue, color_to.green,
+          color_to.red, color_to.alpha);
+      // Draw the current line segment with this linear color gradient:
+      cairo_move_to(context, points[idx-1].x(), points[idx-1].y());
+      cairo_line_to(context, points[idx].x(), points[idx].y());
+      cairo_set_source(context, pattern);
+      cairo_stroke(context);
+      cairo_pattern_destroy(pattern);
+      color_from = color_to;
+    }
+  } else {
+    // The whole trajectory should be drawn with the same
+    // color. Thus, we can create a single path:
+    cairo_move_to(context, points[0].x(), points[0].y());
+    for (std::size_t idx = 1; idx < points.size(); ++idx) {
+      cairo_line_to(context, points[idx].x(), points[idx].y());
+    }
+    cairo_stroke(context);
+  }
+  cairo_restore(context);
+}
+
 } // namespace helpers
 } // namespace viren2d

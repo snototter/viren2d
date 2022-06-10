@@ -29,6 +29,8 @@ enum class NamedColor : unsigned short {
   White,
   Gray,
   Grey = Gray,  // alias
+  LightGray,
+  LightGrey = LightGray, // alias
 
   Red,
   Green,
@@ -269,6 +271,12 @@ class Color {
   Color Grayscale() const;
 
 
+  /**
+   * @brief Returns a mixture of `(percentage_other) * other + (1-percentage_other) * this`;
+   */
+  Color Mix(const Color &other, double percentage_other) const;
+
+
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
@@ -323,7 +331,7 @@ class Color {
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  /** @brief Scale rgb and clamp to [0, 1]. Alpha stays unchanged. */
+  /** @brief Scale rgba and clamp to [0, 1]. */
   Color operator*(double scalar) const;
 
   //DONE [x] add documentation
@@ -336,7 +344,7 @@ class Color {
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  /** @brief Divide rgb by the factor and clamp to [0, 1]. Alpha stays unchanged. */
+  /** @brief Divide rgba by the factor and clamp to [0, 1]. */
   Color operator/(double scalar) const;
 
   //DONE [x] add documentation
@@ -349,14 +357,14 @@ class Color {
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  /** @brief Adds the other's rgb and clamps the result to [0, 1]. Alpha stays unchanged. */
+  /** @brief Adds the other's rgba and clamps the result to [0, 1]. */
   Color &operator+=(const Color &rhs);
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  /** @brief Subtracts the other's rgb and clamps the result to [0, 1]. Alpha stays unchanged. */
+  /** @brief Subtracts the other's rgba and clamps the result to [0, 1]. */
   Color &operator-=(const Color &rhs);
 
 
@@ -365,8 +373,6 @@ class Color {
     return os;
   }
 };
-
-//std::ostream& operator<<(std::ostream& os, const Color& c);
 
 
 //-------------------------------------------------  Comparison operators

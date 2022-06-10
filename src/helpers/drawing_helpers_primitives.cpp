@@ -418,7 +418,7 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
 
 //---------------------------------------------------- Polygon
 void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
-                 const std::vector<Vec2d> points,
+                 const std::vector<Vec2d> &points,
                  const LineStyle &line_style,
                  Color fill_color) {
   CheckCanvas(surface, context);

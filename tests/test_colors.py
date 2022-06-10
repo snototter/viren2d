@@ -193,30 +193,29 @@ def test_operators():
     assert viren2d.Color.Red != viren2d.Color("red!90")
     assert viren2d.Color.Red.with_alpha(0.9) == viren2d.Color("red!90")
 
-    # Scalar multiplication (alpha should not be changed)
+    # Scalar multiplication
     color = 0.5 * viren2d.Color.Cyan
-    assert color == viren2d.Color(0.0, 0.5, 0.5, 1.0)
+    assert color == viren2d.Color(0.0, 0.5, 0.5, 0.5)
     # Values should be clamped
     color.alpha = 0.7
     color *= 3
-    assert color == viren2d.Color(0.0, 1.0, 1.0, 0.7)
+    assert color == viren2d.Color(0.0, 1.0, 1.0, 1.0)
 
     color = viren2d.Color.White * 0.5
-    assert color == viren2d.Color(0.5, 0.5, 0.5, 1.0)
+    assert color == viren2d.Color(0.5, 0.5, 0.5, 0.5)
     color.alpha = 0.7
     cp = color.copy()
     color *= 1.5
-    assert color == viren2d.Color(0.75, 0.75, 0.75, 0.7)
+    assert color == viren2d.Color(0.75, 0.75, 0.75, 1.0)
     assert (cp * 1.5) == color
 
     # Division by scalar (only rhs)
     color = viren2d.Color.Magenta / 2.0
-    assert color == viren2d.Color(0.5, 0.0, 0.5, 1.0)
-    color.alpha = 0.7
+    assert color == viren2d.Color(0.5, 0.0, 0.5, 0.5)
     cp = color.copy()
     color /= 5
-    assert color == viren2d.Color(0.1, 0.0, 0.1, 0.7)
-    assert color == (viren2d.Color.Magenta.with_alpha(0.7) / 10.0)
+    assert color == viren2d.Color(0.1, 0.0, 0.1, 0.1)
+    assert color == (viren2d.Color.Magenta / 10.0)
 
     # Addition
     add = color + color
@@ -225,17 +224,17 @@ def test_operators():
     add += cp
     assert add == viren2d.rgba(0.7, 0.3, 0.7, 0.7)
     # but the operand should not have changed
-    assert color == viren2d.Color.Magenta.with_alpha(0.7) / 10.0
+    assert color == viren2d.Color.Magenta / 10.0
     # Values should saturate
     add += viren2d.Color.White
-    assert add == "white!70"
+    assert add == "white"
 
     # Subtract
     add -= 2 * viren2d.Color.Magenta
-    assert add == "GREEN!70"
+    assert add == "GREEN!0"
 
     add = cp - color
-    assert add == viren2d.rgba(0.4, 0.3, 0.4, 0.7)
+    assert add == viren2d.rgba(0.4, 0.3, 0.4, 0.4)
 
 
 def test_pickling():

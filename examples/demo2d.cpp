@@ -317,6 +317,19 @@ void DemoPolygon() {
   painter->DrawPolygon({{500, 100}, {600, 150}, {550, 300}, {500, 150}},
                        line_style, "azure!20");
 
+
+  std::vector<viren2d::Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
+  auto style = viren2d::LineStyle(5, "midnight-blue", {}, viren2d::LineCap::Round);
+  bool oldest_first = false;
+  for (auto offset : {viren2d::Vec2d(-400, 50), viren2d::Vec2d(-100, 200), viren2d::Vec2d(50, 300)}) {
+    std::vector<viren2d::Vec2d> traj;
+    for (auto pt : trajectory) {
+      traj.push_back(pt + offset);
+    }
+    painter->DrawTrajectory(traj, style, viren2d::Color("gray!20"), oldest_first);
+    oldest_first = !oldest_first;
+  }
+
   ShowCanvas(painter->GetCanvas(false), "demo-output-polygon.png");
   painter.reset();
 }
@@ -520,7 +533,7 @@ int main(int /*argc*/, char **/*argv*/) {
 //  DemoRects();
   DemoText();
 //  DemoBoundingBox2D();
-//  DemoPolygon();
+  DemoPolygon();
 
   if (true)
     return 0;

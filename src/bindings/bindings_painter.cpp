@@ -108,6 +108,7 @@ public:
     painter_->DrawRect(rect, line_style, fill_color);
   }
 
+
   void DrawText(const std::vector<std::string> &text,
                 const Vec2d &anchor_position, TextAnchor anchor,
                 const TextStyle &text_style, const Vec2d &padding,
@@ -115,6 +116,7 @@ public:
     painter_->DrawText(text, anchor_position, anchor,
                        text_style, padding, rotation);
   }
+
 
   void DrawTextBox(const std::vector<std::string> &text,
                    const Vec2d &anchor_position, TextAnchor anchor,
@@ -125,6 +127,12 @@ public:
     painter_->DrawTextBox(text, anchor_position, anchor, text_style,
                           padding, rotation, box_line_style, box_fill_color,
                           box_corner_radius, fixed_box_size);
+  }
+
+
+  void DrawTrajectory(const std::vector<Vec2d> &points, const LineStyle &style,
+                      const Color &color_fade_out, bool oldest_position_first) {
+    painter_->DrawTrajectory(points, style, color_fade_out, oldest_position_first);
   }
 
 
@@ -370,6 +378,12 @@ void RegisterPainter(py::module &m) {
               py::arg("fixed_size") = Vec2d::All(-1.0));
 
 
+  //----------------------------------------------------------------------
+  doc = "TODO doc";
+  painter.def("draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
+              py::arg("points"), py::arg("line_style"),
+              py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
+              py::arg("oldest_first") = false);
   //TODO(snototter) add draw_xxx methods
 
   //TODO(snototter) add convenience functions handling multiple inputs (plural draw_xxxS), e.g. via
