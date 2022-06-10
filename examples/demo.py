@@ -11,11 +11,31 @@ def demo_ninja():
     
     line_style = viren2d.LineStyle(line_width=3, color='navy-blue!80')
     
+    text_style = viren2d.TextStyle()
+    text_style.alignment = viren2d.HorizontalAlignment.Center
+    text_style.font_family = 'xkcd'
+    text_style.line_spacing = 1.0
+    text_style.bold = True
+    text_style.color = "crimson"
+    
     
     # Tabi #TODO draw a bounding box instead
-    line_style.color = "teal-green"
-    rect_tabi = viren2d.Rect(center=(252, 148), size=(60, 30), rotation=15, radius=0.25)
-    painter.draw_rect(rect_tabi, line_style, fill_color=line_style.color.with_alpha(0.3))
+    bbox_style = viren2d.BoundingBox2DStyle()
+    bbox_style.line_style = line_style
+    bbox_style.line_style.color = "teal-green"
+    bbox_style.text_style = text_style
+    bbox_style.text_style.color = "carrot"
+    bbox_style.text_style.font_size = 10
+    bbox_style.box_fill_color = viren2d.Color.Same.with_alpha(0.3)
+    bbox_style.text_fill_color = 'none'
+    bbox_style.label_position = viren2d.label_position("left") #FIXME label positioning is wrong (not shown) for T2B alignments!
+    bbox_style.clip_label = False
+    bbox_style.label_padding = (0, 0)
+    
+    rect_tabi = viren2d.Rect(center=(252, 148), size=(60, 30), rotation=45, radius=0.25)
+#    line_style.color = "teal-green"
+#    painter.draw_rect(rect_tabi, line_style, fill_color=line_style.color.with_alpha(0.3))
+    painter.draw_bbox2d(rect_tabi, ['Tabi'], bbox_style)
     
 #        ((80, 68, 150, 90, -10), (0, 255, 255), 'Lens')],
 
@@ -39,12 +59,7 @@ def demo_ninja():
     arrow_style = viren2d.ArrowStyle(line_width=3, color='crimson', tip_length=0.3)
     painter.draw_arrow((210, 30), (240, 50), arrow_style)
 
-    text_style = viren2d.TextStyle()
-    text_style.alignment = viren2d.HorizontalAlignment.Center
-    text_style.font_family = 'xkcd'
-    text_style.line_spacing = 1.0
-    text_style.bold = True
-    text_style.color = "crimson"
+    
     
     line_style.line_width = 2
     painter.draw_textbox(['Mildly', 'infuriated'], position=(210, 30), anchor=viren2d.TextAnchor.Right, text_style=text_style, padding=(5, 5), fill_color="white!60",

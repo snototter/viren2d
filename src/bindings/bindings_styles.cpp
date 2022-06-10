@@ -92,7 +92,7 @@ void RegisterLineStyle(pybind11::module &m) {
          ":dash_pattern:  `List[float]`\n"
          ":line_cap:      `" + FullyQualifiedType("LineCap") + "`\n"
          ":line_join:     `" + FullyQualifiedType("LineJoin") + "`";
-  line_style.def(py::init<>(&LineStyleFromTuple), doc.c_str());
+  line_style.def(py::init<>(&LineStyleFromTuple), doc.c_str(), py::arg("tpl"));
 
   doc = "Customize your line style:\n"
         ":line_width:    `float`\n"
@@ -235,7 +235,7 @@ void RegisterArrowStyle(pybind11::module &m) {
 "* ``dash_pattern``: ``List[float]`` - see :class:`" + FullyQualifiedType("LineStyle") + "`\n"
 ":line_cap:      :class:`" + FullyQualifiedType("LineCap") + "`\n"
 ":line_join:     :class:`" + FullyQualifiedType("LineJoin") + "`";
-  arrow_style.def(py::init<>(&ArrowStyleFromTuple), doc.c_str());
+  arrow_style.def(py::init<>(&ArrowStyleFromTuple), doc.c_str(), py::arg("tpl"));
 
   doc = "Customize your arrow style:\n"
         ":line_width:    `float`\n"
@@ -328,6 +328,108 @@ void RegisterArrowStyle(pybind11::module &m) {
 
   // An ArrowStyle can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, ArrowStyle>();
+}
+
+
+//-------------------------------------------------  BoundingBox2DStyle
+py::tuple BoundingBox2DStyleToTuple(const BoundingBox2DStyle &st) {
+  return py::make_tuple(st.line_style, st.text_style,
+                        st.box_fill_color, st.text_fill_color,
+                        st.label_position, st.label_padding,
+                        st.clip_label);
+}
+
+
+BoundingBox2DStyle BoundingBox2DStyleFromTuple(py::tuple tpl) {
+  // Convert empty tuple to pre-defined default style
+  if (tpl.empty()) {
+    return BoundingBox2DStyle();
+  }
+
+//  if (tpl.size() > 5) {
+//    std::ostringstream s;
+//    s << "Cannot create " << FullyQualifiedType("LineStyle")
+//      << " from tuple with " << tpl.size()
+//      << (tpl.size() == 1 ? " entry!" : " entries!");
+//    throw std::invalid_argument(s.str());
+//  }
+
+//  LineStyle ls(tpl[0].cast<double>(),
+//                        tpl[1].cast<Color>());
+
+//  if (tpl.size() > 2) {
+//    ls.dash_pattern = tpl[2].cast<std::vector<double>>();
+//  }
+
+//  if (tpl.size() > 3) {
+//    ls.line_cap = tpl[3].cast<LineCap>();
+//  }
+
+//  if (tpl.size() > 4) {
+//    ls.line_join = tpl[4].cast<LineJoin>();
+//  }
+
+//  return ls;
+  throw std::runtime_error("TODO: Not yet implemented");
+}
+
+
+void RegisterBoundingBox2DStyle(py::module &m) {
+  std::string doc = "How to draw a 2D bounding box.";
+  py::class_<BoundingBox2DStyle>bbox_style(m, "BoundingBox2DStyle", doc.c_str());
+
+  doc = "Initialize from `tuple`:\n TODO see e.g. TextStyle";
+  bbox_style.def(py::init<>(&BoundingBox2DStyleFromTuple), doc.c_str(),
+                 py::arg("tpl"));
+
+//  //FIXME
+//  doc = "Customize your text style:\n"
+//        ":line_width:    float\n"
+//        ":color:         " + FullyQualifiedType("Color") + "\n"
+//        ":dash_pattern:  list[float]\n"
+//        ":line_cap:      " + FullyQualifiedType("LineCap") + "\n"
+//        ":line_join:     " + FullyQualifiedType("LineJoin");
+//  text_style.def(py::init<unsigned int, const std::string &,
+//                          const Color &, bool, bool, double,
+//                          HorizontalAlignment>(),
+//                 "TODO doc",
+//                 py::arg("font_size"),
+//                 py::arg("font_family"),
+//                 py::arg("color") = Color::Black,
+//                 py::arg("bold") = false,
+//                 py::arg("italic") = false,
+//                 py::arg("line_spacing") = 1.2,
+//                 py::arg("alignment") = HorizontalAlignment::Left);
+
+  bbox_style.def(py::init<>(), "Creates a default, library-wide preset text style.")
+      .def("copy", [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); },
+           "Returns a deep copy.")
+      .def("__repr__",
+           [](const BoundingBox2DStyle &st)
+           { return "<" + st.ToString() + ">"; })
+      .def("__str__", &BoundingBox2DStyle::ToString)
+      .def(py::pickle(&BoundingBox2DStyleToTuple,
+                      &BoundingBox2DStyleFromTuple))
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def("is_valid", &BoundingBox2DStyle::IsValid,
+           "Check if the style allows rendering a 2D bounding box.")
+      .def_readwrite("line_style", &BoundingBox2DStyle::line_style,
+           "How to draw the bounding box contour.")
+      .def_readwrite("text_style", &BoundingBox2DStyle::text_style,
+           "How to render the label.")
+      .def_readwrite("box_fill_color", &BoundingBox2DStyle::box_fill_color,
+           "Fill color of the bounding box.")
+      .def_readwrite("box_fill_color", &BoundingBox2DStyle::box_fill_color,
+           "Fill color of the bounding box.")
+      .def_readwrite("text_fill_color", &BoundingBox2DStyle::text_fill_color,
+           "Fill color of the text box (label background).")
+      .def_readwrite("label_position", &BoundingBox2DStyle::label_position,
+           "Where to place the label within the box.")
+      .def_readwrite("label_padding", &BoundingBox2DStyle::label_padding,
+           "Padding between bounding box edges and label text.")
+      .def_readwrite("clip_label", &BoundingBox2DStyle::clip_label,
+           "Whether to clip the label at the bounding box edges.");
 }
 } // namespace bindings
 } // namespace viren2d

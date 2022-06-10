@@ -122,9 +122,9 @@ void RegisterAnchors(py::module &m) {
         "Before parsing, any whitespaces, dashes & underscores\n"
         "will be removed and the case will be ignored.";
   m.def("text_anchor",
-        static_cast<TextAnchor (*)(const std::string &)>(&TextAnchorFromString),
+//        static_cast<TextAnchor (*)(const std::string &)>(&TextAnchorFromString),
+        &TextAnchorFromString,
         doc.c_str(), py::arg("anchor_string"));
-
 
   py::enum_<BoundingBoxLabelPosition>(m, "BoundingBoxLabelPosition",
              "Where to place a bounding box label.")
@@ -141,9 +141,11 @@ void RegisterAnchors(py::module &m) {
       .value("RightB2T", BoundingBoxLabelPosition::RightB2T,
              "Along the right edge of the bounding box, from bottom to top.");
 
+  doc = "Parses a string into a :class:`"
+        + FullyQualifiedType("BoundingBoxLabelPosition") + "`.";
   m.def("label_position",
-        static_cast<BoundingBoxLabelPosition (*)(const std::string &)>(&BoundingBoxLabelPositionFromString),
-        "TODO doc",
+        //static_cast<BoundingBoxLabelPosition (*)(const std::string &)>(&BoundingBoxLabelPositionFromString),
+        &BoundingBoxLabelPositionFromString, doc.c_str(),
         py::arg("position_string"));
 }
 

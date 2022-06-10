@@ -145,7 +145,8 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Yellow;
   } else if (cname.compare("same") == 0) {
     return NamedColor::Same;
-  } else if (cname.compare("invalid") == 0) {
+  } else if ((cname.compare("invalid") == 0)
+             || (cname.compare("none") == 0)) { //FIXME test "none"
     return NamedColor::Invalid;
   }
 

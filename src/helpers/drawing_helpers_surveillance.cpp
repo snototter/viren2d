@@ -111,7 +111,7 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
       padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
 
-    case BoundingBoxLabelPosition::LeftT2B:
+    case BoundingBoxLabelPosition::LeftT2B://FIXME t2b not working at left & right edges!
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(-rect.half_height(),
                                  -rect.half_width(),

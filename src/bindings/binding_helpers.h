@@ -57,8 +57,10 @@ void RegisterArrowStyle(pybind11::module &m);
 //TODOvoid RegisterHorizontalAlignment(pybind11::module &m);
 void RegisterAnchors(pybind11::module &m);
 void RegisterTextStyle(pybind11::module &m);
-//TODO move to bounding_box.cpp//-------------------------------------------------  Styles (BoundingBox2DStyle)
 
+//-------------------------------------------------  Styles (BoundingBox2DStyle)
+void RegisterBoundingBoxLabelPosition(pybind11::module &m);
+void RegisterBoundingBox2DStyle(pybind11::module &m);
 
 //-------------------------------------------------  Vectors
 void RegisterVectors(pybind11::module &m);

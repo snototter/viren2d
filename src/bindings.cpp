@@ -56,8 +56,13 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   viren2d::bindings::RegisterArrowStyle(m);
 
+
   viren2d::bindings::RegisterAnchors(m);
+
   viren2d::bindings::RegisterTextStyle(m);
+
+  viren2d::bindings::RegisterBoundingBox2DStyle(m);
+
 
   //------------------------------------------------- Drawing - ImageBuffer
   viren2d::bindings::RegisterImageBuffer(m);

@@ -74,6 +74,13 @@ public:
   }
 
 
+  void DrawBoundingBox2D(const Rect &box,
+                         const std::vector<std::string> &label,
+                         const BoundingBox2DStyle &style) {
+    painter_->DrawBoundingBox2D(box, label, style);
+  }
+
+
   void DrawCircle(const Vec2d &center, double radius,
                   const LineStyle &line_style,
                   const Color &fill_color) {
@@ -195,6 +202,7 @@ void RegisterPainter(py::module &m) {
            "This functionality uses the `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`_.",
            py::arg("image_filename"));
 
+
   std::string doc = "Initializes the canvas from the given image, *i.e.* either\n"
         "a ``numpy.ndarray`` (with ``dtype=uint8``) or a :class:`" + FullyQualifiedType("ImageBuffer") + "`.\n\n"
         "Example:\n"
@@ -202,6 +210,7 @@ void RegisterPainter(py::module &m) {
         "  >>> painter.set_canvas_image(img_np)";
   painter.def("set_canvas_image", &PainterWrapper::SetCanvasImage,
               doc.c_str(), py::arg("image"));
+
 
   painter.def("get_canvas_size", &PainterWrapper::GetCanvasSize,
            "Returns the size of the canvas in pixels as ``(W, H)`` tuple,\n"
@@ -228,8 +237,9 @@ void RegisterPainter(py::module &m) {
            py::arg("copy") = false);
 
 
-//TODO(snototter) use consistent coding style (Google Python Guide) for code in all draw_xxx method docstrings
-        //----------------------------------------------------------------------
+
+
+  //----------------------------------------------------------------------
   doc = "Draws a circular arc.\n\n"
         "Args:\n"
         "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
@@ -253,7 +263,8 @@ void RegisterPainter(py::module &m) {
               py::arg("include_center") = true,
               py::arg("fill_color") = Color::Invalid);
 
-        //----------------------------------------------------------------------
+
+  //----------------------------------------------------------------------
   doc = "Draws an arrow.\n\n"
         "Args:\n"
         "  pt1: Start of the arrow shaft as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
@@ -264,7 +275,20 @@ void RegisterPainter(py::module &m) {
               py::arg("pt1"), py::arg("pt2"),
               py::arg("arrow_style") = ArrowStyle());
 
-        //----------------------------------------------------------------------
+
+  //----------------------------------------------------------------------
+  doc = "TODO doc";
+  painter.def("draw_bounding_box_2d", &PainterWrapper::DrawBoundingBox2D,
+              doc.c_str(), py::arg("rect"), py::arg("label"),
+              py::arg("style") = BoundingBox2DStyle());
+  // Create an alias
+  painter.def("draw_bbox2d", &PainterWrapper::DrawBoundingBox2D,
+              doc.c_str(), py::arg("rect"), py::arg("label"),
+              py::arg("style") = BoundingBox2DStyle());
+
+
+//TODO(snototter) use consistent coding style (Google Python Guide) for code in all draw_xxx method docstrings
+  //----------------------------------------------------------------------
   doc = "Draws a circle.\n\n"
         "Args:\n"
         "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
@@ -281,7 +305,7 @@ void RegisterPainter(py::module &m) {
               py::arg("fill_color") = Color::Invalid);
 
 
-    //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
   doc = "Draws an ellipse.\n\n"
     ":ellipse:  (" + FullyQualifiedType("Ellipse") + ")\n"
     "    The ellipse which should be drawn.\n\n"
@@ -298,7 +322,8 @@ void RegisterPainter(py::module &m) {
           py::arg("line_style") = LineStyle(),
           py::arg("fill_color") = Color::Invalid);
 
-        //----------------------------------------------------------------------
+
+  //----------------------------------------------------------------------
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
         "    Width & height of each grid cell.\n\n"
         "    The grid will only be drawn within the defined region.\n"
@@ -316,7 +341,8 @@ void RegisterPainter(py::module &m) {
               py::arg("top_left") = Vec2d(),
               py::arg("bottom_right") = Vec2d());
 
-        //----------------------------------------------------------------------
+
+  //----------------------------------------------------------------------
   doc = "Draws a line.\n\n"
         ":pt1:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
         ":pt2:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
@@ -329,7 +355,8 @@ void RegisterPainter(py::module &m) {
               py::arg("pt1"), py::arg("pt2"),
               py::arg("line_style") = LineStyle());
 
-        //----------------------------------------------------------------------
+
+  //----------------------------------------------------------------------
   doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
         ":rect:  (" + FullyQualifiedType("Rect") + ")\n"
         "    The rectangle which should be drawn.\n\n"
@@ -345,7 +372,9 @@ void RegisterPainter(py::module &m) {
               py::arg("rect"),
               py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
-        //----------------------------------------------------------------------
+
+
+  //----------------------------------------------------------------------
   doc = "Places the given text on the canvas.\n\n"
         "Args:\n"
         "  text: A list of strings to be drawn.\n"
@@ -364,7 +393,7 @@ void RegisterPainter(py::module &m) {
 
 
 
-        //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
   doc = "TODO doc";
   painter.def("draw_textbox", &PainterWrapper::DrawTextBox, doc.c_str(),
               py::arg("text"), py::arg("position"),
