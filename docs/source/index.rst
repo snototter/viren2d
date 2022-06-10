@@ -69,7 +69,7 @@ Visualize Common Computer Vision Results in 2D
    * |checked| Rectangles
    * |checked| Text (single-/multi-line)
    * |checked| Text boxes (single-/multi-line)
-   * |unchecked| Trajectories
+   * |checked| Trajectories
    * |unchecked| Pose estimation results - low priority feature
    * |unchecked| Image overlay - low priority feature
    * |unchecked| Pseudocoloring - low priority feature
