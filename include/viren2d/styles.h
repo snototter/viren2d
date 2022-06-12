@@ -21,6 +21,64 @@
 
 namespace viren2d {
 
+//-------------------------------------------------  MarkerStyle
+
+enum class Marker : unsigned char {
+  Point = 0,  ///< A point is a filled circle, char representation: '.'.
+  Circle,  ///< A circle, char representation: 'o'.
+  Plus, ///< Plus sign, char representation: '+'.
+  Cross, ///< Cross marker, char representation: 'x'.
+  Square,
+  Diamond,
+  // For extensions:
+  // * MarkerFromChar (no compilation warnings if you miss it!)
+  // * MarkerToChar
+  // * MarkerStyle::IsFilled and IsValid
+  // * helpers::DrawMarker
+  //Star ///< Five-pointed star, char representation: '*'
+  //TODO right/upward/downward/left-pointing triangles >^v<
+  //TODO maybe: add separate fill color; change IsFilled (if shape allows and fill_color is "Same" or valid)
+};
+
+Marker MarkerFromChar(char m);
+char MarkerToChar(Marker marker);
+//Marker MarkerFromString(const std::string &marker);
+//std::string MarkerToString(Marker marker);
+std::ostream &operator<<(std::ostream &os, Marker marker);
+
+
+struct MarkerStyle {
+  Marker marker;    /**< Marker type. */
+  double size;      /**< Marker size in pixels. */
+  double thickness; /**< Line width (thickness) in pixels. */
+  Color color;      /**< Color (rgb & alpha). */
+
+  /** Returns a library-wide pre-set default style. */
+  MarkerStyle();
+
+  MarkerStyle(Marker type, double marker_size, double marker_thickness,
+              const Color &marker_color);
+
+  MarkerStyle(char type, double marker_size, double marker_thickness,
+              const Color &marker_color);
+
+  bool IsValid() const;
+
+  bool IsFilled() const;
+
+
+  /** @brief Returns a human-readable string representation. */
+  std::string ToString() const;
+
+
+  /** @brief Overloaded stream operator. */
+  friend std::ostream &operator<<(std::ostream &os, const MarkerStyle &style) {
+    os << style.ToString();
+    return os;
+  }
+};
+
+
 //-------------------------------------------------  LineStyle
 
 /** @brief How to render the endpoints of a line. */

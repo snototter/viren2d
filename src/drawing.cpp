@@ -187,6 +187,15 @@ protected:
   }
 
 
+  void DrawMarkerImpl(const Vec2d &pos,
+                      const MarkerStyle &style) override {
+    SPDLOG_DEBUG("ImagePainter::DrawMarker: pos={:s}, style={:s}.",
+                 pos, style);
+
+    helpers::DrawMarker(surface_, context_, pos, style);
+  }
+
+
   void DrawPolygonImpl(const std::vector<Vec2d> &points,
                        const LineStyle &line_style,
                        const Color &fill_color) override {

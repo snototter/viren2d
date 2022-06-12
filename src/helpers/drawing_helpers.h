@@ -320,6 +320,10 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
               Vec2d from, Vec2d to, const LineStyle &line_style);
 
 
+void DrawMarker(cairo_surface_t *surface, cairo_t *context,
+                Vec2d pos, const MarkerStyle &style);
+
+
 void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
                  const std::vector<Vec2d> points,
                  const LineStyle &line_style,

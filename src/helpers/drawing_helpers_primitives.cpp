@@ -416,6 +416,81 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
 }
 
 
+//---------------------------------------------------- Marker
+void DrawMarker(cairo_surface_t *surface, cairo_t *context,
+                Vec2d pos, const MarkerStyle &style) {
+  // General idea for all markers implemented so far:
+  // * Translate the canvas
+  // * Create the path(s), i.e. the marker shape's outline
+  // * Either fill or stroke (xor! I don't want to deal
+  //   with the effects of partially translucent colors
+  //   which overlap between fill and stroke)
+
+  //TODO usually, we want to draw multiple markers at once (e.g. keypoints)
+  // --> think about how to do that easily
+  // * Marker class = Marker style + location
+  //   different from all other primitives so far (where we
+  //   have separate style & geometric definition)
+  // vs
+  // * position vector + color vector + single marker style?
+  //   (could use marker_style.color as fallback if a corresponding
+  //   color is "invalid")
+  CheckCanvas(surface, context);
+
+  if (!style.IsValid()) {
+    std::ostringstream s;
+    s << "Cannot draw with invalid marker style " << style.ToString() << "!";
+    throw std::invalid_argument(s.str());
+  }
+
+  cairo_save(context);
+  //TODO should markerstyle have a linestyle instead of only size + thickness?
+  // --> would allow to specify join & cap (or draw dashed markers)
+  //     might be worth it!
+//  ApplyMarkerStyle(style);
+
+  // Move to the center of the pixel coordinates, so each
+  // marker can be drawn as if it's at the origin:
+  pos += 0.5;
+  cairo_translate(context, pos.x(), pos.y());
+  cairo_new_path(context);
+
+  const double half_size = style.size / 2.0;
+
+  if ((style.marker == Marker::Circle)
+      || (style.marker == Marker::Point)) {
+    // '.' and 'o'
+    cairo_arc(context, 0.0, 0.0, half_size, 0.0, 2 * M_PI);
+  } else if ((style.marker == Marker::Cross)
+             || (style.marker == Marker::Plus)) {
+    // '+' and 'x'
+    if (style.marker == Marker::Cross) {
+      cairo_rotate(context, wgu::deg2rad(45.0));
+    }
+    cairo_move_to(context, -half_size, 0.0);
+    cairo_line_to(context, half_size, 0.0);
+    cairo_move_to(context, 0.0, -half_size);
+    cairo_line_to(context, 0.0, half_size);
+  } else if ((style.marker == Marker::Diamond)
+             || (style.marker == Marker::Square)) {
+    // 's' and 'd'
+    if (style.marker == Marker::Diamond) {
+      cairo_rotate(context, wgu::deg2rad(45.0));
+    }
+    cairo_rectangle(context, -half_size, -half_size,
+                    style.size, style.size);
+  }
+
+  if (style.IsFilled()) {
+    cairo_fill(context);
+  } else {
+    cairo_stroke(context);
+  }
+
+  cairo_restore(context);
+}
+
+
 //---------------------------------------------------- Polygon
 void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
                  const std::vector<Vec2d> points,

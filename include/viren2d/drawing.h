@@ -218,6 +218,13 @@ public:
   }
 
 
+  //TODO doc
+  void DrawMarker(const Vec2d &position,
+                  const MarkerStyle &style = MarkerStyle()) {
+    DrawMarkerImpl(position, style);
+  }
+
+
   /**
    * @brief Draws a polygon.
    *
@@ -328,6 +335,9 @@ protected:
   /** Internal helper to enable default values in public interface. */
   virtual void DrawLineImpl(const Vec2d &from, const Vec2d &to,
                             const LineStyle &line_style) = 0;
+
+  /** Internal helper to enable default values in public interface. */
+  virtual void DrawMarkerImpl(const Vec2d &pos, const MarkerStyle &style) = 0;
 
   /** Internal helper to enable default values in public interface. */
   virtual void DrawPolygonImpl(const std::vector<Vec2d> &points,

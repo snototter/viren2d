@@ -6,14 +6,172 @@
 #include <cmath>
 
 #include <werkzeugkiste/geometry/utils.h>
+#include <werkzeugkiste/strings/strings.h>
 
 #include <viren2d/styles.h>
 
 //TODO logging
 
 namespace wgu = werkzeugkiste::geometry;
+namespace wgs = werkzeugkiste::strings;
 
 namespace viren2d {
+
+//-------------------------------------------------  MarkerStyle
+Marker MarkerFromChar(char m) {
+  if (m == '.') {
+    return Marker::Point;
+  } else if ((m == 'o') || (m == 'O')) {
+    return Marker::Circle;
+  } else if ((m == 'd') || (m == 'D')) {
+    return Marker::Diamond;
+  } else if (m == '+') {
+    return Marker::Plus;
+  } else if ((m == 'x') || (m == 'X')) {
+    return Marker::Cross;
+  } else if ((m == 's') || (m == 'S')) {
+    return Marker::Square;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce Marker from char '"
+    << m << "'.";
+  throw std::invalid_argument(s.str());
+}
+
+//Marker MarkerFromString(const std::string &marker) {
+//  if (marker.length() == 1) {
+//    return MarkerFromChar(marker[0]);
+//  }
+
+//  std::string slug = wgs::Lower(marker);
+//  slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
+//      return ::isspace(ch) || (ch == '-') || (ch == '_');
+//    }), slug.end());
+
+//  if ((slug.compare(".") == 0)
+//      || (slug.compare("point") == 0)) {
+//    return Marker::Point;
+//  } else if ((slug.compare("o") == 0)
+//             || (slug.compare("circle") == 0)) {
+//    return Marker::Circle;
+//  }
+
+//  std::ostringstream s;
+//  s << "Could not deduce Marker from string \""
+//    << marker << "\".";
+//  throw std::invalid_argument(s.str());
+//}
+
+
+char MarkerToChar(Marker marker) {
+//std::string MarkerToString(Marker marker) {
+  switch (marker) {
+    case Marker::Circle:
+      return 'o';
+
+    case Marker::Cross:
+      return 'x';
+
+    case Marker::Diamond:
+      return 'd';
+
+    case Marker::Plus:
+      return '+';
+
+    case Marker::Point:
+      return '.';
+
+    case Marker::Square:
+      return 's';
+  }
+
+  std::ostringstream s;
+  s << "Marker value ("
+    << static_cast<int>(marker)
+    << ") has not been mapped to char representation!";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::ostream &operator<<(std::ostream &os, Marker marker) {
+  os << "'" << MarkerToChar(marker) << "'";
+  return os;
+}
+
+
+MarkerStyle::MarkerStyle()
+  : marker(Marker::Circle),
+    size(10.0), thickness(3.0),
+    color(NamedColor::Azure)
+{}
+
+MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thickness,
+                         const Color &marker_color)
+  : marker(type),
+    size(marker_size),
+    thickness(marker_thickness),
+    color(marker_color)
+{}
+
+
+MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
+                         const Color &marker_color)
+  : marker(MarkerFromChar(type)),
+    size(marker_size),
+    thickness(marker_thickness),
+    color(marker_color)
+{}
+
+
+bool MarkerStyle::IsValid() const {
+  //TODO nitpicky checks: different marker types require different checks (circle doesn't care about the thickness)
+  return (size > 0.0) && color.IsValid();
+}
+
+
+bool MarkerStyle::IsFilled() const {
+  switch (marker) {
+    case Marker::Point:
+      return true;
+
+    case Marker::Circle:
+    case Marker::Cross:
+    case Marker::Diamond:
+    case Marker::Plus:
+    case Marker::Square:
+      return false;
+  }
+
+  std::ostringstream s;
+  s << marker << " has not been mapped to IsFilled()!";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::string MarkerStyle::ToString() const {
+  std::ostringstream s;
+  // TODO change other style::tostring()
+  // remove "style": Marker/Rect/Ellipse/Line
+  //TODO set precision, etc
+  //FIXME maybe change "most" measurement types to int?
+  // who wants to use 1.5px line width anyhow... --> on the
+  // other hand, we might need it once we switch to svg output (need to think about it!)
+  s << "Marker(" << MarkerToChar(marker)
+    << ", sz=" << size
+    << ", t=" << thickness
+    << ", " << color;
+
+  if (!IsValid()) {
+    s << ", invalid";
+  }
+
+  s << ")";
+  return s.str();
+}
+
+
+//-------------------------------------------------  Line Cap & Join
 std::string LineCapToString(LineCap cap) {
   switch (cap) {
     case LineCap::Butt:
