@@ -28,9 +28,16 @@ API Documentation
 
   .. autosummary::
 
-     viren2d.LineStyle
      viren2d.ArrowStyle
+     viren2d.LineStyle
+     viren2d.MarkerStyle
      viren2d.TextStyle
+     viren2d.LineCap
+     viren2d.lcap
+     viren2d.LineJoin
+     viren2d.ljoin
+     viren2d.Marker
+     viren2d.marker
 
 
 **Positioning:**

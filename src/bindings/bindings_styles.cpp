@@ -62,7 +62,7 @@ void RegisterLineCap(pybind11::module &m) {
 
   std::string doc = "Parses a string into a :class:`"
       + FullyQualifiedType("LineCap") + "`.";
-  m.def("cap", LineCapFromString,
+  m.def("lcap", LineCapFromString,
         doc.c_str(), py::arg("cap_str"));
 }
 
@@ -78,7 +78,7 @@ void RegisterLineJoin(pybind11::module &m) {
 
   std::string doc = "Parses a string into a :class:`"
       + FullyQualifiedType("LineJoin") + "`.";
-  m.def("join", LineJoinFromString,
+  m.def("ljoin", LineJoinFromString,
         doc.c_str(), py::arg("join_str"));
 }
 
