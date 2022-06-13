@@ -426,15 +426,12 @@ void DrawMarker(cairo_surface_t *surface, cairo_t *context,
   //   with the effects of partially translucent colors
   //   which overlap between fill and stroke)
 
-  //TODO usually, we want to draw multiple markers at once (e.g. keypoints)
-  // --> think about how to do that easily
-  // * Marker class = Marker style + location
-  //   different from all other primitives so far (where we
-  //   have separate style & geometric definition)
-  // vs
-  // * position vector + color vector + single marker style?
-  //   (could use marker_style.color as fallback if a corresponding
-  //   color is "invalid")
+  //TODO(snototter) To support drawing multiple markers at once,
+  //  implement "position vector" + "color vector" + "single marker style"
+  //  parametrization. Then, the marker_style.color acts as fallback if a
+  //  corresponding color is "invalid".
+
+  // Sanity checks
   CheckCanvas(surface, context);
 
   if (!style.IsValid()) {
@@ -444,10 +441,7 @@ void DrawMarker(cairo_surface_t *surface, cairo_t *context,
   }
 
   cairo_save(context);
-  //TODO should markerstyle have a linestyle instead of only size + thickness?
-  // --> would allow to specify join & cap (or draw dashed markers)
-  //     might be worth it!
-//  ApplyMarkerStyle(style);
+  ApplyMarkerStyle(context, style);
 
   // Move to the center of the pixel coordinates, so each
   // marker can be drawn as if it's at the origin:
@@ -457,46 +451,82 @@ void DrawMarker(cairo_surface_t *surface, cairo_t *context,
 
   const double half_size = style.size / 2.0;
 
-  if ((style.marker == Marker::Circle)
-      || (style.marker == Marker::Point)) {
-    // '.' and 'o'
-    cairo_arc(context, 0.0, 0.0, half_size, 0.0, 2 * M_PI);
-  } else if ((style.marker == Marker::Cross)
-             || (style.marker == Marker::Plus)) {
-    // '+' and 'x'
-    if (style.marker == Marker::Cross) {
-      cairo_rotate(context, wgu::deg2rad(45.0));
-    }
-    cairo_move_to(context, -half_size, 0.0);
-    cairo_line_to(context, half_size, 0.0);
-    cairo_move_to(context, 0.0, -half_size);
-    cairo_line_to(context, 0.0, half_size);
-  } else if ((style.marker == Marker::Diamond)
-             || (style.marker == Marker::Square)) {
-    // 's' and 'd'
-    if (style.marker == Marker::Diamond) {
-      cairo_rotate(context, wgu::deg2rad(45.0));
-    }
-    cairo_rectangle(context, -half_size, -half_size,
-                    style.size, style.size);
-  } else if ((style.IsTriangle())) {
-    // '^', 'v', '<' and '>'
-    if (style.marker == Marker::TriangleRight) {
-      cairo_rotate(context, wgu::deg2rad(90.0));
-    } else if (style.marker == Marker::TriangleDown) {
-      cairo_rotate(context, wgu::deg2rad(180.0));
-    } else if (style.marker == Marker::TriangleLeft) {
-      cairo_rotate(context, wgu::deg2rad(270.0));
-    }
-    const double height = std::sqrt(3.0) / 2.0 * style.size;
-    const Vec2d top{0.0, -height / 2.0};
-    const auto dir_vec = style.size * wgu::DirectionVecFromAngleDeg(60.0);
-    auto pt = top + dir_vec;
-    cairo_move_to(context, top.x(), top.y());
-    cairo_line_to(context, pt.x(), pt.y());
-    pt = top + Vec2d(-dir_vec.x(), dir_vec.y());
-    cairo_line_to(context, pt.x(), pt.y());
-    cairo_close_path(context);
+  switch (style.marker) {
+    case Marker::Circle:
+    case Marker::Point: {
+        // '.' and 'o'
+        cairo_arc(context, 0.0, 0.0, half_size, 0.0, 2 * M_PI);
+        break;
+      }
+
+    case Marker::Cross:
+    case Marker::Plus: {
+        // '+' and 'x'
+        if (style.marker == Marker::Cross) {
+          cairo_rotate(context, wgu::deg2rad(45.0));
+        }
+        cairo_move_to(context, -half_size, 0.0);
+        cairo_line_to(context, half_size, 0.0);
+        cairo_move_to(context, 0.0, -half_size);
+        cairo_line_to(context, 0.0, half_size);
+        break;
+      }
+
+    case Marker::Diamond:
+    case Marker::Square: {
+        // 's' and 'd'
+        if (style.marker == Marker::Diamond) {
+          cairo_rotate(context, wgu::deg2rad(45.0));
+        }
+        cairo_rectangle(context, -half_size, -half_size,
+                        style.size, style.size);
+        break;
+      }
+
+
+    case Marker::TriangleUp:
+    case Marker::TriangleDown:
+    case Marker::TriangleLeft:
+    case Marker::TriangleRight: {
+        // '^', 'v', '<' and '>'
+        if (style.marker == Marker::TriangleRight) {
+          cairo_rotate(context, wgu::deg2rad(90.0));
+        } else if (style.marker == Marker::TriangleDown) {
+          cairo_rotate(context, wgu::deg2rad(180.0));
+        } else if (style.marker == Marker::TriangleLeft) {
+          cairo_rotate(context, wgu::deg2rad(270.0));
+        }
+        const double height = std::sqrt(3.0) / 2.0 * style.size;
+        const Vec2d top{0.0, -height / 2.0};
+        const auto dir_vec = style.size * wgu::DirectionVecFromAngleDeg(60.0);
+        auto pt = top + dir_vec;
+        cairo_move_to(context, top.x(), top.y());
+        cairo_line_to(context, pt.x(), pt.y());
+        pt = top + Vec2d(-dir_vec.x(), dir_vec.y());
+        cairo_line_to(context, pt.x(), pt.y());
+        cairo_close_path(context);
+        break;
+      }
+
+    case Marker::Star: { // Asterisk
+        cairo_move_to(context, 0.0, -half_size);
+        for (int i = 0; i < 5; ++i) {
+          cairo_rotate(context, wgu::deg2rad(72.0));
+          cairo_move_to(context, 0.0, 0.0);
+          cairo_line_to(context, 0.0, -half_size);
+        }
+        break;
+      }
+
+    case Marker::Pentagram: { // Pentagram
+        cairo_move_to(context, 0.0, -half_size);
+        for (int i = 0; i < 4; ++i) {
+          cairo_rotate(context, wgu::deg2rad(144.0));
+          cairo_line_to(context, 0.0, -half_size);
+        }
+        cairo_close_path(context);
+        break;
+      }
   }
 
   if (style.IsFilled()) {

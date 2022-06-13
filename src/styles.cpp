@@ -16,6 +16,86 @@ namespace wgu = werkzeugkiste::geometry;
 namespace wgs = werkzeugkiste::strings;
 
 namespace viren2d {
+//-------------------------------------------------  Line Cap & Join
+std::string LineCapToString(LineCap cap) {
+  switch (cap) {
+    case LineCap::Butt:
+      return "Butt";
+    case LineCap::Round:
+      return "Round";
+    case LineCap::Square:
+      return "Square";
+  }
+
+  std::ostringstream s;
+  s << "LineCap (" << static_cast<int>(cap)
+    << ") is not yet supported in LineCapToString()!";
+  throw std::runtime_error(s.str());
+}
+
+
+LineCap LineCapFromString(const std::string &cap) {
+  const auto lower = wgs::Lower(cap);
+  if (lower.compare("butt") == 0) {
+    return LineCap::Butt;
+  } else if (lower.compare("square") == 0) {
+    return LineCap::Square;
+  } else if (lower.compare("round") == 0) {
+    return LineCap::Round;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce LineCap from string representation \""
+    << cap << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::ostream &operator<<(std::ostream &os, LineCap cap) {
+  os << LineCapToString(cap);
+  return os;
+}
+
+
+std::string LineJoinToString(LineJoin join) {
+  switch (join) {
+    case LineJoin::Miter:
+      return "Miter";
+    case LineJoin::Round:
+      return "Round";
+    case LineJoin::Bevel:
+      return "Bevel";
+  }
+
+  std::ostringstream s;
+  s << "LineJoin (" << static_cast<int>(join)
+    << ") is not yet supported in LineJoinToString()!";
+  throw std::runtime_error(s.str());
+}
+
+
+LineJoin LineJoinFromString(const std::string &join) {
+  const auto lower = wgs::Lower(join);
+  if (lower.compare("miter") == 0) {
+    return LineJoin::Miter;
+  } else if (lower.compare("bevel") == 0) {
+    return LineJoin::Bevel;
+  } else if (lower.compare("round") == 0) {
+    return LineJoin::Round;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce LineJoin from string representation \""
+    << join << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::ostream &operator<<(std::ostream &os, LineJoin join) {
+  os << LineJoinToString(join);
+  return os;
+}
+
 
 //-------------------------------------------------  MarkerStyle
 Marker MarkerFromChar(char m) {
@@ -39,6 +119,10 @@ Marker MarkerFromChar(char m) {
     return Marker::TriangleLeft;
   } else if (m == '>') {
     return Marker::TriangleRight;
+  } else if (m == '*') {
+    return Marker::Star;
+  } else if (m == 'p') {
+    return Marker::Pentagram;
   }
 
   std::ostringstream s;
@@ -49,7 +133,6 @@ Marker MarkerFromChar(char m) {
 
 
 char MarkerToChar(Marker marker) {
-//std::string MarkerToString(Marker marker) {
   switch (marker) {
     case Marker::Circle:
       return 'o';
@@ -60,11 +143,17 @@ char MarkerToChar(Marker marker) {
     case Marker::Diamond:
       return 'd';
 
+    case Marker::Pentagram:
+      return 'p';
+
     case Marker::Plus:
       return '+';
 
     case Marker::Point:
       return '.';
+
+    case Marker::Star:
+      return '*';
 
     case Marker::Square:
       return 's';
@@ -96,66 +185,115 @@ std::ostream &operator<<(std::ostream &os, Marker marker) {
 }
 
 
+/**
+ * Returns desired_fill if the given marker is fillable.
+ * Otherwise, returns true if the marker is fillable and
+ * false if it's not.
+ */
+bool AdjustMarkerFill(Marker marker, bool desired_fill) {
+  switch (marker) {
+    case Marker::Circle:
+    case Marker::Cross:
+    case Marker::Plus:
+    case Marker::Star:
+      return false;
+
+    case Marker::Point:
+      return true;
+
+    case Marker::Diamond:
+    case Marker::Pentagram:
+    case Marker::Square:
+    case Marker::TriangleDown:
+    case Marker::TriangleLeft:
+    case Marker::TriangleRight:
+    case Marker::TriangleUp:
+      return desired_fill;
+  }
+
+  std::ostringstream s;
+  s << "Marker '" << marker
+    << "' has not been mapped to `AdjustMarkerFill`!";
+  throw std::invalid_argument(s.str());
+}
+
+
 MarkerStyle::MarkerStyle()
   : marker(Marker::Circle),
     size(10.0), thickness(3.0),
     color(NamedColor::Azure),
-    filled(false)
+    filled(AdjustMarkerFill(marker, false)),
+    line_cap(LineCap::Butt),
+    line_join(LineJoin::Miter)
 {}
 
 
 MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thickness,
-                         const Color &marker_color, bool fill)
+                         const Color &marker_color, bool fill,
+                         viren2d::LineCap cap, viren2d::LineJoin join)
   : marker(type),
     size(marker_size),
     thickness(marker_thickness),
     color(marker_color),
-    filled(fill)
+    filled(AdjustMarkerFill(type, fill)),
+    line_cap(cap), line_join(join)
 {}
 
 
 MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
-                         const Color &marker_color, bool fill)
-  : marker(MarkerFromChar(type)),
-    size(marker_size),
-    thickness(marker_thickness),
-    color(marker_color),
-    filled(fill)
+                         const Color &marker_color, bool fill,
+                         LineCap cap, LineJoin join)
+  : MarkerStyle(MarkerFromChar(type), marker_size, marker_thickness,
+                marker_color, fill, cap, join)
 {}
 
 
+bool MarkerStyle::Equals(const MarkerStyle &other) const {
+  return (marker == other.marker)
+      && wgu::eps_equal(size, other.size)
+      && wgu::eps_equal(thickness, other.thickness)
+      && (color == other.color)
+      && (filled == other.filled);
+}
+
+
 bool MarkerStyle::IsValid() const {
-  //TODO nitpicky checks: different marker types require different checks (circle doesn't care about the thickness)
-  return (size > 0.0) && color.IsValid();
+  if ((size <= 0.0) || !color.IsValid()) {
+    return false;
+  }
+
+  // Nitpicky checks: different marker types require
+  // different checks. For example, a point is filled
+  // by definition and thus, doesn't care about the thickness.
+  switch (marker) {
+    case Marker::Circle:
+    case Marker::Cross:
+    case Marker::Plus:
+    case Marker::Star:
+    case Marker::Pentagram:
+      return (thickness > 0.0);
+
+    case Marker::Point:
+      return filled;
+
+    case Marker::Diamond:
+    case Marker::Square:
+    case Marker::TriangleDown:
+    case Marker::TriangleLeft:
+    case Marker::TriangleRight:
+    case Marker::TriangleUp:
+      return filled || (thickness > 0.0);
+  }
+
+  std::ostringstream s;
+  s << "`IsValid` is not implemented for marker "
+    << marker << "!";
+  throw std::invalid_argument(s.str());
 }
 
 
 bool MarkerStyle::IsFilled() const {
-  switch (marker) {
-    case Marker::Point:
-      return true;
-
-    case Marker::Cross:
-    case Marker::Plus:
-      return false;
-
-    default:
-      return filled;
-  }
-}
-
-
-bool MarkerStyle::IsTriangle() const {
-  switch (marker) {
-    case Marker::TriangleUp:
-    case Marker::TriangleDown:
-    case Marker::TriangleLeft:
-    case Marker::TriangleRight:
-      return true;
-
-    default:
-      return false;
-  }
+  return AdjustMarkerFill(marker, filled);
 }
 
 
@@ -167,10 +305,15 @@ std::string MarkerStyle::ToString() const {
   //FIXME maybe change "most" measurement types to int?
   // who wants to use 1.5px line width anyhow... --> on the
   // other hand, we might need it once we switch to svg output (need to think about it!)
-  s << "Marker(" << MarkerToChar(marker)
+  s << "MarkerStyle(" << MarkerToChar(marker)
+    << std::fixed << std::setprecision(1)
     << ", sz=" << size
     << ", t=" << thickness
     << ", " << color;
+
+  if (filled) {
+    s << ", filled";
+  }
 
   if (!IsValid()) {
     s << ", invalid";
@@ -181,38 +324,13 @@ std::string MarkerStyle::ToString() const {
 }
 
 
-//-------------------------------------------------  Line Cap & Join
-std::string LineCapToString(LineCap cap) {
-  switch (cap) {
-    case LineCap::Butt:
-      return "Butt";
-    case LineCap::Round:
-      return "Round";
-    case LineCap::Square:
-      return "Square";
-  }
-
-  std::ostringstream s;
-  s << "LineCap [" << static_cast<int>(cap)
-    << "] is not yet supported in LineCapToString()!";
-  throw std::runtime_error(s.str());
+bool operator==(const MarkerStyle &lhs, const MarkerStyle &rhs) {
+  return lhs.Equals(rhs);
 }
 
 
-std::string LineJoinToString(LineJoin join) {
-  switch (join) {
-    case LineJoin::Miter:
-      return "Miter";
-    case LineJoin::Round:
-      return "Round";
-    case LineJoin::Bevel:
-      return "Bevel";
-  }
-
-  std::ostringstream s;
-  s << "LineJoin [" << static_cast<int>(join)
-    << "] is not yet supported in LineJoinToString()!";
-  throw std::runtime_error(s.str());
+bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs) {
+  return !(lhs == rhs);
 }
 
 

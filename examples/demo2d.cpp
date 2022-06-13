@@ -402,7 +402,7 @@ void DemoText() {
 
       pos.SetY(100.0 + idx_anchor * 50.0);
       //painter->DrawCircle(pos, 5, viren2d::LineStyle::Invalid, "black!40");
-      painter->DrawMarker(pos, viren2d::MarkerStyle('<', 10, 1, "midnightblue!30"));
+      painter->DrawMarker(pos, viren2d::MarkerStyle('p', 20, 3, "crimson!90", true));
       if (idx_family == 0) {
         // Just draw the text
         painter->DrawText({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),

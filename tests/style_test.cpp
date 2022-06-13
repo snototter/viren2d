@@ -31,38 +31,6 @@ TEST(StyleTest, LineStyleBasics) {
 }
 
 
-
-//TEST(StyleTest, DefaultLineStyle) {
-//  const auto original_library_default= viren2d::LineStyle();
-
-//  viren2d::LineStyle ls;
-//  EXPECT_EQ(ls, original_library_default);
-
-//  ls.line_width += 3;
-//  ls.line_cap = viren2d::LineCap::Round;
-//  ls.color = viren2d::rgba(0.1, 0.2, 0.3, 0.2);
-//  EXPECT_NE(ls, original_library_default);
-
-//  auto painter = viren2d::CreatePainter();
-//  EXPECT_NE(ls, painter->GetDefaultLineStyle());
-
-//  painter->SetDefaultLineStyle(ls);
-//  EXPECT_EQ(ls, painter->GetDefaultLineStyle());
-//  EXPECT_NE(original_library_default, painter->GetDefaultLineStyle());
-
-//  // Default c'tor should yield the library-wide default
-//  EXPECT_NE(viren2d::LineStyle(), painter->GetDefaultLineStyle());
-//  EXPECT_EQ(viren2d::LineStyle(), original_library_default);
-
-//  ls.line_width = -3;
-//  EXPECT_THROW(painter->SetDefaultLineStyle(ls), std::invalid_argument);
-
-//  // Testing whether the painter uses its default
-//  // line style for drawing would require first
-//  // wrapping, then mocking the Cairo C interface.
-//}
-
-
 TEST(StyleTest, ArrowStyleBasics) {
   // Default initialization should yield a valid/sane style
   auto style = viren2d::ArrowStyle();
@@ -96,47 +64,6 @@ TEST(StyleTest, ArrowStyleBasics) {
   style.tip_length = 3;
   EXPECT_TRUE(style.IsValid());
 }
-
-
-//TEST(StyleTest, DefaultArrowStyle) {
-//  const auto original_library_default= viren2d::ArrowStyle();
-
-//  viren2d::ArrowStyle ls;
-//  EXPECT_EQ(ls, original_library_default);
-
-//  ls.tip_length = 17;
-//  EXPECT_NE(ls, original_library_default);
-
-//  ls.line_width += 3;
-//  EXPECT_NE(ls, original_library_default);
-
-//  auto painter = viren2d::CreatePainter();
-//  EXPECT_NE(ls, painter->GetDefaultArrowStyle());
-
-//  painter->SetDefaultArrowStyle(ls);
-//  EXPECT_EQ(ls, painter->GetDefaultArrowStyle());
-//  EXPECT_NE(original_library_default, painter->GetDefaultArrowStyle());
-
-//  // Default c'tor should yield the library-wide default
-//  EXPECT_NE(viren2d::ArrowStyle(), painter->GetDefaultArrowStyle());
-//  EXPECT_EQ(viren2d::ArrowStyle(), original_library_default);
-
-//  // An arrow style can also be used as its base class
-//  painter->SetDefaultLineStyle(ls);
-//  EXPECT_EQ(static_cast<viren2d::LineStyle>(ls), painter->GetDefaultLineStyle());
-
-//  ls.line_width = -3;
-//  EXPECT_THROW(painter->SetDefaultArrowStyle(ls), std::invalid_argument);
-
-//  // An arrow style could also be used to try to
-//  // inject an invalid default line style
-//  EXPECT_THROW(painter->SetDefaultLineStyle(ls), std::invalid_argument);
-
-//  // Testing whether the painter uses its default
-//  // arrow style for drawing would require first
-//  // wrapping, then mocking the Cairo C interface.
-//}
-
 
 
 TEST(StyleTest, ArrowTipLength) {
@@ -239,3 +166,24 @@ TEST(StyleTest, LineOperators) {
   EXPECT_EQ(arrow_style1, arrow_style2);
 }
 
+//TODO test textstyle
+//TODO test boundingbox2dstyle
+
+TEST(StyleTest, MarkerStyleTest) {
+  // Compare 2 MarkerStyle objects
+  auto style1 = viren2d::MarkerStyle();
+  auto style2 = viren2d::MarkerStyle();
+  EXPECT_EQ(style1, style2);
+
+  style1.color = "azure!99";
+  EXPECT_NE(style1, style2);
+
+  EXPECT_TRUE(style1.IsValid());
+  EXPECT_TRUE(style2.IsValid());
+
+  style1.size = -1;
+  EXPECT_FALSE(style1.IsValid());
+
+  // TODO test initializations from char representations
+  // TODO test isvalid checks
+}

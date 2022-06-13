@@ -39,8 +39,8 @@ inline void ApplyColor(cairo_t *context, const Color &color) {
 }
 
 
-inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style) {
-  switch (line_style.line_cap) {
+inline cairo_line_cap_t LineCap2Cairo(LineCap cap) {
+  switch (cap) {
     case LineCap::Butt:
       return CAIRO_LINE_CAP_BUTT;
 
@@ -52,15 +52,15 @@ inline cairo_line_cap_t LineCap2Cairo(const LineStyle &line_style) {
   }
 
   std::ostringstream s;
-  s << "Line cap style \"" << static_cast<int>(line_style.line_cap)
+  s << "Line cap style \"" << cap
     << "\" is not yet mapped to Cairo type!";
   throw std::runtime_error(s.str());
 }
 
 
-inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
+inline cairo_line_join_t LineJoin2Cairo(LineJoin join) {
 
-  switch (line_style.line_join) {
+  switch (join) {
     case LineJoin::Miter:
       return CAIRO_LINE_JOIN_MITER;
 
@@ -71,40 +71,48 @@ inline cairo_line_join_t LineJoin2Cairo(const LineStyle &line_style) {
       return CAIRO_LINE_JOIN_ROUND;
   }
   std::ostringstream s;
-  s << "Line join style \"" << static_cast<int>(line_style.line_join)
+  s << "Line join style \"" << join
     << "\" is not yet mapped to Cairo type!";
   throw std::runtime_error(s.str());
 }
 
 
-/** @brief Changes the given Cairo context to use the given LineStyle definitions. */
-inline void ApplyLineStyle(cairo_t *context,
-                           const LineStyle &line_style,
-                           bool ignore_dash = false) {
-  SPDLOG_TRACE("helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
-               line_style, ignore_dash);
+/** @brief Changes the given Cairo context to use the given MarkerStyle definitions. */
+inline void ApplyMarkerStyle(cairo_t *context, const MarkerStyle &style) {
+  SPDLOG_TRACE("helpers::ApplyMarkerStyle: style={:s}.", style);
 
   if (!context) {
     return;
   }
 
-  cairo_set_line_width(context, line_style.line_width);
-  cairo_set_line_cap(context, LineCap2Cairo(line_style));
-  cairo_set_line_join(context, LineJoin2Cairo(line_style));
-  ApplyColor(context, line_style.color);
+  cairo_set_line_width(context, style.thickness);
+  cairo_set_line_cap(context, LineCap2Cairo(style.line_cap));
+  cairo_set_line_join(context, LineJoin2Cairo(style.line_join));
+  ApplyColor(context, style.color);
+}
 
-  //TODO(snototter) if we're adding patterns (e.g. color gradients), we
-  // could return a pointer (or add another parameter); a pattern
-  // must be destroyed after use
-  //- https://zetcode.com/gfx/cairo/gradients/
-  //- https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-rgba
 
-  if (!line_style.dash_pattern.empty() && !ignore_dash) {
+/** @brief Changes the given Cairo context to use the given LineStyle definitions. */
+inline void ApplyLineStyle(cairo_t *context, const LineStyle &style,
+                           bool ignore_dash = false) {
+  SPDLOG_TRACE("helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
+               style, ignore_dash);
+
+  if (!context) {
+    return;
+  }
+
+  cairo_set_line_width(context, style.line_width);
+  cairo_set_line_cap(context, LineCap2Cairo(style.line_cap));
+  cairo_set_line_join(context, LineJoin2Cairo(style.line_join));
+  ApplyColor(context, style.color);
+
+  if (!style.dash_pattern.empty() && !ignore_dash) {
     // https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
-    const double *dash = &line_style.dash_pattern[0];
+    const double *dash = &style.dash_pattern[0];
     cairo_set_dash(context, dash,
-                   static_cast<int>(line_style.dash_pattern.size()),
-                   0); // We don't need an offset into the dash pattern
+                   static_cast<int>(style.dash_pattern.size()),
+                   0); // We don't need/support an offset into the dash pattern
   }
 }
 
