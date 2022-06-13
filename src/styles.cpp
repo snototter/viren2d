@@ -31,6 +31,14 @@ Marker MarkerFromChar(char m) {
     return Marker::Cross;
   } else if ((m == 's') || (m == 'S')) {
     return Marker::Square;
+  } else if (m == '^') {
+    return Marker::TriangleUp;
+  } else if (m == 'v') {
+    return Marker::TriangleDown;
+  } else if (m == '<') {
+    return Marker::TriangleLeft;
+  } else if (m == '>') {
+    return Marker::TriangleRight;
   }
 
   std::ostringstream s;
@@ -38,30 +46,6 @@ Marker MarkerFromChar(char m) {
     << m << "'.";
   throw std::invalid_argument(s.str());
 }
-
-//Marker MarkerFromString(const std::string &marker) {
-//  if (marker.length() == 1) {
-//    return MarkerFromChar(marker[0]);
-//  }
-
-//  std::string slug = wgs::Lower(marker);
-//  slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
-//      return ::isspace(ch) || (ch == '-') || (ch == '_');
-//    }), slug.end());
-
-//  if ((slug.compare(".") == 0)
-//      || (slug.compare("point") == 0)) {
-//    return Marker::Point;
-//  } else if ((slug.compare("o") == 0)
-//             || (slug.compare("circle") == 0)) {
-//    return Marker::Circle;
-//  }
-
-//  std::ostringstream s;
-//  s << "Could not deduce Marker from string \""
-//    << marker << "\".";
-//  throw std::invalid_argument(s.str());
-//}
 
 
 char MarkerToChar(Marker marker) {
@@ -84,6 +68,18 @@ char MarkerToChar(Marker marker) {
 
     case Marker::Square:
       return 's';
+
+    case Marker::TriangleUp:
+      return '^';
+
+    case Marker::TriangleDown:
+      return 'v';
+
+    case Marker::TriangleLeft:
+      return '<';
+
+    case Marker::TriangleRight:
+      return '>';
   }
 
   std::ostringstream s;
@@ -103,24 +99,28 @@ std::ostream &operator<<(std::ostream &os, Marker marker) {
 MarkerStyle::MarkerStyle()
   : marker(Marker::Circle),
     size(10.0), thickness(3.0),
-    color(NamedColor::Azure)
+    color(NamedColor::Azure),
+    filled(false)
 {}
 
+
 MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thickness,
-                         const Color &marker_color)
+                         const Color &marker_color, bool fill)
   : marker(type),
     size(marker_size),
     thickness(marker_thickness),
-    color(marker_color)
+    color(marker_color),
+    filled(fill)
 {}
 
 
 MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
-                         const Color &marker_color)
+                         const Color &marker_color, bool fill)
   : marker(MarkerFromChar(type)),
     size(marker_size),
     thickness(marker_thickness),
-    color(marker_color)
+    color(marker_color),
+    filled(fill)
 {}
 
 
@@ -135,17 +135,27 @@ bool MarkerStyle::IsFilled() const {
     case Marker::Point:
       return true;
 
-    case Marker::Circle:
     case Marker::Cross:
-    case Marker::Diamond:
     case Marker::Plus:
-    case Marker::Square:
+      return false;
+
+    default:
+      return filled;
+  }
+}
+
+
+bool MarkerStyle::IsTriangle() const {
+  switch (marker) {
+    case Marker::TriangleUp:
+    case Marker::TriangleDown:
+    case Marker::TriangleLeft:
+    case Marker::TriangleRight:
+      return true;
+
+    default:
       return false;
   }
-
-  std::ostringstream s;
-  s << marker << " has not been mapped to IsFilled()!";
-  throw std::invalid_argument(s.str());
 }
 
 

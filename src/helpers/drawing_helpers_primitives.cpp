@@ -479,6 +479,24 @@ void DrawMarker(cairo_surface_t *surface, cairo_t *context,
     }
     cairo_rectangle(context, -half_size, -half_size,
                     style.size, style.size);
+  } else if ((style.IsTriangle())) {
+    // '^', 'v', '<' and '>'
+    if (style.marker == Marker::TriangleRight) {
+      cairo_rotate(context, wgu::deg2rad(90.0));
+    } else if (style.marker == Marker::TriangleDown) {
+      cairo_rotate(context, wgu::deg2rad(180.0));
+    } else if (style.marker == Marker::TriangleLeft) {
+      cairo_rotate(context, wgu::deg2rad(270.0));
+    }
+    const double height = std::sqrt(3.0) / 2.0 * style.size;
+    const Vec2d top{0.0, -height / 2.0};
+    const auto dir_vec = style.size * wgu::DirectionVecFromAngleDeg(60.0);
+    auto pt = top + dir_vec;
+    cairo_move_to(context, top.x(), top.y());
+    cairo_line_to(context, pt.x(), pt.y());
+    pt = top + Vec2d(-dir_vec.x(), dir_vec.y());
+    cairo_line_to(context, pt.x(), pt.y());
+    cairo_close_path(context);
   }
 
   if (style.IsFilled()) {
