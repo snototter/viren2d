@@ -9,6 +9,9 @@
 #include <werkzeugkiste/strings/strings.h>
 
 #include <viren2d/styles.h>
+#include <helpers/logging.h>
+#include <helpers/enum.h>
+
 
 //TODO logging
 
@@ -182,6 +185,19 @@ char MarkerToChar(Marker marker) {
 std::ostream &operator<<(std::ostream &os, Marker marker) {
   os << "'" << MarkerToChar(marker) << "'";
   return os;
+}
+
+
+std::vector<char> ListMarkers() {
+  SPDLOG_TRACE("ListMarkers().");
+  std::vector<char> lst;
+  typedef ContinuousEnumIterator<Marker,
+    Marker::Point, Marker::TriangleRight> MarkerIterator;
+
+  for (Marker m: MarkerIterator()) {
+    lst.push_back(MarkerToChar(m));
+  }
+  return lst;
 }
 
 

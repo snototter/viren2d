@@ -55,9 +55,11 @@ py::tuple ColorToTuple(const Color &obj) {
 
 
 void RegisterColor(py::module &m) {
-  auto doc = "Returns a list of all available predefined color names.\n"
+  auto doc = "Returns a list of the predefined color names.\n\n"
              "Each of these names can be used to initialize a\n:class:`"
-             + FullyQualifiedType("Color") + "`.";
+             + FullyQualifiedType("Color") + "`. For example:\n"
+             "  >>> text_style.color = 'midnight-blue'\n"
+             "  >>> line_style.color = 'forest-grean!40'\n";
   m.def("color_names", &ListNamedColors, doc.c_str());
 
   py::class_<Color>(m, "Color",

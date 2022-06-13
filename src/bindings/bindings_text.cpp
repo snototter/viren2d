@@ -67,7 +67,7 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
 
 void RegisterAnchors(py::module &m) {
   py::enum_<HorizontalAlignment>(m, "HorizontalAlignment",
-             "Specifies horizontal alignment.")
+             "Specifies the horizontal alignment.")
       .value("Left", HorizontalAlignment::Left, "Horizontally left-aligned.")
       .value("Center", HorizontalAlignment::Center, "Horizontally centered.")
       .value("Right", HorizontalAlignment::Right, "Horizontally right-aligned.");
@@ -75,7 +75,7 @@ void RegisterAnchors(py::module &m) {
   std::string doc = "Parses a string into a :class:`"
       + FullyQualifiedType("HorizontalAlignment") + "`.";
   m.def("halign", HorizontalAlignmentFromString,
-        doc.c_str(), py::arg("alignment"));
+        doc.c_str(), py::arg("align"));
 
 
   py::enum_<VerticalAlignment>(m, "VerticalAlignment",
@@ -87,39 +87,38 @@ void RegisterAnchors(py::module &m) {
   doc = "Parses a string into a :class:`"
         + FullyQualifiedType("VerticalAlignment") + "`.";
   m.def("valign", VerticalAlignmentFromString,
-        doc.c_str(), py::arg("alignment"));
+        doc.c_str(), py::arg("align"));
 
   py::enum_<TextAnchor>(m, "TextAnchor",
              "TODO doc")
       .value("Center", TextAnchor::Center,
              "Aligns text **both** horizontally & vertically **centered**.")
       .value("Left", TextAnchor::Left,
-             "Aligns text **horizontally left** & **vertically centered**.")
+             "Aligns text **horizontally left-aligned** & **vertically centered**.")
       .value("Right", TextAnchor::Right,
-             "Aligns text **horizontally right** & **vertically centered**.")
+             "Aligns text **horizontally right-aligned** & **vertically centered**.")
       .value("Top", TextAnchor::Top,
-             "Aligns text horizontally CENTERED & vertically TOP-ALIGNED.") //TODO formatting FIXME
+             "Aligns text **horizontally centered** & **vertically top-aligned**.")
       .value("Bottom", TextAnchor::Bottom,
-             "Aligns text horizontally CENTERED & vertically BOTTOM-ALIGNED.")
+             "Aligns text **horizontally centered** & **vertically bottom-aligned**.")
       .value("TopLeft", TextAnchor::TopLeft,
-             "Aligns text horizontally LEFT & vertically TOP-ALIGNED.")
+             "Aligns text **horizontally left-** & **vertically top-aligned**.")
       .value("TopRight", TextAnchor::TopRight,
-             "Aligns text horizontally RIGHT & vertically TOP-ALIGNED.")
+             "Aligns text **horizontally right-** & **vertically top-aligned**.")
       .value("BottomLeft", TextAnchor::BottomLeft,
-             "Aligns text horizontally LEFT & vertically BOTTOM-ALIGNED.")
+             "Aligns text **horizontally left-** & **vertically bottom-aligned**.")
       .value("BottomRight", TextAnchor::BottomRight,
-             "Aligns text horizontally RIGHT & vertically BOTTOM-ALIGNED.");
+             "Aligns text **horizontally right-** & **vertically bottom-aligned**.");
 
   doc = "Parses a string into a :class:`"
         + FullyQualifiedType("TextAnchor") + "`.\n\n"
         "Valid string representations include standard\n"
-        "position specifications (*e.g.* ``center``, ``top``, ``bottom-left``, *etc.*)\n"
+        "position specifications (*e.g.* ``center``, ``top``, ``right``, ``bottom-left``, *etc.*)\n"
         "and the 8 compass directions (*e.g.*, ``north``, ``south-west``).\n\n"
-        "Before parsing, any whitespaces, dashes & underscores\n"
-        "will be removed and the case will be ignored.";
-  m.def("text_anchor",
-        static_cast<TextAnchor (*)(const std::string &)>(&TextAnchorFromString),
-        doc.c_str(), py::arg("anchor_string"));
+        "Before parsing, the input will be converted to lowercase and any\n"
+        "whitespaces, dashes & underscores will be removed.";
+  m.def("text_anchor", TextAnchorFromString,
+        doc.c_str(), py::arg("anchor"));
 
 
   py::enum_<BoundingBoxLabelPosition>(m, "BoundingBoxLabelPosition",
@@ -137,8 +136,7 @@ void RegisterAnchors(py::module &m) {
       .value("RightB2T", BoundingBoxLabelPosition::RightB2T,
              "Along the right edge of the bounding box, from bottom to top.");
 
-  m.def("label_position",
-        static_cast<BoundingBoxLabelPosition (*)(const std::string &)>(&BoundingBoxLabelPositionFromString),
+  m.def("label_position", BoundingBoxLabelPositionFromString,
         "TODO doc",
         py::arg("position_string"));
 }

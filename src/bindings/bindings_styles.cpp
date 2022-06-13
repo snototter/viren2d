@@ -111,8 +111,10 @@ void RegisterMarker(pybind11::module &m) {
              "Right-pointing triangle marker, char representation: ``'>'``.");
 
   std::string doc = "Parses a character into a :class:`"
-      + FullyQualifiedType("Marker") + "`.";
-  m.def("marker", MarkerFromChar, doc.c_str(), py::arg("m"));
+      + FullyQualifiedType("Marker") + "`.\n\n"
+      "See :func:`" + FullyQualifiedType("marker_codes")
+      + "` for a list of supported character representations.";
+  m.def("marker", MarkerFromChar, doc.c_str(), py::arg("rep"));
 }
 
 
@@ -128,7 +130,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "  marker: Character code of the marker type, see :class:`" + FullyQualifiedType("Marker")
       + "`.\n  size: Marker size in pixels as ``float``.\n"
         "  thickness: Line thickness in pixels as ``float``. Will be\n"
-        "    ignored if you choose a ``fill``\ ed marker.\n"
+        "    ignored if you choose a ``fill``\\ ed marker.\n"
         "  color: Marker color as :class:`" + FullyQualifiedType("Color") + "`.\n"
         "  fill: If the marker shape allows, you can choose between filling\n"
         "    (``True``) or drawing only the outline (``False``). For *non-fillable*\n"
@@ -179,6 +181,11 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
 //  // A LineStyle can be initialized from a given tuple.
 //  py::implicitly_convertible<py::tuple, MarkerStyle>();
+
+
+  doc = "Returns a list of character representations for each implemented :class:`"
+      + FullyQualifiedType("Marker") + "` shape.";
+  m.def("marker_codes", ListMarkers, doc.c_str());
 }
 
 

@@ -88,6 +88,7 @@ enum class Marker : unsigned char {
   // * MarkerToChar
   // * MarkerStyle::IsFilled - i.e. AdjustMarkerFill() - and MarkerStyle::IsValid
   // * helpers::DrawMarker
+  // If you add a marker BELOW TriangleRight, you must change ListMarkers() too!
 };
 
 
@@ -101,6 +102,10 @@ char MarkerToChar(Marker marker);
 
 /** Output stream operator to print a marker. */
 std::ostream &operator<<(std::ostream &os, Marker marker);
+
+
+/** Returns the char representations of all implemented marker shapes. */
+std::vector<char> ListMarkers();
 
 
 /** How to render a marker/keypoint. */

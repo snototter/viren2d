@@ -1,36 +1,52 @@
+---------------
 Defining Styles
 ---------------
 
+~~~~~~~~~~~~~~~~~~
 Style Enumerations
 ~~~~~~~~~~~~~~~~~~
 
+........
 Line Cap
 ........
+
+.. autofunction:: viren2d.lcap
+
+------------------------------------------------
 
 .. autoclass:: viren2d.LineCap
 
 
-.. autofunction:: viren2d.lcap
 
-
+.........
 Line Join
 .........
 
 .. autoclass:: viren2d.LineJoin
 
+------------------------------------------------
 
 .. autofunction:: viren2d.ljoin
 
 
+
+.............
 Marker Shapes
 .............
+
+.. autofunction:: viren2d.marker
+
+------------------------------------------------
+
+.. autofunction:: viren2d.marker_codes
+
+------------------------------------------------
 
 .. autoclass:: viren2d.Marker
 
 
-.. autofunction:: viren2d.marker
 
-
+~~~~~~~
 Markers
 ~~~~~~~
 
@@ -38,8 +54,10 @@ Markers
    :members:
    
    .. automethod:: __init__
-   
 
+
+
+~~~~~
 Lines
 ~~~~~
 
@@ -50,6 +68,7 @@ Lines
    .. automethod:: __init__
 
 
+~~~~~~
 Arrows
 ~~~~~~
 
@@ -60,6 +79,7 @@ Arrows
    .. automethod:: __init__
 
 
+~~~~
 Text
 ~~~~
 
@@ -69,6 +89,7 @@ Text
    .. automethod:: __init__
 
 
+~~~~~~~~~~~~~~~~~
 2D Bounding Boxes
 ~~~~~~~~~~~~~~~~~
 

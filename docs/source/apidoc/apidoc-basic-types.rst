@@ -11,6 +11,9 @@ Color
    .. automethod:: __init__
 
 
+Color Names
+~~~~~~~~~~~
+
 .. autofunction:: viren2d.color_names
 
 

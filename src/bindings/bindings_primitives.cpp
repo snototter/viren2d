@@ -183,26 +183,27 @@ void RegisterEllipse(pybind11::module &m) {
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def_readwrite("cx", &Ellipse::cx,
-           "Horizontal center.")
+           "float: Horizontal center.")
       .def_readwrite("cy", &Ellipse::cy,
-           "Vertical center.")
+           "float: Vertical center.")
       .def_readwrite("major_axis", &Ellipse::major_axis,
-           "Length of major axis.")
+           "float: Length of major axis.")
       .def_readwrite("minor_axis", &Ellipse::minor_axis,
-           "Length of minor axis.")
+           "float: Length of minor axis.")
       .def_readwrite("rotation", &Ellipse::rotation,
-           "Rotation angle (clockwise) in degrees.")
+           "float: Rotation angle (clockwise) in degrees.")
       .def_readwrite("angle_from", &Ellipse::angle_from,
-           "Drawing the contour/fill starts at 'angle_from' (clockwise in degrees).")
+           "float: Drawing the contour/filling starts at :attr:`angle_from` (clockwise in degrees).")
       .def_readwrite("angle_to", &Ellipse::angle_to,
-           "Drawing the contour/fill stops at 'angle_from' (clockwise in degrees).")
+           "float: Drawing the contour/filling stops at :attr:`angle_from` (clockwise in degrees).")
       .def_readwrite("include_center", &Ellipse::include_center,
-           "If you explicitly change 'angle_from'/'angle_to', you very likely\n"
-           "want to also include the center point in the rendering path. Otherwise,\n"
+           "bool: If you explicitly change :attr:`angle_from`/:attr:`angle_to`, you *very likely*\n"
+           "also want to include the center point in the rendered path. Otherwise,\n"
            "filling can easily lead to irritating results.")
       .def("is_valid", &Ellipse::IsValid,
-           "Returns True if the ellipse is in a valid/drawable state.");
-
+           "Returns ``True`` if the ellipse is in a valid/drawable state.");
+//FIXME add convenience fx: create ellipse from corner points
+  //FIXME add convencience fx for rects, too (ltwh; lrtb)
   // An ellipse can be initialized from a given tuple/list
   py::implicitly_convertible<py::tuple, Ellipse>();
   py::implicitly_convertible<py::list, Ellipse>();
@@ -280,9 +281,9 @@ Rect RectFromTuple(py::tuple tpl) {
 void RegisterRectangle(py::module &m) {
   py::class_<Rect> rect(m, "Rect",
            "A rectangle for visualization.\n\n"
-           "A rectangle is defined by its CENTER, width, height,\n"
+           "A rectangle is defined by its **center**, width, height,\n"
            "clockwise rotation (in degrees), and a corner\n"
-           "radius (for rounded rectangles).");
+           "radius (to draw rounded rectangles).");
 
   std::string doc = "Initialize from tuple or list:\n"
          "(center, size)\n"
@@ -341,21 +342,21 @@ void RegisterRectangle(py::module &m) {
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def_readwrite("cx", &Rect::cx,
-           "Horizontal center.")
+           "float: Horizontal center.")
       .def_readwrite("cy", &Rect::cy,
-           "Vertical center.")
+           "float: Vertical center.")
       .def_readwrite("width", &Rect::width,
-           "Rectangle width.")
+           "float: Rectangle width.")
       .def_property_readonly("half_width", &Rect::half_width,
-           "Half the rectangle width.")
+           "float: Half the rectangle width (read-only).")
       .def_property_readonly("half_height", &Rect::half_height,
-           "Half the rectangle height.")
+           "float: Half the rectangle height (read-only).")
       .def_readwrite("height", &Rect::height,
-           "Rectangle height.")
+           "float: Rectangle height.")
       .def_readwrite("rotation", &Rect::rotation,
-           "Rotation angle (clockwise) in degrees.")
+           "float: Rotation angle (clockwise) in degrees.")
       .def_readwrite("radius", &Rect::radius,
-           "Corner radius (> 0 for rounded rectangles).\n"
+           "float: Corner radius (> 0 for rounded rectangles).\n"
            "Defined in pixels (if radius > 1) or as percentage\n"
            "of min(w, h) if radius in (0, 0.5].\n"
            "Values within (0.5, 1) lead to invalid rectangles.")
