@@ -52,6 +52,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Drawing - Styles
   viren2d::bindings::RegisterLineCap(m);
   viren2d::bindings::RegisterLineJoin(m);
+  viren2d::bindings::RegisterMarker(m);
+
+  viren2d::bindings::RegisterMarkerStyle(m);
   viren2d::bindings::RegisterLineStyle(m);
 
   viren2d::bindings::RegisterArrowStyle(m);

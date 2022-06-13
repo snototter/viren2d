@@ -89,7 +89,7 @@ void RegisterVec(py::module &m) {
       .def("__getitem__", [](const VC &self, int index)
                           { return self[index]; })
       .def("copy", [](const VC &self) { return VC(self); },
-           "Returns a deep copy of this vector.")
+           "Returns a deep copy.")
       .def("max_value", &VC::MaxValue,
            "Returns ``max(self.val[i])``.")
       .def("min_value", &VC::MinValue,

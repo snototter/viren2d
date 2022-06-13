@@ -59,6 +59,11 @@ void RegisterLineCap(pybind11::module &m) {
              "Round ending, center of the circle is the end point.")
       .value("Square", LineCap::Square,
              "Square ending, center of the square is the end point.");
+
+  std::string doc = "Parses a string into a :class:`"
+      + FullyQualifiedType("LineCap") + "`.";
+  m.def("cap", LineCapFromString,
+        doc.c_str(), py::arg("cap_str"));
 }
 
 void RegisterLineJoin(pybind11::module &m) {
@@ -70,6 +75,110 @@ void RegisterLineJoin(pybind11::module &m) {
              "The join is cut off at half the line width from the joint point.")
       .value("Round", LineJoin::Round,
              "Rounded join, where the center of the circle is the joint point.");
+
+  std::string doc = "Parses a string into a :class:`"
+      + FullyQualifiedType("LineJoin") + "`.";
+  m.def("join", LineJoinFromString,
+        doc.c_str(), py::arg("join_str"));
+}
+
+
+void RegisterMarker(pybind11::module &m) {
+  py::enum_<Marker>(m, "Marker", "Marker shape.")
+      .value("Point", Marker::Point,
+             "Point, *i.e.* a filled circle, char representation: '.'.")
+      .value("Circle", Marker::Circle,
+             "A circle (not filled), char representation: 'o'.")
+      .value("Plus", Marker::Plus,
+             "Plus sign, char representation: '+'.")
+      .value("Cross", Marker::Cross,
+             "Cross marker, char representation: 'x'.")
+      .value("Square", Marker::Square,
+             "Square marker, char representation: 's'.")
+      .value("Diamond", Marker::Diamond,
+             "Diamond marker, char representation: 'd'.")
+      .value("Star", Marker::Star,
+             "Five-pointed star (Asterisk), char representation: '*'.")
+      .value("Pentagram", Marker::Pentagram,
+             "Five-pointed star (Pentagram), char representation: 'p'.")
+      .value("TriangleUp", Marker::TriangleUp,
+             "Upward-pointing triangle marker, char representation: '^'.")
+      .value("TriangleDown", Marker::TriangleDown,
+             "Downward-pointing triangle marker, char representation: 'v'.")
+      .value("TriangleLeft", Marker::TriangleLeft,
+             "Left-pointing triangle marker, char representation: '<'.")
+      .value("TriangleRight", Marker::TriangleRight,
+             "Right-pointing triangle marker, char representation: '>'.");
+
+  std::string doc = "Parses a character into a :class:`"
+      + FullyQualifiedType("Marker") + "`.";
+  m.def("marker", MarkerFromChar, doc.c_str(), py::arg("m"));
+}
+
+
+void RegisterMarkerStyle(pybind11::module &m) {
+  std::string doc = "How a marker/keypoint should be drawn.";
+  py::class_<MarkerStyle> style(m, "MarkerStyle", doc.c_str());
+
+//  doc = "TODO from tuple";
+//  style.def(py::init<>(&LineStyleFromTuple), doc.c_str());
+
+  doc = "Create a customized style.\n\n"
+        "Args:\n"
+        "  marker: Character code of the marker type, see :class:`" + FullyQualifiedType("Marker")
+      + "`.\n  size: Marker size in pixels as ``float``.\n"
+        "  thickness: Line thickness in pixels as ``float``. Will be\n"
+        "    ignored if you choose a ``fill``ed marker.\n"
+        "  color: Marker color as :class:`" + FullyQualifiedType("Color") + "`.\n"
+        "  fill: If the marker shape allows, you can choose between filling\n"
+        "    (``True``) or drawing only the outline (``False``). For *non-fillable*\n"
+        "    (*e.g.* '+', 'x', *etc.*) or *always-filled* shapes (*e.g.* point), the\n"
+        "    value of ``fill`` will be ignored.\n"
+        "  line_cap: How to draw the line endpoints, as :class:`" + FullyQualifiedType("LineCap") + "`.\n"
+        "  line_join: How to draw line junctions, as :class:`" + FullyQualifiedType("LineJoin") + "`.";
+  style.def(py::init<char, double, double, Color, bool,
+                          LineCap, LineJoin>(),
+            doc.c_str(),
+            py::arg("marker") = 'o',
+            py::arg("size") = 20.0,
+            py::arg("thickness") = 3.0,
+            py::arg("color") = Color(NamedColor::MidnightBlue),
+            py::arg("fill") = false,
+            py::arg("line_cap") = LineCap::Butt,
+            py::arg("line_join") = LineJoin::Miter);
+
+  style.def("copy", [](const MarkerStyle &st) { return MarkerStyle(st); },
+           "Returns a deep copy.")
+      .def("__repr__",
+           [](const MarkerStyle &st) {
+             return "<" + st.ToString() + ">";
+           })
+      .def("__str__",
+           [](const MarkerStyle &st) {
+             return MarkerToChar(st.marker);
+           })
+//      .def(py::pickle(&MarkerStyleToTuple,//FIXME implement!
+//                      &MarkerStyleFromTuple))
+      .def(py::self == py::self)
+      .def(py::self != py::self);
+//      .def("is_valid", &MarkerStyle::IsValid, //FIXME implement
+//           "Check if the style would lead to a drawable marker.")
+//      .def_readwrite("line_cap", &LineStyle::line_cap,
+//           "How to render the endpoints of the line (or dash strokes).")
+//      .def_readwrite("line_join", &LineStyle::line_join,
+//           "How to render the junction of two lines/segments.")
+//      .def_readwrite("line_width", &LineStyle::line_width,
+//           "Width/thickness in pixels.")
+//      .def_readonly_static("Invalid", &LineStyle::Invalid,
+//            "Pass this to `Painter.draw_xxx()` to skip drawing the contour and\n"
+//            "only fill the object instead.");
+
+  doc = ":class:`" + FullyQualifiedType("Color") + "`: Marker color.";
+  style.def_readwrite("color", &MarkerStyle::color,
+           doc.c_str());
+
+//  // A LineStyle can be initialized from a given tuple.
+//  py::implicitly_convertible<py::tuple, MarkerStyle>();
 }
 
 

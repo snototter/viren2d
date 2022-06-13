@@ -74,10 +74,8 @@ void RegisterAnchors(py::module &m) {
 
   std::string doc = "Parses a string into a :class:`"
       + FullyQualifiedType("HorizontalAlignment") + "`.";
-  m.def("halign",
-        static_cast<HorizontalAlignment (*)(const std::string &)>(&HorizontalAlignmentFromString),
-        doc.c_str(),
-        py::arg("alignment"));
+  m.def("halign", HorizontalAlignmentFromString,
+        doc.c_str(), py::arg("alignment"));
 
 
   py::enum_<VerticalAlignment>(m, "VerticalAlignment",
@@ -88,10 +86,8 @@ void RegisterAnchors(py::module &m) {
 
   doc = "Parses a string into a :class:`"
         + FullyQualifiedType("VerticalAlignment") + "`.";
-  m.def("valign",
-        static_cast<VerticalAlignment (*)(const std::string &)>(&VerticalAlignmentFromString),
-        doc.c_str(),
-        py::arg("alignment"));
+  m.def("valign", VerticalAlignmentFromString,
+        doc.c_str(), py::arg("alignment"));
 
   py::enum_<TextAnchor>(m, "TextAnchor",
              "TODO doc")
@@ -102,7 +98,7 @@ void RegisterAnchors(py::module &m) {
       .value("Right", TextAnchor::Right,
              "Aligns text **horizontally right** & **vertically centered**.")
       .value("Top", TextAnchor::Top,
-             "Aligns text horizontally CENTERED & vertically TOP-ALIGNED.") //TODO formatting
+             "Aligns text horizontally CENTERED & vertically TOP-ALIGNED.") //TODO formatting FIXME
       .value("Bottom", TextAnchor::Bottom,
              "Aligns text horizontally CENTERED & vertically BOTTOM-ALIGNED.")
       .value("TopLeft", TextAnchor::TopLeft,
