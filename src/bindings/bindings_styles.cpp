@@ -84,31 +84,31 @@ void RegisterLineJoin(pybind11::module &m) {
 
 
 void RegisterMarker(pybind11::module &m) {
-  py::enum_<Marker>(m, "Marker", "Marker shape.")
+  py::enum_<Marker>(m, "Marker", "Marker shape enumeration.")
       .value("Point", Marker::Point,
-             "Point, *i.e.* a filled circle, char representation: '.'.")
+             "Point, *i.e.* a filled circle, char representation: ``'.'``.")
       .value("Circle", Marker::Circle,
-             "A circle (not filled), char representation: 'o'.")
+             "A circle (not filled), char representation: ``'o'``.")
       .value("Plus", Marker::Plus,
-             "Plus sign, char representation: '+'.")
+             "Plus sign, char representation: ``'+'``.")
       .value("Cross", Marker::Cross,
-             "Cross marker, char representation: 'x'.")
+             "Cross marker, char representation: ``'x'``.")
       .value("Square", Marker::Square,
-             "Square marker, char representation: 's'.")
+             "Square marker, char representation: ``'s'``.")
       .value("Diamond", Marker::Diamond,
-             "Diamond marker, char representation: 'd'.")
+             "Diamond marker, char representation: ``'d'``.")
       .value("Star", Marker::Star,
-             "Five-pointed star (Asterisk), char representation: '*'.")
+             "Five-pointed star (Asterisk), char representation: ``'*'``.")
       .value("Pentagram", Marker::Pentagram,
-             "Five-pointed star (Pentagram), char representation: 'p'.")
+             "Five-pointed star (Pentagram), char representation: ``'p'``.")
       .value("TriangleUp", Marker::TriangleUp,
-             "Upward-pointing triangle marker, char representation: '^'.")
+             "Upward-pointing triangle marker, char representation: ``'^'``.")
       .value("TriangleDown", Marker::TriangleDown,
-             "Downward-pointing triangle marker, char representation: 'v'.")
+             "Downward-pointing triangle marker, char representation: ``'v'``.")
       .value("TriangleLeft", Marker::TriangleLeft,
-             "Left-pointing triangle marker, char representation: '<'.")
+             "Left-pointing triangle marker, char representation: ``'<'``.")
       .value("TriangleRight", Marker::TriangleRight,
-             "Right-pointing triangle marker, char representation: '>'.");
+             "Right-pointing triangle marker, char representation: ``'>'``.");
 
   std::string doc = "Parses a character into a :class:`"
       + FullyQualifiedType("Marker") + "`.";
@@ -128,11 +128,11 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "  marker: Character code of the marker type, see :class:`" + FullyQualifiedType("Marker")
       + "`.\n  size: Marker size in pixels as ``float``.\n"
         "  thickness: Line thickness in pixels as ``float``. Will be\n"
-        "    ignored if you choose a ``fill``ed marker.\n"
+        "    ignored if you choose a ``fill``\ ed marker.\n"
         "  color: Marker color as :class:`" + FullyQualifiedType("Color") + "`.\n"
         "  fill: If the marker shape allows, you can choose between filling\n"
         "    (``True``) or drawing only the outline (``False``). For *non-fillable*\n"
-        "    (*e.g.* '+', 'x', *etc.*) or *always-filled* shapes (*e.g.* point), the\n"
+        "    (*e.g.* ``'+'``, ``'x'``, *etc.*) or *always-filled* shapes (*e.g.* ``'.'``), the\n"
         "    value of ``fill`` will be ignored.\n"
         "  line_cap: How to draw the line endpoints, as :class:`" + FullyQualifiedType("LineCap") + "`.\n"
         "  line_join: How to draw line junctions, as :class:`" + FullyQualifiedType("LineJoin") + "`.";
@@ -173,7 +173,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
 //            "Pass this to `Painter.draw_xxx()` to skip drawing the contour and\n"
 //            "only fill the object instead.");
 
-  doc = ":class:`" + FullyQualifiedType("Color") + "`: Marker color.";
+  doc = ":class:`" + FullyQualifiedType("Color") + "`: Marker color for contour or fill (see :attr:`filled`).";
   style.def_readwrite("color", &MarkerStyle::color,
            doc.c_str());
 
