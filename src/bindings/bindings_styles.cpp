@@ -196,11 +196,14 @@ void RegisterMarkerStyle(pybind11::module &m) {
 //            "only fill the object instead.");
 
   doc = ":class:`" + FullyQualifiedType("Color") + "`: Color of the marker's contour or fill (see :attr:`filled`).";
-  style.def_readwrite("color", &MarkerStyle::color,
-           doc.c_str());
+  style.def_readwrite("color", &MarkerStyle::color, doc.c_str());
+
+  doc = "float: Thickness of the marker's contour. Might be ignored if the shape\n"
+        "is fillabel and you set :attr:``filled`.";
+  style.def_readwrite("thickness", &MarkerStyle::thickness, doc.c_str());
 
   style.def_readwrite("filled", &MarkerStyle::filled,
-                      "If ``True`` (and supported by the marker's shape),\n"
+                      "bool: If ``True`` (and supported by the marker's shape),\n"
                       "the marker will be filled with :attr:`color`.");
 
 //  // A LineStyle can be initialized from a given tuple.
