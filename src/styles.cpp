@@ -19,6 +19,51 @@ namespace wgu = werkzeugkiste::geometry;
 namespace wgs = werkzeugkiste::strings;
 
 namespace viren2d {
+namespace helper {
+/**
+ * Returns desired_fill if the given marker is fillable.
+ * Otherwise, returns true if the marker is fillable and
+ * false if it's not.
+ */
+bool AdjustMarkerFill(Marker marker, bool desired_fill) {
+  switch (marker) {
+    case Marker::Circle:
+    case Marker::Cross:
+    case Marker::Plus:
+    case Marker::Star:
+      return false;
+
+    case Marker::Point:
+      return true;
+
+    case Marker::Diamond:
+    case Marker::Enneagon:
+    case Marker::Enneagram:
+    case Marker::Heptagon:
+    case Marker::Heptagram:
+    case Marker::Hexagon:
+    case Marker::Hexagram:
+    case Marker::Octagon:
+    case Marker::Octagram:
+    case Marker::Pentagon:
+    case Marker::Pentagram:
+    case Marker::RotatedSquare:
+    case Marker::Square:
+    case Marker::TriangleDown:
+    case Marker::TriangleLeft:
+    case Marker::TriangleRight:
+    case Marker::TriangleUp:
+      return desired_fill;
+  }
+
+  std::ostringstream s;
+  s << "Marker '" << marker
+    << "' has not been mapped to `AdjustMarkerFill`!";
+  throw std::invalid_argument(s.str());
+}
+} // namespace helper
+
+
 //-------------------------------------------------  Line Cap & Join
 std::string LineCapToString(LineCap cap) {
   switch (cap) {
@@ -104,16 +149,18 @@ std::ostream &operator<<(std::ostream &os, LineJoin join) {
 Marker MarkerFromChar(char m) {
   if (m == '.') {
     return Marker::Point;
-  } else if ((m == 'o') || (m == 'O')) {
+  } else if (m == 'o') {
     return Marker::Circle;
-  } else if ((m == 'd') || (m == 'D')) {
+  } else if (m == 'd') {
     return Marker::Diamond;
   } else if (m == '+') {
     return Marker::Plus;
-  } else if ((m == 'x') || (m == 'X')) {
+  } else if (m == 'x') {
     return Marker::Cross;
-  } else if ((m == 's') || (m == 'S')) {
+  } else if (m == 's') {
     return Marker::Square;
+  } else if (m == 'S') {
+    return Marker::RotatedSquare;
   } else if (m == '^') {
     return Marker::TriangleUp;
   } else if (m == 'v') {
@@ -124,8 +171,26 @@ Marker MarkerFromChar(char m) {
     return Marker::TriangleRight;
   } else if (m == '*') {
     return Marker::Star;
-  } else if (m == 'p') {
+  } else if (m == '5') {
     return Marker::Pentagram;
+  } else if (m == 'p') {
+    return Marker::Pentagon;
+  } else if (m == '6') {
+    return Marker::Hexagram;
+  } else if (m == 'h') {
+    return Marker::Hexagon;
+  } else if (m == '7') {
+    return Marker::Heptagram;
+  } else if (m == 'H') {
+    return Marker::Heptagon;
+  } else if (m == '8') {
+    return Marker::Octagram;
+  } else if (m == 'O') {
+    return Marker::Octagon;
+  } else if (m == '9') {
+    return Marker::Enneagram;
+  } else if (m == 'n') {
+    return Marker::Enneagon;
   }
 
   std::ostringstream s;
@@ -146,14 +211,44 @@ char MarkerToChar(Marker marker) {
     case Marker::Diamond:
       return 'd';
 
-    case Marker::Pentagram:
+    case Marker::Enneagon:
+      return 'n';
+
+    case Marker::Enneagram:
+      return '9';
+
+    case Marker::Heptagon:
+      return 'H';
+
+    case Marker::Heptagram:
+      return '7';
+
+    case Marker::Hexagon:
+      return 'h';
+
+    case Marker::Hexagram:
+      return '6';
+
+    case Marker::Octagon:
+      return 'O';
+
+    case Marker::Octagram:
+      return '8';
+
+    case Marker::Pentagon:
       return 'p';
+
+    case Marker::Pentagram:
+      return '5';
 
     case Marker::Plus:
       return '+';
 
     case Marker::Point:
       return '.';
+
+    case Marker::RotatedSquare:
+      return 'S';
 
     case Marker::Star:
       return '*';
@@ -188,49 +283,17 @@ std::ostream &operator<<(std::ostream &os, Marker marker) {
 }
 
 
-std::vector<char> ListMarkers() {
+std::map<char, Marker> ListMarkers() {
   SPDLOG_TRACE("ListMarkers().");
-  std::vector<char> lst;
+  std::map<char, Marker> dict;
   typedef ContinuousEnumIterator<Marker,
     Marker::Point, Marker::TriangleRight> MarkerIterator;
 
   for (Marker m: MarkerIterator()) {
-    lst.push_back(MarkerToChar(m));
+//    lst.push_back(MarkerToChar(m));
+    dict.insert(std::make_pair(MarkerToChar(m), m));
   }
-  return lst;
-}
-
-
-/**
- * Returns desired_fill if the given marker is fillable.
- * Otherwise, returns true if the marker is fillable and
- * false if it's not.
- */
-bool AdjustMarkerFill(Marker marker, bool desired_fill) {
-  switch (marker) {
-    case Marker::Circle:
-    case Marker::Cross:
-    case Marker::Plus:
-    case Marker::Star:
-      return false;
-
-    case Marker::Point:
-      return true;
-
-    case Marker::Diamond:
-    case Marker::Pentagram:
-    case Marker::Square:
-    case Marker::TriangleDown:
-    case Marker::TriangleLeft:
-    case Marker::TriangleRight:
-    case Marker::TriangleUp:
-      return desired_fill;
-  }
-
-  std::ostringstream s;
-  s << "Marker '" << marker
-    << "' has not been mapped to `AdjustMarkerFill`!";
-  throw std::invalid_argument(s.str());
+  return dict;
 }
 
 
@@ -238,7 +301,7 @@ MarkerStyle::MarkerStyle()
   : marker(Marker::Circle),
     size(10.0), thickness(3.0),
     color(NamedColor::Azure),
-    filled(AdjustMarkerFill(marker, false)),
+    filled(helper::AdjustMarkerFill(marker, false)),
     line_cap(LineCap::Butt),
     line_join(LineJoin::Miter)
 {}
@@ -251,7 +314,7 @@ MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thicknes
     size(marker_size),
     thickness(marker_thickness),
     color(marker_color),
-    filled(AdjustMarkerFill(type, fill)),
+    filled(helper::AdjustMarkerFill(type, fill)),
     line_cap(cap), line_join(join)
 {}
 
@@ -286,13 +349,23 @@ bool MarkerStyle::IsValid() const {
     case Marker::Cross:
     case Marker::Plus:
     case Marker::Star:
-    case Marker::Pentagram:
       return (thickness > 0.0);
 
     case Marker::Point:
       return filled;
 
     case Marker::Diamond:
+    case Marker::Enneagon:
+    case Marker::Enneagram:
+    case Marker::Pentagon:
+    case Marker::Pentagram:
+    case Marker::Heptagon:
+    case Marker::Heptagram:
+    case Marker::Hexagon:
+    case Marker::Hexagram:
+    case Marker::Octagon:
+    case Marker::Octagram:
+    case Marker::RotatedSquare:
     case Marker::Square:
     case Marker::TriangleDown:
     case Marker::TriangleLeft:
@@ -309,7 +382,10 @@ bool MarkerStyle::IsValid() const {
 
 
 bool MarkerStyle::IsFilled() const {
-  return AdjustMarkerFill(marker, filled);
+  // User could have changed the `filled` flag
+  // since creation, thus always check whether
+  // the shape actually supports it:
+  return helper::AdjustMarkerFill(marker, filled);
 }
 
 

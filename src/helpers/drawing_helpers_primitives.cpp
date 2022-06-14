@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <exception>
 #include <cmath>
+#include <utility>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
@@ -417,6 +418,48 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- Marker
+/** Returns the number of steps needed to draw the given n-gon. */
+inline std::pair<int, double> NGonMarkerSteps(Marker m) {
+  switch (m) {
+    case Marker::Pentagon:
+      return std::make_pair(4, 72.0);
+
+    case Marker::Pentagram:
+      return std::make_pair(4, 144.0);
+
+    case Marker::Hexagon:
+      return std::make_pair(5, 60.0);
+
+    case Marker::Hexagram:
+      return std::make_pair(5, 120.0);
+
+    case Marker::Heptagon:
+      return std::make_pair(6, 360.0 / 7.0);
+
+    case Marker::Heptagram:
+      return std::make_pair(6, 720.0 / 7.0);
+
+    case Marker::Octagon:
+      return std::make_pair(7, 45.0);
+
+    case Marker::Octagram:
+      return std::make_pair(7, 135.0);
+
+    case Marker::Enneagon:
+      return std::make_pair(8, 40);
+
+    case Marker::Enneagram: // The {9/4} stellation
+      return std::make_pair(8, 160.0);
+
+    default: {
+        std::ostringstream s;
+        s << "Marker " << m
+          << " is neither an n-sided polygon nor an n-angled star.";
+        throw std::invalid_argument(s.str());
+      }
+  }
+}
+
 void DrawMarker(cairo_surface_t *surface, cairo_t *context,
                 Vec2d pos, const MarkerStyle &style) {
   // General idea for all markers implemented so far:
@@ -472,17 +515,27 @@ void DrawMarker(cairo_surface_t *surface, cairo_t *context,
         break;
       }
 
-    case Marker::Diamond:
+    case Marker::Diamond: {
+        // 'd':
+        const double half_diamond = 0.5 * half_size;
+        cairo_move_to(context, 0.0, -half_size);
+        cairo_line_to(context, half_diamond, 0.0);
+        cairo_line_to(context, 0.0, half_size);
+        cairo_line_to(context, -half_diamond, 0.0);
+        cairo_close_path(context);
+        break;
+      }
+
+    case Marker::RotatedSquare:
     case Marker::Square: {
-        // 's' and 'd'
-        if (style.marker == Marker::Diamond) {
+        // 's' and 'S'
+        if (style.marker == Marker::RotatedSquare) {
           cairo_rotate(context, wgu::deg2rad(45.0));
         }
         cairo_rectangle(context, -half_size, -half_size,
                         style.size, style.size);
         break;
       }
-
 
     case Marker::TriangleUp:
     case Marker::TriangleDown:
@@ -518,13 +571,38 @@ void DrawMarker(cairo_surface_t *surface, cairo_t *context,
         break;
       }
 
-    case Marker::Pentagram: { // Pentagram
+    case Marker::Enneagon:
+    case Marker::Enneagram:
+    case Marker::Hexagon:
+    case Marker::Heptagon:
+    case Marker::Heptagram:
+    case Marker::Octagon:
+    case Marker::Octagram:
+    case Marker::Pentagon:
+    case Marker::Pentagram: {
+        const auto step = NGonMarkerSteps(style.marker);
         cairo_move_to(context, 0.0, -half_size);
-        for (int i = 0; i < 4; ++i) {
-          cairo_rotate(context, wgu::deg2rad(144.0));
+        for (int i = 0; i < step.first; ++i) {
+          cairo_rotate(context, wgu::deg2rad(step.second));
           cairo_line_to(context, 0.0, -half_size);
         }
         cairo_close_path(context);
+        break;
+      }
+
+    case Marker::Hexagram: {
+        // Hexagram cannot be drawn by a single continuous path
+        for (int path_idx = 0; path_idx < 2; ++path_idx) {
+          if (path_idx == 1) {
+            cairo_rotate(context, wgu::deg2rad(60.0));
+          }
+          cairo_move_to(context, 0.0, -half_size);
+          for (int corner_idx = 0; corner_idx < 2; ++corner_idx) {
+            cairo_rotate(context, wgu::deg2rad(120.0));
+            cairo_line_to(context, 0.0, -half_size);
+          }
+          cairo_close_path(context);
+        }
         break;
       }
   }

@@ -2,6 +2,7 @@
 #define __VIREN2D_STYLES_H__
 
 #include <vector>
+#include <map>
 #include <string>
 #include <ostream>
 #include <initializer_list>
@@ -73,10 +74,20 @@ enum class Marker : unsigned char {
   Cross,   ///< Cross marker, char representation: 'x'.
 
   Square,  ///< Square marker, char representation: 's'.
+  RotatedSquare, ///< Rotated square marker (i.e. a thick diamond), char representation: 'S'.
   Diamond, ///< Diamond marker, char representation: 'd'.
 
   Star,      ///< Five-pointed star (Asterisk), char representation: '*'.
-  Pentagram, ///< Five-pointed star (Pentagram), char representation: 'p'.
+  Pentagram, ///< Five-pointed star, char representation: '5'.
+  Pentagon,  ///< Five-sided polygon, char representation: 'p'.
+  Hexagram,  ///< Six-pointed star, char representation: '6'.
+  Hexagon,   ///< Six-sided polygon, char representation: 'h'.
+  Heptagram, ///< Seven-pointed star, char representation: '7'.
+  Heptagon,  ///< Seven-sided polygon, char representation: 'H'.
+  Octagram,  ///< Eight-pointed star, char representation: '8'.
+  Octagon,   ///< Eight-sided polygon, char representation: 'O'.
+  Enneagram, ///< Nine-pointed star, char representation: '9'.
+  Enneagon,  ///< Nine-sided polygon (Nonagon), char representation: 'n'.
 
   TriangleUp,    ///< Upward-pointing triangle marker, char representation: '^'.
   TriangleDown,  ///< Downward-pointing triangle marker, char representation: 'v'.
@@ -105,7 +116,7 @@ std::ostream &operator<<(std::ostream &os, Marker marker);
 
 
 /** Returns the char representations of all implemented marker shapes. */
-std::vector<char> ListMarkers();
+std::map<char, Marker> ListMarkers();
 
 
 /** How to render a marker/keypoint. */
@@ -113,7 +124,7 @@ struct MarkerStyle {
   Marker marker;       ///< Marker type.
   double size;         ///< Marker size in pixels.
   double thickness;    ///< Line width (thickness) in pixels.
-  Color color;         ///< Color (rgb & alpha).
+  Color color;         ///< Color of the marker's contour or fill (@see `filled`).
   bool filled;         ///< If true (and the shape allows), the marker will be filled.
   LineCap line_cap;    ///< How to render the endpoints.
   LineJoin line_join;  ///< How to render the junction of two lines/segments.

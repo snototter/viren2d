@@ -95,12 +95,32 @@ void RegisterMarker(pybind11::module &m) {
              "Cross marker, char representation: ``'x'``.")
       .value("Square", Marker::Square,
              "Square marker, char representation: ``'s'``.")
+      .value("RotatedSquare", Marker::RotatedSquare,
+             "Rotated square (a thick diamond), char representation: ``'S'``.")
       .value("Diamond", Marker::Diamond,
              "Diamond marker, char representation: ``'d'``.")
       .value("Star", Marker::Star,
              "Five-pointed star (Asterisk), char representation: ``'*'``.")
+      .value("Pentagon", Marker::Pentagon,
+             "Five-sided polygon, char representation: ``'p'``.")
       .value("Pentagram", Marker::Pentagram,
-             "Five-pointed star (Pentagram), char representation: ``'p'``.")
+             "Five-pointed star, char representation: ``'5'``.")
+      .value("Hexagon", Marker::Hexagon,
+             "Six-sided polygon, char representation: ``'h'``.")
+      .value("Hexagram", Marker::Hexagram,
+             "Six-pointed star, char representation: ``'6'``.")
+      .value("Heptagon", Marker::Heptagon,
+             "Seven-sided polygon, char representation: ``'H'``.")
+      .value("Heptagram", Marker::Heptagram,
+             "Seven-pointed star, char representation: ``'7'``.")
+      .value("Octagon", Marker::Octagon,
+             "Eight-sided polygon, char representation: ``'O'``.")
+      .value("Octagram", Marker::Octagram,
+             "Eight-pointed star, char representation: ``'8'``.")
+      .value("Enneagon", Marker::Enneagon,
+             "Nine-sided polygon (Nonagon), char representation: ``'n'``.")
+      .value("Enneagram", Marker::Enneagram,
+             "Nine-pointed star, char representation: ``'9'``.")
       .value("TriangleUp", Marker::TriangleUp,
              "Upward-pointing triangle marker, char representation: ``'^'``.")
       .value("TriangleDown", Marker::TriangleDown,
@@ -175,15 +195,19 @@ void RegisterMarkerStyle(pybind11::module &m) {
 //            "Pass this to `Painter.draw_xxx()` to skip drawing the contour and\n"
 //            "only fill the object instead.");
 
-  doc = ":class:`" + FullyQualifiedType("Color") + "`: Marker color for contour or fill (see :attr:`filled`).";
+  doc = ":class:`" + FullyQualifiedType("Color") + "`: Color of the marker's contour or fill (see :attr:`filled`).";
   style.def_readwrite("color", &MarkerStyle::color,
            doc.c_str());
+
+  style.def_readwrite("filled", &MarkerStyle::filled,
+                      "If ``True`` (and supported by the marker's shape),\n"
+                      "the marker will be filled with :attr:`color`.");
 
 //  // A LineStyle can be initialized from a given tuple.
 //  py::implicitly_convertible<py::tuple, MarkerStyle>();
 
 
-  doc = "Returns a list of character representations for each implemented :class:`"
+  doc = "Returns a dictionary of character representations and corresponding :class:`"
       + FullyQualifiedType("Marker") + "` shape.";
   m.def("marker_codes", ListMarkers, doc.c_str());
 }
