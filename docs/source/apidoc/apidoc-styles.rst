@@ -16,7 +16,7 @@ Line Cap
 
 .. autoclass:: viren2d.LineCap
 
-
+------------------------------------------------
 
 .........
 Line Join
@@ -28,7 +28,7 @@ Line Join
 
 .. autofunction:: viren2d.ljoin
 
-
+------------------------------------------------
 
 .............
 Marker Shapes
@@ -44,22 +44,22 @@ Marker Shapes
 
 .. autoclass:: viren2d.Marker
 
+------------------------------------------------
 
-
-~~~~~~~
-Markers
-~~~~~~~
+~~~~~~~~~~~~
+Marker Style
+~~~~~~~~~~~~
 
 .. autoclass:: viren2d.MarkerStyle
    :members:
    
    .. automethod:: __init__
 
+------------------------------------------------
 
-
-~~~~~
-Lines
-~~~~~
+~~~~~~~~~~
+Line Style
+~~~~~~~~~~
 
 .. autoclass:: viren2d.LineStyle
    :members:
@@ -67,10 +67,11 @@ Lines
 
    .. automethod:: __init__
 
+------------------------------------------------
 
-~~~~~~
-Arrows
-~~~~~~
+~~~~~~~~~~~
+Arrow Style
+~~~~~~~~~~~
 
 .. autoclass:: viren2d.ArrowStyle
    :members:
@@ -78,15 +79,18 @@ Arrows
 
    .. automethod:: __init__
 
+------------------------------------------------
 
-~~~~
-Text
-~~~~
+~~~~~~~~~~
+Text Style
+~~~~~~~~~~
 
 .. autoclass:: viren2d.TextStyle
    :members:
 
    .. automethod:: __init__
+
+------------------------------------------------
 
 
 ~~~~~~~~~~~~~~~~~
@@ -94,3 +98,6 @@ Text
 ~~~~~~~~~~~~~~~~~
 
 TODO
+
+------------------------------------------------
+

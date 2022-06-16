@@ -72,6 +72,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 //  //TODO(snototter) generate documentation; check if all documented code uses backticks (we might need double backticks for sphinx?)
 
 //  //------------------------------------------------- Logging
+  //TODO **Corresponding C++ API:** ``SetLogLevel``; explain usage (compile with flag & setloglevel in code!!
+  //TODO remove library init when switching to spdlog v2?
 //  m.def("set_log_level", static_cast<bool (*)(const std::string &)>(&viren2d::SetLogLevel), "TODO", py::arg(""));
 ////  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
 

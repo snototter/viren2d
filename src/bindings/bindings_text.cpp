@@ -73,7 +73,8 @@ void RegisterAnchors(py::module &m) {
       .value("Right", HorizontalAlignment::Right, "Horizontally right-aligned.");
 
   std::string doc = "Parses a string into a :class:`"
-      + FullyQualifiedType("HorizontalAlignment") + "`.";
+      + FullyQualifiedType("HorizontalAlignment") + "`.\n\n"
+      "**Corresponding C++ API:** ``viren2d::HorizontalAlignmentFromString``.";
   m.def("halign", HorizontalAlignmentFromString,
         doc.c_str(), py::arg("align"));
 
@@ -85,7 +86,8 @@ void RegisterAnchors(py::module &m) {
       .value("Bottom", VerticalAlignment::Bottom, "Vertically bottom-aligned.");
 
   doc = "Parses a string into a :class:`"
-        + FullyQualifiedType("VerticalAlignment") + "`.";
+      + FullyQualifiedType("VerticalAlignment") + "`.\n\n"
+      "**Corresponding C++ API:** ``viren2d::VerticalAlignmentFromString``.";
   m.def("valign", VerticalAlignmentFromString,
         doc.c_str(), py::arg("align"));
 
@@ -111,12 +113,13 @@ void RegisterAnchors(py::module &m) {
              "Aligns text **horizontally right-** & **vertically bottom-aligned**.");
 
   doc = "Parses a string into a :class:`"
-        + FullyQualifiedType("TextAnchor") + "`.\n\n"
-        "Valid string representations include standard\n"
-        "position specifications (*e.g.* ``center``, ``top``, ``right``, ``bottom-left``, *etc.*)\n"
-        "and the 8 compass directions (*e.g.*, ``north``, ``south-west``).\n\n"
-        "Before parsing, the input will be converted to lowercase and any\n"
-        "whitespaces, dashes & underscores will be removed.";
+      + FullyQualifiedType("TextAnchor") + "`.\n\n"
+      "Valid string representations include standard\n"
+      "position specifications (*e.g.* ``center``, ``top``, ``right``, ``bottom-left``, *etc.*)\n"
+      "and the 8 compass directions (*e.g.*, ``north``, ``south-west``).\n\n"
+      "Before parsing, the input will be converted to lowercase and any\n"
+      "whitespaces, dashes & underscores will be removed.\n\n"
+      "**Corresponding C++ API:** ``viren2d::TextAnchorFromString``.";
   m.def("text_anchor", TextAnchorFromString,
         doc.c_str(), py::arg("anchor"));
 
@@ -136,6 +139,7 @@ void RegisterAnchors(py::module &m) {
       .value("RightB2T", BoundingBoxLabelPosition::RightB2T,
              "Along the right edge of the bounding box, from bottom to top.");
 
+//  "**Corresponding C++ API:** ``viren2d::BoundingBoxLabelPositionFromString``.";
   m.def("label_position", BoundingBoxLabelPositionFromString,
         "TODO doc",
         py::arg("position_string"));

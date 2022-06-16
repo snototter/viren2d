@@ -56,10 +56,11 @@ py::tuple ColorToTuple(const Color &obj) {
 
 void RegisterColor(py::module &m) {
   auto doc = "Returns a list of the predefined color names.\n\n"
-             "Each of these names can be used to initialize a\n:class:`"
-             + FullyQualifiedType("Color") + "`. For example:\n"
-             "  >>> text_style.color = 'midnight-blue'\n"
-             "  >>> line_style.color = 'forest-grean!40'\n";
+      "Each of these names can be used to initialize a\n:class:`"
+      + FullyQualifiedType("Color") + "`. For example:\n"
+      "  >>> text_style.color = 'midnight-blue'\n"
+      "  >>> line_style.color = 'forest-grean!40'\n\n"
+      "**Corresponding C++ API:** ``viren2d::ListNamedColors``.";
   m.def("color_names", &ListNamedColors, doc.c_str());
 
   py::class_<Color>(m, "Color",
@@ -213,20 +214,23 @@ void RegisterColor(py::module &m) {
 
 
   doc = "Returns a " + FullyQualifiedType("Color") + " for the given values.\n"
-        "red, green, blue and alpha must be within [0, 1]";
+        "red, green, blue and alpha must be within ``[0, 1]``.\n\n"
+        "**Corresponding C++ API:** ``viren2d::rgba``.";
   m.def("rgba", &rgba, doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
   // Convenience function "rgb"
   doc = "Returns a fully opaque " + FullyQualifiedType("Color") + " for the given\n"
-        "values. red, green, and blue must be within [0, 1].";
+        "values. red, green, and blue must be within ``[0, 1]``.\n\n"
+        "**Corresponding C++ API:** Overloaded ``viren2d::Color`` constructor.";
   m.def("rgb", [](double red, double green, double blue) { return Color(red, green, blue, 1.0); },
         doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
 
 
   doc = "Returns a " + FullyQualifiedType("Color") + " for the given RGBa values.\n"
-        "R, G, and B must be within [0, 255]; alpha must be within [0, 1].";
+        "R, G, and B must be within ``[0, 255]``; alpha must be within ``[0, 1]``.\n\n"
+        "**Corresponding C++ API:** ``viren2d::RGBa``.";
   m.def("RGBa", &RGBa,
         doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
@@ -234,8 +238,9 @@ void RegisterColor(py::module &m) {
 
   // Convenience function "RGB"
   doc = "Returns a fully opaque " + FullyQualifiedType("Color") + " for the given\n"
-        "values. red, green, and blue must be within [0, 255]\n"
-        "* alpha must be within [0, 1].";
+        "values. R, G, and B must be within ``[0, 255]``; alpha must be\n"
+        "within ``[0, 1]``.\n\n"
+        "**Corresponding C++ API:** ``viren2d::RGBa``, with ``alpha = 1.0``.";
   m.def("RGB",  [](double R, double G, double B) { return RGBa(R, G, B, 1.0); },
         doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
 }

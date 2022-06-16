@@ -3,32 +3,68 @@
 Tutorial: The Painter
 ---------------------
 
-TODO basic workflow: 
+The :py:class:`viren2d.Painter` class allows you to draw either onto an
+existing image or onto an empty canvas. Simply set it up via:
 
-1. You need to initialize a :py:class:`viren2d.Painter` before you can draw anything.
-2. Once you have a painter, you can start drawing:
-
-   .. toctree::
-      :maxdepth: 1
-
-      draw-color-styles
-      draw-primitives
-      draw-text
-
-3. Retrieve the visualization (*i.e.* the painter's canvas).
-
-.. literalinclude:: ./code-snippets/python/painter-usage.py
+.. literalinclude:: ./code-snippets/painter-setup.py
    :language: python
-   :caption: Python API - How to use the Painter
+   :emphasize-lines: 3,5
+   :caption: Python API - How to set up the :py:class:`viren2d.Painter`.
 
 
-.. literalinclude:: ./code-snippets/python/painter-usage.py
+.. literalinclude:: ./code-snippets/painter-setup.cpp
    :language: cpp
-   :caption: C++ API - How to use the Painter TODO
+   :emphasize-lines: 3,5
+   :caption: C++ API - How to set up the ``viren2d::Painter``.
+
+
+Once you've set up the painter, you can start drawing:
+
+ .. toctree::
+    :maxdepth: 2
+
+    draw-primitives
+    draw-text
+
+
+Finally, you simply retrieve the visualization result via 
+:meth:`viren2d.Painter.get_canvas`. This will yield a
+:class:`viren2d.ImageBuffer`, which can easily be :ref:`used with
+common image processing libraries <api-doc-image-buffer>`, such as NumPy or OpenCV:
+
+
+.. literalinclude:: ./code-snippets/painter-retrieve.py
+   :language: python
+   :emphasize-lines: 2
+   :caption: Python API - How to retrieve the visualization from a :py:class:`viren2d.Painter`.
+
+
+.. literalinclude:: ./code-snippets/painter-retrieve.cpp
+   :language: cpp
+   :emphasize-lines: 2
+   :caption: C++ API - How to retrieve the visualization from a ``viren2d::Painter``.
 
 
 .. tip::
-   Using the shared view on the canvas avoids memory allocation...
+   You can retrieve either a **deep copy** or a **shared view** on the
+   :class:`~viren2d.Painter`'s canvas.
+   If you can ensure that the :class:`~viren2d.Painter` instance is not
+   destroyed (and you don't immediately continue drawing), you should prefer
+   the shared view because it avoids unnecessary memory allocation.
+
+   Refer to :meth:`viren2d.Painter.get_canvas` for details.
 
 
+.. note::
+   As you've already seen in the code examples above, the ``viren2d`` **Python
+   API is simply a wrapper of the C++ API**. Except for the naming conventions
+   (Snake case in Python *vs.* camel case in C++), there is almost no
+   difference.
+   Thus, I will omit the (mostly redundant) C++ code examples to avoid
+   unnecessarily cluttering this tutorial.
+   You will definitely be able to deduce the corresponding C++ functionality
+   from the Python examples alone - I put my trust in you!
+
+   In cases where the **C++ counterpart is not easily deducible**, it is
+   explicitly documented in the Python :ref:`API documentation<api-documentation>`.
 

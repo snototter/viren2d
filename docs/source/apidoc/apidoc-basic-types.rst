@@ -16,6 +16,13 @@ Color Names
 
 .. autofunction:: viren2d.color_names
 
+   .. figure:: ../images/named-colors.png
+      :width: 750
+      :alt: Color names
+      :align: center
+
+      Predefined colors you can easily initialize by their names.
+
 
 Vector 2D
 ~~~~~~~~~
@@ -51,4 +58,12 @@ Rectangle
    :members:
 
    .. automethod:: __init__
+
+
+.. _api-doc-image-buffer:
+
+ImageBuffer
+~~~~~~~~~~~
+
+TODO
 

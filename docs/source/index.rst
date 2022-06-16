@@ -34,7 +34,7 @@ Visualize Common Computer Vision Results in 2D
 **What can I use it for?**
   You can use it to easily overlay *detections, trajectories, text,* and more
   on your image data. To get an idea of its capabilities, check the exemplary
-  visualizations in the :ref:`quickstart tutorial<quickstart>` .
+  visualizations in the :ref:`quickstart tutorial<quickstart>`\ .
 
 
 **What's under the hood?**
@@ -44,14 +44,14 @@ Visualize Common Computer Vision Results in 2D
 
 **How do I pronounce viren2d?**
    "*vi-ren-2d*", with *vi* as in *vision* and *ren* as in *rendering*. This is
-   by the way also how you pronounce the German word *Viren* (viruses). I could
+   by the way also how you pronounce the German word *Viren* (viruses). I might
    have been affected by the aftermath of the pandemic when picking a name...
 
 
 **How do I get started?**
-   * Look up the :ref:`installation instructions<installation>`
-   * Browse the :ref:`quickstart tutorial<quickstart>`
-   * Check the :ref:`API documentation<api-documentation>`
+   * Look up the :ref:`installation instructions<installation>`.
+   * Browse the :ref:`quickstart tutorial<quickstart>`.
+   * Check the :ref:`API documentation<api-documentation>`.
    
 
 **Which features are available?**

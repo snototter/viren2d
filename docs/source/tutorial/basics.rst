@@ -5,6 +5,9 @@ Know the Basics
    You need to :ref:`use a painter<tutorial-painter-usage>` and invoke its
    ``draw_...`` methods.
 
+.. note::
+   TODO needs to be extended with pseudocolorization; what about anonymization (imagebuffer)?
+   TODO add warning at colors - most common mistake is to specify a RGB tuple (which results in white due to the saturation cast!)
 
 **What about the Coordinate System?**
    All coordinates assume an image coordinate system, where the origin

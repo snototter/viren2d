@@ -103,6 +103,11 @@ public:
   }
 
 
+  void DrawMarker(const Vec2d &pos, const MarkerStyle &style) {
+    painter_->DrawMarker(pos, style);
+  }
+
+
   void DrawRect(const Rect &rect, const LineStyle &line_style,
                 const Color &fill_color) {
     painter_->DrawRect(rect, line_style, fill_color);
@@ -202,10 +207,10 @@ void RegisterPainter(py::module &m) {
            "Returns the current visualization.\n\n"
            "Args:\n"
            "  copy: If you want a deep copy, set ``copy = True``. Otherwise, the buffer\n"
-           "    will just provide a **view** on the painter's canvas.\n"
-           "    This means: If you keep on drawing, this view will also\n"
-           "    change.\n\n"
-           "Examples:\n"
+           "    will just provide a **shared view** on the painter's canvas.\n"
+           "    This means: **If you keep on drawing, this view will also\n"
+           "    change.**\n\n"
+           "Examples::\n"
            "  Get canvas as ``numpy.ndarray``, where the **memory is\n"
            "  shared** with the painter:\n\n"
            "  >>> img_np = np.array(p.get_canvas(copy=False), copy=False)\n\n"
@@ -216,12 +221,13 @@ void RegisterPainter(py::module &m) {
            ".. tip::\n"
            "   If you can ensure that the painter is not destroyed while\n"
            "   you display/process the visualization, use the shared view\n"
-           "   on its canvas to avoid unnecessary memory allocation.",
-           py::arg("copy") = false);
+           "   (*i.e.* ``copy = False``) on its canvas to avoid unnecessary\n"
+           "   memory allocation.",
+           py::arg("copy") = true);
 
 
 //TODO(snototter) use consistent coding style (Google Python Guide) for code in all draw_xxx method docstrings
-        //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
   doc = "Draws a circular arc.\n\n"
         "Args:\n"
         "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
@@ -245,18 +251,18 @@ void RegisterPainter(py::module &m) {
               py::arg("include_center") = true,
               py::arg("fill_color") = Color::Invalid);
 
-        //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
   doc = "Draws an arrow.\n\n"
         "Args:\n"
         "  pt1: Start of the arrow shaft as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
         "  pt2: End of the arrow shaft (*i.e.* the pointy end) as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  arrow_style: A :class:`" + FullyQualifiedType("ArrowStyle") + "` specifying\n"
+        "  arrow_style: A :class:`~" + FullyQualifiedType("ArrowStyle") + "` specifying\n"
         "    how to draw the arrow.";
   painter.def("draw_arrow", &PainterWrapper::DrawArrow, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
               py::arg("arrow_style") = ArrowStyle());
 
-        //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
   doc = "Draws a circle.\n\n"
         "Args:\n"
         "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
@@ -273,7 +279,7 @@ void RegisterPainter(py::module &m) {
               py::arg("fill_color") = Color::Invalid);
 
 
-    //----------------------------------------------------------------------
+    //TODO coding style//----------------------------------------------------------------------
   doc = "Draws an ellipse.\n\n"
     ":ellipse:  (" + FullyQualifiedType("Ellipse") + ")\n"
     "    The ellipse which should be drawn.\n\n"
@@ -290,7 +296,7 @@ void RegisterPainter(py::module &m) {
           py::arg("line_style") = LineStyle(),
           py::arg("fill_color") = Color::Invalid);
 
-        //----------------------------------------------------------------------
+        //TODO//----------------------------------------------------------------------
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
         "    Width & height of each grid cell.\n\n"
         "    The grid will only be drawn within the defined region.\n"
@@ -308,20 +314,30 @@ void RegisterPainter(py::module &m) {
               py::arg("top_left") = Vec2d(),
               py::arg("bottom_right") = Vec2d());
 
-        //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
   doc = "Draws a line.\n\n"
-        ":pt1:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
-        ":pt2:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
-        "    Start/end coordinates of the line.\n\n"
-        ":line_style:  (" + FullyQualifiedType("LineStyle") + ")\n"
-        "    How to draw the line (thickness, color, dash pattern).\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Default") + ", the\n"
-        "    painter's default line style will be used.";
+        "Args:\n"
+        "  pt1: Start position as :class:`~"
+        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  pt2: End position as :class:`~"
+        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying\n"
+        "    how to draw the line.";
   painter.def("draw_line", &PainterWrapper::DrawLine, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
-              py::arg("line_style") = LineStyle());
+              py::arg("style") = LineStyle());
 
-        //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  doc = "Draws a marker/keypoint.\n\n"
+        "Args:\n"
+        "  pos: Position as :class:`~"
+        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  style: A :class:`~" + FullyQualifiedType("MarkerStyle") + "` specifying\n"
+        "    how to draw the marker.";
+  painter.def("draw_marker", &PainterWrapper::DrawMarker, doc.c_str(),
+              py::arg("pos"), py::arg("style") = MarkerStyle());
+
+  //TODO doc//----------------------------------------------------------------------
   doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
         ":rect:  (" + FullyQualifiedType("Rect") + ")\n"
         "    The rectangle which should be drawn.\n\n"
@@ -344,8 +360,8 @@ void RegisterPainter(py::module &m) {
         "  position: Position of the reference point as :class:`"
       + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
         "  anchor: How to orient the text w.r.t. the reference point.\n"
-        "    See :class:`" + FullyQualifiedType("TextAnchor")
-      + "` and :func:`" + FullyQualifiedType("text_anchor") + "`.\n"
+        "    See :class:`~" + FullyQualifiedType("TextAnchor")
+      + "` and :func:`~" + FullyQualifiedType("text_anchor") + "`.\n"
                                                               "TODO finish doc.";
   painter.def("draw_text", &PainterWrapper::DrawText, doc.c_str(),
               py::arg("text"), py::arg("position"),

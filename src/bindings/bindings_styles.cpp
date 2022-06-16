@@ -61,7 +61,8 @@ void RegisterLineCap(pybind11::module &m) {
              "Square ending, center of the square is the end point.");
 
   std::string doc = "Parses a string into a :class:`"
-      + FullyQualifiedType("LineCap") + "`.";
+      + FullyQualifiedType("LineCap") + "`.\n\n"
+      "**Corresponding C++ API:** ``viren2d::LineCapFromString``.";
   m.def("lcap", LineCapFromString,
         doc.c_str(), py::arg("cap_str"));
 }
@@ -77,7 +78,8 @@ void RegisterLineJoin(pybind11::module &m) {
              "Rounded join, where the center of the circle is the joint point.");
 
   std::string doc = "Parses a string into a :class:`"
-      + FullyQualifiedType("LineJoin") + "`.";
+      + FullyQualifiedType("LineJoin") + "`.\n\n"
+      "**Corresponding C++ API:** ``viren2d::LineJoinFromString``.";
   m.def("ljoin", LineJoinFromString,
         doc.c_str(), py::arg("join_str"));
 }
@@ -133,15 +135,37 @@ void RegisterMarker(pybind11::module &m) {
   std::string doc = "Parses a character into a :class:`"
       + FullyQualifiedType("Marker") + "`.\n\n"
       "See :func:`" + FullyQualifiedType("marker_codes")
-      + "` for a list of supported character representations.";
+      + "` for a list of supported character representations.\n\n"
+      "**Corresponding C++ API:** ``viren2d::MarkerFromChar`` and\n"
+      "``viren2d::ListMarkers``.";
   m.def("marker", MarkerFromChar, doc.c_str(), py::arg("rep"));
 }
 
+
+void SetMarkerFromPyObject(MarkerStyle &s, py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    const auto str = py::cast<std::string>(o);
+    s.marker = MarkerFromChar(str[0]);
+  } else if (py::isinstance<Marker>(o)) {
+    s.marker = py::cast<Marker>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast value of type `"
+        << tp << "` to " << FullyQualifiedType("Marker")
+        << "!";
+    throw std::invalid_argument(str.str());
+  }
+}
 
 void RegisterMarkerStyle(pybind11::module &m) {
   std::string doc = "How a marker/keypoint should be drawn.";
   py::class_<MarkerStyle> style(m, "MarkerStyle", doc.c_str());
 
+  //TODO init from tuple
+  //TODO serialize
+  //TODO implicit conversion
 //  doc = "TODO from tuple";
 //  style.def(py::init<>(&LineStyleFromTuple), doc.c_str());
 
@@ -182,36 +206,65 @@ void RegisterMarkerStyle(pybind11::module &m) {
 //      .def(py::pickle(&MarkerStyleToTuple,//FIXME implement!
 //                      &MarkerStyleFromTuple))
       .def(py::self == py::self)
-      .def(py::self != py::self);
-//      .def("is_valid", &MarkerStyle::IsValid, //FIXME implement
-//           "Check if the style would lead to a drawable marker.")
-//      .def_readwrite("line_cap", &LineStyle::line_cap,
-//           "How to render the endpoints of the line (or dash strokes).")
-//      .def_readwrite("line_join", &LineStyle::line_join,
-//           "How to render the junction of two lines/segments.")
-//      .def_readwrite("line_width", &LineStyle::line_width,
-//           "Width/thickness in pixels.")
-//      .def_readonly_static("Invalid", &LineStyle::Invalid,
-//            "Pass this to `Painter.draw_xxx()` to skip drawing the contour and\n"
-//            "only fill the object instead.");
+      .def(py::self != py::self)
+      .def("is_filled", &MarkerStyle::IsFilled,
+           "Returns ``True`` if this marker will be filled.\n\n"
+           "Note that this **may differ** from its :attr:`filled`\n"
+           "member: Some marker shapes *cannot* be filled (*e.g*\n"
+           "``'+'`` or ``'o'``), whereas some shapes *must* be"
+           "filled (*e.g.* ``'.'``).")
+      .def("is_valid", &MarkerStyle::IsValid,
+           "Checks if this style would lead to a drawable marker.");
 
-  doc = ":class:`" + FullyQualifiedType("Color") + "`: Color of the marker's contour or fill (see :attr:`filled`).";
+  doc = ":class:`~" + FullyQualifiedType("Color") + "`: Color of the marker's contour or fill (see :attr:`filled`).";
   style.def_readwrite("color", &MarkerStyle::color, doc.c_str());
+//FIXME FIXME FIXME
+  // use a lambda to set it!
+  // lambda --> markerstyle --> ok; character --> call marker!
+  // todo can we use the same for other methods (like text anchor conversion?) - don't think so :/
+  doc = ":class:`~" + FullyQualifiedType("Marker") + "`: "
+        "Marker shape.\n\n"
+"In addition to the enum values, you can use\n"
+"the corresponding marker code to set this member:\n"
+"  >>> style.marker = viren2d.Marker.Cross\n"
+"  >>> style.marker = 'x'";
+  style.def_property("marker",
+        [](MarkerStyle &s) { return s.marker; },
+        [](MarkerStyle &s, py::object o) { SetMarkerFromPyObject(s, o); },
+        doc.c_str());
+//  style.def_readwrite("marker", &MarkerStyle::marker, doc.c_str());
 
-  doc = "float: Thickness of the marker's contour. Might be ignored if the shape\n"
-        "is fillabel and you set :attr:``filled`.";
+  doc = "float: Thickness of the marker's contour. May be ignored if the shape\n"
+        "is fillable and you set :attr:``filled`, *i.e.* fill will be prefered\n"
+        "over just drawing the outline.";
   style.def_readwrite("thickness", &MarkerStyle::thickness, doc.c_str());
 
+  style.def_readwrite("size", &MarkerStyle::size,
+        "float: Marker size in pixels.");
+
   style.def_readwrite("filled", &MarkerStyle::filled,
-                      "bool: If ``True`` (and supported by the marker's shape),\n"
-                      "the marker will be filled with :attr:`color`.");
+        "bool: If ``True``, the marker should be filled with\n"
+        ":attr:`color`.\n\n"
+        "Note that some marker shapes *cannot* be filled (*e.g*\n"
+        "``'+'`` or ``'o'``), whereas some shapes *must* be"
+        "filled (*e.g.* ``'.'``). For these shapes, the value\n"
+        "of :attr:`filled` will be ignored.");
+
+  doc = ":class:`~" + FullyQualifiedType("LineCap") + "`: "
+        "How to render the endpoints contour lines.";
+  style.def_readwrite("line_cap", &MarkerStyle::line_cap, doc.c_str());
+
+  doc = ":class:`~" + FullyQualifiedType("LineJoin") + "`: "
+        "How to render the junctions of the contour segments.";
+  style.def_readwrite("line_cap", &MarkerStyle::line_cap, doc.c_str());
 
 //  // A LineStyle can be initialized from a given tuple.
 //  py::implicitly_convertible<py::tuple, MarkerStyle>();
 
 
-  doc = "Lists the character codes of all :class:`"
-      + FullyQualifiedType("Marker") + "` shapes.";
+  doc = "Lists the character codes of all :class:~`"
+      + FullyQualifiedType("Marker") + "` shapes.\n\n"
+      "**Corresponding C++ API:** ``viren2d::ListMarkers``.";
   m.def("marker_codes", ListMarkers, doc.c_str());
 }
 
@@ -286,7 +339,7 @@ void RegisterLineStyle(pybind11::module &m) {
            "Dash pattern defined as list of on/off strokes (lengths in\n"
            "pixels), e.g. [20, 10, 40, 10]. If the list is empty, the\n"
            "line will be drawn solid.")
-      .def_readwrite("line_cap", &LineStyle::line_cap,
+      .def_readwrite("line_cap", &LineStyle::line_cap,//TODO doc with class-ref!
            "How to render the endpoints of the line (or dash strokes).")
       .def_readwrite("line_join", &LineStyle::line_join,
            "How to render the junction of two lines/segments.")
