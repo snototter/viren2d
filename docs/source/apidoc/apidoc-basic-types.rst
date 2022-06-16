@@ -65,5 +65,6 @@ Rectangle
 ImageBuffer
 ~~~~~~~~~~~
 
-TODO
+TODO add conversion examples to the tutorial (where they actually belong) & only include class documentation here!
+
 

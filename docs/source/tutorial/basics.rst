@@ -22,3 +22,5 @@ Know the Basics
 .. note::
    TODO needs to be extended with pseudocolorization; what about anonymization (imagebuffer)?
    TODO add warning at colors - most common mistake is to specify a RGB tuple (which results in white due to the saturation cast!)
+   
+   TODO add "What about other visualizations?" --> pseudocoloring (should then also be usable for label2img, segmentation results, etc.)
