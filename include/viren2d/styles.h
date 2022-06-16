@@ -116,7 +116,8 @@ std::ostream &operator<<(std::ostream &os, Marker marker);
 
 
 /** Returns the char representations of all implemented marker shapes. */
-std::map<char, Marker> ListMarkers();
+//std::map<char, Marker> ListMarkers();
+std::vector<char> ListMarkers();
 
 
 /** How to render a marker/keypoint. */

@@ -283,17 +283,20 @@ std::ostream &operator<<(std::ostream &os, Marker marker) {
 }
 
 
-std::map<char, Marker> ListMarkers() {
+//std::map<char, Marker> ListMarkers() {
+std::vector<char> ListMarkers() {
   SPDLOG_TRACE("ListMarkers().");
-  std::map<char, Marker> dict;
+//  std::map<char, Marker> dict;
+  std::vector<char> lst;
   typedef ContinuousEnumIterator<Marker,
     Marker::Point, Marker::TriangleRight> MarkerIterator;
 
   for (Marker m: MarkerIterator()) {
-//    lst.push_back(MarkerToChar(m));
-    dict.insert(std::make_pair(MarkerToChar(m), m));
+    lst.push_back(MarkerToChar(m));
+//    dict.insert(std::make_pair(MarkerToChar(m), m));
   }
-  return dict;
+//  return dict;
+  return lst;
 }
 
 
@@ -341,43 +344,48 @@ bool MarkerStyle::IsValid() const {
     return false;
   }
 
-  // Nitpicky checks: different marker types require
-  // different checks. For example, a point is filled
-  // by definition and thus, doesn't care about the thickness.
-  switch (marker) {
-    case Marker::Circle:
-    case Marker::Cross:
-    case Marker::Plus:
-    case Marker::Star:
-      return (thickness > 0.0);
-
-    case Marker::Point:
-      return filled;
-
-    case Marker::Diamond:
-    case Marker::Enneagon:
-    case Marker::Enneagram:
-    case Marker::Pentagon:
-    case Marker::Pentagram:
-    case Marker::Heptagon:
-    case Marker::Heptagram:
-    case Marker::Hexagon:
-    case Marker::Hexagram:
-    case Marker::Octagon:
-    case Marker::Octagram:
-    case Marker::RotatedSquare:
-    case Marker::Square:
-    case Marker::TriangleDown:
-    case Marker::TriangleLeft:
-    case Marker::TriangleRight:
-    case Marker::TriangleUp:
-      return filled || (thickness > 0.0);
+  if (!helper::AdjustMarkerFill(marker, filled)) {
+    return thickness > 0.0;
   }
+  return true;
+//FIXME simplified - changed logic - marker is always renderable, unless you select an invalid thickness...
+//  // Nitpicky checks: different marker types require
+//  // different checks. For example, a point is filled
+//  // by definition and thus, doesn't care about the thickness.
+//  switch (marker) {
+//    case Marker::Circle:
+//    case Marker::Cross:
+//    case Marker::Plus:
+//    case Marker::Star:
+//      return (thickness > 0.0);
 
-  std::ostringstream s;
-  s << "`IsValid` is not implemented for marker "
-    << marker << "!";
-  throw std::invalid_argument(s.str());
+//    case Marker::Point:
+//      return filled;
+
+//    case Marker::Diamond:
+//    case Marker::Enneagon:
+//    case Marker::Enneagram:
+//    case Marker::Pentagon:
+//    case Marker::Pentagram:
+//    case Marker::Heptagon:
+//    case Marker::Heptagram:
+//    case Marker::Hexagon:
+//    case Marker::Hexagram:
+//    case Marker::Octagon:
+//    case Marker::Octagram:
+//    case Marker::RotatedSquare:
+//    case Marker::Square:
+//    case Marker::TriangleDown:
+//    case Marker::TriangleLeft:
+//    case Marker::TriangleRight:
+//    case Marker::TriangleUp:
+//      return filled || (thickness > 0.0);
+//  }
+
+//  std::ostringstream s;
+//  s << "`IsValid` is not implemented for marker "
+//    << marker << "!";
+//  throw std::invalid_argument(s.str());
 }
 
 
@@ -397,9 +405,9 @@ std::string MarkerStyle::ToString() const {
   //FIXME maybe change "most" measurement types to int?
   // who wants to use 1.5px line width anyhow... --> on the
   // other hand, we might need it once we switch to svg output (need to think about it!)
-  s << "MarkerStyle(" << MarkerToChar(marker)
+  s << "MarkerStyle('" << MarkerToChar(marker)
     << std::fixed << std::setprecision(1)
-    << ", sz=" << size
+    << "', sz=" << size
     << ", t=" << thickness
     << ", " << color;
 

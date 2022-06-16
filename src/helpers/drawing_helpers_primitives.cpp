@@ -526,12 +526,18 @@ void DrawMarker(cairo_surface_t *surface, cairo_t *context,
         break;
       }
 
-    case Marker::RotatedSquare:
+    case Marker::RotatedSquare: {
+        cairo_rotate(context, wgu::deg2rad(45.0));
+        // Adjust side length of the square, so that
+        // the rotated square marker has the same height
+        // as the other markers
+        double side = style.size / std::sqrt(2.0);
+        cairo_rectangle(context, -side / 2.0, -side / 2.0,
+                        side, side);
+        break;
+      }
+
     case Marker::Square: {
-        // 's' and 'S'
-        if (style.marker == Marker::RotatedSquare) {
-          cairo_rotate(context, wgu::deg2rad(45.0));
-        }
         cairo_rectangle(context, -half_size, -half_size,
                         style.size, style.size);
         break;

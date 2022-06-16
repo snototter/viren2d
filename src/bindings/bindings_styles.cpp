@@ -210,8 +210,8 @@ void RegisterMarkerStyle(pybind11::module &m) {
 //  py::implicitly_convertible<py::tuple, MarkerStyle>();
 
 
-  doc = "Returns a dictionary of character representations and corresponding :class:`"
-      + FullyQualifiedType("Marker") + "` shape.";
+  doc = "Lists the character codes of all :class:`"
+      + FullyQualifiedType("Marker") + "` shapes.";
   m.def("marker_codes", ListMarkers, doc.c_str());
 }
 

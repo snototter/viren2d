@@ -429,7 +429,57 @@ void DemoText() {
   painter.reset();
 }
 
+void DemoMarkers() {
+  auto painter = viren2d::CreatePainter();
+  painter->SetCanvas(800, 100, viren2d::Color::White); //.WithAlpha(0.0));
 
+  auto text_style = viren2d::TextStyle();
+  text_style.font_size = 16;
+  text_style.font_family = "xkcd";//"monospace";
+  text_style.color = viren2d::RGBa(60, 60, 60);
+
+  viren2d::Vec2d pos {110.0, 5.0};
+  viren2d::MarkerStyle marker_style;
+  marker_style.color = "navy-blue";
+  marker_style.size = 19;
+  marker_style.thickness = 1;
+
+  painter->DrawText({"Marker code:"}, {5.0, pos.y()},
+                    viren2d::TextAnchor::TopLeft, text_style);
+
+  painter->DrawText({"Not filled:"}, {5.0, 50.0},
+                    viren2d::TextAnchor::Left, text_style);
+  painter->DrawText({"Filled:"}, {5.0, 85.0},
+                    viren2d::TextAnchor::Left, text_style);
+
+  text_style.font_size = 16;
+  text_style.font_family = "monospace";
+
+  for (char m : viren2d::ListMarkers()) {
+    std::ostringstream s;
+//    s << '\'' << m << '\'';
+    s << m;
+    painter->DrawText({s.str()}, pos, viren2d::TextAnchor::Top, text_style);
+
+    viren2d::Vec2d mpos{pos.x(), 45.0};
+    marker_style.filled = false;
+    marker_style.marker = viren2d::MarkerFromChar(m);
+    if (!marker_style.IsFilled()) {
+      painter->DrawMarker(mpos, marker_style);
+    }
+
+    marker_style.filled = true;
+    if (marker_style.IsFilled()) {
+      mpos = {pos.x(), 80.0};
+      painter->DrawMarker(mpos, marker_style);
+    }
+
+    pos.x() += 32;
+  }
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-markers.png");
+  painter.reset();
+}
 
 void DemoBoundingBox2D() {
   auto painter = viren2d::CreatePainter();
@@ -520,6 +570,7 @@ int main(int /*argc*/, char **/*argv*/) {
 //  DemoCircles();
 //  DemoRects();
   DemoText();
+  DemoMarkers();
 //  DemoBoundingBox2D();
 //  DemoPolygon();
 
