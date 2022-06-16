@@ -1,28 +1,38 @@
 Positioning
 -----------
 
-.. autoclass:: viren2d.HorizontalAlignment
+~~~~~~~~~~~~~~~~~~~~
+Horizontal Alignment
+~~~~~~~~~~~~~~~~~~~~
 
+.. autoclass:: viren2d.HorizontalAlignment
 
 .. autofunction:: viren2d.halign
 
 
-.. autoclass:: viren2d.VerticalAlignment
-   :members:
+~~~~~~~~~~~~~~~~~~
+Vertical Alignment
+~~~~~~~~~~~~~~~~~~
 
+.. autoclass:: viren2d.VerticalAlignment
 
 .. autofunction:: viren2d.valign
 
 
-.. autoclass:: viren2d.TextAnchor
+~~~~~~~~~~~
+Text Anchor
+~~~~~~~~~~~
 
+.. autoclass:: viren2d.TextAnchor
 
 .. autofunction:: viren2d.text_anchor
 
 
+~~~~~~~~~~~~~~~~~~~
+Bounding Box Labels
+~~~~~~~~~~~~~~~~~~~
+
 .. autoclass:: viren2d.BoundingBoxLabelPosition
 
-
 .. autofunction:: viren2d.label_position
-
 

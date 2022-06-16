@@ -24,11 +24,13 @@
 .. |unchecked|  replace:: :raw-html:`&#x2610;`
 
 
-Visualize Common Computer Vision Results in 2D
+==============================================
+Visualize Computer Vision Results Neatly in 2D
 ==============================================
 
-``viren2d`` (*Visualize results not too disgraceful*) is a toolbox to visualize common 2D computer vision results in both
-**C++ and Python** environments.
+``viren2d`` (*Visualize results not too disgraceful*) is a toolbox to visualize
+the results of common 2D computer vision tasks in both **C++ and Python**
+environments.
 
 
 **What can I use it for?**

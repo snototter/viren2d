@@ -67,7 +67,7 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
 
 void RegisterAnchors(py::module &m) {
   py::enum_<HorizontalAlignment>(m, "HorizontalAlignment",
-             "Specifies the horizontal alignment.")
+             "Enum specifying the horizontal alignment.")
       .value("Left", HorizontalAlignment::Left, "Horizontally left-aligned.")
       .value("Center", HorizontalAlignment::Center, "Horizontally centered.")
       .value("Right", HorizontalAlignment::Right, "Horizontally right-aligned.");
@@ -80,7 +80,7 @@ void RegisterAnchors(py::module &m) {
 
 
   py::enum_<VerticalAlignment>(m, "VerticalAlignment",
-             "Specifies vertical alignment.")
+             "Enum specifying the vertical alignment.")
       .value("Top", VerticalAlignment::Top, "Vertically top-aligned.")
       .value("Center", VerticalAlignment::Center, "Vertically centered.")
       .value("Bottom", VerticalAlignment::Bottom, "Vertically bottom-aligned.");
@@ -92,7 +92,7 @@ void RegisterAnchors(py::module &m) {
         doc.c_str(), py::arg("align"));
 
   py::enum_<TextAnchor>(m, "TextAnchor",
-             "TODO doc")
+             "Enum specifying the location of the text anchor.")
       .value("Center", TextAnchor::Center,
              "Aligns text **both** horizontally & vertically **centered**.")
       .value("Left", TextAnchor::Left,
@@ -112,7 +112,7 @@ void RegisterAnchors(py::module &m) {
       .value("BottomRight", TextAnchor::BottomRight,
              "Aligns text **horizontally right-** & **vertically bottom-aligned**.");
 
-  doc = "Parses a string into a :class:`"
+  doc = "Parses a string into a :class:`~"
       + FullyQualifiedType("TextAnchor") + "`.\n\n"
       "Valid string representations include standard\n"
       "position specifications (*e.g.* ``center``, ``top``, ``right``, ``bottom-left``, *etc.*)\n"
@@ -125,7 +125,7 @@ void RegisterAnchors(py::module &m) {
 
 
   py::enum_<BoundingBoxLabelPosition>(m, "BoundingBoxLabelPosition",
-             "Where to place a bounding box label.")
+             "Enum specifying where to place a bounding box label.")
       .value("Top", BoundingBoxLabelPosition::Top,
              "At the top of the bounding box.")
       .value("Bottom", BoundingBoxLabelPosition::Bottom,

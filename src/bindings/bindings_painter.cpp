@@ -165,38 +165,42 @@ void RegisterPainter(py::module &m) {
        to get a deeply copied image as ``numpy.ndarray``:
 
        >>> import numpy as np
-       >>> canvas = p.get_canvas(copy=True)
+       >>> canvas = painter.get_canvas(copy=True)
        >>> img_np = np.array(canvas, copy=False)
 
     5. Either continue drawing (step 3) or set a new canvas (step 2, the
        same painter instance can be reused).
     )pbdoc");
 
+  std::string doc = "Initializes the canvas with the given color.\n\n"
+       "Args:\n"
+       "  width: Canvas width in pixels.\n"
+       "  height: Canvas height in pixels.\n"
+       "  color: Background :class:`~"
+       + FullyQualifiedType("Color") + "`.";
   painter.def(py::init<>())
       .def("__repr__", [](const Painter &) { return FullyQualifiedType("Painter", true); })
       .def("__str__", [](const Painter &) { return FullyQualifiedType("Painter", false); })
       .def("is_valid", &PainterWrapper::IsValid,
            "Checks if the canvas has been set up correctly.")
       .def("set_canvas_rgb", &PainterWrapper::SetCanvasColor,
-           "Initializes the canvas with the given color.\n\n"
-           "Args:\n"
-           "  width: Canvas width in pixels.\n"
-           "  height: Canvas height in pixels.\n"
-           "  color: Background color, defaults to white.",
+           doc.c_str(),
            py::arg("width"), py::arg("height"),
-           py::arg("color")=Color::White)
+           py::arg("color") = Color::White)
       .def("set_canvas_filename", &PainterWrapper::SetCanvasFilename,
-           "Initializes the canvas from the given image file.\n"
-           "Supported formats are:\n\n"
-           "  JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM\n\n"
-           "This functionality uses the `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`_.",
+           "Initializes the canvas from the given image file.\n\n"
+           "This functionality uses the "
+           "`stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`_\n"
+           "to load the image file. Supported formats are:\n\n"
+           "   JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM",
            py::arg("image_filename"));
 
-  std::string doc = "Initializes the canvas from the given image, *i.e.* either\n"
-        "a ``numpy.ndarray`` (with ``dtype=uint8``) or a :class:`" + FullyQualifiedType("ImageBuffer") + "`.\n\n"
-        "Example:\n"
-        "  >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
-        "  >>> painter.set_canvas_image(img_np)";
+  doc = "Initializes the canvas from the given image, *i.e.* either\n"
+      "a ``numpy.ndarray`` (with ``dtype=uint8``) or an :class:`~"
+      + FullyQualifiedType("ImageBuffer") + "`.\n\n"
+      "Example:\n"
+      "  >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
+      "  >>> painter.set_canvas_image(img_np)";
   painter.def("set_canvas_image", &PainterWrapper::SetCanvasImage,
               doc.c_str(), py::arg("image"));
 
@@ -210,7 +214,7 @@ void RegisterPainter(py::module &m) {
            "    will just provide a **shared view** on the painter's canvas.\n"
            "    This means: **If you keep on drawing, this view will also\n"
            "    change.**\n\n"
-           "Examples::\n"
+           "Examples:\n"
            "  Get canvas as ``numpy.ndarray``, where the **memory is\n"
            "  shared** with the painter:\n\n"
            "  >>> img_np = np.array(p.get_canvas(copy=False), copy=False)\n\n"
@@ -230,19 +234,19 @@ void RegisterPainter(py::module &m) {
   //----------------------------------------------------------------------
   doc = "Draws a circular arc.\n\n"
         "Args:\n"
-        "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
-        "  radius: Radius of the arc in pixels as ``float``\n"
+        "  center: Center position as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  radius: Radius of the arc in pixels as ``float``.\n"
         "  angle1: The arc will be drawn from ``angle1`` to ``angle2``\n"
         "    in clockwise direction. Both angles are specified as type ``float`` in degrees,\n"
         "    where 0 degrees points in the direction of increasing `x` coordinates.\n"
-        "  angle2: See ``angle1``\n"
-        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "` specifying how\n"
+        "  angle2: See ``angle1``.\n"
+        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
         "    to draw the arc's outline.\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
+        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
         "    contour will not be drawn (then you must define a ``fill_color``).\n"
         "  include_center:  If ``True`` (default), the center of the circle will be included\n"
         "    when drawing the outline and filling the arc.\n"
-        "  fill_color: If you provide a valid :class:`" + FullyQualifiedType("Color") + "`,\n"
+        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
         "    the arc will be filled.";
   painter.def("draw_arc", &PainterWrapper::DrawArc, doc.c_str(),
               py::arg("center"), py::arg("radius"),
@@ -254,9 +258,9 @@ void RegisterPainter(py::module &m) {
   //----------------------------------------------------------------------
   doc = "Draws an arrow.\n\n"
         "Args:\n"
-        "  pt1: Start of the arrow shaft as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  pt2: End of the arrow shaft (*i.e.* the pointy end) as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  arrow_style: A :class:`~" + FullyQualifiedType("ArrowStyle") + "` specifying\n"
+        "  pt1: Start of the arrow shaft as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  pt2: End of the arrow shaft (*i.e.* the *pointy end*) as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  arrow_style: An :class:`~" + FullyQualifiedType("ArrowStyle") + "` specifying\n"
         "    how to draw the arrow.";
   painter.def("draw_arrow", &PainterWrapper::DrawArrow, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
@@ -265,13 +269,13 @@ void RegisterPainter(py::module &m) {
   //----------------------------------------------------------------------
   doc = "Draws a circle.\n\n"
         "Args:\n"
-        "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
+        "  center: Center position as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
         "  radius: Radius of the circle in pixels as ``float``\n"
-        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "` specifying how\n"
+        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
         "    to draw the circle's outline.\n"
         "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
         "    contour will not be drawn (then you must define a ``fill_color``).\n"
-        "  fill_color: If you provide a valid :class:`" + FullyQualifiedType("Color") + "`,\n"
+        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
         "    the circle will be filled.";
   painter.def("draw_circle", &PainterWrapper::DrawCircle, doc.c_str(),
               py::arg("center"), py::arg("radius"),
@@ -357,7 +361,7 @@ void RegisterPainter(py::module &m) {
   doc = "Places the given text on the canvas.\n\n"
         "Args:\n"
         "  text: A list of strings to be drawn.\n"
-        "  position: Position of the reference point as :class:`"
+        "  position: Position of the reference point as :class:`~"
       + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
         "  anchor: How to orient the text w.r.t. the reference point.\n"
         "    See :class:`~" + FullyQualifiedType("TextAnchor")

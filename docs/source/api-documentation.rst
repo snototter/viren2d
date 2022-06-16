@@ -1,5 +1,6 @@
 .. _api-documentation:
 
+=================
 API Documentation
 =================
 
@@ -9,6 +10,7 @@ API Documentation
 
    apidoc/apidoc-basic-types
    apidoc/apidoc-styles
+   apidoc/apidoc-style-enums
    apidoc/apidoc-positioning
    apidoc/apidoc-drawing
 

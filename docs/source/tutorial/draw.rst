@@ -1,5 +1,6 @@
 .. _tutorial-painter-usage:
 
+---------------------
 Tutorial: The Painter
 ---------------------
 
@@ -24,7 +25,9 @@ Once you've set up the painter, you can start drawing:
     :maxdepth: 2
 
     draw-primitives
+    draw-markers
     draw-text
+    draw-surveillance
 
 
 Finally, you simply retrieve the visualization result via 

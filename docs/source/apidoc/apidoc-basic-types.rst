@@ -21,7 +21,7 @@ Color Names
       :alt: Color names
       :align: center
 
-      Predefined colors you can easily initialize by their names.
+      Overview of the predefined colors that can be initialized by their name.
 
 
 Vector 2D

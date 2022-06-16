@@ -1,9 +1,10 @@
 .. _installation:
 
+============
 Installation
 ============
 
-
+------------
 Requirements
 ------------
 
@@ -36,13 +37,14 @@ TODO you'll need python 3.x-dev!
   `pip \>= 10.0.0 <https://pypi.org/project/pip/>`_.
 
 
+------
 Python
 ------
 
 TODO populate with instructions from readme
 
 
-
+---
 C++
 ---
 

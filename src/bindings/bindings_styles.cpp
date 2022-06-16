@@ -52,7 +52,7 @@ LineStyle LineStyleFromTuple(py::tuple tpl) {
 
 void RegisterLineCap(pybind11::module &m) {
   py::enum_<LineCap>(m, "LineCap",
-             "How to render the endpoints of the line (or dash strokes).")
+             "Enum specifying how to render the endpoints of a line/dash stroke.")
       .value("Butt", LineCap::Butt,
              "Start/stop the line exactly at the start/end point.")
       .value("Round", LineCap::Round,
@@ -69,7 +69,7 @@ void RegisterLineCap(pybind11::module &m) {
 
 void RegisterLineJoin(pybind11::module &m) {
   py::enum_<LineJoin>(m, "LineJoin",
-             "How to render the junction of two lines/segments.")
+             "Enum specifying how to render the junction of two lines/segments.")
       .value("Miter", LineJoin::Miter,
              "Sharp (angled) corner.")
       .value("Bevel", LineJoin::Bevel,
@@ -86,7 +86,8 @@ void RegisterLineJoin(pybind11::module &m) {
 
 
 void RegisterMarker(pybind11::module &m) {
-  py::enum_<Marker>(m, "Marker", "Marker shape enumeration.")
+  py::enum_<Marker>(m, "Marker",
+                    "Enum specifying the marker shape.")
       .value("Point", Marker::Point,
              "Point, *i.e.* a filled circle, char representation: ``'.'``.")
       .value("Circle", Marker::Circle,
@@ -226,8 +227,8 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "Marker shape.\n\n"
 "In addition to the enum values, you can use\n"
 "the corresponding marker code to set this member:\n"
-"  >>> style.marker = viren2d.Marker.Cross\n"
-"  >>> style.marker = 'x'";
+"   >>> style.marker = viren2d.Marker.Cross\n"
+"   >>> style.marker = 'x'";
   style.def_property("marker",
         [](MarkerStyle &s) { return s.marker; },
         [](MarkerStyle &s, py::object o) { SetMarkerFromPyObject(s, o); },
@@ -235,7 +236,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
 //  style.def_readwrite("marker", &MarkerStyle::marker, doc.c_str());
 
   doc = "float: Thickness of the marker's contour. May be ignored if the shape\n"
-        "is fillable and you set :attr:``filled`, *i.e.* fill will be prefered\n"
+        "is fillable and you set :attr:`filled`, *i.e.* fill will be prefered\n"
         "over just drawing the outline.";
   style.def_readwrite("thickness", &MarkerStyle::thickness, doc.c_str());
 
@@ -270,6 +271,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
 
 void RegisterLineStyle(pybind11::module &m) {
+  //TODO doc is deprecated!
   std::string doc = "How a line/contour should be drawn.\n\nNote the special static members:\n"
         "* Use `LineStyle.Default` to use the painter's default line style.\n"
         "  This can be changed via `Painter.set_default_line_style()`.\n"

@@ -56,18 +56,26 @@ py::tuple ColorToTuple(const Color &obj) {
 
 void RegisterColor(py::module &m) {
   auto doc = "Returns a list of the predefined color names.\n\n"
-      "Each of these names can be used to initialize a\n:class:`"
+      "Each of these names can be used to initialize a\n:class:`~"
       + FullyQualifiedType("Color") + "`. For example:\n"
-      "  >>> text_style.color = 'midnight-blue'\n"
-      "  >>> line_style.color = 'forest-grean!40'\n\n"
+      "  >>> text_style.color = 'midnight-blue'  # alpha = 1.0\n"
+      "  >>> line_style.color = 'forest-green!40'  # alpha = 0.4\n\n"
       "**Corresponding C++ API:** ``viren2d::ListNamedColors``.";
   m.def("color_names", &ListNamedColors, doc.c_str());
 
   py::class_<Color>(m, "Color",
-           "A color in rgba format, where each component is within [0, 1].")
+           "A color in rgba format, where each component is within ``[0, 1]``.\n\n"
+            ".. note::\n"
+            "   If you initialize a color from a ``tuple(r,g,b,a)``, you **must\n"
+            "   ensure that the r,g,b values are within** ``[0, 1]``.\n"
+            "   **Caveat:** Due to saturation casting, the following ``tuple``\n"
+            "   will be converted to ``(1, 1, 1)``, *i.e.* the polygon will be\n"
+            "   filled with **white** instead!\n\n"
+            "   >>> # Incorrectly specifying a color as `RGB` instead of `rgb`:\n"
+            "   >>> painter.draw_polygon(..., fill_color=(20, 20, 75))")
       .def(py::init<>(),
            "Initializes an *invalid color* (``r,g,b < 0``) which can\n"
-           "be used in several :py:class:`viren2d.Painter` methods to request\n"
+           "be used in several :class:`~viren2d.Painter` methods to request\n"
            "special color handling (e.g. switching to the inverse color or\n"
            "to skip filling).")
       .def(py::init<>(&ColorFromTuple),

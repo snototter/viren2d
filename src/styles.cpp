@@ -609,8 +609,8 @@ bool ArrowStyle::IsValid() const {
 std::string ArrowStyle::ToString() const {
   std::ostringstream s;
   s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
-    << line_width << ", tl=" << tip_length
-    << ", ta=" << tip_angle << "°, "
+    << line_width << ", tip=" << tip_length
+    << ", angle=" << tip_angle << "°, "
     << (tip_closed ? "filled" : "open") << ", "
     << (double_headed ? "double-headed, " : "")
     << color.ToHexString() << ", "
