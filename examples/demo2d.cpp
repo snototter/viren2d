@@ -559,6 +559,8 @@ void DemoBoundingBox2D() {
 
 
 int main(int /*argc*/, char **/*argv*/) {
+  //viren2d::Color::FromCategory("Person");
+  std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
 //  if (!viren2d::SetLogLevel("trace")) {
 //    std::cout << "Could not adjust log level - did you compile viren2d"
 //                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"

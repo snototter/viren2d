@@ -364,7 +364,25 @@ class Color {
     os << col.ToString();
     return os;
   }
+
+  /**
+   * Returns a color for the given ID (e.g. object or class identifier).
+   *
+   * Useful to consistently visualize trajectories, etc.
+   */
+  static Color FromID(std::size_t id);
+
+  /**
+   * Returns a color for the given category/object class.
+   *
+   * TODO converts to lower case, replacements, ...
+   * TODO which categories are supported?
+   * TODO what if category is unknown? --> maybe hash and return fromID?
+   */
+  static Color FromCategory(const std::string &category);
 };
+
+//TODO after pseudocoloring, we might look into label2img (segmentation results, etc.)
 
 //std::ostream& operator<<(std::ostream& os, const Color& c);
 

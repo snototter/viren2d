@@ -19,7 +19,7 @@ namespace wgu = werkzeugkiste::geometry;
 namespace wgs = werkzeugkiste::strings;
 
 namespace viren2d {
-namespace helper {
+namespace helpers {
 /**
  * Returns desired_fill if the given marker is fillable.
  * Otherwise, returns true if the marker is fillable and
@@ -61,7 +61,7 @@ bool AdjustMarkerFill(Marker marker, bool desired_fill) {
     << "' has not been mapped to `AdjustMarkerFill`!";
   throw std::invalid_argument(s.str());
 }
-} // namespace helper
+} // namespace helpers
 
 
 //-------------------------------------------------  Line Cap & Join
@@ -304,7 +304,7 @@ MarkerStyle::MarkerStyle()
   : marker(Marker::Circle),
     size(10.0), thickness(3.0),
     color(NamedColor::Azure),
-    filled(helper::AdjustMarkerFill(marker, false)),
+    filled(helpers::AdjustMarkerFill(marker, false)),
     line_cap(LineCap::Butt),
     line_join(LineJoin::Miter)
 {}
@@ -317,7 +317,7 @@ MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thicknes
     size(marker_size),
     thickness(marker_thickness),
     color(marker_color),
-    filled(helper::AdjustMarkerFill(type, fill)),
+    filled(helpers::AdjustMarkerFill(type, fill)),
     line_cap(cap), line_join(join)
 {}
 
@@ -344,7 +344,7 @@ bool MarkerStyle::IsValid() const {
     return false;
   }
 
-  if (!helper::AdjustMarkerFill(marker, filled)) {
+  if (!helpers::AdjustMarkerFill(marker, filled)) {
     return thickness > 0.0;
   }
   return true;
@@ -393,7 +393,7 @@ bool MarkerStyle::IsFilled() const {
   // User could have changed the `filled` flag
   // since creation, thus always check whether
   // the shape actually supports it:
-  return helper::AdjustMarkerFill(marker, filled);
+  return helpers::AdjustMarkerFill(marker, filled);
 }
 
 
