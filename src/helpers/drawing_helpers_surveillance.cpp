@@ -189,7 +189,7 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
     cairo_rectangle(context, label_box.left(), label_box.top(),
                     label_box.width, label_box.height);
     cairo_fill(context);
-    // FIXME
+
     // Fill bounding box
     if (bbox_fill.IsValid()) {
       helpers::ApplyColor(context, bbox_fill);

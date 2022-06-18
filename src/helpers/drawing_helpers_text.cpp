@@ -268,6 +268,7 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   mlt.PlaceText(context);
 
   // Pop the original context.
+  cairo_new_path(context);
   cairo_restore(context);
 }
 } // namespace helpers

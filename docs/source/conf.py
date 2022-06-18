@@ -32,16 +32,22 @@ release = version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-#  'sphinx.ext.autosectionlabel',
   'sphinx.ext.autodoc',
   'sphinx.ext.autosummary',
-  'sphinx.ext.napoleon'  # Parse Google and NumPy docstrings
+  'sphinx.ext.napoleon',  # Parse Google and NumPy docstrings
+  'sphinx.ext.mathjax',
+  'autodocsumm', # adds TOC for autosummary: https://autodocsumm.readthedocs.io/en/latest/index.html
 ]
 
 
 # -- Options for the extension modules ---------------------------------------
 
 autosummary_generate = True
+
+#TODO if set here, the toc comes AFTER the __init__ docs :/
+#autodoc_default_options = {
+#  'autosummary': True,
+#}
 
 
 
@@ -79,7 +85,14 @@ html_static_path = []
 #html_static_path = ['_static']
 
 
+#https://stackoverflow.com/a/5599712/400948
+def skip(app, what, name, obj, would_skip, options):
+    if name == "__init__":
+        return False
+    return would_skip
 
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
 
 #autodoc_default_flags = ['members', 'private-members', 'special-members',
 #                         #'undoc-members',

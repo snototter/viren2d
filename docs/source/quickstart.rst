@@ -1,5 +1,6 @@
 .. _quickstart:
 
+==========
 Quickstart
 ==========
 
@@ -9,4 +10,5 @@ Quickstart
    tutorial/basics
    tutorial/draw
    tutorial/pseudocolor
+   tutorial/conversion
 

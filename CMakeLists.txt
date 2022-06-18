@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 
 # Version could have been injected (e.g. by the CMakeBuild
 # extension in setup.py)

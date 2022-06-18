@@ -480,6 +480,11 @@ Ellipse::Ellipse(std::initializer_list<double> values) {
 }
 
 
+Vec2d Ellipse::Center() const {
+  return Vec2d{cx, cy};
+}
+
+
 Ellipse &Ellipse::operator+=(double offset) {
   cx += offset;
   cy += offset;
@@ -572,6 +577,11 @@ Rect::Rect(std::initializer_list<double> values) {
 
   if (values.size() > 5)
     radius = val[5];
+}
+
+
+Vec2d Rect::Center() const {
+  return Vec2d{cx, cy};
 }
 
 

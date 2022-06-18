@@ -81,6 +81,7 @@ TextAnchor operator|(VerticalAlignment lhs, HorizontalAlignment rhs);
 TextAnchor TextAnchorFromString(const std::string &anchor);
 std::string TextAnchorToString(TextAnchor anchor);
 std::ostream &operator<<(std::ostream &os, TextAnchor anchor);
+std::vector<TextAnchor> ListTextAnchors();
 
 
 enum class BoundingBoxLabelPosition : unsigned char {

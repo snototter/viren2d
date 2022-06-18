@@ -52,6 +52,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Drawing - Styles
   viren2d::bindings::RegisterLineCap(m);
   viren2d::bindings::RegisterLineJoin(m);
+  viren2d::bindings::RegisterMarker(m);
+
+  viren2d::bindings::RegisterMarkerStyle(m);
   viren2d::bindings::RegisterLineStyle(m);
 
   viren2d::bindings::RegisterArrowStyle(m);
@@ -74,6 +77,8 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 //  //TODO(snototter) generate documentation; check if all documented code uses backticks (we might need double backticks for sphinx?)
 
 //  //------------------------------------------------- Logging
+  //TODO **Corresponding C++ API:** ``SetLogLevel``; explain usage (compile with flag & setloglevel in code!!
+  //TODO remove library init when switching to spdlog v2?
 //  m.def("set_log_level", static_cast<bool (*)(const std::string &)>(&viren2d::SetLogLevel), "TODO", py::arg(""));
 ////  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
 

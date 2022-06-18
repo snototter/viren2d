@@ -6,14 +6,65 @@
 #include <cmath>
 
 #include <werkzeugkiste/geometry/utils.h>
+#include <werkzeugkiste/strings/strings.h>
 
 #include <viren2d/styles.h>
+#include <helpers/logging.h>
+#include <helpers/enum.h>
+
 
 //TODO logging
 
 namespace wgu = werkzeugkiste::geometry;
+namespace wgs = werkzeugkiste::strings;
 
 namespace viren2d {
+namespace helpers {
+/**
+ * Returns desired_fill if the given marker is fillable.
+ * Otherwise, returns true if the marker is fillable and
+ * false if it's not.
+ */
+bool AdjustMarkerFill(Marker marker, bool desired_fill) {
+  switch (marker) {
+    case Marker::Circle:
+    case Marker::Cross:
+    case Marker::Plus:
+    case Marker::Star:
+      return false;
+
+    case Marker::Point:
+      return true;
+
+    case Marker::Diamond:
+    case Marker::Enneagon:
+    case Marker::Enneagram:
+    case Marker::Heptagon:
+    case Marker::Heptagram:
+    case Marker::Hexagon:
+    case Marker::Hexagram:
+    case Marker::Octagon:
+    case Marker::Octagram:
+    case Marker::Pentagon:
+    case Marker::Pentagram:
+    case Marker::RotatedSquare:
+    case Marker::Square:
+    case Marker::TriangleDown:
+    case Marker::TriangleLeft:
+    case Marker::TriangleRight:
+    case Marker::TriangleUp:
+      return desired_fill;
+  }
+
+  std::ostringstream s;
+  s << "Marker '" << marker
+    << "' has not been mapped to `AdjustMarkerFill`!";
+  throw std::invalid_argument(s.str());
+}
+} // namespace helpers
+
+
+//-------------------------------------------------  Line Cap & Join
 std::string LineCapToString(LineCap cap) {
   switch (cap) {
     case LineCap::Butt:
@@ -25,9 +76,32 @@ std::string LineCapToString(LineCap cap) {
   }
 
   std::ostringstream s;
-  s << "LineCap [" << static_cast<int>(cap)
-    << "] is not yet supported in LineCapToString()!";
+  s << "LineCap (" << static_cast<int>(cap)
+    << ") is not yet supported in LineCapToString()!";
   throw std::runtime_error(s.str());
+}
+
+
+LineCap LineCapFromString(const std::string &cap) {
+  const auto lower = wgs::Lower(cap);
+  if (lower.compare("butt") == 0) {
+    return LineCap::Butt;
+  } else if (lower.compare("square") == 0) {
+    return LineCap::Square;
+  } else if (lower.compare("round") == 0) {
+    return LineCap::Round;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce LineCap from string representation \""
+    << cap << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::ostream &operator<<(std::ostream &os, LineCap cap) {
+  os << LineCapToString(cap);
+  return os;
 }
 
 
@@ -42,9 +116,283 @@ std::string LineJoinToString(LineJoin join) {
   }
 
   std::ostringstream s;
-  s << "LineJoin [" << static_cast<int>(join)
-    << "] is not yet supported in LineJoinToString()!";
+  s << "LineJoin (" << static_cast<int>(join)
+    << ") is not yet supported in LineJoinToString()!";
   throw std::runtime_error(s.str());
+}
+
+
+LineJoin LineJoinFromString(const std::string &join) {
+  const auto lower = wgs::Lower(join);
+  if (lower.compare("miter") == 0) {
+    return LineJoin::Miter;
+  } else if (lower.compare("bevel") == 0) {
+    return LineJoin::Bevel;
+  } else if (lower.compare("round") == 0) {
+    return LineJoin::Round;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce LineJoin from string representation \""
+    << join << "\".";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::ostream &operator<<(std::ostream &os, LineJoin join) {
+  os << LineJoinToString(join);
+  return os;
+}
+
+
+//-------------------------------------------------  MarkerStyle
+Marker MarkerFromChar(char m) {
+  if (m == '.') {
+    return Marker::Point;
+  } else if (m == 'o') {
+    return Marker::Circle;
+  } else if (m == 'd') {
+    return Marker::Diamond;
+  } else if (m == '+') {
+    return Marker::Plus;
+  } else if (m == 'x') {
+    return Marker::Cross;
+  } else if (m == 's') {
+    return Marker::Square;
+  } else if (m == 'S') {
+    return Marker::RotatedSquare;
+  } else if (m == '^') {
+    return Marker::TriangleUp;
+  } else if (m == 'v') {
+    return Marker::TriangleDown;
+  } else if (m == '<') {
+    return Marker::TriangleLeft;
+  } else if (m == '>') {
+    return Marker::TriangleRight;
+  } else if (m == '*') {
+    return Marker::Star;
+  } else if (m == '5') {
+    return Marker::Pentagram;
+  } else if (m == 'p') {
+    return Marker::Pentagon;
+  } else if (m == '6') {
+    return Marker::Hexagram;
+  } else if (m == 'h') {
+    return Marker::Hexagon;
+  } else if (m == '7') {
+    return Marker::Heptagram;
+  } else if (m == 'H') {
+    return Marker::Heptagon;
+  } else if (m == '8') {
+    return Marker::Octagram;
+  } else if (m == 'O') {
+    return Marker::Octagon;
+  } else if (m == '9') {
+    return Marker::Enneagram;
+  } else if (m == 'n') {
+    return Marker::Enneagon;
+  }
+
+  std::ostringstream s;
+  s << "Could not deduce Marker from char '"
+    << m << "'.";
+  throw std::invalid_argument(s.str());
+}
+
+
+char MarkerToChar(Marker marker) {
+  switch (marker) {
+    case Marker::Circle:
+      return 'o';
+
+    case Marker::Cross:
+      return 'x';
+
+    case Marker::Diamond:
+      return 'd';
+
+    case Marker::Enneagon:
+      return 'n';
+
+    case Marker::Enneagram:
+      return '9';
+
+    case Marker::Heptagon:
+      return 'H';
+
+    case Marker::Heptagram:
+      return '7';
+
+    case Marker::Hexagon:
+      return 'h';
+
+    case Marker::Hexagram:
+      return '6';
+
+    case Marker::Octagon:
+      return 'O';
+
+    case Marker::Octagram:
+      return '8';
+
+    case Marker::Pentagon:
+      return 'p';
+
+    case Marker::Pentagram:
+      return '5';
+
+    case Marker::Plus:
+      return '+';
+
+    case Marker::Point:
+      return '.';
+
+    case Marker::RotatedSquare:
+      return 'S';
+
+    case Marker::Star:
+      return '*';
+
+    case Marker::Square:
+      return 's';
+
+    case Marker::TriangleUp:
+      return '^';
+
+    case Marker::TriangleDown:
+      return 'v';
+
+    case Marker::TriangleLeft:
+      return '<';
+
+    case Marker::TriangleRight:
+      return '>';
+  }
+
+  std::ostringstream s;
+  s << "Marker value ("
+    << static_cast<int>(marker)
+    << ") has not been mapped to char representation!";
+  throw std::invalid_argument(s.str());
+}
+
+
+std::ostream &operator<<(std::ostream &os, Marker marker) {
+  os << "'" << MarkerToChar(marker) << "'";
+  return os;
+}
+
+
+//std::map<char, Marker> ListMarkers() {
+std::vector<char> ListMarkers() {
+  SPDLOG_TRACE("ListMarkers().");
+//  std::map<char, Marker> dict;
+  std::vector<char> lst;
+  typedef ContinuousEnumIterator<Marker,
+    Marker::Point, Marker::TriangleRight> MarkerIterator;
+
+  for (Marker m: MarkerIterator()) {
+    lst.push_back(MarkerToChar(m));
+//    dict.insert(std::make_pair(MarkerToChar(m), m));
+  }
+//  return dict;
+  return lst;
+}
+
+
+MarkerStyle::MarkerStyle()
+  : marker(Marker::Circle),
+    size(10.0), thickness(3.0),
+    color(NamedColor::Azure),
+    filled(helpers::AdjustMarkerFill(marker, false)),
+    line_cap(LineCap::Butt),
+    line_join(LineJoin::Miter)
+{}
+
+
+MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thickness,
+                         const Color &marker_color, bool fill,
+                         viren2d::LineCap cap, viren2d::LineJoin join)
+  : marker(type),
+    size(marker_size),
+    thickness(marker_thickness),
+    color(marker_color),
+    filled(helpers::AdjustMarkerFill(type, fill)),
+    line_cap(cap), line_join(join)
+{}
+
+
+MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
+                         const Color &marker_color, bool fill,
+                         LineCap cap, LineJoin join)
+  : MarkerStyle(MarkerFromChar(type), marker_size, marker_thickness,
+                marker_color, fill, cap, join)
+{}
+
+
+bool MarkerStyle::Equals(const MarkerStyle &other) const {
+  return (marker == other.marker)
+      && wgu::eps_equal(size, other.size)
+      && wgu::eps_equal(thickness, other.thickness)
+      && (color == other.color)
+      && (filled == other.filled);
+}
+
+
+bool MarkerStyle::IsValid() const {
+  if ((size <= 0.0) || !color.IsValid()) {
+    return false;
+  }
+
+  if (!helpers::AdjustMarkerFill(marker, filled)) {
+    return thickness > 0.0;
+  }
+  return true;
+}
+
+
+bool MarkerStyle::IsFilled() const {
+  // User could have changed the `filled` flag
+  // since creation, thus always check whether
+  // the shape actually supports it:
+  return helpers::AdjustMarkerFill(marker, filled);
+}
+
+
+std::string MarkerStyle::ToString() const {
+  std::ostringstream s;
+  // TODO change other style::tostring()
+  // remove "style": Marker/Rect/Ellipse/Line
+  //TODO set precision, etc
+  //FIXME maybe change "most" measurement types to int?
+  // who wants to use 1.5px line width anyhow... --> on the
+  // other hand, we might need it once we switch to svg output (need to think about it!)
+  s << "MarkerStyle('" << MarkerToChar(marker)
+    << std::fixed << std::setprecision(1)
+    << "', sz=" << size
+    << ", t=" << thickness
+    << ", " << color;
+
+  if (filled) {
+    s << ", filled";
+  }
+
+  if (!IsValid()) {
+    s << ", invalid";
+  }
+
+  s << ")";
+  return s.str();
+}
+
+
+bool operator==(const MarkerStyle &lhs, const MarkerStyle &rhs) {
+  return lhs.Equals(rhs);
+}
+
+
+bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs) {
+  return !(lhs == rhs);
 }
 
 
@@ -223,8 +571,8 @@ bool ArrowStyle::IsValid() const {
 std::string ArrowStyle::ToString() const {
   std::ostringstream s;
   s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
-    << line_width << ", tl=" << tip_length
-    << ", ta=" << tip_angle << "°, "
+    << line_width << ", tip=" << tip_length
+    << ", angle=" << tip_angle << "°, "
     << (tip_closed ? "filled" : "open") << ", "
     << (double_headed ? "double-headed, " : "")
     << color.ToHexString() << ", "

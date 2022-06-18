@@ -1,6 +1,8 @@
+~~~~~~~~~~~~~~~~~~~~
 Geometric Primitives
 ~~~~~~~~~~~~~~~~~~~~
 
+................
 TODO arc, circle
 ................
 
@@ -24,11 +26,13 @@ TODO arc, circle
    painter.draw_circle(...)
 
 
+.......
 Ellipse
 .......
 
 TODO
 
+.........
 Rectangle
 .........
 

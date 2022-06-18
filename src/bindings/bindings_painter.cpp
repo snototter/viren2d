@@ -12,6 +12,22 @@ namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
+TextAnchor TextAnchorFromPyObject(py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    return TextAnchorFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<TextAnchor>(o)) {
+    return py::cast<TextAnchor>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast type `" << tp << "` to `"
+        << FullyQualifiedType("TextAnchor") << "`!";
+    throw std::invalid_argument(str.str());
+  }
+}
+
+
 /**
  * @brief A wrapper for the abstract `Painter`
  *
@@ -110,6 +126,18 @@ public:
   }
 
 
+  void DrawMarker(const Vec2d &pos, const MarkerStyle &style) {
+    painter_->DrawMarker(pos, style);
+  }
+
+
+  void DrawPolygon(const std::vector<Vec2d> &polygon,
+                   const LineStyle &line_style,
+                   const Color &fill_color) {
+    painter_->DrawPolygon(polygon, line_style, fill_color);
+  }
+
+
   void DrawRect(const Rect &rect, const LineStyle &line_style,
                 const Color &fill_color) {
     painter_->DrawRect(rect, line_style, fill_color);
@@ -117,20 +145,22 @@ public:
 
 
   void DrawText(const std::vector<std::string> &text,
-                const Vec2d &anchor_position, TextAnchor anchor,
+                const Vec2d &anchor_position, py::object &pyanchor,
                 const TextStyle &text_style, const Vec2d &padding,
                 double rotation) {
+    TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
     painter_->DrawText(text, anchor_position, anchor,
                        text_style, padding, rotation);
   }
 
 
   void DrawTextBox(const std::vector<std::string> &text,
-                   const Vec2d &anchor_position, TextAnchor anchor,
+                   const Vec2d &anchor_position, py::object &pyanchor,
                    const TextStyle &text_style, const Vec2d &padding,
                    double rotation, const LineStyle &box_line_style,
                    const Color &box_fill_color, double box_corner_radius,
                    const Vec2d &fixed_box_size) {
+    TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
     painter_->DrawTextBox(text, anchor_position, anchor, text_style,
                           padding, rotation, box_line_style, box_fill_color,
                           box_corner_radius, fixed_box_size);
@@ -150,7 +180,7 @@ private:
 
 void RegisterPainter(py::module &m) {
   py::class_<PainterWrapper> painter(m, "Painter",
-    R"pbdoc(A `Painter` lets you draw on a canvas.
+    R"pbdoc(A :class:`~viren2d.Painter` lets you draw on a canvas.
 
     Typical usage:
 
@@ -175,39 +205,44 @@ void RegisterPainter(py::module &m) {
        to get a deeply copied image as ``numpy.ndarray``:
 
        >>> import numpy as np
-       >>> canvas = p.get_canvas(copy=True)
+       >>> canvas = painter.get_canvas(copy=True)
        >>> img_np = np.array(canvas, copy=False)
 
     5. Either continue drawing (step 3) or set a new canvas (step 2, the
        same painter instance can be reused).
     )pbdoc");
 
+  std::string doc = "Initializes the canvas with the given color.\n\n"
+       "Args:\n"
+       "  width: Canvas width in pixels.\n"
+       "  height: Canvas height in pixels.\n"
+       "  color: Background :class:`~"
+       + FullyQualifiedType("Color") + "`.";
   painter.def(py::init<>())
       .def("__repr__", [](const Painter &) { return FullyQualifiedType("Painter", true); })
       .def("__str__", [](const Painter &) { return FullyQualifiedType("Painter", false); })
       .def("is_valid", &PainterWrapper::IsValid,
            "Checks if the canvas has been set up correctly.")
       .def("set_canvas_rgb", &PainterWrapper::SetCanvasColor,
-           "Initializes the canvas with the given color.\n\n"
-           "Args:\n"
-           "  width: Canvas width in pixels.\n"
-           "  height: Canvas height in pixels.\n"
-           "  color: Background color, defaults to white.",
+           doc.c_str(),
            py::arg("width"), py::arg("height"),
-           py::arg("color")=Color::White)
-      .def("set_canvas_filename", &PainterWrapper::SetCanvasFilename,
-           "Initializes the canvas from the given image file.\n"
-           "Supported formats are:\n\n"
-           "  JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM\n\n"
-           "This functionality uses the `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`_.",
-           py::arg("image_filename"));
+           py::arg("color") = Color::White)
+      .def("set_canvas_filename", &PainterWrapper::SetCanvasFilename, R"docstr(
+           Initializes the canvas from the given image file.
 
+           This functionality uses the
+           `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`__
+           to load the image file. Supported formats are:
 
-  std::string doc = "Initializes the canvas from the given image, *i.e.* either\n"
-        "a ``numpy.ndarray`` (with ``dtype=uint8``) or a :class:`" + FullyQualifiedType("ImageBuffer") + "`.\n\n"
-        "Example:\n"
-        "  >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
-        "  >>> painter.set_canvas_image(img_np)";
+              JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
+           )docstr", py::arg("image_filename"));
+
+  doc = "Initializes the canvas from the given image, *i.e.* either\n"
+      "a ``numpy.ndarray`` (with ``dtype=uint8``) or an :class:`~"
+      + FullyQualifiedType("ImageBuffer") + "`.\n\n"
+      "Example:\n"
+      "  >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
+      "  >>> painter.set_canvas_image(img_np)";
   painter.def("set_canvas_image", &PainterWrapper::SetCanvasImage,
               doc.c_str(), py::arg("image"));
 
@@ -219,9 +254,9 @@ void RegisterPainter(py::module &m) {
            "Returns the current visualization.\n\n"
            "Args:\n"
            "  copy: If you want a deep copy, set ``copy = True``. Otherwise, the buffer\n"
-           "    will just provide a **view** on the painter's canvas.\n"
-           "    This means: If you keep on drawing, this view will also\n"
-           "    change.\n\n"
+           "    will just provide a **shared view** on the painter's canvas.\n"
+           "    This means: **If you keep on drawing, this view will also\n"
+           "    change.**\n\n"
            "Examples:\n"
            "  Get canvas as ``numpy.ndarray``, where the **memory is\n"
            "  shared** with the painter:\n\n"
@@ -233,28 +268,28 @@ void RegisterPainter(py::module &m) {
            ".. tip::\n"
            "   If you can ensure that the painter is not destroyed while\n"
            "   you display/process the visualization, use the shared view\n"
-           "   on its canvas to avoid unnecessary memory allocation.",
-           py::arg("copy") = false);
+           "   (*i.e.* ``copy = False``) on its canvas to avoid unnecessary\n"
+           "   memory allocation.",
+           py::arg("copy") = true);
 
 
-
-
+//TODO(snototter) use consistent coding style (Google Python Guide) for code in all draw_xxx method docstrings
   //----------------------------------------------------------------------
   doc = "Draws a circular arc.\n\n"
         "Args:\n"
-        "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
-        "  radius: Radius of the arc in pixels as ``float``\n"
+        "  center: Center position as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  radius: Radius of the arc in pixels as ``float``.\n"
         "  angle1: The arc will be drawn from ``angle1`` to ``angle2``\n"
         "    in clockwise direction. Both angles are specified as type ``float`` in degrees,\n"
         "    where 0 degrees points in the direction of increasing `x` coordinates.\n"
-        "  angle2: See ``angle1``\n"
-        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "` specifying how\n"
+        "  angle2: See ``angle1``.\n"
+        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
         "    to draw the arc's outline.\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
-        "    contour will not be drawn (then you must define a ``fill_color``).\n"
+        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
+        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
         "  include_center:  If ``True`` (default), the center of the circle will be included\n"
         "    when drawing the outline and filling the arc.\n"
-        "  fill_color: If you provide a valid :class:`" + FullyQualifiedType("Color") + "`,\n"
+        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
         "    the arc will be filled.";
   painter.def("draw_arc", &PainterWrapper::DrawArc, doc.c_str(),
               py::arg("center"), py::arg("radius"),
@@ -263,13 +298,12 @@ void RegisterPainter(py::module &m) {
               py::arg("include_center") = true,
               py::arg("fill_color") = Color::Invalid);
 
-
   //----------------------------------------------------------------------
   doc = "Draws an arrow.\n\n"
         "Args:\n"
-        "  pt1: Start of the arrow shaft as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  pt2: End of the arrow shaft (*i.e.* the pointy end) as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  arrow_style: A :class:`" + FullyQualifiedType("ArrowStyle") + "` specifying\n"
+        "  pt1: Start of the arrow shaft as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  pt2: End of the arrow shaft (*i.e.* the *pointy end*) as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  arrow_style: An :class:`~" + FullyQualifiedType("ArrowStyle") + "` specifying\n"
         "    how to draw the arrow.";
   painter.def("draw_arrow", &PainterWrapper::DrawArrow, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
@@ -287,17 +321,16 @@ void RegisterPainter(py::module &m) {
               py::arg("style") = BoundingBox2DStyle());
 
 
-//TODO(snototter) use consistent coding style (Google Python Guide) for code in all draw_xxx method docstrings
   //----------------------------------------------------------------------
   doc = "Draws a circle.\n\n"
         "Args:\n"
-        "  center: Center position as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
+        "  center: Center position as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
         "  radius: Radius of the circle in pixels as ``float``\n"
-        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "` specifying how\n"
+        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
         "    to draw the circle's outline.\n"
         "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
-        "    contour will not be drawn (then you must define a ``fill_color``).\n"
-        "  fill_color: If you provide a valid :class:`" + FullyQualifiedType("Color") + "`,\n"
+        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
+        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
         "    the circle will be filled.";
   painter.def("draw_circle", &PainterWrapper::DrawCircle, doc.c_str(),
         py::arg("center"), py::arg("radius"),
@@ -307,21 +340,21 @@ void RegisterPainter(py::module &m) {
 
   //----------------------------------------------------------------------
   doc = "Draws an ellipse.\n\n"
-        "Args:\n"
-        "  ellipse: The :class:`" + FullyQualifiedType("Ellipse") + "` to be drawn.\n"
-        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "` specifying how\n"
-        "    to draw the ellipse's outline.\n"
-        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
-        "    contour will not be drawn (then you must define a ``fill_color``).\n"
-        "  fill_color: If you provide a valid :class:`" + FullyQualifiedType("Color") + "`,\n"
-        "    the ellipse will be filled.";
+    "Args:\n"
+    "  ellipse: The :class:`~" + FullyQualifiedType("Ellipse") + "`,\n"
+    "    which should be drawn.\n"
+    "  line_style:  A :class:`~" + FullyQualifiedType("LineStyle") + "`\n"
+    "    specifying how to draw the ellipse's outline.\n"
+    "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
+    "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
+    "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
+    "    the ellipse will be filled.";
   painter.def("draw_ellipse", &PainterWrapper::DrawEllipse, doc.c_str(),
         py::arg("ellipse"),
         py::arg("line_style") = LineStyle(),
         py::arg("fill_color") = Color::Invalid);
 
-
-  //----------------------------------------------------------------------TODO doc
+        //TODO coding style//----------------------------------------------------------------------
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
         "    Width & height of each grid cell.\n\n"
         "    The grid will only be drawn within the defined region.\n"
@@ -339,68 +372,103 @@ void RegisterPainter(py::module &m) {
         py::arg("top_left") = Vec2d(),
         py::arg("bottom_right") = Vec2d());
 
-
   //----------------------------------------------------------------------
   doc = "Draws a line.\n\n"
         "Args:\n"
-        "  pt1: Start point of the line as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  pt2: End point of the line as :class:`" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  line_style: A :class:`" + FullyQualifiedType("LineStyle") + "`, specifying how\n"
-        "    to draw the line (thickness, color, dash pattern).";
-  painter.def("draw_line", &PainterWrapper::DrawLine,
-        doc.c_str(), py::arg("pt1"), py::arg("pt2"),
-        py::arg("line_style") = LineStyle());
+        "  pt1: Start position as :class:`~"
+        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  pt2: End position as :class:`~"
+        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying\n"
+        "    how to draw the line.";
+  painter.def("draw_line", &PainterWrapper::DrawLine, doc.c_str(),
+              py::arg("pt1"), py::arg("pt2"),
+              py::arg("style") = LineStyle());
 
+  //----------------------------------------------------------------------
+  doc = "Draws a marker/keypoint.\n\n"
+        "Args:\n"
+        "  pos: Position as :class:`~"
+        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  style: A :class:`~" + FullyQualifiedType("MarkerStyle") + "` specifying\n"
+        "    how to draw the marker.";
+  painter.def("draw_marker", &PainterWrapper::DrawMarker, doc.c_str(),
+              py::arg("pos"), py::arg("style") = MarkerStyle());
 
-  //----------------------------------------------------------------------TODO doc
-  doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
-        ":rect:  (" + FullyQualifiedType("Rect") + ")\n"
-        "    The rectangle which should be drawn.\n\n"
-        ":line_style:  (" + FullyQualifiedType("LineStyle") + ")\n"
-        "    How to draw the rectangle's outline.\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Default") + ", the\n"
-        "    painter's default line style will be used.\n"
+  //----------------------------------------------------------------------
+  doc = "Draws a polygon.\n\n"
+        "Args:\n"
+        "  polygon: Points of the polygon as ``list`` of :class:`~"
+        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
+        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
+        "    to draw the circle's outline.\n"
         "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
-        "    contour will not be drawn (then you must define a 'fill_color').\n\n"
-        ":fill_color:  (" + FullyQualifiedType("Color") + ")\n"
-        "    Provide a valid color to fill the rectangle.";
+        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
+        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
+        "    the circle will be filled.";
+  painter.def("draw_polygon", &PainterWrapper::DrawPolygon, doc.c_str(),
+              py::arg("polygon"), py::arg("style") = LineStyle(),
+              py::arg("fill_color") = Color::Invalid);
+
+  //----------------------------------------------------------------------
+  doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
+        "Args:\n  rect: The :class:`~" + FullyQualifiedType("Rect") + "`\n"
+        "    object which should be drawn.\n"
+        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
+        "    to draw the rectangle's outline.\n"
+        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
+        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
+        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
+        "    the rectangle will be filled.";
   painter.def("draw_rect", &PainterWrapper::DrawRect, doc.c_str(),
               py::arg("rect"),
               py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
-
-  //----------------------------------------------------------------------
+        //TODO doc//----------------------------------------------------------------------
   doc = "Places the given text on the canvas.\n\n"
-        "Args:\n"
-        "  text: A list of strings to be drawn.\n"
-        "  position: Position of the reference point as :class:`"
+      "Args:\n"
+      "  text: A list of strings to be drawn.\n"
+      "  position: Position of the reference point as :class:`~"
       + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  anchor: How to orient the text w.r.t. the reference point.\n"
-        "    See :class:`" + FullyQualifiedType("TextAnchor")
-      + "` and :func:`" + FullyQualifiedType("text_anchor") + "`.\n"
-                                                              "TODO finish doc.";
+      "  anchor: How to orient the text w.r.t. the reference point.\n"
+      "    Valid inputs are :class:`~" + FullyQualifiedType("TextAnchor")
+      + "` enum values and\n"
+      "    string representations. A string must correspond to either a\n"
+      "    *position specification* (``center``, ``top``, ``top-right``,\n"
+      "    ``right``, ``bottom``, ``bottom-left``, *etc.*) or one of the\n"
+      "    8 *compass directions* (``north``, ``north-east``, ``south``,"
+      "    ``south-west``, *etc*).\n\n"
+      "    Before parsing, the input will be converted to lowercase and any\n"
+      "    whitespaces, dashes & underscores will be removed.\n"
+      "  text_style: A :class:`~" + FullyQualifiedType("TextStyle") +"`,\n"
+      "    specifying how to render the text.\n"
+      "  padding: Optional distance between the closest glyph and the\n"
+      "    reference point. Specified in pixels as :class:`~"
+      + FullyQualifiedType("Vec2d") + "`.\n"
+      "  rotation: Rotation angle in degrees as ``float``.";
   painter.def("draw_text", &PainterWrapper::DrawText, doc.c_str(),
-              py::arg("text"), py::arg("position"),
-              py::arg("anchor") = TextAnchor::BottomLeft,
-              py::arg("text_style") = TextStyle(),
-              py::arg("padding") = Vec2d(0.0, 0.0),
-              py::arg("rotation") = 0.0);
+      py::arg("text"), py::arg("position"),
+      py::arg("anchor") = TextAnchor::BottomLeft,
+      py::arg("text_style") = TextStyle(),
+      py::arg("padding") = Vec2d(0.0, 0.0),
+      py::arg("rotation") = 0.0);
 
 
 
-  //----------------------------------------------------------------------
-  doc = "TODO doc";
+        //----------------------------------------------------------------------
+  doc = "TODO doc"
+      "  anchor: Either enum or string representation";
   painter.def("draw_textbox", &PainterWrapper::DrawTextBox, doc.c_str(),
-              py::arg("text"), py::arg("position"),
-              py::arg("anchor") = TextAnchor::BottomLeft,
-              py::arg("text_style") = TextStyle(),
-              py::arg("padding") = Vec2d::All(6.0),
-              py::arg("rotation") = 0.0,
-              py::arg("line_style") = LineStyle::Invalid,
-              py::arg("fill_color") = Color::White.WithAlpha(0.6),
-              py::arg("radius") = 0.2,
-              py::arg("fixed_size") = Vec2d::All(-1.0));
+      py::arg("text"), py::arg("position"),
+      py::arg("anchor") = TextAnchor::BottomLeft,
+      py::arg("text_style") = TextStyle(),
+      py::arg("padding") = Vec2d::All(6.0),
+      py::arg("rotation") = 0.0,
+      py::arg("line_style") = LineStyle::Invalid,
+      py::arg("fill_color") = Color::White.WithAlpha(0.6),
+      py::arg("radius") = 0.2,
+      py::arg("fixed_size") = Vec2d::All(-1.0));
 
 
   //----------------------------------------------------------------------

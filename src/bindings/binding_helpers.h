@@ -33,28 +33,25 @@ pybind11::tuple ColorToTuple(const Color &obj);
 
 //-------------------------------------------------  Primitives (Ellipse)
 void RegisterEllipse(pybind11::module &m);
-//Ellipse EllipseFromTupleOrList(pybind11::object object);
-//Ellipse EllipseFromTuple(pybind11::tuple tpl);
-//pybind11::tuple EllipseToTuple(const Ellipse &obj);
-
 
 //-------------------------------------------------  Primitives (Rect)
 void RegisterRectangle(pybind11::module &m);
-//Rect RectFromTuple(pybind11::tuple tpl);
-//Rect RectFromTupleOrList(pybind11::object object);
-//pybind11::tuple RectToTuple(const Rect &obj);
 
-
-//-------------------------------------------------  Styles (LineStyle)
+//-------------------------------------------------  Styles (MarkerStyle & LineStyle)
+// Enums must be registered before using them in the
+// class definitions.
 void RegisterLineCap(pybind11::module &m);
 void RegisterLineJoin(pybind11::module &m);
+void RegisterMarker(pybind11::module &m);
+
+void RegisterMarkerStyle(pybind11::module &m);
 void RegisterLineStyle(pybind11::module &m);
 
 //-------------------------------------------------  Styles (ArrowStyle)
 void RegisterArrowStyle(pybind11::module &m);
 
 //-------------------------------------------------  Styles (TextStyle)
-//TODOvoid RegisterHorizontalAlignment(pybind11::module &m);
+
 void RegisterAnchors(pybind11::module &m);
 void RegisterTextStyle(pybind11::module &m);
 

@@ -1,40 +1,56 @@
+---------------
 Defining Styles
 ---------------
 
-Lines
-~~~~~
+~~~~~~~~~~~~
+Marker Style
+~~~~~~~~~~~~
+
+.. autoclass:: viren2d.MarkerStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+  
+
+~~~~~~~~~~
+Line Style
+~~~~~~~~~~
 
 .. autoclass:: viren2d.LineStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
-   :undoc-members:
-
-   .. automethod:: __init__
 
 
-Arrows
-~~~~~~
+~~~~~~~~~~~
+Arrow Style
+~~~~~~~~~~~
 
 .. autoclass:: viren2d.ArrowStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
    :inherited-members:
+   :show-inheritance:
+   :exclude-members: cap_offset, join_offset, Invalid
 
-   .. automethod:: __init__
 
-
-Text
-~~~~
+~~~~~~~~~~
+Text Style
+~~~~~~~~~~
 
 .. autoclass:: viren2d.TextStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
 
-   .. automethod:: __init__
 
-
-2D Bounding Boxes
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+2D Bounding Box Style
+~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.BoundingBox2DStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
-   
-   .. automethod:: __init__
 

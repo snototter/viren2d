@@ -13,11 +13,12 @@
 #include <helpers/enum.h>
 #include <helpers/logging.h>
 
-namespace wgu = werkzeugkiste::geometry;
+namespace wzkg = werkzeugkiste::geometry;
+namespace wzks = werkzeugkiste::strings;
 
 namespace viren2d {
 /** @brief Color utilities in anonymuous namespace. */
-namespace {
+namespace helpers {
 
 /** @brief Saturation cast to [0, 1]. */
 double cast_01(double v) {
@@ -30,7 +31,24 @@ double cast_RGB(double v) {
   return saturation_cast<double>(v, 0.0, 255.0);
 }
 
-} // namespace (anon)
+
+const Color kExemplaryColors[] = {
+  RGBa(255,    0,    0), // Red
+  RGBa(  0,  200,    0), // light green(ish)
+  RGBa(  0,    0,  255), // deep blue
+  RGBa(230,  230,    0), // yellow(ish)
+  RGBa(230,    0,  230), // magenta(ish)
+  RGBa(  0,  230,  230), // cyan(ish)
+  RGBa(255,  128,    0), // orange
+  RGBa(255,  128,  128), // skin(ish)
+  RGBa(128,   64,    0), // brown(ish)
+  RGBa(160,  160,  160), // gray(ish)
+  RGBa(  0,  128,  255), // light blue
+  RGBa(153,   77,  204)  // lilac
+};
+const size_t kExemplaryColorsSize = sizeof(kExemplaryColors) / sizeof(kExemplaryColors[0]);
+
+} // namespace helpers
 
 
 std::vector<std::string> ListNamedColors() {
@@ -50,7 +68,7 @@ std::vector<std::string> ListNamedColors() {
 
 
 NamedColor NamedColorFromString(const std::string &name) {
-  std::string cname = werkzeugkiste::strings::Lower(name);
+  std::string cname = wzks::Lower(name);
   cname.erase(std::remove_if(cname.begin(), cname.end(), [](char ch) -> bool {
       return ::isspace(ch) || (ch == '-') || (ch == '_');
     }), cname.end());
@@ -514,9 +532,9 @@ bool Color::IsSpecialInvalid() const {
 
 bool Color::IsSpecialSame() const {
   // Check color components but not alpha.
-  return wgu::eps_equal(red, Same.red)
-      && wgu::eps_equal(green, Same.green)
-      && wgu::eps_equal(blue, Same.blue);
+  return wzkg::eps_equal(red, Same.red)
+      && wzkg::eps_equal(green, Same.green)
+      && wzkg::eps_equal(blue, Same.blue);
 }
 
 
@@ -667,26 +685,45 @@ Color &Color::operator/=(double scalar) {
 Color &Color::operator+=(const Color &rhs) {
 //  SPDLOG_TRACE("Adding {:s} to {:s} (with saturation cast).",
 //               rhs, *this);
-  red = cast_01(red + rhs.red);
-  green = cast_01(green + rhs.green);
-  blue = cast_01(blue + rhs.blue);
-  alpha = cast_01(alpha + rhs.alpha);
+  red = helpers::cast_01(red + rhs.red);
+  green = helpers::cast_01(green + rhs.green);
+  blue = helpers::cast_01(blue + rhs.blue);
   return *this;
 }
 
 
 Color &Color::operator-=(const Color &rhs) {
-  red = cast_01(red - rhs.red);
-  green = cast_01(green - rhs.green);
-  blue = cast_01(blue - rhs.blue);
-  alpha = cast_01(alpha - rhs.alpha);
+//  SPDLOG_TRACE("Subtracting {:s} from {:s} (with saturation cast).",
+//               rhs, *this);
+  red = helpers::cast_01(red - rhs.red);
+  green = helpers::cast_01(green - rhs.green);
+  blue = helpers::cast_01(blue - rhs.blue);
   return *this;
 }
 
 
+Color Color::FromID(std::size_t id) {
+  return helpers::kExemplaryColors[id % helpers::kExemplaryColorsSize];
+  // TODO axis colors: const Color kAxisColorsRGB[3] = { RGBa(255, 80, 0), RGBa(0, 200, 0), RGBa(0, 0, 255) };
+}
+
+
+Color Color::FromCategory(const std::string &category) {
+  std::string slug = wzks::Lower(category);
+  slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
+      return ::isspace(ch) || (ch == '-') || (ch == '_');
+    }), slug.end());
+  SPDLOG_CRITICAL("FIXME Need to convert category '{:s}' (slug '{:s}') to index/hash/id", category, slug);
+  // list of coco classes: https://gist.github.com/AruniRC/7b3dadd004da04c80198557db5da4bda
+  throw std::logic_error("TODO Color::FromCategory is not yet implemented!");
+}
+
+
 bool operator==(const Color& lhs, const Color& rhs) {
-  return wgu::eps_equal(lhs.red, rhs.red) && wgu::eps_equal(lhs.green, rhs.green)
-      && wgu::eps_equal(lhs.blue, rhs.blue) && wgu::eps_equal(lhs.alpha, rhs.alpha);
+  return wzkg::eps_equal(lhs.red, rhs.red)
+      && wzkg::eps_equal(lhs.green, rhs.green)
+      && wzkg::eps_equal(lhs.blue, rhs.blue)
+      && wzkg::eps_equal(lhs.alpha, rhs.alpha);
 }
 
 
@@ -712,17 +749,13 @@ Color operator-(Color lhs, const Color& rhs) {
 }
 
 
-Color rgba(double r, double g, double b, double alpha)
-{
-  return Color(cast_01(r), cast_01(g), cast_01(b),
-               cast_01(alpha));
+Color rgba(double r, double g, double b, double alpha) {
+  return Color(r, g, b, alpha);
 }
 
 
-Color RGBa(double R, double G, double B, double alpha)
-{
-  return Color(cast_RGB(R/255.0), cast_RGB(G/255.0), cast_RGB(B/255.0),
-               alpha);
+Color RGBa(double R, double G, double B, double alpha) {
+  return Color(R/255.0, G/255.0, B/255.0, alpha);
 }
 
 
@@ -738,7 +771,7 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
     throw std::invalid_argument(s.str());
   }
 
-  const std::string hex = werkzeugkiste::strings::Lower(webcode);
+  const std::string hex = wzks::Lower(webcode);
   unsigned char rgb[3];
   for (size_t idx = 0; idx < 3; ++idx) {
     unsigned char upper = hex[idx * 2 + 1];

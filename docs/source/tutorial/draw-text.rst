@@ -1,27 +1,25 @@
-Text
-~~~~
+~~~~~~~~~~~~~~~~~
+Text & Text Boxes
+~~~~~~~~~~~~~~~~~
 
-TODO
+Text can be rendered via :meth:`viren2d.Painter.draw_text` or
+:meth:`viren2d.Painter.draw_textbox`.
 
-.. important::
-   Use rounded corners...
-   painter.draw_circle(...)
-   painter.draw_circle(...)
-   painter.draw_circle(...)
+**Example Multi-Line Text Boxes:**
 
-
-.. code-block:: cpp
-   :caption: C++ API
-   :emphasize-lines: 2
-
-   auto line_style = viren2d::LineStyle();
-   painter->DrawArc(...);
-   painter->DrawCircle(...);
-
-
-.. figure:: images/demo-ninja.png
-   :width: 341
-   :alt: TODO
+.. figure:: ../images/text-multi-line.png
+   :width: 750
+   :alt: Multi-line Text Alignment
    :align: center
+     
+   Thise figure shows the different (horizontal) alignment options of
+   multi-line text boxes. The displayed text lines are an excerpt from
+   `Revelation, a Visual Poem <https://vimeo.com/57370112>`__.
 
-   TODO boxes + text
+**Corresponding Python Code:**
+
+.. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
+   :language: python
+   :lines: 59-105
+   :emphasize-lines: 25-29
+

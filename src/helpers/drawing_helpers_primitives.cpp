@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <exception>
 #include <cmath>
+#include <utility>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
@@ -412,6 +413,212 @@ void DrawLine(cairo_surface_t *surface, cairo_t *context,
   cairo_line_to(context, to.x(), to.y());
   cairo_stroke(context);
   // Restore context
+  cairo_restore(context);
+}
+
+
+//---------------------------------------------------- Marker
+/** Returns the number of steps needed to draw the given n-gon. */
+inline std::pair<int, double> NGonMarkerSteps(Marker m) {
+  switch (m) {
+    case Marker::Pentagon:
+      return std::make_pair(4, 72.0);
+
+    case Marker::Pentagram:
+      return std::make_pair(4, 144.0);
+
+    case Marker::Hexagon:
+      return std::make_pair(5, 60.0);
+
+    case Marker::Hexagram:
+      return std::make_pair(5, 120.0);
+
+    case Marker::Heptagon:
+      return std::make_pair(6, 360.0 / 7.0);
+
+    case Marker::Heptagram:
+      return std::make_pair(6, 720.0 / 7.0);
+
+    case Marker::Octagon:
+      return std::make_pair(7, 45.0);
+
+    case Marker::Octagram:
+      return std::make_pair(7, 135.0);
+
+    case Marker::Enneagon:
+      return std::make_pair(8, 40);
+
+    case Marker::Enneagram: // The {9/4} stellation
+      return std::make_pair(8, 160.0);
+
+    default: {
+        std::ostringstream s;
+        s << "Marker " << m
+          << " is neither an n-sided polygon nor an n-angled star.";
+        throw std::invalid_argument(s.str());
+      }
+  }
+}
+
+void DrawMarker(cairo_surface_t *surface, cairo_t *context,
+                Vec2d pos, const MarkerStyle &style) {
+  // General idea for all markers implemented so far:
+  // * Translate the canvas
+  // * Create the path(s), i.e. the marker shape's outline
+  // * Either fill or stroke (xor! I don't want to deal
+  //   with the effects of partially translucent colors
+  //   which overlap between fill and stroke)
+
+  //TODO(snototter) To support drawing multiple markers at once,
+  //  implement "position vector" + "color vector" + "single marker style"
+  //  parametrization. Then, the marker_style.color acts as fallback if a
+  //  corresponding color is "invalid".
+
+  // Sanity checks
+  CheckCanvas(surface, context);
+
+  if (!style.IsValid()) {
+    std::ostringstream s;
+    s << "Cannot draw with invalid marker style " << style.ToString() << "!";
+    throw std::invalid_argument(s.str());
+  }
+
+  cairo_save(context);
+  ApplyMarkerStyle(context, style);
+
+  // Move to the center of the pixel coordinates, so each
+  // marker can be drawn as if it's at the origin:
+  pos += 0.5;
+  cairo_translate(context, pos.x(), pos.y());
+  cairo_new_path(context);
+
+  const double half_size = style.size / 2.0;
+
+  switch (style.marker) {
+    case Marker::Circle:
+    case Marker::Point: {
+        // '.' and 'o'
+        cairo_arc(context, 0.0, 0.0, half_size, 0.0, 2 * M_PI);
+        break;
+      }
+
+    case Marker::Cross:
+    case Marker::Plus: {
+        // '+' and 'x'
+        if (style.marker == Marker::Cross) {
+          cairo_rotate(context, wgu::deg2rad(45.0));
+        }
+        cairo_move_to(context, -half_size, 0.0);
+        cairo_line_to(context, half_size, 0.0);
+        cairo_move_to(context, 0.0, -half_size);
+        cairo_line_to(context, 0.0, half_size);
+        break;
+      }
+
+    case Marker::Diamond: {
+        // 'd':
+        const double half_diamond = 0.5 * half_size;
+        cairo_move_to(context, 0.0, -half_size);
+        cairo_line_to(context, half_diamond, 0.0);
+        cairo_line_to(context, 0.0, half_size);
+        cairo_line_to(context, -half_diamond, 0.0);
+        cairo_close_path(context);
+        break;
+      }
+
+    case Marker::RotatedSquare: {
+        cairo_rotate(context, wgu::deg2rad(45.0));
+        // Adjust side length of the square, so that
+        // the rotated square marker has the same height
+        // as the other markers
+        double side = style.size / std::sqrt(2.0);
+        cairo_rectangle(context, -side / 2.0, -side / 2.0,
+                        side, side);
+        break;
+      }
+
+    case Marker::Square: {
+        cairo_rectangle(context, -half_size, -half_size,
+                        style.size, style.size);
+        break;
+      }
+
+    case Marker::TriangleUp:
+    case Marker::TriangleDown:
+    case Marker::TriangleLeft:
+    case Marker::TriangleRight: {
+        // '^', 'v', '<' and '>'
+        if (style.marker == Marker::TriangleRight) {
+          cairo_rotate(context, wgu::deg2rad(90.0));
+        } else if (style.marker == Marker::TriangleDown) {
+          cairo_rotate(context, wgu::deg2rad(180.0));
+        } else if (style.marker == Marker::TriangleLeft) {
+          cairo_rotate(context, wgu::deg2rad(270.0));
+        }
+        const double height = std::sqrt(3.0) / 2.0 * style.size;
+        const Vec2d top{0.0, -height / 2.0};
+        const auto dir_vec = style.size * wgu::DirectionVecFromAngleDeg(60.0);
+        auto pt = top + dir_vec;
+        cairo_move_to(context, top.x(), top.y());
+        cairo_line_to(context, pt.x(), pt.y());
+        pt = top + Vec2d(-dir_vec.x(), dir_vec.y());
+        cairo_line_to(context, pt.x(), pt.y());
+        cairo_close_path(context);
+        break;
+      }
+
+    case Marker::Star: { // Asterisk
+        cairo_move_to(context, 0.0, -half_size);
+        for (int i = 0; i < 5; ++i) {
+          cairo_rotate(context, wgu::deg2rad(72.0));
+          cairo_move_to(context, 0.0, 0.0);
+          cairo_line_to(context, 0.0, -half_size);
+        }
+        break;
+      }
+
+    case Marker::Enneagon:
+    case Marker::Enneagram:
+    case Marker::Hexagon:
+    case Marker::Heptagon:
+    case Marker::Heptagram:
+    case Marker::Octagon:
+    case Marker::Octagram:
+    case Marker::Pentagon:
+    case Marker::Pentagram: {
+        const auto step = NGonMarkerSteps(style.marker);
+        cairo_move_to(context, 0.0, -half_size);
+        for (int i = 0; i < step.first; ++i) {
+          cairo_rotate(context, wgu::deg2rad(step.second));
+          cairo_line_to(context, 0.0, -half_size);
+        }
+        cairo_close_path(context);
+        break;
+      }
+
+    case Marker::Hexagram: {
+        // Hexagram cannot be drawn by a single continuous path
+        for (int path_idx = 0; path_idx < 2; ++path_idx) {
+          if (path_idx == 1) {
+            cairo_rotate(context, wgu::deg2rad(60.0));
+          }
+          cairo_move_to(context, 0.0, -half_size);
+          for (int corner_idx = 0; corner_idx < 2; ++corner_idx) {
+            cairo_rotate(context, wgu::deg2rad(120.0));
+            cairo_line_to(context, 0.0, -half_size);
+          }
+          cairo_close_path(context);
+        }
+        break;
+      }
+  }
+
+  if (style.IsFilled()) {
+    cairo_fill(context);
+  } else {
+    cairo_stroke(context);
+  }
+
   cairo_restore(context);
 }
 

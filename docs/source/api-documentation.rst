@@ -1,5 +1,6 @@
 .. _api-documentation:
 
+=================
 API Documentation
 =================
 
@@ -9,6 +10,7 @@ API Documentation
 
    apidoc/apidoc-basic-types
    apidoc/apidoc-styles
+   apidoc/apidoc-style-enums
    apidoc/apidoc-positioning
    apidoc/apidoc-drawing
 
@@ -16,9 +18,12 @@ API Documentation
 **Basic data types:**
 
   .. autosummary::
+     :nosignatures:
 
      viren2d.Color
-     viren2d.rgb
+     viren2d.RGBa
+     viren2d.rgba
+     viren2d.color_names
      viren2d.Vec2d
      viren2d.Vec3d
      viren2d.Ellipse
@@ -28,9 +33,15 @@ API Documentation
 **Style definitions:**
 
   .. autosummary::
+     :nosignatures:
 
-     viren2d.LineStyle
      viren2d.ArrowStyle
+     viren2d.LineCap
+     viren2d.LineJoin
+     viren2d.LineStyle
+     viren2d.marker_codes
+     viren2d.Marker
+     viren2d.MarkerStyle
      viren2d.TextStyle
      viren2d.BoundingBox2DStyle
 
@@ -38,15 +49,12 @@ API Documentation
 **Positioning:**
 
   .. autosummary::
+     :nosignatures:
 
      viren2d.HorizontalAlignment
-     viren2d.halign
      viren2d.VerticalAlignment
-     viren2d.valign
      viren2d.TextAnchor
-     viren2d.text_anchor
      viren2d.BoundingBoxLabelPosition
-     viren2d.label_position
 
 
 **Drawing:**
@@ -55,5 +63,7 @@ API Documentation
   
      viren2d.Painter
 
-
+.. warning::
+   Currently, the documentation for static class members is missing due to
+   a potential `pybind11 bug <https://github.com/pybind/pybind11/issues/3815>`_.
 
