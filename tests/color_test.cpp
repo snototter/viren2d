@@ -334,45 +334,46 @@ TEST(ColorTest, Operators) {
 
   // Scalar multiplication (alpha should not be changed)
   auto color = 0.5 * viren2d::Color::Cyan;
-  EXPECT_TRUE(CheckColor(color, 0.0, 0.5, 0.5, 1.0));
+  EXPECT_TRUE(CheckColor(color, 0.0, 0.5, 0.5, 0.5));
   // Values should be clamped
   color.alpha = 0.7;
   color *= 3;
-  EXPECT_TRUE(CheckColor(color, 0.0, 1.0, 1.0, 0.7));
+  EXPECT_TRUE(CheckColor(color, 0.0, 1.0, 1.0, 1.0));
 
   color = viren2d::Color::White * 0.5;
-  EXPECT_TRUE(CheckColor(color, 0.5, 0.5, 0.5, 1.0));
+  EXPECT_TRUE(CheckColor(color, 0.5, 0.5, 0.5, 0.5));
   color.alpha = 0.7;
   auto copy(color);
   color *= 1.5;
-  EXPECT_TRUE(CheckColor(color, 0.75, 0.75, 0.75, 0.7));
+  EXPECT_TRUE(CheckColor(color, 0.75, 0.75, 0.75, 1.0));
   EXPECT_EQ(copy * 1.5, color);
 
 
   color = viren2d::Color::Magenta / 2.0;
-  EXPECT_TRUE(CheckColor(color, 0.5, 0.0, 0.5, 1.0));
-  color.alpha = 0.7;
+  EXPECT_TRUE(CheckColor(color, 0.5, 0.0, 0.5, 0.5));
+  color.alpha = 1.0;
   copy = viren2d::Color(color);
   color /= 5;
-  EXPECT_TRUE(CheckColor(color, 0.1, 0.0, 0.1, 0.7));
-  EXPECT_EQ(viren2d::Color::Magenta.WithAlpha(0.7) / 10.0, color);
+  EXPECT_TRUE(CheckColor(color, 0.1, 0.0, 0.1, 0.2));
+  EXPECT_EQ((viren2d::Color::Magenta / 10.0).WithAlpha(0.2), color);
 
-  // Addition with saturation casts
+  // Addition with saturation casts //FIXME
   auto add = color + color;
   EXPECT_EQ(2 * color, add);
   copy.green = 0.3;
+  copy.alpha = 0.1;
   add += copy;
-  EXPECT_EQ(add, viren2d::rgba(0.7, 0.3, 0.7, 0.7));
+  EXPECT_EQ(add, viren2d::rgba(0.7, 0.3, 0.7, 0.5));
   // but the operand should not have changed
-  EXPECT_EQ(viren2d::Color::Magenta.WithAlpha(0.7) / 10.0, color);
+  EXPECT_EQ((viren2d::Color::Magenta / 10.0).WithAlpha(0.2), color);
   // saturation
   add += viren2d::Color::White;
-  EXPECT_EQ(add, "white!70");
+  EXPECT_EQ(add, "white");
 
   // Subtract
   add -= 2 * viren2d::Color::Magenta;
-  EXPECT_EQ(add, "GREEN!70");
+  EXPECT_EQ(add, "GREEN!0");
 
   add = copy - color;
-  EXPECT_EQ(add, viren2d::rgba(0.4, 0.3, 0.4, 0.7));
+  EXPECT_EQ(add, viren2d::rgba(0.4, 0.3, 0.4, 0.0));
 }
