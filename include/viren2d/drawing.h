@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <utility>
 
 #include <viren2d/primitives.h>
 #include <viren2d/colors.h>
@@ -190,12 +191,12 @@ public:
    * @brief Draws a grid between top_left and bottom_right.
    *
    * @param top_left & bottom_right:
-   *                     If these are not the same, they define
-   *                     the canvas region which will be spanned
-   *                     by the grid.
-   * @param spacing_x:   Horizontal cell size in pixels.
-   * @param spacing_y:   Vertical cell size in pixels.
-   * @param line_style:  How to draw the grid lines.
+   *            If these are not the same, they define
+   *            the canvas region which will be spanned
+   *            by the grid.
+   * @param spacing_x: Horizontal cell size in pixels.
+   * @param spacing_y: Vertical cell size in pixels.
+   * @param line_style: How to draw the grid lines.
    */
   void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
                 double spacing_x, double spacing_y,
@@ -207,10 +208,6 @@ public:
 
   /**
    * @brief Draws a line.
-   *
-   * @param from:  Start point of the line.
-   * @param to:    End point of the line.
-   * @param line_style: How to draw the line.
    */
   void DrawLine(const Vec2d &from, const Vec2d &to,
                 const LineStyle &line_style = LineStyle()) {
@@ -218,7 +215,9 @@ public:
   }
 
 
-  //TODO doc
+  /**
+   * @brief Draws a single marker/keypoint.
+   */
   void DrawMarker(const Vec2d &position,
                   const MarkerStyle &style = MarkerStyle()) {
     DrawMarkerImpl(position, style);
@@ -226,11 +225,22 @@ public:
 
 
   /**
-   * @brief Draws a polygon.
+   * @brief Draws multiple markers with the same shape & size.
    *
-   * @param points:  Points of the polygon.
-   * @param line_style: How to draw its contour.
-   * @param fill_color: How to fill the polygon.
+   * @param markers: If a corresponding color is invalid,
+   *            the style's color will be used instead.
+   * @param style: Common style for all markers (except for
+   *            the color).
+   */
+  void DrawMarkers(
+      const std::vector<std::pair<Vec2d, Color>> &markers,
+      const MarkerStyle &style = MarkerStyle()) {
+    DrawMarkersImpl(markers, style);
+  }
+
+
+  /**
+   * @brief Draws a polygon.
    */
   void DrawPolygon(const std::vector<Vec2d> &points,
                    const LineStyle &line_style = LineStyle(),
@@ -347,6 +357,13 @@ protected:
 
   /** Internal helper to enable default values in public interface. */
   virtual void DrawMarkerImpl(const Vec2d &pos, const MarkerStyle &style) = 0;
+
+
+  /** Internal helper to enable default values in public interface. */
+  virtual void DrawMarkersImpl(
+      const std::vector<std::pair<Vec2d, Color>> &markers,
+      const MarkerStyle &style) = 0;
+
 
   /** Internal helper to enable default values in public interface. */
   virtual void DrawPolygonImpl(const std::vector<Vec2d> &points,

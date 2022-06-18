@@ -32,10 +32,10 @@ TextAnchor TextAnchorFromPyObject(py::object &o) {
  * @brief A wrapper for the abstract `Painter`
  *
  * This is necessary because I don't want to expose
- * the `ImagePainter` (I like the current factory method
- * layout because the public headers are quite clean).
- * Thus, I cannot (read "don't want to") use the
- * pybind11's trampoline mechanism.
+ * the `ImagePainter` - I like the current factory method
+ * layout because the public headers are quite clean.
+ * Thus, I cannot (read "don't want to") use pybind11's
+ * trampoline mechanism.
  */
 class PainterWrapper {
 public:
@@ -128,6 +128,12 @@ public:
 
   void DrawMarker(const Vec2d &pos, const MarkerStyle &style) {
     painter_->DrawMarker(pos, style);
+  }
+
+
+  void DrawMarkers(const std::vector<std::pair<Vec2d, Color>> &markers,
+                   const MarkerStyle &style) {
+    painter_->DrawMarkers(markers, style);
   }
 
 
@@ -386,7 +392,7 @@ void RegisterPainter(py::module &m) {
               py::arg("style") = LineStyle());
 
   //----------------------------------------------------------------------
-  doc = "Draws a marker/keypoint.\n\n"
+  doc = "Draws a single marker/keypoint.\n\n"
         "Args:\n"
         "  pos: Position as :class:`~"
         + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
@@ -394,6 +400,20 @@ void RegisterPainter(py::module &m) {
         "    how to draw the marker.";
   painter.def("draw_marker", &PainterWrapper::DrawMarker, doc.c_str(),
               py::arg("pos"), py::arg("style") = MarkerStyle());
+
+
+  doc = "Draws multiple (similar) markers/keypoints.\n\n"
+        "Args:\n"
+        "  markers: Holds the position and color of each marker.\n"
+        "    Should be provided as a List[Tuple[:class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`,\n"
+        "    :class:`~" + FullyQualifiedType("Color") + "`]].\n"
+        "    If a color is invalid, the corresponding marker will\n"
+        "    be drawn using the ``style``'s color specification\n"
+        "    instead."
+        "  style: A :class:`~" + FullyQualifiedType("MarkerStyle") + "` specifying\n"
+        "    how to draw the markers (except for the color).";
+  painter.def("draw_markers", &PainterWrapper::DrawMarkers, doc.c_str(),
+              py::arg("markers"), py::arg("style") = MarkerStyle());
 
   //----------------------------------------------------------------------
   doc = "Draws a polygon.\n\n"

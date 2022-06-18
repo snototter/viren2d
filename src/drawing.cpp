@@ -196,6 +196,31 @@ protected:
   }
 
 
+  void DrawMarkersImpl(
+      const std::vector<std::pair<Vec2d, Color>> &markers,
+      const MarkerStyle &style) override {
+    SPDLOG_DEBUG("ImagePainter::DrawMarkers: {:d} markers, style={:s}.",
+                 markers.size(), style);
+    // Currently, we simply forward each point to the
+    // "single marker" Cairo helper. While there is undoubtedly
+    // potential for performance improvement, this is not
+    // my current focus, because:
+    // a) viren2d is neither a high-speed library nor
+    //    is it noticably slow
+    // b) Unless we're drawing hundreds+ points at once,
+    //    I doubt that the speedup would be noticable
+    MarkerStyle s(style);
+    for (const auto &p : markers) {
+      if (p.second.IsValid()) {
+        s.color = p.second;
+      } else {
+        s.color = style.color;
+      }
+      helpers::DrawMarker(surface_, context_, p.first, s);
+    }
+  }
+
+
   void DrawPolygonImpl(const std::vector<Vec2d> &points,
                        const LineStyle &line_style,
                        const Color &fill_color) override {

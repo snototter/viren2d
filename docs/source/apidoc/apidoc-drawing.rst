@@ -1,6 +1,11 @@
+-------
 Drawing
 -------
 
+
+.. _api-painter:
+
+~~~~~~~
 Painter
 ~~~~~~~
 
