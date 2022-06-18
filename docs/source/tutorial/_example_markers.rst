@@ -13,4 +13,4 @@
 .. literalinclude:: ../../../examples/rtd_demo_images/markers.py
    :language: python
    :emphasize-lines: 12, 13, 35, 38
-
+   :linenos:

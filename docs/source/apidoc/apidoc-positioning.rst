@@ -24,6 +24,7 @@ Horizontal Alignment
 
       .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
          :language: python
+         :linenos:
          :lines: 83-99
 
 
@@ -52,6 +53,7 @@ Text Anchor
 
       .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
          :language: python
+         :linenos:
          :lines: 35-51
 
 

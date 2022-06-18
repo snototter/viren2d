@@ -15,6 +15,7 @@ TODO arc, circle
 
 .. code-block:: python
    :caption: Python API
+   :linenos:
    :emphasize-lines: 3, 6, 7
 
    painter.draw_arc(...)

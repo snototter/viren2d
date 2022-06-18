@@ -48,6 +48,7 @@ TODO mention **Caveat:** OpenCV stores images in BGR(A) format, whereas viren2d 
 TODO get_canvas doc, add: canvas will always be in RGBA format (4-layers!)
 
 .. code-block::
+   :linenos:
 
    // Request a copy of the canvas, because of the (in-place) RGB/BGR conversion
    viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);

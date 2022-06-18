@@ -54,6 +54,8 @@ Please also familiarize yourself with the
 :ref:`library layout<dev-library-layout>` explained below.
 
 TODO add guide from dev.md
+TODO add --> each relevant interface method (such as draw_xxx) should provide a
+code example; copy-pastable to simplify use
 
 
 ~~~~~
@@ -206,7 +208,7 @@ TODO design decisions for pseudocolor, etc.
 Nice-to-Have
 ~~~~~~~~~~~~
 
-Some functional features, that I'd like to see at some time in the future:
+Some **functional features**, that I'd like to see at some time in the future:
 
 *  Pseudocoloring (for any/most common input data types - not only uint8)
 
@@ -220,7 +222,7 @@ Some functional features, that I'd like to see at some time in the future:
 *  Creating stereoglyphs
 
 
-Some workflow-related extensions, I'd fancy:
+Some **workflow-related extensions**, I'd fancy:
 
 *  Packaging and publishing on PyPI
 

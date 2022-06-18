@@ -21,5 +21,6 @@ Text can be rendered via :meth:`viren2d.Painter.draw_text` or
 .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
    :language: python
    :lines: 59-105
+   :linenos:
    :emphasize-lines: 25-29
 

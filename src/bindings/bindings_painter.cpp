@@ -8,6 +8,9 @@
 
 #include <bindings/binding_helpers.h>
 
+//TODO(doc) Remove FullyQualifiedTypeString from docstr
+//    definitions, so we can more easily use raw strings
+
 namespace py = pybind11;
 
 namespace viren2d {
@@ -218,101 +221,158 @@ void RegisterPainter(py::module &m) {
        same painter instance can be reused).
     )pbdoc");
 
-  std::string doc = "Initializes the canvas with the given color.\n\n"
-       "Args:\n"
-       "  width: Canvas width in pixels.\n"
-       "  height: Canvas height in pixels.\n"
-       "  color: Background :class:`~"
-       + FullyQualifiedType("Color") + "`.";
   painter.def(py::init<>())
       .def("__repr__", [](const Painter &) { return FullyQualifiedType("Painter", true); })
       .def("__str__", [](const Painter &) { return FullyQualifiedType("Painter", false); })
       .def("is_valid", &PainterWrapper::IsValid,
-           "Checks if the canvas has been set up correctly.")
-      .def("set_canvas_rgb", &PainterWrapper::SetCanvasColor,
-           doc.c_str(),
-           py::arg("width"), py::arg("height"),
-           py::arg("color") = Color::White)
-      .def("set_canvas_filename", &PainterWrapper::SetCanvasFilename, R"docstr(
-           Initializes the canvas from the given image file.
+           "Checks if the canvas has been set up correctly.");
 
-           This functionality uses the
-           `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`__
-           to load the image file. Supported formats are:
+  std::string doc = R"docstr(
+      Initializes the canvas with the given color.
 
-              JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
-           )docstr", py::arg("image_filename"));
+      Args:
+        width: Canvas width in pixels.
+        height: Canvas height in pixels.
+        color: Background :class:`~viren2d.Color`.
 
-  doc = "Initializes the canvas from the given image, *i.e.* either\n"
-      "a ``numpy.ndarray`` (with ``dtype=uint8``) or an :class:`~"
-      + FullyQualifiedType("ImageBuffer") + "`.\n\n"
-      "Example:\n"
-      "  >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)\n"
-      "  >>> painter.set_canvas_image(img_np)";
+      Example:
+        >>> painter = viren2d.Painter()
+        >>> painter.set_canvas_rgb(800, 600)
+        >>> painter.set_canvas_rgb(800, 600, 'crimson')
+      )docstr";
+  painter.def("set_canvas_rgb", &PainterWrapper::SetCanvasColor,
+      doc.c_str(), py::arg("width"), py::arg("height"),
+      py::arg("color") = Color::White);
+
+  painter.def("set_canvas_filename", &PainterWrapper::SetCanvasFilename, R"docstr(
+      Initializes the canvas from the given image file.
+
+      This functionality uses the
+      `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`__
+      to load the image file. Supported formats are:
+
+         JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
+
+      )docstr", py::arg("image_filename"));
+
+
+  doc = R"docstr(
+      Initializes the canvas from the given image.
+
+      The input image can be either a ``numpy.ndarray``
+      (currently, only ``dtype=uint8`` is supported) or an
+      :class:`~viren2d.ImageBuffer`.
+
+      Example:
+        >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)
+        >>> painter.set_canvas_image(img_np)
+      )docstr";
   painter.def("set_canvas_image", &PainterWrapper::SetCanvasImage,
-              doc.c_str(), py::arg("image"));
-
-
-  painter.def("get_canvas_size", &PainterWrapper::GetCanvasSize,
-           "Returns the size of the canvas in pixels as ``(W, H)`` tuple,\n"
-           "where both ``W`` and ``H`` are integers.")
-      .def("get_canvas", &PainterWrapper::GetCanvas,
-           "Returns the current visualization.\n\n"
-           "Args:\n"
-           "  copy: If you want a deep copy, set ``copy = True``. Otherwise, the buffer\n"
-           "    will just provide a **shared view** on the painter's canvas.\n"
-           "    This means: **If you keep on drawing, this view will also\n"
-           "    change.**\n\n"
-           "Examples:\n"
-           "  Get canvas as ``numpy.ndarray``, where the **memory is\n"
-           "  shared** with the painter:\n\n"
-           "  >>> img_np = np.array(p.get_canvas(copy=False), copy=False)\n\n"
-           "  Retrieve a **deep copy** of the canvas as\n"
-           "  ``numpy.ndarray``, *i.e.* future ``painter.draw_...`` calls\n"
-           "  will not affect this retrieved copy:\n\n"
-           "  >>> img_np = np.array(p.get_canvas(copy=True), copy=False)\n\n"
-           ".. tip::\n"
-           "   If you can ensure that the painter is not destroyed while\n"
-           "   you display/process the visualization, use the shared view\n"
-           "   (*i.e.* ``copy = False``) on its canvas to avoid unnecessary\n"
-           "   memory allocation.",
-           py::arg("copy") = true);
+      doc.c_str(), py::arg("image"));
 
 
   //----------------------------------------------------------------------
-  doc = "Draws a circular arc.\n\n"
-        "Args:\n"
-        "  center: Center position as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  radius: Radius of the arc in pixels as ``float``.\n"
-        "  angle1: The arc will be drawn from ``angle1`` to ``angle2``\n"
-        "    in clockwise direction. Both angles are specified as type ``float`` in degrees,\n"
-        "    where 0 degrees points in the direction of increasing `x` coordinates.\n"
-        "  angle2: See ``angle1``.\n"
-        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
-        "    to draw the arc's outline.\n"
-        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
-        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
-        "  include_center:  If ``True`` (default), the center of the circle will be included\n"
-        "    when drawing the outline and filling the arc.\n"
-        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
-        "    the arc will be filled.";
+  //DONE [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  //TODO [ ] add C++ demo
+  //TODO [ ] add Python demo
+  painter.def("get_canvas_size", &PainterWrapper::GetCanvasSize, R"docstr(
+      Returns the size of the canvas in pixels.
+
+      Returns the tuple ``(W, H)``, which specifies the
+      width and height of the canvas in pixels (as ``int``),
+      respectively.
+      )docstr");
+
+  //----------------------------------------------------------------------
+  //DONE [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  //TODO [ ] add C++ demo
+  //TODO [ ] add Python demo
+  painter.def("get_canvas", &PainterWrapper::GetCanvas, R"docstr(
+      Returns the current visualization.
+
+      Args:
+        copy: If you want a deep copy, set ``copy = True``. Otherwise,
+          the buffer will just provide a **shared view** on the
+          painter's canvas.
+          This means: **If you keep on drawing, this view will also
+          change.**
+
+      Examples:
+        Get canvas as ``numpy.ndarray``, where the **memory is
+        shared** with the painter:
+
+        >>> img_np = np.array(p.get_canvas(copy=False), copy=False)
+
+        Retrieve a **deep copy** of the canvas as
+        ``numpy.ndarray``, *i.e.* future ``painter.draw_...`` calls
+        will not affect this retrieved copy:
+
+        >>> img_np = np.array(p.get_canvas(copy=True), copy=False)
+
+      .. tip::
+          If you can ensure that the painter is not destroyed while
+          you display/process the visualization, use the shared view
+          (*i.e.* ``copy = False``) on its canvas to avoid unnecessary
+          memory allocation.
+      )docstr", py::arg("copy") = true);
+
+
+  //----------------------------------------------------------------------
+  //DONE [x] add documentation
+  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add Python bindings
+  //TODO [ ] add Python test (tests/test_xxx.py)
+  //TODO [ ] add C++ demo
+  //TODO [ ] add Python demo
+  doc = R"docstr(
+    Draws a circular arc.
+
+    Args:
+      center: Center position as :class:`~viren2d.Vec2d`.
+      radius: Radius of the arc in pixels as ``float``
+      angle1: The arc will be drawn from ``angle1`` to ``angle2``
+        in clockwise direction. Both angles are specified as type
+        ``float`` in degrees, where 0 degrees points in the
+        direction of increasing *x* coordinates.
+      angle2: See ``angle1``
+      line_style: A :class:`~viren2d.LineStyle` specifying how
+        to draw the arc's outline.
+        If you pass :attr:`viren2d.LineStyle.Invalid`, the contour
+        will not be drawn (then, you must provide a valid
+        ``fill_color``).
+      include_center:  If ``True`` (default), the center point
+        will be included when drawing the outline and filling.
+      fill_color: If you provide a valid :class:`~viren2d.Color`,
+        the arc will be filled.
+      )docstr";
   painter.def("draw_arc", &PainterWrapper::DrawArc, doc.c_str(),
-              py::arg("center"), py::arg("radius"),
-              py::arg("angle1"), py::arg("angle2"),
-              py::arg("line_style") = LineStyle(),
-              py::arg("include_center") = true,
-              py::arg("fill_color") = Color::Invalid);
+      py::arg("center"), py::arg("radius"),
+      py::arg("angle1"), py::arg("angle2"),
+      py::arg("line_style") = LineStyle(),
+      py::arg("include_center") = true,
+      py::arg("fill_color") = Color::Invalid);
 
   //----------------------------------------------------------------------
-  doc = "Draws an arrow.\n\n"
-        "Args:\n"
-        "  pt1: Start of the arrow shaft as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  pt2: End of the arrow shaft (*i.e.* the *pointy end*) as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  arrow_style: An :class:`~" + FullyQualifiedType("ArrowStyle") + "` specifying\n"
-        "    how to draw the arrow.";
+  //
+  doc = R"docstr(
+      Draws an arrow.
+
+      Args:
+        pt1: Start of the arrow shaft as :class:`~viren2d.Vec2d`.
+        pt2: End of the arrow shaft (*i.e.* the *pointy end*) as
+          :class:`~viren2d.Vec2d`.
+        arrow_style: An :class:`~viren2d.ArrowStyle` specifying
+          how to draw the arrow.
+      )docstr";
   painter.def("draw_arrow", &PainterWrapper::DrawArrow, doc.c_str(),
-              py::arg("pt1"), py::arg("pt2"),
-              py::arg("arrow_style") = ArrowStyle());
+      py::arg("pt1"), py::arg("pt2"),
+      py::arg("arrow_style") = ArrowStyle());
 
 
   //----------------------------------------------------------------------TODO doc

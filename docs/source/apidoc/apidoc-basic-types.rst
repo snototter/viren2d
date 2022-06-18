@@ -68,6 +68,7 @@ Ellipse
       .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
          :language: python
          :lines: 22-60
+         :linenos:
          :emphasize-lines: 2-4, 9-11, 19-21
 
 
