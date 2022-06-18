@@ -502,6 +502,32 @@ std::string LineStyle::ToString() const {
   return s.str();
 }
 
+std::string LineStyle::ToDetailedString() const {
+  if (IsSpecialInvalid()) {
+    return "LineStyle::Invalid";
+  }
+
+  std::ostringstream s;
+
+  s << "LineStyle(" << std::fixed << std::setprecision(1)
+    << width << "px, " << color.ToRGBaString() << ", ";
+
+  s << "[" << std::fixed << std::setprecision(1);
+  for (std::size_t idx = 0; idx < dash_pattern.size(); ++idx) {
+    if (idx > 0) {
+      s << ", ";
+    }
+    s << dash_pattern[idx];
+  }
+  s << ']';
+
+  if (!IsValid())
+    s << ", invalid";
+  s << ")";
+
+  return s.str();
+}
+
 
 bool LineStyle::Equals(const LineStyle &other) const {
   if (!wgu::eps_equal(width, other.width))
@@ -580,6 +606,19 @@ std::string ArrowStyle::ToString() const {
   if (!IsValid())
     s << ", invalid";
   s << ")";
+  return s.str();
+}
+
+
+std::string ArrowStyle::ToDetailedString() const {
+  std::ostringstream s;
+  s << "ArrowStyle(base=" << LineStyle::ToDetailedString()
+    << ", " << std::fixed << std::setprecision(1)
+    << ", tip=" << tip_length
+    << ", angle=" << tip_angle << "°, "
+    << (tip_closed ? "filled" : "open") << ", "
+    << (double_headed ? "double-headed, " : "single-headed")
+    << ')';
   return s.str();
 }
 

@@ -19,12 +19,12 @@ Color Names
 
 .. autofunction:: viren2d.color_names
 
-   **Available predefined colors:**
+**Color Name Cheat Sheet:**
 
-   .. figure:: ../images/color-names.png
-      :width: 750
-      :alt: Color names
-      :align: center
+.. figure:: ../images/color-names.png
+   :width: 750
+   :alt: Color names
+   :align: center
 
 
 ~~~~~~~~~
@@ -56,20 +56,20 @@ Ellipse
    :autosummary-nosignatures:
    :members:
 
-   **Example:**
+**Example:**
 
-      .. figure:: ../images/ellipse.png
-         :width: 600
-         :alt: Exemplary ellipses
-         :align: center
+   .. figure:: ../images/ellipse.png
+      :width: 600
+      :alt: Exemplary ellipses
+      :align: center
 
-   **Corresponding Python Code:**
+**Corresponding Python Code:**
 
-      .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
-         :language: python
-         :lines: 22-60
-         :linenos:
-         :emphasize-lines: 2-4, 9-11, 19-21
+   .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
+      :language: python
+      :lines: 22-60
+      :linenos:
+      :emphasize-lines: 2-4, 9-11, 19-21
 
 
 ~~~~~~~~~

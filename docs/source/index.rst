@@ -51,11 +51,11 @@ knife* to visualize the results of common 2D computer vision tasks in both
    Already implemented, documented & tested features are marked by |checked|
    
    * |checked| Arcs
-   * |checked| Arrows
+   * |unchecked| Arrows - WIP: missing demo FIXME
    * |checked| Circles
    * |unchecked| Ellipses - WIP: not fully tested
    * |checked| Lines
-   * |unchecked| Markers - WIP: untested
+   * |unchecked| Markers -WIP test
    * |unchecked| Object detection results: 2D bounding boxes - WIP: untested
    * |unchecked| Object detection results: 3D bounding boxes (requires handling of camera calibration)
    * |unchecked| Polygons - WIP: untested

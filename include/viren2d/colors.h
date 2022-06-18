@@ -320,6 +320,10 @@ class Color {
   std::string ToHexString() const;
 
 
+  //TODO doc
+  std::string ToRGBaString() const;
+
+
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings

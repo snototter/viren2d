@@ -182,6 +182,31 @@ public:
   }
 
 
+  /** String representation used to bind __str__ and __repr__. */
+  std::string StringRepresentation(bool tag) const {
+    std::ostringstream s;
+    if (tag) {
+      s << '<';
+    }
+
+    s << "viren2d.Painter(";
+
+    if (painter_->IsValid()) {
+      auto size = painter_->GetCanvasSize();
+      s << size.width() << 'x' << size.height();
+    } else {
+      s << "canvas not initialized";
+    }
+
+    s << ')';
+
+    if (tag) {
+      s << '>';
+    }
+    return s.str();
+  }
+
+
 private:
   std::unique_ptr<Painter> painter_;
 };
@@ -221,9 +246,9 @@ void RegisterPainter(py::module &m) {
        same painter instance can be reused).
     )pbdoc");
 
-  painter.def(py::init<>())
-      .def("__repr__", [](const Painter &) { return FullyQualifiedType("Painter", true); })
-      .def("__str__", [](const Painter &) { return FullyQualifiedType("Painter", false); })
+  painter.def(py::init<>(), "Default constructor.")
+      .def("__repr__", [](const PainterWrapper &p) { return p.StringRepresentation(true); })
+      .def("__str__", [](const PainterWrapper &p) { return p.StringRepresentation(false); })
       .def("is_valid", &PainterWrapper::IsValid,
            "Checks if the canvas has been set up correctly.");
 

@@ -36,9 +36,12 @@ Color ColorFromTuple(py::tuple tpl) {
       << " values. Expected 3 or 4!";
     throw std::invalid_argument(s.str());
   }
-  Color col(tpl[0].cast<double>(),
-                  tpl[1].cast<double>(),
-                  tpl[2].cast<double>(), 1.0);
+  // Restore exactly as given. We don't want saturating
+  // cast to potentially influence the serialization:
+  Color col;
+  col.red = tpl[0].cast<double>();
+  col.green = tpl[1].cast<double>();
+  col.blue = tpl[2].cast<double>();
 
   if (tpl.size() == 4) {
     col.alpha = tpl[3].cast<double>();

@@ -20,6 +20,8 @@
 //TODO [ ] add Python demo
 
 
+//FIXME: should implement a ToDetailedString() for all styles (to be called whenever tests fail)
+
 namespace viren2d {
 //-------------------------------------------------  Line endpoints
 /** How to render the endpoints of a line. */
@@ -281,6 +283,8 @@ struct LineStyle {
   /** Returns a human-readable string representation. */
   virtual std::string ToString() const;
 
+  //TODO doc
+  virtual std::string ToDetailedString() const;
 
   /** Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const LineStyle &style) {
@@ -380,8 +384,10 @@ struct ArrowStyle : public LineStyle {
 
 
   /** Returns a human-readable string representation. */
-  virtual std::string ToString() const override;
+  std::string ToString() const override;
 
+  //TODO doc
+  std::string ToDetailedString() const override;
 
   /** Overloaded stream operator. */
   friend std::ostream &operator<<(std::ostream &os, const ArrowStyle &style) {

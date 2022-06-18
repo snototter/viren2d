@@ -191,10 +191,10 @@ void RegisterEllipse(pybind11::module &m) {
            { return FullyQualifiedType(o.ToString(), true); })
       .def("__str__", &Ellipse::ToString);
 
-  doc = "An :class:`~" + FullyQualifiedType("Ellipse") + "` can be pickled.";
-  ellipse.def(py::pickle(&EllipseToTuple, &EllipseFromTuple), doc.c_str())
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+  ellipse.def(py::pickle(&EllipseToTuple, &EllipseFromTuple),
+              ":class:`~viren2d.Ellipse` instances can be pickled.")
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
       .def_readwrite("cx", &Ellipse::cx,
            "float: Horizontal center coordinate.")
       .def_readwrite("cy", &Ellipse::cy,
@@ -328,29 +328,25 @@ void RegisterRectangle(py::module &m) {
       )docstr";
   py::class_<Rect> rect(m, "Rect", doc.c_str());
 
-//  doc = " from tuple or list:\n"
-//         "(center, size)\n"
-//         "    With types: (" + FullyQualifiedType(Vec2d::TypeName()) + ", "
-//         + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
-//         "    Axis-aligned rectangle.\n"
-//         "(center, size, rotation)\n"
-//         "    With types: (" + FullyQualifiedType(Vec2d::TypeName()) + ", "
-//         + FullyQualifiedType(Vec2d::TypeName()) + ", float)\n"
-//         "    Rotated rectangle.\n"
-//         "(center, size, rotation, radius)\n"
-//         "    With types: (" + FullyQualifiedType(Vec2d::TypeName()) + ", "
-//         + FullyQualifiedType(Vec2d::TypeName()) + ", float, float)\n"
-//         "    Rotated rectangle with rounded corners.\n"
-//         "(cx, cy, w, h)\n"
-//         "    Where each element is a float.\n"
-//         "    Axis-aligned rectangle.\n"
-//         "(cx, cy, w, h, rotation)\n"
-//         "    Where each element is a float.\n"
-//         "    Rotated rectangle.\n"
-//         "(cx, cy, w, h, rotation, radius)\n"
-//         "    Where each element is a float.\n"
-//         "    Rotated rectangle with rounded corners.\n";
-  doc = "TODO We need the overloaded c'tor for implicit casting";
+
+  doc = R"docstr(
+      Creates a rectangle from a ``tuple`` or ``list``.
+
+      This overloaded constructor is required to support
+      implicit casting. This initialization supports 2
+      basic tuple constellations:
+
+      *  A tuple holding ``(center, size, rotation,
+         radius)``, where ``center`` & ``size`` are
+         :class:`~viren2d.Vec2d`\ s, and ``rotation``
+         & ``radius`` are ``float``\ s.
+
+      *  A tuple holding ``(cx, cy, w, h, rotation,
+         radius)``, where all entries are ``float``\ s.
+
+      In both cases, ``rotation`` and ``radius`` are
+      optional.
+      )docstr";
   rect.def(py::init<>(&RectFromTupleOrList), doc.c_str(),
            py::arg("tpl"));
 
@@ -371,32 +367,16 @@ void RegisterRectangle(py::module &m) {
       py::arg("rotation") = 0.0,
       py::arg("radius") = 0.0);
 
-//  doc = "Create a rectangle from its center, size, rotation & radius.\n"
-//        "Required:  center & size, each as " + FullyQualifiedType(Vec2d::TypeName()) + ".\n"
-//        "Optional:  rotation  Clockwise rotation in degres.\n"
-//        "Optional:  radius    Corner radius in pixels (if > 1) or as\n"
-//        "                     percentage of min(w, h) if radius in (0, 0.5].";
-//  rect.def(py::init<double, double, double,
-//                    double, double, double>(),
-//           "Create a rectangle from cx, cy, w, h, rotation & radius.\n"
-//           "Required:  cx, cy, w, h\n"
-//           "                     Center and size, in pixels.\n"
-//           "Optional:  rotation  Clockwise rotation in degres.\n"
-//           "Optional:  radius:   Corner radius in pixels (if > 1) or as\n"
-//           "                     percentage of min(w, h) if radius in (0, 0.5].",
-//           py::arg("cx"), py::arg("cy"), py::arg("w"), py::arg("h"),
-//           py::arg("rotation") = 0.0,
-//           py::arg("radius") = 0.0)
   rect.def("copy", [](const Rect &r) { return Rect(r); },
            "Returns a deep copy.")
       .def("__repr__",
            [](const Rect &r)
            { return FullyQualifiedType(r.ToString(), true); })
       .def("__str__", &Rect::ToString)
-      .def(py::pickle(&RectToTuple,
-                      &RectFromTuple))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+      .def(py::pickle(&RectToTuple, &RectFromTuple),
+           ":class:`~viren2d.Rect` instances can be pickled.")
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
       .def_readwrite("cx", &Rect::cx,
            "float: Horizontal center coordinate.")
       .def_readwrite("cy", &Rect::cy,

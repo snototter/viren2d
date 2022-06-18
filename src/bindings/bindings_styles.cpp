@@ -222,6 +222,71 @@ Marker MarkerFromPyObject(py::object &o) {
 }
 
 
+py::tuple MarkerStyleToTuple(const MarkerStyle &s) {
+  return py::make_tuple(
+        s.marker, s.size, s.thickness, s.color,
+        s.filled, s.cap, s.join);
+}
+
+
+//py::dict MarkerStyleToDict(const MarkerStyle &ms) {
+//  py::dict d;
+//  d["marker"] = ms.marker;
+//  d["size"] = ms.size;
+//  d["thickness"] = ms.thickness;
+//  d["color"] = ms.color;
+//  d["filled"] = ms.filled;
+//  d["cap"] = ms.cap;
+//  d["join"] = ms.join;
+//  return d;
+//}
+
+
+MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
+  // Convert empty tuple to pre-defined default style
+  if (tpl.empty()) {
+    return MarkerStyle();
+  }
+
+  if (tpl.size() > 7) {
+    std::ostringstream s;
+    s << "Cannot create " << FullyQualifiedType("MarkerStyle")
+      << " from tuple with " << tpl.size()
+      << " entries (expected max. 7)!";
+    throw std::invalid_argument(s.str());
+  }
+
+  MarkerStyle ms;
+  ms.marker = tpl[0].cast<Marker>();
+
+  if (tpl.size() > 1) {
+    ms.size = tpl[1].cast<double>();
+  }
+
+  if (tpl.size() > 2) {
+    ms.thickness = tpl[2].cast<double>();
+  }
+
+  if (tpl.size() > 3) {
+    ms.color = tpl[3].cast<Color>();
+  }
+
+  if (tpl.size() > 4) {
+    ms.filled = tpl[4].cast<bool>();
+  }
+
+  if (tpl.size() > 5) {
+    ms.cap = tpl[5].cast<LineCap>();
+  }
+
+  if (tpl.size() > 6) {
+    ms.join = tpl[6].cast<LineJoin>();
+  }
+
+  return ms;
+}
+
+
 void RegisterMarkerStyle(pybind11::module &m) {
   std::string doc = R"docstr(
       How a marker/keypoint should be drawn.
@@ -242,12 +307,12 @@ void RegisterMarkerStyle(pybind11::module &m) {
       )docstr";
   py::class_<MarkerStyle> style(m, "MarkerStyle", doc.c_str());
 
-  //TODO serialize
-
+  style.def(py::pickle(&MarkerStyleToTuple, &MarkerStyleFromTuple),
+            ":class:`~viren2d.MarkerStyle` instances can be pickled.");
 
   MarkerStyle default_style;
   doc = R"docstr(
-      Creates a customized style.
+      Creates a customized marker style.
 
       Args:
         marker: Shape as :class:`~viren2d.Marker` enum.
@@ -285,10 +350,9 @@ void RegisterMarkerStyle(pybind11::module &m) {
                s << "'" << MarkerToChar(st.marker) << "'";
                return s.str();
            })
-//      .def(py::pickle(&MarkerStyleToTuple,//FIXME implement!
-//                      &MarkerStyleFromTuple))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
       .def("is_filled", &MarkerStyle::IsFilled,
            "Returns ``True`` if this marker would be filled.\n\n"
            "Note that this **may differ** from its :attr:`filled`\n"
@@ -354,10 +418,6 @@ void RegisterMarkerStyle(pybind11::module &m) {
             s.join = LineJoinFromPyObject(o);
         }, doc.c_str());
 
-  //TODO once we support pickling, we can enable implicit conversion
-//  // A LineStyle can be initialized from a given tuple.
-//  py::implicitly_convertible<py::tuple, MarkerStyle>();
-
 
   doc = "Lists the character codes of all :class:`~"
       + FullyQualifiedType("Marker") + "` shapes.\n\n"
@@ -367,25 +427,49 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
 
 void RegisterLineStyle(pybind11::module &m) {
-  std::string doc = "How a line/contour should be drawn.\n\n"
-      "Note that several ``draw_xxx`` methods of the\n:class:`~"
-      + FullyQualifiedType("Painter") + "` also accept the special\n"
-      "member :attr:`~" + FullyQualifiedType("LineStyle.Invalid")
-      + "`,\nwhich indicates that a shape should only be filled,\n"
-      "but it's contour should not be drawn.\n\n**Example:**\n\n"
-      ">>> # Initialize the default style and adjust what you need:\n"
-      ">>> style = viren2d.LineStyle()\n"
-      ">>> style.width = 7\n"
-      ">>> style.color = 'crimson'\n"
-      ">>> style.cap = 'round'\n"
-      ">>> style.dash_pattern = [20, 10]\n\n"
-      ">>> # Alternatively, you would get the same style via:\n"
-      ">>> style = viren2d.LineStyle(\n"
-      ">>>     width=7, color='crimson',\n"
-      ">>>     cap='round', dash_pattern=[20, 10])\n";
+  std::string doc = R"docstr(
+      How a line/contour should be drawn.
+
+      Note that several ``draw_xxx`` methods of the
+      :class:`~viren2d.Painter` also accept the special
+      member :attr:`~viren2d.LineStyle.Invalid`, which
+      indicates that a shape should only be filled,
+      but it's contour should not be drawn.
+
+      Example:
+
+      >>> # Initialize the default style and adjust what you need:
+      >>> style = viren2d.LineStyle()
+      >>> style.width = 7
+      >>> style.color = 'crimson'
+      >>> style.cap = 'round'
+      >>> style.dash_pattern = [20, 10]
+
+      >>> # Alternatively, you would get the same style via:
+      >>> style = viren2d.LineStyle(
+      >>>     width=7, color='crimson',
+      >>>     cap='round', dash_pattern=[20, 10])
+
+      Note that depending on the selected :attr:`cap`
+      (or :attr:`join`), the corresponding line (or joints)
+      may start/end *not exactly* where you specified.
+      If you want pixel-accurate start/end in combination with
+      a particular cap/join, use
+      :meth:`~viren2d.LineStyle.cap_offset` (or
+      :meth:`~viren2d.LineStyle.join_offset`). For example:
+
+      >>> # Line style with a cap that would result in an offset:
+      >>> line_style = viren2d.LineStyle()
+      >>> line_style.cap = 'round'
+      >>> # Now, we want to draw a line exactly from `start` to `end`:
+      >>> start = viren2d.Vec2d(10, 10)
+      >>> end = viren2d.Vec2d(100, 100)
+      >>> unit_dir = start.direction_vector(end).unit_vector()
+      >>> start += line_style.cap_offset() * unit_dir
+      >>> end -= line_style.cap_offset() * unit_dir
+      )docstr";
   py::class_<LineStyle>line_style(m, "LineStyle", doc.c_str());
 
-  //TODO doc
   doc = R"docstr(
       Returns a dictionary representation.
 
@@ -401,6 +485,10 @@ void RegisterLineStyle(pybind11::module &m) {
   line_style.def("as_dict", [](const LineStyle &s) -> py::dict {
     return LineStyleToDict(s);
   }, doc.c_str());
+
+
+  line_style.def("detailed_str", &LineStyle::ToDetailedString,
+                 "Returns a verbose string representation to facilitate deeper inspection.");
 
 
   doc = "Creates a customized line style.\n\n"
@@ -427,9 +515,10 @@ void RegisterLineStyle(pybind11::module &m) {
         "Returns a deep copy.")
       .def("__repr__", [](const LineStyle &st) { return "<" + st.ToString() + ">"; })
       .def("__str__", &LineStyle::ToString)
-      .def(py::pickle(&LineStyleToTuple, &LineStyleFromTuple))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+      .def(py::pickle(&LineStyleToTuple, &LineStyleFromTuple),
+           ":class:`~viren2d.LineStyle` instances can be pickled.")
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
       .def("is_valid", &LineStyle::IsValid,
         "Checks if the style would lead to a drawable line.")
       .def("is_dashed", &LineStyle::IsDashed,
@@ -500,9 +589,6 @@ void RegisterLineStyle(pybind11::module &m) {
         ">>> style.color = 'navy-blue'\n";
   line_style.def_readwrite("color", &LineStyle::color,
            doc.c_str());
-
-//  // A LineStyle can be initialized from a given tuple.
-//  py::implicitly_convertible<py::tuple, LineStyle>();
 }
 
 
@@ -661,9 +747,10 @@ void RegisterArrowStyle(pybind11::module &m) {
            [](const ArrowStyle &st)
            { return FullyQualifiedType(st.ToString(), true); })
       .def("__str__", &ArrowStyle::ToString)
-      .def(py::pickle(&ArrowStyleToTuple, &ArrowStyleFromTuple))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+      .def(py::pickle(&ArrowStyleToTuple, &ArrowStyleFromTuple),
+           ":class:`~viren2d.ArrowStyle` instances can be pickled.")
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
       .def("is_valid", &ArrowStyle::IsValid,
            "Checks if the style would lead to a drawable arrow.")
       .def("tip_length_for_shaft",
@@ -686,9 +773,6 @@ void RegisterArrowStyle(pybind11::module &m) {
            "bool: If ``True``, the arrow head will be filled.")
       .def_readwrite("double_headed", &ArrowStyle::double_headed,
            "bool: If ``True``, arrow heads will be drawn on both ends.");
-
-//  // An ArrowStyle can be initialized from a given tuple.
-//  py::implicitly_convertible<py::tuple, ArrowStyle>();
 }
 
 
@@ -772,10 +856,10 @@ void RegisterBoundingBox2DStyle(py::module &m) {
            [](const BoundingBox2DStyle &st)
            { return "<" + st.ToString() + ">"; })
       .def("__str__", &BoundingBox2DStyle::ToString)
-      .def(py::pickle(&BoundingBox2DStyleToTuple,
-                      &BoundingBox2DStyleFromTuple))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+      .def(py::pickle(&BoundingBox2DStyleToTuple, &BoundingBox2DStyleFromTuple),
+           ":class:`~viren2d.BoundingBox2DStyle` instances can be pickled.")
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
       .def("is_valid", &BoundingBox2DStyle::IsValid,
            "Check if the style allows rendering a 2D bounding box.");
 

@@ -571,20 +571,6 @@ std::string Color::ToString() const {
     }
   }
   return s.str();
-
-  // Alternatively as RGBa string:
-//  std::ostringstream s;
-//  if (IsValid()) {
-//    const auto rgb = ToRGBa();
-//    s << "RGBa(" << static_cast<int>(std::get<0>(rgb))
-//      << ", " << static_cast<int>(std::get<1>(rgb))
-//      << ", " << static_cast<int>(std::get<2>(rgb))
-//      << ", " << std::fixed << std::setprecision(2)
-//      << alpha << ")";
-//  } else {
-//    s << "RGB(-1, -1, -1)";
-//  }
-//  return s.str();
 }
 
 
@@ -644,6 +630,24 @@ std::string Color::ToHexString() const {
   webcode[8] = hex2char[rem];
 
   return webcode;
+}
+
+
+std::string Color::ToRGBaString() const {
+  const auto rgb = ToRGBa();
+  std::ostringstream s;
+  s << "RGBa(";
+
+  if (!IsValid()) {
+    s << "invalid: ";
+  }
+
+  s << static_cast<int>(std::get<0>(rgb))
+    << ", " << static_cast<int>(std::get<1>(rgb))
+    << ", " << static_cast<int>(std::get<2>(rgb))
+    << ", " << std::fixed << std::setprecision(2)
+    << alpha << ")";
+  return s.str();
 }
 
 

@@ -245,3 +245,8 @@ def test_pickling():
     assert color == restored
     assert restored == "orchid!99"
 
+    color.red = -3
+    color.alpha = 5
+    data = pickle.dumps(color)
+    restored = pickle.loads(data)
+    assert color == restored

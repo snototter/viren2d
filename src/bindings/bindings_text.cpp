@@ -221,7 +221,7 @@ void RegisterTextStyle(py::module &m) {
   py::class_<TextStyle>text_style(m, "TextStyle", doc.c_str());
 
 
-  doc = "Creates a customized line style.\n\n"
+  doc = "Creates a customized text style.\n\n"
         "Args:\n"
         "  size: Font size in pixels as ``float``.\n"
         "  family: Name of the font family, refer to the class\n"
@@ -251,10 +251,10 @@ void RegisterTextStyle(py::module &m) {
            [](const TextStyle &st)
            { return FullyQualifiedType(st.ToString(), true); })
       .def("__str__", &TextStyle::ToString)
-      .def(py::pickle(&TextStyleToTuple,
-                      &TextStyleFromTuple))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
+      .def(py::pickle(&TextStyleToTuple, &TextStyleFromTuple),
+           ":class:`~viren2d.TextStyle` instances can be pickled.")
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
       .def("is_valid", &TextStyle::IsValid,
           "Check if the style allows rendering text.")
       .def_readwrite("size", &TextStyle::size,

@@ -30,6 +30,34 @@ def line_style_configurations():
                     continue
                 # Ensure that we're not accidentally using references
                 assert styles[-1] != styles[-2]
+    # Ensure we have both valid/invalid styles
+    assert any([s.is_valid() for s in styles])
+    assert any([not s.is_valid() for s in styles])
+    return styles
+
+
+def marker_style_configurations():
+    styles = list()
+    style = viren2d.MarkerStyle()
+    styles.append(style.copy())
+
+    for m in ['x', 'd']:
+        style.marker = m
+        for size in [-1, 6, 100]:
+            style.size = size
+            for fill in [True, False]:
+                style.filled = fill
+
+                styles.append(style.copy())
+                # Ensure that the list contains an exact copy
+                assert styles[-1] == style
+                if len(styles) < 2:
+                    continue
+                # Ensure that we're not accidentally using references
+                assert styles[-1] != styles[-2]
+    # Ensure we have both valid/invalid styles
+    assert any([s.is_valid() for s in styles])
+    assert any([not s.is_valid() for s in styles])
     return styles
 
 
@@ -177,7 +205,7 @@ def test_line_offsets():
     assert style.join_offset(90) == pytest.approx(style.width / 2.0)
 
 
-def test_line_operators():
+def test_line_arrow_operators():
     # Compare 2 LineStyle objects
     line_style1 = viren2d.LineStyle()
     line_style2 = viren2d.LineStyle()
@@ -209,12 +237,27 @@ def test_line_operators():
     assert arrow_style1 == arrow_style2
 
 
+def test_marker_style():
+    # Default initialization should yield a valid style
+    style = viren2d.MarkerStyle()
+    assert style.is_valid()
+
+    style.size = 0
+    assert not style.is_valid()
+
+    style.size = 40
+    assert style.is_valid()
+
+    assert style != viren2d.MarkerStyle()
+    style2 = style.copy()
+    assert style2 == style
+    style2.marker = '9'
+    assert style2 != style
+
+
 def test_pickling():
     # Serialize line style
     for ls in line_style_configurations():
-        ls = viren2d.LineStyle(
-            2.0, "orchid!30", [], viren2d.LineCap.Round,
-            viren2d.LineJoin.Bevel)
         data = pickle.dumps(ls)
         restored = pickle.loads(data)
         assert ls == restored
@@ -226,3 +269,11 @@ def test_pickling():
     restored = pickle.loads(data)
     assert arr == restored
 
+    # Serialize marker style
+    for ms in marker_style_configurations():
+        data = pickle.dumps(ms)
+        restored = pickle.loads(data)
+        assert ms == restored
+    
+    #TODO implement marker tests in test_styles.py
+    

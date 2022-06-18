@@ -131,9 +131,9 @@ void RegisterVec(py::module &m) {
            "Returns the unit vector of ``self``.")
       .def(py::pickle(&VecToList<_Tp, dim>,
                       &VecFromList<_Tp, dim>))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
-      .def(py::self + py::self)
+      .def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.")
+      .def(py::self + py::self)//TODO doc
       .def(py::self += py::self)
       .def(py::self - py::self)
       .def(-py::self)

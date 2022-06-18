@@ -8,24 +8,25 @@ Horizontal Alignment
 .. autoclass:: viren2d.HorizontalAlignment
    :autosummary:
 
-   **Example:**
+**Example:**
 
-      This figure shows different alignment of multi-line text boxes.
-      These text lines are an excerpt from `Revelation, a Visual Poem <https://vimeo.com/57370112>`__.
+   This figure shows different alignment of multi-line text boxes.
+   These text lines are an excerpt from
+   `Revelation, a Visual Poem <https://vimeo.com/57370112>`__.
 
-      .. figure:: ../images/text-multi-line.png
-         :width: 750
-         :alt: Multi-line Text Alignment
+   .. figure:: ../images/text-multi-line.png
+      :width: 750
+      :alt: Multi-line Text Alignment
 
-   **Corresponding Python Code:**
+**Corresponding Python Code:**
 
-      Note that the :attr:`viren2d.TextStyle.alignment` property provides
-      string conversion to :class:`~viren2d.HorizontalAlignment` enum values.
+   Note that the :attr:`viren2d.TextStyle.alignment` property provides
+   string conversion to :class:`~viren2d.HorizontalAlignment` enum values.
 
-      .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
-         :language: python
-         :linenos:
-         :lines: 83-99
+   .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
+      :language: python
+      :linenos:
+      :lines: 83-99
 
 
 ~~~~~~~~~~~~~~~~~~
@@ -41,21 +42,20 @@ Text Anchor
 
 .. autoclass:: viren2d.TextAnchor
 
-   **Example:**
+**Example:**
 
-      This figure shows differently anchored text boxes.
+   This figure shows differently anchored text boxes.
 
-      .. figure:: ../images/text-anchors.png
-         :width: 440
-         :alt: Text anchors
+   .. figure:: ../images/text-anchors.png
+      :width: 440
+      :alt: Text anchors
 
-   **Corresponding Python Code:**
+**Corresponding Python Code:**
 
-      .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
-         :language: python
-         :linenos:
-         :lines: 35-51
-
+   .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
+      :language: python
+      :linenos:
+      :lines: 35-51
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,12 +65,12 @@ Bounding Box Label Position
 .. autoclass:: viren2d.BoundingBoxLabelPosition
 
 
-   **Example:**
+**Example:**
 
-      TODO add example bbox figure
+   TODO add example bbox figure
 
 
-   **Corresponding Python Code:**
+**Corresponding Python Code:**
 
-      TODO implement in examples/rtd/positioning
+   TODO implement in examples/rtd/positioning
 

@@ -294,6 +294,52 @@ def test_draw_line():
                         p.draw_line(pt1, pt2, style)
                 # Painter should always be kept in a valid state
                 assert p.is_valid()
+
+
+def test_draw_marker():
+    ### Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    # Try drawing on invalid painter
+    with pytest.raises(RuntimeError):
+        p.draw_marker((0, 0))
+    # Prepare canvas
+    p.set_canvas_rgb(400, 300)
+    assert p.is_valid()
+
+    # Draw inside/on the border/outside of the canvas
+    p.draw_marker((10, 10))
+    p.draw_marker((0, 0))
+    p.draw_marker((-100, 20))
+    
+    # Same with the default style
+    style = viren2d.MarkerStyle()
+    p.draw_marker((10, 10), style)
+    p.draw_marker((0, 0), style)
+    p.draw_marker((-100, 20), style)
+
+    # Call draw_marker with kwargs and different parameter order
+    p.draw_marker(pos=(0, 0), style=style)
+    p.draw_marker(style=style, pos=(-100, 20))
+    p.draw_marker(pos=(0, 0))
+    with pytest.raises(TypeError): # Typo
+        p.draw_marker(position=(0, 0), style=style)
+    with pytest.raises(TypeError): # Typo
+        p.draw_marker(pos=(0, 0), marker_style=style)
+
+    # Test draw markers
+    markers = [
+        ((90, 34), 'red'),
+        ((300, 10), viren2d.Color.Invalid),
+        ((-10, 34), 'carrot!30'),
+        ((90, 34), 'blue!1'),
+    ]
+    p.draw_markers(markers)
+    p.draw_markers(markers, style)
+    # Same with kwargs
+    p.draw_markers(markers=markers)
+    p.draw_markers(markers=markers, style=style)
+    p.draw_markers(style=style, markers=markers)
   
 
 def test_draw_rect():
