@@ -334,14 +334,14 @@ void RegisterRectangle(py::module &m) {
 
       This overloaded constructor is required to support
       implicit casting. This initialization supports 2
-      basic tuple constellations:
+      basic tuple/list constellations:
 
-      *  A tuple holding ``(center, size, rotation,
+      *  A tuple/list holding ``(center, size, rotation,
          radius)``, where ``center`` & ``size`` are
          :class:`~viren2d.Vec2d`\ s, and ``rotation``
          & ``radius`` are ``float``\ s.
 
-      *  A tuple holding ``(cx, cy, w, h, rotation,
+      *  A tuple/list holding ``(cx, cy, w, h, rotation,
          radius)``, where all entries are ``float``\ s.
 
       In both cases, ``rotation`` and ``radius`` are

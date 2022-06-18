@@ -103,7 +103,7 @@ def test_draw_arc():
     p.draw_arc((1, 2), 10, 30, 40, style, False, "midnight-blue!80")
     p.draw_arc(
         angle1=20, angle2=300, center=(1, 2), radius=10,
-        fill_color='black!40', style=style, include_center=False)
+        fill_color='black!40', line_style=style, include_center=False)
 
     # Sweep valid and invalid configurations
     for center in [(50, 50), (-10, 0.1)]:
@@ -174,7 +174,8 @@ def test_draw_circles():
 
     # Draw with implicit conversions
     p.draw_circle((0, 30), 70, style, "blue!10")
-    p.draw_circle(radius=70, center=(0, 30), fill_color="blue!10", style=style)
+    p.draw_circle(
+        radius=70, center=(0, 30), fill_color="blue!10", line_style=style)
   
     # Sweep valid and invalid configurations
     for center in [(10, 20), (0, 0), (-100, -30), (0.2, 3000)]:
@@ -212,7 +213,7 @@ def test_draw_ellipse():
     # Implicit ellipse as (cx, cy), (major, minor), rotation, angle_from, angle_to, include_center
     p.draw_ellipse(((150, 180), (300, 100), 90, 45, -45, False), style)
     # The above explicitly from kwargs
-    p.draw_ellipse(style=style,
+    p.draw_ellipse(line_style=style,
         ellipse=viren2d.Ellipse(axes=(100, 300), center=(150, 180),
             rotation=90, angle_from=45, angle_to=-45,
             include_center=False))
@@ -242,7 +243,7 @@ def test_draw_grid():
 
     # Draw with implicit conversions
     p.draw_grid(20, 20, style, (0, 0), (50, 50))
-    p.draw_grid(20, 20, style=style)
+    p.draw_grid(20, 20, line_style=style)
   
     # Sweep valid and invalid configurations
     for tl in [(0, 0), (-10, 3), (100, 20)]:
@@ -274,13 +275,13 @@ def test_draw_line():
     style = viren2d.LineStyle()
     p.draw_line(viren2d.Vec2d(0, 30), viren2d.Vec2d(70, 80), style)
     # Same as above from kwargs
-    p.draw_line(pt2=viren2d.Vec2d(70, 80), pt1=viren2d.Vec2d(0, 30), style=style)
-    p.draw_line(pt2=viren2d.Vec2d(y=80, x=70), pt1=viren2d.Vec2d(x=0, y=30), style=style)
+    p.draw_line(pt2=viren2d.Vec2d(70, 80), pt1=viren2d.Vec2d(0, 30), line_style=style)
+    p.draw_line(pt2=viren2d.Vec2d(y=80, x=70), pt1=viren2d.Vec2d(x=0, y=30), line_style=style)
 
     ### Draw with implicit conversions
     p.draw_line((0, 30), (70, 80), style)
     # Using kwargs
-    p.draw_line(style=style, pt2=(10, 10), pt1=(50, 30))
+    p.draw_line(line_style=style, pt2=(10, 10), pt1=(50, 30))
     p.draw_line(pt2=(10, 10), pt1=(50, 30))
 
     ### Sweep valid and invalid configurations
@@ -319,27 +320,29 @@ def test_draw_marker():
     p.draw_marker((-100, 20), style)
 
     # Call draw_marker with kwargs and different parameter order
-    p.draw_marker(pos=(0, 0), style=style)
-    p.draw_marker(style=style, pos=(-100, 20))
+    p.draw_marker(pos=(0, 0), marker_style=style)
+    p.draw_marker(marker_style=style, pos=(-100, 20))
     p.draw_marker(pos=(0, 0))
     with pytest.raises(TypeError): # Typo
-        p.draw_marker(position=(0, 0), style=style)
+        p.draw_marker(position=(0, 0), marker_style=style)
     with pytest.raises(TypeError): # Typo
-        p.draw_marker(pos=(0, 0), marker_style=style)
+        p.draw_marker(pos=(0, 0), style=style)
 
     # Test draw markers
     markers = [
-        ((90, 34), 'red'),
+        ((900, 34), 'red'),
         ((300, 10), viren2d.Color.Invalid),
         ((-10, 34), 'carrot!30'),
-        ((90, 34), 'blue!1'),
+        ((900, 34), 'blue!1'),
+        ((770, 42), (-1, -1, -1)),
+        ((100, 20), 'invalid')
     ]
     p.draw_markers(markers)
     p.draw_markers(markers, style)
     # Same with kwargs
     p.draw_markers(markers=markers)
-    p.draw_markers(markers=markers, style=style)
-    p.draw_markers(style=style, markers=markers)
+    p.draw_markers(markers=markers, marker_style=style)
+    p.draw_markers(marker_style=style, markers=markers)
   
 
 def test_draw_rect():
@@ -374,9 +377,9 @@ def test_draw_rect():
     # Rect as tuple (cx, cy, w, h)
     p.draw_rect((10, 20, 30, 50), style)
     # Same as above, but with kwargs
-    p.draw_rect(style=style, rect=(10, 20, 30, 50))
+    p.draw_rect(line_style=style, rect=(10, 20, 30, 50))
     # Like above, but includes additional fill
-    p.draw_rect(rect=(10, 20, 30, 50), style=style, fill_color='green')
+    p.draw_rect(rect=(10, 20, 30, 50), line_style=style, fill_color='green')
 
     # Rect from tuple (cx, cy, w, h, angle)
     p.draw_rect((10, 20, 30, 50, 78), style)

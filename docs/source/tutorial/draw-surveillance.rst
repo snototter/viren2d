@@ -1,8 +1,10 @@
+.. _tutorial-surveillance:
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Bounding Boxes & Trajectories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. important::
+.. warning::
    TODO doc
 
 

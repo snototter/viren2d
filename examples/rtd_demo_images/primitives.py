@@ -17,7 +17,7 @@ def demo_ellipse():
     line_style = viren2d.LineStyle(
         width=3, color='midnight-blue')
     
-    fill_color = 'carrot!80'
+    fill_color = 'carrot'
 
     # Ellipse top-left:
     ellipse = viren2d.Ellipse(
@@ -64,3 +64,37 @@ def demo_ellipse():
     shared_canvas = painter.get_canvas(copy=False)
     return np.array(shared_canvas, copy=True)
 
+
+def demo_arrows():
+    # Set up empty canvas:
+    painter = viren2d.Painter()
+    painter.set_canvas_rgb(400, 200, color='white!0')
+
+    # Style specification:
+    arrow_style = viren2d.ArrowStyle(
+        width=7, color='forest-green', cap=viren2d.LineCap.Round)
+
+    painter.draw_arrow((10, 190), (100, 10), arrow_style)
+
+    arrow_style.color = 'crimson'
+    arrow_style.tip_closed = True
+    arrow_style.tip_angle = 10
+    painter.draw_arrow(pt2=(80, 190), pt1=(180, 10), arrow_style=arrow_style)
+
+    arrow_style.color = 'navy-blue'
+    arrow_style.tip_closed = False
+    arrow_style.tip_angle = 30
+    arrow_style.double_headed = True
+    painter.draw_arrow((200, 30), (390, 30), arrow_style)
+
+    arrow_style.dash_pattern = [20, 20]
+    painter.draw_arrow((200, 100), (390, 100), arrow_style)
+
+    arrow_style.tip_angle = 15
+    arrow_style.tip_closed = True
+    painter.draw_arrow((200, 170), (390, 170), arrow_style)
+
+    # Return the visualization as a NumPy buffer (let NumPy take care of
+    # the memory copy):
+    shared_canvas = painter.get_canvas(copy=False)
+    return np.array(shared_canvas, copy=True)

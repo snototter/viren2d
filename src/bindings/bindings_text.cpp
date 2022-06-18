@@ -204,8 +204,8 @@ void RegisterTextStyle(py::module &m) {
 
       >>> # Initialize the default style and adjust what you need:
       >>> style = viren2d.TextStyle()
-      >>> style.font_family = 'monospace'
-      >>> style.font_size = 10
+      >>> style.family = 'monospace'
+      >>> style.size = 10
       >>> style.color = 'navy-blue!80'
       >>> style.bold = True
       >>> style.alignment = 'left'
@@ -213,7 +213,7 @@ void RegisterTextStyle(py::module &m) {
 
       >>> # Alternatively, you would get the same style via:
       >>> style = viren2d.TextStyle(
-      >>>     font_family='monospace', font_size=10,
+      >>>     family='monospace', size=10,
       >>>     color='navy-blue!80', bold=True
       >>>     alignment=viren2d.HorizontalAlignment.Left,
       >>>     line_spacing=1.1)
@@ -225,7 +225,7 @@ void RegisterTextStyle(py::module &m) {
         "Args:\n"
         "  size: Font size in pixels as ``float``.\n"
         "  family: Name of the font family, refer to the class\n"
-        "    member :attr:`font_family` for details.\n"
+        "    member :attr:`family` for details.\n"
         "  color: Text color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
         "  bold: If ``True``, the font weight will be bold (type ``bool``).\n"
         "  italic: If ``True``, the font slant will be italic (type ``bool``).\n"
@@ -238,7 +238,7 @@ void RegisterTextStyle(py::module &m) {
                           const Color &, bool, bool, double,
                           HorizontalAlignment>(), doc.c_str(),
          py::arg("size") = default_style.size,
-         py::arg("font_family") = default_style.family,
+         py::arg("family") = default_style.family,
          py::arg("color") = default_style.color,
          py::arg("bold") = default_style.bold,
          py::arg("italic") = default_style.italic,

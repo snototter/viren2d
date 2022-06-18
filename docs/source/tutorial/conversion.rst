@@ -2,6 +2,9 @@
 
 .. include:: ../symbols.rst
 
+.. warning::
+   TODO doc
+
 --------------------------------
 Integration with Other Libraries
 --------------------------------
@@ -47,13 +50,15 @@ viren2d |right-arrow| OpenCV
 TODO mention **Caveat:** OpenCV stores images in BGR(A) format, whereas viren2d works natively with RGB(A)
 TODO get_canvas doc, add: canvas will always be in RGBA format (4-layers!)
 
-.. code-block::
+.. code-block:: cpp
    :linenos:
 
    // Request a copy of the canvas, because of the (in-place) RGB/BGR conversion
    viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);
+
    // Convert color format into OpenCV's BGR(A)
    img_buffer.RGB2BGR();
+
    // Create an OpenCV matrix header which reuses the img_buffer memory (to
    // avoid an additional memory allocation)
    cv::Mat cv_buffer(

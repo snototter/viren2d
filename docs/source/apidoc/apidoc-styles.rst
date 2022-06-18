@@ -34,6 +34,16 @@ Arrow Style
    :show-inheritance:
    :exclude-members: cap_offset, join_offset, Invalid
 
+**Exemplary potpourri of supported arrow styles:**
+
+.. image:: ../images/arrows.png
+   :width: 400
+   :alt: Arrows
+   :align: center
+
+The code listing to create this visualization is shown in the
+:ref:`tutorial section on arrows<tutorial-draw-arrows>`.
+
 
 ~~~~~~~~~~
 Text Style
@@ -44,10 +54,22 @@ Text Style
    :autosummary-nosignatures:
    :members:
 
+**Exemplary positioning of text boxes:**
+
+.. image:: ../images/text-anchors.png
+   :width: 440
+   :alt: Text positioning
+   :align: center
+
+The code listing to create this visualization is shown in the
+:ref:`tutorial section on text<tutorial-text>`.
 
 ~~~~~~~~~~~~~~~~~~~~~
 2D Bounding Box Style
 ~~~~~~~~~~~~~~~~~~~~~
+
+.. warning::
+   TODO doc
 
 .. autoclass:: viren2d.BoundingBox2DStyle
    :autosummary:

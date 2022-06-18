@@ -159,7 +159,7 @@ Marker MarkerFromChar(char m) {
     return Marker::Cross;
   } else if (m == 's') {
     return Marker::Square;
-  } else if (m == 'S') {
+  } else if (m == 'r') {
     return Marker::RotatedSquare;
   } else if (m == '^') {
     return Marker::TriangleUp;
@@ -185,7 +185,7 @@ Marker MarkerFromChar(char m) {
     return Marker::Heptagon;
   } else if (m == '8') {
     return Marker::Octagram;
-  } else if (m == 'O') {
+  } else if (m == '0') {
     return Marker::Octagon;
   } else if (m == '9') {
     return Marker::Enneagram;
@@ -230,7 +230,7 @@ char MarkerToChar(Marker marker) {
       return '6';
 
     case Marker::Octagon:
-      return 'O';
+      return '0';
 
     case Marker::Octagram:
       return '8';
@@ -248,7 +248,7 @@ char MarkerToChar(Marker marker) {
       return '.';
 
     case Marker::RotatedSquare:
-      return 'S';
+      return 'r';
 
     case Marker::Star:
       return '*';
@@ -283,19 +283,16 @@ std::ostream &operator<<(std::ostream &os, Marker marker) {
 }
 
 
-//std::map<char, Marker> ListMarkers() {
 std::vector<char> ListMarkers() {
   SPDLOG_TRACE("ListMarkers().");
-//  std::map<char, Marker> dict;
   std::vector<char> lst;
   typedef ContinuousEnumIterator<Marker,
-    Marker::Point, Marker::TriangleRight> MarkerIterator;
+    Marker::Point, Marker::Enneagon> MarkerIterator;
 
   for (Marker m: MarkerIterator()) {
     lst.push_back(MarkerToChar(m));
-//    dict.insert(std::make_pair(MarkerToChar(m), m));
   }
-//  return dict;
+
   return lst;
 }
 
@@ -361,9 +358,6 @@ bool MarkerStyle::IsFilled() const {
 
 std::string MarkerStyle::ToString() const {
   std::ostringstream s;
-  // TODO change other style::tostring()
-  // remove "style": Marker/Rect/Ellipse/Line
-  //TODO set precision, etc
   //FIXME maybe change "most" measurement types to int?
   // who wants to use 1.5px line width anyhow... --> on the
   // other hand, we might need it once we switch to svg output (need to think about it!)
@@ -398,7 +392,6 @@ bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs) {
 
 //-------------------------------------------------  LineStyle
 const LineStyle LineStyle::Invalid = LineStyle(-1, Color::Invalid);
-//const LineStyle LineStyle::Default = LineStyle(-42, Color::Invalid);
 
 
 LineStyle::LineStyle()
@@ -421,7 +414,7 @@ LineStyle::LineStyle(std::initializer_list<double> values) {
     s << "LineStyle c'tor requires 0, or 1 elements in initializer_list, "
       << "but got " << values.size() << ".";
     throw std::invalid_argument(s.str());
-  }//TODO initializer lists for other styles, too
+  }
 }
 
 LineStyle::LineStyle(double width, const Color &col,
@@ -440,11 +433,6 @@ bool LineStyle::IsValid() const {
 bool LineStyle::IsSpecialInvalid() const {
   return *this == Invalid;
 }
-
-
-//bool LineStyle::IsSpecialDefault() const {
-//  return *this == Default;
-//}
 
 
 bool LineStyle::IsDashed() const {
@@ -484,14 +472,10 @@ double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
 
 
 std::string LineStyle::ToString() const {
-//  if (IsSpecialDefault()) {
-//    return "LineStyle::Default";
-//  }
-
   if (IsSpecialInvalid()) {
     return "LineStyle::Invalid";
   }
-//TODO check if shortened tostring (color and linestyle) makes more sense; then apply for all classes
+
   std::ostringstream s;
   s << "LineStyle(" << std::fixed << std::setprecision(1)
     << width << "px, " << color.ToString() << ", "
@@ -508,7 +492,6 @@ std::string LineStyle::ToDetailedString() const {
   }
 
   std::ostringstream s;
-
   s << "LineStyle(" << std::fixed << std::setprecision(1)
     << width << "px, " << color.ToRGBaString() << ", ";
 
@@ -565,9 +548,6 @@ bool operator!=(const LineStyle &lhs, const LineStyle &rhs) {
 
 
 //-------------------------------------------------  ArrowStyle
-//const ArrowStyle ArrowStyle::Invalid = ArrowStyle(-1, Color::Invalid, -1, -1);
-//const ArrowStyle ArrowStyle::Default = ArrowStyle(-42, Color::Invalid, -42, -42);
-
 ArrowStyle::ArrowStyle()
   : LineStyle(),
     tip_length(0.2), tip_angle(20),
@@ -603,8 +583,10 @@ std::string ArrowStyle::ToString() const {
     << (double_headed ? "double-headed, " : "")
     << color.ToHexString() << ", "
     << (dash_pattern.empty() ? "solid" : "dashed");
-  if (!IsValid())
+
+  if (!IsValid()) {
     s << ", invalid";
+  }
   s << ")";
   return s.str();
 }
@@ -619,6 +601,7 @@ std::string ArrowStyle::ToDetailedString() const {
     << (tip_closed ? "filled" : "open") << ", "
     << (double_headed ? "double-headed, " : "single-headed")
     << ')';
+
   return s.str();
 }
 
@@ -675,8 +658,6 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 
 
 //-------------------------------------------------  TextStyle
-//const TextStyle TextStyle::Default = TextStyle(-42, std::string());
-
 TextStyle::TextStyle()
   : size(16),
     family("monospace"),
@@ -708,12 +689,6 @@ bool TextStyle::IsValid() const {
 }
 
 
-//bool TextStyle::IsSpecialDefault() const {
-//  return *this == Default;
-//}
-
-
-
 bool TextStyle::Equals(const TextStyle &other) const {
   return (size == other.size)
       && (family.compare(other.family) == 0)
@@ -725,10 +700,6 @@ bool TextStyle::Equals(const TextStyle &other) const {
 
 
 std::string TextStyle::ToString() const {
-//  if (IsSpecialDefault()) {
-//    return "TextStyle::Default";
-//  }
-
   std::ostringstream s;
   s << "TextStyle(\"" << family << "\", "
     << size << "px";

@@ -60,14 +60,9 @@ def demo_multiline_text():
     # Set up empty canvas:
     painter = viren2d.Painter()
     canvas_width = 750
-    canvas_height = 180
+    canvas_height = 155
     painter.set_canvas_rgb(
         width=canvas_width, height=canvas_height, color='white!0')
-
-    # Style specifications:
-    text_style = viren2d.TextStyle(family='xkcd', size=16)
-
-    line_style = viren2d.LineStyle.Invalid
 
     poem = [
         'This nature frames my world!',
@@ -78,8 +73,11 @@ def demo_multiline_text():
         'a steady hand...'
     ]
     padding = (14, 6)
-    color = 'forest-green!60'
+    color = 'tangerine!90'
 
+    line_style = viren2d.LineStyle.Invalid
+
+    text_style = viren2d.TextStyle(family='xkcd', size=14)
     text_style.alignment = 'left'
     painter.draw_textbox(
         poem, (5, 5), anchor='top-left', text_style=text_style,
@@ -98,9 +96,7 @@ def demo_multiline_text():
         padding=padding, rotation=0, line_style=line_style,
         fill_color=color, radius=0.1)
 
-
     # Return the visualization as a NumPy buffer (let NumPy take care of
     # the memory copy):
     shared_canvas = painter.get_canvas(copy=False)
     return np.array(shared_canvas, copy=True)
-

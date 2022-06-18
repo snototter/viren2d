@@ -214,7 +214,7 @@ private:
 
 void RegisterPainter(py::module &m) {
   py::class_<PainterWrapper> painter(m, "Painter",
-    R"pbdoc(A :class:`~viren2d.Painter` lets you draw on a canvas.
+    R"docstr(A :class:`~viren2d.Painter` lets you draw on a canvas.
 
     Typical usage:
 
@@ -244,7 +244,7 @@ void RegisterPainter(py::module &m) {
 
     5. Either continue drawing (step 3) or set a new canvas (step 2, the
        same painter instance can be reused).
-    )pbdoc");
+    )docstr");
 
   painter.def(py::init<>(), "Default constructor.")
       .def("__repr__", [](const PainterWrapper &p) { return p.StringRepresentation(true); })
@@ -378,7 +378,7 @@ void RegisterPainter(py::module &m) {
   painter.def("draw_arc", &PainterWrapper::DrawArc, doc.c_str(),
       py::arg("center"), py::arg("radius"),
       py::arg("angle1"), py::arg("angle2"),
-      py::arg("style") = LineStyle(),
+      py::arg("line_style") = LineStyle(),
       py::arg("include_center") = true,
       py::arg("fill_color") = Color::Invalid);
 
@@ -393,6 +393,16 @@ void RegisterPainter(py::module &m) {
           :class:`~viren2d.Vec2d`.
         arrow_style: An :class:`~viren2d.ArrowStyle` specifying
           how to draw the arrow.
+
+      Note:
+        Arrows should always be drawn **fully opaque**. Otherwise,
+        you'll experience visible blending in the crossing path
+        segments (*i.e.* at the tip).
+
+        The implementation effort to completely avoid any partially
+        overlapping line segments of an arrow (and supporting all
+        varieties of :class:`~viren2d.ArrowStyle` configurations)
+        is simply not worth it.
       )docstr";
   painter.def("draw_arrow", &PainterWrapper::DrawArrow, doc.c_str(),
       py::arg("pt1"), py::arg("pt2"),
@@ -403,11 +413,11 @@ void RegisterPainter(py::module &m) {
   doc = "TODO doc";
   painter.def("draw_bounding_box_2d", &PainterWrapper::DrawBoundingBox2D,
               doc.c_str(), py::arg("rect"), py::arg("label"),
-              py::arg("style") = BoundingBox2DStyle());
+              py::arg("box_style") = BoundingBox2DStyle());
   // Create an alias
   painter.def("draw_bbox2d", &PainterWrapper::DrawBoundingBox2D,
               "Alias for :meth:`draw_bounding_box_2d`.", py::arg("rect"), py::arg("label"),
-              py::arg("style") = BoundingBox2DStyle());
+              py::arg("box_style") = BoundingBox2DStyle());
 
 
   //----------------------------------------------------------------------
@@ -423,7 +433,7 @@ void RegisterPainter(py::module &m) {
         "    the circle will be filled.";
   painter.def("draw_circle", &PainterWrapper::DrawCircle, doc.c_str(),
         py::arg("center"), py::arg("radius"),
-        py::arg("style") = LineStyle(),
+        py::arg("line_style") = LineStyle(),
         py::arg("fill_color") = Color::Invalid);
 
 
@@ -440,7 +450,7 @@ void RegisterPainter(py::module &m) {
     "    the ellipse will be filled.";
   painter.def("draw_ellipse", &PainterWrapper::DrawEllipse, doc.c_str(),
         py::arg("ellipse"),
-        py::arg("style") = LineStyle(),
+        py::arg("line_style") = LineStyle(),
         py::arg("fill_color") = Color::Invalid);
 
         //TODO coding style//----------------------------------------------------------------------
@@ -454,10 +464,9 @@ void RegisterPainter(py::module &m) {
         "    painter's default line style will be used.\n\n"
         ":top_left:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
         ":bottom_right:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n";
-
   painter.def("draw_grid", &PainterWrapper::DrawGrid, doc.c_str(),
         py::arg("spacing_x"), py::arg("spacing_y"),
-        py::arg("style") = LineStyle(),
+        py::arg("line_style") = LineStyle(),
         py::arg("top_left") = Vec2d(),
         py::arg("bottom_right") = Vec2d());
 
@@ -468,42 +477,63 @@ void RegisterPainter(py::module &m) {
       Args:
         pt1: Start position as :class:`~viren2d.Vec2d`.
         pt2: End position as :class:`~viren2d.Vec2d`.
-        style: A :class:`~viren2d.LineStyle` specifying
+        line_style: A :class:`~viren2d.LineStyle` specifying
           how to draw the line.
 
       Example:
         >>> line_style = viren2d.LineStyle()
         >>> painter.draw_line((42, 42), (86, 86), line_style)
         >>> painter.draw_line(
-        >>>     pt1=(42, 42), pt2=(86, 86), style=line_style)
+        >>>     pt1=(42, 42), pt2=(86, 86), line_style=line_style)
       )docstr";
   painter.def("draw_line", &PainterWrapper::DrawLine, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
-              py::arg("style") = LineStyle());
+              py::arg("line_style") = LineStyle());
 
   //----------------------------------------------------------------------
-  doc = "Draws a single marker/keypoint.\n\n"
-        "Args:\n"
-        "  pos: Position as :class:`~"
-        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  style: A :class:`~" + FullyQualifiedType("MarkerStyle") + "` specifying\n"
-        "    how to draw the marker.";
+  doc = R"docstr(
+      Draws a single marker/keypoint.
+
+      Args:
+        pos: Position as :class:`~viren2d.Vec2d`.
+        marker_style: A :class:`~viren2d.MarkerStyle` specifying
+          how to draw the marker.
+
+      Example:
+        >>> marker_style = viren2d.MarkerStyle()
+        >>> marker_style.marker = '7'
+        >>> marker_style.size = 30
+        >>> painter.draw_marker((42, 70), marker_style)
+      )docstr";
   painter.def("draw_marker", &PainterWrapper::DrawMarker, doc.c_str(),
-              py::arg("pos"), py::arg("style") = MarkerStyle());
+              py::arg("pos"), py::arg("marker_style") = MarkerStyle());
 
+  doc = R"docstr(
+      Draws multiple (similar) markers/keypoints.
 
-  doc = "Draws multiple (similar) markers/keypoints.\n\n"
-        "Args:\n"
-        "  markers: Holds the position and color of each marker.\n"
-        "    Should be provided as a List[Tuple[:class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`,\n"
-        "    :class:`~" + FullyQualifiedType("Color") + "`]].\n"
-        "    If a color is invalid, the corresponding marker will\n"
-        "    be drawn using the ``style``'s color specification\n"
-        "    instead."
-        "  style: A :class:`~" + FullyQualifiedType("MarkerStyle") + "` specifying\n"
-        "    how to draw the markers (except for the color).";
+      Args:
+        markers: Holds the position and color of each marker.
+          Should be provided as a ``list`` of ``tuple``\ s, where
+          each ``tuple`` holds the position and color of a marker
+          as (:class:`~viren2d.Vec2d`, :class:`~viren2d.Color`).
+          If a marker's color is invalid, it will be drawn using
+          ``marker_style``'s color specification instead.
+        marker_style: A :class:`~viren2d.MarkerStyle` specifying
+          how to draw the markers (except for the color).
+
+      Example:
+        >>> marker_style = viren2d.MarkerStyle(color='crimson')
+        >>> markers = [
+        >>>     ((10, 10), 'blue'),
+        >>>     ((20, 10), (0.5, 0, 0.5)),
+        >>>     ((30, 10), viren2d.RGBa(200, 0, 180)),
+        >>>     ((40, 10), 'invalid'),   # Will use marker_style.color
+        >>>     ((50, 34), (-1, -1, -1)) # This one too
+        >>> ]
+        >>> painter.draw_markers(markers, marker_style)
+      )docstr";
   painter.def("draw_markers", &PainterWrapper::DrawMarkers, doc.c_str(),
-              py::arg("markers"), py::arg("style") = MarkerStyle());
+              py::arg("markers"), py::arg("marker_style") = MarkerStyle());
 
 
   //----------------------------------------------------------------------
@@ -518,7 +548,7 @@ void RegisterPainter(py::module &m) {
         "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
         "    the circle will be filled.";
   painter.def("draw_polygon", &PainterWrapper::DrawPolygon, doc.c_str(),
-              py::arg("polygon"), py::arg("style") = LineStyle(),
+              py::arg("polygon"), py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
   //----------------------------------------------------------------------
@@ -533,7 +563,7 @@ void RegisterPainter(py::module &m) {
         "    the rectangle will be filled.";
   painter.def("draw_rect", &PainterWrapper::DrawRect, doc.c_str(),
               py::arg("rect"),
-              py::arg("style") = LineStyle(),
+              py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
         //TODO doc//----------------------------------------------------------------------
@@ -584,9 +614,9 @@ void RegisterPainter(py::module &m) {
 
 
   //----------------------------------------------------------------------
-  doc = "TODO doc";
+  doc = "TODO doc, default args";
   painter.def("draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
-              py::arg("points"), py::arg("style"),
+              py::arg("points"), py::arg("line_style") = LineStyle(),
               py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
               py::arg("oldest_first") = false);
   //TODO(snototter) add draw_xxx methods

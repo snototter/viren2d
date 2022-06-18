@@ -76,8 +76,13 @@ enum class Marker : unsigned char {
   Cross,   ///< Cross marker, char representation: 'x'.
 
   Square,  ///< Square marker, char representation: 's'.
-  RotatedSquare, ///< Rotated square marker (i.e. a thick diamond), char representation: 'S'.
+  RotatedSquare, ///< Rotated square marker, char representation: 'r'.
   Diamond, ///< Diamond marker, char representation: 'd'.
+
+  TriangleUp,    ///< Upward-pointing triangle marker, char representation: '^'.
+  TriangleDown,  ///< Downward-pointing triangle marker, char representation: 'v'.
+  TriangleLeft,  ///< Left-pointing triangle marker, char representation: '<'.
+  TriangleRight, ///< Right-pointing triangle marker, char representation: '>'.
 
   Star,      ///< Five-pointed star (Asterisk), char representation: '*'.
   Pentagram, ///< Five-pointed star, char representation: '5'.
@@ -87,14 +92,9 @@ enum class Marker : unsigned char {
   Heptagram, ///< Seven-pointed star, char representation: '7'.
   Heptagon,  ///< Seven-sided polygon, char representation: 'H'.
   Octagram,  ///< Eight-pointed star, char representation: '8'.
-  Octagon,   ///< Eight-sided polygon, char representation: 'O'.
+  Octagon,   ///< Eight-sided polygon, char representation: '0' (zero).
   Enneagram, ///< Nine-pointed star, char representation: '9'.
-  Enneagon,  ///< Nine-sided polygon (Nonagon), char representation: 'n'.
-
-  TriangleUp,    ///< Upward-pointing triangle marker, char representation: '^'.
-  TriangleDown,  ///< Downward-pointing triangle marker, char representation: 'v'.
-  TriangleLeft,  ///< Left-pointing triangle marker, char representation: '<'.
-  TriangleRight  ///< Right-pointing triangle marker, char representation: '>'.
+  Enneagon   ///< Nine-sided polygon (Nonagon), char representation: 'n'.
 
   // If you implement additional markers, you have to consider it within:
   // * MarkerFromChar (there will be NO compilation warnings if you miss it!)
@@ -118,7 +118,6 @@ std::ostream &operator<<(std::ostream &os, Marker marker);
 
 
 /** Returns the char representations of all implemented marker shapes. */
-//std::map<char, Marker> ListMarkers();
 std::vector<char> ListMarkers();
 
 

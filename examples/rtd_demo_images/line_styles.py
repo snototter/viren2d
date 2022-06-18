@@ -59,7 +59,7 @@ def demo_line_join():
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=18, color='black')
+        family='xkcd', size=18, color=(0.3, 0.3, 0.3))
 
     line_style = viren2d.LineStyle(
         width=49, color='navy-blue')

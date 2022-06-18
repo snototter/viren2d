@@ -1,9 +1,9 @@
 **Line Cap Cheat Sheet:**
 
-   .. figure:: ../images/line-cap.png
+   .. image:: ../images/line-cap.png
       :width: 300
-      :alt: Line cap styles
-
+      :alt: Line Cap Styles
+      :align: center
 
 **Corresponding Python Code:**
 
@@ -12,7 +12,8 @@
 
    .. literalinclude:: ../../../examples/rtd_demo_images/line_styles.py
       :language: python
-      :lines: 4-49
-      :emphasize-lines: 17-19, 26-28, 35-37
+      :lines: 12-44
+      :emphasize-lines: 5-6, 9, 18, 27
       :linenos:
+      :dedent: 4
 

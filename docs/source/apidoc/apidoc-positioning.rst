@@ -8,26 +8,15 @@ Horizontal Alignment
 .. autoclass:: viren2d.HorizontalAlignment
    :autosummary:
 
-**Example:**
+**Exemplary horizontal alignment of mulit-line text:**
 
-   This figure shows different alignment of multi-line text boxes.
-   These text lines are an excerpt from
-   `Revelation, a Visual Poem <https://vimeo.com/57370112>`__.
+.. image:: ../images/text-multi-line.png
+   :width: 750
+   :alt: Multi-line Text Alignment
+   :align: center
 
-   .. figure:: ../images/text-multi-line.png
-      :width: 750
-      :alt: Multi-line Text Alignment
-
-**Corresponding Python Code:**
-
-   Note that the :attr:`viren2d.TextStyle.alignment` property provides
-   string conversion to :class:`~viren2d.HorizontalAlignment` enum values.
-
-   .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
-      :language: python
-      :linenos:
-      :lines: 83-99
-
+The code listing to create this visualization is shown in the
+:ref:`tutorial section on multi-line text<tutorial-text-multi-line>`.
 
 ~~~~~~~~~~~~~~~~~~
 Vertical Alignment
@@ -42,20 +31,15 @@ Text Anchor
 
 .. autoclass:: viren2d.TextAnchor
 
-**Example:**
+**Exemplary positioning of text boxes:**
 
-   This figure shows differently anchored text boxes.
+.. image:: ../images/text-anchors.png
+   :width: 440
+   :alt: Text Anchoring
+   :align: center
 
-   .. figure:: ../images/text-anchors.png
-      :width: 440
-      :alt: Text anchors
-
-**Corresponding Python Code:**
-
-   .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
-      :language: python
-      :linenos:
-      :lines: 35-51
+The code listing to create this visualization is shown in the
+:ref:`tutorial section on text positioning<tutorial-text-anchors>`.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -67,7 +51,8 @@ Bounding Box Label Position
 
 **Example:**
 
-   TODO add example bbox figure
+TODO add example bbox image and refer to 
+:ref:`tutorial section on bounding boxes<tutorial-surveillance>`
 
 
 **Corresponding Python Code:**

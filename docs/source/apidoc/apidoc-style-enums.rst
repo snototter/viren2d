@@ -28,5 +28,13 @@ Marker Shapes
 
 .. autoclass:: viren2d.Marker
 
-.. include:: ../tutorial/_example_markers.rst
+**Marker Shape Cheat Sheet:**
+
+.. image:: ../images/markers.png
+   :width: 600
+   :alt: Supported Marker Shapes
+   :align: center
+
+The code listing to create this visualization is shown in the
+:ref:`tutorial section on markers<tutorial-markers>`.
 

@@ -20,6 +20,11 @@ def _process_result(
 
 
 def render_rtd_demos(show_images: bool, save_images: bool):
+    # Arrows
+    img = demo_arrows()
+    _process_result(
+        img, show_images, 'Arrows', save_images, 'arrows.png')
+
     # Color names
     img = demo_color_names()
     _process_result(

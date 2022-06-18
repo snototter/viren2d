@@ -1,9 +1,9 @@
 **Line Join Cheat Sheet:**
 
-   .. figure:: ../images/line-join.png
+   .. image:: ../images/line-join.png
       :width: 400
-      :alt: Line join styles
-
+      :alt: Line Join Styles
+      :align: center
 
 **Corresponding Python Code:**
 
@@ -12,7 +12,8 @@
 
    .. literalinclude:: ../../../examples/rtd_demo_images/line_styles.py
       :language: python
-      :lines: 52-95
-      :emphasize-lines: 18-19, 26-27, 34-35
+      :lines: 60-90
+      :emphasize-lines: 5-6, 10, 18, 26
       :linenos:
+      :dedent: 4
 

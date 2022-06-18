@@ -19,10 +19,10 @@ Know the Basics
    positive *y*-axis.
 
 
-.. note::
+.. warning::
    TODO this page needs to be extended with info on pseudocolorization;
 
-   (maybe anonymization - imagebuffer)?
+   (maybe add anonymization also - via imagebuffer)?
 
    add "What about other visualizations?"
       pseudocoloring (can also be usable for label2img, segmentation results, etc.)

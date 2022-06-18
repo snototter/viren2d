@@ -71,7 +71,9 @@ void RegisterLineCap(pybind11::module &m) {
           "Round ending, center of the circle is the end point.")
       .value("Square", LineCap::Square,
           "Square ending, center of the square is the end point.");
+
   // .export_values() should be skipped for strongly typed enums
+
   cap.def(
         "__str__", [](LineCap c) -> py::str {
             return py::str(LineCapToString(c));
@@ -83,12 +85,6 @@ void RegisterLineCap(pybind11::module &m) {
             s << "<LineCap." << LineCapToString(c) << '>';
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
-
-//  std::string doc = "Parses a string into a :class:`~"
-//      + FullyQualifiedType("LineCap") + "` enum.\n\n"
-//      "**Corresponding C++ API:** ``viren2d::LineCapFromString``.";
-//  m.def("lcap", LineCapFromString,
-//        doc.c_str(), py::arg("cap_str"));
 }
 
 
@@ -130,12 +126,6 @@ void RegisterLineJoin(pybind11::module &m) {
             s << "<LineJoin." << LineJoinToString(j) << '>';
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
-
-//  std::string doc = "Parses a string into a :class:`~"
-//      + FullyQualifiedType("LineJoin") + "` enum.\n\n"
-//      "**Corresponding C++ API:** ``viren2d::LineJoinFromString``.";
-//  m.def("ljoin", LineJoinFromString,
-//        doc.c_str(), py::arg("join_str"));
 }
 
 
@@ -169,7 +159,7 @@ void RegisterMarker(pybind11::module &m) {
       .value("Square", Marker::Square,
              "Square marker, char representation: ``'s'``.")
       .value("RotatedSquare", Marker::RotatedSquare,
-             "Rotated square (a thick diamond), char representation: ``'S'``.")
+             "Rotated square (a thick diamond), char representation: ``'r'``.")
       .value("Diamond", Marker::Diamond,
              "Diamond marker, char representation: ``'d'``.")
       .value("Star", Marker::Star,
@@ -187,7 +177,7 @@ void RegisterMarker(pybind11::module &m) {
       .value("Heptagram", Marker::Heptagram,
              "Seven-pointed star, char representation: ``'7'``.")
       .value("Octagon", Marker::Octagon,
-             "Eight-sided polygon, char representation: ``'O'``.")
+             "Eight-sided polygon, char representation: ``'0'`` (*i.e.* zero).")
       .value("Octagram", Marker::Octagram,
              "Eight-pointed star, char representation: ``'8'``.")
       .value("Enneagon", Marker::Enneagon,
@@ -227,19 +217,6 @@ py::tuple MarkerStyleToTuple(const MarkerStyle &s) {
         s.marker, s.size, s.thickness, s.color,
         s.filled, s.cap, s.join);
 }
-
-
-//py::dict MarkerStyleToDict(const MarkerStyle &ms) {
-//  py::dict d;
-//  d["marker"] = ms.marker;
-//  d["size"] = ms.size;
-//  d["thickness"] = ms.thickness;
-//  d["color"] = ms.color;
-//  d["filled"] = ms.filled;
-//  d["cap"] = ms.cap;
-//  d["join"] = ms.join;
-//  return d;
-//}
 
 
 MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
@@ -673,49 +650,30 @@ void RegisterArrowStyle(pybind11::module &m) {
       )docstr";
   py::class_<ArrowStyle, LineStyle> arrow_style(m, "ArrowStyle", doc.c_str());
 
-//TODO remove after testing - if we need to reenable it: the interface changed! (line_width --> width, etc.)
-//  doc = "A ``tuple`` can be cast into an ArrowStyle.\n\n"
-//"Examples:\n\nTODO TODO see :attr:`width` "
-//"*Specify only width & color:*\n"
-//"   ``(width, color)``\n\n"
-//"*Full configuration:*\n"
-//"   ``(width, color, tip_length,\n"
-//"   tip_angle, tip_closed, double_headed, dash_pattern,\n"
-//"   cap, join)``\n\n"
-//"With data types:\n\n"
-//"* ``width``: ``float``\n"
-//"* ``color``: :class:`" + FullyQualifiedType("Color") + "`\n"
-//"* ``tip_length``: ``float`` - Percentage of shaft length if [0, 1].\n"
-//"  Otherwise, defines the absolute tip length in pixels.\n"
-//"* ``tip_angle``: ``float`` - Interior angle (in degrees) between shaft\n"
-//"  and tip.\n"
-//"* ``tip_closed``: ``bool`` - Set ``True`` to fill the tip.\n"
-//"* ``double_headed``: ``bool`` Set ``True`` to draw a tip on both ends of\n"
-//"  the shaft.\n"
-//"* ``dash_pattern``: ``List[float]`` - see :class:`" + FullyQualifiedType("LineStyle") + "`\n"
-//":cap:      :class:`" + FullyQualifiedType("LineCap") + "`\n"
-//":join:     :class:`" + FullyQualifiedType("LineJoin") + "`";
-//  arrow_style.def(py::init<>(&ArrowStyleFromTuple), doc.c_str());
 
-  doc = "Creates a customized arrow style.\n\n"
-        "Args:\n"
-        "  width: Width in pixels as ``float``.\n"
-        "  color: Arrow color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
-        "  tip_length: Length of the arrow tip as ``float``. If it\n"
-        "    is between ``[0, 1]``, it is interpreted as percentage\n"
-        "    of the shaft length. Otherwise, it represents the absolute\n"
-        "    length in pixels.\n"
-        "  tip_angle: Interior angle between shaft and tip, specified"
-        "    in degrees as ``float``.\n"
-        "  tip_closed: Set ``True`` to fill the tip (type ``bool``).\n"
-        "  double_headed: Set `True` to draw arrow tips on both ends\n"
-        "    of the shaft (type ``bool``).\n"
-        "  dash_pattern: Dash pattern defined as ``List[float]`` of on/off strokes,\n"
-        "    refer to the class member :attr:`dash_pattern` for details.\n"
-        "  cap: A :class:`~" + FullyQualifiedType("LineCap") + "` enum, specifying\n"
-        "    how to render the line's endpoints.\n"
-        "  join: A :class:`~" + FullyQualifiedType("LineJoin") + "` enum, specifying\n"
-        "    how to render the junctions of multi-segment lines.";
+  doc = R"docstr(
+      Creates a customized arrow style.
+
+      Args:
+        width: Width in pixels as ``float``.
+        color: Arrow color as :class:`~viren2d.Color`.
+        tip_length: Length of the arrow tip as ``float``. If it
+          is between ``[0, 1]``, it is interpreted as percentage
+          of the shaft length. Otherwise, it represents the absolute
+          length in pixels.
+        tip_angle: Interior angle between shaft and tip, specified
+          in degrees as ``float``.
+        tip_closed: Set ``True`` to fill the tip (type ``bool``).
+        double_headed: Set `True` to draw arrow tips on both ends
+          of the shaft (type ``bool``).
+        dash_pattern: Dash pattern defined as ``List[float]`` of
+          on/off strokes. Refer to the documentation of the class
+          member :attr:`dash_pattern` for details.
+        cap: A :class:`~viren2d.LineCap` enum, specifying
+          how to render the line's endpoints.
+        join: A :class:`~viren2d.LineJoin` enum, specifying
+          how to render the junctions of multi-segment lines.
+        )docstr";
   ArrowStyle default_style;
   arrow_style.def(py::init<double, Color,
                            double, double, bool, bool, std::vector<double>,
@@ -731,15 +689,9 @@ void RegisterArrowStyle(pybind11::module &m) {
          py::arg("join") = default_style.join);
 
 
-  //TODO doc
-  doc = R"docstr(
-      Returns a dictionary representation.
-
-      TODO - just implemented, because ArrowStyle subclasses LineStyle...
-      )docstr";
   arrow_style.def("as_dict", [](const ArrowStyle &s) -> py::dict {
     return ArrowStyleToDict(s);
-  }, doc.c_str());
+  }, "Returns a dictionary representation.");
 
   arrow_style.def("copy", [](const ArrowStyle &st) { return ArrowStyle(st); },
            "Returns a deep copy.")

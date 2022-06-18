@@ -31,6 +31,9 @@ Color Names
 Vector 2D
 ~~~~~~~~~
 
+.. warning::
+   TODO doc
+
 .. autoclass:: viren2d.Vec2d
    :autosummary:
    :autosummary-nosignatures:
@@ -41,6 +44,9 @@ Vector 2D
 Vector 3D
 ~~~~~~~~~
 
+.. warning::
+   TODO doc
+
 .. autoclass:: viren2d.Vec3d
    :autosummary:
    :autosummary-nosignatures:
@@ -50,6 +56,9 @@ Vector 3D
 ~~~~~~~
 Ellipse
 ~~~~~~~
+
+.. warning::
+   TODO doc overloaded ctor
 
 .. autoclass:: viren2d.Ellipse
    :autosummary:
@@ -63,13 +72,9 @@ Ellipse
       :alt: Exemplary ellipses
       :align: center
 
-**Corresponding Python Code:**
 
-   .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
-      :language: python
-      :lines: 22-60
-      :linenos:
-      :emphasize-lines: 2-4, 9-11, 19-21
+The code listing to create this visualization is shown in the
+:ref:`tutorial section on ellipses<tutorial-draw-ellipses>`.
 
 
 ~~~~~~~~~
@@ -85,6 +90,9 @@ Rectangle
 ~~~~~~~~~~~
 ImageBuffer
 ~~~~~~~~~~~
+
+.. warning::
+   TODO doc
 
 TODO add conversion examples to the tutorial (where they actually belong) & only include class documentation here!
 TODO :ref:`convert into types used in common image processing libraries <tutorial-conversion>`
