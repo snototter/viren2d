@@ -152,17 +152,17 @@ void RegisterAnchors(py::module &m) {
   py::enum_<BoundingBoxLabelPosition> bblp(m, "BoundingBoxLabelPosition",
              "Enum specifying where to place a bounding box label.");
   bblp.value("Top", BoundingBoxLabelPosition::Top,
-             "At the top of the bounding box.")
+             "At the **top** of the bounding box.")
       .value("Bottom", BoundingBoxLabelPosition::Bottom,
-             "At the bottom of the bounding box.")
+             "At the **bottom** of the bounding box.")
       .value("Left", BoundingBoxLabelPosition::Left,
-             "Along the left edge of the bounding box, from bottom to top.")
+             "Along the **left edge** of the bounding box, **from bottom to top**.")
       .value("LeftT2B", BoundingBoxLabelPosition::LeftT2B,
-             "Along the left edge of the bounding box, from top to bottom.")
+             "Along the **left edge** of the bounding box, from **top to bottom**.")
       .value("Right", BoundingBoxLabelPosition::Right,
-             "Along the right edge of the bounding box, from top to bottom.")
+             "Along the **right edge** of the bounding box, from **top to bottom**.")
       .value("RightB2T", BoundingBoxLabelPosition::RightB2T,
-             "Along the right edge of the bounding box, from bottom to top.");
+             "Along the **right edge** of the bounding box, from **bottom to top**.");
 
   bblp.def(
       "__str__", [](BoundingBoxLabelPosition lp) -> py::str {

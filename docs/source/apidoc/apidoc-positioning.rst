@@ -16,7 +16,6 @@ Horizontal Alignment
       .. figure:: ../images/text-multi-line.png
          :width: 750
          :alt: Multi-line Text Alignment
-         :align: center
 
    **Corresponding Python Code:**
 
@@ -48,7 +47,6 @@ Text Anchor
       .. figure:: ../images/text-anchors.png
          :width: 440
          :alt: Text anchors
-         :align: center
 
    **Corresponding Python Code:**
 
