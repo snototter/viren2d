@@ -50,23 +50,23 @@ knife* to visualize the results of common 2D computer vision tasks in both
 **Which features are available?**
    Already implemented, documented & tested features are marked by |checked|
    
-   * |unchecked| Arcs
-   * |unchecked| Arrows
-   * |unchecked| Circles
-   * |unchecked| Ellipses
-   * |unchecked| Lines
-   * |unchecked| Markers
-   * |unchecked| Object detection results: 2D bounding boxes
-   * |unchecked| Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
-   * |unchecked| Polygons
-   * |unchecked| Rectangles
-   * |unchecked| Text (single-/multi-line)
-   * |unchecked| Text boxes (single-/multi-line)
-   * |unchecked| Trajectories
-   * |unchecked| Pose estimation results - low priority feature
+   * |checked| Arcs
+   * |checked| Arrows
+   * |checked| Circles
+   * |unchecked| Ellipses - WIP: not fully tested
+   * |checked| Lines
+   * |unchecked| Markers - WIP: untested
+   * |unchecked| Object detection results: 2D bounding boxes - WIP: untested
+   * |unchecked| Object detection results: 3D bounding boxes (requires handling of camera calibration)
+   * |unchecked| Polygons - WIP: untested
+   * |checked| Rectangles
+   * |unchecked| Text (single-/multi-line) - WIP: untested
+   * |unchecked| Text boxes (single-/multi-line) - WIP: untested
+   * |unchecked| Trajectories - WIP: untested
+   * |unchecked| Camera calibration-related: Ground plane, horizon, axes - low priority features
+   * |unchecked| Pose estimation results
    * |unchecked| Image overlay - low priority feature
    * |unchecked| Pseudocoloring - low priority feature
-   * |unchecked| Camera calibration-related: Ground plane, horizon, axes - low priority features
 
 
 .. toctree::

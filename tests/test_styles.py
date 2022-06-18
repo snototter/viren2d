@@ -34,9 +34,6 @@ def line_style_configurations():
 
 
 def test_line_style():
-#FIXME init from empty tuple
-#FIXME init from tuple
-#FIXME init from kwargs
     # Default initialization should yield a valid style
     style = viren2d.LineStyle()
     assert style.is_valid()
@@ -72,9 +69,6 @@ def test_line_style():
 
 
 def test_arrow_style():
-#FIXME init from empty tuple
-#FIXME init from tuple
-#FIXME init from kwargs
     # Default initialization should yield a valid style
     style = viren2d.ArrowStyle()
     assert style.is_valid()

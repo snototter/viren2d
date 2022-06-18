@@ -445,6 +445,12 @@ void RegisterPainter(py::module &m) {
         pt2: End position as :class:`~viren2d.Vec2d`.
         style: A :class:`~viren2d.LineStyle` specifying
           how to draw the line.
+
+      Example:
+        >>> line_style = viren2d.LineStyle()
+        >>> painter.draw_line((42, 42), (86, 86), line_style)
+        >>> painter.draw_line(
+        >>>     pt1=(42, 42), pt2=(86, 86), style=line_style)
       )docstr";
   painter.def("draw_line", &PainterWrapper::DrawLine, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),

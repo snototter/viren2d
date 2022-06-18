@@ -8,6 +8,7 @@ If you plan on extending ``viren2d``, please consider the following style
 guide, design decisions and recommendations. This ensures that your new feature
 will be swiftly integrated into the library.
 
+
 ~~~~~~~~~~~~
 Coding Style
 ~~~~~~~~~~~~
@@ -53,10 +54,6 @@ tasks (besides implementing the actual functionality).
 Please also familiarize yourself with the
 :ref:`library layout<dev-library-layout>` explained below.
 
-TODO add guide from dev.md
-TODO add --> each relevant interface method (such as draw_xxx) should provide a
-code example; copy-pastable to simplify use
-
 ...........
 C++ Library
 ...........
@@ -96,6 +93,8 @@ C++ Library
 
    Task template for (almost) each new function:  
    
+   .. code-block:: cpp
+
       //TODO [ ] add documentation
       //TODO [ ] add C++ test (tests/xxx_test.cpp)
       //TODO [ ] add Python bindings
@@ -108,16 +107,20 @@ C++ Library
 Python Library
 ..............
 
-*  Don't ever use python keywords as names of function arguments, or users
-   can't re-order the inputs via *kwargs*, such as ``f(arg_x=foo, arg_a=1)``.
-
-   Refer to the Python documentation for a listing of the
-   `language keywords <https://docs.python.org/3.8/reference/lexical_analysis.html#keywords>`__.
 
 *  When extending the :class:`~viren2d.Painter`, keep the alphabetic order of
    its ``draw_xxx`` bindings to aid maintainability.
 
-*  TODO rework/update instructions!
+*  All relevant interface methods, such as the ``draw_xxx`` variants of the
+   :class:`~viren2d.Painter` should provide a minimal code example via their
+   docstring.
+
+   This code example should be *copy/pastable* to aid the users of this
+   library. For example, refer to the docstring of
+   :meth:`~viren2d.Painter.draw_line`.
+
+
+*  TODO rework/update the following instructions!
 
    How to bind a new class X
 
@@ -132,57 +135,80 @@ Python Library
     * Implement __str__ & __repr__
     * nice-to-have: operator == and !=
 
+**Intricacies, I wish I had know before:**
 
-~~~~~
-Tests
-~~~~~
+   *  Don't ever use python keywords as names of function arguments, or users
+      can't re-order the inputs via *kwargs*, such as ``f(arg_x=foo, arg_a=1)``.
 
-TODO list notes on testing
+      Yes, this was "fun" (read: *a pain*) to debug.
 
-*  C++ tests for logic
+      Refer to the Python documentation for a listing of the
+      `language keywords <https://docs.python.org/3.8/reference/lexical_analysis.html#keywords>`__.
+
+   *  Double-check the python bindings for typos, semantic errors due to
+      copying/pasting, *etc.* 
+
+      For example, due to the inherent Python design, it is perfectly legal to
+      override existing attributes. A copy/paste error can easily lead to
+      different Python class attributes modifying *the same* C++ class attribute.
+
+      Debugging this is also not as much fun as it sounds.
+
+
+
+~~~~~~~~~~~~~~~~~~~
+Testing Environment
+~~~~~~~~~~~~~~~~~~~
+
+TODO list notes on testing (googletest, pytest)
+
+*  C++ tests for program-logic
+   googletest
+
+   .. code-block:: console
+      :caption: Manual C++ Testing Workflow
+
+      # Recommendation: Enable color output for ctest/googletest
+      # To enable this permanently, add this definition to your shell
+      # configuration, e.g. ~/.bashrc
+      export GTEST_COLOR=1
+
+      # Build
+      cd /path/to/viren2d/build
+      cmake --build .
+
+      ctest -j....TODO
+
 
 *  Python tests for interface usage - to avoid/identify breaking
    API changes (parameter/variable naming, ordering, type conversions, etc.)
+   pytest
 
-.. code-block:: console
-   :caption: Testing the C++ library
+   .. code-block:: console
+      :caption: Manual Python Testing Workflow
 
-   # Recommendation: Enable color output for ctest/googletest
-   # To enable this permanently, add this definition to your shell
-   # configuration, e.g. ~/.bashrc
-   export GTEST_COLOR=1
-
-   # Build
-   cd /path/to/viren2d/build
-   cmake --build .
-
-   ctest -j....TODO
-
-
-.. code-block:: console
-   :caption: Testing the Python bindings
-
-   #TODO doc pytest
-   pip install pytest
-   pytest tests/test_*.py
-   
-   
-
-~~~~~~~~
-Examples
-~~~~~~~~
-
-TODO huge learning benefit vs huge maintenance burden (unless the interface is properly tested and stable!)
-
-python examples preferred
-cpp examples nice-to-have
-
+      #TODO doc pytest
+      pip install pytest
+      pytest tests/test_*.py
+  
 
 ~~~~~~~~~~~~~~
 Library Layout
 ~~~~~~~~~~~~~~
 
 .. _dev-library-layout:
+
+Before diving into the layout of the code framework, note: to avoid name
+clashes or having to use naming schemes which rely on underscores, the physical
+C++ and Python libraries use different names:
+
+*  The target name of the C++ library is ``viren2d++``, whereas the target name
+   of the Python library is ``viren2d``.
+
+*  Currently, I prefer to statically link the C++ library into the consuming
+   application. The Python bindings, however, have to be dynamic libraries.
+
+*  TODO double-check before release
 
 The following subsections provide a hands-on introduction on the library
 layout with supplementary explanations on some design choices.
@@ -272,9 +298,9 @@ In case you need to familiarize yourself with Cairo, I can recommend:
    `Cairou (formerly Cairocks) <https://github.com/cubicool/cairou>`_.
 
 
-.................................
-Other Visualization Functionality
-.................................
+...................
+Other Functionality
+...................
 
 TODO design decisions for pseudocolor, etc.
 
@@ -289,10 +315,10 @@ Some **functional features**, that I'd like to see at some time in the future:
 
 *  Support switching between the image surface and cairo's SVG surface.
 
-   Note: I did some preliminary tests on this but didn't follow this route,
-   because even with the basic SVG examples I wasn't able to correctly
-   render image data. This will need some deeper digging than I can currently
-   effort.
+   Note: I did some preliminary tests on this but didn't follow this route
+   for now. Even with the basic SVG examples I wasn't able to correctly
+   render image data (always ended up with empty SVGs). This will need some
+   deeper digging...
 
 *  Creating stereoglyphs
 
@@ -305,4 +331,7 @@ Some **workflow-related extensions**, I'd fancy:
 
 *  Automate the *rtd_example_image* generation via github workflows (upon each
    push, but before the RTD workflow starts building the docs)
+
+*  Prepare github templates for PRs, issue reports, *etc.*
+
 

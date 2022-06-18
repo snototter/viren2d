@@ -139,7 +139,6 @@ def test_draw_arrow():
     # Draw with implicit conversions
     p.draw_arrow((0, 30), (70, 80), style)
     p.draw_arrow(arrow_style=style, pt2=(10, 10), pt1=(50, 30))
-#TODO  arrow_style_configurations():
     # Sweep valid and invalid configurations
     for pt1 in [(10, 2), (-100, -300), (0.2, 1000), (50, 900)]:
         for pt2 in [(-99, -32), (10, 30), (100, 0.2), (90, 5)]:
