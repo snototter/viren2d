@@ -46,46 +46,11 @@
 
 ## Examples
 
+TODO most examples are completely obsolete/outdated!
+
 Example code requires python packages `vito` and `numpy`
-```python
-from vito import imvis
-import numpy as np
-import viren2d
 
-# Dashed 4-px wide line
-line_style = viren2d.LineStyle(4, viren2d.Color('salmon!80'), [20, 15])
-
-p = viren2d.Painter()
-p.set_canvas_rgb(800, 600, 'lavender')
-
-#TODO clean up example (ordering arguments works!!!)
-p.draw_line(pt1=(10, 200), pt2=(600, 10), line_style=line_style)
-p.draw_line(line_style=line_style, pt1=(100, 20), pt2=(600, 10))
-
-# Get SHARED image buffer (changed by subsequent draw_... calls)
-img = np.array(p.get_canvas(), copy=False)
-imvis.imshow(img)
-
-line_style.color = viren2d.colors.midnight_blue()
-line_style.line_cap = viren2d.LineStyle.Cap.Round
-line_style.dash_pattern = [50, 10, 10, 10]
-p.draw_line((0, 0), (400, 400), line_style)
-
-# Don't need to re-retrieve the canvas because we requested the
-# shared buffer. This is the default behavior unless you use
-#   p.get_canvas(False)
-imvis.imshow(img)
-
-line_style.line_width = 2
-line_style.dash_pattern = []
-#p.draw_circle((300, 300), 40, line_style, viren2d.colors.light_blue(0.4))
-p.draw_arc((300, 300), 40, 0, 200, line_style, viren2d.colors.light_blue(0.4))
-imvis.imshow(img)
-
-```
-
-
-
+TODO side-effects of shared buffer should be well documented (and/or return copy by default)
 ```python
 import viren2d
 # Draw something
@@ -114,13 +79,12 @@ imvis.imshow(img_copied)
 ```
 
 
-
-
+TODO set up/build/run:
 ```
 # install via apt: libcairo2-dev, ninja-build
 # git clone --recursive https://github.com/snototter/viren2d.git
-# currently, we also need libopencv-dev
 # python -m pip install git+https://github.com/snototter/viren2d.git
+# optional: libopencv-dev
 
 cd build
 make -j && ./demo2d
@@ -136,60 +100,16 @@ python -m pip install .
 #python -m pip install .
 ```
 
-
-nice-to-have / low prio:
-json serialization of rect and other primitives
-
-
-System packages:
-cmake, python3, pip, venv
-maybe eigen3 in the future
-
-TODO
-TODO
-TODO viren2d/colors.hpp --> color & color maps, maybe colornames
-TODO viren2d/primitives.hpp --> point, line, rect, bounding box, ...
-TODO viren2d/drawing.hpp --> painter
-TODO
-TODO
-
-
-apt package for cpp stuff
-https://earthly.dev/blog/creating-and-hosting-your-own-deb-packages-and-apt-repo/
-
 python packaging (try build instead of setuptools)
 https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
 
 
-
-
-
-
-
-
-cmake
-libcairo2-dev
-nope##libeigen3-dev
-
-for the examples (optional)
-opencv
-
 ```cpp
-/*
-check rgb/bgr
-https://stackoverflow.com/questions/66127550/python-cairo-save-figure-as-np-array-gives-weird-results
-
-cpp style guide
-https://google.github.io/styleguide/cppguide.html#Pointer_and_Reference_Expressions
 r vs lvalue: ;-) https://stackoverflow.com/a/33829750/400948
 
-pybind11 return numpy:
-https://stackoverflow.com/questions/44659924/returning-numpy-arrays-via-pybind11
 
-Image loading lightweight:
-https://stackoverflow.com/a/40812978/400948
---> recommends https://github.com/nothings/stb
-
+Image loading lightweight: https://stackoverflow.com/a/40812978/400948
+--> that's why I switched to https://github.com/nothings/stb
 
 How to make a clean library with CMake
 https://github.com/robotology/how-to-export-cpp-library/blob/master/CMakeLists.txt
@@ -198,141 +118,20 @@ CMake include other target
 https://stackoverflow.com/a/61097014/400948
 
 
-TODO repo structure
-* examples/viren2d-demo.cpp
-* include/viren2d/
-* src/viren2d
-* tests / would be nice...
-
-
 Cairo tutorials
-https://www.cairographics.org/samples/
-https://www.cairographics.org/tutorial/
-https://www.cairographics.org/FAQ/#paint_from_a_surface
 https://zetcode.com/gfx/cairo/cairobackends/
 
+TODO
 FindCairo.cmake taken from
 https://github.com/preshing/CairoSample/blob/master/modules/FindCairo.cmake
 
 opencv <--> eigen3
 https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
-*/
 ```
 
 run
 ```
-pip install -e .
-pip install vito
-
-python
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-from vito import imvis
-import numpy as np
-import viren2d
-
-# Dashed 4-px wide line
-line_style = viren2d.LineStyle(4, viren2d.colors.salmon(0.8), [20, 15])
-
-p = viren2d.Painter()
-p.set_canvas_rgb(800, 600, viren2d.colors.lavender())
-p.draw_line((10, 200), (600, 10), line_style)
-
-# Get SHARED image buffer (changed by subsequent draw_... calls)
-img = np.array(p.get_canvas(), copy=False)
-imvis.imshow(img)
-
-line_style.color = viren2d.colors.midnight_blue()
-line_style.line_cap = viren2d.LineStyle.Cap.Round
-line_style.dash_pattern = [50, 10, 10, 10]
-p.draw_line((0, 0), (400, 400), line_style)
-
-# Don't need to re-retrieve the canvas because we requested the
-# shared buffer. This is the default behavior unless you use
-#   p.get_canvas(False)
-imvis.imshow(img)
-
-line_style.line_width = 2
-line_style.dash_pattern = []
-#p.draw_circle((300, 300), 40, line_style, viren2d.colors.light_blue(0.4))
-p.draw_arc((300, 300), 40, 0, 200, line_style, viren2d.colors.light_blue(0.4))
-imvis.imshow(img)
-
-
-
-
-
-c1 = viren2d.colors.rgba(1, 0, 0.5)
-assert c1 == c1.inverse().inverse()
-c1.__getstate__()
-c1.red -= 0.03
-c1.as_RGBA()
-c1.as_hex()
-
-import pickle
-data = pickle.dumps(c1)
-data
-c2 = pickle.loads(data)
-c2
-assert c1 == c2
-
-# stuff below is broken (due to submodule colors)
-
-viren2d.Vec2d(1, 2, 3) # raises typeerror
-v = viren2d.Vec2d(1, 2)
-v.x
-v.x = 3
-str(v)
-v.y
-v.z # attribute error
-
-
-v2 = viren2d.Vec2d(3, 4)
-v.dot(v2)
-
-v[0]
-v[1]
-v[2] # index error
-
-
-import pickle
-data = pickle.dumps(v)
-vp = pickle.loads(data)
-assert vp == v
-assert v != v2
-
-a = viren2d.Vec3d(1, 0, 0)
-b = viren2d.Vec3d(0, 1, 0)
-a.cross(b)
-
-
-import viren2d
-import pickle
-ls = viren2d.LineStyle(3.9, viren2d.colors.RGBA(200, 0, 200))
-viren2d.LineStyle(3.9, (1, 0, 1), [], viren2d.LineStyle.Cap.Round)
-
-ls1 = viren2d.LineStyle(3.9, (1, 0, 1), [10, 30], viren2d.LineStyle.Cap.Round, viren2d.LineStyle.Join.Bevel)
-data = pickle.dumps(ls1)
-ls2 = pickle.loads(data)
-ls1
-assert ls1 == ls2
-ls1.line_join = viren2d.LineStyle.Join.Round
-assert ls1 != ls2
-
-
-import viren2d
-import pickle
-r1 = viren2d.Rect(40, 20, 80, 40, 45, 10)
-r2 = viren2d.Rect((40, 20, 80, 40, 45, 10))
-assert r1 == r2
-r1
-data = pickle.dumps(r1)
-r3 = pickle.loads(data)
-assert r1 == r3
-r1.cx = 50
-assert r1 != r3
-
+TODO timing drawing calls would be nice (not really accurate due to conversion overhead, but still worth having a (better than) ballpark figure)
 
 import viren2d
 from vito import pyutils as pu
@@ -353,79 +152,9 @@ p.show()
 
 
 
-import viren2d
-p = viren2d.Painter()
-#p.set_canvas_rgb(400, 300, (1, 0, 1))
-p.set_canvas_filename('examples/flamingo.jpg')
-ls = viren2d.LineStyle(4.2, (1, 0, 1, .8), [20, 20], viren2d.LineStyle.Cap.Round)
-fill = viren2d.Color(0, 1, 1, 0.6)
-p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
-p.show()
-
-p.draw_line((10, 10), (600, 100), viren2d.LineStyle(3.9, (0, 0, 0), [10, 30]))
-p.draw_line((10, 200), (600, 10), (3.9, (0, 1, 1)))
-p.draw_circle((100, 100), 30, (4, (0, 1, 1), [10, 10]), (0, 1, 1, 0.6))
-p.show()
-
 
 ####################################################
 # get canvas dev:
-
-# Draw something
-import viren2d
-p = viren2d.Painter()
-p.set_canvas_filename('examples/flamingo.jpg')
-ls = viren2d.LineStyle(4.2, (1, 0, 1, .8), [20, 20], viren2d.LineStyle.Cap.Round)
-fill = viren2d.colors.Color(0, 1, 1, 0.6)
-p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
-
-# How to get the visualization?
-import numpy as np
-from vito import imvis
-
-# Copied memory (avoiding the additional copy from C++ buffer to numpy)
-img_copied = np.array(p.get_canvas(True), copy=False)
-imvis.imshow(img_copied)
-
-# Shared memory - changing img_np will modify the canvas memory!
-img_shared = np.array(p.get_canvas(False), copy=False)
-imvis.imshow(img_shared)
-# Demonstrating shared memory side effects:
-img_shared[:, :, 0] = 0
-img_shared = np.array(p.get_canvas(False), copy=False)
-imvis.imshow(img_shared)
-imvis.imshow(img_copied)
-
-
-# 
-import viren2d
-import numpy as np
-
-# 1 channel
-img_np = np.zeros((480, 640), dtype=np.uint8)
-buf = viren2d.ImageBuffer(img_np)
-print(f'{buf}\n {buf.width} x {buf.height} x {buf.channels}, stride {buf.stride}, owns data: {buf.owns_data}')
-
-# 3 channel
-img_np = np.zeros((480, 640, 3), dtype=np.uint8)
-buf = viren2d.ImageBuffer(img_np)
-print(f'{buf}\n {buf.width} x {buf.height} x {buf.channels}, stride {buf.stride}, owns data: {buf.owns_data}')
-
-
-# Set image canvas from Python :)
-# Canvas from grayscale
-import viren2d
-import numpy as np
-from vito import imvis
-p = viren2d.Painter()
-img_np = np.zeros((480, 640), dtype=np.uint8)
-img_np[:] = 120
-b = viren2d.ImageBuffer(img_np)
-b
-p.set_canvas_image(img_np)
-p.draw_line((10, 200), (600, 10), (3.9, (0, 1, 1)))
-canvas = np.array(p.get_canvas(), copy=False)
-imvis.imshow(canvas)
 
 # Canvas from RGB
 import viren2d
@@ -457,12 +186,6 @@ imvis.imshow(np.array(p.get_canvas(), copy=False)) # Show transparent canvas
 imvis.imshow(np.array(p.get_canvas().to_rgb(), copy=False)) # Drop transparency
 
 
-
-
-
-
-
-
 img_np = np.zeros((480, 640, 4), dtype=np.uint8)
 img_np[:, :, 3] = 255
 img_np[:, :, 2] = 200
@@ -476,7 +199,7 @@ canvas = np.array(p.get_canvas(), copy=False)
 imvis.imshow(canvas)
 ```
 
-# TODO Add Tests
+# TODO Add to Tests
 
 ```python
 from vito import imvis
@@ -490,99 +213,11 @@ viren2d.color_names()
 
 # AttributeError: read-only!
 viren2d.Color.black = 3
-
-
-
-# Dashed 4-px wide line
-## Explicit types
-line_style = viren2d.LineStyle(4, viren2d.Color('salmon!80'), [20, 15])
-## Implicit casts
-line_style = viren2d.LineStyle(4, 'navy-blue!80', [20, 15], viren2d.LineStyle.Cap.Round)
-
-#TODO/FIXME maybe move Cap/Joint to parent namespace in both c++ and python?
-
-p = viren2d.Painter()
-p.set_canvas_rgb(800, 600, 'lavender')
-p.draw_line((10, 200), (600, 10), line_style)
-
-
-line_style.color = "azure"
-line_style.line_cap = viren2d.LineStyle.Cap.Round
-line_style.dash_pattern = [50, 10, 10, 10]
-p.draw_line((0, 0), (400, 400), line_style)
-
-
-# Get SHARED image buffer (changed by subsequent draw_... calls)
-img = np.array(p.get_canvas(), copy=False)
-imvis.imshow(img)
-
-
-
-#### default line style
-
-from vito import imvis
-import numpy as np
-import viren2d as vi
-
-p = vi.Painter()
-p.set_canvas_rgb(400, 300)
-
-p.draw_grid(50, 50, ())
-img_np = np.array(p.get_canvas())
-imvis.imshow(img_np)
-
-line_style = vi.LineStyle()
-line_style.color = 'midnight-blue!80'
-line_style.line_width = 3
-vi.set_default_line_style(line_style)
-
-p.draw_grid(50, 50, (), top_left=(25, 25), bottom_right=(375, 275))
-
-img_np = np.array(p.get_canvas())
-imvis.imshow(img_np)
-
-######### arrows
-
-
-# grid
-grid_style = vi.LineStyle(1, "gray!80")
-p.draw_grid(20, 20, line_style=grid_style)
-
-
-# arrows #TODO double-headed, open/closed, dashed
-p.draw_arrow((20, 20), (380, 280))
-img = np.array(p.get_canvas(), copy=False)
-imvis.imshow(img)
-
-style = vi.ArrowStyle(color='navy-blue!80')
-style.tip_length = 200
-p.draw_arrow((20, 20), (380, 280), style)
-imvis.imshow(img)
-style.tip_closed = True
-style.line_width = 20
-p.draw_arrow((20, 20), (380, 280), style)
-imvis.imshow(img)
-
-
-p.set_canvas_rgb(400, 300)
-style.tip_closed = False
-style.line_width = 20
-p.draw_arrow((20, 20), (380, 280), style)
-img = np.array(p.get_canvas(), copy=False)
-imvis.imshow(img)
 ```
 
 
-# TODO
-* readme - install/setup section
-* readme - quickstart
-* readme - make github banner with viren2d ;-)
-* TODO test - via pytest
-* separate example/tutorial doc
-
-
-
-TODO library sizes (apt)
+!!!!!!!!!!!!!
+TODO compare library sizes (apt)
 opencv
 
 apt-cache --no-all-versions show libopencv* | awk '

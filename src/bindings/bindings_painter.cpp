@@ -279,7 +279,6 @@ void RegisterPainter(py::module &m) {
            py::arg("copy") = true);
 
 
-//TODO(snototter) use consistent coding style (Google Python Guide) for code in all draw_xxx method docstrings
   //----------------------------------------------------------------------
   doc = "Draws a circular arc.\n\n"
         "Args:\n"
@@ -414,6 +413,7 @@ void RegisterPainter(py::module &m) {
         "    how to draw the markers (except for the color).";
   painter.def("draw_markers", &PainterWrapper::DrawMarkers, doc.c_str(),
               py::arg("markers"), py::arg("style") = MarkerStyle());
+
 
   //----------------------------------------------------------------------
   doc = "Draws a polygon.\n\n"
