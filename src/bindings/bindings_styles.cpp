@@ -389,10 +389,14 @@ void RegisterLineStyle(pybind11::module &m) {
   doc = R"docstr(
       Returns a dictionary representation.
 
-      TODO doc (can be used to initialize an arrow style)
-      arrow_style = ArrowStyle(
-          **line_style.as_dict(),
-          tip_length=0.3)
+      Convenience method to initialize an
+      :class:`~viren2d.ArrowStyle` from a
+      :class:`~viren2d.LineStyle` via *dictionary
+      unpacking* (aka *splat*):
+
+      >>> arrow_style = viren2d.ArrowStyle(
+      >>>     **line_style.as_dict(),
+      >>>     tip_length=0.3)
       )docstr";
   line_style.def("as_dict", [](const LineStyle &s) -> py::dict {
     return LineStyleToDict(s);
@@ -482,7 +486,7 @@ void RegisterLineStyle(pybind11::module &m) {
         "the corresponding string representation to set this member:\n\n"
         ">>> style.join = viren2d.LineJoin.Miter\n"
         ">>> style.cap = 'miter'\n";
-  line_style.def_property("line_join",
+  line_style.def_property("join",
         [](LineStyle &s) { return s.join; },
         [](LineStyle &s, py::object o) {
             s.join = LineJoinFromPyObject(o);
@@ -591,7 +595,7 @@ void RegisterArrowStyle(pybind11::module &m) {
 //"*Full configuration:*\n"
 //"   ``(width, color, tip_length,\n"
 //"   tip_angle, tip_closed, double_headed, dash_pattern,\n"
-//"   line_cap, line_join)``\n\n"
+//"   cap, join)``\n\n"
 //"With data types:\n\n"
 //"* ``width``: ``float``\n"
 //"* ``color``: :class:`" + FullyQualifiedType("Color") + "`\n"
@@ -662,10 +666,9 @@ void RegisterArrowStyle(pybind11::module &m) {
       .def(py::self != py::self)
       .def("is_valid", &ArrowStyle::IsValid,
            "Checks if the style would lead to a drawable arrow.")
-//      .def("tip_length_for_shaft",
-//           static_cast<double (ArrowStyle::*)(double) const>(&ArrowStyle::TipLengthForShaft),
-//           "Computes the length of the arrow head for the given shaft length.",
-//           py::arg("shaft_length"))
+      .def("tip_length_for_shaft",
+           static_cast<double (ArrowStyle::*)(double) const>(&ArrowStyle::TipLengthForShaft),
+           "Returns the length of the arrow head for the given shaft length.", py::arg("shaft_length"))
 //      .def("tip_length_for_shaft",
 //           static_cast<double (ArrowStyle::*)(const Vec2d&, const Vec2d&) const>(&ArrowStyle::TipLengthForShaft),
 //           "Returns the length of the arrow head for the given shaft.",
@@ -720,11 +723,11 @@ BoundingBox2DStyle BoundingBox2DStyleFromTuple(py::tuple tpl) {
 //  }
 
 //  if (tpl.size() > 3) {
-//    ls.line_cap = tpl[3].cast<LineCap>();
+//    ls.cap = tpl[3].cast<LineCap>();
 //  }
 
 //  if (tpl.size() > 4) {
-//    ls.line_join = tpl[4].cast<LineJoin>();
+//    ls.join = tpl[4].cast<LineJoin>();
 //  }
 
 //  return ls;
@@ -754,8 +757,8 @@ void RegisterBoundingBox2DStyle(py::module &m) {
 //                          const Color &, bool, bool, double,
 //                          HorizontalAlignment>(),
 //                 "TODO doc",
-//                 py::arg("font_size"),
-//                 py::arg("font_family"),
+//                 py::arg("size"),
+//                 py::arg("family"),
 //                 py::arg("color") = Color::Black,
 //                 py::arg("bold") = false,
 //                 py::arg("italic") = false,

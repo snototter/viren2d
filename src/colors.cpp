@@ -659,8 +659,9 @@ Color Color::WithAlpha(double alpha) const {
 
 
 Color Color::operator*(double scalar) const {
-  return Color(red * scalar, green * scalar,
-               blue * scalar, alpha * scalar);
+  return Color(
+        red * scalar, green * scalar,
+        blue * scalar, alpha * scalar);
 }
 
 
@@ -671,8 +672,9 @@ Color &Color::operator*=(double scalar) {
 
 
 Color Color::operator/(double scalar) const {
-  return Color(red / scalar, green / scalar,
-               blue / scalar, alpha / scalar);
+  return Color(
+        red / scalar, green / scalar,
+        blue / scalar, alpha / scalar);
 }
 
 
@@ -688,6 +690,7 @@ Color &Color::operator+=(const Color &rhs) {
   red = helpers::cast_01(red + rhs.red);
   green = helpers::cast_01(green + rhs.green);
   blue = helpers::cast_01(blue + rhs.blue);
+  alpha = helpers::cast_01(alpha + rhs.alpha);
   return *this;
 }
 
@@ -698,6 +701,7 @@ Color &Color::operator-=(const Color &rhs) {
   red = helpers::cast_01(red - rhs.red);
   green = helpers::cast_01(green - rhs.green);
   blue = helpers::cast_01(blue - rhs.blue);
+  alpha = helpers::cast_01(alpha - rhs.alpha);
   return *this;
 }
 

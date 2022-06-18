@@ -181,7 +181,8 @@ void RegisterEllipse(pybind11::module &m) {
 //         "    Where each element is a float except for 'include_center',\n"
 //         "    which is a bool.\n"
 //         "    Rotated ellipse, drawn only between these two angles.\n";
-//  ellipse.def(py::init<>(&EllipseFromTupleOrList), doc.c_str(), py::arg("tpl"));
+  doc = "TODO We need the overloaded c'tor for implicit casting";
+  ellipse.def(py::init<>(&EllipseFromTupleOrList), doc.c_str(), py::arg("tpl"));
 
   ellipse.def("copy", [](const Ellipse &e) { return Ellipse(e); },
            "Returns a deep copy.")
@@ -349,8 +350,9 @@ void RegisterRectangle(py::module &m) {
 //         "(cx, cy, w, h, rotation, radius)\n"
 //         "    Where each element is a float.\n"
 //         "    Rotated rectangle with rounded corners.\n";
-//  rect.def(py::init<>(&RectFromTupleOrList), doc.c_str(),
-//           py::arg("tpl"));
+  doc = "TODO We need the overloaded c'tor for implicit casting";
+  rect.def(py::init<>(&RectFromTupleOrList), doc.c_str(),
+           py::arg("tpl"));
 
   doc = "Creates a rectangle.\n\n"
       "Args:\n"

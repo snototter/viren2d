@@ -9,7 +9,7 @@ def demo_color_names():
         width=canvas_width, height=448, color='white!0')
 
     # Style specifications:
-    text_style = viren2d.TextStyle(font_family='xkcd', font_size=18)
+    text_style = viren2d.TextStyle(family='xkcd', size=18)
     text_style.alignment = 'center'
 
     line_style = viren2d.LineStyle(1, 'black')

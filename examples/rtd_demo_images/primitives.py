@@ -11,11 +11,11 @@ def demo_ellipse():
         width=canvas_width, height=canvas_height, color='white!0')
 
     # Style specifications:
-    text_style = viren2d.TextStyle(font_family='xkcd', font_size=23, line_spacing=0.8)
+    text_style = viren2d.TextStyle(family='xkcd', size=23, line_spacing=0.8)
     text_style.alignment = 'center'
 
     line_style = viren2d.LineStyle(
-        line_width=3, color='midnight-blue')
+        width=3, color='midnight-blue')
     
     fill_color = 'carrot!80'
 

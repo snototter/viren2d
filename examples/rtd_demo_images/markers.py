@@ -8,7 +8,7 @@ def demo_markers():
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        font_family='xkcd', font_size=16, color=(0.3, 0.3, 0.3))
+        family='xkcd', size=16, color=(0.3, 0.3, 0.3))
     marker_style = viren2d.MarkerStyle(
         size=19, thickness=1, color='navy-blue')
 
@@ -21,8 +21,8 @@ def demo_markers():
         ['Filled:'], (5, 85), viren2d.TextAnchor.Left, text_style)
 
     # Adjust text style for the marker code outputs:
-    text_style.font_size = 16
-    text_style.font_family = 'monospace'
+    text_style.size = 16
+    text_style.family = 'monospace'
 
     # Iterate and visualize the available markers:
     x = 110

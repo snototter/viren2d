@@ -55,7 +55,7 @@ def is_valid_line_or_fill(line_style, fill_color):
 def color_configurations():
     colors = list()
     colors.append(viren2d.Color())
-    colors.append(viren2d.rgb(0.3, 0.1, 0.2))
+    colors.append(viren2d.rgba(0.3, 0.1, 0.2))
     colors.append(viren2d.Color('blue!40'))
     return colors
 
@@ -67,7 +67,7 @@ def line_style_configurations():
     styles.append(style.copy())
     styles.append(viren2d.LineStyle.Invalid)
     for lw in [-2, 0, 0.1, 1, 6]:
-        style.line_width = lw
+        style.width = lw
         for color in color_configurations():
             style.color = color
             for dp in [[], [10], [10, 20], [1, 2, 3]]:
@@ -101,7 +101,9 @@ def test_draw_arc():
 
     # Draw with implicit conversions
     p.draw_arc((1, 2), 10, 30, 40, style, False, "midnight-blue!80")
-    p.draw_arc(angle1=20, angle2=300, center=(1, 2), radius=10, fill_color='black!40', line_style=style, include_center=False)
+    p.draw_arc(
+        angle1=20, angle2=300, center=(1, 2), radius=10,
+        fill_color='black!40', style=style, include_center=False)
 
     # Sweep valid and invalid configurations
     for center in [(50, 50), (-10, 0.1)]:
@@ -173,7 +175,7 @@ def test_draw_circles():
 
     # Draw with implicit conversions
     p.draw_circle((0, 30), 70, style, "blue!10")
-    p.draw_circle(radius=70, center=(0, 30), fill_color="blue!10", line_style=style)
+    p.draw_circle(radius=70, center=(0, 30), fill_color="blue!10", style=style)
   
     # Sweep valid and invalid configurations
     for center in [(10, 20), (0, 0), (-100, -30), (0.2, 3000)]:
@@ -201,35 +203,20 @@ def test_draw_ellipse():
     assert p.is_valid()
 
 
-    ### Draw with explicit initialization
+    # Draw with explicit initialization
     style = viren2d.LineStyle()
-    # Ellipse as cx, cy, major, minor
-    p.draw_ellipse(viren2d.Ellipse(150, 180, 300, 100), style)
-    # The above from kwargs
-    p.draw_ellipse(viren2d.Ellipse(minor_axis=100, major_axis=300, cx=150, cy=180), style)
-
     # Ellipse as center, size
     p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)), style)
     # The above from kwargs
     p.draw_ellipse(viren2d.Ellipse(axes=(300, 100), center=(150, 150)), style)
 
-    # Ellipse as cx, cy, major, minor, rotation, angle_from, angle_to, include_center
-    p.draw_ellipse(viren2d.Ellipse(150, 180, 300, 100, 90, 45, -45, False), style)
-    # The above from kwargs
-    p.draw_ellipse(ellipse=viren2d.Ellipse(minor_axis=100, major_axis=300, cx=150, cy=180,
-                                           rotation=90, angle_from=45, angle_to=-45,
-                                           include_center=False), line_style=style)
-
-    # Ellipse as center, size, rotation, angle_from, angle_to, include_center
-    p.draw_ellipse(viren2d.Ellipse((150, 200), (400, 300), 70, 80, 90, True), style)
-    # The above from kwargs
-    p.draw_ellipse(viren2d.Ellipse(axes=(400, 300), center=(150, 200),
-                                   rotation=70, angle_from=80, angle_to=90,
-                                   include_center=True), line_style=style,
-                                   fill_color='black!20')
-
-#TODO Ellipse from tuple calls
-    ### Draw with implicit conversions
+    # Implicit ellipse as (cx, cy), (major, minor), rotation, angle_from, angle_to, include_center
+    p.draw_ellipse(((150, 180), (300, 100), 90, 45, -45, False), style)
+    # The above explicitly from kwargs
+    p.draw_ellipse(style=style,
+        ellipse=viren2d.Ellipse(axes=(100, 300), center=(150, 180),
+            rotation=90, angle_from=45, angle_to=-45,
+            include_center=False))
 
     
 #TODO    ### Sweep valid and invalid configurations
@@ -250,14 +237,13 @@ def test_draw_grid():
     
     # Draw with explicit types
     style = viren2d.LineStyle()
+    p.draw_grid(20, 20)
     p.draw_grid(20, 20, style)
-    p.draw_grid(20, 20, (), (), ())
-    p.draw_grid(20, 20, (), viren2d.Vec2d(), viren2d.Vec2d())
     p.draw_grid(20, 20, style, viren2d.Vec2d(), viren2d.Vec2d())
 
     # Draw with implicit conversions
     p.draw_grid(20, 20, style, (0, 0), (50, 50))
-    p.draw_grid(20, 20, line_style=style)
+    p.draw_grid(20, 20, style=style)
   
     # Sweep valid and invalid configurations
     for tl in [(0, 0), (-10, 3), (100, 20)]:
@@ -289,15 +275,14 @@ def test_draw_line():
     style = viren2d.LineStyle()
     p.draw_line(viren2d.Vec2d(0, 30), viren2d.Vec2d(70, 80), style)
     # Same as above from kwargs
-    p.draw_line(pt2=viren2d.Vec2d(70, 80), pt1=viren2d.Vec2d(0, 30), line_style=style)
-    p.draw_line(pt2=viren2d.Vec2d(y=80, x=70), pt1=viren2d.Vec2d(x=0, y=30), line_style=style)
+    p.draw_line(pt2=viren2d.Vec2d(70, 80), pt1=viren2d.Vec2d(0, 30), style=style)
+    p.draw_line(pt2=viren2d.Vec2d(y=80, x=70), pt1=viren2d.Vec2d(x=0, y=30), style=style)
 
     ### Draw with implicit conversions
     p.draw_line((0, 30), (70, 80), style)
-    p.draw_line((0, 30), (70, 80), ())
     # Using kwargs
-    p.draw_line(line_style=style, pt2=(10, 10), pt1=(50, 30))
-    p.draw_line(line_style=(), pt2=(10, 10), pt1=(50, 30))
+    p.draw_line(style=style, pt2=(10, 10), pt1=(50, 30))
+    p.draw_line(pt2=(10, 10), pt1=(50, 30))
 
     ### Sweep valid and invalid configurations
     for style in line_style_configurations():
@@ -318,7 +303,7 @@ def test_draw_rect():
     assert not p.is_valid()
     # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
-        p.draw_rect((0, 0, 30, 50))
+        p.draw_rect(((0, 0), (30, 50)))
     # Prepare canvas
     p.set_canvas_rgb(400, 300)
     assert p.is_valid()
@@ -326,23 +311,16 @@ def test_draw_rect():
 
     ### Draw with explicit initialization
     style = viren2d.LineStyle()
-    # Rect as cx, cx, w, h
-    p.draw_rect(viren2d.Rect(10, 20, 30, 50), style)
-    # The above from kwargs
-    p.draw_rect(viren2d.Rect(w=30, cy=20, cx=10, h=50), style)
-
-    # Rect as cx, cx, w, h, angle, radius
-    p.draw_rect(viren2d.Rect(10, 20, 30, 50, 70, 3), style)
-    # The above from kwargs
-    p.draw_rect(viren2d.Rect(cx=10, cy=20, w=30, h=50, rotation=70, radius=3), style)
-
+    # Rect as (cx, cx), (w, h)
+    p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
+    
     # Rect as center, size
     p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
     # The above from kwargs
     p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50)), style)
 
     # Rect as center, size, angle, radius
-    p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
+    p.draw_rect(viren2d.Rect((10, 20), (30, 50), 30, 0), style)
     # The above from kwargs
     p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50), rotation=30, radius=0), style)
 
@@ -351,9 +329,9 @@ def test_draw_rect():
     # Rect as tuple (cx, cy, w, h)
     p.draw_rect((10, 20, 30, 50), style)
     # Same as above, but with kwargs
-    p.draw_rect(line_style=style, rect=(10, 20, 30, 50))
+    p.draw_rect(style=style, rect=(10, 20, 30, 50))
     # Like above, but includes additional fill
-    p.draw_rect(rect=(10, 20, 30, 50), line_style=style, fill_color='green')
+    p.draw_rect(rect=(10, 20, 30, 50), style=style, fill_color='green')
 
     # Rect from tuple (cx, cy, w, h, angle)
     p.draw_rect((10, 20, 30, 50, 78), style)
@@ -386,5 +364,3 @@ def test_draw_rect():
                         p.draw_rect(rect, style, fill_color)
 
 #TODO add tests for other draw_xxx functions    
-
-    

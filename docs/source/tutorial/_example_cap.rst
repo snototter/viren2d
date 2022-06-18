@@ -7,7 +7,7 @@
 
 **Corresponding Python Code:**
 
-   Note that the :class:`viren2d.LineStyle.line_cap` property provides string
+   Note that the :class:`viren2d.LineStyle.cap` property provides string
    conversion to :class:`~viren2d.LineCap` enum values.
 
    .. literalinclude:: ../../../examples/rtd_demo_images/line_styles.py

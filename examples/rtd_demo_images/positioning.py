@@ -11,11 +11,11 @@ def demo_text_anchors():
         width=canvas_width, height=canvas_height, color='white!0')
 
     # Style specifications:
-    text_style = viren2d.TextStyle(font_family='xkcd', font_size=18)
+    text_style = viren2d.TextStyle(family='xkcd', size=18)
     text_style.alignment = 'center'
 
     line_style = viren2d.LineStyle(
-        line_width=1, dash_pattern=[10, 10], color=(0.4, 0.4, 0.4))
+        width=1, dash_pattern=[10, 10], color=(0.4, 0.4, 0.4))
 
     marker_style = viren2d.MarkerStyle(
         viren2d.Marker.Pentagram, size=18, thickness=1,
@@ -65,7 +65,7 @@ def demo_multiline_text():
         width=canvas_width, height=canvas_height, color='white!0')
 
     # Style specifications:
-    text_style = viren2d.TextStyle(font_family='xkcd', font_size=16)
+    text_style = viren2d.TextStyle(family='xkcd', size=16)
 
     line_style = viren2d.LineStyle.Invalid
 

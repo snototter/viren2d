@@ -133,40 +133,91 @@ void RegisterColor(py::module &m) {
            [](const Color &c)
            { return "<" + c.ToString() + ">"; })
       .def("__str__", &Color::ToHexString)
-      .def(py::pickle(&ColorToTuple,
-                      &ColorFromTuple))
-      .def(py::self == py::self)
-      .def(py::self != py::self)
-      .def(py::self += py::self,
-           "'+=' operator: Adds the other's r,g,b values and clamps\n"
-           "the result to [0, 1]. Alpha will not be changed.")
-      .def(py::self + py::self,
-           "'+' operator: Adds the r,g,b values of two Color objects and\n"
-           "clamps the result to [0, 1]. Alpha will not be changed.")
+      .def(py::pickle(&ColorToTuple, &ColorFromTuple),
+           ":class:`~viren2d.Color` instances can be pickled.")
+      .def(py::self == py::self,
+           "Checks for equality.\n\nReturns ``True`` if **all** components are equal.",
+           py::arg("other"))
+      .def(py::self != py::self,
+           "Checks for inequality.\n\nReturns ``True`` if **any** components differ.",
+           py::arg("other"))
+      .def(py::self += py::self, R"docstr(
+        Operator ``+=``.
+
+        Adds the other :class:`~viren2d.Color` rgba values and
+        performs a saturation cast, *i.e.* the resulting rgba
+        values **will be clamped** to ``[0, 1]``.
+        )docstr", py::arg("other"))
+      .def(py::self + py::self, R"docstr(
+        Operator ``lhs + rhs``.
+
+        Adds the rgba values of the two :class:`~viren2d.Color`
+        instances (``lhs`` and ``rhs``) and performs a saturating
+        cast, *i.e.* the resulting rgba values **will be clamped**
+        to ``[0, 1]``.
+        )docstr", py::arg("rhs"))
 #ifdef __clang__
 // Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wself-assign-overloaded"
 #endif  // __clang__
-      .def(py::self -= py::self,
-           "'-=' operator: Subtracts the other's r,g,b values and clamps\n"
-           "the result to [0, 1]. Alpha will not be changed.")
+      .def(py::self -= py::self, R"docstr(
+        Operator ``-=``.
+
+        Subtracts the other :class:`~viren2d.Color` rgba values
+        and performs a saturating cast, *i.e.* the resulting
+        rgba values **will be clamped** to ``[0, 1]``.
+        )docstr", py::arg("other"))
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif  // __clang__
-      .def(py::self - py::self,
-           "'-' operator: Subtracts the r,g,b values of rhs from lhs and\n"
-           "clamps the result to [0, 1]. Alpha will not be changed.")
-      .def(py::self *= float(),
-           "Scales r,g,b by the given factor (alpha remains unchanged).")
-      .def(float() * py::self,
-           "Scales r,g,b by the given factor (alpha remains unchanged).")
-      .def(py::self * float(),
-           "Scales r,g,b by the given factor (alpha remains unchanged).")
-      .def(py::self /= float(),
-           "Divides r,g,b by the given factor (alpha remains unchanged).")
-      .def(py::self / float(),
-           "Divides r,g,b by the given factor (alpha remains unchanged).")
+      .def(py::self - py::self, R"docstr(
+        Operator ``lhs - rhs``.
+
+        Subtracts the rgba values of the :class:`~viren2d.Color`
+        instance ``rhs`` from ``lhs`` and performs a saturating
+        cast, *i.e.* the resulting rgba values **will be clamped**
+        to ``[0, 1]``.
+        )docstr", py::arg("rhs"))
+      .def(py::self *= float(), R"docstr(
+        Operator ``*= float``.
+
+        Scales **all** components by the given scalar factor and
+        performs a saturating cast, *i.e.* the resulting rgba
+        values **will be clamped** to ``[0, 1]``.
+        )docstr", py::arg("scale"))
+      .def(float() * py::self, R"docstr(
+        Operator ``float * Color``.
+
+        Scales **all** components of the right-hand side
+        :class:`~viren2d.Color` by the left-hand side scalar
+        factor and performs a saturating cast, *i.e.* the
+        resulting rgba values **will be clamped** to ``[0, 1]``.
+        )docstr", py::arg("lhs"))
+      .def(py::self * float(), R"docstr(
+        Operator ``Color * float``.
+
+        Scales **all** components of the left-hand side
+        :class:`~viren2d.Color` by the right-hand side scalar
+        factor and performs a saturating cast, *i.e.* the
+        resulting rgba values **will be clamped** to ``[0, 1]``.
+        )docstr", py::arg("rhs"))
+      .def(py::self /= float(), R"docstr(
+        Operator ``/= float``.
+
+        Divides **all** components of this :class:`~viren2d.Color`
+        by the right-hand side scalar factor and performs a
+        saturating cast, *i.e.* the resulting rgba values **will
+        be clamped** to ``[0, 1]``.
+        )docstr", py::arg("rhs"))
+      .def(py::self / float(), R"docstr(
+        Operator ``Color / float``.
+
+        Divides **all** components of the lef-hand side
+        :class:`~viren2d.Color` by the right-hand side scalar
+        factor and performs a saturating cast, *i.e.* the
+        resulting rgba values **will be clamped** to ``[0, 1]``.
+        )docstr", py::arg("rhs"))
       .def("as_RGBa", &Color::ToRGBa,
            "Returns the corresponding ``(R, G, B, a)`` tuple,\n"
            "where R, G, B in ``[0, 255]`` and ``alpha`` in ``[0, 1]``.")

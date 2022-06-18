@@ -11,36 +11,36 @@ def demo_line_cap():
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        font_family='xkcd', font_size=18, color='white')
+        family='xkcd', size=18, color='white')
 
     line_style = viren2d.LineStyle(
-        line_width=29, color='navy-blue')
+        width=29, color='navy-blue')
 
     y = 20
-    line_style.line_cap = 'butt'
+    line_style.cap = 'butt'
     painter.draw_line(
         (30, y), (canvas_width - 30, y), line_style)
     
     painter.draw_text(
-        [str(line_style.line_cap)], (canvas_width / 2, y),
+        [str(line_style.cap)], (canvas_width / 2, y),
         'center', text_style)
 
     y = canvas_height / 2
-    line_style.line_cap = 'round'
+    line_style.cap = 'round'
     painter.draw_line(
         (30, y), (canvas_width - 30, y), line_style)
 
     painter.draw_text(
-        [str(line_style.line_cap)], (canvas_width / 2, y),
+        [str(line_style.cap)], (canvas_width / 2, y),
         'center', text_style)
 
     y = canvas_height - 20
-    line_style.line_cap = 'square'
+    line_style.cap = 'square'
     painter.draw_line(
         (30, y), (canvas_width - 30, y), line_style)
 
     painter.draw_text(
-        [str(line_style.line_cap)], (canvas_width / 2, y),
+        [str(line_style.cap)], (canvas_width / 2, y),
         'center', text_style)
 
     # Return the visualization as a NumPy buffer (let NumPy take care of
@@ -59,34 +59,34 @@ def demo_line_join():
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        font_family='xkcd', font_size=18, color='black')
+        family='xkcd', size=18, color='black')
 
     line_style = viren2d.LineStyle(
-        line_width=49, color='navy-blue')
+        width=49, color='navy-blue')
     
     # Draw polygons with different line join styles:
     poly = [(40, 20), (120, 100), (40, 180)]
-    line_style.line_join = 'miter'
+    line_style.join = 'miter'
     painter.draw_polygon(poly, line_style)
 
     painter.draw_text(
-        [str(line_style.line_join)], (80, 210),
+        [str(line_style.join)], (80, 210),
         'north', text_style)
 
     poly = [(p[0] + 120, p[1]) for p in poly]
-    line_style.line_join = 'bevel'
+    line_style.join = 'bevel'
     painter.draw_polygon(poly, line_style)
 
     painter.draw_text(
-        [str(line_style.line_join)], (200, 210),
+        [str(line_style.join)], (200, 210),
         'north', text_style)
 
     poly = [(p[0] + 120, p[1]) for p in poly]
-    line_style.line_join = 'round'
+    line_style.join = 'round'
     painter.draw_polygon(poly, line_style)
 
     painter.draw_text(
-        [str(line_style.line_join)], (320, 210),
+        [str(line_style.join)], (320, 210),
         'north', text_style)
 
     # Return the visualization as a NumPy buffer (let NumPy take care of

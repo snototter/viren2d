@@ -14,18 +14,20 @@ def test_rect_creation():
     # Empty initialization is not allowed
     with pytest.raises(TypeError):
         r = vi.Rect()
-    with pytest.raises(ValueError):
-        r = vi.Rect(())
-    with pytest.raises(ValueError):
-        r = vi.Rect([])
-
-    r = vi.Rect(0, 0, 0, 0)
-    assert not r.is_valid()
+    
+    with pytest.raises(TypeError):
+        r = vi.Rect(0, 0, 0, 0)
 
     with pytest.raises(TypeError):
         r = vi.Rect(width=0, height=0, cx=0, cy=0)
 
-    r = vi.Rect(0, 0, 1, 1)
+    r = vi.Rect((0, 0), (0, 0))
+    assert not r.is_valid()
+
+    r = vi.Rect((0, 0), (1, 1))
+    assert r.is_valid()
+
+    r = vi.Rect([0, 0], [1, 1])
     assert r.is_valid()
 
     # Test initialization with different c'tors
@@ -38,16 +40,11 @@ def test_rect_creation():
         assert rect.radius == pytest.approx(4)
         assert rect.is_valid()
 
-    r = vi.Rect(0, 3, 10, 20, 30, 4)
+    r = vi.Rect((0, 3), (10, 20), 30, 4)
     check_fixed_values(r)
 
-    r = vi.Rect((0, 3, 10, 20, 30, 4))
-    check_fixed_values(r)
-
-    r = vi.Rect([0, 3, 10, 20, 30, 4])
-    check_fixed_values(r)
-
-    r = vi.Rect(cx=0, cy=3, w=10, h=20, rotation=30, radius=4)
+    
+    r = vi.Rect([0, 3], [10, 20], 30, 4)
     check_fixed_values(r)
 
     r = vi.Rect((0, 3), (10, 20), 30, 4)
@@ -65,11 +62,11 @@ def test_rect_creation():
 def test_rect_serialization():
     # Create dummy rects
     objs = list()
-    o = vi.Rect(3, 7, 0, 0)
+    o = vi.Rect((3, 7), (0, 0))
     assert not o.is_valid()
     objs.append(o.copy())  
     
-    o = vi.Rect(cx=0, cy=3, w=10, h=20, rotation=30, radius=4)
+    o = vi.Rect(center=(0, 3), size=(10, 20), rotation=30, radius=4)
     objs.append(o.copy())
 
     # Pickle them
@@ -85,18 +82,20 @@ def test_ellipse_creation():
     # Empty initialization is not allowed
     with pytest.raises(TypeError):
         o = vi.Ellipse()
-    with pytest.raises(ValueError):
-        o = vi.Ellipse(())
-    with pytest.raises(ValueError):
-        o = vi.Ellipse([])
-
-    o = vi.Ellipse(0, 0, 0, 0)
+    
+    o = vi.Ellipse((0, 0), (0, 0))
     assert not o.is_valid()
 
     with pytest.raises(TypeError):
-        vi.Ellipse(width=0, height=0, cx=0, cy=0)
+        vi.Ellipse(width=0, height=0, center=(0, 0))
 
-    o = vi.Ellipse(0, 0, 1, 1)
+    with pytest.raises(TypeError):
+        vi.Ellipse(center=(0, 0), size=(10, 20))
+
+    with pytest.raises(TypeError):  # typo "axis"
+        vi.Ellipse(center=(0, 0), axis=(10, 20))
+
+    o = vi.Ellipse((0, 0), (1, 1))
     assert o.is_valid()
 
     # Test initialization with different c'tors
@@ -111,23 +110,17 @@ def test_ellipse_creation():
         assert not obj.include_center
         assert obj.is_valid()
 
-    o = vi.Ellipse(1, 10, 30, 20, 40, 50, 60, False)
-    check_fixed_values(o)
-    # tuple
-    o = vi.Ellipse((1, 10, 30, 20, 40, 50, 60, False))
-    check_fixed_values(o)
-    # list
-    o = vi.Ellipse([1, 10, 30, 20, 40, 50, 60, False])
-    check_fixed_values(o)
-
-    o = vi.Ellipse(cx=1, major_axis=30, minor_axis=20, cy=10, rotation=40,
-                   angle_from=50, angle_to=60, include_center=False)
-    check_fixed_values(o)
-
     o = vi.Ellipse((1, 10), (30, 20), 40, 50, 60, False)
     check_fixed_values(o)
-    # init from (here implicitly cast) Vec2d ensures that major/minor axis
-    # are chosen correctly, even if you mix them up:
+    o = vi.Ellipse([1, 10], [30, 20], 40, 50, 60, False)
+    check_fixed_values(o)
+
+    o = vi.Ellipse(
+        axes=(30, 20), center=(1, 10), rotation=40,
+        angle_from=50, angle_to=60, include_center=False)
+    check_fixed_values(o)
+
+    # major/minor axis must be chosen correctly, even if you mix them up:
     o = vi.Ellipse((1, 10), (20, 30), 40, 50, 60, False)
     check_fixed_values(o)
 
@@ -144,15 +137,18 @@ def test_ellipse_creation():
 def test_ellipse_serialization():
     # Create dummy ellipses
     objs = list()
-    o = vi.Ellipse(3, 7, 0, 0)
+    o = vi.Ellipse((3, 7), (0, 0))
     assert not o.is_valid()
     objs.append(o.copy())  
     
-    o = vi.Ellipse(cx=0, cy=3, major_axis=10, minor_axis=20, rotation=30)
+    o = vi.Ellipse(center=(0, 3), axes=(10, 20), rotation=30)
+    assert o.major_axis == 20
+    assert o.minor_axis == 10
     objs.append(o.copy())
 
-    o = vi.Ellipse(cx=0, cy=3, major_axis=10, minor_axis=20, rotation=30,
-                   angle_from=10, angle_to=300)
+    o = vi.Ellipse(
+        center=(0, 3), axes=(10, 20), rotation=75,
+        angle_from=10, angle_to=300)
     objs.append(o.copy())
 
     # Pickle them

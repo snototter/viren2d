@@ -7,7 +7,7 @@
 
 **Corresponding Python Code:**
 
-   Note that the :class:`viren2d.LineStyle.line_join` property provides string
+   Note that the :class:`viren2d.LineStyle.join` property provides string
    conversion to :class:`~viren2d.LineJoin` enum values.
 
    .. literalinclude:: ../../../examples/rtd_demo_images/line_styles.py

@@ -322,7 +322,6 @@ void RegisterPainter(py::module &m) {
           memory allocation.
       )docstr", py::arg("copy") = true);
 
-
   //----------------------------------------------------------------------
   //DONE [x] add documentation
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
@@ -354,7 +353,7 @@ void RegisterPainter(py::module &m) {
   painter.def("draw_arc", &PainterWrapper::DrawArc, doc.c_str(),
       py::arg("center"), py::arg("radius"),
       py::arg("angle1"), py::arg("angle2"),
-      py::arg("line_style") = LineStyle(),
+      py::arg("style") = LineStyle(),
       py::arg("include_center") = true,
       py::arg("fill_color") = Color::Invalid);
 
@@ -399,7 +398,7 @@ void RegisterPainter(py::module &m) {
         "    the circle will be filled.";
   painter.def("draw_circle", &PainterWrapper::DrawCircle, doc.c_str(),
         py::arg("center"), py::arg("radius"),
-        py::arg("line_style") = LineStyle(),
+        py::arg("style") = LineStyle(),
         py::arg("fill_color") = Color::Invalid);
 
 
@@ -416,7 +415,7 @@ void RegisterPainter(py::module &m) {
     "    the ellipse will be filled.";
   painter.def("draw_ellipse", &PainterWrapper::DrawEllipse, doc.c_str(),
         py::arg("ellipse"),
-        py::arg("line_style") = LineStyle(),
+        py::arg("style") = LineStyle(),
         py::arg("fill_color") = Color::Invalid);
 
         //TODO coding style//----------------------------------------------------------------------
@@ -433,19 +432,20 @@ void RegisterPainter(py::module &m) {
 
   painter.def("draw_grid", &PainterWrapper::DrawGrid, doc.c_str(),
         py::arg("spacing_x"), py::arg("spacing_y"),
-        py::arg("line_style") = LineStyle(),
+        py::arg("style") = LineStyle(),
         py::arg("top_left") = Vec2d(),
         py::arg("bottom_right") = Vec2d());
 
   //----------------------------------------------------------------------
-  doc = "Draws a line.\n\n"
-        "Args:\n"
-        "  pt1: Start position as :class:`~"
-        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  pt2: End position as :class:`~"
-        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying\n"
-        "    how to draw the line.";
+  doc = R"docstr(
+      Draws a line.
+
+      Args:
+        pt1: Start position as :class:`~viren2d.Vec2d`.
+        pt2: End position as :class:`~viren2d.Vec2d`.
+        style: A :class:`~viren2d.LineStyle` specifying
+          how to draw the line.
+      )docstr";
   painter.def("draw_line", &PainterWrapper::DrawLine, doc.c_str(),
               py::arg("pt1"), py::arg("pt2"),
               py::arg("style") = LineStyle());
@@ -502,7 +502,7 @@ void RegisterPainter(py::module &m) {
         "    the rectangle will be filled.";
   painter.def("draw_rect", &PainterWrapper::DrawRect, doc.c_str(),
               py::arg("rect"),
-              py::arg("line_style") = LineStyle(),
+              py::arg("style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
         //TODO doc//----------------------------------------------------------------------
@@ -555,7 +555,7 @@ void RegisterPainter(py::module &m) {
   //----------------------------------------------------------------------
   doc = "TODO doc";
   painter.def("draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
-              py::arg("points"), py::arg("line_style"),
+              py::arg("points"), py::arg("style"),
               py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
               py::arg("oldest_first") = false);
   //TODO(snototter) add draw_xxx methods

@@ -29,6 +29,7 @@
 `viren2d`, i.e. the Python bindings:
 * Don't use python keywords as names of function arguments
  or you can't order the arguments via "f(arg_x=foo, arg_a=1)"
+TODO link to list of keywords: https://docs.python.org/3.8/reference/lexical_analysis.html#keywords
 * Keep draw_xxx bindings in alphabetic order for maintainability
 * How to bind a new class X:
  * Implement pickling::SerializeX

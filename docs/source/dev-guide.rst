@@ -57,6 +57,81 @@ TODO add guide from dev.md
 TODO add --> each relevant interface method (such as draw_xxx) should provide a
 code example; copy-pastable to simplify use
 
+...........
+C++ Library
+...........
+
+*  For each custom type (where applicable), add a c'tor using 
+   ``std::initializer_list`` for less cluttered & more convenient use.
+
+*  All drawing functions should shift the user-given coordinates by `0.5` if
+   applicable, to support sharp lines. For details refer to the
+   `corresponding Cairo FAQ <https://www.cairographics.org/FAQ/#sharp_lines>`__.
+
+*  Each drawing function should call ``helpers::CheckCanvas`` and if possible,
+   reuse the implemented sanity checks, *e.g.* ``helpers::CheckLineStyle``.
+   Of course, implement additional sanity checks as needed.
+
+*  Drawing functions won't be tested via mocking, because mocking the Cairo C
+   interface would be a pain & I neither want to switch to
+   `cairomm <https://github.com/freedesktop/cairomm>`__ nor write my own C++
+   wrapper.
+
+   There are, however, tests to ensure that we can identify code changes that
+   would break the drawing API before releasing them into the wild, *e.g.*
+   check ``tests/test_painter.py``. 
+   Besides these interface stability tests, there is currently no plan for
+   more detailed drawing functionality testing. Instead, focus on interface
+   clarity and/or provide easily understandable/extendable demos.
+
+*  Any non-drawing/non-visualization related functionality should be properly
+   tested.
+
+   The rule-of-thumb is to implement program-logic tests (input validation,
+   algorithmic correctness, operator overloading madness, *etc.*) in the C++
+   test suite. Usability tests (like the interface stability checks
+   mentioned earlier) should be conducted via the python test suite.
+   
+*  TODO update/extend task template
+
+   Task template for (almost) each new function:  
+   
+      //TODO [ ] add documentation
+      //TODO [ ] add C++ test (tests/xxx_test.cpp)
+      //TODO [ ] add Python bindings
+      //TODO [ ] add Python test (tests/test_xxx.py)
+      //TODO [ ] add C++ demo
+      //TODO [ ] add Python demo
+ 
+
+..............
+Python Library
+..............
+
+*  Don't ever use python keywords as names of function arguments, or users
+   can't re-order the inputs via *kwargs*, such as ``f(arg_x=foo, arg_a=1)``.
+
+   Refer to the Python documentation for a listing of the
+   `language keywords <https://docs.python.org/3.8/reference/lexical_analysis.html#keywords>`__.
+
+*  When extending the :class:`~viren2d.Painter`, keep the alphabetic order of
+   its ``draw_xxx`` bindings to aid maintainability.
+
+*  TODO rework/update instructions!
+
+   How to bind a new class X
+
+    * Test initialization, pickling, comparison, etc.
+    * Declare it py::implicitly_convertible if a simple/intuitive
+      conversion exists
+    * @deprecated Implement moddef::CreateX (init from py::tuple/list/whatever)
+    * All this info does not hold for ImageBuffer - which exposes a
+      buffer view (and we need to be able to convert to/from numpy
+      arrays)
+    * support implicit casts (e.g. from tuples) -- then you can also add ``py::pickle``
+    * Implement __str__ & __repr__
+    * nice-to-have: operator == and !=
+
 
 ~~~~~
 Tests

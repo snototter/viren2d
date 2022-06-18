@@ -9,11 +9,11 @@ def demo_ninja():
     painter = viren2d.Painter()
     painter.set_canvas_image(img)
     
-    line_style = viren2d.LineStyle(line_width=3, color='navy-blue!80')
+    line_style = viren2d.LineStyle(width=3, color='navy-blue!80')
     
     text_style = viren2d.TextStyle()
     text_style.alignment = viren2d.HorizontalAlignment.Center
-    text_style.font_family = 'xkcd'
+    text_style.family = 'xkcd'
     text_style.line_spacing = 1.0
     text_style.bold = True
     text_style.color = "crimson"
@@ -25,7 +25,7 @@ def demo_ninja():
     bbox_style.line_style.color = "teal-green"
     bbox_style.text_style = text_style
     bbox_style.text_style.color = "carrot"
-    bbox_style.text_style.font_size = 10
+    bbox_style.text_style.size = 10
     bbox_style.box_fill_color = viren2d.Color.Same.with_alpha(0.3)
     bbox_style.text_fill_color = 'none'
     bbox_style.label_position = viren2d.label_position("left") #FIXME label positioning is wrong (not shown) for T2B alignments!
@@ -49,19 +49,19 @@ def demo_ninja():
         (283, 29), (273, 27), (261, 26), (246, 28), (231, 33), (217, 40), (207, 49),
         (201, 62), (196, 74), (192, 87), (183, 100), (175, 112), (159, 120), (144, 123),
         (128, 123), (115, 119)]
-    line_style.line_width = 4
-    line_style.line_cap = viren2d.LineCap.Round
+    line_style.width = 4
+    line_style.cap = viren2d.LineCap.Round
     line_style.color = 'navy-blue'
     painter.draw_trajectory(traj_sword, line_style, "white!100")
 
 
     # Arrow
-    arrow_style = viren2d.ArrowStyle(line_width=3, color='crimson', tip_length=0.3)
+    arrow_style = viren2d.ArrowStyle(width=3, color='crimson', tip_length=0.3)
     painter.draw_arrow((210, 30), (240, 50), arrow_style)
 
     
     
-    line_style.line_width = 2
+    line_style.width = 2
     painter.draw_textbox(['Mildly', 'infuriated'], position=(210, 30), anchor=viren2d.TextAnchor.Right, text_style=text_style, padding=(5, 5), fill_color="white!60",
                          line_style=line_style)
 

@@ -218,6 +218,7 @@ def test_operators():
     assert color == (viren2d.Color.Magenta / 10.0)
 
     # Addition
+    print(f'{color} + self = {color + color} vs 2*sefl = {2*color}')
     add = color + color
     assert (2 * color) == add
     cp.green = 0.3

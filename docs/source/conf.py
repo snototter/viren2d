@@ -89,6 +89,11 @@ html_static_path = []
 def skip(app, what, name, obj, would_skip, options):
     if name == "__init__":
         return False
+    # Include overloaded operators:
+    if name in ["__add__", "__eq__", "__getstate__", "__iadd__", "__imul__",
+            "__isub__", "__itruediv__", "__mul__", "__ne__", "__rmul__",
+            "__sub__", "__truediv__", "__setstate__"]:
+        return False
     return would_skip
 
 def setup(app):
