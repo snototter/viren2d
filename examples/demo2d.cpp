@@ -170,12 +170,12 @@ void DemoLines() {
 
 //  //FIXME fading line/trajectory
 //  line_style.color = {0.0, 0.0, 0.8};
-//  line_style.line_width = 1;
+//  line_style.width = 1;
 //  double step_length = 10;
 //  int num_steps = static_cast<int>(painter->GetCanvasSize().width() / step_length);
 //  for (int i = 0; i < num_steps; ++i) {
 //    painter->DrawLine({0.0 + i * step_length, 10.0}, {50.0 + i * step_length, 10.0}, line_style);
-//    line_style.line_width += 0.3;
+//    line_style.width += 0.3;
 //  }
 //  std::cout << "final line style: " << line_style << std::endl; //TODO remove trajectory test
 

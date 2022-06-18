@@ -504,14 +504,25 @@ void RegisterLineStyle(pybind11::module &m) {
 
 
 //-------------------------------------------------  ArrowStyle
-py::tuple ArrowStyleToTuple(const viren2d::ArrowStyle &obj) {
+py::tuple ArrowStyleToTuple(const ArrowStyle &obj) {
   // Re-use LineStyle serialization:
-  auto ls = static_cast<const viren2d::LineStyle &>(obj);
+  auto ls = static_cast<const LineStyle &>(obj);
   auto ls_tpl = LineStyleToTuple(ls);
 
   return py::make_tuple(ls_tpl, obj.tip_length,
                         obj.tip_angle, obj.tip_closed,
                         obj.double_headed);
+}
+
+
+py::dict ArrowStyleToDict(const ArrowStyle &obj) {
+  auto lst = static_cast<const LineStyle &>(obj);
+  py::dict d = LineStyleToDict(lst);
+  d["tip_length"] = obj.tip_length;
+  d["tip_angle"] = obj.tip_angle;
+  d["tip_closed"] = obj.tip_closed;
+  d["double_headed"] = obj.double_headed;
+  return d;
 }
 
 
@@ -558,7 +569,7 @@ void RegisterArrowStyle(pybind11::module &m) {
 
       >>> # Initialize the default style and adjust what you need:
       >>> style = viren2d.ArrowStyle()
-      >>> style.line_width = 5
+      >>> style.width = 5
       >>> style.color = 'black'
       >>> style.tip_length = 0.3
       >>> style.tip_angle = 20
@@ -566,7 +577,7 @@ void RegisterArrowStyle(pybind11::module &m) {
 
       >>> # Alternatively, you would get the same style via:
       >>> style = viren2d.ArrowStyle(
-      >>>     line_width=5, color='black',
+      >>>     width=5, color='black',
       >>>     tip_length=0.3, tip_angle=20,
       >>>     tip_closed=True)
       )docstr";
@@ -574,15 +585,15 @@ void RegisterArrowStyle(pybind11::module &m) {
 
 //TODO remove after testing - if we need to reenable it: the interface changed! (line_width --> width, etc.)
 //  doc = "A ``tuple`` can be cast into an ArrowStyle.\n\n"
-//"Examples:\n\nTODO TODO see :attr:`line_width` "
+//"Examples:\n\nTODO TODO see :attr:`width` "
 //"*Specify only width & color:*\n"
-//"   ``(line_width, color)``\n\n"
+//"   ``(width, color)``\n\n"
 //"*Full configuration:*\n"
-//"   ``(line_width, color, tip_length,\n"
+//"   ``(width, color, tip_length,\n"
 //"   tip_angle, tip_closed, double_headed, dash_pattern,\n"
 //"   line_cap, line_join)``\n\n"
 //"With data types:\n\n"
-//"* ``line_width``: ``float``\n"
+//"* ``width``: ``float``\n"
 //"* ``color``: :class:`" + FullyQualifiedType("Color") + "`\n"
 //"* ``tip_length``: ``float`` - Percentage of shaft length if [0, 1].\n"
 //"  Otherwise, defines the absolute tip length in pixels.\n"
@@ -592,8 +603,8 @@ void RegisterArrowStyle(pybind11::module &m) {
 //"* ``double_headed``: ``bool`` Set ``True`` to draw a tip on both ends of\n"
 //"  the shaft.\n"
 //"* ``dash_pattern``: ``List[float]`` - see :class:`" + FullyQualifiedType("LineStyle") + "`\n"
-//":line_cap:      :class:`" + FullyQualifiedType("LineCap") + "`\n"
-//":line_join:     :class:`" + FullyQualifiedType("LineJoin") + "`";
+//":cap:      :class:`" + FullyQualifiedType("LineCap") + "`\n"
+//":join:     :class:`" + FullyQualifiedType("LineJoin") + "`";
 //  arrow_style.def(py::init<>(&ArrowStyleFromTuple), doc.c_str());
 
   doc = "Creates a customized arrow style.\n\n"
@@ -628,6 +639,17 @@ void RegisterArrowStyle(pybind11::module &m) {
          py::arg("dash_pattern") = default_style.dash_pattern,
          py::arg("cap") = default_style.cap,
          py::arg("join") = default_style.join);
+
+
+  //TODO doc
+  doc = R"docstr(
+      Returns a dictionary representation.
+
+      TODO - just implemented, because ArrowStyle subclasses LineStyle...
+      )docstr";
+  arrow_style.def("as_dict", [](const ArrowStyle &s) -> py::dict {
+    return ArrowStyleToDict(s);
+  }, doc.c_str());
 
   arrow_style.def("copy", [](const ArrowStyle &st) { return ArrowStyle(st); },
            "Returns a deep copy.")
@@ -714,17 +736,20 @@ void RegisterBoundingBox2DStyle(py::module &m) {
   std::string doc = "How to draw a 2D bounding box.";
   py::class_<BoundingBox2DStyle>bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 
+  //  //FIXME remove unnecessarily overloaded constructions
+    // ---> major workflow: create default style & change members
+    // ---> alternative: specify values directly in (a single) constructor
+
   doc = "Initialize from `tuple`:\n TODO see e.g. TextStyle";
   bbox_style.def(py::init<>(&BoundingBox2DStyleFromTuple), doc.c_str(),
                  py::arg("tpl"));
 
-//  //FIXME
 //  doc = "Customize your text style:\n"
-//        ":line_width:    float\n"
+//        ":width:    float\n"
 //        ":color:         " + FullyQualifiedType("Color") + "\n"
 //        ":dash_pattern:  list[float]\n"
-//        ":line_cap:      " + FullyQualifiedType("LineCap") + "\n"
-//        ":line_join:     " + FullyQualifiedType("LineJoin");
+//        ":cap:      " + FullyQualifiedType("LineCap") + "\n"
+//        ":join:     " + FullyQualifiedType("LineJoin");
 //  text_style.def(py::init<unsigned int, const std::string &,
 //                          const Color &, bool, bool, double,
 //                          HorizontalAlignment>(),

@@ -223,14 +223,16 @@ def test_line_operators():
 def test_pickling():
     # Serialize line style
     for ls in line_style_configurations():
-        ls = viren2d.LineStyle(2.0, "orchid!30", [],
-                               viren2d.LineCap.Round, viren2d.LineJoin.Bevel)
+        ls = viren2d.LineStyle(
+            2.0, "orchid!30", [], viren2d.LineCap.Round,
+            viren2d.LineJoin.Bevel)
         data = pickle.dumps(ls)
         restored = pickle.loads(data)
         assert ls == restored
 
     # Serialize arrow style
-    arr = viren2d.ArrowStyle(line_style=ls, tip_length=42, tip_angle=20, tip_closed=True)
+    arr = viren2d.ArrowStyle(
+        **ls.as_dict(), tip_length=42, tip_angle=20, tip_closed=True)
     data = pickle.dumps(arr)
     restored = pickle.loads(data)
     assert arr == restored
