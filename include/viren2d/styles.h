@@ -127,8 +127,8 @@ struct MarkerStyle {
   double thickness;    ///< Line width (thickness) in pixels.
   Color color;         ///< Color of the marker's contour or fill (@see `filled`).
   bool filled;         ///< If true (and the shape allows), the marker will be filled.
-  LineCap line_cap;    ///< How to render the endpoints.
-  LineJoin line_join;  ///< How to render the junction of two lines/segments.
+  LineCap cap;    ///< How to render the endpoints.
+  LineJoin join;  ///< How to render the junction of two lines/segments.
 
 
   /** Returns a library-wide pre-set default style. */
@@ -143,7 +143,8 @@ struct MarkerStyle {
    */
   MarkerStyle(Marker type, double marker_size, double marker_thickness,
               const Color &marker_color, bool fill = false,
-              LineCap cap = LineCap::Butt, LineJoin join = LineJoin::Miter);
+              LineCap line_cap = LineCap::Butt,
+              LineJoin line_join = LineJoin::Miter);
 
 
   /**
@@ -154,7 +155,8 @@ struct MarkerStyle {
    */
   MarkerStyle(char type, double marker_size, double marker_thickness,
               const Color &marker_color, bool fill = false,
-              LineCap cap = LineCap::Butt, LineJoin join = LineJoin::Miter);
+              LineCap line_cap = LineCap::Butt,
+              LineJoin line_join = LineJoin::Miter);
 
 
   /** Returns true if this and the other specify the same text style. */
@@ -214,11 +216,11 @@ bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs);
    \endcode
  */
 struct LineStyle {
-  double line_width;   /**< Line width (thickness) in pixels. */
+  double width;   /**< Line width (thickness) in pixels. */
   Color color;         /**< Color (rgb & alpha). */
   std::vector<double> dash_pattern; /**< Dash pattern defined as series of on-off segments (lengths in pixels). Line is solid if empty. */
-  LineCap line_cap;    /**< How to render the endpoints. */
-  LineJoin line_join;  /**< How to render the junction of two lines/segments. */
+  LineCap cap;    /**< How to render the endpoints. */
+  LineJoin join;  /**< How to render the junction of two lines/segments. */
 
 
   /** Returns a library-wide pre-set default style.
@@ -397,8 +399,8 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);
 //-------------------------------------------------  TextStyle
 /** How to render text. */
 struct TextStyle {
-  int font_size; //TODO documentation
-  std::string font_family;
+  int size; //TODO documentation
+  std::string family;
   Color color;
   bool bold;
   bool italic;
@@ -409,8 +411,8 @@ struct TextStyle {
   TextStyle();
 
 
-  TextStyle(unsigned int size,
-            const std::string &family,
+  TextStyle(unsigned int font_size,
+            const std::string &font_family,
             const Color &font_color = Color::Black,
             bool font_bold = false, bool font_italic = false,
             double spacing = 1.2,

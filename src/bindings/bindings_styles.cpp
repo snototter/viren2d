@@ -12,8 +12,20 @@ namespace viren2d {
 namespace bindings {
 //-------------------------------------------------  LineStyle
 py::tuple LineStyleToTuple(const LineStyle &ls) {
-  return py::make_tuple(ls.line_width, ls.color, ls.dash_pattern,
-                        ls.line_cap, ls.line_join);
+  return py::make_tuple(
+        ls.width, ls.color, ls.dash_pattern,
+        ls.cap, ls.join);
+}
+
+
+py::dict LineStyleToDict(const LineStyle &ls) {
+  py::dict d;
+  d["width"] = ls.width;
+  d["color"] = ls.color;
+  d["dash_pattern"] = ls.dash_pattern;
+  d["cap"] = ls.cap;
+  d["join"] = ls.join;
+  return d;
 }
 
 
@@ -39,11 +51,11 @@ LineStyle LineStyleFromTuple(py::tuple tpl) {
   }
 
   if (tpl.size() > 3) {
-    ls.line_cap = tpl[3].cast<LineCap>();
+    ls.cap = tpl[3].cast<LineCap>();
   }
 
   if (tpl.size() > 4) {
-    ls.line_join = tpl[4].cast<LineJoin>();
+    ls.join = tpl[4].cast<LineJoin>();
   }
 
   return ls;
@@ -232,27 +244,34 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
   //TODO serialize
 
-  doc = "Creates a customized style.\n\n"
-        "Args:\n"
-        "  marker: Shape as :class:`~" + FullyQualifiedType("Marker") + "` enum.\n"
-        "  size: Marker size in pixels as ``float``.\n"
-        "  thickness: Width/thickness of the contour in pixels as ``float``.\n"
-        "  color: The :class:`~" + FullyQualifiedType("Color") + "` used for drawing its\n"
-        "    contour or filling.\n"
-        "  filled: If ``True`` (and the shape allwos), the marker will be filled.\n"
-        "  line_cap: A :class:`~" + FullyQualifiedType("LineCap") + "` enum, specifying\n"
-        "    how to render the line endpoints.\n"
-        "  line_join: A :class:`~" + FullyQualifiedType("LineJoin") + "` enum, specifying\n"
-        "    how to render the junctions of multi-segment lines.";
+
+  MarkerStyle default_style;
+  doc = R"docstr(
+      Creates a customized style.
+
+      Args:
+        marker: Shape as :class:`~viren2d.Marker` enum.
+        size: Marker size in pixels as ``float``.
+        thickness: Width/thickness of the contour in pixels
+          as ``float``.
+        color: The :class:`~viren2d.Color` used for drawing its
+          contour or filling.
+        filled: If ``True`` (and the shape allwos), the marker
+          will be filled.
+        cap: A :class:`~viren2d.LineCap` enum, specifying
+          how to render the line endpoints.
+        join: A :class:`~viren2d.LineJoin` enum, specifying
+          how to render the junctions of multi-segment lines.
+      )docstr";
   style.def(py::init<Marker, double, double, Color, bool, LineCap, LineJoin>(),
             doc.c_str(),
-            py::arg("marker") = Marker::Circle,
-            py::arg("size") = 20.0,
-            py::arg("thickness") = 3.0,
-            py::arg("color") = Color(NamedColor::MidnightBlue),
-            py::arg("filled") = false,
-            py::arg("line_cap") = LineCap::Butt,
-            py::arg("line_join") = LineJoin::Miter);
+            py::arg("marker") = default_style.marker,
+            py::arg("size") = default_style.size,
+            py::arg("thickness") = default_style.thickness,
+            py::arg("color") = default_style.color,
+            py::arg("filled") = default_style.filled,
+            py::arg("cap") = default_style.cap,
+            py::arg("join") = default_style.join);
 
   style.def("copy", [](const MarkerStyle &st) { return MarkerStyle(st); },
            "Returns a deep copy.")
@@ -314,12 +333,12 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "How to render the endpoints of the marker's contour.\n\n"
         "In addition to the enum values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
-        ">>> style.line_cap = viren2d.LineCap.Round\n"
-        ">>> style.line_cap = 'round'\n";
-  style.def_property("line_cap",
-        [](MarkerStyle &s) { return s.line_cap; },
+        ">>> style.cap = viren2d.LineCap.Round\n"
+        ">>> style.cap = 'round'\n";
+  style.def_property("cap",
+        [](MarkerStyle &s) { return s.cap; },
         [](MarkerStyle &s, py::object o) {
-            s.line_cap = LineCapFromPyObject(o);
+            s.cap = LineCapFromPyObject(o);
         }, doc.c_str());
 
 
@@ -327,12 +346,12 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "How to render the junctions of the marker's contour.\n\n"
         "In addition to the enum values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
-        ">>> style.line_join = viren2d.LineJoin.Miter\n"
-        ">>> style.line_cap = 'miter'\n";
-  style.def_property("line_join",
-        [](MarkerStyle &s) { return s.line_join; },
+        ">>> style.join = viren2d.LineJoin.Miter\n"
+        ">>> style.join = 'miter'\n";
+  style.def_property("join",
+        [](MarkerStyle &s) { return s.join; },
         [](MarkerStyle &s, py::object o) {
-            s.line_join = LineJoinFromPyObject(o);
+            s.join = LineJoinFromPyObject(o);
         }, doc.c_str());
 
   //TODO once we support pickling, we can enable implicit conversion
@@ -356,35 +375,48 @@ void RegisterLineStyle(pybind11::module &m) {
       "but it's contour should not be drawn.\n\n**Example:**\n\n"
       ">>> # Initialize the default style and adjust what you need:\n"
       ">>> style = viren2d.LineStyle()\n"
-      ">>> style.line_width = 7\n"
+      ">>> style.width = 7\n"
       ">>> style.color = 'crimson'\n"
-      ">>> style.line_cap = 'round'\n"
+      ">>> style.cap = 'round'\n"
       ">>> style.dash_pattern = [20, 10]\n\n"
       ">>> # Alternatively, you would get the same style via:\n"
       ">>> style = viren2d.LineStyle(\n"
-      ">>>     line_width=7, color='crimson',\n"
-      ">>>     line_cap='round', dash_pattern=[20, 10])\n";
+      ">>>     width=7, color='crimson',\n"
+      ">>>     cap='round', dash_pattern=[20, 10])\n";
   py::class_<LineStyle>line_style(m, "LineStyle", doc.c_str());
+
+  //TODO doc
+  doc = R"docstr(
+      Returns a dictionary representation.
+
+      TODO doc (can be used to initialize an arrow style)
+      arrow_style = ArrowStyle(
+          **line_style.as_dict(),
+          tip_length=0.3)
+      )docstr";
+  line_style.def("as_dict", [](const LineStyle &s) -> py::dict {
+    return LineStyleToDict(s);
+  }, doc.c_str());
 
 
   doc = "Creates a customized line style.\n\n"
         "Args:\n"
-        "  line_width: Width in pixels as ``float``.\n"
+        "  width: Width in pixels as ``float``.\n"
         "  color: Line color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
         "  dash_pattern: Dash pattern defined as ``List[float]`` of on/off strokes,\n"
         "    refer to the class member :attr:`dash_pattern` for details.\n"
-        "  line_cap: A :class:`~" + FullyQualifiedType("LineCap") + "` enum, specifying\n"
+        "  cap: A :class:`~" + FullyQualifiedType("LineCap") + "` enum, specifying\n"
         "    how to render the line's endpoints.\n"
-        "  line_join: A :class:`~" + FullyQualifiedType("LineJoin") + "` enum, specifying\n"
+        "  join: A :class:`~" + FullyQualifiedType("LineJoin") + "` enum, specifying\n"
         "    how to render the junctions of multi-segment lines.";
   LineStyle default_style;
   line_style.def(py::init<double, Color, std::vector<double>, LineCap, LineJoin>(),
         doc.c_str(),
-        py::arg("line_width") = default_style.line_width,
+        py::arg("width") = default_style.width,
         py::arg("color") = default_style.color,
         py::arg("dash_pattern") = default_style.dash_pattern,
-        py::arg("line_cap") = default_style.line_cap,
-        py::arg("line_join") = default_style.line_join);
+        py::arg("cap") = default_style.cap,
+        py::arg("join") = default_style.join);
 
 
   line_style.def("copy", [](const LineStyle &st) { return LineStyle(st); },
@@ -419,7 +451,7 @@ void RegisterLineStyle(pybind11::module &m) {
         "the line. For solid lines, this list must be empty.\n\n"
         ">>> style.dash_pattern = [20, 30, 40, 10] # Would result in:\n"
         "'__   ____ __   ____ __   ____ __   ____ __   ____ __   ____ ...'\n")
-      .def_readwrite("line_width", &LineStyle::line_width,
+      .def_readwrite("width", &LineStyle::width,
            "float: Width/thickness in pixels.")
       // missing doc string: https://github.com/pybind/pybind11/issues/3815
       .def_readonly_static("Invalid", &LineStyle::Invalid, R"doc(
@@ -435,12 +467,12 @@ void RegisterLineStyle(pybind11::module &m) {
         "How to render the endpoints of the line (or dash strokes).\n\n"
         "In addition to the enum values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
-        ">>> style.line_cap = viren2d.LineCap.Round\n"
-        ">>> style.line_cap = 'round'\n";
-  line_style.def_property("line_cap",
-        [](LineStyle &s) { return s.line_cap; },
+        ">>> style.cap = viren2d.LineCap.Round\n"
+        ">>> style.cap = 'round'\n";
+  line_style.def_property("cap",
+        [](LineStyle &s) { return s.cap; },
         [](LineStyle &s, py::object o) {
-            s.line_cap = LineCapFromPyObject(o);
+            s.cap = LineCapFromPyObject(o);
         }, doc.c_str());
 
 
@@ -448,12 +480,12 @@ void RegisterLineStyle(pybind11::module &m) {
         "How to render the junctions of the line segments.\n\n"
         "In addition to the enum values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
-        ">>> style.line_join = viren2d.LineJoin.Miter\n"
-        ">>> style.line_cap = 'miter'\n";
+        ">>> style.join = viren2d.LineJoin.Miter\n"
+        ">>> style.cap = 'miter'\n";
   line_style.def_property("line_join",
-        [](LineStyle &s) { return s.line_join; },
+        [](LineStyle &s) { return s.join; },
         [](LineStyle &s, py::object o) {
-            s.line_join = LineJoinFromPyObject(o);
+            s.join = LineJoinFromPyObject(o);
         }, doc.c_str());
 
 
@@ -540,6 +572,7 @@ void RegisterArrowStyle(pybind11::module &m) {
       )docstr";
   py::class_<ArrowStyle, LineStyle> arrow_style(m, "ArrowStyle", doc.c_str());
 
+//TODO remove after testing - if we need to reenable it: the interface changed! (line_width --> width, etc.)
 //  doc = "A ``tuple`` can be cast into an ArrowStyle.\n\n"
 //"Examples:\n\nTODO TODO see :attr:`line_width` "
 //"*Specify only width & color:*\n"
@@ -565,7 +598,7 @@ void RegisterArrowStyle(pybind11::module &m) {
 
   doc = "Creates a customized arrow style.\n\n"
         "Args:\n"
-        "  line_width: Width in pixels as ``float``.\n"
+        "  width: Width in pixels as ``float``.\n"
         "  color: Arrow color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
         "  tip_length: Length of the arrow tip as ``float``. If it\n"
         "    is between ``[0, 1]``, it is interpreted as percentage\n"
@@ -578,23 +611,23 @@ void RegisterArrowStyle(pybind11::module &m) {
         "    of the shaft (type ``bool``).\n"
         "  dash_pattern: Dash pattern defined as ``List[float]`` of on/off strokes,\n"
         "    refer to the class member :attr:`dash_pattern` for details.\n"
-        "  line_cap: A :class:`~" + FullyQualifiedType("LineCap") + "` enum, specifying\n"
+        "  cap: A :class:`~" + FullyQualifiedType("LineCap") + "` enum, specifying\n"
         "    how to render the line's endpoints.\n"
-        "  line_join: A :class:`~" + FullyQualifiedType("LineJoin") + "` enum, specifying\n"
+        "  join: A :class:`~" + FullyQualifiedType("LineJoin") + "` enum, specifying\n"
         "    how to render the junctions of multi-segment lines.";
   ArrowStyle default_style;
   arrow_style.def(py::init<double, Color,
                            double, double, bool, bool, std::vector<double>,
                            LineCap, LineJoin>(), doc.c_str(),
-         py::arg("line_width") = default_style.line_width,
+         py::arg("width") = default_style.width,
          py::arg("color") = default_style.color,
          py::arg("tip_length") = default_style.tip_length,
          py::arg("tip_angle") = default_style.tip_angle,
          py::arg("tip_closed") = default_style.tip_closed,
          py::arg("double_headed") = default_style.double_headed,
          py::arg("dash_pattern") = default_style.dash_pattern,
-         py::arg("line_cap") = default_style.line_cap,
-         py::arg("line_join") = default_style.line_join);
+         py::arg("cap") = default_style.cap,
+         py::arg("join") = default_style.join);
 
   arrow_style.def("copy", [](const ArrowStyle &st) { return ArrowStyle(st); },
            "Returns a deep copy.")

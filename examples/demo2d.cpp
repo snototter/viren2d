@@ -147,22 +147,22 @@ void DemoLines() {
   viren2d::LineStyle line_style(22, "azure!60", {},
                                 viren2d::LineCap::Butt);
   painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
-  lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
+  lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
   painter->DrawText({lbl.str()}, {100, 200}, viren2d::TextAnchor::Center,
                     viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());  // Reset stringstream
 
 
-  line_style.line_cap = viren2d::LineCap::Round;
+  line_style.cap = viren2d::LineCap::Round;
   painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
-  lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
+  lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
   painter->DrawText({lbl.str()}, {200, 200}, viren2d::TextAnchor::Center,
                     viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
-  line_style.line_cap = viren2d::LineCap::Square;
+  line_style.cap = viren2d::LineCap::Square;
   painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
-  lbl << "LineCap::" << viren2d::LineCapToString(line_style.line_cap);
+  lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
   painter->DrawText({lbl.str()}, {300, 200}, viren2d::TextAnchor::Center,
                     viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
@@ -256,17 +256,17 @@ void DemoCircles() {
   painter->DrawCircle({250, 100}, 50, style);
 
   style.dash_pattern = {};
-  style.line_width = 0;
+  style.width = 0;
   auto fill = viren2d::Color("blue!40");
   painter->DrawCircle({400, 100}, 50, style, fill);
 
-  style.line_width = 4;
+  style.width = 4;
   painter->DrawArc({100, 250}, 50,   0,  90, style, false);
   painter->DrawArc({100, 250}, 50, 110, 160, style, false);
   painter->DrawArc({100, 250}, 50, 180, 210, style, false);
   painter->DrawArc({100, 250}, 50, 230, 250, style, false);
 
-  style.line_width = 2;
+  style.width = 2;
   style.dash_pattern = {10, 4};
   painter->DrawArc({250, 250}, 50,   0,  90, style);
   painter->DrawArc({250, 250}, 50, 110, 160, style);
@@ -274,13 +274,13 @@ void DemoCircles() {
   painter->DrawArc({250, 250}, 50, 230, 250, style);
 
   style.dash_pattern = {};
-  style.line_width = 0;
+  style.width = 0;
   painter->DrawArc({400, 250}, 50, 0, 90, style, true, fill);
   painter->DrawArc({400, 250}, 50, 110, 160, style, true, fill);
   painter->DrawArc({400, 250}, 50, 180, 210, style, true, fill);
   painter->DrawArc({400, 250}, 50, 230, 250, style, true, fill);
 
-  style.line_width = 3;
+  style.width = 3;
   painter->DrawEllipse({100, 400, 100, 50, 0, 45, -45}, style);
 //  painter->DrawEllipse(viren2d::Ellipse({100, 400}, {100, 50}, 0, 45, -45), style);
 
@@ -289,7 +289,7 @@ void DemoCircles() {
                        style, fill);
 
   style.dash_pattern = {};
-  style.line_width = 0;
+  style.width = 0;
   painter->DrawEllipse(viren2d::Ellipse({400, 400}, {100, 50}, 180, 45, -45, true),
                        style, fill);
 
@@ -389,8 +389,8 @@ void DemoText() {
 
   for (size_t idx_family = 0; idx_family < families.size(); ++idx_family) {
     auto text_style = viren2d::TextStyle();
-    text_style.font_size = 16;
-    text_style.font_family = families[idx_family];
+    text_style.size = 16;
+    text_style.family = families[idx_family];
     text_style.line_spacing = 1.0;
     text_style.alignment = viren2d::HorizontalAlignment::Center;
 
@@ -403,7 +403,7 @@ void DemoText() {
                          pos, viren2d::TextAnchor::Top,
                          text_style, {6, 6}, 0, viren2d::LineStyle(1, "black"), "azure!40");
 
-    text_style.font_size = 14;
+    text_style.size = 14;
     text_style.color = "navy-blue";
 
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
@@ -447,8 +447,8 @@ void DemoMarkers() {
   painter->SetCanvas(800, 100, viren2d::Color::White); //.WithAlpha(0.0));
 
   auto text_style = viren2d::TextStyle();
-  text_style.font_size = 16;
-  text_style.font_family = "xkcd";//"monospace";
+  text_style.size = 16;
+  text_style.family = "xkcd";//"monospace";
   text_style.color = viren2d::RGBa(60, 60, 60);
 
   viren2d::Vec2d pos {110.0, 5.0};
@@ -465,8 +465,8 @@ void DemoMarkers() {
   painter->DrawText({"Filled:"}, {5.0, 85.0},
                     viren2d::TextAnchor::Left, text_style);
 
-  text_style.font_size = 16;
-  text_style.font_family = "monospace";
+  text_style.size = 16;
+  text_style.family = "monospace";
 
   for (char m : viren2d::ListMarkers()) {
     std::ostringstream s;

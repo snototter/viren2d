@@ -12,10 +12,10 @@ TEST(StyleTest, LineStyleBasics) {
   EXPECT_TRUE(style.IsValid());
   EXPECT_FALSE(style.IsDashed());
 
-  style.line_width = 0;
+  style.width = 0;
   EXPECT_FALSE(style.IsValid());
 
-  style.line_width = 0.4;
+  style.width = 0.4;
   EXPECT_TRUE(style.IsValid());
 
   style.dash_pattern = {10.0, 20.0};
@@ -37,9 +37,9 @@ TEST(StyleTest, ArrowStyleBasics) {
   EXPECT_TRUE(style.IsValid());
 
   // Mess around with the base line style
-  style.line_width = 0;
+  style.width = 0;
   EXPECT_FALSE(style.IsValid());
-  style.line_width = 0.4;
+  style.width = 0.4;
   EXPECT_TRUE(style.IsValid());
   EXPECT_FALSE(style.IsDashed());
 
@@ -78,25 +78,25 @@ TEST(StyleTest, ArrowTipLength) {
   EXPECT_DOUBLE_EQ(style.TipLengthForShaft(30.0), 90.0);
 
   // Default line join should be miter
-  EXPECT_EQ(style.line_join, viren2d::LineJoin::Miter);
-  style.line_width = 5;
+  EXPECT_EQ(style.join, viren2d::LineJoin::Miter);
+  style.width = 5;
   style.tip_angle = 5;
-  EXPECT_DOUBLE_EQ(style.TipOffset(), style.line_width / 2.0);
+  EXPECT_DOUBLE_EQ(style.TipOffset(), style.width / 2.0);
   style.tip_angle = 6;
   EXPECT_DOUBLE_EQ(style.TipOffset(), 23.916930583764067);
   style.tip_angle = 45;
   EXPECT_DOUBLE_EQ(style.TipOffset(), 3.5355339059327378);
 
-  style.line_join = viren2d::LineJoin::Round;
+  style.join = viren2d::LineJoin::Round;
   style.tip_angle = 5;
-  EXPECT_DOUBLE_EQ(style.TipOffset(), style.line_width / 2.0);
+  EXPECT_DOUBLE_EQ(style.TipOffset(), style.width / 2.0);
   style.tip_angle = 6;
-  EXPECT_DOUBLE_EQ(style.TipOffset(), style.line_width / 2.0);
+  EXPECT_DOUBLE_EQ(style.TipOffset(), style.width / 2.0);
 
-  style.line_join = viren2d::LineJoin::Bevel;
-  EXPECT_DOUBLE_EQ(style.TipOffset(), style.line_width / 2.0);
+  style.join = viren2d::LineJoin::Bevel;
+  EXPECT_DOUBLE_EQ(style.TipOffset(), style.width / 2.0);
   style.tip_angle = 6;
-  EXPECT_DOUBLE_EQ(style.TipOffset(), style.line_width / 2.0);
+  EXPECT_DOUBLE_EQ(style.TipOffset(), style.width / 2.0);
 }
 
 
@@ -106,31 +106,31 @@ TEST(StyleTest, Offsets) {
   EXPECT_TRUE(style.IsValid());
 
   // Default line cap should be butt:
-  EXPECT_EQ(style.line_cap, viren2d::LineCap::Butt);
+  EXPECT_EQ(style.cap, viren2d::LineCap::Butt);
   EXPECT_DOUBLE_EQ(style.CapOffset(), 0.0);
 
-  style.line_cap = viren2d::LineCap::Round;
-  EXPECT_DOUBLE_EQ(style.CapOffset(), style.line_width / 2.0);
+  style.cap = viren2d::LineCap::Round;
+  EXPECT_DOUBLE_EQ(style.CapOffset(), style.width / 2.0);
 
   // Default join should be miter
-  EXPECT_EQ(style.line_join, viren2d::LineJoin::Miter);
-  style.line_width = 2.0;
-  EXPECT_DOUBLE_EQ(style.JoinOffset(10), style.line_width / 2.0);
+  EXPECT_EQ(style.join, viren2d::LineJoin::Miter);
+  style.width = 2.0;
+  EXPECT_DOUBLE_EQ(style.JoinOffset(10), style.width / 2.0);
   // By default, cairo switches to bevel joins at 10 deg
   // interior angle
-  EXPECT_DOUBLE_EQ(style.JoinOffset(5), style.line_width / 2.0);
+  EXPECT_DOUBLE_EQ(style.JoinOffset(5), style.width / 2.0);
   EXPECT_DOUBLE_EQ(style.JoinOffset(12), 9.5667722335056276);
   EXPECT_DOUBLE_EQ(style.JoinOffset(45), 2.6131259297527532);
 
-  style.line_join = viren2d::LineJoin::Bevel;
-  EXPECT_DOUBLE_EQ(style.JoinOffset(10), style.line_width / 2.0);
-  EXPECT_DOUBLE_EQ(style.JoinOffset(12), style.line_width / 2.0);
-  EXPECT_DOUBLE_EQ(style.JoinOffset(45), style.line_width / 2.0);
+  style.join = viren2d::LineJoin::Bevel;
+  EXPECT_DOUBLE_EQ(style.JoinOffset(10), style.width / 2.0);
+  EXPECT_DOUBLE_EQ(style.JoinOffset(12), style.width / 2.0);
+  EXPECT_DOUBLE_EQ(style.JoinOffset(45), style.width / 2.0);
 
-  style.line_join = viren2d::LineJoin::Round;
-  EXPECT_DOUBLE_EQ(style.JoinOffset(10), style.line_width / 2.0);
-  EXPECT_DOUBLE_EQ(style.JoinOffset(12), style.line_width / 2.0);
-  EXPECT_DOUBLE_EQ(style.JoinOffset(45), style.line_width / 2.0);
+  style.join = viren2d::LineJoin::Round;
+  EXPECT_DOUBLE_EQ(style.JoinOffset(10), style.width / 2.0);
+  EXPECT_DOUBLE_EQ(style.JoinOffset(12), style.width / 2.0);
+  EXPECT_DOUBLE_EQ(style.JoinOffset(45), style.width / 2.0);
 }
 
 

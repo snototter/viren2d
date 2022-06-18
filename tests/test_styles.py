@@ -6,7 +6,7 @@ import pickle
 def color_configurations():
     colors = list()
     colors.append(viren2d.Color())
-    colors.append(viren2d.rgb(0.3, 0.1, 0.2))
+    colors.append(viren2d.rgba(0.3, 0.1, 0.2))
     colors.append(viren2d.Color('blue!40'))
     return colors
 

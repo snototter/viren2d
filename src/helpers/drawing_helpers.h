@@ -86,8 +86,8 @@ inline void ApplyMarkerStyle(cairo_t *context, const MarkerStyle &style) {
   }
 
   cairo_set_line_width(context, style.thickness);
-  cairo_set_line_cap(context, LineCap2Cairo(style.line_cap));
-  cairo_set_line_join(context, LineJoin2Cairo(style.line_join));
+  cairo_set_line_cap(context, LineCap2Cairo(style.cap));
+  cairo_set_line_join(context, LineJoin2Cairo(style.join));
   ApplyColor(context, style.color);
 }
 
@@ -102,9 +102,9 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &style,
     return;
   }
 
-  cairo_set_line_width(context, style.line_width);
-  cairo_set_line_cap(context, LineCap2Cairo(style.line_cap));
-  cairo_set_line_join(context, LineJoin2Cairo(style.line_join));
+  cairo_set_line_width(context, style.width);
+  cairo_set_line_cap(context, LineCap2Cairo(style.cap));
+  cairo_set_line_join(context, LineJoin2Cairo(style.join));
   ApplyColor(context, style.color);
 
   if (!style.dash_pattern.empty() && !ignore_dash) {
@@ -124,9 +124,10 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
   if (!context) {
     return;
   }
-  cairo_select_font_face(context, text_style.font_family.c_str(),
-                         (text_style.italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
-                         (text_style.bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));
+  cairo_select_font_face(
+      context, text_style.family.c_str(),
+      (text_style.italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
+      (text_style.bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));
   // TODO: dev2user distance changes when the surface
   // is rotated! - document this behavior and don't
   // adjust the font size!
@@ -140,7 +141,8 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
 //  cairo_device_to_user_distance(context, &ux, &uy);
 //  double px = (ux > uy) ? ux : uy;
 //  cairo_set_font_size(context, static_cast<double>(text_style.font_size) * px);
-  cairo_set_font_size(context, static_cast<double>(text_style.font_size));
+  cairo_set_font_size(
+      context, static_cast<double>(text_style.size));
 
   if (apply_color) {
     ApplyColor(context, text_style.color);

@@ -14,7 +14,7 @@ namespace viren2d {
 namespace bindings {
 //-------------------------------------------------  TextStyle
 py::tuple TextStyleToTuple(const TextStyle &obj) {
-  return py::make_tuple(obj.font_size, obj.font_family,
+  return py::make_tuple(obj.size, obj.family,
                         ColorToTuple(obj.color),
                         obj.bold, obj.italic,
                         obj.line_spacing, obj.alignment);
@@ -38,10 +38,10 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
   }
 
   TextStyle style;
-  style.font_size = tpl[0].cast<int>();
+  style.size = tpl[0].cast<int>();
 
   if (tpl.size() > 1) {
-    style.font_family = tpl[1].cast<std::string>();
+    style.family = tpl[1].cast<std::string>();
   }
 
   if (tpl.size() > 2) {
@@ -223,8 +223,8 @@ void RegisterTextStyle(py::module &m) {
 
   doc = "Creates a customized line style.\n\n"
         "Args:\n"
-        "  font_size: Font size in pixels as ``float``.\n"
-        "  font_family: Name of the font family, refer to the class\n"
+        "  size: Font size in pixels as ``float``.\n"
+        "  family: Name of the font family, refer to the class\n"
         "    member :attr:`font_family` for details.\n"
         "  color: Text color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
         "  bold: If ``True``, the font weight will be bold (type ``bool``).\n"
@@ -237,8 +237,8 @@ void RegisterTextStyle(py::module &m) {
   text_style.def(py::init<unsigned int, const std::string &,
                           const Color &, bool, bool, double,
                           HorizontalAlignment>(), doc.c_str(),
-         py::arg("font_size") = default_style.font_size,
-         py::arg("font_family") = default_style.font_family,
+         py::arg("size") = default_style.size,
+         py::arg("font_family") = default_style.family,
          py::arg("color") = default_style.color,
          py::arg("bold") = default_style.bold,
          py::arg("italic") = default_style.italic,
@@ -257,9 +257,9 @@ void RegisterTextStyle(py::module &m) {
       .def(py::self != py::self)
       .def("is_valid", &TextStyle::IsValid,
           "Check if the style allows rendering text.")
-      .def_readwrite("font_size", &TextStyle::font_size,
+      .def_readwrite("size", &TextStyle::size,
           "float: Font size in pixels.")
-      .def_readwrite("font_family", &TextStyle::font_family, R"docstr(
+      .def_readwrite("family", &TextStyle::family, R"docstr(
           str: Name of the font family.
 
           Most available fonts on the system should be supported.

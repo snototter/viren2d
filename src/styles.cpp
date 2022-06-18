@@ -305,28 +305,28 @@ MarkerStyle::MarkerStyle()
     size(10.0), thickness(3.0),
     color(NamedColor::Azure),
     filled(helpers::AdjustMarkerFill(marker, false)),
-    line_cap(LineCap::Butt),
-    line_join(LineJoin::Miter)
+    cap(LineCap::Butt),
+    join(LineJoin::Miter)
 {}
 
 
 MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thickness,
                          const Color &marker_color, bool fill,
-                         viren2d::LineCap cap, viren2d::LineJoin join)
+                         viren2d::LineCap line_cap, viren2d::LineJoin line_join)
   : marker(type),
     size(marker_size),
     thickness(marker_thickness),
     color(marker_color),
     filled(helpers::AdjustMarkerFill(type, fill)),
-    line_cap(cap), line_join(join)
+    cap(line_cap), join(line_join)
 {}
 
 
 MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
                          const Color &marker_color, bool fill,
-                         LineCap cap, LineJoin join)
+                         LineCap line_cap, LineJoin line_join)
   : MarkerStyle(MarkerFromChar(type), marker_size, marker_thickness,
-                marker_color, fill, cap, join)
+                marker_color, fill, line_cap, line_join)
 {}
 
 
@@ -402,11 +402,11 @@ const LineStyle LineStyle::Invalid = LineStyle(-1, Color::Invalid);
 
 
 LineStyle::LineStyle()
-  : line_width(2),
+  : width(2),
     color(Color(NamedColor::Azure)),
     dash_pattern({}),
-    line_cap(LineCap::Butt),
-    line_join(LineJoin::Miter)
+    cap(LineCap::Butt),
+    join(LineJoin::Miter)
 {}
 
 
@@ -414,7 +414,7 @@ LineStyle::LineStyle(std::initializer_list<double> values) {
   if (values.size() < 2) {
     *this = LineStyle();
     if (values.size() > 0) {
-      line_width = values.begin()[0];
+      width = values.begin()[0];
     }
   } else {
     std::ostringstream s;
@@ -427,13 +427,13 @@ LineStyle::LineStyle(std::initializer_list<double> values) {
 LineStyle::LineStyle(double width, const Color &col,
                      const std::vector<double> &dash,
                      LineCap cap, LineJoin join)
-  : line_width(width), color(col), dash_pattern(dash),
-    line_cap(cap), line_join(join)
+  : width(width), color(col), dash_pattern(dash),
+    cap(cap), join(join)
 {}
 
 
 bool LineStyle::IsValid() const {
-  return (line_width > 0.0) && color.IsValid();
+  return (width > 0.0) && color.IsValid();
 }
 
 
@@ -453,17 +453,17 @@ bool LineStyle::IsDashed() const {
 
 
 double LineStyle::CapOffset() const {
-  switch (line_cap) {
+  switch (cap) {
     case LineCap::Butt:
       return 0.0;
 
     case LineCap::Round:
     case LineCap::Square:
-      return line_width / 2.0;
+      return width / 2.0;
   }
 
   std::ostringstream s;
-  s << "LineCap::" << LineCapToString(line_cap)
+  s << "LineCap::" << LineCapToString(cap)
     << " is not yet supported in CapOffset()!";
   throw std::runtime_error(s.str());
 }
@@ -472,11 +472,11 @@ double LineStyle::CapOffset() const {
 double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
   // For a diagram of how to compute the miter length, see
   //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
-  const double miter_length = line_width / std::max(1e-6, std::sin(wgu::deg2rad(interior_angle / 2.0)));
-  if (((miter_length / line_width) > miter_limit)  // Cairo would switch to BEVEL
-      || (line_join == LineJoin::Round)
-      || (line_join == LineJoin::Bevel)) {
-    return line_width / 2.0;
+  const double miter_length = width / std::max(1e-6, std::sin(wgu::deg2rad(interior_angle / 2.0)));
+  if (((miter_length / width) > miter_limit)  // Cairo would switch to BEVEL
+      || (join == LineJoin::Round)
+      || (join == LineJoin::Bevel)) {
+    return width / 2.0;
   } else {
     return miter_length / 2.0;
   }
@@ -494,7 +494,7 @@ std::string LineStyle::ToString() const {
 //TODO check if shortened tostring (color and linestyle) makes more sense; then apply for all classes
   std::ostringstream s;
   s << "LineStyle(" << std::fixed << std::setprecision(1)
-    << line_width << "px, " << color.ToString() << ", "
+    << width << "px, " << color.ToString() << ", "
     << (dash_pattern.empty() ? "solid" : "dashed");
   if (!IsValid())
     s << ", invalid";
@@ -504,7 +504,7 @@ std::string LineStyle::ToString() const {
 
 
 bool LineStyle::Equals(const LineStyle &other) const {
-  if (!wgu::eps_equal(line_width, other.line_width))
+  if (!wgu::eps_equal(width, other.width))
     return false;
 
   if (color != other.color)
@@ -517,10 +517,10 @@ bool LineStyle::Equals(const LineStyle &other) const {
     if (!wgu::eps_equal(dash_pattern[i], other.dash_pattern[i]))
       return false;
 
-  if (line_cap != other.line_cap)
+  if (cap != other.cap)
     return false;
 
-  if (line_join != other.line_join)
+  if (join != other.join)
     return false;
 
   return true;
@@ -571,7 +571,7 @@ bool ArrowStyle::IsValid() const {
 std::string ArrowStyle::ToString() const {
   std::ostringstream s;
   s << "ArrowStyle(lw=" << std::fixed << std::setprecision(1)
-    << line_width << ", tip=" << tip_length
+    << width << ", tip=" << tip_length
     << ", angle=" << tip_angle << "°, "
     << (tip_closed ? "filled" : "open") << ", "
     << (double_headed ? "double-headed, " : "")
@@ -639,8 +639,8 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs) {
 //const TextStyle TextStyle::Default = TextStyle(-42, std::string());
 
 TextStyle::TextStyle()
-  : font_size(16),
-    font_family("monospace"),
+  : size(16),
+    family("monospace"),
     color(Color::Black),
     bold(false),
     italic(false),
@@ -649,13 +649,13 @@ TextStyle::TextStyle()
 {}
 
 
-TextStyle::TextStyle(unsigned int size,
-                     const std::string &family,
+TextStyle::TextStyle(unsigned int font_size,
+                     const std::string &font_family,
                      const Color &font_color,
                      bool font_bold, bool font_italic,
                      double spacing,
                      HorizontalAlignment align)
-  : font_size(size), font_family(family),
+  : size(font_size), family(font_family),
     color(font_color), bold(font_bold),
     italic(font_italic),
     line_spacing(spacing),
@@ -664,8 +664,7 @@ TextStyle::TextStyle(unsigned int size,
 
 
 bool TextStyle::IsValid() const {
-  return !(font_family.empty())
-      && (font_size > 0)
+  return !(family.empty()) && (size > 0)
       && color.IsValid();
 }
 
@@ -677,11 +676,12 @@ bool TextStyle::IsValid() const {
 
 
 bool TextStyle::Equals(const TextStyle &other) const {
-  return (font_size == other.font_size)
-      && (font_family.compare(other.font_family) == 0)
+  return (size == other.size)
+      && (family.compare(other.family) == 0)
       && (color == other.color)
       && (bold == other.bold)
-      && (italic == other.italic); //TODO check line_spacing
+      && (italic == other.italic)
+      && wgu::eps_equal(line_spacing, other.line_spacing);
 }
 
 
@@ -691,8 +691,8 @@ std::string TextStyle::ToString() const {
 //  }
 
   std::ostringstream s;
-  s << "TextStyle(\"" << font_family << "\", "
-    << font_size << "px";
+  s << "TextStyle(\"" << family << "\", "
+    << size << "px";
 
   if (bold) {
     s << ", bold";
