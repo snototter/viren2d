@@ -227,6 +227,14 @@ std::ostream &operator<<(std::ostream &os, TextAnchor anchor) {
 }
 
 
+std::vector<TextAnchor> ListTextAnchors() {
+  return {
+    TextAnchor::TopLeft, TextAnchor::Top, TextAnchor::TopRight,
+    TextAnchor::Left, TextAnchor::Center, TextAnchor::Right,
+    TextAnchor::BottomLeft, TextAnchor::Bottom, TextAnchor::BottomRight
+  };
+}
+
 
 BoundingBoxLabelPosition BoundingBoxLabelPositionFromString(const std::string &pos) {
   std::string slug = werkzeugkiste::strings::Lower(pos);

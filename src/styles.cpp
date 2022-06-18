@@ -348,44 +348,6 @@ bool MarkerStyle::IsValid() const {
     return thickness > 0.0;
   }
   return true;
-//FIXME simplified - changed logic - marker is always renderable, unless you select an invalid thickness...
-//  // Nitpicky checks: different marker types require
-//  // different checks. For example, a point is filled
-//  // by definition and thus, doesn't care about the thickness.
-//  switch (marker) {
-//    case Marker::Circle:
-//    case Marker::Cross:
-//    case Marker::Plus:
-//    case Marker::Star:
-//      return (thickness > 0.0);
-
-//    case Marker::Point:
-//      return filled;
-
-//    case Marker::Diamond:
-//    case Marker::Enneagon:
-//    case Marker::Enneagram:
-//    case Marker::Pentagon:
-//    case Marker::Pentagram:
-//    case Marker::Heptagon:
-//    case Marker::Heptagram:
-//    case Marker::Hexagon:
-//    case Marker::Hexagram:
-//    case Marker::Octagon:
-//    case Marker::Octagram:
-//    case Marker::RotatedSquare:
-//    case Marker::Square:
-//    case Marker::TriangleDown:
-//    case Marker::TriangleLeft:
-//    case Marker::TriangleRight:
-//    case Marker::TriangleUp:
-//      return filled || (thickness > 0.0);
-//  }
-
-//  std::ostringstream s;
-//  s << "`IsValid` is not implemented for marker "
-//    << marker << "!";
-//  throw std::invalid_argument(s.str());
 }
 
 

@@ -57,9 +57,9 @@ py::tuple ColorToTuple(const Color &obj) {
 void RegisterColor(py::module &m) {
   auto doc = "Returns a list of the predefined color names.\n\n"
       "Each of these names can be used to initialize a\n:class:`~"
-      + FullyQualifiedType("Color") + "`. For example:\n"
-      "  >>> text_style.color = 'midnight-blue'  # alpha = 1.0\n"
-      "  >>> line_style.color = 'forest-green!40'  # alpha = 0.4\n\n"
+      + FullyQualifiedType("Color") + "`. For example:\n\n"
+      ">>> text_style.color = 'midnight-blue'  # alpha = 1.0\n"
+      ">>> line_style.color = 'forest-green!40'  # alpha = 0.4\n\n"
       "**Corresponding C++ API:** ``viren2d::ListNamedColors``.";
   m.def("color_names", &ListNamedColors, doc.c_str());
 
@@ -67,47 +67,65 @@ void RegisterColor(py::module &m) {
            "A color in rgba format, where each component is within ``[0, 1]``.\n\n"
             ".. note::\n"
             "   If you initialize a color from a ``tuple(r,g,b,a)``, you **must\n"
-            "   ensure that the r,g,b values are within** ``[0, 1]``.\n"
-            "   **Caveat:** Due to saturation casting, the following ``tuple``\n"
-            "   will be converted to ``(1, 1, 1)``, *i.e.* the polygon will be\n"
-            "   filled with **white** instead!\n\n"
-            "   >>> # Incorrectly specifying a color as `RGB` instead of `rgb`:\n"
-            "   >>> painter.draw_polygon(..., fill_color=(20, 20, 75))")
-      .def(py::init<>(),
-           "Initializes an *invalid color* (``r,g,b < 0``) which can\n"
-           "be used in several :class:`~viren2d.Painter` methods to request\n"
-           "special color handling (e.g. switching to the inverse color or\n"
-           "to skip filling).")
-      .def(py::init<>(&ColorFromTuple),
-           "A ``tuple`` can be implicitly cast into a :py:class:`viren2d.Color`.\n"
-           "For this, each value must be a floating point number within [0, 1]."
-           "\n\nExample:\n"
-           "  >>> painter.draw_polygon(..., fill_color = (red, green, blue))\n"
-           "  >>> painter.draw_polygon(..., fill_color = (red, green, blue, alpha)",
-           py::arg("tpl"))
-      .def(py::init<double, double, double, double>(),
-           "Initializes the color from the given rgba components. **All values\n"
-           "will be clamped** to [0, 1].",
-           py::arg("red"), py::arg("green"), py::arg("blue"),
-           py::arg("alpha")=1.0)
-      .def(py::init<const std::string &, double>(),
-           "Initializes the color from a string representation via its\n"
-           "hex/webcode or its color name.\n\n"
-           "**Hex/Webcode:**\n"
-           "  >>> painter.draw_rect(..., fill_color = '#00ff00')\n"
-           "  >>> painter.draw_rect(..., fill_color = '#a0b0c0f0')\n\n"
-           "**Color name:**\n"
-           "  See :py:meth:`viren2d.color_names()` for\n"
-           "  a list of available color names.\n"
-           "    >>> painter.draw_rect(..., fill_color = 'black')\n"
-           "    >>> painter.draw_rect(..., fill_color = 'navy-blue')\n"
-           "  A color name can also include an alpha suffix (which must\n"
-           "  be an integer in [0, 100]):\n"
-           "      >>> painter.draw_rect(..., fill_color = 'forest-green!50')\n"
-           "  Optionally, you can also invert a color name (to use its\n"
-           "  complementary color) by prepending ``!`` or ``-``\\:\n"
-           "      >>> # '!blue!30 is equal to 'yellow!30'\n"
-           "      >>> painter.draw_rect(..., fill_color = '!blue!30')",
+            "   ensure that the r,g,b values are within** ``[0, 1]``.\n\n"
+            "   **Caveat:**\n"
+            "      Due to saturation casting, the following ``tuple``\n"
+            "      will be converted to ``(1, 1, 1)``, *i.e.* the polygon will be\n"
+            "      filled with **white** instead!\n\n"
+            "      >>> # Incorrectly specifying a color as `RGB` tuple instead of `rgb`:\n"
+            "      >>> painter.draw_polygon(..., fill_color=(20, 20, 75))")
+      .def(py::init<>(), R"docstr(
+           Initializes an **invalid color**.
+
+           An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
+           :class:`~viren2d.Painter` methods to mark *special* color
+           handling, *e.g.* to skip filling.
+           )docstr")
+      .def(py::init<>(&ColorFromTuple), R"docstr(
+           Initializes the color from a *rgb* or *rgba* ``tuple``.
+
+           Each value must be a floating point number within ``[0, 1]``
+
+           Example:
+
+              >>> painter.draw_polygon(..., fill_color = (red, green, blue))
+              >>> painter.draw_polygon(..., fill_color = (red, green, blue, alpha)
+           )docstr", py::arg("tpl"))
+      .def(py::init<double, double, double, double>(), R"docstr(
+           Initializes the color from the given rgba components.
+
+           All values **will be clamped** to ``[0, 1]``.
+           )docstr", py::arg("red"), py::arg("green"),
+           py::arg("blue"), py::arg("alpha") = 1.0)
+      .def(py::init<const std::string &, double>(),R"docstr(
+           Initializes the color from a string representation (hexcode
+           or color name).
+
+           **Hexcode:**
+              HTML hex code string as either ``#RRGGBB`` or
+              ``#RRGGBBAA``:
+
+              >>> painter.draw_rect(..., fill_color = '#00ff00')
+              >>> painter.draw_rect(..., fill_color = '#a0b0c0f0')
+
+           **Color name:**
+              See :py:meth:`viren2d.color_names()` for a list of
+              available color names.
+
+              >>> painter.draw_rect(..., fill_color = 'black')
+              >>> painter.draw_rect(..., fill_color = 'navy-blue')
+
+              A color name can also include an ``alpha`` suffix, which
+              must be specified as integer in ``[0, 100]``):
+
+              >>> painter.draw_rect(..., fill_color = 'forest-green!50')
+
+              Color names can also be inverted by prepending either
+              ``!`` or ``-``, which results in the *complementary color*,
+              *e.g.* ``!blue!30`` is the same as ``yellow!30``:
+
+              >>> painter.draw_rect(..., fill_color = '!blue!30)
+            )docstr",
            py::arg("colorspec"), py::arg("alpha")=1.0)
       .def("copy", [](const Color &c) { return Color(c); },
            "Returns a deep copy.")
@@ -117,12 +135,8 @@ void RegisterColor(py::module &m) {
       .def("__str__", &Color::ToHexString)
       .def(py::pickle(&ColorToTuple,
                       &ColorFromTuple))
-      .def(py::self == py::self,
-           "'==' operator: Returns True if ALL components (r, g,\n"
-           "b & alpha) are equal.")
-      .def(py::self != py::self,
-           "'!=' operator: Returns True if ANY component (r, g,\n"
-           "b or alpha) differs.")
+      .def(py::self == py::self)
+      .def(py::self != py::self)
       .def(py::self += py::self,
            "'+=' operator: Adds the other's r,g,b values and clamps\n"
            "the result to [0, 1]. Alpha will not be changed.")
@@ -154,28 +168,35 @@ void RegisterColor(py::module &m) {
       .def(py::self / float(),
            "Divides r,g,b by the given factor (alpha remains unchanged).")
       .def("as_RGBa", &Color::ToRGBa,
-           "Returns the corresponding (R, G, B, a) tuple,\n"
-           "where R, G, B in [0, 255] and alpha in [0, 1].")
+           "Returns the corresponding ``(R, G, B, a)`` tuple,\n"
+           "where R, G, B in ``[0, 255]`` and ``alpha`` in ``[0, 1]``.")
       .def("as_rgba", [](Color& c)
            { return py::make_tuple(c.red, c.green, c.blue, c.alpha); },
-           "Returns the corresponding (r, g, b, a) tuple,\n"
-           "where all components are in[0, 1].")
-      .def("as_hex", &Color::ToHexString,
-           "Returns the hex web color code representation, for\n"
-           "example ``#0011ffff`` (all components are scaled to [0, 255]).\n"
-           "If the color is invalid, ``#????????`` will be returned instead.")
+           "Returns the corresponding ``(r, g, b, a)`` tuple,\n"
+           "where all components are in ``[0, 1]``.")
+      .def("as_hex", &Color::ToHexString, R"docstr(
+           Returns the hex code representation.
+
+           The web/hex code representation will contain 8 components,
+           *i.e.* it includes the alpha value. To compute the hexadecimal
+           representation, each component (*rgba*) is first scaled to
+           ``[0, 255]``.
+           )docstr")
+      .def("grayscale", &Color::Grayscale,
+           "Returns the grayscale representation of this color.\n\n"
+           "Computes the luminance as :math:`L = 0.2989*R + 0.5870*G + 0.1141*B`.")
       .def("with_alpha", &Color::WithAlpha,
-           "Return a color with the same rgb components, but the given alpha.",
+           "Returns a color with the same *rgb* components, but the given ``alpha``.",
            py::arg("alpha"))
       .def_readwrite("red", &Color::red,
-                     "Red component within [0, 1].")
+           "float: Red component within ``[0, 1]``.")
       .def_readwrite("green", &Color::green,
-                     "Green component within [0, 1].")
+           "float: Green component within ``[0, 1]``.")
       .def_readwrite("blue", &Color::blue,
-                     "Blue component within [0, 1].")
+           "float: Blue component within ``[0, 1]``.")
       .def_readwrite("alpha", &Color::alpha,
-                     "Opacity within [0, 1], where 0 is fully transparent\n"
-                     "and 1 is fully opaque.")
+           "float: Opacity within ``[0, 1]``, where ``0`` is fully transparent\n"
+           "and ``1`` is fully opaque.")
       // TODO(snototter) pybind11 bug, documentation of static members is missing in python, see https://github.com/pybind/pybind11/issues/3815
       .def_readonly_static("White", &Color::White,
                            "Read-only white color instantiation.")
@@ -200,16 +221,20 @@ void RegisterColor(py::module &m) {
                            "color for filling as the object's contour).")
       .def("is_valid", &Color::IsValid,
            "Returns ``True`` if this is a valid rgba color, where all\n"
-           "components are within [0, 1].")
-      .def("inverse", &Color::Inverse,
-           "Returns the inverse/complementary color.\n\n"
-           "Except for shades of gray, this returns ``(1.0-r, 1.0-g, 1.0-b)``.\n"
-           "For gray values it will either return black or white. The alpha\n"
-           "value will always stay the same.\n"
-           "Why special handling of gray? Complementary colors should be\n"
-           "used to provide good contrast/highlights - thus, having the\n"
-           "true inverse (*i.e.* ``1-r|g|b``) for medium gray (r,g,b close to 127)\n"
-           "would not be too useful.")
+           "components are within ``[0, 1]``.")
+      .def("inverse", &Color::Inverse, R"docstr(
+           Returns the inverse/complementary color.
+
+           Except for shades of gray, this returns the rgb inverse, *i.e.*
+           ``(1-r, 1-g, 1-b, a)``.
+           For gray values, it will either return black or white. In both
+           cases, the returned alpha value will always stay the same.
+
+           Why special handling of gray?
+              Complementary colors should be used to provide good
+              contrast/highlights. For colors close to medium gray (where
+              r,g,b are close to 0.5), the rgb inverse would not be too useful.
+           )docstr")
       .def("is_shade_of_gray", &Color::IsShadeOfGray,
            "Checks if all rgb components are almost the same (+/- the given epsilon).",
            py::arg("eps")=0.02);
@@ -221,36 +246,37 @@ void RegisterColor(py::module &m) {
   py::implicitly_convertible<py::str, Color>();
 
 
-  doc = "Returns a " + FullyQualifiedType("Color") + " for the given values.\n"
-        "red, green, blue and alpha must be within ``[0, 1]``.\n\n"
+  doc = "Returns a :class:`~" + FullyQualifiedType("Color") + "` for the given values.\n\n"
+        "The red, green, blue and alpha components must be within ``[0, 1]``.\n\n"
         "**Corresponding C++ API:** ``viren2d::rgba``.";
   m.def("rgba", &rgba, doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
-  // Convenience function "rgb"
-  doc = "Returns a fully opaque " + FullyQualifiedType("Color") + " for the given\n"
-        "values. red, green, and blue must be within ``[0, 1]``.\n\n"
-        "**Corresponding C++ API:** Overloaded ``viren2d::Color`` constructor.";
-  m.def("rgb", [](double red, double green, double blue) { return Color(red, green, blue, 1.0); },
-        doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
+//  // Convenience function "rgb"
+//  doc = "Returns a fully opaque :class:`~" + FullyQualifiedType("Color") + "` for the given\n"
+//        "values. red, green, and blue must be within ``[0, 1]``.\n\n"
+//        "**Corresponding C++ API:** Overloaded ``viren2d::Color`` constructor.";
+//  m.def("rgb", [](double red, double green, double blue) { return Color(red, green, blue, 1.0); },
+//        doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
 
 
-  doc = "Returns a " + FullyQualifiedType("Color") + " for the given RGBa values.\n"
-        "R, G, and B must be within ``[0, 255]``; alpha must be within ``[0, 1]``.\n\n"
+  doc = "Returns a :class:`~" + FullyQualifiedType("Color") + "` for the given RGBa values.\n\n"
+        "The R, G, and B components must be within ``[0, 255]``, whereas\n"
+        "alpha must be within ``[0, 1]``.\n\n"
         "**Corresponding C++ API:** ``viren2d::RGBa``.";
   m.def("RGBa", &RGBa,
         doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
-  // Convenience function "RGB"
-  doc = "Returns a fully opaque " + FullyQualifiedType("Color") + " for the given\n"
-        "values. R, G, and B must be within ``[0, 255]``; alpha must be\n"
-        "within ``[0, 1]``.\n\n"
-        "**Corresponding C++ API:** ``viren2d::RGBa``, with ``alpha = 1.0``.";
-  m.def("RGB",  [](double R, double G, double B) { return RGBa(R, G, B, 1.0); },
-        doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
+//  // Convenience function "RGB"
+//  doc = "Returns a fully opaque " + FullyQualifiedType("Color") + " for the given\n"
+//        "values. R, G, and B must be within ``[0, 255]``; alpha must be\n"
+//        "within ``[0, 1]``.\n\n"
+//        "**Corresponding C++ API:** ``viren2d::RGBa``, with ``alpha = 1.0``.";
+//  m.def("RGB",  [](double R, double G, double B) { return RGBa(R, G, B, 1.0); },
+//        doc.c_str(), py::arg("red"), py::arg("green"), py::arg("blue"));
 }
 
 } // namespace bindings

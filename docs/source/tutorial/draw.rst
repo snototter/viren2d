@@ -21,19 +21,25 @@ existing image or onto an empty canvas. Simply set it up via:
 
 Once you've set up the painter, you can start drawing:
 
- .. toctree::
-    :maxdepth: 2
+   .. toctree::
+      :maxdepth: 2
 
-    draw-primitives
-    draw-markers
-    draw-text
-    draw-surveillance
+      draw-primitives
+      draw-markers
+      draw-text
+      draw-surveillance
+      draw-poses
+      draw-3d-results
+      draw-3d-calibration
+    
 
 
 Finally, you simply retrieve the visualization result via 
 :meth:`viren2d.Painter.get_canvas`. This will yield a
 :class:`viren2d.ImageBuffer`, which can easily be :ref:`used with
-common image processing libraries <api-doc-image-buffer>`, such as NumPy or OpenCV:
+common image processing libraries <tutorial-conversion>`, such as NumPy or
+OpenCV. The following examples show one option to retrieve your first
+visualization from the :class:`~viren2d.Painter`:
 
 
 .. literalinclude:: ./code-snippets/painter-retrieve.py

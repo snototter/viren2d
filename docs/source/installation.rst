@@ -8,15 +8,18 @@ Installation
 Requirements
 ------------
 
-TODO cmake min version should be bumped to 3.15
-TODO you'll need python 3.x-dev!
+TODO you'll need python 3.x-dev packages!
+
+TODO how to install spdlog is missing --> change in viren2d (disable logging if not found & issue a cmake warning)
+
 
 * A C++ compiler supporting at least ``C++14``.
-* `CMake \>= 3.14 <https://cmake.org/>`_ and a
-  `compatible build tool <https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html>`_,
-  like `Make <https://www.gnu.org/software/make/>`_, `Ninja <https://ninja-build.org/>`_,
+* `CMake \>= 3.15 <https://cmake.org/>`__ and a
+  `compatible build tool <https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html>`__,
+  like `Make <https://www.gnu.org/software/make/>`__, `Ninja <https://ninja-build.org/>`__,
   *etc.*
-* The `Cairo 2D graphics library <https://www.cairographics.org/download>`_.
+* The `Cairo 2D graphics library <https://www.cairographics.org/download>`__.
+
   Currently, there is no plan to ship ``viren2d`` binaries. Thus, you need the
   Cairo development packages (``-dev`` or ``-devel``) for your system. For
   example, on GNU/Linux distributions, you simply install Cairo via:
@@ -41,7 +44,19 @@ TODO you'll need python 3.x-dev!
 Python
 ------
 
-TODO populate with instructions from readme
+The simplest & recommended way to install ``viren2d`` is to use the default
+package manager, ``pip``:
+
+   .. code-block:: console
+
+      # Set up a virtual environment with up-to-date pip:
+      python3 -m venv venv
+      source venv/bin/activate
+      python -m pip install -U pip
+ 
+      # Install viren2d:
+      python -m pip install git+https://github.com/snototter/viren2d.git
+
 
 
 ---

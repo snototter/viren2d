@@ -313,6 +313,7 @@ struct Ellipse {
    */
   Ellipse(std::initializer_list<double> values);
 
+  Vec2d Center() const;
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
@@ -433,6 +434,8 @@ struct Rect {
    */
   Rect(std::initializer_list<double> values);
 
+
+  Vec2d Center() const;
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)

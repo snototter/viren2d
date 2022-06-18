@@ -127,16 +127,20 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
   cairo_select_font_face(context, text_style.font_family.c_str(),
                          (text_style.italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
                          (text_style.bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL));
-  // For image painting, the device to user
-  // scaling factor should always be 1.
-  // Nevertheless, check if we need to adjust
-  // the given font size (in case we ever change
-  // to an SVG painter).
-  double ux = 1.0;
-  double uy = 1.0;
-  cairo_device_to_user_distance(context, &ux, &uy);
-  double px = (ux > uy) ? ux : uy;
-  cairo_set_font_size(context, static_cast<double>(text_style.font_size) * px);
+  // TODO: dev2user distance changes when the surface
+  // is rotated! - document this behavior and don't
+  // adjust the font size!
+//  // For image painting, the device to user
+//  // scaling factor should always be 1.
+//  // Nevertheless, check if we need to adjust
+//  // the given font size (in case we ever change
+//  // to an SVG painter).
+//  double ux = 1.0;
+//  double uy = 1.0;
+//  cairo_device_to_user_distance(context, &ux, &uy);
+//  double px = (ux > uy) ? ux : uy;
+//  cairo_set_font_size(context, static_cast<double>(text_style.font_size) * px);
+  cairo_set_font_size(context, static_cast<double>(text_style.font_size));
 
   if (apply_color) {
     ApplyColor(context, text_style.color);

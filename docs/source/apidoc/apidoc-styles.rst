@@ -7,20 +7,19 @@ Marker Style
 ~~~~~~~~~~~~
 
 .. autoclass:: viren2d.MarkerStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
-   
-   .. automethod:: __init__
-
+  
 
 ~~~~~~~~~~
 Line Style
 ~~~~~~~~~~
 
 .. autoclass:: viren2d.LineStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
-   :undoc-members:
-
-   .. automethod:: __init__
 
 
 ~~~~~~~~~~~
@@ -28,10 +27,12 @@ Arrow Style
 ~~~~~~~~~~~
 
 .. autoclass:: viren2d.ArrowStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
    :inherited-members:
-
-   .. automethod:: __init__
+   :show-inheritance:
+   :exclude-members: cap_offset, join_offset, Invalid
 
 
 ~~~~~~~~~~
@@ -39,9 +40,9 @@ Text Style
 ~~~~~~~~~~
 
 .. autoclass:: viren2d.TextStyle
+   :autosummary:
+   :autosummary-nosignatures:
    :members:
-
-   .. automethod:: __init__
 
 
 ~~~~~~~~~~~~~~~~~~~~~
