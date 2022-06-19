@@ -106,10 +106,9 @@ void RegisterImageBuffer(py::module &m) {
       .def_readonly("stride", &ImageBuffer::stride,
            "int: Stride in bytes per row  (read-only).")
       .def_readonly("owns_data", &ImageBuffer::owns_data_,
-           "bool: Read-only flag indicating whether this"
-           ":class:`~viren2d.ImageBuffer` is the owner of the\n"
-           "image data, and thus responsible for cleaning up the\n"
-           "allocated memory.");
+           "bool: Read-only flag indicating whether this\n"
+           ":class:`~viren2d.ImageBuffer` owns the\n"
+           "image data (and is responsible for cleaning up).");
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();

@@ -98,15 +98,14 @@ Exemplary rectangle configurations:
 ImageBuffer
 ~~~~~~~~~~~
 
-.. warning::
-   TODO documentation
-   
-   TODO refer to the conversion example/tutorial:
-   see :ref:`convert into types used in common image processing libraries <tutorial-conversion>`
-
-
 .. autoclass:: viren2d.ImageBuffer
    :autosummary:
    :autosummary-nosignatures:
    :members:
+
+.. note:: 
+   Since an :class:`~viren2d.ImageBuffer` uses standard row-major memory
+   layout, it can be swiftly converted to native types of common image
+   processing libraries. For details and example code, refer to the
+   :ref:`tutorial on type conversion<tutorial-conversion>`.
 
