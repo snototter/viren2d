@@ -31,9 +31,6 @@ Color Names
 Vector 2D
 ~~~~~~~~~
 
-.. warning::
-   TODO doc
-
 .. autoclass:: viren2d.Vec2d
    :autosummary:
    :autosummary-nosignatures:
@@ -43,9 +40,6 @@ Vector 2D
 ~~~~~~~~~
 Vector 3D
 ~~~~~~~~~
-
-.. warning::
-   TODO doc
 
 .. autoclass:: viren2d.Vec3d
    :autosummary:
@@ -100,10 +94,11 @@ ImageBuffer
 ~~~~~~~~~~~
 
 .. warning::
-   TODO doc
+   TODO documentation
+   
+   TODO refer to the conversion example/tutorial:
+   see :ref:`convert into types used in common image processing libraries <tutorial-conversion>`
 
-TODO add conversion examples to the tutorial (where they actually belong) & only include class documentation here!
-TODO :ref:`convert into types used in common image processing libraries <tutorial-conversion>`
 
 .. autoclass:: viren2d.ImageBuffer
    :autosummary:

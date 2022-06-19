@@ -50,6 +50,11 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromList(py::list lst) {
 }
 
 
+
+// To support pickling, it is easier to serialize the vector
+// as a list. The other option would be to have explicit specializations
+// for each type and dimensionality, so we can create a py::tuple via
+// py::make_tuple...
 template<typename _Tp, int dim>
 py::list VecToList(const werkzeugkiste::geometry::Vec<_Tp, dim> &vec) {
   py::list lst;
@@ -58,142 +63,238 @@ py::list VecToList(const werkzeugkiste::geometry::Vec<_Tp, dim> &vec) {
   return lst;
 }
 
-template<typename _Tp>
-const char *PyTypeName();
 
-template<> const char *PyTypeName<double>() { return "float"; }
-template<> const char *PyTypeName<int>() { return "int"; }
+
+template<typename _Tp>
+const char *PyTypeName(bool rst);
+
+template<> const char *PyTypeName<double>(bool rst) {
+  if (rst) {
+    return ":class:`float`";
+  } else {
+    return "float:";
+  }
+}
+
+template<> const char *PyTypeName<int>(bool rst) {
+  if (rst) {
+    return ":class:`int`";
+  } else {
+    return "int:";
+  }
+}
+
 
 
 template<typename _Tp, int dim>
 void RegisterVec(py::module &m) {
   using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
   std::ostringstream doc;
-  doc << "A " << dim << "D vector.\n\n"
-      << "TODO can be pickled, etc....";
-
+  doc << "A " << dim
+      << "D vector of " << PyTypeName<_Tp>(true) << ".";
   py::class_<VC> vec_cls(m, VC::TypeName().c_str(), doc.str().c_str());
 
-  std::ostringstream doc_tpl;
-  doc_tpl << "A " << dim << "-element ``tuple`` can be cast into a :class:`"
-          << FullyQualifiedType(VC::TypeName()) << "`.";
-
-  vec_cls.def(py::init<>(), "Initializes all dimensions to 0.")
-      .def(py::init<>(&VecFromTupleOrList<_Tp, dim>),
-           doc_tpl.str().c_str())
-      .def("__repr__",
-           [](const VC &v)
-           { return FullyQualifiedType(v.ToString(), true); })
-      .def("__str__", &VC::ToString);
+  vec_cls.def(py::init<>(), "Initializes all values to 0.");
 
   std::ostringstream().swap(doc);
-  doc << PyTypeName<_Tp>() << ": Accesses the first dimension.";
+  doc << "Creates a vector from a " << dim << "-element :class:`tuple`.";
+  vec_cls.def(py::init<>(&VecFromTupleOrList<_Tp, dim>), doc.str().c_str());
+
+
+  vec_cls.def("__repr__",
+           [](const VC &) { return FullyQualifiedType(VC::TypeName(), true); })
+      .def("__str__", &VC::ToString);
+
+
+  std::ostringstream().swap(doc);
+  doc << PyTypeName<_Tp>(false) << " Read-write access to the first dimension.";
   vec_cls.def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x),
                        &VC::SetX, doc.str().c_str());
 
+
   std::ostringstream().swap(doc);
-  doc << PyTypeName<_Tp>() << ": Accesses the second dimension.";
+  doc << PyTypeName<_Tp>(false) << " Read-write access to the second dimension.";
   vec_cls.def_property("y", static_cast<const _Tp &(VC::*)() const>(&VC::y),
                        &VC::SetY, doc.str().c_str());
+
 
   std::ostringstream().swap(doc);
   doc << "int: Number of dimensions (read-only), *i.e.* " << dim << ".";
   vec_cls.def_property_readonly("ndim", [](const VC&) { return dim; },
                                 doc.str().c_str())
-      .def("__setitem__", [](VC &self, int index, _Tp v)
-                          { self[index] = v; })
-      .def("__getitem__", [](const VC &self, int index)
-                          { return self[index]; })
+      .def("__setitem__",
+           [](VC &self, int index, _Tp v) { self[index] = v; },
+           "Allows accessing this vector's values via ``vec[idx]``.")
+      .def("__getitem__",
+           [](const VC &self, int index) -> _Tp { return self[index]; },
+           "Allows accessing this vector's values via ``vec[i]``.")
       .def("copy", [](const VC &self) { return VC(self); },
-           "Returns a deep copy.")
-      .def("max_value", &VC::MaxValue,
-           "Returns ``max(self.val[i])``.")
-      .def("min_value", &VC::MinValue,
-           "Returns ``min(self.val[i])``.")
-      .def("max_index", &VC::MaxIndex,
-           "Returns index ``j``, s.t. ``self.val[j] == max(self.val[i])``.")
-      .def("min_index", &VC::MinIndex,
-           "Returns index ``j``, s.t. ``self.val[j] == min(self.val[i])``.")
-      .def("dot", &VC::Dot,
-           "Returns the dot product between ``self`` and the ``other``.",
-           py::arg("other"))
-      .def("length", &VC::Length,
-           "Returns the vector's length.")
-      .def("length_squared", &VC::LengthSquared,
-           "Returns the squared length.")
-      .def("distance", &VC::Distance,
-           "Returns the Euclidean distance between ``self`` and the ``other``.",
-           py::arg("other"))
-      .def("direction_vector", &VC::DirectionVector,
-           "Returns direction vector from ``self`` to the ``other``.",
-           py::arg("other"))
-      .def("unit_vector", &VC::UnitVector,
-           "Returns the unit vector of ``self``.")
-      .def(py::pickle(&VecToList<_Tp, dim>,
-                      &VecFromList<_Tp, dim>))
-      .def(py::self == py::self, "Checks for equality.")
-      .def(py::self != py::self, "Checks for inequality.")
-      .def(py::self + py::self)//TODO doc
-      .def(py::self += py::self)
-      .def(py::self - py::self)
-      .def(-py::self)
+           "Returns a deep copy.");
+
+
+  vec_cls.def("max_value", &VC::MaxValue, "Returns :math:`\\max(v_i)`.")
+      .def("min_value", &VC::MinValue, "Returns :math:`\\min(v_i)`.")
+      .def("max_index", &VC::MaxIndex, "Returns :math:`i = \\arg_i \\max(v_i)`.")
+      .def("min_index", &VC::MinIndex, "Returns :math:`i = \\arg_i \\min(v_i)`.")
+      .def("length", &VC::Length, "Returns this vector's length.")
+      .def("length_squared", &VC::LengthSquared, "Returns this vector's squared length.");
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns the dot product of ``self`` and the other :class:`~"
+      << FullyQualifiedType(VC::TypeName()) << "`.";
+  vec_cls.def("dot", &VC::Dot, doc.str().c_str(), py::arg("other"));
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns the Euclidean distance between ``self`` and the other :class:`~"
+      << FullyQualifiedType(VC::TypeName()) << "`.";
+  vec_cls.def("distance", &VC::Distance, doc.str().c_str(),
+           py::arg("other"));
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns the :class:`~" << FullyQualifiedType(VC::TypeName())
+      << "` direction vector, ``other - self``.";
+  vec_cls.def("direction_vector", &VC::DirectionVector,
+           doc.str().c_str(), py::arg("other"));
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns the corresponding :class:`~" << FullyQualifiedType(VC::TypeName())
+      << "` unit vector.";
+  vec_cls.def("unit_vector", &VC::UnitVector, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << ":class:`~" << FullyQualifiedType(VC::TypeName())
+      << "` instances can be pickled.";
+    vec_cls.def(py::pickle(&VecToList<_Tp, dim>, &VecFromList<_Tp, dim>),
+                doc.str().c_str());
+
+
+  vec_cls.def(py::self == py::self, "Checks for equality.")
+      .def(py::self != py::self, "Checks for inequality.");
+
+
+  std::ostringstream().swap(doc);
+  doc << "Operator ``vec + vec``.\n\nReturns a :class:`~"
+      << FullyQualifiedType(VC::TypeName())
+      << "` which is the result of adding the two vectors.";
+  vec_cls.def(py::self + py::self, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << "Operator ``+= vec``.\n\nAdds the other :class:`~"
+      << FullyQualifiedType(VC::TypeName())
+      << "` values to this vector.";
+  vec_cls.def(py::self += py::self, doc.str().c_str(), py::arg("other"));
+
+
+  std::ostringstream().swap(doc);
+  doc << "Operator ``vec - vec``.\n\nReturns a :class:`~"
+      << FullyQualifiedType(VC::TypeName())
+      << "` which is the result of\n"
+      << "subtracting the right-hand side vector from the left-hand side vector.";
+  vec_cls.def(py::self - py::self, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns a :class:`~" << FullyQualifiedType(VC::TypeName())
+      << "`, where all values are negated.";
+  vec_cls.def(-py::self, doc.str().c_str());
+
+
 #ifdef __clang__
 // Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wself-assign-overloaded"
 #endif  // __clang__
-      .def(py::self -= py::self)
+  std::ostringstream().swap(doc);
+  doc << "Operator ``-= vec``.\n\nSubtracts the other :class:`~"
+      << FullyQualifiedType(VC::TypeName())
+      << "` values from this vector.";
+  vec_cls.def(py::self -= py::self, doc.str().c_str(), py::arg("other"));
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif  // __clang__
-      .def(py::self * float(), "TODO doc operator scale by scalar, try mathjax support!")
-      .def(py::self *= float())
-      .def(float() * py::self)
-      .def(py::self / float())
-      .def(py::self /= float());
+
+
+  vec_cls.def(py::self * float(),
+        "Operator ``vec * float``.\n\n"
+        "Returns a vector where all coordinates are multiplied by\n"
+        "the :class:`float` scalar.", py::arg("scalar"))
+      .def(py::self *= float(),
+        "Operator ``*= float``.\n\n"
+        "Scales all coordinates by the :class:`float` scalar.",
+        py::arg("scalar"))
+      .def(float() * py::self,
+        "Operator ``float * vec``.\n\n"
+        "Returns a vector where all coordinates are multiplied by\n"
+        "the :class:`float` scalar.", py::arg("scalar"))
+      .def(py::self / float(),
+        "Operator ``vec / float``.\n\n"
+        "Returns a vector where all coordinates are divided by\n"
+        "the :class:`float` scalar.", py::arg("scalar"))
+      .def(py::self /= float(),
+         "Operator ``vec /= float``.\n\n"
+         "Divides all coordinates by the :class:`float` scalar.");
 
 
   // Specific for 2-dim vectors
   std::ostringstream().swap(doc);
   doc << "Explicit initialization from " << dim << " separate values.";
   if (dim == 2) {
-    vec_cls.def(py::init<_Tp, _Tp>(),
-                py::arg("x"), py::arg("y"), doc.str().c_str())
-        .def_property("width", static_cast<const _Tp &(VC::*)() const>(&VC::width),
-                      &VC::SetWidth,
-                      "Alternative access to the first dimension. Useful if you\n"
-                      "want to use this vector to represent a 2D size.")
-        .def_property("height", static_cast<const _Tp &(VC::*)() const>(&VC::height),
-                      &VC::SetHeight,
-                      "Alternative access to the second dimension. Useful if you\n"
-                      "want to use this vector to represent a 2D size.");
+    vec_cls.def(py::init<_Tp, _Tp>(), py::arg("x"), py::arg("y"), doc.str().c_str());
+
+
+    std::ostringstream alt;
+    alt << PyTypeName<_Tp>(false) << " Provides alternative read-write access to\n"
+        << "  the first dimension, (*i.e.* :attr:`x`).\n\n"
+           "  Can be useful if you want to use this 2D vector to\n"
+           "  represent a 2D *size*. This property is only available\n"
+           "  for :class:`~viren2d.Vec2d` instances.";
+    vec_cls.def_property("width", static_cast<const _Tp &(VC::*)() const>(&VC::width),
+        &VC::SetWidth, alt.str().c_str());
+
+
+    std::ostringstream().swap(alt);
+    alt << PyTypeName<_Tp>(false) << " Provides alternative read-write access to\n"
+        << "  the second dimension, (*i.e.* :attr:`y`).\n\n"
+           "  Can be useful if you want to use this 2D vector to\n"
+           "  represent a 2D *size*. This property is only available\n"
+           "  for :class:`~viren2d.Vec2d` instances.";
+    vec_cls.def_property("height", static_cast<const _Tp &(VC::*)() const>(&VC::height),
+                      &VC::SetHeight, alt.str().c_str());
   }
 
   // Specific for 3-dim vectors
-  if (dim == 3)
-  {
+  if (dim == 3) {
     vec_cls.def(py::init<_Tp, _Tp, _Tp>(),
-                py::arg("x"), py::arg("y"), py::arg("z"),
-                doc.str().c_str());
+        py::arg("x"), py::arg("y"), py::arg("z"), doc.str().c_str());
+
     vec_cls.def("cross", &VC::Cross,
-                "Computes the cross product between ``self`` and the ``other``.", py::arg("other"));
+        "Computes the cross product.", py::arg("other"));
   }
+
 
   if (dim > 2) {
     std::ostringstream().swap(doc);
-    doc << PyTypeName<_Tp>() << ": Accesses the third dimension.";
+    doc << PyTypeName<_Tp>(false) << " Read-write access to the third dimension.";
     vec_cls.def_property("z", static_cast<const _Tp &(VC::*)() const>(&VC::z),
                          &VC::SetZ, doc.str().c_str());
   }
 
+
   // Specific for >=4-dim vectors
-  if (dim == 4)
+  if (dim == 4) {
     vec_cls.def(py::init<_Tp, _Tp, _Tp, _Tp>(),
                 py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"));
+  }
 
   if (dim > 3) {
     std::ostringstream().swap(doc);
-    doc << PyTypeName<_Tp>() << ": Accesses the fourth dimension.";
+    doc << PyTypeName<_Tp>(false) << " Read-write access to the fourth dimension.";
     vec_cls.def_property("w", static_cast<const _Tp &(VC::*)() const>(&VC::w),
                          &VC::SetW, doc.str().c_str());
   }

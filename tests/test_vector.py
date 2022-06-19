@@ -39,7 +39,7 @@ def vector_test_helper(vec, zero):
     assert vec == vec2
     assert vec2 == cp
 
-    vec3 = vec + vec2 + cp;
+    vec3 = vec + vec2 + cp
     assert vec3 == 3 * vec
     assert (vec3 - vec) == (2 * vec)
 
@@ -66,6 +66,12 @@ def vector_test_helper(vec, zero):
     vec2 = 4.0 * vec
     dist = vec.distance(vec2)
     assert 3 * length == pytest.approx(dist)
+
+
+    assert vec2.direction_vector(vec) == -vec.direction_vector(vec2)
+    assert vec2.direction_vector(vec) != vec3.direction_vector(vec)
+    assert vec2.direction_vector(vec).unit_vector() == vec3.direction_vector(vec).unit_vector()
+    assert vec2.direction_vector(vec).unit_vector() == -vec.direction_vector(vec3).unit_vector()
 
     # Cross product (only for 3d)
     other = zero.copy()
