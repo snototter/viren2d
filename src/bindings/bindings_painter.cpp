@@ -625,7 +625,7 @@ void RegisterPainter(py::module &m) {
       "    Valid inputs are :class:`~" + FullyQualifiedType("TextAnchor")
       + "` enum values and\n"
       "    string representations. A string must correspond to either a\n"
-      "    *position specification* (*i.e. ``center``, ``top``, ``top-right``,\n"
+      "    *position specification* (*i.e.* ``center``, ``top``, ``top-right``,\n"
       "    ``right``, ``bottom-right``, ``bottom``, ``bottom-left``,\n"
       "    ``left``, ``top-left``) or one of the 8 *compass directions* (*i.e.*\n"
       "    ``north``, ``north-east``, ``east``, ``south-east``, ``south``,\n"
