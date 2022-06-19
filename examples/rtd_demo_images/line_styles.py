@@ -14,7 +14,7 @@ def demo_line_cap():
         family='xkcd', size=18, color='white')
 
     line_style = viren2d.LineStyle(
-        width=29, color='navy-blue')
+        width=29, color='navy-blue!80')
 
     y = 20
     line_style.cap = 'butt'
@@ -62,7 +62,7 @@ def demo_line_join():
         family='xkcd', size=18, color=(0.3, 0.3, 0.3))
 
     line_style = viren2d.LineStyle(
-        width=49, color='navy-blue')
+        width=49, color='navy-blue!80')
     
     # Draw polygons with different line join styles:
     poly = [(40, 20), (120, 100), (40, 180)]

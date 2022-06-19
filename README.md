@@ -4,58 +4,17 @@
 
 This is a [Cairo-based](https://www.cairographics.org/) visualization toolbox for common 2D computer vision results (read: *detections, trajectories, and the like*) in both __Python and C++__ environments.
 
-## Roadmap
-* An initial version v1.0 will be released around September/October 2022
-* I would NOT recommend using this library/toolbox before we reach v1.0 (don't say I didn't warn you) - the API may change anytime (and I'm messing around in the main branch)
-
-I'm planning to support visualization of the following primitives/objects:
-* [x] Arcs
-* [x] Arrows (single-/double-headed, filled/open, solid/dashed)
-* [x] Circles
-* [x] Ellipses
-* [x] Lines
-* [ ] Markers
-* [x] Object detection results: 2D bounding boxes
-* [ ] Object detection results: 3D bounding boxes - low priority feature (requires handling of camera calibration)
-* [x] Polygons
-* [x] Rectangles - from axis-aligned & box-shaped to rounded corners and rotated
-* [x] Text (single-/multi-line) - only latin fonts are supported
-* [x] Text boxes (single-/multi-line) - only latin fonts are supported
-* [x] Tracking results: Trajectories
-* [ ] Pose estimation results: needs a simple/easy-to-use interface s.t. users can define the pose graph themselves (too many different skeleton models to support them explicitly in viren2d) - low priority feature
-* [ ] Image overlay (overlay/blending; optionally clipping, e.g. via circle/ellipse) - low priority feature
-* [ ] Pseudocoloring: similar to `vcp` and `vito`; but requires extension of the ImageBuffer class to support floating point buffers
-* [ ] Camera calibration-related: Ground plane, horizon - low priority features
-* [ ] Nice-to-have: Curves & curved arrows - low priority
+The up-to-date documentation [lives on readthedocs](https://viren2d.readthedocs.io/).
 
 
 ## Installation
-### Prerequisites
-* A C++ compiler supporting at least C++14
-* [CMake](https://cmake.org/) >= 3.14 and a [compatible build tool](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html), like [Make](https://www.gnu.org/software/make/), [Ninja](https://ninja-build.org/), etc.
-* The [Cairo](https://www.cairographics.org/download) 2D graphics library.  
-  Currently, there is no plan to ship `viren2d` binaries. Thus, you need the Cairo development packages (`-dev` or `-devel`) for your system. For example, on GNU/Linux distributions, you simply install Cairo via:
-  ```bash
-  # Debian & derivatives (like Ubuntu)
-  sudo apt install libcairo2-dev
+TODO add to documentation:
 
-  # Fedora
-  sudo yum install cairo-devel
-
-  # openSUSE
-  zypper install cairo-devel
-  ```
-* If you want to build the Python bindings, you also need:
-  * [Python](https://www.python.org/) >= 3.6
-  * [pip](https://pypi.org/project/pip/) >= 10.0.0
-  * Highly recommended: [virtualenv](https://pypi.org/project/virtualenv/)
-
-
-TODO
-documentation:
-pip install sphinx sphinx-rtd-theme
+* how to set up sphinx (requirements in docs/)
 
 ### Dependencies
+TODO add to rtd
+
 * [pybind11](https://github.com/pybind/pybind11) TODO doc; header only; submodule
 * [spdlog](https://github.com/gabime/spdlog)  
   TODO doc; submodule; several variants (packaged; header only; installed) - recommended: installed static lib; TODO doc install  
@@ -75,6 +34,8 @@ pip install sphinx sphinx-rtd-theme
 * [stb](https://github.com/nothings/stb) TODO doc; header only; submodule
 
 ### Platforms known to work
+TODO add to rtd
+
 So far, `viren2d` has been tested on:  
 * Ubuntu 20.04  
   Works out of the box
@@ -87,18 +48,8 @@ Please let me know if you've set it up on any other platform, so I can update th
 **Watch out Windows users:**  
 There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded search path (i.e. `${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location. Adjust this path or use your own `FindCairo.cmake` (and please drop me a line or [create a PR](https://github.com/snototter/viren2d/pulls) to update/simplify the installation instructions for future users).
 
+TODO this will be deprecated once we prepare for conda release
 
-### Direct Installation
-Requires a python package manager which supports [pyproject.toml](https://peps.python.org/pep-0518/), for example: `pip >= 10.0`
- ```bash
- # Set up a virtual environment with up-to-date pip:
- python3 -m venv venv
- source venv/bin/activate
- python -m pip install -U pip
- 
- # Install viren2d
- python -m pip install git+https://github.com/snototter/viren2d.git
- ```
 
 
 ### Build from Source

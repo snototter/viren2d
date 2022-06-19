@@ -57,29 +57,37 @@ Vector 3D
 Ellipse
 ~~~~~~~
 
-.. warning::
-   TODO doc overloaded ctor
+Exemplary ellipse configurations:
+
+   .. image:: ../images/ellipses.png
+      :width: 600
+      :alt: Exemplary Ellipses
+      :align: center
+
+   The code listing to create this visualization is shown in the
+   :ref:`tutorial section on ellipses<tutorial-draw-ellipses>`.
+
 
 .. autoclass:: viren2d.Ellipse
    :autosummary:
    :autosummary-nosignatures:
    :members:
 
-**Example:**
-
-   .. figure:: ../images/ellipse.png
-      :width: 600
-      :alt: Exemplary ellipses
-      :align: center
-
-
-The code listing to create this visualization is shown in the
-:ref:`tutorial section on ellipses<tutorial-draw-ellipses>`.
-
 
 ~~~~~~~~~
 Rectangle
 ~~~~~~~~~
+
+Exemplary rectangle configurations:
+
+   .. image:: ../images/rectangles.png
+      :width: 600
+      :alt: Exemplary Rectangles
+      :align: center
+
+   The code listing to create this visualization is shown in the
+   :ref:`tutorial section on rectangles<tutorial-draw-rects>`.
+
 
 .. autoclass:: viren2d.Rect
    :autosummary:

@@ -56,11 +56,15 @@ def render_rtd_demos(show_images: bool, save_images: bool):
         img, show_images, 'Multi-line Text', save_images, 'text-multi-line.png')
 
     # Ellipse
-    img = demo_ellipse()
+    img = demo_ellipses()
     _process_result(
-        img, show_images, 'Ellipse', save_images, 'ellipse.png')
+        img, show_images, 'Ellipse', save_images, 'ellipses.png')
+
+    # Rectangle
+    img = demo_rectangles()
+    _process_result(
+        img, show_images, 'Rectangles', save_images, 'rectangles.png')
 
 
 if __name__ == '__main__':
     render_rtd_demos(True, True)
-

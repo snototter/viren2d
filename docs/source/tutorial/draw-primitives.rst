@@ -36,9 +36,9 @@ This visualization has been created by the following Python code:
 Ellipses
 ........
 
-A potpourri of ellipse styles:
+A potpourri of ellipse configurations:
 
-   .. figure:: ../images/ellipse.png
+   .. figure:: ../images/ellipses.png
       :width: 600
       :alt: Exemplary ellipses
       :align: center
@@ -51,4 +51,27 @@ This visualization has been created by the following Python code:
       :linenos:
       :dedent: 4
       :emphasize-lines: 10, 17, 26, 36, 41, 45
+
+
+.. _tutorial-draw-rects:
+
+..........
+Rectangles
+..........
+
+Basic rectangle configurations:
+
+   .. figure:: ../images/rectangles.png
+      :width: 600
+      :alt: Exemplary rectangles
+      :align: center
+
+This visualization has been created by the following Python code:
+
+   .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
+      :language: python
+      :lines: 111-139
+      :linenos:
+      :dedent: 4
+      :emphasize-lines: 7, 14, 22
 

@@ -8,6 +8,8 @@
 
 namespace py = pybind11;
 
+//TODO drop fullyqualifiedname
+
 namespace viren2d {
 namespace bindings {
 //-------------------------------------------------  Ellipse
@@ -32,8 +34,7 @@ Ellipse EllipseFromTupleOrList(py::object object) {
   py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 8) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType("Ellipse")
-      << " from tuple with "
+    s << "Cannot create an Ellipse from tuple/list with "
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
   }
@@ -118,70 +119,53 @@ void RegisterEllipse(pybind11::module &m) {
       )docstr";
   py::class_<Ellipse> ellipse(m, "Ellipse", doc.c_str());
 
+  // This docstring cannot(!!) be written as raw string.
+  // Otherwise, it messes up the sphinx parser.
   doc = "Creates an ellipse.\n\n"
       "Args:\n"
-      "  center: Center position as :class:`~"
-      + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-      "  axes: Length of the major and minor axes as :class:`~"
-      + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-      "  rotation: Rotation angle in degrees as ``float``.\n"
-      "  angle_from: Starting angle in degrees as ``float``.\n"
-      "  angle_to: Ending angle in degrees as ``float``.\n"
-      "  include_center: If ``True`` and ``angle_from`` or\n"
-      "    ``angle_to`` differ from their defaults, the center\n"
-      "    point will be included in the drawn/filled ellipse\n"
-      "    path (type ``bool``).";
+      "  center: Center position\n"
+      "    as :class:`~viren2d.Vec2d`.\n"
+      "  axes: Lengths of the major and minor axes\n"
+      "    as :class:`~viren2d.Vec2d`.\n"
+      "  rotation: Clockwise rotation angle in degrees\n"
+      "    as ``float``.\n"
+      "  angle_from: Starting angle in degrees\n"
+      "    as ``float``.\n"
+      "  angle_to: Ending angle in degrees\n"
+      "    as ``float``.\n"
+      "  include_center: If ``True`` and ``angle_from``\n"
+      "    or ``angle_to`` differ from their defaults, the\n"
+      "    center point will be included in the drawn/filled\n"
+      "    ellipse path (type ``bool``).";
   ellipse.def(py::init<Vec2d, Vec2d, double, double,
                        double, bool>(), doc.c_str(),
-      py::arg("center"), py::arg("axes"),
+      py::arg("center"),
+      py::arg("axes"),
       py::arg("rotation") = 0.0,
       py::arg("angle_from") = 0.0,
       py::arg("angle_to") = 360.0,
       py::arg("include_center") = true);
 
-//  doc = R"docstr(
-//      Creates an ellipse.
+  doc = R"docstr(
+      Creates an ellipse from a ``tuple`` or ``list``.
 
-//      Similar to the other overloaded constructor,
-//      except that the ``center`` coordinates and
-//      the lengths of the ``axes`` can be passed as
-//      separate ``float`` scalars, *i.e.* ``cx`` & ``cy``,
-//      and ``major_axis`` & ``minor_axis``.
-//      )docstr";
-//  ellipse.def(py::init<double, double, double, double,
-//                       double, double, double, bool>(), doc.c_str(),
-//      py::arg("cx"), py::arg("cy"),
-//      py::arg("major_axis"), py::arg("minor_axis"),
-//      py::arg("rotation") = 0.0,
-//      py::arg("angle_from") = 0.0,
-//      py::arg("angle_to") = 360.0,
-//      py::arg("include_center") = true);
+      This overloaded constructor is required to allow
+      implicit casting and supports 2 general tuple/list
+      constellations:
 
-//  doc = "Initialize from tuple or list:\n"
-//         "(center, size)\n"
-//         "    With types: (" + FullyQualifiedType(Vec2d::TypeName()) + ", "
-//         + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
-//         "    Horizontal ellipse.\n"
-//         "(center, size, rotation)\n"
-//         "    With types: (" + FullyQualifiedType(Vec2d::TypeName()) + ", "
-//         + FullyQualifiedType(Vec2d::TypeName()) + ", float)\n"
-//         "    Rotated ellipse.\n"
-//         "(center, size, rotation, angle_from, angle_to, include_center)\n"
-//         "    With types: (" + FullyQualifiedType(Vec2d::TypeName()) + ", "
-//         + FullyQualifiedType(Vec2d::TypeName()) + ", float, float, float, bool)\n"
-//         "    Rotated ellipse, drawn only between these two angles.\n"
-//         "(cx, cy, major_axis, minor_axis)\n"
-//         "    Where each element is a float.\n"
-//         "    Horizontal ellipse.\n"
-//         "(cx, cy, major_axis, minor_axis, rotation)\n"
-//         "    Where each element is a float.\n"
-//         "    Rotated ellipse.\n"
-//         "(cx, cy, major_axis, minor_axis, rotation,\n"
-//         " angle_from, angle_to, include_center)\n"
-//         "    Where each element is a float except for 'include_center',\n"
-//         "    which is a bool.\n"
-//         "    Rotated ellipse, drawn only between these two angles.\n";
-  doc = "TODO We need the overloaded c'tor for implicit casting";
+      *  A tuple/list holding ``(center, size, rotation,
+         angle_from, angle_to, include_center)``, where
+         ``center`` & ``size`` are :class:`~viren2d.Vec2d`,
+         ``rotation``, ``angle_from`` and ``angle_to`` are
+         ``float`` and ``include_center`` is a ``bool``.
+
+      *  A tuple/list holding ``(cx, cy, major, minor, rotation,
+         angle_from, angle_to, include_center)``, where all
+         entries (except for ``include_center``) are ``float``.
+
+      In both cases, ``rotation``, ``angle_from``, ``angle_to``
+      and ``include_center`` are optional.
+      )docstr";
   ellipse.def(py::init<>(&EllipseFromTupleOrList), doc.c_str(), py::arg("tpl"));
 
   ellipse.def("copy", [](const Ellipse &e) { return Ellipse(e); },
@@ -225,7 +209,7 @@ void RegisterEllipse(pybind11::module &m) {
             e.cy = c.y();
         }, doc.c_str());
 
-  //FIXME add convenience fx: create ellipse from corner points
+  //TODO optional: add convenience fx to create an ellipse from corner points (or endpoints of the major axis + width)
 
   // An ellipse can be initialized from a given tuple/list
   py::implicitly_convertible<py::tuple, Ellipse>();
@@ -332,9 +316,9 @@ void RegisterRectangle(py::module &m) {
   doc = R"docstr(
       Creates a rectangle from a ``tuple`` or ``list``.
 
-      This overloaded constructor is required to support
-      implicit casting. This initialization supports 2
-      basic tuple/list constellations:
+      This overloaded constructor is required to allow
+      implicit casting and supports 2 general tuple/list
+      constellations:
 
       *  A tuple/list holding ``(center, size, rotation,
          radius)``, where ``center`` & ``size`` are
