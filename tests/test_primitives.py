@@ -48,6 +48,16 @@ def test_rect_creation():
     
     r = vi.Rect([0, 3], [10, 20], 30, 4)
     check_fixed_values(r)
+    
+    # the convenience wrapper 'cwh' (for the sake of completeness, since
+    # we also provide - separately tested - lrtb/ltwh inits)
+    r = vi.Rect.from_cwh(0, 3, 10, 20, 30, 4)
+    check_fixed_values(r)
+
+    r = vi.Rect.from_cwh(cx=0, cy=3, width=10, height=20, rotation=30, radius=4)
+    check_fixed_values(r)
+    r = vi.Rect.from_cwh(width=10, cx=0, cy=3, height=20, rotation=30, radius=4)
+    check_fixed_values(r)
 
     r = vi.Rect((0, 3), (10, 20), 30, 4)
     check_fixed_values(r)
@@ -59,6 +69,61 @@ def test_rect_creation():
     assert r2 == r
     r2.cx += 3
     assert r2 != r
+
+
+def _expect_rect(obj: vi.Rect, expected: Union[list, tuple]):
+    assert obj.cx == pytest.approx(expected[0])
+    assert obj.cy == pytest.approx(expected[1])
+    assert obj.width == pytest.approx(expected[2])
+    assert obj.height == pytest.approx(expected[3])
+    assert obj.rotation == pytest.approx(expected[4])
+    assert obj.radius == pytest.approx(expected[5])
+    if len(expected) > 6:
+        assert obj.is_valid() == expected[6]
+    else:
+        assert obj.is_valid()
+
+
+def test_rect_convenience_creation():
+    ############# L, T, W, H
+    r = vi.Rect.from_ltwh(3, 5, 30, 10)
+    _expect_rect(r, (18, 10, 30, 10, 0, 0))
+
+    # relative radius
+    r = vi.Rect.from_ltwh(3, 5, 30, 10, 0.4)
+    _expect_rect(r, (18, 10, 30, 10, 0, 0.4))
+
+    # absolute radius
+    r = vi.Rect.from_ltwh(3, 5, 30, 10, 10)
+    _expect_rect(r, (18, 10, 30, 10, 0, 10, False))
+    r = vi.Rect.from_ltwh(3, 5, 30, 10, 5)
+    _expect_rect(r, (18, 10, 30, 10, 0, 5, True))
+
+    # named parameters
+    r = vi.Rect.from_ltwh(left=3, top=5, width=30, height=10, radius=0.3)
+    _expect_rect(r, (18, 10, 30, 10, 0, 0.3))
+    r = vi.Rect.from_ltwh(width=30, height=10, left=3, top=5, radius=0.3)
+    _expect_rect(r, (18, 10, 30, 10, 0, 0.3))
+
+    ############# L, R, T, B
+    r = vi.Rect.from_lrtb(3, 33, 5, 10)
+    _expect_rect(r, (18, 7.5, 30, 5, 0, 0))
+
+    # relative radius
+    r = vi.Rect.from_lrtb(3, 33, 5, 10, 0.4)
+    _expect_rect(r, (18, 7.5, 30, 5, 0, 0.4))
+
+    # absolute radius
+    r = vi.Rect.from_lrtb(3, 33, 5, 10, 10)
+    _expect_rect(r, (18, 7.5, 30, 5, 0, 10, False))
+    r = vi.Rect.from_lrtb(3, 33, 5, 10, 2)
+    _expect_rect(r, (18, 7.5, 30, 5, 0, 2, True))
+
+    # named parameters
+    r = vi.Rect.from_lrtb(left=3, right=33, top=5, bottom=10, radius=0.4)
+    _expect_rect(r, (18, 7.5, 30, 5, 0, 0.4))
+    r = vi.Rect.from_lrtb(left=3, bottom=10, radius=0.4, right=33, top=5)
+    _expect_rect(r, (18, 7.5, 30, 5, 0, 0.4))
 
 
 def test_rect_serialization():

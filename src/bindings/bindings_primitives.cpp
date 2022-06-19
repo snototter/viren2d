@@ -221,7 +221,7 @@ void RegisterEllipse(pybind11::module &m) {
             e.minor_axis = c.y();
         }, doc.c_str());
 
-  //FIXME add convenience fx to create an ellipse from endpoints of the major axis + width!
+
   ellipse.def_static("from_endpoints", &Ellipse::FromEndpoints, R"docstr(
       Returns an ellipse defined by the endpoints of its major axis.
 
@@ -418,8 +418,8 @@ void RegisterRectangle(py::module &m) {
             If :math:`radius > 1`, it denotes the absolute
             corner radius in pixels.
 
-            Otherwise, *i.e.* :math:`0.5 < radius < 1` leads to an
-            invalid rectangle.
+            Otherwise, *i.e.* :math:`0.5 < radius < 1`, the rectangle
+            will be invalid.
           )docstr")
       .def("is_valid", &Rect::IsValid,
            "Returns ``True`` if the rectangle can be drawn.")

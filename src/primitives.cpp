@@ -465,7 +465,6 @@ Ellipse::Ellipse(double center_x, double center_y,
 }
 
 
-//FIXME WRONG (without changing the rotation -- if the user specifies an ellipse, they should know/check the api doc!)
 Ellipse::Ellipse(const Vec2d &center, const Vec2d &size,
         double rotation_angle,
         double draw_angle1, double draw_angle2,
@@ -572,9 +571,8 @@ std::string Ellipse::ToString() const {
 
 
 Ellipse Ellipse::FromEndpoints(
-    const Vec2d &pt1, const Vec2d &pt2, double width,
-    double angle_from, double angle_to, bool include_center) {
-  //FIXME test!
+      const Vec2d &pt1, const Vec2d &pt2, double width,
+      double angle_from, double angle_to, bool include_center) {
   const auto dirvec = pt1.DirectionVector(pt2);
   const double major = dirvec.Length();
   const auto center = pt1 + major / 2.0 * dirvec.UnitVector();
@@ -731,7 +729,7 @@ std::string Rect::ToString() const {
 Rect Rect::FromLTWH(double left, double top, double width, double height,
                     double corner_radius) {
   return Rect(left + width / 2.0, top + height / 2.0,
-              width, height, corner_radius);
+              width, height, 0.0, corner_radius);
 }
 
 

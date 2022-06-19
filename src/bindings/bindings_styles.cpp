@@ -490,7 +490,7 @@ void RegisterLineStyle(pybind11::module &m) {
 
   line_style.def("copy", [](const LineStyle &st) { return LineStyle(st); },
         "Returns a deep copy.")
-      .def("__repr__", [](const LineStyle &) { return "<viren2d.LineStyle>";})//FIXME" + st.ToString() + ">"; })
+      .def("__repr__", [](const LineStyle &) { return "<viren2d.LineStyle>";})
       .def("__str__", &LineStyle::ToString)
       .def(py::pickle(&LineStyleToTuple, &LineStyleFromTuple),
            ":class:`~viren2d.LineStyle` instances can be pickled.")
