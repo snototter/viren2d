@@ -1,4 +1,6 @@
 #include <exception>
+#include <cmath>
+#include <initializer_list>
 
 #include <gtest/gtest.h>
 
@@ -115,9 +117,11 @@ TEST(PrimitivesTest, Ellipse) {
   EXPECT_DOUBLE_EQ(e.minor_axis, 60);
   EXPECT_DOUBLE_EQ(e.rotation, 70);
   EXPECT_DOUBLE_EQ(e.angle_from, 3);
+  EXPECT_DOUBLE_EQ(e.angle_to, 360);
+  EXPECT_TRUE(e.include_center);
 
-  // Mess up major/minor (should be automatically adjusted)
-  e = viren2d::Ellipse({100, 400}, {30, 60}, 70, 3, 200, false);
+  // All parameters
+  e = viren2d::Ellipse({100, 400}, {60, 30}, 70, 3, 200, false);
   EXPECT_TRUE(e.IsValid());
   EXPECT_DOUBLE_EQ(e.cx, 100);
   EXPECT_DOUBLE_EQ(e.cy, 400);
@@ -164,4 +168,45 @@ TEST(PrimitivesTest, Ellipse) {
       }
     }
   }
+}
+
+
+// Helper to check an ellipse's values
+void CheckEllipse(
+    const viren2d::Ellipse& e,
+    std::initializer_list<double> lst,
+    bool valid = true) {
+  const auto val = lst.begin();
+  EXPECT_DOUBLE_EQ(e.cx, val[0]);
+  EXPECT_DOUBLE_EQ(e.cy, val[1]);
+  EXPECT_DOUBLE_EQ(e.major_axis, val[2]);
+  EXPECT_DOUBLE_EQ(e.minor_axis, val[3]);
+  EXPECT_DOUBLE_EQ(e.rotation, val[4]);
+  EXPECT_DOUBLE_EQ(e.angle_from, val[5]);
+  EXPECT_DOUBLE_EQ(e.angle_to, val[6]);
+  EXPECT_EQ(e.include_center, valid);
+  EXPECT_TRUE(e.IsValid());
+}
+
+
+TEST(PrimitivesTest, EllipseConvenience) {
+  // Horizontal
+  auto e = viren2d::Ellipse::FromEndpoints(
+      {10.0, 100.0}, {100.0, 100.0}, 5.0);
+  CheckEllipse(e, {55, 100, 90, 5, 0, 0, 360});
+
+  // Vertical
+  e = viren2d::Ellipse::FromEndpoints({10, 0}, {10, 300}, 150);
+  CheckEllipse(e, {10, 150, 300, 150, 90, 0, 360});
+
+  // Vertical + angle specification
+  e = viren2d::Ellipse::FromEndpoints({10, 0}, {10, 300}, 150, 10, 20, false);
+  CheckEllipse(e, {10, 150, 300, 150, 90, 10, 20}, false);
+
+  // Rotated ellipse
+  e = viren2d::Ellipse::FromEndpoints({10, 0}, {110, 100}, 15);
+  CheckEllipse(e, {60, 50, std::sqrt(2e4), 15, 45, 0, 360});
+  // Swap end points --> changes rotation
+  e = viren2d::Ellipse::FromEndpoints({110, 100}, {10, 0}, 15, 10, 64);
+  CheckEllipse(e, {60, 50, std::sqrt(2e4), 15, -135, 10, 64});
 }

@@ -8,7 +8,7 @@
 
 namespace py = pybind11;
 
-//TODO drop fullyqualifiedname
+//TODO drop fullyqualifiedname in other compilation units (except for __repr__)
 
 namespace viren2d {
 namespace bindings {
@@ -25,12 +25,12 @@ Ellipse EllipseFromTupleOrList(py::object object) {
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
     std::ostringstream s;
-    s << "Cannot cast " << type << " to "
-      << FullyQualifiedType("Ellipse")
-      << ", we only support casting from tuples and lists.";
+    s << "Cannot cast " << type << " to viren2d.Ellipse, "
+      << "expected either a tuple or list.";
     throw std::invalid_argument(s.str());
   }
 
+  // A list can safely be cast into a tuple:
   py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 8) {
     std::ostringstream s;
@@ -52,9 +52,8 @@ Ellipse EllipseFromTupleOrList(py::object object) {
     // (cx, cy, mj, mn, ...) tuple:
     if (tpl.size() < 4) {
       std::ostringstream s;
-      s << "You wanted to create a "
-        << FullyQualifiedType("Ellipse")
-        << " from a (cx, cy, major, minor, ...) tuple, but provided only "
+      s << "You wanted to create a viren2d.Ellipse "
+        << "from a (cx, cy, major, minor, ...) tuple/list, but provided only "
         << tpl.size() << " entries!";
       throw std::invalid_argument(s.str());
     }
@@ -97,10 +96,11 @@ void RegisterEllipse(pybind11::module &m) {
   std::string doc = R"docstr(
       An ellipse for visualization.
 
-      An ellipse is defined by its center point, length of
-      its :attr:`major_axis`, length of its :attr:`minor_axis`
-      and it's clockwise :attr:`rotation` (in degrees). At 0°
-      rotation, the major axis is aligned with the *x*-axis.
+      An ellipse is defined by its center point (:attr:`cx`
+      and :attr:`cy`), length of its :attr:`major_axis`,
+      length of its :attr:`minor_axis` and it's
+      clockwise :attr:`rotation` (in degrees). At 0° rotation,
+      the major axis is aligned with the *x*-axis.
 
       Optionally, an ellipse can be drawn only partially,
       *i.e.* starting at :attr:`angle_from`, drawing clockwise
@@ -110,7 +110,7 @@ void RegisterEllipse(pybind11::module &m) {
       :attr:`include_center` (which is the default behavior).
 
       For convenience, an ellipse can be implicitly created
-      from :class:`list`\ s and :class:`tuple`\ s:
+      from a :class:`list` or a :class:`tuple`:
 
       >>> # Explicit initialization:
       >>> ellipse = viren2d.Ellipse(center, axes, ...)
@@ -126,7 +126,8 @@ void RegisterEllipse(pybind11::module &m) {
       "  center: Center position\n"
       "    as :class:`~viren2d.Vec2d`.\n"
       "  axes: Lengths of the major and minor axes\n"
-      "    as :class:`~viren2d.Vec2d`.\n"
+      "    as :class:`~viren2d.Vec2d`. Order\n"
+      "    is ``(major, minor)``.\n"
       "  rotation: Clockwise rotation angle in degrees\n"
       "    as :class:`float`.\n"
       "  angle_from: Starting angle in degrees\n"
@@ -136,7 +137,7 @@ void RegisterEllipse(pybind11::module &m) {
       "  include_center: If ``True`` and ``angle_from``\n"
       "    or ``angle_to`` differ from their defaults, the\n"
       "    center point will be included in the drawn/filled\n"
-      "    ellipse path (type ``bool``).";
+      "    ellipse path (type :class:`bool`).";
   ellipse.def(py::init<Vec2d, Vec2d, double, double,
                        double, bool>(), doc.c_str(),
       py::arg("center"),
@@ -157,7 +158,7 @@ void RegisterEllipse(pybind11::module &m) {
          angle_from, angle_to, include_center)``, where
          ``center`` & ``size`` are :class:`~viren2d.Vec2d`,
          ``rotation``, ``angle_from`` and ``angle_to`` are
-         :class:`float` and ``include_center`` is a ``bool``.
+         :class:`float` and ``include_center`` is a :class:`bool`.
 
       *  A tuple/list holding ``(cx, cy, major, minor, rotation,
          angle_from, angle_to, include_center)``, where all
@@ -171,8 +172,8 @@ void RegisterEllipse(pybind11::module &m) {
   ellipse.def("copy", [](const Ellipse &e) { return Ellipse(e); },
            "Returns a deep copy.")
       .def("__repr__",
-           [](const Ellipse &o)
-           { return FullyQualifiedType(o.ToString(), true); })
+           [](const Ellipse &)
+           { return FullyQualifiedType("Ellipse", true); })
       .def("__str__", &Ellipse::ToString);
 
   ellipse.def(py::pickle(&EllipseToTuple, &EllipseFromTuple),
@@ -200,8 +201,9 @@ void RegisterEllipse(pybind11::module &m) {
       .def("is_valid", &Ellipse::IsValid,
            "Returns ``True`` if the ellipse can be drawn.");
 
-  doc = ":class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`: Provides\n"
-      "access to the center position as 2D vector (for convenience).";
+  doc = ":class:`~viren2d.Vec2d`: Provides convenience access to\n"
+      "the center position (*i.e.* :attr:`cx` and :attr:`cy`) as\n"
+      "2D vector.";
   ellipse.def_property(
         "center", &Ellipse::Center,
         [](Ellipse &e, const Vec2d &c) {
@@ -209,7 +211,39 @@ void RegisterEllipse(pybind11::module &m) {
             e.cy = c.y();
         }, doc.c_str());
 
-  //TODO optional: add convenience fx to create an ellipse from corner points (or endpoints of the major axis + width)
+  doc = ":class:`~viren2d.Vec2d`: Provides convenience access to\n"
+      "the axes (*i.e.* :attr:`major_axis` and :attr:`minor_axis`) as\n"
+      "2D vector, *i.e.* ``(major, minor)``.";
+  ellipse.def_property(
+        "axes", &Ellipse::Axes,
+        [](Ellipse &e, const Vec2d &c) {
+            e.major_axis = c.x();
+            e.minor_axis = c.y();
+        }, doc.c_str());
+
+  //FIXME add convenience fx to create an ellipse from endpoints of the major axis + width!
+  ellipse.def_static("from_endpoints", &Ellipse::FromEndpoints, R"docstr(
+      Returns an ellipse defined by the endpoints of its major axis.
+
+      Assumes that the given coordinates specify the endpoints of the
+      major axis.
+
+      Args:
+        pt1: First endpoint of the major axis as :class:`~viren2d.Vec2d`.
+        pt2: Second endpoint of the major axis as :class:`~viren2d.Vec2d`.
+        width: Length of the minor axis as :class:`float`.
+        angle_from: Starting angle in degrees
+          as :class:`float`.
+        angle_to: Ending angle in degrees
+          as :class:`float`.
+        include_center: If ``True`` and ``angle_from``
+          or ``angle_to`` differ from their defaults, the
+          center point will be included in the drawn/filled
+          ellipse path (type :class:`bool`).
+      )docstr", py::arg("pt1"), py::arg("pt2"), py::arg("width"),
+      py::arg("angle_from") = 0.0,
+      py::arg("angle_to") = 360.0,
+      py::arg("include_center") = true);
 
   // An ellipse can be initialized from a given tuple/list
   py::implicitly_convertible<py::tuple, Ellipse>();
@@ -229,18 +263,17 @@ Rect RectFromTupleOrList(py::object object) {
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
     std::ostringstream s;
-    s << "Cannot cast " << type << " to " << FullyQualifiedType("Rect")
-      << ", we only support casting from tuples and lists.";
+    s << "Cannot cast " << type << " to viren2d.Rect, "
+      << "expected either tuple or list.";
     throw std::invalid_argument(s.str());
   }
 
   py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 6) {
     std::ostringstream s;
-    s << "Cannot create a " << FullyQualifiedType("Rect")
-      << " from tuple with "
-      << tpl.size() << " entries! Use (center, size, ...)"
-                       " or (cx, cy, w, h, ...)";
+    s << "Cannot create a viren2d.Rect from tuple/list with "
+      << tpl.size()
+      << " entries! Use either (center, size, ...) or (cx, cy, w, h, ...).";
     throw std::invalid_argument(s.str());
   }
 
@@ -256,8 +289,8 @@ Rect RectFromTupleOrList(py::object object) {
     // If casting failed, we should have a (cx, cy, w, h, ...) tuple
     if (tpl.size() < 4) {
       std::ostringstream s;
-      s << "You wanted to create a " << FullyQualifiedType("Rect")
-        << " from a (cx, cy, w, h, ...) tuple, but provided only "
+      s << "You wanted to create a viren2d.Rect "
+        << "from a (cx, cy, w, h, ...) tuple/list, but provided only "
         << tpl.size() << " entries!";
       throw std::invalid_argument(s.str());
     }
@@ -290,20 +323,20 @@ void RegisterRectangle(py::module &m) {
       A rectangle for visualization.
 
       A rectangle is defined by its :attr:`center`,
-      :attr:`width`, :attr:`height`, clockwise
-      :attr:`rotation` (in degrees), and a corner
+      :attr:`width`, :attr:`height`, :attr:`rotation`
+      (clockwise, in degrees), and a corner
       :attr:`radius`.
 
       For convenience, a rectangle can be implicitly created
-      from :class:`list`\ s and :class:`tuple`\ s:
+      from a :class:`list` or a :class:`tuple`:
 
       >>> # Explicit initialization:
       >>> rect = viren2d.Rect(center, size, ...)
       >>> # Implicitly cast from tuple:
       >>> painter.draw_rect((center, size, ...), line_style=...)
 
-      Alternatively, a rectangle can also be initialized from
-      the ``L,T,W,H`` and ``L,R,T,B`` representations:
+      Alternatively, an axis-aligned rectangle can also be initialized
+      from the ``L,T,W,H`` and ``L,R,T,B`` representations:
 
       >>> # If top-left and dimensions are given:
       >>> rect = viren2d.Rect.rom_ltwh(left, top, width, height)
@@ -323,10 +356,10 @@ void RegisterRectangle(py::module &m) {
       *  A tuple/list holding ``(center, size, rotation,
          radius)``, where ``center`` & ``size`` are
          :class:`~viren2d.Vec2d`\ s, and ``rotation``
-         & ``radius`` are :class:`float`\ s.
+         & ``radius`` are :class:`float`.
 
       *  A tuple/list holding ``(cx, cy, w, h, rotation,
-         radius)``, where all entries are :class:`float`\ s.
+         radius)``, where all entries are :class:`float`.
 
       In both cases, ``rotation`` and ``radius`` are
       optional.
@@ -334,28 +367,29 @@ void RegisterRectangle(py::module &m) {
   rect.def(py::init<>(&RectFromTupleOrList), doc.c_str(),
            py::arg("tpl"));
 
+  // This docstring cannot(!!) be written as raw string.
+  // Otherwise, it messes up the sphinx parser.
   doc = "Creates a rectangle.\n\n"
       "Args:\n"
-      "  center: Center position as :class:`~"
-      + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-      "  size: Size, *i.e.* (width, height) of the rectangle as :class:`~"
-      + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-      "  rotation: Clockwise rotation angle in degrees as :class:`float`.\n"
-      "  radius: Corner radius for rounded rectangles. If within\n"
-      "    ``(0, 0.5]``, it is interpreted as percentage of\n"
-      "    ``min(width, height)``. Otherwise, if ``radius > 1``,\n"
-      "    it denotes the absolute corner radius in pixels.";
+      "  center: Center position as :class:`~viren2d.Vec2d`.\n"
+      "  size: Size, *i.e.* (width, height) of the rectangle\n"
+      "    as :class:`~viren2d.Vec2d`.\n"
+      "  rotation: Clockwise rotation angle in degrees\n"
+      "    as :class:`float`.\n"
+      "  radius: Corner radius as :class:`float`, see documentation\n"
+      "    of the :attr:`radius` attribute.\n";
   rect.def(py::init<Vec2d, Vec2d, double, double>(), doc.c_str(),
       py::arg("center"),
       py::arg("size"),
       py::arg("rotation") = 0.0,
       py::arg("radius") = 0.0);
 
+
   rect.def("copy", [](const Rect &r) { return Rect(r); },
            "Returns a deep copy.")
       .def("__repr__",
-           [](const Rect &r)
-           { return FullyQualifiedType(r.ToString(), true); })
+           [](const Rect &)
+           { return FullyQualifiedType("Rect", true); })
       .def("__str__", &Rect::ToString)
       .def(py::pickle(&RectToTuple, &RectFromTuple),
            ":class:`~viren2d.Rect` instances can be pickled.")
@@ -375,29 +409,65 @@ void RegisterRectangle(py::module &m) {
            "float: Rectangle height.")
       .def_readwrite("rotation", &Rect::rotation,
            "float: Clockwise rotation angle in degrees.")
-      .def_readwrite("radius", &Rect::radius,
-           "float: Corner radius. If within ``(0, 0.5]``, it is\n"
-           "interpreted as percentage of ``min(width, height)``.\n"
-           "Otherwise, if ``radius > 1``, it denotes the absolute\n"
-           "corner radius in pixels.\n\n"
-           "Values within ``(0.5, 1)`` lead to an invalid rectangle.")
+      .def_readwrite("radius", &Rect::radius, R"docstr(
+          float: Corner radius.
+
+            If :math:`0 \leq radius \leq 0.5`, the actural corner radius
+            will be computed as :math:`radius * min(width, height)`.
+
+            If :math:`radius > 1`, it denotes the absolute
+            corner radius in pixels.
+
+            Otherwise, *i.e.* :math:`0.5 < radius < 1` leads to an
+            invalid rectangle.
+          )docstr")
       .def("is_valid", &Rect::IsValid,
            "Returns ``True`` if the rectangle can be drawn.")
-      .def_static("from_ltwh", &Rect::FromLTWH,
-           "Returns a rectangle for the given ``LTWH`` representation, *i.e.*\n"
-           "``left``, ``top``, ``width`` and ``height``.",
-           py::arg("left"), py::arg("top"),
-           py::arg("width"), py::arg("height"),
-           py::arg("rotation") = 0.0, py::arg("radius") = 0.0)
-      .def_static("from_lrtb", &Rect::FromLRTB,
-           "Returns a rectangle for the given ``LRTB`` representation, *i.e.*\n"
-           "``left``, ``right``, ``top`` and ``bottom``.",
-           py::arg("left"), py::arg("right"),
-           py::arg("top"), py::arg("bottom"),
-           py::arg("rotation") = 0.0, py::arg("radius") = 0.0);
+      .def_static("from_ltwh", &Rect::FromLTWH, R"docstr(
+          Returns an axis-aligned rectangle for the ``L,T,W,H`` representation.
 
-  doc = ":class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`: Provides\n"
-      "access to the center position as 2D vector (for convenience).";
+          Args:
+            left: *x*-coordinate of the left edge as :class:`float`.
+            top: *y*-coordinate of the top edge as :class:`float`.
+            width: Width (extent along the *x*-axis) as :class:`float`.
+            height: Height (extent along the *y*-axis) as :class:`float`.
+            radius: Corner radius as :class:`float`, see documentation
+              of the :attr:`radius` attribute.
+          )docstr", py::arg("left"), py::arg("top"),
+          py::arg("width"), py::arg("height"),
+          py::arg("radius") = 0.0)
+      .def_static("from_lrtb", &Rect::FromLRTB, R"docstr(
+          Returns an axis-aligned rectangle for the ``L,R,T,B`` representation.
+
+          Args:
+            left: *x*-coordinate of the left edge as :class:`float`.
+            right: *x*-coordinate of the right edge as :class:`float`.
+            top: *y*-coordinate of top edge as :class:`float`.
+            bottom: *y*-coordinate of bottom edge as :class:`float`.
+            radius: Corner radius as :class:`float`, see documentation
+              of the :attr:`radius` attribute.
+          )docstr", py::arg("left"), py::arg("right"),
+          py::arg("top"), py::arg("bottom"),
+          py::arg("radius") = 0.0)
+      .def_static("from_cwh", &Rect::FromCWH, R"docstr(
+          Returns a rectangle for the ``Cx,Cy,W,H`` representation.
+
+          Args:
+            cx: Horizontal center coordinate as :class:`float`.
+            cy: Vertical center coordinate as :class:`float`.
+            width: Width (extent along the *x*-axis) as :class:`float`.
+            height: Height (extent along the *y*-axis) as :class:`float`.
+            rotation: Clockwise rotation in degrees as :class:`float`.
+            radius: Corner radius as :class:`float`, see documentation
+              of the :attr:`radius` attribute.
+          )docstr", py::arg("cx"), py::arg("cy"),
+          py::arg("width"), py::arg("height"),
+          py::arg("rotation") = 0.0,
+          py::arg("radius") = 0.0);
+
+  doc = ":class:`~viren2d.Vec2d`: Provides convenience access to\n"
+      "the center position (*i.e.* :attr:`cx` and :attr:`cy`) as\n"
+      "2D vector.";
   rect.def_property(
         "center", &Rect::Center,
         [](Rect &r, const Vec2d &c) {
@@ -405,8 +475,9 @@ void RegisterRectangle(py::module &m) {
             r.cy = c.y();
         }, doc.c_str());
 
-  doc = ":class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`: Provides\n"
-      "access to the size as 2D vector (for convenience).";
+  doc = ":class:`~viren2d.Vec2d`: Provides convenience access to\n"
+      "the size (*i.e.* :attr:`width` and :attr:`height`) as\n"
+      "2D vector.";
   rect.def_property(
         "size", &Rect::Size,
         [](Rect &r, const Vec2d &c) {

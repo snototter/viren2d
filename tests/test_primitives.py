@@ -3,11 +3,13 @@ Test construction/casts/serialization of the geometric primitives
 
 Note that Color, Vec and Styles are tested in separate test suites
 
-FIXME check how to get coverage reports: https://github.com/pypa/setuptools/issues/3025
+TODO check how to get coverage reports: https://github.com/pypa/setuptools/issues/3025
 """
+from typing import Union
 import pytest
 import viren2d as vi
 import pickle
+import math
 
 
 def test_rect_creation():
@@ -93,10 +95,17 @@ def test_ellipse_creation():
         vi.Ellipse(center=(0, 0), size=(10, 20))
 
     with pytest.raises(TypeError):  # typo "axis"
-        vi.Ellipse(center=(0, 0), axis=(10, 20))
+        vi.Ellipse(center=(0, 0), axis=(20, 10))
 
     o = vi.Ellipse((0, 0), (1, 1))
     assert o.is_valid()
+
+    o = vi.Ellipse((0, 0), (3, 1))
+    assert o.is_valid()
+
+    # mess up minor/major
+    o = vi.Ellipse((0, 0), (1, 3))
+    assert not o.is_valid()
 
     # Test initialization with different c'tors
     def check_fixed_values(obj):
@@ -115,23 +124,54 @@ def test_ellipse_creation():
     o = vi.Ellipse([1, 10], [30, 20], 40, 50, 60, False)
     check_fixed_values(o)
 
+    # named arguments, different orders
     o = vi.Ellipse(
         axes=(30, 20), center=(1, 10), rotation=40,
         angle_from=50, angle_to=60, include_center=False)
     check_fixed_values(o)
 
-    # major/minor axis must be chosen correctly, even if you mix them up:
-    o = vi.Ellipse((1, 10), (20, 30), 40, 50, 60, False)
+    o = vi.Ellipse(rotation=40, include_center=False, center=(1, 10),
+                   angle_to=60, angle_from=50, axes=(30, 20))
     check_fixed_values(o)
 
-    o = vi.Ellipse(axes=(20, 30), rotation=40, center=(1, 10),
-                   angle_to=60, angle_from=50, include_center=False)
-    check_fixed_values(o)
-
+    # Deep copy
     o2 = o.copy()
     assert o2 == o
     o2.cx += 3
     assert o2 != o
+
+
+def _expect_ellipse(obj: vi.Ellipse, expected: Union[list, tuple]):
+    assert obj.cx == pytest.approx(expected[0])
+    assert obj.cy == pytest.approx(expected[1])
+    assert obj.major_axis == pytest.approx(expected[2])
+    assert obj.minor_axis == pytest.approx(expected[3])
+    assert obj.rotation == pytest.approx(expected[4])
+    assert obj.angle_from == pytest.approx(expected[5])
+    assert obj.angle_to == pytest.approx(expected[6])
+    assert obj.include_center == expected[7]
+    assert obj.is_valid()
+
+
+def test_ellipse_convenience_creation():
+    # Horizontal
+    o = vi.Ellipse.from_endpoints((10, 100), (100, 100), 5)
+    _expect_ellipse(o, (55, 100, 90, 5, 0, 0, 360, True))
+    
+    # Vertical
+    o = vi.Ellipse.from_endpoints((10, 0), (10, 300), 150)
+    _expect_ellipse(o, (10, 150, 300, 150, 90, 0, 360, True))
+
+    # Vertical + angle specs
+    o = vi.Ellipse.from_endpoints((10, 0), (10, 300), 150, 10, 20, False)
+    _expect_ellipse(o, (10, 150, 300, 150, 90, 10, 20, False))
+
+    # Rotated ellipse
+    o = vi.Ellipse.from_endpoints((10, 0), (110, 100), 15)
+    _expect_ellipse(o, (60, 50, math.sqrt(2e4), 15, 45, 0, 360, True))
+    # Swap end points --> changes rotation
+    o = vi.Ellipse.from_endpoints((110, 100), (10, 0), 15, 10, 64)
+    _expect_ellipse(o, (60, 50, math.sqrt(2e4), 15, -135, 10, 64, True))
 
 
 def test_ellipse_serialization():
@@ -141,13 +181,13 @@ def test_ellipse_serialization():
     assert not o.is_valid()
     objs.append(o.copy())  
     
-    o = vi.Ellipse(center=(0, 3), axes=(10, 20), rotation=30)
+    o = vi.Ellipse(center=(0, 3), axes=(20, 10), rotation=30)
     assert o.major_axis == 20
     assert o.minor_axis == 10
     objs.append(o.copy())
 
     o = vi.Ellipse(
-        center=(0, 3), axes=(10, 20), rotation=75,
+        center=(0, 3), axes=(60, 10), rotation=75,
         angle_from=10, angle_to=300)
     objs.append(o.copy())
 

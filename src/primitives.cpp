@@ -452,6 +452,33 @@ ImageBuffer RGB2RGBA(const ImageBuffer &img) {
 }
 
 //---------------------------------------------------- Ellipse
+Ellipse::Ellipse(double center_x, double center_y,
+        double major, double minor, double rotation_angle,
+        double draw_angle1, double draw_angle2,
+        bool center_included)
+  : cx(center_x), cy(center_y),
+    major_axis(major), minor_axis(minor),
+    rotation(rotation_angle),
+    angle_from(draw_angle1),
+    angle_to(draw_angle2),
+    include_center(center_included) {
+}
+
+
+//FIXME WRONG (without changing the rotation -- if the user specifies an ellipse, they should know/check the api doc!)
+Ellipse::Ellipse(const Vec2d &center, const Vec2d &size,
+        double rotation_angle,
+        double draw_angle1, double draw_angle2,
+        bool center_included)
+  : cx(center.x()), cy(center.y()),
+    major_axis(size.x()),
+    minor_axis(size.y()),
+    rotation(rotation_angle),
+    angle_from(draw_angle1),
+    angle_to(draw_angle2),
+    include_center(center_included)
+{}
+
 
 Ellipse::Ellipse(std::initializer_list<double> values) {
   if (values.size() < 4 || values.size() > 7) {
@@ -482,6 +509,11 @@ Ellipse::Ellipse(std::initializer_list<double> values) {
 
 Vec2d Ellipse::Center() const {
   return Vec2d{cx, cy};
+}
+
+
+Vec2d Ellipse::Axes() const {
+  return Vec2d{major_axis, minor_axis};
 }
 
 
@@ -536,6 +568,20 @@ std::string Ellipse::ToString() const {
 
   s << ")";
   return s.str();
+}
+
+
+Ellipse Ellipse::FromEndpoints(
+    const Vec2d &pt1, const Vec2d &pt2, double width,
+    double angle_from, double angle_to, bool include_center) {
+  //FIXME test!
+  const auto dirvec = pt1.DirectionVector(pt2);
+  const double major = dirvec.Length();
+  const auto center = pt1 + major / 2.0 * dirvec.UnitVector();
+  const double rotation = wgu::AngleDegFromDirectionVec(dirvec);
+  return Ellipse(
+      center, {major, width}, rotation,
+      angle_from, angle_to, include_center);
 }
 
 
@@ -683,18 +729,23 @@ std::string Rect::ToString() const {
 
 
 Rect Rect::FromLTWH(double left, double top, double width, double height,
-                    double rot, double corner_radius) {
+                    double corner_radius) {
   return Rect(left + width / 2.0, top + height / 2.0,
-              width, height, rot, corner_radius);
+              width, height, corner_radius);
 }
 
 
-Rect Rect::FromLRTB(double left, double right, double top, double bottom,
-                    double rot, double corner_radius) {
+Rect Rect::FromLRTB(double left, double right, double top, double bottom, double corner_radius) {
   const double w = right - left;
   const double h = bottom - top;
   return Rect(left + w / 2.0, top + h / 2.0,
-              w, h, rot, corner_radius);
+              w, h, 0.0, corner_radius);
+}
+
+
+Rect Rect::FromCWH(double cx, double cy, double width, double height,
+                   double rotation, double corner_radius) {
+  return Rect(cx, cy, width, height, rotation, corner_radius);
 }
 
 

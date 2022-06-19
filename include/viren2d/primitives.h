@@ -230,7 +230,7 @@ typedef werkzeugkiste::geometry::Vec3i Vec3i;
 //-------------------------------------------------  Ellipse
 /**
  * @brief Ellipse for visualization.
- * //TODO doc
+ * //TODO doc - major/minor will always be set correctly if you use the c'tors
  */
 struct Ellipse {
   double cx;            ///< Center coordinate in x direction.
@@ -263,36 +263,18 @@ struct Ellipse {
           double rotation_angle = 0.0,
           double draw_angle1 = 0.0,
           double draw_angle2 = 360.0,
-          bool center_included = true)
-    : cx(center_x), cy(center_y),
-      major_axis(major), minor_axis(minor),
-      rotation(rotation_angle),
-      angle_from(draw_angle1),
-      angle_to(draw_angle2),
-      include_center(center_included)
-  {}
+          bool center_included = true);
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
-  /**
-   * Creates an ellipse. Major and minor axis will be set to
-   * max/min of the size parameter, respectively.
-   */
+  //TODO doc (from py)
   Ellipse(const Vec2d &center, const Vec2d &size,
           double rotation_angle = 0.0,
           double draw_angle1 = 0.0,
           double draw_angle2 = 360.0,
-          bool center_included = true)
-    : cx(center.x()), cy(center.y()),
-      major_axis(size.MaxValue()),
-      minor_axis(size.MinValue()),
-      rotation(rotation_angle),
-      angle_from(draw_angle1),
-      angle_to(draw_angle2),
-      include_center(center_included)
-  {}
+          bool center_included = true);
 
 
   // Nothing special about the ellipse class, so we can have
@@ -314,6 +296,7 @@ struct Ellipse {
   Ellipse(std::initializer_list<double> values);
 
   Vec2d Center() const;
+  Vec2d Axes() const;
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
@@ -357,6 +340,12 @@ struct Ellipse {
     os << e.ToString();
     return os;
   }
+
+
+  static Ellipse FromEndpoints(
+      const Vec2d &pt1, const Vec2d &pt2, double width,
+      double angle_from = 0.0, double angle_to = 360.0,
+      bool include_center = true);
 };
 
 
@@ -506,10 +495,13 @@ struct Rect {
   }
 
   static Rect FromLTWH(double left, double top, double width, double height,
-                       double rot = 0.0, double corner_radius = 0.0);
+                       double corner_radius = 0.0);
 
   static Rect FromLRTB(double left, double right, double top, double bottom,
-                       double rot = 0.0, double corner_radius = 0.0);
+                       double corner_radius = 0.0);
+
+  static Rect FromCWH(double cx, double cy, double width, double height,
+                      double rotation = 0.0, double corner_radius = 0.0);
 };
 
 

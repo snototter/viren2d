@@ -329,7 +329,7 @@ struct ArrowStyle : public LineStyle {
              double tip_len = 0.1, double angle = 20.0,
              bool fill = false, bool two_heads = false,
              const std::vector<double> &dash = std::vector<double>(),
-             LineCap cap = LineCap::Butt, LineJoin join = LineJoin::Miter);
+             LineCap cap = LineCap::Round, LineJoin join = LineJoin::Miter);
 
 
   ArrowStyle(const LineStyle &line_style,

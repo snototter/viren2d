@@ -197,7 +197,7 @@ def test_draw_ellipse():
     assert not p.is_valid()
     # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
-        p.draw_ellipse(viren2d.Ellipse((150, 150), (100, 300)))
+        p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)))
     # Prepare canvas
     p.set_canvas_rgb(400, 300)
     assert p.is_valid()
@@ -214,7 +214,7 @@ def test_draw_ellipse():
     p.draw_ellipse(((150, 180), (300, 100), 90, 45, -45, False), style)
     # The above explicitly from kwargs
     p.draw_ellipse(line_style=style,
-        ellipse=viren2d.Ellipse(axes=(100, 300), center=(150, 180),
+        ellipse=viren2d.Ellipse(axes=(300, 200), center=(150, 180),
             rotation=90, angle_from=45, angle_to=-45,
             include_center=False))
 

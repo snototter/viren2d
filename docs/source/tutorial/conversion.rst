@@ -47,8 +47,9 @@ thus, provides fast direct access to its raw internal data representation:
    with the painter's *canvas* (and you should be careful if you then either
    modify the array values or keep on drawing...)
 
-   **TL;DR:** You should know about the potential & risks when using shared
-   memory views, **and** read the docs of any API you're using.
+   **TL;DR:** You should know about scopes & garbage collection when using
+   shared memory views, **and** it's always a good idea to read the docs of any
+   API you're using.
 
 
 
