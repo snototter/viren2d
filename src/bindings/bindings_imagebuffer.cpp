@@ -37,6 +37,9 @@ ImageBuffer CreateImageBuffer(
 }
 
 void RegisterImageBuffer(py::module &m) {
+  //TODO class docstr states grayscale, rgb or rgba --> we might also want
+  //to visualize flow in the distant future (for now, use vito.flowutils)
+
   // Info on numpy memory layout: https://stackoverflow.com/a/53099870/400948
   py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
            "An ImageBuffer holds 8-bit images (Grayscale,\n"
@@ -81,16 +84,18 @@ void RegisterImageBuffer(py::module &m) {
       .def("is_valid", &ImageBuffer::IsValid,
            "Returns ``True`` if this buffer points to a valid memory location.")
       .def("flip_channels", &ImageBuffer::RGB2BGR,
-           "Swap red and blue color channels **in-place**.")
+           "Swaps the red and blue color channels **in-place**.")
       .def("to_rgb", &ImageBuffer::ToRGB,
-           "Convert to RGB. Will always return a copy, even if this buffer\n"
-           "is already RGB.")
+           "Returns a copy of this buffer in **RGB** format.\n\n"
+           "Note that this call will always return a copy, even if\n"
+           "this :class:`~viren2d.ImageBuffer` is already RGB.")
       .def("to_rgba", &ImageBuffer::ToRGBA,
-           "Convert to RGBA. Will always return a copy, even if this buffer\n"
-           "is already RGBA.")
+           "Returns a copy of this buffer in **RGBA** format.\n\n"
+           "Note that this call will always return a copy, even if\n"
+           "this :class:`~viren2d.ImageBuffer` is already RGBA.")
       .def("__repr__",
-           [](const ImageBuffer &b)
-           { return FullyQualifiedType(b.ToString(), true); })
+           [](const ImageBuffer &)
+           { return FullyQualifiedType("ImageBuffer", true); })
       .def("__str__", &ImageBuffer::ToString)
       .def_readonly("width", &ImageBuffer::width,
            "int: Image width in pixels (read-only).")
