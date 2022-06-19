@@ -79,8 +79,10 @@ html_theme = "sphinx_rtd_theme"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
+# Documentation of the sphinx_rtd_theme: https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html
 html_theme_options = {
-    "collapse_navigation" : False
+    "collapse_navigation" : False,
+    "prev_next_buttons_location" : "both"
 }
 
 
@@ -97,7 +99,7 @@ def skip(app, what, name, obj, would_skip, options):
         return False
     # Include overloaded operators:
     if name in ["__add__", "__eq__", "__getstate__", "__iadd__", "__imul__",
-            "__isub__", "__itruediv__", "__mul__", "__ne__", "__rmul__",
+            "__getitem__", "__setitem__", "__isub__", "__itruediv__", "__mul__", "__ne__", "__neg__", "__rmul__",
             "__sub__", "__truediv__", "__setstate__"]:
         return False
     return would_skip
