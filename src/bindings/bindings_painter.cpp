@@ -236,7 +236,7 @@ void RegisterPainter(py::module &m) {
 
     4. After all objects have been drawn, retrieve the
        visualization via :meth:`get_canvas`. For example,
-       to get a deeply copied image as ``numpy.ndarray``:
+       to get a deeply copied image as :class:`numpy.ndarray`:
 
        >>> import numpy as np
        >>> canvas = painter.get_canvas(copy=True)
@@ -260,10 +260,11 @@ void RegisterPainter(py::module &m) {
         height: Canvas height in pixels.
         color: Background :class:`~viren2d.Color`.
 
-      Example:
+      Examples:
         >>> painter = viren2d.Painter()
         >>> painter.set_canvas_rgb(800, 600)
         >>> painter.set_canvas_rgb(800, 600, 'crimson')
+        >>> painter.set_canvas_rgb(800, 600, (0.5, 0.3, 0.9))
       )docstr";
   painter.def("set_canvas_rgb", &PainterWrapper::SetCanvasColor,
       doc.c_str(), py::arg("width"), py::arg("height"),
@@ -284,8 +285,8 @@ void RegisterPainter(py::module &m) {
   doc = R"docstr(
       Initializes the canvas from the given image.
 
-      The input image can be either a ``numpy.ndarray``
-      (currently, only ``dtype=uint8`` is supported) or an
+      The input image can be either a :class:`numpy.ndarray`
+      (currently, only ``uint8```:class:`numpy.dtype` is supported) or an
       :class:`~viren2d.ImageBuffer`.
 
       Example:
@@ -306,9 +307,9 @@ void RegisterPainter(py::module &m) {
   painter.def("get_canvas_size", &PainterWrapper::GetCanvasSize, R"docstr(
       Returns the size of the canvas in pixels.
 
-      Returns the tuple ``(W, H)``, which specifies the
-      width and height of the canvas in pixels (as ``int``),
-      respectively.
+      Returns:
+        The canvas width & height as the :class:`tuple` ``(W, H)``,
+        where ``W`` and ``H`` denote pixels (type :class:`int`).
       )docstr");
 
   //----------------------------------------------------------------------
@@ -319,24 +320,35 @@ void RegisterPainter(py::module &m) {
   //TODO [ ] add C++ demo
   //TODO [ ] add Python demo
   painter.def("get_canvas", &PainterWrapper::GetCanvas, R"docstr(
-      Returns the current visualization.
+      Returns the current visualization in RGBA format.
+
+      Returns an :class:`~viren2d.ImageBuffer`, which implements
+      the Python buffer protocol. This means, it can be easily
+      converted to other buffer types, such as :class:`numpy.ndarray`,
+      see the examples below.
 
       Args:
-        copy: If you want a deep copy, set ``copy = True``. Otherwise,
-          the buffer will just provide a **shared view** on the
-          painter's canvas.
-          This means: **If you keep on drawing, this view will also
-          change.**
+        copy: If you want a **deep copy**, set ``copy = True``.
+          Otherwise, the buffer will just provide a **shared
+          view** on the painter's canvas.
+
+          Be aware that if you keep on drawing after obtaining
+          a shared view, this view will also change. You could
+          even externally modify the canvas pixels.
+
+      Returns:
+        The current visualization as a 4-channel, ``uint8``
+        :class:`~viren2d.ImageBuffer` with pixel format **RGBA**.
 
       Examples:
-        Get canvas as ``numpy.ndarray``, where the **memory is
+        Get canvas as :class:`numpy.ndarray`, where the **memory is
         shared** with the painter:
 
         >>> img_np = np.array(p.get_canvas(copy=False), copy=False)
 
-        Retrieve a **deep copy** of the canvas as
-        ``numpy.ndarray``, *i.e.* future ``painter.draw_...`` calls
-        will not affect this retrieved copy:
+        Retrieve a **deep copy** of the canvas as :class:`numpy.ndarray`,
+        *i.e.* future ``painter.draw_...`` calls will not affect this
+        retrieved copy:
 
         >>> img_np = np.array(p.get_canvas(copy=True), copy=False)
 
@@ -355,25 +367,28 @@ void RegisterPainter(py::module &m) {
   //TODO [ ] add C++ demo
   //TODO [ ] add Python demo
   doc = R"docstr(
-    Draws a circular arc.
+      Draws a circular arc.
 
-    Args:
-      center: Center position as :class:`~viren2d.Vec2d`.
-      radius: Radius of the arc in pixels as ``float``
-      angle1: The arc will be drawn from ``angle1`` to ``angle2``
-        in clockwise direction. Both angles are specified as type
-        ``float`` in degrees, where 0 degrees points in the
-        direction of increasing *x* coordinates.
-      angle2: See ``angle1``
-      line_style: A :class:`~viren2d.LineStyle` specifying how
-        to draw the arc's outline.
-        If you pass :attr:`viren2d.LineStyle.Invalid`, the contour
-        will not be drawn (then, you must provide a valid
-        ``fill_color``).
-      include_center:  If ``True`` (default), the center point
-        will be included when drawing the outline and filling.
-      fill_color: If you provide a valid :class:`~viren2d.Color`,
-        the arc will be filled.
+      Args:
+        center: Center position as :class:`~viren2d.Vec2d`.
+        radius: Radius of the arc in pixels as ``float``
+        angle1: The arc will be drawn from ``angle1`` to ``angle2``
+          in clockwise direction. Both angles are specified as type
+          ``float`` in degrees, where 0 degrees points in the
+          direction of increasing *x* coordinates.
+        angle2: See ``angle1``
+        line_style: A :class:`~viren2d.LineStyle` specifying how
+          to draw the arc's outline.
+          If you pass :attr:`viren2d.LineStyle.Invalid`, the contour
+          will not be drawn (then, you must provide a valid
+          ``fill_color``).
+        include_center:  If ``True`` (default), the center point
+          will be included when drawing the outline and filling.
+        fill_color: If you provide a valid :class:`~viren2d.Color`,
+          the arc will be filled.
+
+      Example:
+        >>> #TODO
       )docstr";
   painter.def("draw_arc", &PainterWrapper::DrawArc, doc.c_str(),
       py::arg("center"), py::arg("radius"),
@@ -394,6 +409,9 @@ void RegisterPainter(py::module &m) {
         arrow_style: An :class:`~viren2d.ArrowStyle` specifying
           how to draw the arrow.
 
+      Example:
+        >>> #TODO
+
       Note:
         Arrows should always be drawn **fully opaque**. Otherwise,
         you'll experience visible blending in the crossing path
@@ -410,48 +428,78 @@ void RegisterPainter(py::module &m) {
 
 
   //----------------------------------------------------------------------TODO doc
-  doc = "TODO doc";
+  doc = R"docstr(
+      Draws a 2D bounding box.
+
+      Args:
+        rect: The box geometry as :class:`~viren2d.Rect`.
+        label: The label as :class:`list` of :class:`str`, since multi-line
+          labels are supported.
+        box_style: A :class:`~viren2d.BoundingBox2DStyle` specifying how
+          to draw this bounding box.
+
+      Example:
+        >>> #TODO
+      )docstr";
   painter.def("draw_bounding_box_2d", &PainterWrapper::DrawBoundingBox2D,
               doc.c_str(), py::arg("rect"), py::arg("label"),
               py::arg("box_style") = BoundingBox2DStyle());
-  // Create an alias
-  painter.def("draw_bbox2d", &PainterWrapper::DrawBoundingBox2D,
-              "Alias for :meth:`draw_bounding_box_2d`.", py::arg("rect"), py::arg("label"),
-              py::arg("box_style") = BoundingBox2DStyle());
-
+//  // Create an alias, works since pybind11 v2.2, see
+//  // https://github.com/pybind/pybind11/pull/802
+//  // not documentable :/
+//  painter.attr("draw_bbox2d") = painter.attr("draw_bounding_box_2d");
+////forbidden  painter.attr("draw_bbox2d").attr("__doc__") = "TODO";
+////  painter.def("draw_bbox2d", &painter.attr("draw_bounding_box2d"), "TODO doc");
+//  // "An alias for :meth:`~viren2d.Painter.draw_bounding_box_2d`."
 
   //----------------------------------------------------------------------
-  doc = "Draws a circle.\n\n"
-        "Args:\n"
-        "  center: Center position as :class:`~" + FullyQualifiedType(Vec2d::TypeName()) + "`\n"
-        "  radius: Radius of the circle in pixels as ``float``\n"
-        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
-        "    to draw the circle's outline.\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
-        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
-        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
-        "    the circle will be filled.";
+  doc = R"docstr(
+      Draws a circle.
+
+      Args:
+        center: Center position as :class:`~viren2d.Vec2d`
+        radius: Radius of the circle in pixels as :class:`float`.
+        line_style: A :class:`~viren2d.LineStyle` specifying how
+          to draw the circle's outline.
+
+          If you pass :attr:`~viren2d.LineStyle.Invalid`, the
+          contour will not be drawn - then, you must provide a
+          valid ``fill_color``.
+        fill_color: If you provide a valid :class:`~viren2d.Color`,
+          the circle will be filled.
+
+      Example:
+        >>> #TODO
+      )docstr";
   painter.def("draw_circle", &PainterWrapper::DrawCircle, doc.c_str(),
-        py::arg("center"), py::arg("radius"),
-        py::arg("line_style") = LineStyle(),
-        py::arg("fill_color") = Color::Invalid);
+      py::arg("center"), py::arg("radius"),
+      py::arg("line_style") = LineStyle(),
+      py::arg("fill_color") = Color::Invalid);
 
 
   //----------------------------------------------------------------------
-  doc = "Draws an ellipse.\n\n"
-    "Args:\n"
-    "  ellipse: The :class:`~" + FullyQualifiedType("Ellipse") + "`,\n"
-    "    which should be drawn.\n"
-    "  line_style:  A :class:`~" + FullyQualifiedType("LineStyle") + "`\n"
-    "    specifying how to draw the ellipse's outline.\n"
-    "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
-    "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
-    "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
-    "    the ellipse will be filled.";
+  doc = R"docstr(
+      Draws an ellipse.
+
+      Args:
+        ellipse: The :class:`~viren2d.Ellipse`, which should
+          be drawn.
+        line_style: A :class:`~viren2d.LineStyle` specifying
+          how to draw the ellipse's outline.
+
+          If you pass :attr:`~viren2d.LineStyle.Invalid`, the
+          contour will not be drawn - then, you must provide a
+          valid ``fill_color``.
+        fill_color: If you provide a valid :class:`~viren2d.Color`,
+          the ellipse will be filled."
+
+      Example:
+        >>> #TODO
+      )docstr";
   painter.def("draw_ellipse", &PainterWrapper::DrawEllipse, doc.c_str(),
-        py::arg("ellipse"),
-        py::arg("line_style") = LineStyle(),
-        py::arg("fill_color") = Color::Invalid);
+      py::arg("ellipse"),
+      py::arg("line_style") = LineStyle(),
+      py::arg("fill_color") = Color::Invalid);
 
         //TODO coding style//----------------------------------------------------------------------
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
@@ -481,8 +529,9 @@ void RegisterPainter(py::module &m) {
           how to draw the line.
 
       Example:
-        >>> line_style = viren2d.LineStyle()
+        >>> line_style = viren2d.LineStyle(width=3, color='azure')
         >>> painter.draw_line((42, 42), (86, 86), line_style)
+        >>> # Same call via named arguments:
         >>> painter.draw_line(
         >>>     pt1=(42, 42), pt2=(86, 86), line_style=line_style)
       )docstr";
@@ -513,8 +562,8 @@ void RegisterPainter(py::module &m) {
 
       Args:
         markers: Holds the position and color of each marker.
-          Should be provided as a ``list`` of ``tuple``\ s, where
-          each ``tuple`` holds the position and color of a marker
+          Should be provided as a :class:`list` of :class:`tuple`\ s, where
+          each :class:`tuple` holds the position and color of a marker
           as (:class:`~viren2d.Vec2d`, :class:`~viren2d.Color`).
           If a marker's color is invalid, it will be drawn using
           ``marker_style``'s color specification instead.
@@ -536,10 +585,10 @@ void RegisterPainter(py::module &m) {
               py::arg("markers"), py::arg("marker_style") = MarkerStyle());
 
 
-  //----------------------------------------------------------------------
+  //TODO raw string doc + example //----------------------------------------------------------------------
   doc = "Draws a polygon.\n\n"
         "Args:\n"
-        "  polygon: Points of the polygon as ``list`` of :class:`~"
+        "  polygon: Points of the polygon as :class:`list` of :class:`~"
         + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
         "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
         "    to draw the circle's outline.\n"
@@ -551,7 +600,7 @@ void RegisterPainter(py::module &m) {
               py::arg("polygon"), py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
-  //----------------------------------------------------------------------
+  //TODO raw string doc + example //----------------------------------------------------------------------
   doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
         "Args:\n  rect: The :class:`~" + FullyQualifiedType("Rect") + "`\n"
         "    object which should be drawn.\n"
@@ -566,7 +615,7 @@ void RegisterPainter(py::module &m) {
               py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
-        //TODO doc//----------------------------------------------------------------------
+  //TODO raw string doc + example //----------------------------------------------------------------------
   doc = "Places the given text on the canvas.\n\n"
       "Args:\n"
       "  text: A list of strings to be drawn.\n"
@@ -598,7 +647,7 @@ void RegisterPainter(py::module &m) {
 
 
 
-        //----------------------------------------------------------------------
+  //TODO raw string doc + example //----------------------------------------------------------------------
   doc = "TODO doc"
       "  anchor: Either enum or string representation";
   painter.def("draw_textbox", &PainterWrapper::DrawTextBox, doc.c_str(),
@@ -613,16 +662,18 @@ void RegisterPainter(py::module &m) {
       py::arg("fixed_size") = Vec2d::All(-1.0));
 
 
-  //----------------------------------------------------------------------
+  //TODO raw string doc + example //----------------------------------------------------------------------
   doc = "TODO doc, default args";
   painter.def("draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
               py::arg("points"), py::arg("line_style") = LineStyle(),
               py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
               py::arg("oldest_first") = false);
+
   //TODO(snototter) add draw_xxx methods
 
-  //TODO(snototter) add convenience functions handling multiple inputs (plural draw_xxxS), e.g. via
-  //                Painter "for (element in list) : painter_->DrawElement();"
+  //TODO(snototter) add convenience functions handling multiple
+  //    inputs (plural draw_xxxS), e.g. via the PainterWrapper:
+  //    "for (element in list) : painter_->DrawElement();"
 }
 
 } // namespace bindings

@@ -12,6 +12,8 @@ TODO you'll need python 3.x-dev packages!
 
 TODO how to install spdlog is missing --> change in viren2d (disable logging if not found & issue a cmake warning)
 
+TODO Note that NumPy>=1.7.0 is a runtime dependency (by pybind11).
+
 
 * A C++ compiler supporting at least ``C++14``.
 * `CMake \>= 3.15 <https://cmake.org/>`__ and a

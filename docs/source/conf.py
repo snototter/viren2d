@@ -36,6 +36,7 @@ extensions = [
   'sphinx.ext.autosummary',
   'sphinx.ext.napoleon',  # Parse Google and NumPy docstrings
   'sphinx.ext.mathjax',
+  'sphinx.ext.intersphinx',
   'autodocsumm', # adds TOC for autosummary: https://autodocsumm.readthedocs.io/en/latest/index.html
 ]
 
@@ -44,11 +45,16 @@ extensions = [
 
 autosummary_generate = True
 
-#TODO if set here, the toc comes AFTER the __init__ docs :/
+# Don't enable autodoc by default --> need to check how this would change
+# the enum class doc
 #autodoc_default_options = {
 #  'autosummary': True,
 #}
 
+intersphinx_mapping = {
+  'python': ('https://docs.python.org/', None),
+  'numpy': ('http://docs.scipy.org/doc/numpy/', None)
+}
 
 
 # Add any paths that contain templates here, relative to this directory.

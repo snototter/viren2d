@@ -14,7 +14,8 @@ namespace bindings {
 //------------------------------------------------- ImageBuffer from numpy array
 // We need a uint8, row-major (C-style) numpy array:
 ImageBuffer CreateImageBuffer(
-    py::array_t<unsigned char, py::array::c_style | py::array::forcecast> buf) {
+    py::array_t<unsigned char, py::array::c_style | py::array::forcecast> buf,
+    bool copy) {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3)
     throw std::runtime_error("Incompatible image dimension!");
@@ -27,7 +28,11 @@ ImageBuffer CreateImageBuffer(
   const int height = static_cast<int>(buf.shape(0));
   const int width = static_cast<int>(buf.shape(1));
   const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
-  img.CreateSharedBuffer(buf.mutable_data(), width, height, channels, row_stride);
+  if (copy) {
+    img.CreateCopy(buf.data(), width, height, channels, row_stride);
+  } else {
+    img.CreateSharedBuffer(buf.mutable_data(), width, height, channels, row_stride);
+  }
   return img;
 }
 
@@ -36,8 +41,20 @@ void RegisterImageBuffer(py::module &m) {
   py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
            "An ImageBuffer holds 8-bit images (Grayscale,\n"
            "RGB or RGBA).")
-      .def(py::init(&CreateImageBuffer),
-           "Initialize from numpy array with dtype uint8.")
+      .def(py::init(&CreateImageBuffer), R"docstr(
+          Creates an :class:`~viren2d.ImageBuffer` from a :class:`numpy.ndarray`.
+
+          Currently, only conversion from/to NumPy arrays with
+          :class:`numpy.dtype` = :class:`numpy.uint8` is supported.
+          This will change once I get around to implementing the
+          pseudocoloring functionality in ``viren2d``.
+
+          Args:
+            array: The :class:`numpy.ndarray` holding the image data.
+            copy: If ``True``, the :class:`~viren2d.ImageBuffer` will
+              make a copy of the given ``array``. The default (``False``)
+              is to share the data instead, which avoids memory allocation.
+          )docstr", py::arg("array"), py::arg("copy")=false)
      .def_buffer([](ImageBuffer &img) -> py::buffer_info {
           return py::buffer_info(
               img.data, sizeof(unsigned char), // Pointer to data & size of each element
@@ -55,12 +72,16 @@ void RegisterImageBuffer(py::module &m) {
              ImageBuffer cp;
              cp.CreateCopy(buf.data, buf.width, buf.height, buf.channels, buf.stride);
              return cp;
-           }, "Returns a deep copy. This new ImageBuffer will always allocate\n"
-           "and copy the memory, even if you call copy() on a \"shared\" buffer.")
+           }, R"docstr(
+        Returns a deep copy.
+
+        The returned copy will **always** allocate and copy the memory,
+        even if you call this method on a *shared* buffer.
+        )docstr")
       .def("is_valid", &ImageBuffer::IsValid,
-           "Returns True if this buffer points to a valid memory location.")
+           "Returns ``True`` if this buffer points to a valid memory location.")
       .def("flip_channels", &ImageBuffer::RGB2BGR,
-           "Swap red and blue color channels in-place!")
+           "Swap red and blue color channels **in-place**.")
       .def("to_rgb", &ImageBuffer::ToRGB,
            "Convert to RGB. Will always return a copy, even if this buffer\n"
            "is already RGB.")
@@ -72,17 +93,18 @@ void RegisterImageBuffer(py::module &m) {
            { return FullyQualifiedType(b.ToString(), true); })
       .def("__str__", &ImageBuffer::ToString)
       .def_readonly("width", &ImageBuffer::width,
-           "Image width in pixels.")
+           "int: Image width in pixels (read-only).")
       .def_readonly("height", &ImageBuffer::height,
-           "Image height in pixels.")
+           "int: Image height in pixels (read-only).")
       .def_readonly("channels", &ImageBuffer::channels,
-           "Number of channels.")
+           "int: Number of channels (read-only).")
       .def_readonly("stride", &ImageBuffer::stride,
-           "Stride per row (in bytes).")
+           "int: Stride in bytes per row  (read-only).")
       .def_readonly("owns_data", &ImageBuffer::owns_data_,
-           "Boolean flag indicating if this ImageBuffer is\n"
-           "the owner of the image data (and is thus responsible\n"
-           "for memory cleanup).");
+           "bool: Read-only flag indicating whether this"
+           ":class:`~viren2d.ImageBuffer` is the owner of the\n"
+           "image data, and thus responsible for cleaning up the\n"
+           "allocated memory.");
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();

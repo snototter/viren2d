@@ -490,7 +490,7 @@ void RegisterLineStyle(pybind11::module &m) {
 
   line_style.def("copy", [](const LineStyle &st) { return LineStyle(st); },
         "Returns a deep copy.")
-      .def("__repr__", [](const LineStyle &st) { return "<" + st.ToString() + ">"; })
+      .def("__repr__", [](const LineStyle &st) { return "<viren2d.LineStyle>";})//FIXME" + st.ToString() + ">"; })
       .def("__str__", &LineStyle::ToString)
       .def(py::pickle(&LineStyleToTuple, &LineStyleFromTuple),
            ":class:`~viren2d.LineStyle` instances can be pickled.")
@@ -515,7 +515,7 @@ void RegisterLineStyle(pybind11::module &m) {
         py::arg("interior_angle"),
         py::arg("miter_limit") = 10.0)
       .def_readwrite("dash_pattern", &LineStyle::dash_pattern,
-        "List[float]: Dash pattern defined as list of on/off strokes.\n\n"
+        "list[float]: Dash pattern defined as list of on/off strokes.\n\n"
         "A dash pattern is a list of positive values. Each value defines\n"
         "the length (in pixels) of alternating *on* and *off* segments of\n"
         "the line. For solid lines, this list must be empty.\n\n"

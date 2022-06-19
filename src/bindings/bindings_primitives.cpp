@@ -110,7 +110,7 @@ void RegisterEllipse(pybind11::module &m) {
       :attr:`include_center` (which is the default behavior).
 
       For convenience, an ellipse can be implicitly created
-      from ``list``\ s and ``tuple``\ s:
+      from :class:`list`\ s and :class:`tuple`\ s:
 
       >>> # Explicit initialization:
       >>> ellipse = viren2d.Ellipse(center, axes, ...)
@@ -128,11 +128,11 @@ void RegisterEllipse(pybind11::module &m) {
       "  axes: Lengths of the major and minor axes\n"
       "    as :class:`~viren2d.Vec2d`.\n"
       "  rotation: Clockwise rotation angle in degrees\n"
-      "    as ``float``.\n"
+      "    as :class:`float`.\n"
       "  angle_from: Starting angle in degrees\n"
-      "    as ``float``.\n"
+      "    as :class:`float`.\n"
       "  angle_to: Ending angle in degrees\n"
-      "    as ``float``.\n"
+      "    as :class:`float`.\n"
       "  include_center: If ``True`` and ``angle_from``\n"
       "    or ``angle_to`` differ from their defaults, the\n"
       "    center point will be included in the drawn/filled\n"
@@ -147,7 +147,7 @@ void RegisterEllipse(pybind11::module &m) {
       py::arg("include_center") = true);
 
   doc = R"docstr(
-      Creates an ellipse from a ``tuple`` or ``list``.
+      Creates an ellipse from a :class:`tuple` or :class:`list`.
 
       This overloaded constructor is required to allow
       implicit casting and supports 2 general tuple/list
@@ -157,11 +157,11 @@ void RegisterEllipse(pybind11::module &m) {
          angle_from, angle_to, include_center)``, where
          ``center`` & ``size`` are :class:`~viren2d.Vec2d`,
          ``rotation``, ``angle_from`` and ``angle_to`` are
-         ``float`` and ``include_center`` is a ``bool``.
+         :class:`float` and ``include_center`` is a ``bool``.
 
       *  A tuple/list holding ``(cx, cy, major, minor, rotation,
          angle_from, angle_to, include_center)``, where all
-         entries (except for ``include_center``) are ``float``.
+         entries (except for ``include_center``) are :class:`float`.
 
       In both cases, ``rotation``, ``angle_from``, ``angle_to``
       and ``include_center`` are optional.
@@ -295,7 +295,7 @@ void RegisterRectangle(py::module &m) {
       :attr:`radius`.
 
       For convenience, a rectangle can be implicitly created
-      from ``list``\ s and ``tuple``\ s:
+      from :class:`list`\ s and :class:`tuple`\ s:
 
       >>> # Explicit initialization:
       >>> rect = viren2d.Rect(center, size, ...)
@@ -314,7 +314,7 @@ void RegisterRectangle(py::module &m) {
 
 
   doc = R"docstr(
-      Creates a rectangle from a ``tuple`` or ``list``.
+      Creates a rectangle from a :class:`tuple` or :class:`list`.
 
       This overloaded constructor is required to allow
       implicit casting and supports 2 general tuple/list
@@ -323,10 +323,10 @@ void RegisterRectangle(py::module &m) {
       *  A tuple/list holding ``(center, size, rotation,
          radius)``, where ``center`` & ``size`` are
          :class:`~viren2d.Vec2d`\ s, and ``rotation``
-         & ``radius`` are ``float``\ s.
+         & ``radius`` are :class:`float`\ s.
 
       *  A tuple/list holding ``(cx, cy, w, h, rotation,
-         radius)``, where all entries are ``float``\ s.
+         radius)``, where all entries are :class:`float`\ s.
 
       In both cases, ``rotation`` and ``radius`` are
       optional.
@@ -340,7 +340,7 @@ void RegisterRectangle(py::module &m) {
       + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
       "  size: Size, *i.e.* (width, height) of the rectangle as :class:`~"
       + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-      "  rotation: Clockwise rotation angle in degrees as ``float``.\n"
+      "  rotation: Clockwise rotation angle in degrees as :class:`float`.\n"
       "  radius: Corner radius for rounded rectangles. If within\n"
       "    ``(0, 0.5]``, it is interpreted as percentage of\n"
       "    ``min(width, height)``. Otherwise, if ``radius > 1``,\n"

@@ -85,7 +85,7 @@ void RegisterColor(py::module &m) {
          will be converted to ``(1, 1, 1)``, *i.e.* the polygon would
          be filled with *white* instead!
 
-         >>> # Incorrectly specifying a color as `RGB` tuple instead of `rgb`:
+         >>> # Mistakenly specifying a color as `RGB` tuple instead of `rgb`:
          >>> painter.draw_polygon(..., fill_color=(20, 20, 75))"
       )docstr")
       .def(py::init<>(), R"docstr(

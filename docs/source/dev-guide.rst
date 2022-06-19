@@ -107,9 +107,23 @@ C++ Library
 Python Library
 ..............
 
+TODO order these points:
 
 *  When extending the :class:`~viren2d.Painter`, keep the alphabetic order of
    its ``draw_xxx`` bindings to aid maintainability.
+
+*  TODO Design choice: consistent parameter names in ``draw_xxx``, *i.e.* if
+   the method expect a :class:`~viren2d.LineStyle`, the parameter name should
+   be ``line_style``.
+
+   Benefits imho: 
+   a) using the drawing interface becomes easier (I have an ``XyzStyle``, so the
+   parameter will be ``xyz_style``)
+   b) is less likely to break the interface if we add extensions, e.g. if we
+   choose to support an additional label somewhere, we would need an additional
+   style parameter of type :class:`~viren2d.TextStyle`). And then, we run into
+   the hardest problem of CS, i.e. naming ;-)
+   
 
 *  All relevant interface methods, such as the ``draw_xxx`` variants of the
    :class:`~viren2d.Painter` should provide a minimal code example via their
@@ -322,12 +336,23 @@ Some **functional features**, that I'd like to see at some time in the future:
 
 *  Creating stereoglyphs
 
+*  Smoothing of trajectories.
+  
+   Although this should be implemented in werkzeugkiste, maybe along with sketch
+   filtering, like xkcd, *e.g.* 
+   `via 1D interpolation <https://github.com/slayton/matlab-xkcdify>`__ ,
+   or `as in mpl <https://github.com/JohannesBuchner/matplotlib-xkcdify>`__ - 
+   though this will be quite some work due to spline fitting (*e.g.* via
+   `ALGLIB <http://www.alglib.net/interpolation/spline3.php#header7>`__ or
+   `NCAR/EOL bspline <https://github.com/NCAR/bspline>`__)
+
 
 Some **workflow-related extensions**, I'd fancy:
 
 *  Packaging and publishing on PyPI
 
-*  Packaging with conda (cairo2 is already available via conda channels)
+*  Packaging with conda. cairo2 is already available via conda channels.
+   Automate via `github actions <https://autobencoder.com/2020-08-24-conda-actions/>`__.
 
 *  Automate the *rtd_example_image* generation via github workflows (upon each
    push, but before the RTD workflow starts building the docs)
