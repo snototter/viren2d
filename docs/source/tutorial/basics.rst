@@ -1,3 +1,5 @@
+.. include:: ../symbols.rst
+
 ---------------
 Know the Basics
 ---------------
@@ -20,9 +22,9 @@ Know the Basics
 
 
 .. warning::
-   TODO this page needs to be extended with info on pseudocolorization;
+   TODO This overview page should be extended with info on pseudocolorization;
+   anonymization (once ImageBuffer supports pixelization)
 
-   (maybe add anonymization also - via imagebuffer)?
+   |right-arrow| add "What about other visualizations?"
+      Then, refer to pseudocoloring (label2img, segmentation results, etc.)
 
-   add "What about other visualizations?"
-      pseudocoloring (can also be usable for label2img, segmentation results, etc.)

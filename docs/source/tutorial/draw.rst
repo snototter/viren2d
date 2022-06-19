@@ -10,21 +10,19 @@ existing image or onto an empty canvas. Simply set it up via:
 .. literalinclude:: ./code-snippets/painter-setup.py
    :language: python
    :linenos:
-   :emphasize-lines: 3,5
    :caption: Python API - How to set up the :py:class:`viren2d.Painter`.
 
 
 .. literalinclude:: ./code-snippets/painter-setup.cpp
    :language: cpp
    :linenos:
-   :emphasize-lines: 3,5
    :caption: C++ API - How to set up the ``viren2d::Painter``.
 
 
 Once you've set up the painter, you can start drawing:
 
    .. toctree::
-      :maxdepth: 2
+      :maxdepth: 1
 
       draw-primitives
       draw-markers
@@ -47,14 +45,12 @@ visualization from the :class:`~viren2d.Painter`:
 .. literalinclude:: ./code-snippets/painter-retrieve.py
    :language: python
    :linenos:
-   :emphasize-lines: 2
    :caption: Python API - How to retrieve the visualization from a :py:class:`viren2d.Painter`.
 
 
 .. literalinclude:: ./code-snippets/painter-retrieve.cpp
    :language: cpp
    :linenos:
-   :emphasize-lines: 2
    :caption: C++ API - How to retrieve the visualization from a ``viren2d::Painter``.
 
 

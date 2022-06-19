@@ -772,7 +772,7 @@ BoundingBox2DStyle BoundingBox2DStyleFromTuple(py::tuple tpl) {
 
 
 void RegisterBoundingBox2DStyle(py::module &m) {
-  std::string doc = "How to draw a 2D bounding box.";
+  std::string doc = "How a 2D bounding box should be drawn.";
   py::class_<BoundingBox2DStyle>bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 
   //  //FIXME remove unnecessarily overloaded constructions

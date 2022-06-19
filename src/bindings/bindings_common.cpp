@@ -74,7 +74,7 @@ void RegisterColor(py::module &m) {
   m.def("color_names", &ListNamedColors, doc.c_str());
 
   py::class_<Color>(m, "Color", R"docstr(
-      A color in rgba format, where each component is within ``[0, 1]``.
+      A color in rgba format, *i.e.* :math:`r,g,b,a \in [0,1]`.
 
       Important:
          If you initialize a color from a ``tuple(r,g,b,a)``, you **must
@@ -98,7 +98,8 @@ void RegisterColor(py::module &m) {
       .def(py::init<>(&ColorFromTuple), R"docstr(
            Initializes the color from a *rgb* or *rgba* ``tuple``.
 
-           Each value must be a floating point number within ``[0, 1]``
+           Each value must be a floating point number within ``[0, 1]``.
+           The alpha value will be set to 1 if not provided.
 
            Example:
 
@@ -311,17 +312,16 @@ void RegisterColor(py::module &m) {
   py::implicitly_convertible<py::str, Color>();
 
 
-  doc = "Returns a :class:`~" + FullyQualifiedType("Color") + "` for the given values.\n\n"
-        "The red, green, blue and alpha components must be within ``[0, 1]``.\n\n"
+  doc = "Creates a :class:`~" + FullyQualifiedType("Color") + "` from\n"
+        ":math:`r,g,b,a \\in [0,1]`.\n\n"
         "**Corresponding C++ API:** ``viren2d::rgba``.";
   m.def("rgba", &rgba, doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
 
 
-  doc = "Returns a :class:`~" + FullyQualifiedType("Color") + "` for the given RGBa values.\n\n"
-        "The R, G, and B components must be within ``[0, 255]``, whereas\n"
-        "alpha must be within ``[0, 1]``.\n\n"
+  doc = "Creates a :class:`~" + FullyQualifiedType("Color") + "` from\n"
+        ":math:`R,G,B \\in [0, 255]` and :math:`a \\in [0, 1]`.\n\n"
         "**Corresponding C++ API:** ``viren2d::RGBa``.";
   m.def("RGBa", &RGBa,
         doc.c_str(),

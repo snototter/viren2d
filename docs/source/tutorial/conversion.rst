@@ -41,8 +41,8 @@ thus, provides fast direct access to its raw internal data representation:
    to the objects' lifetimes - or meet *segfault, ye olde friend...*
 
    For the conversion example above, note that the :class:`~viren2d.Painter`
-   provides an option to access its internal memory (refer to the documentation
-   of its :meth:`~viren2d.Painter.get_canvas`).
+   provides an option to access its internal memory - refer to the documentation
+   of its :meth:`~viren2d.Painter.get_canvas`.
    Thus, you can easily get a :class:`numpy.ndarray` which shares the memory
    with the painter's *canvas* (and you should be careful if you then either
    modify the array values or keep on drawing...)
@@ -58,8 +58,8 @@ NumPy |right-arrow| viren2d
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Conversion from :class:`numpy.ndarray` to :class:`~viren2d.ImageBuffer` is again
-almost a no-brainer thanks to the buffer protocol (you only need to decide
-whether to copy the data or not):
+almost a no-brainer thanks to the buffer protocol. You only need to decide
+whether to copy the data or not:
 
 .. code-block:: python
    :linenos:

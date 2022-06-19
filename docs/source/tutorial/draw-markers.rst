@@ -23,7 +23,3 @@ This visualization has been created by the following Python code:
       :linenos:
       :dedent: 4
 
-
-.. warning::
-   TODO adjust code snippet!
-

@@ -4,9 +4,10 @@
 Visualize Computer Vision Results Neatly in 2D
 ==============================================
 
+.. include:: symbols.rst
+
 |doc-status-badge| |license-badge|
 
-.. include:: symbols.rst
    
 .. warning::
    ``viren2d`` has not yet reached a stable `v1.0` release. Currently,
@@ -58,13 +59,16 @@ knife* to visualize the results of common 2D computer vision tasks in both
    * |checked| Ellipses
    * |checked| Lines
    * |checked| Markers
-   * |unchecked| Object detection results: 2D bounding boxes - WIP: untested
-   * |unchecked| Object detection results: 3D bounding boxes (requires handling of camera calibration)
-   * |unchecked| Polygons - WIP: untested
+   * |unchecked| Object detection results: 2D bounding boxes - WIP (implemented, but not properly tested/documented)
+   * |unchecked| Polygons - WIP (implemented, but not properly tested/documented)
    * |checked| Rectangles
-   * |unchecked| Text (single-/multi-line) - WIP: untested
-   * |unchecked| Text boxes (single-/multi-line) - WIP: untested
-   * |unchecked| Trajectories - WIP: untested
+   * |unchecked| Text (single-/multi-line) - WIP (implemented, but not properly tested/documented)
+   * |unchecked| Text boxes (single-/multi-line) - WIP (implemented, but not properly tested/documented)
+   * |unchecked| Trajectories - WIP (implemented, but not properly tested/documented)
+   
+**Which features may come in the future?**
+
+   * |unchecked| Object detection results: 3D bounding boxes (requires handling of camera calibration)
    * |unchecked| Camera calibration-related: Ground plane, horizon, axes - low priority features
    * |unchecked| Pose estimation results
    * |unchecked| Image overlay - low priority feature
@@ -79,15 +83,4 @@ knife* to visualize the results of common 2D computer vision tasks in both
    quickstart
    api-documentation
    dev-guide
-
-
-.. |doc-status-badge| image:: https://readthedocs.org/projects/viren2d/badge/?version=latest&style=flat
-    :alt: Documentation Status
-    :target: https://viren2d.readthedocs.io
-..    :scale: 100%
-
-.. |license-badge| image:: https://img.shields.io/badge/license-MIT-blue.svg
-    :alt: License MIT
-    :target: https://github.com/snototter/viren2d/blob/main/LICENSE?raw=true
-..    :scale: 100%
 
