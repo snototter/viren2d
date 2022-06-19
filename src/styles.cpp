@@ -552,6 +552,8 @@ ArrowStyle::ArrowStyle()
   : LineStyle(),
     tip_length(0.2), tip_angle(20),
     tip_closed(false), double_headed(false) {
+  // Change default cap, looks nicer:
+  cap = LineCap::Round;
 }
 
 

@@ -293,9 +293,9 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
       Args:
         marker: Shape as :class:`~viren2d.Marker` enum.
-        size: Marker size in pixels as ``float``.
+        size: Marker size in pixels as :class:`float`.
         thickness: Width/thickness of the contour in pixels
-          as ``float``.
+          as :class:`float`.
         color: The :class:`~viren2d.Color` used for drawing its
           contour or filling.
         filled: If ``True`` (and the shape allwos), the marker
@@ -470,7 +470,7 @@ void RegisterLineStyle(pybind11::module &m) {
 
   doc = "Creates a customized line style.\n\n"
         "Args:\n"
-        "  width: Width in pixels as ``float``.\n"
+        "  width: Width in pixels as :class:`float`.\n"
         "  color: Line color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
         "  dash_pattern: Dash pattern defined as ``List[float]`` of on/off strokes,\n"
         "    refer to the class member :attr:`dash_pattern` for details.\n"
@@ -490,7 +490,7 @@ void RegisterLineStyle(pybind11::module &m) {
 
   line_style.def("copy", [](const LineStyle &st) { return LineStyle(st); },
         "Returns a deep copy.")
-      .def("__repr__", [](const LineStyle &st) { return "<viren2d.LineStyle>";})//FIXME" + st.ToString() + ">"; })
+      .def("__repr__", [](const LineStyle &) { return "<viren2d.LineStyle>";})//FIXME" + st.ToString() + ">"; })
       .def("__str__", &LineStyle::ToString)
       .def(py::pickle(&LineStyleToTuple, &LineStyleFromTuple),
            ":class:`~viren2d.LineStyle` instances can be pickled.")
@@ -655,17 +655,17 @@ void RegisterArrowStyle(pybind11::module &m) {
       Creates a customized arrow style.
 
       Args:
-        width: Width in pixels as ``float``.
+        width: Width in pixels as :class:`float`.
         color: Arrow color as :class:`~viren2d.Color`.
-        tip_length: Length of the arrow tip as ``float``. If it
+        tip_length: Length of the arrow tip as :class:`float`. If it
           is between ``[0, 1]``, it is interpreted as percentage
           of the shaft length. Otherwise, it represents the absolute
           length in pixels.
         tip_angle: Interior angle between shaft and tip, specified
-          in degrees as ``float``.
-        tip_closed: Set ``True`` to fill the tip (type ``bool``).
+          in degrees as :class:`float`.
+        tip_closed: Set ``True`` to fill the tip (type :class:`bool`).
         double_headed: Set `True` to draw arrow tips on both ends
-          of the shaft (type ``bool``).
+          of the shaft (type :class:`bool`).
         dash_pattern: Dash pattern defined as ``List[float]`` of
           on/off strokes. Refer to the documentation of the class
           member :attr:`dash_pattern` for details.
