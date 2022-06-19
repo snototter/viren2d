@@ -1,5 +1,11 @@
 .. viren2d documentation master file.
 
+==============================================
+Visualize Computer Vision Results Neatly in 2D
+==============================================
+
+|doc-status-badge| |license-badge|
+
 .. include:: symbols.rst
    
 .. warning::
@@ -13,10 +19,6 @@
    most features are still not properly tested, python bindings are
    incomplete, the documentation is a mess, *etc.*
 
-
-==============================================
-Visualize Computer Vision Results Neatly in 2D
-==============================================
 
 ``viren2d`` - *Visualize results not too disgraceful* - is my *Swiss Army
 knife* to visualize the results of common 2D computer vision tasks in both
@@ -77,4 +79,15 @@ knife* to visualize the results of common 2D computer vision tasks in both
    quickstart
    api-documentation
    dev-guide
+
+
+.. |doc-status-badge| image:: https://readthedocs.org/projects/viren2d/badge/?version=latest&style=flat
+    :alt: Documentation Status
+    :target: https://viren2d.readthedocs.io
+..    :scale: 100%
+
+.. |license-badge| image:: https://img.shields.io/badge/license-MIT-blue.svg
+    :alt: License MIT
+    :target: https://github.com/snototter/viren2d/blob/main/LICENSE?raw=true
+..    :scale: 100%
 
