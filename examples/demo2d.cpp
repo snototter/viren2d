@@ -593,10 +593,6 @@ void DemoConversionOpenCV() {
   // let's get a non-continuous OpenCV matrix:
   cv::Mat roi = img_cv.colRange(50, img_cv.cols - 50);
 
-  const std::string win_title = roi.isContinuous()
-      ? "Using continuous cv::Mat"
-      : "Using non-continuous cv::Mat";
-
   // Create a shared buffer (on purpose) and change
   // color format to demonstrate the potential side-effect:
   viren2d::ImageBuffer img_buf;
