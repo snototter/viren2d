@@ -4,6 +4,9 @@ import viren2d
 
 
 def test_buffer_passing():
+    with pytest.raises(ValueError):
+        viren2d.ImageBuffer(np.array([], dtype=np.uint8))
+
     # Although ImageBuffer is only used for 1-, 3-,
     # and 4-channel image data so far, we can still
     # test its creation with an arbitrary number of channels:
@@ -16,6 +19,10 @@ def test_buffer_passing():
         buf_shared = viren2d.ImageBuffer(data, copy=False)
         assert not buf_shared.owns_data
         assert buf_shared.shape == (5, 15, channels)
+        assert buf_shared.channels == channels
+        assert buf_shared.width == data.shape[1]
+        assert buf_shared.height == data.shape[0]
+        assert buf_shared.is_valid()
 
         buf_copied = viren2d.ImageBuffer(data, copy=True)
         assert buf_copied.owns_data
@@ -115,8 +122,14 @@ def test_buffer_side_effects():
     painter.set_canvas_image(data)
 
     shared_canvas = painter.get_canvas(copy=False)
+    shared_canvas_copy = shared_canvas.copy()
     np_shared = np.array(shared_canvas, copy=False)
     np_copied = np.array(shared_canvas, copy=True)
+
+    # We need to check that .copy() returned a deep copy (part 1)
+    assert not shared_canvas.owns_data
+    assert shared_canvas_copy.owns_data
+    assert shared_canvas.shape == shared_canvas_copy.shape
 
     np_initial_canvas = np.array(painter.get_canvas(copy=False), copy=True)
 
@@ -144,3 +157,9 @@ def test_buffer_side_effects():
     # ... and of course, the initial canvas also
     # should not have changed
     assert np.array_equal(np_initial_canvas, np_copied)
+
+    # Finally, part 2 of checking that .copy() returned a deep copy:
+    old_deep_copy = np.array(shared_canvas_copy, copy=False)
+    assert not np.array_equal(data, old_deep_copy)
+    assert not np.array_equal(np_shared, old_deep_copy)
+    assert np.array_equal(np_copied, old_deep_copy)
