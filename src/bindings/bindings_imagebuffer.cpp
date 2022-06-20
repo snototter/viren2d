@@ -95,7 +95,7 @@ void RegisterImageBuffer(py::module &m) {
         )docstr")
       .def("is_valid", &ImageBuffer::IsValid,
            "Returns ``True`` if this buffer points to a valid memory location.")
-      .def("flip_channels", &ImageBuffer::SwapChannels, R"docstr(
+      .def("swap_channels", &ImageBuffer::SwapChannels, R"docstr(
            Swaps the specified channels **in-place**.
 
            Args:
@@ -133,7 +133,10 @@ void RegisterImageBuffer(py::module &m) {
       .def_property_readonly("owns_data", &ImageBuffer::OwnsData,
            "bool: Read-only flag indicating whether this\n"
            ":class:`~viren2d.ImageBuffer` owns the\n"
-           "image data (and is responsible for cleaning up).");
+           "image data (and is responsible for cleaning up).")
+      .def_property_readonly("shape",
+           [](const ImageBuffer &buf) { return py::make_tuple(buf.height, buf.width, buf.channels); },
+           "tuple: Shape of the image data as ``(H, W, C)`` tuple.");
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();

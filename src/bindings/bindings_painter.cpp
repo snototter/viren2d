@@ -352,6 +352,14 @@ void RegisterPainter(py::module &m) {
 
         >>> img_np = np.array(p.get_canvas(copy=True), copy=False)
 
+        If we need a 3-channel image, we can leverage the
+        :meth:`~viren2d.ImageBuffer.to_rgb` method of the buffer:
+
+        >>> # We only need a shared view on the canvas...
+        >>> img_buf = p.get_canvas(copy=False)
+        >>> # ... because the following call copies memory anyways:
+        >>> img_np = img_buf.to_rgb()
+
       .. tip::
           If you can ensure that the painter is not destroyed while
           you display/process the visualization, use the shared view

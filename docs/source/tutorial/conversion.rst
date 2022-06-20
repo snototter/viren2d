@@ -9,7 +9,8 @@ Integration with Other Libraries
 ``viren2d`` was designed to have as little external dependencies as possible.
 Thus, it uses its own :class:`~viren2d.ImageBuffer` class to encapsulate image
 data. In real applications, however, you usually work with standard libraries,
-such as `OpenCV <https://opencv.org/>`_ or `NumPy <https://numpy.org/>`_.
+such as `OpenCV <https://opencv.org/>`_ or `NumPy <https://numpy.org/>`_. The
+following examples show how to pass image data between these libraries.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
