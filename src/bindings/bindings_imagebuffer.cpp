@@ -18,10 +18,10 @@ ImageBuffer CreateImageBuffer(
     bool copy) {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3)
-    throw std::runtime_error("Incompatible image dimension!");
+    throw std::invalid_argument("Incompatible image dimension!");
 
   if (!buf.dtype().is(py::dtype::of<uint8_t>()))
-    throw std::runtime_error("Incompatible format: expected a uint8 array!");
+    throw std::invalid_argument("Incompatible format: expected a uint8 array!");
 
   ImageBuffer img;
   const int row_stride = static_cast<int>(buf.strides(0));

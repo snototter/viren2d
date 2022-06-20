@@ -56,6 +56,44 @@ def test_buffer_passing():
     assert np.array_equal(data, res_shared.reshape((buf.height, -1)))
 
 
+def test_buffer_methods():
+    data = (255 * np.random.rand(5, 15, 3)).astype(np.uint8)
+    buf = viren2d.ImageBuffer(data, copy=True)
+
+    # Sanity checks
+    with pytest.raises(ValueError):
+        buf.swap_channels(-1, 0)
+
+    with pytest.raises(ValueError):
+        buf.swap_channels(1, -1)
+
+    with pytest.raises(ValueError):
+        buf.swap_channels(0, buf.channels)
+
+    with pytest.raises(ValueError):
+        buf.swap_channels(buf.channels, 1)
+
+    # Swap first two channels
+    buf.swap_channels(0, 1)
+    res = np.array(buf, copy=False)
+
+    assert np.array_equal(data[:, :, 0], res[:, :, 1])
+    assert np.array_equal(data[:, :, 1], res[:, :, 0])
+    assert np.array_equal(data[:, :, 2], res[:, :, 2])
+
+    # Change back
+    buf.swap_channels(0, 1)
+    assert np.array_equal(data, res)
+
+    # Swap first and third channels, i.e. RGB <--> BGR
+    buf.swap_channels(2, 0)
+    assert np.array_equal(data[:, :, 0], res[:, :, 2])
+    assert np.array_equal(data[:, :, 1], res[:, :, 1])
+    assert np.array_equal(data[:, :, 0], res[:, :, 2])
+    
+    
+
+
 def test_buffer_side_effects():
     data = (255 * np.random.rand(5, 15, 3)).astype(np.uint8)
 
