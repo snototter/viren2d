@@ -578,7 +578,7 @@ void DemoBoundingBox2D() {
 }
 
 
-void ConversionOpenCV() {
+void DemoConversionOpenCV() {
 #ifdef WITH_OPENCV
 #ifdef EXAMPLE_IMAGE_FILE
   std::string image_filename(EXAMPLE_IMAGE_FILE);
@@ -589,37 +589,24 @@ void ConversionOpenCV() {
 #endif  // EXAMPLE_IMAGE_FILE
   cv::Mat img_cv = cv::imread(image_filename);
 
-  cv::Mat roi = img_cv(cv::Range(10, 23), cv::Range::all());
-  std::cerr << "Is ROI " << roi.size() << " continuous? " << roi.isContinuous() << std::endl;
-  roi = img_cv.col(3);
-  std::cerr << "Is ROI " << roi.size() << " continuous? " << roi.isContinuous()
-            << "\nstride: " << roi.step << "\nstep1(0): " << roi.step1()  << std::endl;
+  // To make this example a bit more interesting,
+  // let's get a non-continuous OpenCV matrix:
+  cv::Mat roi = img_cv.colRange(50, img_cv.cols - 50);
 
-  roi = img_cv.colRange(50, 200);
-  std::cerr << "Is ROI " << roi.size() << " continuous? " << roi.isContinuous()
-            << "\nstride: " << roi.step << "\nstep1(0): " << roi.step1()  << std::endl;
-  // SO example wrapping up some code examples on continuous matrices: https://stackoverflow.com/a/33674655/400948
-  // If your image is already in RGB(A) format, create
-  // a sharedan ImageBuffer header (hav
-  // Shared buffer --> Caveat: OpenCV uses BGR format!
+  const std::string win_title = roi.isContinuous()
+      ? "Using continuous cv::Mat"
+      : "Using non-continuous cv::Mat";
+
+  // Create a shared buffer (on purpose) and change
+  // color format to demonstrate the potential side-effect:
   viren2d::ImageBuffer img_buf;
-//  img_buf.CreateSharedBuffer(
-//        img_cv.data, img_cv.cols, img_cv.rows,
-//        img_cv.channels(), img_cv.step);
   img_buf.CreateSharedBuffer(
         roi.data, roi.cols, roi.rows,
         roi.channels(), roi.step);
   img_buf.SwapChannels(0, 2);
 
-  cv::imshow("side effects", img_cv);
-
-//  // Copied buffer
-//  viren2d::ImageBuffer img_buf;
-//  img_buf.CreateCopy(
-//        img_cv.data,img_cv.cols, img_cv.rows,
-//        img_cv.channels(), img_cv.step);
-//  img_buf.RGB2BGR();
-
+  // Now, use the ImageBuffer to set up a canvas and
+  // draw something
   auto painter = viren2d::CreatePainter();
   painter->SetCanvas(img_buf);
 
@@ -627,13 +614,18 @@ void ConversionOpenCV() {
         {0.0, 0.0}, {img_buf.width / 2.0, img_buf.height / 2.0},
         viren2d::ArrowStyle(10, "navy-blue!80", 0.2, 20.0));
 
-
+  // Retrieve the visualization, and show the image.
+  // Since we'll use cv::imshow, we need to convert
+  // the buffer to BGR(A) format:
   viren2d::ImageBuffer copy = painter->GetCanvas(true);
-  copy.SwapChannels(0, 2); // Warning: Currently, the buffer is shared!!
+  copy.SwapChannels(0, 2);
   cv::Mat cv_buffer(copy.height, copy.width,
                     CV_MAKETYPE(CV_8U, copy.channels),
                     copy.data, copy.stride);
+
   cv::imshow("Painter's Canvas", cv_buffer);
+  cv::imshow("Shared Buffer Side Effects", img_cv);
+
   cv::waitKey();
   painter.reset();
 #else  // WITH_OPENCV
@@ -643,7 +635,7 @@ void ConversionOpenCV() {
 
 
 int main(int /*argc*/, char **/*argv*/) {
-  ConversionOpenCV();
+  DemoConversionOpenCV();
   //viren2d::Color::FromCategory("Person");
   std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
 //  if (!viren2d::SetLogLevel("trace")) {

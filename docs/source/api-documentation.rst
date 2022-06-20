@@ -21,13 +21,14 @@ API Documentation
      :nosignatures:
 
      viren2d.Color
-     viren2d.RGBa
-     viren2d.rgba
      viren2d.color_names
-     viren2d.Vec2d
-     viren2d.Vec3d
      viren2d.Ellipse
      viren2d.Rect
+     viren2d.RGBa
+     viren2d.rgba
+     viren2d.Vec2d
+     viren2d.Vec3d
+     viren2d.ImageBuffer
 
 
 **Style definitions:**
@@ -36,6 +37,7 @@ API Documentation
      :nosignatures:
 
      viren2d.ArrowStyle
+     viren2d.BoundingBox2DStyle
      viren2d.LineCap
      viren2d.LineJoin
      viren2d.LineStyle
@@ -43,7 +45,6 @@ API Documentation
      viren2d.Marker
      viren2d.MarkerStyle
      viren2d.TextStyle
-     viren2d.BoundingBox2DStyle
 
 
 **Positioning:**
