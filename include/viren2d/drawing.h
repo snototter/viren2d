@@ -74,7 +74,7 @@ public:
    */
   virtual void SetCanvas(const std::string &image_filename) = 0;
 
-  //TODO doc - memory will be copied; image must be RGBA!
+  //TODO doc - memory will be copied; image must be RGB or RGBA!
   // TODO support RGB and grayscale images, too:
   // * rgb, set alpha 255
   // * grayscale --> gray,gray,gray, alpha

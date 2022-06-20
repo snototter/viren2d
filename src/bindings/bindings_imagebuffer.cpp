@@ -18,10 +18,10 @@ ImageBuffer CreateImageBuffer(
     bool copy) {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3)
-    throw std::runtime_error("Incompatible image dimension!");
+    throw std::invalid_argument("Incompatible image dimension!");
 
   if (!buf.dtype().is(py::dtype::of<uint8_t>()))
-    throw std::runtime_error("Incompatible format: expected a uint8 array!");
+    throw std::invalid_argument("Incompatible format: expected a uint8 array!");
 
   ImageBuffer img;
   const int row_stride = static_cast<int>(buf.strides(0));
@@ -37,13 +37,25 @@ ImageBuffer CreateImageBuffer(
 }
 
 void RegisterImageBuffer(py::module &m) {
-  //TODO class docstr states grayscale, rgb or rgba --> we might also want
-  //to visualize flow in the distant future (for now, use vito.flowutils)
+  //TODO(doc) update docstring once ImageBuffer supports other data types
 
-  // Info on numpy memory layout: https://stackoverflow.com/a/53099870/400948
-  py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
-           "An ImageBuffer holds 8-bit images (Grayscale,\n"
-           "RGB or RGBA).")
+  py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
+          An :class:`~viren2d.ImageBuffer` holds 8-bit image data.
+
+          This class is used to pass image data between your
+          application and ``viren2d``. Currently, only grayscale,
+          RGB, and RGBA images of type uint8 are supported.
+
+          Note that :class:`~viren2d.ImageBuffer` implements the
+          standard Python buffer protocol and thus, can be swiftly
+          converted to/from other buffer types, such as NumPy
+          arrays, for example:
+
+          >>> # Create an ImageBuffer from a numpy.ndarray
+          >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)
+          >>> # Create a numpy.ndarray from an ImageBuffer
+          >>> img_np = np.array(img_buf, copy=False)
+          )docstr")
       .def(py::init(&CreateImageBuffer), R"docstr(
           Creates an :class:`~viren2d.ImageBuffer` from a :class:`numpy.ndarray`.
 
@@ -62,7 +74,7 @@ void RegisterImageBuffer(py::module &m) {
           return py::buffer_info(
               img.data, sizeof(unsigned char), // Pointer to data & size of each element
               py::format_descriptor<unsigned char>::format(), // Python struct-style format descriptor
-              3, // We'll always return ndim=3 arrays
+              3, // We'll always return ndim=3 arrays by design
               { static_cast<size_t>(img.height),
                 static_cast<size_t>(img.width),
                 static_cast<size_t>(img.channels) }, // Buffer dimensions
@@ -83,16 +95,29 @@ void RegisterImageBuffer(py::module &m) {
         )docstr")
       .def("is_valid", &ImageBuffer::IsValid,
            "Returns ``True`` if this buffer points to a valid memory location.")
-      .def("flip_channels", &ImageBuffer::RGB2BGR,
-           "Swaps the red and blue color channels **in-place**.")
-      .def("to_rgb", &ImageBuffer::ToRGB,
-           "Returns a copy of this buffer in **RGB** format.\n\n"
-           "Note that this call will always return a copy, even if\n"
-           "this :class:`~viren2d.ImageBuffer` is already RGB.")
-      .def("to_rgba", &ImageBuffer::ToRGBA,
-           "Returns a copy of this buffer in **RGBA** format.\n\n"
-           "Note that this call will always return a copy, even if\n"
-           "this :class:`~viren2d.ImageBuffer` is already RGBA.")
+      .def("swap_channels", &ImageBuffer::SwapChannels, R"docstr(
+           Swaps the specified channels **in-place**.
+
+           Args:
+             ch1: Zero-based index of the first channel as :class:`int`.
+             ch2: Zero-based index of the second channel as :class:`int`.
+           )docstr", py::arg("ch1"), py::arg("ch2"))
+      .def("to_rgb", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(3); }, R"docstr(
+           Returns a 3-channel representation.
+
+           This conversion is only supported for :class:`~viren2d.ImageBuffer`
+           instances which have 1, 3, or 4 channels.
+           Note that this call will always allocate and copy memory, even
+           if ``self`` is already a 3-channel buffer.
+           )docstr")
+      .def("to_rgba", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr(
+           Returns a 4-channel representation.
+
+           This conversion is only supported for :class:`~viren2d.ImageBuffer`
+           instances which have 1, 3, or 4 channels.
+           Note that this call will always allocate and copy memory, even
+           if ``self`` is already a 4-channel buffer.
+           )docstr")
       .def("__repr__",
            [](const ImageBuffer &)
            { return FullyQualifiedType("ImageBuffer", true); })
@@ -105,10 +130,13 @@ void RegisterImageBuffer(py::module &m) {
            "int: Number of channels (read-only).")
       .def_readonly("stride", &ImageBuffer::stride,
            "int: Stride in bytes per row  (read-only).")
-      .def_readonly("owns_data", &ImageBuffer::owns_data_,
+      .def_property_readonly("owns_data", &ImageBuffer::OwnsData,
            "bool: Read-only flag indicating whether this\n"
            ":class:`~viren2d.ImageBuffer` owns the\n"
-           "image data (and is responsible for cleaning up).");
+           "image data (and is responsible for cleaning up).")
+      .def_property_readonly("shape",
+           [](const ImageBuffer &buf) { return py::make_tuple(buf.height, buf.width, buf.channels); },
+           "tuple: Shape of the image data as ``(H, W, C)`` tuple.");
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();

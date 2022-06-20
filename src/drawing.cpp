@@ -428,7 +428,7 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
   SPDLOG_DEBUG("ImagePainter::SetCanvas(image_buffer{:s}).",
                image_buffer);
   if (image_buffer.channels != 4) {
-    SetCanvas(image_buffer.ToRGBA());
+    SetCanvas(image_buffer.ToChannels(4));
   } else {
     // Currently, we clean up previously created contexts/surfaces to
     // avoid unnecessarily cluttering the implementation. Then, we

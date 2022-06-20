@@ -38,7 +38,7 @@ namespace viren2d {
 //---------------------------------------------------- Image buffer
 ImageBuffer::ImageBuffer()
   : data(nullptr), width(0), height(0), channels(0), stride(0),
-  owns_data_(false) {
+  owns_data(false) {
   SPDLOG_DEBUG("ImageBuffer default constructor.");
 }
 
@@ -53,7 +53,7 @@ ImageBuffer::ImageBuffer(int w, int h, int ch) {
   height = h;
   channels = ch;
   stride = w * channels;
-  owns_data_ = true;
+  owns_data = true;
 }
 
 ImageBuffer::~ImageBuffer() {
@@ -63,8 +63,8 @@ ImageBuffer::~ImageBuffer() {
 
 ImageBuffer::ImageBuffer(const ImageBuffer &other) {
   SPDLOG_DEBUG("ImageBuffer copy constructor.");
-  owns_data_ = other.owns_data_;
-  if (other.owns_data_) {
+  owns_data = other.owns_data;
+  if (other.owns_data) {
     SPDLOG_TRACE("Copying other's image buffer memory.");
     const int num_bytes = other.height * other.stride;
     data = static_cast<unsigned char*>(std::malloc(num_bytes));
@@ -88,10 +88,10 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other) {
 ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
   : data(other.data), width(other.width), height(other.height),
     channels(other.channels), stride(other.stride),
-    owns_data_(other.owns_data_) {
+    owns_data(other.owns_data) {
   SPDLOG_DEBUG("ImageBuffer move constructor.");
   // Reset "other" but ensure that the memory won't be freed:
-  other.owns_data_ = false;
+  other.owns_data = false;
   other.Cleanup();
 }
 
@@ -105,7 +105,7 @@ ImageBuffer &ImageBuffer::operator=(const ImageBuffer &other) {
 ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
   SPDLOG_DEBUG("ImageBuffer move assignment operator.");
   std::swap(data, other.data);
-  std::swap(owns_data_, other.owns_data_);
+  std::swap(owns_data, other.owns_data);
   std::swap(width, other.width);
   std::swap(height, other.height);
   std::swap(channels, other.channels);
@@ -121,7 +121,7 @@ void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int heigh
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
-  owns_data_ = false;
+  owns_data = false;
   data = buffer;
   this->width = width;
   this->height = height;
@@ -144,7 +144,7 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
     s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
     throw std::runtime_error(s.str());
   }
-  owns_data_ = true;
+  owns_data = true;
 
   std::memcpy(data, buffer, num_bytes);
   this->width = width;
@@ -153,24 +153,39 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
   this->stride = stride;
 }
 
-void ImageBuffer::RGB2BGR() {
-  SPDLOG_DEBUG("ImageBuffer::RGB2BGR changing"
-               " layer order in-place.");
 
-  if (!data)
-    return;
+ImageBuffer ImageBuffer::CreateCopy() const {
+  ImageBuffer cp;
+  cp.CreateCopy(data, width, height, channels, stride);
+  return cp;
+}
 
-  if (channels != 4 && channels != 3) {
+
+void ImageBuffer::SwapChannels(int ch1, int ch2) {
+  SPDLOG_DEBUG("ImageBuffer::SwapChannels {:d} & {:d}.", ch1, ch2);
+
+  if ((ch1 < 0) || (ch1 >= channels)
+      || (ch2 < 0) || (ch2 >= channels)) {
     std::ostringstream s;
-    s << "Cannot flip red & blue channel of an image with " << channels << " channels";
-    throw std::logic_error(s.str());
+    s << "Cannot swap channels " << ch1
+      << " and " << ch2 << " of a "
+      << channels
+      << "-channel ImageBuffer: Invalid inputs!";
+    throw std::invalid_argument(s.str());
   }
-  // We iterate over the image buffer similar to the
+
+  if (!data || (ch1 == ch2)) {
+    return;
+  }
+
+  // We iterate over the image buffer, similar to the
   // efficient OpenCV matrix scan:
   // https://docs.opencv.org/2.4/doc/tutorials/core/how_to_scan_images/how_to_scan_images.html#the-efficient-way
   int rows = height;
   int cols = width * channels;
-  if (stride == cols) { // Is memory contiguous?
+  // If the memory is contiguous, we can speed up the
+  // following loop.
+  if (stride == cols) {
     cols *= rows;
     rows = 1;
   }
@@ -180,43 +195,70 @@ void ImageBuffer::RGB2BGR() {
     ptr_row = data + row * stride;
     for (int col = 0; col < cols; col+=channels) {
       // Swap red (at col) and blue (at col+2)
-      unsigned char tmp = ptr_row[col];
-      ptr_row[col]      = ptr_row[col+2];
-      ptr_row[col + 2]  = tmp;
+      unsigned char tmp = ptr_row[col + ch1];
+      ptr_row[col + ch1] = ptr_row[col + ch2];
+      ptr_row[col + ch2] = tmp;
     }
   }
 }
 
-ImageBuffer ImageBuffer::ToRGB() const {
-  SPDLOG_DEBUG("ImageBuffer::ToRGB().");
 
-  if (channels != 1 && channels != 3 && channels != 4)
-    throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGB!");
+void ImageBuffer::TakeOwnership() {
+  owns_data = true;
+}
+
+
+ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
+  SPDLOG_DEBUG(
+        "ImageBuffer::ToChannels converting {:d} to {:d} channels.",
+        channels, output_channels);
+
+  if ((channels != 1) && (channels != 3) && (channels != 4)) {
+    std::ostringstream s;
+    s << "Channel conversion is only supported for ImageBuffer with "
+         "1, 3, or 4 channels, but this buffer has "
+      << channels << '!';
+
+    throw std::invalid_argument(s.str());
+  }
 
   if (channels == 1) {
-    return Gray2RGB(*this);
-  } else {
-    if (channels == 3) {
-      return ImageBuffer(*this);
+    // Grayscale-to-something
+    if (output_channels == 1) {
+      return CreateCopy();
+    } else if (output_channels == 3) {
+      return Gray2RGB(*this);
+    } else if (output_channels == 4) {
+      return Gray2RGBA(*this);
     } else {
-      return RGBA2RGB(*this);
+      std::ostringstream s;
+      s << "Conversion from single-channel ImageBuffer to "
+        << output_channels << " output channels is not supported!";
+      throw std::invalid_argument(s.str());
     }
-  }
-}
-
-ImageBuffer ImageBuffer::ToRGBA() const {
-  SPDLOG_DEBUG("ImageBuffer::ToRGBA().");
-
-  if (channels != 1 && channels != 3 && channels != 4)
-    throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGBA!");
-
-  if (channels == 1) {
-    return Gray2RGBA(*this);
-  } else {
-    if (channels == 3) {
+  } else if (channels == 3) {
+    // RGB-to-something
+    if (output_channels == 3) {
+      return CreateCopy();
+    } else if (output_channels == 4) {
       return RGB2RGBA(*this);
     } else {
-      return ImageBuffer(*this);
+      std::ostringstream s;
+      s << "Conversion from 3-channel ImageBuffer to "
+        << output_channels << " output channel(s) is not supported!";
+      throw std::invalid_argument(s.str());
+    }
+  } else {
+    // RGBA-to-something
+    if (output_channels == 3) {
+      return RGBA2RGB(*this);
+    } else if (output_channels == 4) {
+      return CreateCopy();
+    } else {
+      std::ostringstream s;
+      s << "Conversion from 4-channel ImageBuffer to "
+        << output_channels << " output channel(s) is not supported!";
+      throw std::invalid_argument(s.str());
     }
   }
 }
@@ -236,7 +278,7 @@ std::string ImageBuffer::ToString() const {
   s << "ImageBuffer(" << width << "x" << height
     << "x" << channels;
 
-  if (owns_data_)
+  if (owns_data)
     s << ", copied memory";
   else
     s << ", shared memory";
@@ -249,13 +291,13 @@ std::string ImageBuffer::ToString() const {
 
 void ImageBuffer::Cleanup() {
   SPDLOG_TRACE("ImageBuffer::Cleanup().");
-  if (data && owns_data_) {
+  if (data && owns_data) {
     SPDLOG_TRACE("ImageBuffer freeing {:d}x{:d}x{:d}={:d} bytes.",
                  width, height, channels, width * height * channels);
     std::free(data);
   }
   data = nullptr;
-  owns_data_ = false;
+  owns_data = false;
   width = 0;
   height = 0;
   channels = 0;
@@ -287,7 +329,7 @@ ImageBuffer LoadImage(const std::string &image_filename,
   buffer.CreateSharedBuffer(data, width, height, num_channels,
                             width * num_channels);
   // Then, transfer ownership
-  buffer.owns_data_ = true;
+  buffer.TakeOwnership();
   // Alternatively, we could:
   //     buffer.CreateCopy(data, width, height, num_channels,
   //                       width * num_channels);
@@ -386,9 +428,11 @@ ImageBuffer ConversionHelperGray(const ImageBuffer &src,
   return dst;
 }
 
+
 ImageBuffer Gray2RGB(const ImageBuffer &img) {
   return ConversionHelperGray(img, 3);
 }
+
 
 ImageBuffer Gray2RGBA(const ImageBuffer &img) {
   return ConversionHelperGray(img, 4);
