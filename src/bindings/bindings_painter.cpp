@@ -644,7 +644,33 @@ void RegisterPainter(py::module &m) {
 
 
   //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "TODO doc, default args";
+  doc = R"docstr(
+      Draws a trajectory.
+
+      TODO doc
+
+      If a valid ``fade_out_color`` is given, the trajectory will
+      be drawn as separate line segments needed to render the
+      color gradient. However, this means that the
+      :attr:`~viren2d.LineStyle.join`` setting of the ``line_style``
+      will be ignored. Additionally, the segment endpoints will be
+      visible if you transparent colors are used.
+      To avoid this behavior, the trajectory needs to be drawn with
+      a single color, *i.e.* pass :attr:`viren2d.Color.Invalid` as
+      ``fade_out_color``.
+
+      Args:
+        points: TODO
+        line_style: A :class:`~viren2d.LineStyle` specifying how
+          to draw the trajectory (except for the color gradient).
+        fade_out_color: If this is a valid :class:`~viren2d.Color`,
+          the trajectory's tail will be drawn with this color.
+        oldest_first: Set to ``True`` if the first point, *i.e.*
+          ``points[0]``, is the *oldest*, *i.e.* the trajectory's
+          head.
+      )docstr";
+  // TODO linear fadeout vs 2nd order polynomial: y=\left(20 x^2 + 2x +1\right)^{-1}
+  // TODO change from color to ColorDecay(target_color, type {linear|polynomial|none})?
   painter.def("draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
               py::arg("points"), py::arg("line_style") = LineStyle(),
               py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),

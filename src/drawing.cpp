@@ -79,6 +79,47 @@ INITIALIZER(initialize) {
   std::atexit(shutdown);
 }
 
+
+// FIXME outsource to werkzeugkiste::geometry
+/** @brief Smoothes the given data points such that each point is the average over a
+ * window of "span" values (centered on the processed point). First and last
+ * point of the data won't be smoothed. Similar behavior as MATLAB's smooth().
+ *
+ * Requires that the span is odd and >= 3. Example, span = 5:
+ * output[0] = trajectory[0]
+ * output[1] = (trajectory[0] + trajectory[1] + trajectory[2]) / 3
+ * output[2] = (t[0] + ... + t[4]) / 5
+ * output[3] = (t[1] + ... + t[5]) / 5
+ */
+template <class Container>
+Container SmoothTrajectoryMovingAverage(const Container &trajectory, int span)
+{
+  Container smoothed_trajectory;
+  const int neighbors = (span - 1)/2;
+  for (size_t ti = 0; ti < trajectory.size(); ++ti)
+  {
+    const int idx_int = static_cast<int>(ti);
+    int from = std::max(0, idx_int - neighbors);
+    int to = std::min(static_cast<int>(trajectory.size()-1), idx_int + neighbors);
+
+    // Reduce span at the beginning/end (where there are less neighbors).
+    const int n = std::min(idx_int - from, to - idx_int);
+    from = idx_int - n;
+    to = idx_int + n;
+
+    // Average all values within the span.
+    typename Container::value_type average = trajectory[from];
+    for (int win_idx = from + 1; win_idx <= to; ++win_idx)
+    {
+      average += trajectory[win_idx];
+    }
+    average /= static_cast<double>(2*n + 1);
+    smoothed_trajectory.push_back(average);
+  }
+  return smoothed_trajectory;
+}
+
+
 /** Implements the Painter interface using a Cairo image surface. */
 class ImagePainter : public Painter {
 public:
@@ -287,7 +328,10 @@ protected:
                  "fade_out={:s}, oldest_first={:s}", points.size(), style,
                  color_fade_out, oldest_position_first);
 
-    helpers::DrawTrajectory(surface_, context_, points, style,
+    //FIXME parametrize
+    std::vector<Vec2d> smoothed = SmoothTrajectoryMovingAverage(points, 3);
+
+    helpers::DrawTrajectory(surface_, context_, smoothed, style,
                             color_fade_out, oldest_position_first);
   }
 
