@@ -154,6 +154,13 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
 }
 
 
+ImageBuffer ImageBuffer::CreateCopy() const {
+  ImageBuffer cp;
+  cp.CreateCopy(data, width, height, channels, stride);
+  return cp;
+}
+
+
 void ImageBuffer::SwapChannels(int ch1, int ch2) {
   SPDLOG_DEBUG("ImageBuffer::SwapChannels {:d} & {:d}.", ch1, ch2);
 
@@ -218,7 +225,7 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
   if (channels == 1) {
     // Grayscale-to-something
     if (output_channels == 1) {
-      return ImageBuffer(*this);
+      return CreateCopy();
     } else if (output_channels == 3) {
       return Gray2RGB(*this);
     } else if (output_channels == 4) {
@@ -232,7 +239,7 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
   } else if (channels == 3) {
     // RGB-to-something
     if (output_channels == 3) {
-      return ImageBuffer(*this);
+      return CreateCopy();
     } else if (output_channels == 4) {
       return RGB2RGBA(*this);
     } else {
@@ -246,7 +253,7 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
     if (output_channels == 3) {
       return RGBA2RGB(*this);
     } else if (output_channels == 4) {
-      return ImageBuffer(*this);
+      return CreateCopy();
     } else {
       std::ostringstream s;
       s << "Conversion from 4-channel ImageBuffer to "

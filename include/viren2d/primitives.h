@@ -44,7 +44,7 @@ public:
 
   ~ImageBuffer();
 
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
+  //TODO [ ] add C++ test (tests/xxx_test.cpp) - fixme doc: copies data if other.owns_data; otherwise, *this will also be a shared buffer!
   ImageBuffer(const ImageBuffer &other); // copy c'tor
 
   //TODO [ ] add C++ test (tests/xxx_test.cpp)
@@ -74,6 +74,8 @@ public:
    * @brief Copies the given image data.
    */
   void CreateCopy(unsigned char const *buffer, int width, int height, int channels, int stride);
+
+  ImageBuffer CreateCopy() const;
 
 
   void SwapChannels(int ch1, int ch2);

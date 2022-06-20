@@ -14,8 +14,11 @@ def test_buffer_passing():
 
         # Create image buffers (shared & copy)
         buf_shared = viren2d.ImageBuffer(data, copy=False)
+        assert not buf_shared.owns_data
         assert buf_shared.shape == (5, 15, channels)
+
         buf_copied = viren2d.ImageBuffer(data, copy=True)
+        assert buf_copied.owns_data
         assert buf_copied.shape == (5, 15, channels)
         
         # Convert back (the numpy arrays both *share* the memory
@@ -29,6 +32,17 @@ def test_buffer_passing():
         data[3, 4, :] = 42
         assert np.array_equal(data, res_shared)
         assert not np.array_equal(data, res_copied)
+
+        # If we have a grayscale, rgb, or rgba image, also
+        # test that to_rgb/a works as expected:
+        if channels in [1, 3, 4]:
+            as_rgb = buf_shared.to_rgb()
+            assert as_rgb.channels == 3
+            assert as_rgb.owns_data
+
+            as_rgba = buf_shared.to_rgba()
+            assert as_rgba.channels == 4
+            assert as_rgba.owns_data
 
     # Create from a 2D array explicitly
     data = (255 * np.random.rand(5, 15)).astype(np.uint8)
@@ -56,7 +70,7 @@ def test_buffer_passing():
     assert np.array_equal(data, res_shared.reshape((buf.height, -1)))
 
 
-def test_buffer_methods():
+def test_channel_swapping():
     data = (255 * np.random.rand(5, 15, 3)).astype(np.uint8)
     buf = viren2d.ImageBuffer(data, copy=True)
 
