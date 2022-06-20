@@ -37,12 +37,25 @@ ImageBuffer CreateImageBuffer(
 }
 
 void RegisterImageBuffer(py::module &m) {
+  //FIXME update docstring once ImageBuffer supports other data types
+
   py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
           An :class:`~viren2d.ImageBuffer` holds 8-bit image data.
-FIXME
+
           This class is used to pass image data between your
-          application and ``viren2d``. (Grayscale,\n"
-           "RGB or RGBA).")
+          application and ``viren2d``. Currently, only grayscale,
+          RGB, and RGBA images of type uint8 are supported.
+
+          Note that :class:`~viren2d.ImageBuffer` implements the
+          Python buffer protocol and thus, can be swiftly
+          converted to/from other buffer types, such as NumPy
+          arrays, for example:
+
+          >>> # Create an ImageBuffer from a numpy.ndarray
+          >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)
+          >>> # Create a numpy.ndarray from an ImageBuffer
+          >>> img_np = np.array(img_buf, copy=False)
+          )docstr")
       .def(py::init(&CreateImageBuffer), R"docstr(
           Creates an :class:`~viren2d.ImageBuffer` from a :class:`numpy.ndarray`.
 
