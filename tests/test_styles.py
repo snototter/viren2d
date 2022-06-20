@@ -176,8 +176,9 @@ def test_line_offsets():
     # Default join should be miter:
     assert style.join == viren2d.LineJoin.Miter
 
-    # Check offsets at start/end of a line (an ArrowStyle is derived from LineStyle)
-    assert style.cap == viren2d.LineCap.Butt
+    # Check offsets at start/end of a line (because an ArrowStyle is
+    # derived from LineStyle)
+    style.cap = viren2d.LineCap.Butt
     assert style.cap_offset() == pytest.approx(0.0)
 
     style.cap = viren2d.LineCap.Round
