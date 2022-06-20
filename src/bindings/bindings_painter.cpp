@@ -8,8 +8,6 @@
 
 #include <bindings/binding_helpers.h>
 
-//TODO(doc) Remove FullyQualifiedTypeString from docstr
-//    definitions, so we can more easily use raw strings
 
 namespace py = pybind11;
 
@@ -285,9 +283,10 @@ void RegisterPainter(py::module &m) {
   doc = R"docstr(
       Initializes the canvas from the given image.
 
-      The input image can be either a :class:`numpy.ndarray`
-      (currently, only ``uint8```:class:`numpy.dtype` is supported) or an
-      :class:`~viren2d.ImageBuffer`.
+      Args:
+        img_np: Image as either a :class:`numpy.ndarray` (currently,
+          only :class:`numpy.uint8` is supported) or an :class:`~viren2d.ImageBuffer`.
+          The image can either be grayscale, RGB or RGBA.
 
       Example:
         >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -298,12 +297,6 @@ void RegisterPainter(py::module &m) {
 
 
   //----------------------------------------------------------------------
-  //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
   painter.def("get_canvas_size", &PainterWrapper::GetCanvasSize, R"docstr(
       Returns the size of the canvas in pixels.
 
@@ -313,12 +306,6 @@ void RegisterPainter(py::module &m) {
       )docstr");
 
   //----------------------------------------------------------------------
-  //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
   painter.def("get_canvas", &PainterWrapper::GetCanvas, R"docstr(
       Returns the current visualization in RGBA format.
 
@@ -368,12 +355,6 @@ void RegisterPainter(py::module &m) {
       )docstr", py::arg("copy") = true);
 
   //----------------------------------------------------------------------
-  //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
   doc = R"docstr(
       Draws a circular arc.
 
@@ -406,7 +387,6 @@ void RegisterPainter(py::module &m) {
       py::arg("fill_color") = Color::Invalid);
 
   //----------------------------------------------------------------------
-  //
   doc = R"docstr(
       Draws an arrow.
 
@@ -452,13 +432,6 @@ void RegisterPainter(py::module &m) {
   painter.def("draw_bounding_box_2d", &PainterWrapper::DrawBoundingBox2D,
               doc.c_str(), py::arg("rect"), py::arg("label"),
               py::arg("box_style") = BoundingBox2DStyle());
-//  // Create an alias, works since pybind11 v2.2, see
-//  // https://github.com/pybind/pybind11/pull/802
-//  // not documentable :/
-//  painter.attr("draw_bbox2d") = painter.attr("draw_bounding_box_2d");
-////forbidden  painter.attr("draw_bbox2d").attr("__doc__") = "TODO";
-////  painter.def("draw_bbox2d", &painter.attr("draw_bounding_box2d"), "TODO doc");
-//  // "An alias for :meth:`~viren2d.Painter.draw_bounding_box_2d`."
 
   //----------------------------------------------------------------------
   doc = R"docstr(

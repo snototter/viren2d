@@ -37,7 +37,7 @@ ImageBuffer CreateImageBuffer(
 }
 
 void RegisterImageBuffer(py::module &m) {
-  //FIXME update docstring once ImageBuffer supports other data types
+  //TODO(doc) update docstring once ImageBuffer supports other data types
 
   py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
           An :class:`~viren2d.ImageBuffer` holds 8-bit image data.
@@ -47,7 +47,7 @@ void RegisterImageBuffer(py::module &m) {
           RGB, and RGBA images of type uint8 are supported.
 
           Note that :class:`~viren2d.ImageBuffer` implements the
-          Python buffer protocol and thus, can be swiftly
+          standard Python buffer protocol and thus, can be swiftly
           converted to/from other buffer types, such as NumPy
           arrays, for example:
 
@@ -74,7 +74,7 @@ void RegisterImageBuffer(py::module &m) {
           return py::buffer_info(
               img.data, sizeof(unsigned char), // Pointer to data & size of each element
               py::format_descriptor<unsigned char>::format(), // Python struct-style format descriptor
-              3, // We'll always return ndim=3 arrays
+              3, // We'll always return ndim=3 arrays by design
               { static_cast<size_t>(img.height),
                 static_cast<size_t>(img.width),
                 static_cast<size_t>(img.channels) }, // Buffer dimensions
