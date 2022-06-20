@@ -8,13 +8,6 @@ Installation
 Requirements
 ------------
 
-TODO you'll need python 3.x-dev packages!
-
-TODO how to install spdlog is missing --> change in viren2d (disable logging if not found & issue a cmake warning)
-
-TODO Note that NumPy>=1.7.0 is a runtime dependency (by pybind11).
-
-
 * A C++ compiler supporting at least ``C++14``.
 * `CMake \>= 3.15 <https://cmake.org/>`__ and a
   `compatible build tool <https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html>`__,
@@ -22,7 +15,7 @@ TODO Note that NumPy>=1.7.0 is a runtime dependency (by pybind11).
   *etc.*
 * The `Cairo 2D graphics library <https://www.cairographics.org/download>`__.
 
-  Currently, there is no plan to ship ``viren2d`` binaries. Thus, you need the
+  Currently, there are no ``viren2d`` packages - thus, you need the
   Cairo development packages (``-dev`` or ``-devel``) for your system. For
   example, on GNU/Linux distributions, you simply install Cairo via:
 
@@ -37,17 +30,24 @@ TODO Note that NumPy>=1.7.0 is a runtime dependency (by pybind11).
      # openSUSE
      zypper install cairo-devel
 
-* To build the Python bindings, you also need
-  `Python \>= 3.6 <https://www.python.org/>`_ with
-  `pip \>= 10.0.0 <https://pypi.org/project/pip/>`_.
+* To build the Python bindings, you also need:
+
+  * `Python \>= 3.6 <https://www.python.org/>`_, along with its development
+    library, *i.e.* ``python3-dev`` on Linux/macOS.
+  * Currently, the Python bindings are only tested with
+    `pip \>= 10.0.0 <https://pypi.org/project/pip/>`_.
+
+* Finally, to use the Python bindings, you also need
+  `NumPy \>= 1.7.0 <https://numpy.org/>`_, which is only a runtime dependency.
 
 
 ------
 Python
 ------
 
-The simplest & recommended way to install ``viren2d`` is to use the default
-package manager, ``pip``:
+If all requirements are installed, the simplest way to install ``viren2d`` is
+to use the default package manager, ``pip``, which supports installation
+directly from the github repository:
 
    .. code-block:: console
 
@@ -60,11 +60,16 @@ package manager, ``pip``:
       python -m pip install git+https://github.com/snototter/viren2d.git
 
 
-
 ---
 C++
 ---
 
-TODO populate with instructions from readme
+.. warning::
+   TODO cpp documentation missing - populate with instructions from readme
+   
+   TODO how to setup/install spdlog is missing (we should also change the overall
+   spdlog handling in viren2d, i.e. disable logging if not found & issue a cmake
+   warning instead)
 
+   TODO need to verify the requirement list with a fresh install
 
