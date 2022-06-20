@@ -37,12 +37,11 @@ ImageBuffer CreateImageBuffer(
 }
 
 void RegisterImageBuffer(py::module &m) {
-  //TODO class docstr states grayscale, rgb or rgba --> we might also want
-  //to visualize flow in the distant future (for now, use vito.flowutils)
-
-  // Info on numpy memory layout: https://stackoverflow.com/a/53099870/400948
-  py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(),
-           "An ImageBuffer holds 8-bit images (Grayscale,\n"
+  py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
+          An :class:`~viren2d.ImageBuffer` holds 8-bit image data.
+FIXME
+          This class is used to pass image data between your
+          application and ``viren2d``. (Grayscale,\n"
            "RGB or RGBA).")
       .def(py::init(&CreateImageBuffer), R"docstr(
           Creates an :class:`~viren2d.ImageBuffer` from a :class:`numpy.ndarray`.
@@ -87,10 +86,10 @@ void RegisterImageBuffer(py::module &m) {
            Swaps the specified channels **in-place**.
 
            Args:
-             ch1: Index (0-based) of the first channel as :class:`int`.
-             ch2: Index (0-based) of the second channel as :class:`int`.
+             ch1: Zero-based index of the first channel as :class:`int`.
+             ch2: Zero-based index of the second channel as :class:`int`.
            )docstr", py::arg("ch1"), py::arg("ch2"))
-      .def("to_rgb", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(3); }, R"docstr("
+      .def("to_rgb", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(3); }, R"docstr(
            Returns a 3-channel representation.
 
            This conversion is only supported for :class:`~viren2d.ImageBuffer`
@@ -98,7 +97,7 @@ void RegisterImageBuffer(py::module &m) {
            Note that this call will always allocate and copy memory, even
            if ``self`` is already a 3-channel buffer.
            )docstr")
-      .def("to_rgba", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr("
+      .def("to_rgba", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr(
            Returns a 4-channel representation.
 
            This conversion is only supported for :class:`~viren2d.ImageBuffer`
