@@ -24,7 +24,7 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 
 #ifdef WITH_OPENCV
   viren2d::ImageBuffer copy(canvas);
-  copy.RGB2BGR(); // Warning: Currently, the buffer is shared!!
+  copy.SwapChannels(0, 2);
   cv::Mat cv_buffer(copy.height, copy.width,
                     CV_MAKETYPE(CV_8U, copy.channels),
                     copy.data, copy.stride);
@@ -330,6 +330,14 @@ void DemoPolygon() {
     oldest_first = !oldest_first;
   }
 
+  trajectory = {{50, 400}, {100, 450}, {150, 400}, {200, 450},
+                {150, 500}, {200, 550}, {250, 500}, {300, 600},
+                {350, 500}, {400, 600}, {450, 550}, {500, 700}};
+  style.color = "red";
+  painter->DrawTrajectory(trajectory, style, "black!100");
+  //TODO we could add support for exponential color decay instead of linear (general form: https://math.stackexchange.com/a/557141)
+
+
   ShowCanvas(painter->GetCanvas(false), "demo-output-polygon.png");
   painter.reset();
 }
@@ -570,8 +578,72 @@ void DemoBoundingBox2D() {
 }
 
 
+void ConversionOpenCV() {
+#ifdef WITH_OPENCV
+#ifdef EXAMPLE_IMAGE_FILE
+  std::string image_filename(EXAMPLE_IMAGE_FILE);
+#else  // EXAMPLE_IMAGE_FILE
+  std::string image_filename("../examples/flamingo.jpg");
+  std::cerr << "Filename of example image not given, using default (relative!) path: "
+            << image_filename << std::endl;
+#endif  // EXAMPLE_IMAGE_FILE
+  cv::Mat img_cv = cv::imread(image_filename);
+
+  cv::Mat roi = img_cv(cv::Range(10, 23), cv::Range::all());
+  std::cerr << "Is ROI " << roi.size() << " continuous? " << roi.isContinuous() << std::endl;
+  roi = img_cv.col(3);
+  std::cerr << "Is ROI " << roi.size() << " continuous? " << roi.isContinuous()
+            << "\nstride: " << roi.step << "\nstep1(0): " << roi.step1()  << std::endl;
+
+  roi = img_cv.colRange(50, 200);
+  std::cerr << "Is ROI " << roi.size() << " continuous? " << roi.isContinuous()
+            << "\nstride: " << roi.step << "\nstep1(0): " << roi.step1()  << std::endl;
+  // SO example wrapping up some code examples on continuous matrices: https://stackoverflow.com/a/33674655/400948
+  // If your image is already in RGB(A) format, create
+  // a sharedan ImageBuffer header (hav
+  // Shared buffer --> Caveat: OpenCV uses BGR format!
+  viren2d::ImageBuffer img_buf;
+//  img_buf.CreateSharedBuffer(
+//        img_cv.data, img_cv.cols, img_cv.rows,
+//        img_cv.channels(), img_cv.step);
+  img_buf.CreateSharedBuffer(
+        roi.data, roi.cols, roi.rows,
+        roi.channels(), roi.step);
+  img_buf.SwapChannels(0, 2);
+
+  cv::imshow("side effects", img_cv);
+
+//  // Copied buffer
+//  viren2d::ImageBuffer img_buf;
+//  img_buf.CreateCopy(
+//        img_cv.data,img_cv.cols, img_cv.rows,
+//        img_cv.channels(), img_cv.step);
+//  img_buf.RGB2BGR();
+
+  auto painter = viren2d::CreatePainter();
+  painter->SetCanvas(img_buf);
+
+  painter->DrawArrow(
+        {0.0, 0.0}, {img_buf.width / 2.0, img_buf.height / 2.0},
+        viren2d::ArrowStyle(10, "navy-blue!80", 0.2, 20.0));
+
+
+  viren2d::ImageBuffer copy = painter->GetCanvas(true);
+  copy.SwapChannels(0, 2); // Warning: Currently, the buffer is shared!!
+  cv::Mat cv_buffer(copy.height, copy.width,
+                    CV_MAKETYPE(CV_8U, copy.channels),
+                    copy.data, copy.stride);
+  cv::imshow("Painter's Canvas", cv_buffer);
+  cv::waitKey();
+  painter.reset();
+#else  // WITH_OPENCV
+  std::cerr << "OpenCV is not available - cannot display the canvas." << std::endl;
+#endif  // WITH_OPENCV
+}
+
 
 int main(int /*argc*/, char **/*argv*/) {
+  ConversionOpenCV();
   //viren2d::Color::FromCategory("Person");
   std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
 //  if (!viren2d::SetLogLevel("trace")) {
@@ -664,7 +736,7 @@ int main(int /*argc*/, char **/*argv*/) {
 #ifdef WITH_OPENCV
   // The last bit of OpenCV dependency (only for displaying the image ;-)
   viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);
-  img_buffer.RGB2BGR(); // Warning: Currently, the buffer is shared!!
+  img_buffer.SwapChannels(0, 2); // Warning: Currently, the buffer is shared!!
   cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
                     CV_MAKETYPE(CV_8U, img_buffer.channels),
                     img_buffer.data, img_buffer.stride);

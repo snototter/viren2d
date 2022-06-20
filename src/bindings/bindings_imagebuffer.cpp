@@ -83,16 +83,29 @@ void RegisterImageBuffer(py::module &m) {
         )docstr")
       .def("is_valid", &ImageBuffer::IsValid,
            "Returns ``True`` if this buffer points to a valid memory location.")
-      .def("flip_channels", &ImageBuffer::RGB2BGR,
-           "Swaps the red and blue color channels **in-place**.")
-      .def("to_rgb", &ImageBuffer::ToRGB,
-           "Returns a copy of this buffer in **RGB** format.\n\n"
-           "Note that this call will always return a copy, even if\n"
-           "this :class:`~viren2d.ImageBuffer` is already RGB.")
-      .def("to_rgba", &ImageBuffer::ToRGBA,
-           "Returns a copy of this buffer in **RGBA** format.\n\n"
-           "Note that this call will always return a copy, even if\n"
-           "this :class:`~viren2d.ImageBuffer` is already RGBA.")
+      .def("flip_channels", &ImageBuffer::SwapChannels, R"docstr(
+           Swaps the specified channels **in-place**.
+
+           Args:
+             ch1: Index (0-based) of the first channel as :class:`int`.
+             ch2: Index (0-based) of the second channel as :class:`int`.
+           )docstr", py::arg("ch1"), py::arg("ch2"))
+      .def("to_rgb", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(3); }, R"docstr("
+           Returns a 3-channel representation.
+
+           This conversion is only supported for :class:`~viren2d.ImageBuffer`
+           instances which have 1, 3, or 4 channels.
+           Note that this call will always allocate and copy memory, even
+           if ``self`` is already a 3-channel buffer.
+           )docstr")
+      .def("to_rgba", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr("
+           Returns a 4-channel representation.
+
+           This conversion is only supported for :class:`~viren2d.ImageBuffer`
+           instances which have 1, 3, or 4 channels.
+           Note that this call will always allocate and copy memory, even
+           if ``self`` is already a 4-channel buffer.
+           )docstr")
       .def("__repr__",
            [](const ImageBuffer &)
            { return FullyQualifiedType("ImageBuffer", true); })

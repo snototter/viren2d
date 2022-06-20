@@ -12,6 +12,7 @@
 
 namespace viren2d {
 //---------------------------------------------------- Image buffer
+// TODO refactor imagebuffer into separate compilation unit
 /**
  * @brief An ImageBuffer holds 8-bit images.
  *
@@ -74,38 +75,23 @@ struct ImageBuffer {
   void CreateCopy(unsigned char const *buffer, int width, int height, int channels, int stride);
 
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
+  void SwapChannels(int ch1, int ch2);
+
+
   /**
-   * @brief Flips the red and green components in-place.
+   * TODO documentation!
    *
-   * This is useful if you're working with OpenCV's BGR format images.
-   * *Watch out* if you're using an ImageBuffer initialized via
-   * @see CreateSharedBuffer().
+   * Only the following conversions are supported:
+   * * From single-channel to 1-, 3-, or 4-channel output.
+   * * From 3-channel to 3- or 4-channel output, *i.e.* adding
+   *   an alpha channel.
+   * * From 4-channel to 3- or 4-channel output, *i.e.* removing
+   *   the alpha channel.
+   *
+   * Other configurations are **not** supported.
    */
-  void RGB2BGR();
+  ImageBuffer ToChannels(int output_channels) const;
 
-
-  //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
-  /** @brief Converts this image to RGB. */
-  ImageBuffer ToRGB() const;
-
-
-  //DONE [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
-  /** @brief Converts this image to RGBA. */
-  ImageBuffer ToRGBA() const;
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)

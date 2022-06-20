@@ -153,24 +153,32 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
   this->stride = stride;
 }
 
-void ImageBuffer::RGB2BGR() {
-  SPDLOG_DEBUG("ImageBuffer::RGB2BGR changing"
-               " layer order in-place.");
 
-  if (!data)
-    return;
+void ImageBuffer::SwapChannels(int ch1, int ch2) {
+  SPDLOG_DEBUG("ImageBuffer::SwapChannels {:d} & {:d}.", ch1, ch2);
 
-  if (channels != 4 && channels != 3) {
+  if ((ch1 < 0) || (ch1 >= channels)
+      || (ch2 < 0) || (ch2 >= channels)) {
     std::ostringstream s;
-    s << "Cannot flip red & blue channel of an image with " << channels << " channels";
-    throw std::logic_error(s.str());
+    s << "Cannot swap channels " << ch1
+      << " and " << ch2 << " of a "
+      << channels
+      << "-channel ImageBuffer: Invalid inputs!";
+    throw std::invalid_argument(s.str());
   }
-  // We iterate over the image buffer similar to the
+
+  if (!data || (ch1 == ch2)) {
+    return;
+  }
+
+  // We iterate over the image buffer, similar to the
   // efficient OpenCV matrix scan:
   // https://docs.opencv.org/2.4/doc/tutorials/core/how_to_scan_images/how_to_scan_images.html#the-efficient-way
   int rows = height;
   int cols = width * channels;
-  if (stride == cols) { // Is memory contiguous?
+  // If the memory is contiguous, we can speed up the
+  // following loop.
+  if (stride == cols) {
     cols *= rows;
     rows = 1;
   }
@@ -180,43 +188,65 @@ void ImageBuffer::RGB2BGR() {
     ptr_row = data + row * stride;
     for (int col = 0; col < cols; col+=channels) {
       // Swap red (at col) and blue (at col+2)
-      unsigned char tmp = ptr_row[col];
-      ptr_row[col]      = ptr_row[col+2];
-      ptr_row[col + 2]  = tmp;
+      unsigned char tmp = ptr_row[col + ch1];
+      ptr_row[col + ch1] = ptr_row[col + ch2];
+      ptr_row[col + ch2] = tmp;
     }
   }
 }
 
-ImageBuffer ImageBuffer::ToRGB() const {
-  SPDLOG_DEBUG("ImageBuffer::ToRGB().");
 
-  if (channels != 1 && channels != 3 && channels != 4)
-    throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGB!");
+ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
+  SPDLOG_DEBUG(
+        "ImageBuffer::ToChannels converting {:d} to {:d} channels.",
+        channels, output_channels);
+
+  if ((channels != 1) && (channels != 3) && (channels != 4)) {
+    std::ostringstream s;
+    s << "Channel conversion is only supported for ImageBuffer with "
+         "1, 3, or 4 channels, but this buffer has "
+      << channels << '!';
+
+    throw std::logic_error(s.str());
+  }
 
   if (channels == 1) {
-    return Gray2RGB(*this);
-  } else {
-    if (channels == 3) {
+    // Grayscale-to-something
+    if (output_channels == 1) {
       return ImageBuffer(*this);
+    } else if (output_channels == 3) {
+      return Gray2RGB(*this);
+    } else if (output_channels == 4) {
+      return Gray2RGBA(*this);
     } else {
-      return RGBA2RGB(*this);
+      std::ostringstream s;
+      s << "Conversion from single-channel ImageBuffer to "
+        << output_channels << " output channels is not supported!";
+      throw std::logic_error(s.str());
     }
-  }
-}
-
-ImageBuffer ImageBuffer::ToRGBA() const {
-  SPDLOG_DEBUG("ImageBuffer::ToRGBA().");
-
-  if (channels != 1 && channels != 3 && channels != 4)
-    throw std::logic_error("ImageBuffer must have 1, 3, or 4 channels to be convertible to RGBA!");
-
-  if (channels == 1) {
-    return Gray2RGBA(*this);
-  } else {
-    if (channels == 3) {
+  } else if (channels == 3) {
+    // RGB-to-something
+    if (output_channels == 3) {
+      return ImageBuffer(*this);
+    } else if (output_channels == 4) {
       return RGB2RGBA(*this);
     } else {
+      std::ostringstream s;
+      s << "Conversion from 3-channel ImageBuffer to "
+        << output_channels << " output channel(s) is not supported!";
+      throw std::logic_error(s.str());
+    }
+  } else {
+    // RGBA-to-something
+    if (output_channels == 3) {
+      return RGBA2RGB(*this);
+    } else if (output_channels == 4) {
       return ImageBuffer(*this);
+    } else {
+      std::ostringstream s;
+      s << "Conversion from 4-channel ImageBuffer to "
+        << output_channels << " output channel(s) is not supported!";
+      throw std::logic_error(s.str());
     }
   }
 }

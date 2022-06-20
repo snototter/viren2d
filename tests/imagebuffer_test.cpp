@@ -81,7 +81,7 @@ TEST(ImageBufferTest, ImageLoading) {
         EXPECT_TRUE(tmp.data[px + 2] == ptrs[i]->data[px + 2]);
       }
       // 2) Flip channels in place
-      ptrs[i]->RGB2BGR();
+      ptrs[i]->SwapChannels(0, 2);
       // 3) Verify all pixels
       for (int px = 0; px < tmp.width * tmp.height; px+=tmp.channels) {
         EXPECT_TRUE(tmp.data[px] == ptrs[i]->data[px + 2]);
@@ -90,7 +90,7 @@ TEST(ImageBufferTest, ImageLoading) {
       }
     } else {
       // Swapping red and blue is impossible for grayscale buffers:
-      EXPECT_THROW(ptrs[i]->RGB2BGR(), std::logic_error);
+      EXPECT_THROW(ptrs[i]->SwapChannels(0, 2), std::invalid_argument);
 
       // Verify that changing a few pixels of the copied buffer
       // does not affect the original buffer:
