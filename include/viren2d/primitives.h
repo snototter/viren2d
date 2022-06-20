@@ -22,13 +22,14 @@ namespace viren2d {
  *        remains the caller's responsibility).
  */
 struct ImageBuffer {
+public:
   unsigned char *data;  ///< Pointer to the image data.
   int width;            ///< Width of the image in pixels.
   int height;           ///< Height of the image in pixels.
   int channels;         ///< Number of channels.
   int stride;           ///< Stride (number of bytes) per row.
-  bool owns_data_;      ///< Flag indicating if we own the memory (i.e. if we need to clean up).
 
+  bool OwnsData() const { return owns_data; }
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
@@ -77,6 +78,9 @@ struct ImageBuffer {
 
   void SwapChannels(int ch1, int ch2);
 
+  // TODO doc - sets owns_data = true; obviously, call it only if you want this buffer to free the memory!
+  void TakeOwnership();
+
 
   /**
    * TODO documentation!
@@ -110,6 +114,8 @@ struct ImageBuffer {
   }
 
 private:
+  bool owns_data;      ///< Flag indicating if we own the memory (i.e. if we need to clean up).
+
   void Cleanup();
 };
 

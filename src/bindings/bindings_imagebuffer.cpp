@@ -118,7 +118,7 @@ void RegisterImageBuffer(py::module &m) {
            "int: Number of channels (read-only).")
       .def_readonly("stride", &ImageBuffer::stride,
            "int: Stride in bytes per row  (read-only).")
-      .def_readonly("owns_data", &ImageBuffer::owns_data_,
+      .def_property_readonly("owns_data", &ImageBuffer::OwnsData,
            "bool: Read-only flag indicating whether this\n"
            ":class:`~viren2d.ImageBuffer` owns the\n"
            "image data (and is responsible for cleaning up).");
