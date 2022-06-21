@@ -708,18 +708,21 @@ void RegisterPainter(py::module &m) {
         py::arg("fixed_size") = Vec2d::All(-1.0));
 
 
-  //TODO raw string doc + example //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
   doc = R"docstr(
       Draws a trajectory.
 
-      TODO doc
+      Can be used to either draw **a single-color path** (if
+      ``fade_out_color`` is invalid), or **a path which gradually
+      changes its color** from ``line_style.color`` to ``fade_out_color``.
+      In the latter case, the color transition can be controlled
+      by ``fading_factor``.
 
-      If a valid ``fade_out_color`` is given, the trajectory will
-      be drawn as separate line segments needed to render the
-      color gradient. However, this means that the
-      :attr:`~viren2d.LineStyle.join` setting of the ``line_style``
-      will be ignored. Additionally, the segment endpoints will be
-      visible if you transparent colors are used.
+      Note that for fading colors, the trajectory has to
+      be drawn via separate line segments. This means that
+      the :attr:`~viren2d.LineStyle.join` setting of ``line_style``
+      will be ignored. Additionally, if transparent colors are
+      used, the segment endpoints will be visible.
       To avoid this behavior, the trajectory needs to be drawn with
       a single color, *i.e.* pass :attr:`viren2d.Color.Invalid` as
       ``fade_out_color``.
@@ -732,14 +735,27 @@ void RegisterPainter(py::module &m) {
         fade_out_color: If this is a valid :class:`~viren2d.Color`,
           the trajectory's tail will be drawn with this color.
         tail_first: Set to ``True`` if the first point, *i.e.*
-          ``points[0]``, is the *oldest*, *i.e.* the trajectory's
-          tail.
+          ``points[0]``, is the *oldest* point, *i.e.* the trajectory's
+          tail. Otherwise, it is assumed to be the *most recent* point.
         smoothing_window: Specifies the window size to optionally
           smooth the trajectory via moving average. Disable smoothing
           by passing a value ``<= 0``.
-        fading_factor: TODO
+        fading_factor: A function handle which will be invoked for
+          each segment of the trajectory to compute the mixing ratios
+          for the color gradient.
+
+          Its **single input** is a :class:`float` :math:`\in [0,1]`, which
+          denotes the *drawing progress* along the trajectory, from head
+          (*i.e.* :math:`0`) to tail.
+          Its **return value** must also be a :class:`float` :math:`\in [0,1]`,
+          which specifies the amount of the ``fade_out_color`` to be
+          applied for this *drawing progress*.
+
+          For example, to get a *linear* color transition between head
+          and tail, we simply use the identity function.
           For convenience, ``viren2d`` already provides :func:`~viren2d.fade_out_linear`,
           :func:`~viren2d.fade_out_quadratic`, and :func:`~viren2d.fade_out_logarithmic`.
+          Default is :func:`~viren2d.fade_out_quadratic`.
 
       Example:
         >>> points = [(0, 0), (10, 20), (42, 30), ...]
@@ -754,9 +770,13 @@ void RegisterPainter(py::module &m) {
       py::arg("points"),
       py::arg("line_style") = LineStyle(),
       py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
-      py::arg("oldest_first") = false,
+      py::arg("tail_first") = true,
       py::arg("smoothing_window") = 0,
       py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
+  // TODO Adjust the docstring if we change anything. It includes
+  // the current default color mix/fading factor function(!)
+
+
 
   //TODO(snototter) add draw_xxx methods
 

@@ -17,50 +17,59 @@ API Documentation
 
 **Basic data types:**
 
-  .. autosummary::
-     :nosignatures:
+   .. autosummary::
+      :nosignatures:
 
-     viren2d.Color
-     viren2d.color_names
-     viren2d.Ellipse
-     viren2d.Rect
-     viren2d.RGBa
-     viren2d.rgba
-     viren2d.Vec2d
-     viren2d.Vec3d
-     viren2d.ImageBuffer
+      viren2d.Color
+      viren2d.Ellipse
+      viren2d.ImageBuffer
+      viren2d.Rect
+      viren2d.Vec2d
+      viren2d.Vec3d
 
 
-**Style definitions:**
+**Color Utilitites:**
 
-  .. autosummary::
-     :nosignatures:
+   .. autosummary::
+      :nosignatures:
 
-     viren2d.ArrowStyle
-     viren2d.BoundingBox2DStyle
-     viren2d.LineCap
-     viren2d.LineJoin
-     viren2d.LineStyle
-     viren2d.marker_codes
-     viren2d.Marker
-     viren2d.MarkerStyle
-     viren2d.TextStyle
-
-
-**Positioning:**
-
-  .. autosummary::
-     :nosignatures:
-
-     viren2d.HorizontalAlignment
-     viren2d.VerticalAlignment
-     viren2d.TextAnchor
-     viren2d.BoundingBoxLabelPosition
+      viren2d.color_names
+      viren2d.fade_out_linear
+      viren2d.fade_out_logarithmic
+      viren2d.fade_out_quadratic
+      viren2d.rgba
+      viren2d.RGBa
 
 
 **Drawing:**
 
-  .. autosummary::
+   .. autosummary::
   
-     viren2d.Painter
+      viren2d.Painter
 
+
+**Style definitions:**
+
+   .. autosummary::
+      :nosignatures:
+
+      viren2d.ArrowStyle
+      viren2d.BoundingBox2DStyle
+      viren2d.LineCap
+      viren2d.LineJoin
+      viren2d.LineStyle
+      viren2d.marker_codes
+      viren2d.Marker
+      viren2d.MarkerStyle
+      viren2d.TextStyle
+
+
+**Positioning:**
+
+   .. autosummary::
+      :nosignatures:
+
+      viren2d.HorizontalAlignment
+      viren2d.VerticalAlignment
+      viren2d.TextAnchor
+      viren2d.BoundingBoxLabelPosition

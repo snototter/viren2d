@@ -37,7 +37,7 @@ Color ColorFromTuple(py::tuple tpl) {
     throw std::invalid_argument(s.str());
   }
   // Restore exactly as given. We don't want saturating
-  // cast to potentially influence the serialization:
+  // casts to potentially influence the serialization:
   Color col;
   col.red = tpl[0].cast<double>();
   col.green = tpl[1].cast<double>();
@@ -54,139 +54,151 @@ Color ColorFromTuple(py::tuple tpl) {
 
 
 py::tuple ColorToTuple(const Color &obj) {
-  return py::make_tuple(obj.red, obj.green,
-                        obj.blue, obj.alpha);
+  return py::make_tuple(
+        obj.red, obj.green, obj.blue, obj.alpha);
 }
 
 
 void RegisterColor(py::module &m) {
   std::string doc = R"docstr(
-      Returns a list of the predefined color names.
+        Returns a list of the predefined color names.
 
-      Each of these names can be used to initialize a
-      :class:`~viren2d.Color`. For example:
+        Each of these names can be used to initialize a
+        :class:`~viren2d.Color`. For example:
 
-      >>> text_style.color = 'midnight-blue'    # alpha = 1.0
-      >>> line_style.color = 'forest-green!40'  # alpha = 0.4
+        >>> text_style.color = 'midnight-blue'    # alpha = 1.0
+        >>> line_style.color = 'forest-green!40'  # alpha = 0.4
 
-      **Corresponding C++ API:** ``viren2d::ListNamedColors``.
-      )docstr";
+        **Corresponding C++ API:** ``viren2d::ListNamedColors``.
+        )docstr";
   m.def("color_names", &ListNamedColors, doc.c_str());
 
-  py::class_<Color>(m, "Color", R"docstr(
-      A color in rgba format, *i.e.* :math:`r,g,b,a \in [0,1]`.
+  py::class_<Color> color(m, "Color", R"docstr(
+        A color in rgba format, *i.e.* :math:`r,g,b,a \in [0,1]`.
 
-      Important:
-         If you initialize a color from a ``tuple(r,g,b,a)``, you **must
-         ensure that the r,g,b values are within** ``[0, 1]``.
+        Important:
+           If you initialize a color from a ``tuple(r,g,b,a)``, you **must
+           ensure that the r,g,b values are within** ``[0, 1]``.
 
-         The *caveat* lies in *saturation casting* performed by
-         :class:`~viren2d.Color`. For example, the following ``tuple``
-         will be converted to ``(1, 1, 1)``, *i.e.* the polygon would
-         be filled with *white* instead!
+           The *caveat* lies in *saturation casting* performed by
+           :class:`~viren2d.Color`. For example, the following ``tuple``
+           will be converted to ``(1, 1, 1)``, *i.e.* the polygon would
+           be filled with *white* instead!
 
-         >>> # Mistakenly specifying a color as `RGB` tuple instead of `rgb`:
-         >>> painter.draw_polygon(..., fill_color=(20, 20, 75))"
-      )docstr")
-      .def(py::init<>(), R"docstr(
-           Initializes an **invalid color**.
+           >>> # Mistakenly specifying a color as `RGB` tuple instead of `rgb`:
+           >>> painter.draw_polygon(..., fill_color=(20, 20, 75))
+        )docstr");
 
-           An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
-           :class:`~viren2d.Painter` methods to mark *special* color
-           handling, *e.g.* to skip filling.
-           )docstr")
+  color.def(py::init<>(), R"docstr(
+        Initializes an **invalid color**.
+
+        An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
+        :class:`~viren2d.Painter` methods to mark *special* color
+        handling, *e.g.* to skip filling.
+        )docstr")
       .def(py::init<>(&ColorFromTuple), R"docstr(
-           Initializes the color from a *rgb* or *rgba* ``tuple``.
+        Initializes the color from a *rgb* or *rgba* ``tuple``.
 
-           Each value must be a floating point number within ``[0, 1]``.
-           The alpha value will be set to 1 if not provided.
+        Each value must be a floating point number within ``[0, 1]``.
+        The alpha value will be set to 1 if not provided.
 
-           Example:
-
-              >>> painter.draw_polygon(..., fill_color = (red, green, blue))
-              >>> painter.draw_polygon(..., fill_color = (red, green, blue, alpha)
-           )docstr", py::arg("tpl"))
+        Example:
+          >>> painter.draw_polygon(..., fill_color = (red, green, blue))
+          >>> painter.draw_polygon(..., fill_color = (red, green, blue, alpha)
+        )docstr", py::arg("tpl"))
       .def(py::init<double, double, double, double>(), R"docstr(
-           Initializes the color from the given rgba components.
+        Initializes the color from the given rgba components.
 
-           All values **will be clamped** to ``[0, 1]``.
-           )docstr", py::arg("red"), py::arg("green"),
-           py::arg("blue"), py::arg("alpha") = 1.0)
+        All values **will be clamped** to ``[0, 1]``.
+        )docstr", py::arg("red"), py::arg("green"),
+        py::arg("blue"), py::arg("alpha") = 1.0)
       .def(py::init<const std::string &, double>(),R"docstr(
-           Initializes the color from a string representation (hexcode
-           or color name).
+        Initializes the color from a string representation (hexcode
+        or color name).
 
-           **Hexcode:**
-              HTML hex code string as either ``#RRGGBB`` or
-              ``#RRGGBBAA``:
+        **Hexcode:**
+           HTML hex code string as either ``#RRGGBB`` or
+           ``#RRGGBBAA``:
 
-              >>> painter.draw_rect(..., fill_color = '#00ff00')
-              >>> painter.draw_rect(..., fill_color = '#a0b0c0f0')
+           >>> painter.draw_rect(..., fill_color = '#00ff00')
+           >>> painter.draw_rect(..., fill_color = '#a0b0c0f0')
 
-           **Color name:**
-              See :py:meth:`viren2d.color_names()` for a list of
-              available color names.
+        **Color name:**
+           See :py:meth:`viren2d.color_names()` for a list of
+           available color names.
 
-              >>> painter.draw_rect(..., fill_color = 'black')
-              >>> painter.draw_rect(..., fill_color = 'navy-blue')
+           >>> painter.draw_rect(..., fill_color = 'black')
+           >>> painter.draw_rect(..., fill_color = 'navy-blue')
 
-              A color name can also include an ``alpha`` suffix, which
-              must be specified as integer in ``[0, 100]``):
+           A color name can also include an ``alpha`` suffix, which
+           must be specified as integer in ``[0, 100]``):
 
-              >>> painter.draw_rect(..., fill_color = 'forest-green!50')
+           >>> painter.draw_rect(..., fill_color = 'forest-green!50')
 
-              Color names can also be inverted by prepending either
-              ``!`` or ``-``, which results in the *complementary color*,
-              *e.g.* ``!blue!30`` is the same as ``yellow!30``:
+           Color names can also be inverted by prepending either
+           ``!`` or ``-``, which results in the *complementary color*,
+           *e.g.* ``!blue!30`` is the same as ``yellow!30``:
 
-              >>> painter.draw_rect(..., fill_color = '!blue!30)
-            )docstr",
-           py::arg("colorspec"), py::arg("alpha")=1.0)
-      .def("copy", [](const Color &c) { return Color(c); },
-           "Returns a deep copy.")
-      .def("__repr__",
-           [](const Color &c)
-           { return "<" + c.ToString() + ">"; })
-      .def("__str__", &Color::ToHexString)
-      .def(py::pickle(&ColorToTuple, &ColorFromTuple),
-           ":class:`~viren2d.Color` instances can be pickled.")
-      .def(py::self == py::self,
-           "Checks for equality.\n\nReturns ``True`` if **all** components are equal.",
-           py::arg("other"))
-      .def(py::self != py::self,
-           "Checks for inequality.\n\nReturns ``True`` if **any** components differ.",
-           py::arg("other"))
-      .def(py::self += py::self, R"docstr(
+           >>> painter.draw_rect(..., fill_color = '!blue!30)
+        )docstr",
+        py::arg("colorspec"), py::arg("alpha")=1.0)
+      .def(
+        "copy", [](const Color &c) { return Color(c); },
+        "Returns a deep copy.")
+      .def(
+        "__repr__",
+        [](const Color &c) { return "<viren2d.Color(" + c.ToString() + ")>"; })
+      .def(
+        "__str__",
+        &Color::ToHexString)
+      .def(
+        py::pickle(&ColorToTuple, &ColorFromTuple),
+        ":class:`~viren2d.Color` instances can be pickled.");
+
+  // Operators
+  color.def(
+        py::self == py::self,
+        "Checks for equality.\n\nReturns ``True`` if **all** components are equal.",
+        py::arg("other"))
+      .def(
+        py::self != py::self,
+        "Checks for inequality.\n\nReturns ``True`` if **any** components differ.",
+        py::arg("other"))
+      .def(
+        py::self += py::self, R"docstr(
         Operator ``+=``.
 
         Adds the other :class:`~viren2d.Color` rgba values and
         performs a saturation cast, *i.e.* the resulting rgba
         values **will be clamped** to ``[0, 1]``.
         )docstr", py::arg("other"))
-      .def(py::self + py::self, R"docstr(
+      .def(
+        py::self + py::self, R"docstr(
         Operator ``lhs + rhs``.
 
         Adds the rgba values of the two :class:`~viren2d.Color`
         instances (``lhs`` and ``rhs``) and performs a saturating
         cast, *i.e.* the resulting rgba values **will be clamped**
         to ``[0, 1]``.
-        )docstr", py::arg("rhs"))
+        )docstr", py::arg("rhs"));
+
 #ifdef __clang__
 // Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wself-assign-overloaded"
 #endif  // __clang__
-      .def(py::self -= py::self, R"docstr(
+  color.def(py::self -= py::self, R"docstr(
         Operator ``-=``.
 
         Subtracts the other :class:`~viren2d.Color` rgba values
         and performs a saturating cast, *i.e.* the resulting
         rgba values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("other"))
+        )docstr", py::arg("other"));
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif  // __clang__
-      .def(py::self - py::self, R"docstr(
+
+  color.def(py::self - py::self, R"docstr(
         Operator ``lhs - rhs``.
 
         Subtracts the rgba values of the :class:`~viren2d.Color`
@@ -232,64 +244,41 @@ void RegisterColor(py::module &m) {
         :class:`~viren2d.Color` by the right-hand side scalar
         factor and performs a saturating cast, *i.e.* the
         resulting rgba values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("rhs"))
-      .def("as_RGBa", &Color::ToRGBa,
-           "Returns the corresponding ``(R, G, B, a)`` tuple,\n"
-           "where R, G, B in ``[0, 255]`` and ``alpha`` in ``[0, 1]``.")
-      .def("as_rgba", [](Color& c)
-           { return py::make_tuple(c.red, c.green, c.blue, c.alpha); },
-           "Returns the corresponding ``(r, g, b, a)`` tuple,\n"
-           "where all components are in ``[0, 1]``.")
-      .def("as_hex", &Color::ToHexString, R"docstr(
-           Returns the hex code representation.
+        )docstr", py::arg("rhs"));
 
-           The web/hex code representation will contain 8 components,
-           *i.e.* it includes the alpha value. To compute the hexadecimal
-           representation, each component (*rgba*) is first scaled to
-           ``[0, 255]``.
-           )docstr")
-      .def("grayscale", &Color::Grayscale,
-           "Returns the grayscale representation of this color.\n\n"
-           "Computes the luminance as :math:`L = 0.2989*R + 0.5870*G + 0.1141*B`.")
-      .def("with_alpha", &Color::WithAlpha,
-           "Returns a color with the same *rgb* components, but the given ``alpha``.",
-           py::arg("alpha"))
-      .def_readwrite("red", &Color::red,
-           "float: Red component within ``[0, 1]``.")
-      .def_readwrite("green", &Color::green,
-           "float: Green component within ``[0, 1]``.")
-      .def_readwrite("blue", &Color::blue,
-           "float: Blue component within ``[0, 1]``.")
-      .def_readwrite("alpha", &Color::alpha,
-           "float: Opacity within ``[0, 1]``, where ``0`` is fully transparent\n"
-           "and ``1`` is fully opaque.")
-      // TODO(snototter) pybind11 bug, documentation of static members is missing in python, see https://github.com/pybind/pybind11/issues/3815
-      .def_readonly_static("White", &Color::White,
-                           "Read-only white color instantiation.")
-      .def_readonly_static("Black", &Color::Black,
-                           "Read-only black color instantiation.")
-      .def_readonly_static("Red", &Color::Red,
-                           "Read-only red color instantiation.")
-      .def_readonly_static("Green", &Color::Green,
-                           "Read-only green color instantiation.")
-      .def_readonly_static("Blue", &Color::Blue,
-                           "Read-only blue color instantiation.")
-      .def_readonly_static("Cyan", &Color::Cyan,
-                           "Read-only cyan color instantiation.")
-      .def_readonly_static("Magenta", &Color::Magenta,
-                           "Read-only magenta color instantiation.")
-      .def_readonly_static("Yellow", &Color::Yellow,
-                           "Read-only yellow color instantiation.")
-      .def_readonly_static("Invalid", &Color::Invalid,
-                           "Read-only special color ``Invalid`` (*e.g.* to skip filling).")
-      .def_readonly_static("Same", &Color::Same,
-                           "Read-only special color ``Same`` (*e.g.* to use the same\n"
-                           "color for filling as the object's contour).")
+  // Converting to different representations
+  color.def("as_RGBa", &Color::ToRGBa,
+        "Returns the corresponding ``(R, G, B, a)`` tuple,\n"
+        "where R, G, B in ``[0, 255]`` and ``alpha`` in ``[0, 1]``.")
       .def(
-        "is_valid",
-        &Color::IsValid,
-        "Returns ``True`` if this is a valid rgba color, where all\n"
-        "components are within ``[0, 1]``.")
+        "as_rgba",
+        [](Color& c) { return py::make_tuple(c.red, c.green, c.blue, c.alpha); },
+        "Returns the corresponding ``(r, g, b, a)`` tuple,\n"
+           "where all components are in ``[0, 1]``.")
+      .def(
+        "as_hex",
+        &Color::ToHexString, R"docstr(
+        Returns the hex code representation.
+
+        The web/hex code representation will contain 8 components,
+        *i.e.* it includes the alpha value. To compute the hexadecimal
+        representation, each component (*rgba*) is first scaled to
+        ``[0, 255]``.
+        )docstr")
+      .def(
+        "grayscale",
+        &Color::Grayscale, R"docstr(
+        Returns the grayscale representation of this color.
+
+        The r,g,b components of the returned color will be set
+        to the luminance, :math:`L = 0.2989*R + 0.5870*G + 0.1141*B`.
+        Alpha will stay the same.
+        )docstr")
+      .def(
+        "with_alpha",
+        &Color::WithAlpha,
+        "Returns a color with the same *rgb* components, but the given ``alpha``.",
+        py::arg("alpha"))
       .def(
         "inverse",
         &Color::Inverse, R"docstr(
@@ -304,19 +293,79 @@ void RegisterColor(py::module &m) {
            Complementary colors should be used to provide good
            contrast/highlights. For colors close to medium gray (where
            r,g,b are close to 0.5), the rgb inverse would not be too useful.
-        )docstr")
+        )docstr");
+
+  // Member variables
+  color.def_readwrite(
+        "red", &Color::red,
+        "float: Red component within ``[0, 1]``.")
+      .def_readwrite(
+        "green", &Color::green,
+        "float: Green component within ``[0, 1]``.")
+      .def_readwrite(
+        "blue", &Color::blue,
+        "float: Blue component within ``[0, 1]``.")
+      .def_readwrite(
+        "alpha", &Color::alpha,
+        "float: Opacity within ``[0, 1]``, where ``0`` is fully transparent\n"
+        "and ``1`` is fully opaque.");
+
+  // TODO(snototter) pybind11 bug, documentation of static members is
+  // missing in python, see https://github.com/pybind/pybind11/issues/3815
+  color.def_readonly_static(
+        "White", &Color::White,
+        "Read-only white color instantiation.")
+      .def_readonly_static(
+        "Black", &Color::Black,
+        "Read-only black color instantiation.")
+      .def_readonly_static(
+        "Red", &Color::Red,
+        "Read-only red color instantiation.")
+      .def_readonly_static(
+        "Green", &Color::Green,
+        "Read-only green color instantiation.")
+      .def_readonly_static(
+        "Blue", &Color::Blue,
+        "Read-only blue color instantiation.")
+      .def_readonly_static(
+        "Cyan", &Color::Cyan,
+        "Read-only cyan color instantiation.")
+      .def_readonly_static(
+        "Magenta", &Color::Magenta,
+        "Read-only magenta color instantiation.")
+      .def_readonly_static(
+        "Yellow", &Color::Yellow,
+        "Read-only yellow color instantiation.")
+      .def_readonly_static(
+        "Invalid", &Color::Invalid,
+        "Read-only special color ``Invalid`` (*e.g.* to skip filling).")
+      .def_readonly_static(
+        "Same", &Color::Same,
+        "Read-only special color ``Same`` (*e.g.* to use the same\n"
+        "color for filling as the object's contour).")
+      .def(
+        "is_valid",
+        &Color::IsValid,
+        "Returns ``True`` if this is a valid rgba color, where all\n"
+        "components are within ``[0, 1]``.")
       .def(
         "is_shade_of_gray", &Color::IsShadeOfGray,
         "Checks if the r,g,b values are almost the same (+/- the given epsilon).",
-        py::arg("eps") = 0.02)
-      .def_static(
+        py::arg("eps") = 0.02);
+
+  // Static functions
+  color.def_static(
         "from_id",
         &Color::FromID, R"docstr(
         Returns a color for the given ID/number.
 
         Usefull to consistently use the same color for the
         same object or object class.
-        TODO >= 0? check & test for automatic conversion (cpp is size_t)
+
+        TODO must be >=0
+        or we need to wrap ints < 0 to some other value
+        casting python int to std::size_t implicitly via pybind
+        results in TypeError
         )docstr", py::arg("id"))
       .def_static(
         "from_category",
@@ -354,28 +403,37 @@ void RegisterColor(py::module &m) {
 
   m.def("fade_out_linear",
         &ColorFadeOutLinear, R"docstr(
-        Identity function to implement a linear color transition
-        in :meth:`viren2d.Painter.draw_trajectory`.
+        Color transition helper for :meth:`~viren2d.Painter.draw_trajectory`.
 
-        Implemented as the identity function.
+        Can be used to compute the color mixing weight for the
+        color transition of fading trajectories.
+
+        Returns:
+          The input value, *i.e.* :math:`y=value`.
         )docstr", py::arg("value"));
 
 
   m.def("fade_out_quadratic",
         &ColorFadeOutQuadratic, R"docstr(
-        Returns a quadratic factor for the color transition
-        in :meth:`viren2d.Painter.draw_trajectory`.
+        Color transition helper for :meth:`~viren2d.Painter.draw_trajectory`.
 
-        Computes :math:`value^2`.
+        Can be used to compute the color mixing weight for the
+        color transition of fading trajectories.
+
+        Returns:
+          The quadratic factor :math:`y=value*value`.
         )docstr", py::arg("value"));
 
 
   m.def("fade_out_logarithmic",
         &ColorFadeOutLogarithmic, R"docstr(
-        Returns a logarithmic factor for the color transition
-        in :meth:`viren2d.Painter.draw_trajectory`.
+        Color transition helper for :meth:`~viren2d.Painter.draw_trajectory`.
 
-        Computes :math:`\operatorname{log}_{10}(0.9 * value + 1)`.
+        Can be used to compute the color mixing weight for the
+        color transition of fading trajectories.
+
+        Returns:
+          The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * value + 1)`.
         )docstr", py::arg("value"));
 }
 
