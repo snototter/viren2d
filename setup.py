@@ -136,7 +136,9 @@ setup(
     ext_modules=[CMakeExtension("viren2d")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
-    install_requires=[], #TODO check documentation where to add numpy>1.7.0 (pybind11-induced dependency)
+    install_requires=[
+        "numpy>=1.7.0"
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
