@@ -52,7 +52,7 @@ endforeach()
 set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # only std c++14, not gnu++14
-set(CMAKE_CXX_FLAGS "-Wall -Wextra") # TODO set per targets; check werkzeugkiste CMakeLists
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO set per targets; check werkzeugkiste CMakeLists
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 

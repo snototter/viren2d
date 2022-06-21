@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <vector>
+#include <functional>
 
 #include <math.h>
 #include <cairo/cairo.h>
@@ -188,7 +189,7 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
  *
  */
 class TextLine {
- public:
+public:
 //TODO doc
   TextLine(const char *line, cairo_t *context,
            cairo_font_extents_t *font_metrics);
@@ -256,7 +257,7 @@ private:
  * after Align, ...
  */
 class MultilineText {
- public:
+public:
   MultilineText(const std::vector<const char*> &text,
                 const TextStyle &text_style, cairo_t *context);
 
@@ -360,7 +361,8 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
 
 void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
                     const std::vector<Vec2d> &points, const LineStyle &style,
-                    Color color_fade_out, bool oldest_position_first);
+                    Color color_fade_out, bool oldest_position_first,
+                    const std::function<double(double)> &mix_factor);
 
 
 /** Creates a path for a rectangle with rounded corners.

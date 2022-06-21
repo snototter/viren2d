@@ -21,21 +21,19 @@
 #include <helpers/drawing_helpers.h>
 #include <helpers/logging.h>
 
-//FIXME logging painter --> public interface (or first Impl()): debug
-// all others: trace
-
-
 
 //-------------------------------------------------
-// Preprocessor macros to initialize the
-// library upon loading. This is needed to
+// Preprocessor macros to initialize the library
+// upon loading. This is needed to automatically
 // set up logging.
-// Macros taken from:
-// https://stackoverflow.com/a/2390626/400948
-
-// TODO: We place the initializer in drawing.cpp
+// Included for convenience & because I wanted to
+// check on library initialization/unloading hooks.
+// The initialization code belongs in drawing.cpp,
 // because this will always be linked into the
 // library user's application.
+//
+// The macros are taken from:
+// https://stackoverflow.com/a/2390626/400948
 
 #ifdef __cplusplus
     #define INITIALIZER(f) \
@@ -60,6 +58,7 @@
         static void f(void)
 #endif
 
+
 //-------------------------------------------------
 
 namespace viren2d {
@@ -73,7 +72,7 @@ void shutdown() {
 INITIALIZER(initialize) {
 //  spdlog::set_level(spdlog::level::trace);
 //  spdlog::set_pattern("[%l][%@, %!] %v");
-  spdlog::set_level(viren2d_ACTIVE_SPDLOG_LEVEL); //TODO change to default info/warn before release
+  spdlog::set_level(viren2d_ACTIVE_SPDLOG_LEVEL); //TODO change (cmake variable) to default info/warn before release
   SPDLOG_DEBUG("Initializing the viren2d++ library.");
 
   std::atexit(shutdown);
@@ -127,13 +126,13 @@ public:
 
   virtual ~ImagePainter();
 
-  ImagePainter(const ImagePainter &other); // copy constructor
+  ImagePainter(const ImagePainter &other);
 
-  ImagePainter(ImagePainter &&other) noexcept; // move constructor
+  ImagePainter(ImagePainter &&other) noexcept;
 
-  ImagePainter& operator=(const ImagePainter &other); // Copy assignment
+  ImagePainter& operator=(const ImagePainter &other);
 
-  ImagePainter& operator=(ImagePainter &&other) noexcept; // Move assignment
+  ImagePainter& operator=(ImagePainter &&other) noexcept;
 
   bool IsValid() const override;
 
@@ -149,89 +148,105 @@ public:
 
 
 protected:
-  void DrawArcImpl(const Vec2d &center, double radius,
-                   double angle1, double angle2,
-                   const LineStyle &line_style,
-                   bool include_center,
-                   const Color &fill_color) override {
-    SPDLOG_DEBUG("ImagePainter::DrawArc: c={:s}, r={:.1f}, a1={:.1f},"
-                 " a2={:.1f}, style={:s}, inc_center={:s},"
-                 " fill={:s}.", center, radius, angle1, angle2,
-                 line_style, include_center, fill_color);
+  void DrawArcImpl(
+      const Vec2d &center, double radius,
+      double angle1, double angle2, const LineStyle &line_style,
+      bool include_center, const Color &fill_color) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawArc: c={:s}, r={:.1f}, a1={:.1f},"
+          " a2={:.1f}, style={:s}, inc_center={:s},"
+          " fill={:s}.", center, radius, angle1, angle2,
+          line_style, include_center, fill_color);
 
-    helpers::DrawArc(surface_, context_, center, radius,
-                     angle1, angle2, line_style,
-                     include_center, fill_color);
+    helpers::DrawArc(
+          surface_, context_, center, radius,
+          angle1, angle2, line_style,
+          include_center, fill_color);
   }
 
-  void DrawArrowImpl(const Vec2d &from, const Vec2d &to,
-                     const ArrowStyle &arrow_style) override {
-    SPDLOG_DEBUG("ImagePainter::DrawArrow: p1={:s}, p2={:s}, style={:s}.",
-                 from, to, arrow_style);
+
+  void DrawArrowImpl(
+      const Vec2d &from, const Vec2d &to,
+      const ArrowStyle &arrow_style) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawArrow: p1={:s}, p2={:s}, style={:s}.",
+          from, to, arrow_style);
 
     helpers::DrawArrow(surface_, context_, from, to, arrow_style);
   }
 
 
-  void DrawBoundingBox2DImpl(const Rect &rect,
-                             const std::vector<const char*> &label,
-                             const BoundingBox2DStyle &style) override {
-    SPDLOG_DEBUG("ImagePainter::DrawBoundingBox2D: {:s},"
-                 " label=\"{:s}\", style={:s}.", rect, label, style);//TODO werkzeugkiste: string shortening!
-    helpers::DrawBoundingBox2D(surface_, context_, rect,
-                               label, style);
+  void DrawBoundingBox2DImpl(
+      const Rect &rect, const std::vector<const char*> &label,
+      const BoundingBox2DStyle &style) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawBoundingBox2D: {:s},"
+          " label=\"{:s}\", style={:s}.", rect, label, style);//TODO werkzeugkiste: string shortening!
+
+    helpers::DrawBoundingBox2D(
+          surface_, context_, rect, label, style);
   }
 
 
-  void DrawCircleImpl(const Vec2d &center, double radius,
-                      const LineStyle &line_style,
-                      const Color &fill_color) override {
-    SPDLOG_DEBUG("ImagePainter::DrawCircle: c={:s}, r={:.1f},"
-                 " style={:s}, fill={:s}.", center, radius,
-                 line_style, fill_color);
+  void DrawCircleImpl(
+      const Vec2d &center, double radius,
+      const LineStyle &line_style,
+      const Color &fill_color) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawCircle: c={:s}, r={:.1f},"
+          " style={:s}, fill={:s}.", center, radius,
+          line_style, fill_color);
 
-    helpers::DrawCircle(surface_, context_, center, radius,
-                        line_style, fill_color);
+    helpers::DrawCircle(
+          surface_, context_, center, radius,
+          line_style, fill_color);
   }
 
 
-  void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
-                       const Color &fill_color) override {
-    SPDLOG_DEBUG("ImagePainter::DrawEllipse: {:s},"
-                 " style={:s}, fill={:s}.", ellipse,
-                 line_style, fill_color);
+  void DrawEllipseImpl(
+      const Ellipse &ellipse, const LineStyle &line_style,
+      const Color &fill_color) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawEllipse: {:s}, style={:s}, fill={:s}.",
+          ellipse, line_style, fill_color);
 
-    helpers::DrawEllipse(surface_, context_, ellipse,
-                         line_style, fill_color);
+    helpers::DrawEllipse(
+          surface_, context_, ellipse, line_style, fill_color);
   }
 
 
-  void DrawGridImpl(const Vec2d &top_left, const Vec2d &bottom_right,
-                    double spacing_x, double spacing_y,
-                    const LineStyle &line_style) override {
-    SPDLOG_DEBUG("ImagePainter::DrawGrid: cells={:.1f}x{:.1f}, tl={:s}, br={:s},"
-                 " style={:s}.", spacing_x, spacing_y,
-                 top_left, bottom_right, line_style);
+  void DrawGridImpl(
+      const Vec2d &top_left, const Vec2d &bottom_right,
+      double spacing_x, double spacing_y,
+      const LineStyle &line_style) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawGrid: cells={:.1f}x{:.1f}, "
+          "tl={:s}, br={:s}, style={:s}.",
+          spacing_x, spacing_y, top_left, bottom_right, line_style);
 
-    helpers::DrawGrid(surface_, context_, top_left, bottom_right,
-                      spacing_x, spacing_y, line_style);
+    helpers::DrawGrid(
+          surface_, context_, top_left, bottom_right,
+          spacing_x, spacing_y, line_style);
   }
 
 
-  void DrawLineImpl(const Vec2d &from, const Vec2d &to,
-                    const LineStyle &line_style) override {
-    SPDLOG_DEBUG("ImagePainter::DrawLine: p1={:s}, p2={:s}, style={:s}.",
-                 from, to, line_style);
+  void DrawLineImpl(
+      const Vec2d &from, const Vec2d &to,
+      const LineStyle &line_style) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawLine: p1={:s}, p2={:s}, style={:s}.",
+          from, to, line_style);
 
-    helpers::DrawLine(surface_, context_, from, to,
-                      line_style);
+    helpers::DrawLine(
+          surface_, context_, from, to, line_style);
   }
 
 
-  void DrawMarkerImpl(const Vec2d &pos,
-                      const MarkerStyle &style) override {
-    SPDLOG_DEBUG("ImagePainter::DrawMarker: pos={:s}, style={:s}.",
-                 pos, style);
+  void DrawMarkerImpl(
+      const Vec2d &pos, const MarkerStyle &style) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawMarker: pos={:s}, style={:s}.",
+          pos, style);
 
     helpers::DrawMarker(surface_, context_, pos, style);
   }
@@ -242,13 +257,14 @@ protected:
       const MarkerStyle &style) override {
     SPDLOG_DEBUG("ImagePainter::DrawMarkers: {:d} markers, style={:s}.",
                  markers.size(), style);
+
     // Currently, we simply forward each point to the
     // "single marker" Cairo helper. While there is undoubtedly
     // potential for performance improvement, this is not
     // my current focus, because:
     // a) viren2d is neither a high-speed library nor
-    //    is it noticably slow
-    // b) Unless we're drawing hundreds+ points at once,
+    //    is it noticably slow, and
+    // b) unless we're drawing hundreds+ points at once,
     //    I doubt that the speedup would be noticable
     MarkerStyle s(style);
     for (const auto &p : markers) {
@@ -262,77 +278,97 @@ protected:
   }
 
 
-  void DrawPolygonImpl(const std::vector<Vec2d> &points,
-                       const LineStyle &line_style,
-                       const Color &fill_color) override {
-    SPDLOG_DEBUG("ImagePainter::DrawPolygon: {:d} points,"
-                 " style={:s}, fill={:s}.", points.size(),
-                 line_style, fill_color);
+  void DrawPolygonImpl(
+      const std::vector<Vec2d> &points,
+      const LineStyle &line_style,
+      const Color &fill_color) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawPolygon: {:d} points, "
+          "style={:s}, fill={:s}.",
+          points.size(), line_style, fill_color);
 
-    helpers::DrawPolygon(surface_, context_, points,
-                         line_style, fill_color);
+    helpers::DrawPolygon(
+          surface_, context_, points, line_style, fill_color);
   }
 
 
-  void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
-                    const Color &fill_color) override {
-    SPDLOG_DEBUG("ImagePainter::DrawRect: {:s},"
-                 " style={:s}, fill={:s}.", rect,
-                 line_style, fill_color);
+  void DrawRectImpl(
+      const Rect &rect, const LineStyle &line_style,
+      const Color &fill_color) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawRect: {:s}, "
+          "style={:s}, fill={:s}.",
+          rect, line_style, fill_color);
 
-    helpers::DrawRect(surface_, context_, rect,
-                      line_style, fill_color);
+    helpers::DrawRect(
+          surface_, context_, rect, line_style, fill_color);
   }
 
 
-  //TODO debug log here and trace in helpers!
-  void DrawTextImpl(const std::vector<const char*> &text,
-                    const Vec2d &anchor_position, TextAnchor anchor,
-                    const TextStyle &text_style, const Vec2d &padding,
-                    double rotation) override {
-    SPDLOG_DEBUG("ImagePainter::DrawText: {:d} lines at {:s}, {:s} "
-                 "style={:s}, padding={:s}, rotation={:.1f}°.", text.size(),
-                 anchor_position, anchor, text_style, padding, rotation);
+  void DrawTextImpl(
+      const std::vector<const char*> &text,
+      const Vec2d &anchor_position, TextAnchor anchor,
+      const TextStyle &text_style, const Vec2d &padding,
+      double rotation) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawText: {:d} lines at {:s}, {:s} "
+          "style={:s}, padding={:s}, rotation={:.1f}°.",
+          text.size(), anchor_position, anchor,
+          text_style, padding, rotation);
 
-    helpers::DrawText(surface_, context_, text,
-                      anchor_position, anchor,
-                      text_style, padding, rotation,
-                      LineStyle::Invalid, Color::Invalid,
-                      0.0, {-1.0, -1.0});
+    helpers::DrawText(
+          surface_, context_, text,
+          anchor_position, anchor,
+          text_style, padding, rotation,
+          LineStyle::Invalid, Color::Invalid,
+          0.0, {-1.0, -1.0});
   }
 
 
-  void DrawTextBoxImpl(const std::vector<const char*> &text,
-                       const Vec2d &anchor_position, TextAnchor anchor,
-                       const TextStyle &text_style, const Vec2d &padding,
-                       double rotation, const LineStyle &box_line_style,
-                       const Color &box_fill_color, double box_corner_radius,
-                       const Vec2d &fixed_box_size) override {
-    SPDLOG_DEBUG("ImagePainter::DrawTextBox: {:d} lines at {:s}, {:s} "
-                 "style={:s}, padding={:s}, rotation={:.1f}°, box-style={:s}, "
-                 "box-fill={:s}, box-radius={:.1f}, box-fixed-size={:d}x{:d}.",
-                 text.size(), anchor_position, anchor, text_style,
-                 padding, rotation, box_line_style, box_fill_color,
-                 box_corner_radius, (int)fixed_box_size.width(),
-                 (int)fixed_box_size.height());
+  void DrawTextBoxImpl(
+      const std::vector<const char*> &text,
+      const Vec2d &anchor_position, TextAnchor anchor,
+      const TextStyle &text_style, const Vec2d &padding,
+      double rotation, const LineStyle &box_line_style,
+      const Color &box_fill_color, double box_corner_radius,
+      const Vec2d &fixed_box_size) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawTextBox: {:d} lines at {:s}, {:s} "
+          "style={:s}, padding={:s}, rotation={:.1f}°, box-style={:s}, "
+          "box-fill={:s}, box-radius={:.1f}, box-fixed-size={:d}x{:d}.",
+          text.size(), anchor_position, anchor, text_style,
+          padding, rotation, box_line_style, box_fill_color,
+          box_corner_radius, (int)fixed_box_size.width(),
+          (int)fixed_box_size.height());
 
-    helpers::DrawText(surface_, context_, text, anchor_position, anchor,
-                      text_style, padding, rotation, box_line_style,
-                      box_fill_color, box_corner_radius, fixed_box_size);
+    helpers::DrawText(
+          surface_, context_, text, anchor_position, anchor,
+          text_style, padding, rotation, box_line_style,
+          box_fill_color, box_corner_radius, fixed_box_size);
   }
 
 
-  void DrawTrajectoryImpl(const std::vector<Vec2d> &points, const LineStyle &style,
-                          const Color &color_fade_out, bool oldest_position_first) override {
-    SPDLOG_DEBUG("ImagePainter::DrawTrajectory: {:d} points, style={:s}, "
-                 "fade_out={:s}, oldest_first={:s}", points.size(), style,
-                 color_fade_out, oldest_position_first);
+  void DrawTrajectoryImpl(
+      const std::vector<Vec2d> &points,
+      const LineStyle &style,
+      const Color &color_fade_out,
+      bool oldest_position_first,
+      int smoothing_window,
+      const std::function<double(double)> &mix_factor) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawTrajectory: {:d} points, style={:s}, "
+          "fade_out={:s}, oldest_first={:s}, smooth={:d}",
+          points.size(), style, color_fade_out,
+          oldest_position_first, smoothing_window);
 
-    //FIXME parametrize
-    std::vector<Vec2d> smoothed = SmoothTrajectoryMovingAverage(points, 3);
+    const std::vector<Vec2d> &smoothed =
+        (smoothing_window > 0)
+        ? SmoothTrajectoryMovingAverage(points, smoothing_window)
+        : points;
 
-    helpers::DrawTrajectory(surface_, context_, smoothed, style,
-                            color_fade_out, oldest_position_first);
+    helpers::DrawTrajectory(
+          surface_, context_, smoothed, style, color_fade_out,
+          oldest_position_first, mix_factor);
   }
 
 

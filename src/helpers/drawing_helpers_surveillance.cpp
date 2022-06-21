@@ -241,7 +241,8 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
 //---------------------------------------------------- Trajectory 2D
 void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
                     const std::vector<Vec2d> &points, const LineStyle &style,
-                    Color color_fade_out, bool oldest_position_first) {
+                    Color color_fade_out, bool oldest_position_first,
+                    const std::function<double(double)> &mix_factor) {
   CheckCanvas(surface, context);
 
   if (!style.IsValid()) {
@@ -261,14 +262,21 @@ void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
   }
   const bool fade_out = color_fade_out.IsValid() && (color_fade_out != style.color);
 
-  const double total_length = wgu::LengthPolygon(points);
-  double processed_length = 0.0;
-  double progress = 0.0;
-  Color color_from = oldest_position_first ? color_fade_out : style.color;
-  Color color_to;
   cairo_save(context);
   ApplyLineStyle(context, style);
   if (fade_out) {
+    const double total_length = wgu::LengthPolygon(points);
+    double processed_length = 0.0;
+    double proportion_color_head = mix_factor(0.0);
+    const Color &color_first = oldest_position_first
+        ? color_fade_out
+        : style.color;
+    const Color &color_last = oldest_position_first
+        ? style.color
+        : color_fade_out;
+    Color color_from = color_first.Mix(color_last, mix_factor(proportion_color_head));
+    Color color_to;
+
     // Fading out requires a separate path for each line segment,
     // so that we can apply the color gradient.
     for (std::size_t idx = 1; idx < points.size(); ++idx) {
@@ -279,12 +287,14 @@ void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
       cairo_pattern_add_color_stop_rgba(pattern, 0.0,
           color_from.blue, color_from.green,
           color_from.red, color_from.alpha);
-      // Color gradient stops depend on how far we are along
-      // the trajectory:
+
+      // The stop color of the current segment's color gradient
+      // depends on how far we are along the trajectory:
       processed_length += points[idx-1].Distance(points[idx]);
-      progress = processed_length / total_length;
-      color_to = oldest_position_first ? color_fade_out.Mix(style.color, progress)
-                                       : style.color.Mix(color_fade_out, progress);
+      proportion_color_head = mix_factor(processed_length / total_length);
+      color_to = oldest_position_first
+          ? color_fade_out.Mix(style.color, proportion_color_head)
+          : style.color.Mix(color_fade_out, proportion_color_head);
       cairo_pattern_add_color_stop_rgba(pattern, 1.0,
           color_to.blue, color_to.green,
           color_to.red, color_to.alpha);

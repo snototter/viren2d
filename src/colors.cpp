@@ -249,12 +249,6 @@ const Color Color::Same =    Color(NamedColor::Same);
 const Color Color::Invalid = Color(NamedColor::Invalid);
 
 
-Color::Color(const Color &other)
-  : red(other.red), green(other.green),
-    blue(other.blue), alpha(other.alpha)
-{}
-
-
 Color::Color(const NamedColor color, double alpha) {
 //  SPDLOG_TRACE("Constructing color from NamedColor({:s}),"
 //               " with alpha={:.2f}.", color, alpha);
@@ -689,8 +683,6 @@ Color &Color::operator/=(double scalar) {
 
 
 Color &Color::operator+=(const Color &rhs) {
-//  SPDLOG_TRACE("Adding {:s} to {:s} (with saturation cast).",
-//               rhs, *this);
   red = helpers::cast_01(red + rhs.red);
   green = helpers::cast_01(green + rhs.green);
   blue = helpers::cast_01(blue + rhs.blue);
@@ -700,8 +692,6 @@ Color &Color::operator+=(const Color &rhs) {
 
 
 Color &Color::operator-=(const Color &rhs) {
-//  SPDLOG_TRACE("Subtracting {:s} from {:s} (with saturation cast).",
-//               rhs, *this);
   red = helpers::cast_01(red - rhs.red);
   green = helpers::cast_01(green - rhs.green);
   blue = helpers::cast_01(blue - rhs.blue);
@@ -809,6 +799,19 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
 
   return Color(rgb[0] / 255.0, rgb[1] / 255.0,
                rgb[2] / 255.0, alpha);
+}
+
+double ColorFadeOutLinear(double progress) {
+  return progress;
+}
+
+double ColorFadeOutQuadratic(double progress) {
+  return progress * progress;
+}
+
+double ColorFadeOutLogarithmic(double progress) {
+  // 0.5 at 25%
+  return std::log10(progress * 9.0 + 1);
 }
 
 } // namespace viren2d

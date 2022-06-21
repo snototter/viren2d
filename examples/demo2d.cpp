@@ -320,15 +320,16 @@ void DemoPolygon() {
 
   std::vector<viren2d::Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
   auto style = viren2d::LineStyle(5, "midnight-blue", {}, viren2d::LineCap::Round);
-  bool oldest_first = false;
-  for (auto offset : {viren2d::Vec2d(-400, 50), viren2d::Vec2d(-100, 200), viren2d::Vec2d(50, 300)}) {
-    std::vector<viren2d::Vec2d> traj;
-    for (auto pt : trajectory) {
-      traj.push_back(pt + offset);
-    }
-    painter->DrawTrajectory(traj, style, viren2d::Color("gray!20"), oldest_first);
-    oldest_first = !oldest_first;
-  }
+//  bool oldest_first = false;
+//  for (const auto &offset : {viren2d::Vec2d(-400, 50), viren2d::Vec2d(-100, 200), viren2d::Vec2d(50, 300)}) {
+//    std::vector<viren2d::Vec2d> traj;
+//    for (const auto &pt : trajectory) {
+//      traj.push_back(pt + offset);
+//    }
+//    painter->DrawTrajectory(traj, style, viren2d::Color("gray!20"), oldest_first);
+//    oldest_first = !oldest_first;
+//  }
+
 
   trajectory = {{50, 400}, {100, 450}, {150, 400}, {200, 450},
                 {150, 500}, {200, 550}, {250, 500}, {300, 600},
@@ -337,6 +338,15 @@ void DemoPolygon() {
   painter->DrawTrajectory(trajectory, style, "black!100");
   //TODO we could add support for exponential color decay instead of linear (general form: https://math.stackexchange.com/a/557141)
 
+  std::vector<viren2d::Vec2d> pts;
+  for (const auto &pt : trajectory)
+    pts.push_back(pt + viren2d::Vec2d{0.0, 50.0});
+  painter->DrawTrajectory(pts, style, "black!100");
+
+  pts.clear();
+  for (const auto &pt : trajectory)
+    pts.push_back(pt + viren2d::Vec2d{0.0, 100.0});
+  painter->DrawTrajectory(pts, style, "black!100");
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-polygon.png");
   painter.reset();
@@ -631,22 +641,22 @@ void DemoConversionOpenCV() {
 
 
 int main(int /*argc*/, char **/*argv*/) {
-  DemoConversionOpenCV();
-  //viren2d::Color::FromCategory("Person");
-  std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
-//  if (!viren2d::SetLogLevel("trace")) {
-//    std::cout << "Could not adjust log level - did you compile viren2d"
-//                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
-//              << std::endl;
-//  }
-//  DemoColors();
-//  DemoLines();
-////  DemoArrows();
-//  DemoCircles();
-//  DemoRects();
-  DemoText();
-  DemoMarkers();
-//  DemoBoundingBox2D();
+//  DemoConversionOpenCV();
+//  //viren2d::Color::FromCategory("Person");
+//  std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
+////  if (!viren2d::SetLogLevel("trace")) {
+////    std::cout << "Could not adjust log level - did you compile viren2d"
+////                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
+////              << std::endl;
+////  }
+////  DemoColors();
+////  DemoLines();
+//////  DemoArrows();
+////  DemoCircles();
+////  DemoRects();
+//  DemoText();
+//  DemoMarkers();
+////  DemoBoundingBox2D();
   DemoPolygon();
 
   if (true)

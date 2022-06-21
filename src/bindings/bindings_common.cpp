@@ -285,25 +285,48 @@ void RegisterColor(py::module &m) {
       .def_readonly_static("Same", &Color::Same,
                            "Read-only special color ``Same`` (*e.g.* to use the same\n"
                            "color for filling as the object's contour).")
-      .def("is_valid", &Color::IsValid,
-           "Returns ``True`` if this is a valid rgba color, where all\n"
-           "components are within ``[0, 1]``.")
-      .def("inverse", &Color::Inverse, R"docstr(
-           Returns the inverse/complementary color.
+      .def(
+        "is_valid",
+        &Color::IsValid,
+        "Returns ``True`` if this is a valid rgba color, where all\n"
+        "components are within ``[0, 1]``.")
+      .def(
+        "inverse",
+        &Color::Inverse, R"docstr(
+        Returns the inverse/complementary color.
 
-           Except for shades of gray, this returns the rgb inverse, *i.e.*
-           ``(1-r, 1-g, 1-b, a)``.
-           For gray values, it will either return black or white. In both
-           cases, the returned alpha value will always stay the same.
+        Except for shades of gray, this returns the rgb inverse, *i.e.*
+        :math:`(1 - red, 1 - green, 1 - blue, alpha)`.
+        For gray values, it will either return black or white. In both
+        cases, the returned alpha value will always stay the same.
 
-           Why special handling of gray?
-              Complementary colors should be used to provide good
-              contrast/highlights. For colors close to medium gray (where
-              r,g,b are close to 0.5), the rgb inverse would not be too useful.
-           )docstr")
-      .def("is_shade_of_gray", &Color::IsShadeOfGray,
-           "Checks if all rgb components are almost the same (+/- the given epsilon).",
-           py::arg("eps")=0.02);
+        Why special handling of gray?
+           Complementary colors should be used to provide good
+           contrast/highlights. For colors close to medium gray (where
+           r,g,b are close to 0.5), the rgb inverse would not be too useful.
+        )docstr")
+      .def(
+        "is_shade_of_gray", &Color::IsShadeOfGray,
+        "Checks if the r,g,b values are almost the same (+/- the given epsilon).",
+        py::arg("eps") = 0.02)
+      .def_static(
+        "from_id",
+        &Color::FromID, R"docstr(
+        Returns a color for the given ID/number.
+
+        Usefull to consistently use the same color for the
+        same object or object class.
+        TODO >= 0? check & test for automatic conversion (cpp is size_t)
+        )docstr", py::arg("id"))
+      .def_static(
+        "from_category",
+        &Color::FromCategory, R"docstr(
+        Returns a color for the given category/object class.
+
+        Usefull to consistently use the same :class:`~viren2d.Color`
+        for the same object class.
+        TODO doc supported classes - likely coco? + automatic string normalization
+        )docstr");
 
   // A Color can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, Color>();
@@ -327,6 +350,33 @@ void RegisterColor(py::module &m) {
         doc.c_str(),
         py::arg("red"), py::arg("green"), py::arg("blue"),
         py::arg("alpha")=1.0);
+
+
+  m.def("fade_out_linear",
+        &ColorFadeOutLinear, R"docstr(
+        Identity function to implement a linear color transition
+        in :meth:`viren2d.Painter.draw_trajectory`.
+
+        Implemented as the identity function.
+        )docstr", py::arg("value"));
+
+
+  m.def("fade_out_quadratic",
+        &ColorFadeOutQuadratic, R"docstr(
+        Returns a quadratic factor for the color transition
+        in :meth:`viren2d.Painter.draw_trajectory`.
+
+        Computes :math:`value^2`.
+        )docstr", py::arg("value"));
+
+
+  m.def("fade_out_logarithmic",
+        &ColorFadeOutLogarithmic, R"docstr(
+        Returns a logarithmic factor for the color transition
+        in :meth:`viren2d.Painter.draw_trajectory`.
+
+        Computes :math:`\operatorname{log}_{10}(0.9 * value + 1)`.
+        )docstr", py::arg("value"));
 }
 
 } // namespace bindings

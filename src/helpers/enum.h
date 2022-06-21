@@ -133,11 +133,11 @@ bool IsFlagSet(EnumSpec value, EnumBase flag) {
  */
 template <typename C, C beginval, C endval>
 class ContinuousEnumIterator {
- private:
+private:
   typedef typename std::underlying_type<C>::type val_t;
   int val;
 
- public:
+public:
   ContinuousEnumIterator(const C & f)
     : val(static_cast<val_t>(f))
   {}

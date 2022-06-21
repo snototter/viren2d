@@ -5,9 +5,11 @@
 #include <viren2d/drawing.h>
 
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
 #include <bindings/binding_helpers.h>
-
+//TODO clean up doc painter;
+// implement runtime tests examples/demo_runtime (10, 50, 100, ...) subsequent calls
 
 namespace py = pybind11;
 
@@ -75,54 +77,56 @@ public:
   }
 
 
-  void DrawArc(const Vec2d &center, double radius,
-               double angle1, double angle2,
-               const LineStyle &line_style,
-               bool include_center,
-               const Color &fill_color) {
-    painter_->DrawArc(center, radius, angle1, angle2, line_style,
-                      include_center, fill_color);
+  void DrawArc(
+      const Vec2d &center, double radius, double angle1, double angle2,
+      const LineStyle &line_style, bool include_center, const Color &fill_color) {
+    painter_->DrawArc(
+          center, radius, angle1, angle2, line_style,
+          include_center, fill_color);
   }
 
 
-  void DrawArrow(const Vec2d &from, const Vec2d &to,
-                 const ArrowStyle &arrow_style) {
+  void DrawArrow(
+      const Vec2d &from, const Vec2d &to, const ArrowStyle &arrow_style) {
     painter_->DrawArrow(from, to, arrow_style);
   }
 
 
-  void DrawBoundingBox2D(const Rect &box,
-                         const std::vector<std::string> &label,
-                         const BoundingBox2DStyle &style) {
+  void DrawBoundingBox2D(
+      const Rect &box, const std::vector<std::string> &label,
+      const BoundingBox2DStyle &style) {
     painter_->DrawBoundingBox2D(box, label, style);
   }
 
 
-  void DrawCircle(const Vec2d &center, double radius,
-                  const LineStyle &line_style,
-                  const Color &fill_color) {
+  void DrawCircle(
+      const Vec2d &center, double radius,
+      const LineStyle &line_style, const Color &fill_color) {
     painter_->DrawCircle(center, radius, line_style, fill_color);
   }
 
 
-  void DrawEllipse(const Ellipse &ellipse,
-                   const LineStyle &line_style,
-                   const Color &fill_color) {
+  void DrawEllipse(
+      const Ellipse &ellipse, const LineStyle &line_style,
+      const Color &fill_color) {
     painter_->DrawEllipse(ellipse, line_style, fill_color);
   }
 
 
-  void DrawGrid(double spacing_x, double spacing_y,
-                const LineStyle &line_style,
-                const Vec2d &top_left,
-                const Vec2d &bottom_right) {
-    painter_->DrawGrid(top_left, bottom_right,
-                       spacing_x, spacing_y, line_style);
+  void DrawGrid(
+      double spacing_x, double spacing_y,
+      const LineStyle &line_style,
+      const Vec2d &top_left,
+      const Vec2d &bottom_right) {
+    painter_->DrawGrid(
+          top_left, bottom_right,
+          spacing_x, spacing_y, line_style);
   }
 
 
-  void DrawLine(const Vec2d &from, const Vec2d &to,
-                const LineStyle &line_style) {
+  void DrawLine(
+      const Vec2d &from, const Vec2d &to,
+      const LineStyle &line_style) {
     painter_->DrawLine(from, to, line_style);
   }
 
@@ -132,51 +136,62 @@ public:
   }
 
 
-  void DrawMarkers(const std::vector<std::pair<Vec2d, Color>> &markers,
-                   const MarkerStyle &style) {
+  void DrawMarkers(
+      const std::vector<std::pair<Vec2d, Color>> &markers,
+      const MarkerStyle &style) {
     painter_->DrawMarkers(markers, style);
   }
 
 
-  void DrawPolygon(const std::vector<Vec2d> &polygon,
-                   const LineStyle &line_style,
-                   const Color &fill_color) {
+  void DrawPolygon(
+      const std::vector<Vec2d> &polygon, const LineStyle &line_style,
+      const Color &fill_color) {
     painter_->DrawPolygon(polygon, line_style, fill_color);
   }
 
 
-  void DrawRect(const Rect &rect, const LineStyle &line_style,
-                const Color &fill_color) {
+  void DrawRect(
+      const Rect &rect, const LineStyle &line_style,
+      const Color &fill_color) {
     painter_->DrawRect(rect, line_style, fill_color);
   }
 
 
-  void DrawText(const std::vector<std::string> &text,
-                const Vec2d &anchor_position, py::object &pyanchor,
-                const TextStyle &text_style, const Vec2d &padding,
-                double rotation) {
+  void DrawText(
+      const std::vector<std::string> &text,
+      const Vec2d &anchor_position, py::object &pyanchor,
+      const TextStyle &text_style, const Vec2d &padding,
+      double rotation) {
     TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
-    painter_->DrawText(text, anchor_position, anchor,
-                       text_style, padding, rotation);
+    painter_->DrawText(
+          text, anchor_position, anchor,
+          text_style, padding, rotation);
   }
 
 
-  void DrawTextBox(const std::vector<std::string> &text,
-                   const Vec2d &anchor_position, py::object &pyanchor,
-                   const TextStyle &text_style, const Vec2d &padding,
-                   double rotation, const LineStyle &box_line_style,
-                   const Color &box_fill_color, double box_corner_radius,
-                   const Vec2d &fixed_box_size) {
+  void DrawTextBox(
+      const std::vector<std::string> &text,
+      const Vec2d &anchor_position, py::object &pyanchor,
+      const TextStyle &text_style, const Vec2d &padding,
+      double rotation, const LineStyle &box_line_style,
+      const Color &box_fill_color, double box_corner_radius,
+      const Vec2d &fixed_box_size) {
     TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
-    painter_->DrawTextBox(text, anchor_position, anchor, text_style,
-                          padding, rotation, box_line_style, box_fill_color,
-                          box_corner_radius, fixed_box_size);
+    painter_->DrawTextBox(
+          text, anchor_position, anchor, text_style,
+          padding, rotation, box_line_style, box_fill_color,
+          box_corner_radius, fixed_box_size);
   }
 
 
-  void DrawTrajectory(const std::vector<Vec2d> &points, const LineStyle &style,
-                      const Color &color_fade_out, bool oldest_position_first) {
-    painter_->DrawTrajectory(points, style, color_fade_out, oldest_position_first);
+  void DrawTrajectory(
+      const std::vector<Vec2d> &points, const LineStyle &style,
+      const Color &color_fade_out, bool oldest_position_first,
+      int smoothing_window,
+      const std::function<double(double)> &fading_factor) {
+    painter_->DrawTrajectory(
+          points, style, color_fade_out, oldest_position_first,
+          smoothing_window, fading_factor);
   }
 
 
@@ -211,44 +226,57 @@ private:
 
 
 void RegisterPainter(py::module &m) {
-  py::class_<PainterWrapper> painter(m, "Painter",
-    R"docstr(A :class:`~viren2d.Painter` lets you draw on a canvas.
+  py::class_<PainterWrapper> painter(m, "Painter", R"docstr(
+      A :class:`~viren2d.Painter` lets you draw on a canvas.
 
-    Typical usage:
+      Typical usage workflow:
 
-    1. Create a `Painter`:
+      1. Create a :class:`~viren2d.Painter`:
 
-       >>> import viren2d
-       >>> painter = viren2d.Painter()
+         >>> import viren2d
+         >>> painter = viren2d.Painter()
 
-    2. Initialize its canvas:
+      2. Initialize its canvas:
 
-      * Paint an empty canvas with a given color via :meth:`set_canvas_rgb`
-      * Set up the canvas from image data via :meth:`set_canvas_image`
-      * Set up the canvas by loading an image from disk via :meth:`set_canvas_filename`
+        * Paint an empty canvas with a given color
+          via :meth:`set_canvas_rgb`
+        * Set up the canvas from image data
+          via :meth:`set_canvas_image`
+        * Set up the canvas by loading an image from disk
+          via :meth:`set_canvas_filename`
 
-    3. Draw onto the canvas via the painter's ``draw_xxx(...)`` methods, for example:
+      3. Draw onto the canvas via the painter's ``draw_xxx(...)``
+         methods, for example:
 
-       >>> painter.draw_arrow(...)
-       >>> painter.draw_bounding_box(...)
+         >>> painter.draw_arrow(...)
+         >>> painter.draw_bounding_box(...)
 
-    4. After all objects have been drawn, retrieve the
-       visualization via :meth:`get_canvas`. For example,
-       to get a deeply copied image as :class:`numpy.ndarray`:
+      4. After all objects have been drawn, retrieve the
+         visualization via :meth:`get_canvas`. For example,
+         to get a deeply copied image as :class:`numpy.ndarray`:
 
-       >>> import numpy as np
-       >>> canvas = painter.get_canvas(copy=True)
-       >>> img_np = np.array(canvas, copy=False)
+         >>> import numpy as np
+         >>> canvas = painter.get_canvas(copy=True)
+         >>> img_np = np.array(canvas, copy=False)
 
-    5. Either continue drawing (step 3) or set a new canvas (step 2, the
-       same painter instance can be reused).
-    )docstr");
+      5. Either continue drawing (step 3) or set
+         a new canvas (step 2, the same painter
+         instance can be reused).
+      )docstr");
 
-  painter.def(py::init<>(), "Default constructor.")
-      .def("__repr__", [](const PainterWrapper &p) { return p.StringRepresentation(true); })
-      .def("__str__", [](const PainterWrapper &p) { return p.StringRepresentation(false); })
-      .def("is_valid", &PainterWrapper::IsValid,
-           "Checks if the canvas has been set up correctly.");
+  painter.def(
+        py::init<>(),
+        "Default constructor.")
+      .def(
+        "__repr__",
+        [](const PainterWrapper &p) { return p.StringRepresentation(true); })
+      .def(
+        "__str__",
+        [](const PainterWrapper &p) { return p.StringRepresentation(false); })
+      .def(
+        "is_valid",
+        &PainterWrapper::IsValid,
+        "Checks if the canvas has been set up correctly.");
 
   std::string doc = R"docstr(
       Initializes the canvas with the given color.
@@ -264,11 +292,15 @@ void RegisterPainter(py::module &m) {
         >>> painter.set_canvas_rgb(800, 600, 'crimson')
         >>> painter.set_canvas_rgb(800, 600, (0.5, 0.3, 0.9))
       )docstr";
-  painter.def("set_canvas_rgb", &PainterWrapper::SetCanvasColor,
-      doc.c_str(), py::arg("width"), py::arg("height"),
-      py::arg("color") = Color::White);
+  painter.def(
+        "set_canvas_rgb",
+        &PainterWrapper::SetCanvasColor, doc.c_str(),
+        py::arg("width"), py::arg("height"),
+        py::arg("color") = Color::White);
 
-  painter.def("set_canvas_filename", &PainterWrapper::SetCanvasFilename, R"docstr(
+  painter.def(
+        "set_canvas_filename",
+        &PainterWrapper::SetCanvasFilename, R"docstr(
       Initializes the canvas from the given image file.
 
       This functionality uses the
@@ -292,12 +324,16 @@ void RegisterPainter(py::module &m) {
         >>> img_np = np.zeros((480, 640, 3), dtype=np.uint8)
         >>> painter.set_canvas_image(img_np)
       )docstr";
-  painter.def("set_canvas_image", &PainterWrapper::SetCanvasImage,
-      doc.c_str(), py::arg("image"));
+  painter.def(
+        "set_canvas_image",
+        &PainterWrapper::SetCanvasImage, doc.c_str(),
+        py::arg("image"));
 
 
   //----------------------------------------------------------------------
-  painter.def("get_canvas_size", &PainterWrapper::GetCanvasSize, R"docstr(
+  painter.def(
+        "get_canvas_size",
+        &PainterWrapper::GetCanvasSize, R"docstr(
       Returns the size of the canvas in pixels.
 
       Returns:
@@ -305,8 +341,11 @@ void RegisterPainter(py::module &m) {
         where ``W`` and ``H`` denote pixels (type :class:`int`).
       )docstr");
 
+
   //----------------------------------------------------------------------
-  painter.def("get_canvas", &PainterWrapper::GetCanvas, R"docstr(
+  painter.def(
+        "get_canvas",
+        &PainterWrapper::GetCanvas, R"docstr(
       Returns the current visualization in RGBA format.
 
       Returns an :class:`~viren2d.ImageBuffer`, which implements
@@ -354,6 +393,7 @@ void RegisterPainter(py::module &m) {
           memory allocation.
       )docstr", py::arg("copy") = true);
 
+
   //----------------------------------------------------------------------
   doc = R"docstr(
       Draws a circular arc.
@@ -379,12 +419,15 @@ void RegisterPainter(py::module &m) {
       Example:
         >>> #TODO
       )docstr";
-  painter.def("draw_arc", &PainterWrapper::DrawArc, doc.c_str(),
-      py::arg("center"), py::arg("radius"),
-      py::arg("angle1"), py::arg("angle2"),
-      py::arg("line_style") = LineStyle(),
-      py::arg("include_center") = true,
-      py::arg("fill_color") = Color::Invalid);
+  painter.def(
+        "draw_arc",
+        &PainterWrapper::DrawArc, doc.c_str(),
+        py::arg("center"), py::arg("radius"),
+        py::arg("angle1"), py::arg("angle2"),
+        py::arg("line_style") = LineStyle(),
+        py::arg("include_center") = true,
+        py::arg("fill_color") = Color::Invalid);
+
 
   //----------------------------------------------------------------------
   doc = R"docstr(
@@ -410,12 +453,14 @@ void RegisterPainter(py::module &m) {
         varieties of :class:`~viren2d.ArrowStyle` configurations)
         is simply not worth it.
       )docstr";
-  painter.def("draw_arrow", &PainterWrapper::DrawArrow, doc.c_str(),
-      py::arg("pt1"), py::arg("pt2"),
-      py::arg("arrow_style") = ArrowStyle());
+  painter.def(
+        "draw_arrow",
+        &PainterWrapper::DrawArrow, doc.c_str(),
+        py::arg("pt1"), py::arg("pt2"),
+        py::arg("arrow_style") = ArrowStyle());
 
 
-  //----------------------------------------------------------------------TODO doc
+  //----------------------------------------------------------------------
   doc = R"docstr(
       Draws a 2D bounding box.
 
@@ -429,9 +474,12 @@ void RegisterPainter(py::module &m) {
       Example:
         >>> #TODO
       )docstr";
-  painter.def("draw_bounding_box_2d", &PainterWrapper::DrawBoundingBox2D,
-              doc.c_str(), py::arg("rect"), py::arg("label"),
-              py::arg("box_style") = BoundingBox2DStyle());
+  painter.def(
+        "draw_bounding_box_2d",
+        &PainterWrapper::DrawBoundingBox2D, doc.c_str(),
+        py::arg("rect"), py::arg("label"),
+        py::arg("box_style") = BoundingBox2DStyle());
+
 
   //----------------------------------------------------------------------
   doc = R"docstr(
@@ -452,10 +500,12 @@ void RegisterPainter(py::module &m) {
       Example:
         >>> #TODO
       )docstr";
-  painter.def("draw_circle", &PainterWrapper::DrawCircle, doc.c_str(),
-      py::arg("center"), py::arg("radius"),
-      py::arg("line_style") = LineStyle(),
-      py::arg("fill_color") = Color::Invalid);
+  painter.def(
+        "draw_circle",
+        &PainterWrapper::DrawCircle, doc.c_str(),
+        py::arg("center"), py::arg("radius"),
+        py::arg("line_style") = LineStyle(),
+        py::arg("fill_color") = Color::Invalid);
 
 
   //----------------------------------------------------------------------
@@ -477,10 +527,13 @@ void RegisterPainter(py::module &m) {
       Example:
         >>> #TODO
       )docstr";
-  painter.def("draw_ellipse", &PainterWrapper::DrawEllipse, doc.c_str(),
-      py::arg("ellipse"),
-      py::arg("line_style") = LineStyle(),
-      py::arg("fill_color") = Color::Invalid);
+  painter.def(
+        "draw_ellipse",
+        &PainterWrapper::DrawEllipse, doc.c_str(),
+        py::arg("ellipse"),
+        py::arg("line_style") = LineStyle(),
+        py::arg("fill_color") = Color::Invalid);
+
 
         //TODO coding style//----------------------------------------------------------------------
   doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
@@ -516,9 +569,12 @@ void RegisterPainter(py::module &m) {
         >>> painter.draw_line(
         >>>     pt1=(42, 42), pt2=(86, 86), line_style=line_style)
       )docstr";
-  painter.def("draw_line", &PainterWrapper::DrawLine, doc.c_str(),
-              py::arg("pt1"), py::arg("pt2"),
-              py::arg("line_style") = LineStyle());
+  painter.def(
+        "draw_line",
+        &PainterWrapper::DrawLine, doc.c_str(),
+        py::arg("pt1"), py::arg("pt2"),
+        py::arg("line_style") = LineStyle());
+
 
   //----------------------------------------------------------------------
   doc = R"docstr(
@@ -535,8 +591,11 @@ void RegisterPainter(py::module &m) {
         >>> marker_style.size = 30
         >>> painter.draw_marker((42, 70), marker_style)
       )docstr";
-  painter.def("draw_marker", &PainterWrapper::DrawMarker, doc.c_str(),
-              py::arg("pos"), py::arg("marker_style") = MarkerStyle());
+  painter.def(
+        "draw_marker",
+        &PainterWrapper::DrawMarker, doc.c_str(),
+        py::arg("pos"), py::arg("marker_style") = MarkerStyle());
+
 
   doc = R"docstr(
       Draws multiple (similar) markers/keypoints.
@@ -562,8 +621,11 @@ void RegisterPainter(py::module &m) {
         >>> ]
         >>> painter.draw_markers(markers, marker_style)
       )docstr";
-  painter.def("draw_markers", &PainterWrapper::DrawMarkers, doc.c_str(),
-              py::arg("markers"), py::arg("marker_style") = MarkerStyle());
+  painter.def(
+        "draw_markers",
+        &PainterWrapper::DrawMarkers, doc.c_str(),
+        py::arg("markers"),
+        py::arg("marker_style") = MarkerStyle());
 
 
   //TODO raw string doc + example //----------------------------------------------------------------------
@@ -631,16 +693,19 @@ void RegisterPainter(py::module &m) {
   //TODO raw string doc + example //----------------------------------------------------------------------
   doc = "TODO doc"
       "  anchor: Either enum or string representation";
-  painter.def("draw_textbox", &PainterWrapper::DrawTextBox, doc.c_str(),
-      py::arg("text"), py::arg("position"),
-      py::arg("anchor") = TextAnchor::BottomLeft,
-      py::arg("text_style") = TextStyle(),
-      py::arg("padding") = Vec2d::All(6.0),
-      py::arg("rotation") = 0.0,
-      py::arg("line_style") = LineStyle::Invalid,
-      py::arg("fill_color") = Color::White.WithAlpha(0.6),
-      py::arg("radius") = 0.2,
-      py::arg("fixed_size") = Vec2d::All(-1.0));
+  painter.def(
+        "draw_textbox",
+        &PainterWrapper::DrawTextBox, doc.c_str(),
+        py::arg("text"),
+        py::arg("position"),
+        py::arg("anchor") = TextAnchor::BottomLeft,
+        py::arg("text_style") = TextStyle(),
+        py::arg("padding") = Vec2d::All(6.0),
+        py::arg("rotation") = 0.0,
+        py::arg("line_style") = LineStyle::Invalid,
+        py::arg("fill_color") = Color::White.WithAlpha(0.6),
+        py::arg("radius") = 0.2,
+        py::arg("fixed_size") = Vec2d::All(-1.0));
 
 
   //TODO raw string doc + example //----------------------------------------------------------------------
@@ -652,7 +717,7 @@ void RegisterPainter(py::module &m) {
       If a valid ``fade_out_color`` is given, the trajectory will
       be drawn as separate line segments needed to render the
       color gradient. However, this means that the
-      :attr:`~viren2d.LineStyle.join`` setting of the ``line_style``
+      :attr:`~viren2d.LineStyle.join` setting of the ``line_style``
       will be ignored. Additionally, the segment endpoints will be
       visible if you transparent colors are used.
       To avoid this behavior, the trajectory needs to be drawn with
@@ -660,21 +725,38 @@ void RegisterPainter(py::module &m) {
       ``fade_out_color``.
 
       Args:
-        points: TODO
+        points: A :class:`list` of the trajectory's coordinates
+          as :class:`~viren2d.Vec2d`.
         line_style: A :class:`~viren2d.LineStyle` specifying how
           to draw the trajectory (except for the color gradient).
         fade_out_color: If this is a valid :class:`~viren2d.Color`,
           the trajectory's tail will be drawn with this color.
-        oldest_first: Set to ``True`` if the first point, *i.e.*
+        tail_first: Set to ``True`` if the first point, *i.e.*
           ``points[0]``, is the *oldest*, *i.e.* the trajectory's
-          head.
+          tail.
+        smoothing_window: Specifies the window size to optionally
+          smooth the trajectory via moving average. Disable smoothing
+          by passing a value ``<= 0``.
+        fading_factor: TODO
+          For convenience, ``viren2d`` already provides :func:`~viren2d.fade_out_linear`,
+          :func:`~viren2d.fade_out_quadratic`, and :func:`~viren2d.fade_out_logarithmic`.
+
+      Example:
+        >>> points = [(0, 0), (10, 20), (42, 30), ...]
+        >>> line_style = viren2d.LineStyle(width=5, color='azure')
+        >>> painter.draw_trajectory(
+        >>>     points, line_style,
+        >>>     smoothing_window=5,
+        >>>     fading_factor=viren2d.fade_out_linear)
       )docstr";
-  // TODO linear fadeout vs 2nd order polynomial: y=\left(20 x^2 + 2x +1\right)^{-1}
-  // TODO change from color to ColorDecay(target_color, type {linear|polynomial|none})?
-  painter.def("draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
-              py::arg("points"), py::arg("line_style") = LineStyle(),
-              py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
-              py::arg("oldest_first") = false);
+  painter.def(
+      "draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
+      py::arg("points"),
+      py::arg("line_style") = LineStyle(),
+      py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
+      py::arg("oldest_first") = false,
+      py::arg("smoothing_window") = 0,
+      py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
 
   //TODO(snototter) add draw_xxx methods
 
