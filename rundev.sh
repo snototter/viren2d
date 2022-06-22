@@ -3,8 +3,10 @@
 # Utility which runs all tests & examples to check
 # for broken test cases, demos, ...
 #
-# TODO This script assumes that the environment is already set up
-# TODO Be aware of demos that wait for user input -- should not be run unattended
+# Important:
+# * This script must be run in the project's root folder
+# * This script assumes that the environment is already set up
+# * Be aware of demos that wait for user input -- should not be run unattended
 
 # Abort on error
 # keep track of the last executed command
@@ -29,4 +31,8 @@ cd examples
 python render_rtd_images.py
 python runtimes.py
 python demo.py
+cd ..
 
+cd docs
+make html
+cd ..

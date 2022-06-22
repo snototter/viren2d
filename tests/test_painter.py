@@ -102,7 +102,7 @@ def test_draw_arc():
     # Draw with implicit conversions
     p.draw_arc((1, 2), 10, 30, 40, style, False, "midnight-blue!80")
     p.draw_arc(
-        angle1=20, angle2=300, center=(1, 2), radius=10,
+        angle_from=20, angle_to=300, center=(1, 2), radius=10,
         fill_color='black!40', line_style=style, include_center=False)
 
     # Sweep valid and invalid configurations
