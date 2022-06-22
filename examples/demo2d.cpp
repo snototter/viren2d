@@ -317,27 +317,6 @@ void DemoPolygon() {
   painter->DrawPolygon({{500, 100}, {600, 150}, {550, 300}, {500, 150}},
                        line_style, "azure!20");
 
-
-  std::vector<viren2d::Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
-  auto style = viren2d::LineStyle(5, "midnight-blue", {}, viren2d::LineCap::Round);
-  bool oldest_first = false;
-  for (auto offset : {viren2d::Vec2d(-400, 50), viren2d::Vec2d(-100, 200), viren2d::Vec2d(50, 300)}) {
-    std::vector<viren2d::Vec2d> traj;
-    for (auto pt : trajectory) {
-      traj.push_back(pt + offset);
-    }
-    painter->DrawTrajectory(traj, style, viren2d::Color("gray!20"), oldest_first);
-    oldest_first = !oldest_first;
-  }
-
-  trajectory = {{50, 400}, {100, 450}, {150, 400}, {200, 450},
-                {150, 500}, {200, 550}, {250, 500}, {300, 600},
-                {350, 500}, {400, 600}, {450, 550}, {500, 700}};
-  style.color = "red";
-  painter->DrawTrajectory(trajectory, style, "black!100");
-  //TODO we could add support for exponential color decay instead of linear (general form: https://math.stackexchange.com/a/557141)
-
-
   ShowCanvas(painter->GetCanvas(false), "demo-output-polygon.png");
   painter.reset();
 }
@@ -383,8 +362,6 @@ void DemoText() {
   auto painter = viren2d::CreatePainter();
   painter->SetCanvas(600, 550, viren2d::Color::White);
 
-//  painter->DrawGrid({}, {}, 50, 50,
-//                    viren2d::LineStyle(1.0, "gray!40"));
 
   const std::vector<std::string> anchors = {
     "center", "north", "north-east",
@@ -435,20 +412,52 @@ void DemoText() {
                              viren2d::LineStyle::Invalid,
                              "azure!40",
                              0.25);
-      } /*else if (idx_family == 2) {
-        // Draw a text box with a fixed size
-        painter->DrawTextBox({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
-                             text_style, padding, 0.0,
-                             viren2d::LineStyle::Invalid,
-                             "orchid!40",
-                             0.25, {10, -1});
-      }*/
+      }
     }
   }
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-text.png");
   painter.reset();
 }
+
+
+void DemoTrajectories() {
+  auto painter = viren2d::CreatePainter();
+  painter->SetCanvas(800, 800, viren2d::Color::White);
+
+  std::vector<viren2d::Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
+  auto style = viren2d::LineStyle(5, "midnight-blue", {}, viren2d::LineCap::Round);
+  bool oldest_first = false;
+  for (const auto &offset : {viren2d::Vec2d(-400, 50), viren2d::Vec2d(-100, 200), viren2d::Vec2d(50, 300)}) {
+    std::vector<viren2d::Vec2d> traj;
+    for (const auto &pt : trajectory) {
+      traj.push_back(pt + offset);
+    }
+    painter->DrawTrajectory(traj, style, viren2d::Color("gray!20"), oldest_first);
+    oldest_first = !oldest_first;
+  }
+
+  trajectory = {{50, 400}, {100, 450}, {150, 400}, {200, 450},
+                {150, 500}, {200, 550}, {250, 500}, {300, 600},
+                {350, 500}, {400, 600}, {450, 550}, {500, 700}};
+  style.color = "red";
+  painter->DrawTrajectory(trajectory, style, "black!100", true, 5, viren2d::ColorFadeOutLinear);
+
+  std::vector<viren2d::Vec2d> pts;
+  for (const auto &pt : trajectory)
+    pts.push_back(pt + viren2d::Vec2d{0.0, 100.0});
+  painter->DrawTrajectory(pts, style, "black!100");
+
+  pts.clear();
+  for (const auto &pt : trajectory)
+    pts.push_back(pt + viren2d::Vec2d{0.0, 200.0});
+  painter->DrawTrajectory(pts, style, "black!100");
+
+  ShowCanvas(painter->GetCanvas(false), "demo-output-polygon.png");
+  painter.reset();
+}
+
+
 
 void DemoMarkers() {
   auto painter = viren2d::CreatePainter();
@@ -504,7 +513,9 @@ void DemoMarkers() {
 
 void DemoBoundingBox2D() {
   auto painter = viren2d::CreatePainter();
-  for (auto label_pos : {viren2d::BoundingBoxLabelPosition::Top, viren2d::BoundingBoxLabelPosition::Bottom, viren2d::BoundingBoxLabelPosition::LeftB2T, viren2d::BoundingBoxLabelPosition::RightB2T}) {
+  for (auto label_pos : {viren2d::LabelPosition::Top,
+       viren2d::LabelPosition::Bottom, viren2d::LabelPosition::LeftB2T,
+       viren2d::LabelPosition::RightB2T}) {
     painter->SetCanvas(600, 600, viren2d::Color::White);
 
     painter->DrawGrid({}, {}, 50, 50,
@@ -631,129 +642,72 @@ void DemoConversionOpenCV() {
 
 
 int main(int /*argc*/, char **/*argv*/) {
-  DemoConversionOpenCV();
-  //viren2d::Color::FromCategory("Person");
-  std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
-//  if (!viren2d::SetLogLevel("trace")) {
-//    std::cout << "Could not adjust log level - did you compile viren2d"
-//                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
-//              << std::endl;
+//  DemoConversionOpenCV();
+//  //viren2d::Color::FromCategory("Person");
+//  std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
+////  if (!viren2d::SetLogLevel("trace")) {
+////    std::cout << "Could not adjust log level - did you compile viren2d"
+////                 " with an appropriate viren2d_LOG_LEVEL_xxx definition?"
+////              << std::endl;
+////  }
+////  DemoColors();
+////  DemoLines();
+//////  DemoArrows();
+////  DemoCircles();
+////  DemoRects();
+//  DemoText();
+//  DemoMarkers();
+////  DemoBoundingBox2D();
+//  DemoPolygon();
+  DemoTrajectories();
+
+  // TODO create examples out of this sandbox mess
+
+// demo set canvas from image & draw some rectangles:
+////  // compare image.png cv-image.png diff.png
+//#ifdef EXAMPLE_IMAGE_FILE
+//  std::string image_filename(EXAMPLE_IMAGE_FILE);
+//#else  // EXAMPLE_IMAGE_FILE
+//  std::string image_filename("../examples/flamingo.jpg");
+//#endif  // EXAMPLE_IMAGE_FILE
+//  viren2d::ImageBuffer image_buffer = viren2d::LoadImage(image_filename, 4);
+
+//  auto painter = viren2d::CreatePainter();
+
+//  painter->SetCanvas(image_buffer);
+
+//  for (int i = 0; i < 4; ++i) {
+//    viren2d::Rect rect(40 + i*100, 256, 80, 120, i*30, 30);
+
+//    // Invocation with explicit types:
+//    painter->DrawRect(rect,
+//                      viren2d::LineStyle(6, viren2d::Color("indigo!90")),
+//                      viren2d::Color("cyan!20"));
+
+//    rect.cy -= (rect.height + 10);
+//    // Invocation with implicit casts:
+//    // * Rect can be created from an initializer_list of doubles
+//    // * Color can be created from a C string
+//    painter->DrawRect({40.0 + i*100.0, 100, 80, 120, i*30.0, 20},
+//                      viren2d::LineStyle(6, "taupe!90"),
+//                      "cyan!60");
 //  }
-//  DemoColors();
-//  DemoLines();
-////  DemoArrows();
-//  DemoCircles();
-//  DemoRects();
-  DemoText();
-  DemoMarkers();
-//  DemoBoundingBox2D();
-  DemoPolygon();
 
-  if (true)
-    return 0;
+//  //  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
+//  //                    viren2d::LineStyle(10, viren2d::colors::Maroon(0.8)));
 
-  std::cout << viren2d::Color(viren2d::NamedColor::Black).ToString() << std::endl
-            << viren2d::Color("white").ToString() << std::endl
-            << viren2d::Color("red").ToHexString() << std::endl
-            << viren2d::Color("green").ToHexString() << std::endl;
-  auto x = viren2d::Color("blue");
-  x = viren2d::Color("#aabbcc");
-  //------------------------------------------------------
-  viren2d::Vec2d vd1(1, 2), vd2(3, 9);
-  viren2d::Vec3i vi1(13, 42, -1), vi2(13,42, 0);
-  std::cout << vd1 << " == " << vd2 << ": " << (vd1 == vd2) << std::endl
-            << vd1 << " == " << vd1 << ": " << (vd1 == vd1) << std::endl
-            << vi1 << " == " << vi2 << ": " << (vi1 == vi2) << std::endl
-            << vi1 << " == " << vi1 << ": " << (vi1 == vi1) << std::endl;
+//  painter->DrawLine({10.0, 10.0}, {image_buffer.width-10.0, image_buffer.height-10.0},
+//                    viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineCap::Round));
 
-////  viren2d::Vec3d cast = static_cast<viren2d::Vec3d>(vi3);
-////  std::cout << "Casted?: " << cast << std::endl;
-//  std::cout << "Arithmetic: " << vd1 << " - " << vd2 << " = " << (vd1 - vd2) << std::endl
-//            << "  '+' = " << (vd1 + vd2) << std::endl
-//            << "3 * " << vd1 << " = " << (3 * vd1) << " == lhs|rhs == " << (vd1 * 3) << std::endl
-//            << vd1 << "/ 2 = " << (vd1 / 2) << std::endl
-//            << vi1 << "/ 2 = " << (vi1 / 2) << std::endl << std::endl
-//            << "Length " << vi1 << " = " << vi1.Length() << std::endl
-//            << "L2 to  " << vi2 << " = " << vi1.Distance(vi2) << std::endl << std::endl;
-
-//  //------------------------------------------------------
-
-//  viren2d::Color color = viren2d::RGBA(255, 0, 255);
-//  std::cout << color.ToString() << std::endl;
-//  //------------------------------------------------------
-
-//  // compare image.png cv-image.png diff.png
-#ifdef EXAMPLE_IMAGE_FILE
-  std::string image_filename(EXAMPLE_IMAGE_FILE);
-#else  // EXAMPLE_IMAGE_FILE
-  std::string image_filename("../examples/flamingo.jpg");
-#endif  // EXAMPLE_IMAGE_FILE
-  viren2d::ImageBuffer image_buffer = viren2d::LoadImage(image_filename, 4);
-
-  auto painter = viren2d::CreatePainter();
-
-////  painter->SetCanvas(image_filename);
-  painter->SetCanvas(image_buffer);
-////  painter->SetCanvas(600, 400, viren2d::RGBA(255, 255, 255));
-
-  for (int i = 0; i < 4; ++i) {
-    viren2d::Rect rect(40 + i*100, 256, 80, 120, i*30, 30);
-
-    // Invocation with explicit types:
-    painter->DrawRect(rect,
-                      viren2d::LineStyle(6, viren2d::Color("indigo!90")),
-                      viren2d::Color("cyan!20"));
-
-    rect.cy -= (rect.height + 10);
-    // Invocation with implicit casts:
-    // * Rect can be created from an initializer_list of doubles
-    // * Color can be created from a C string
-    painter->DrawRect({40.0 + i*100.0, 100, 80, 120, i*30.0, 20},
-                      viren2d::LineStyle(6, "taupe!90"),
-                      "cyan!60");
-  }
-
-  //  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
-  //                    viren2d::LineStyle(10, viren2d::colors::Maroon(0.8)));
-
-  painter->DrawLine({10.0, 10.0}, {image_buffer.width-10.0, image_buffer.height-10.0},
-                    viren2d::LineStyle(10, "maroon!80", {}, viren2d::LineCap::Round));
-
-  viren2d::SaveImage("test.jpg", painter->GetCanvas(false));
-
-#ifdef WITH_OPENCV
-  // The last bit of OpenCV dependency (only for displaying the image ;-)
-  viren2d::ImageBuffer img_buffer = painter->GetCanvas(true);
-  img_buffer.SwapChannels(0, 2); // Warning: Currently, the buffer is shared!!
-  cv::Mat cv_buffer(img_buffer.height, img_buffer.width,
-                    CV_MAKETYPE(CV_8U, img_buffer.channels),
-                    img_buffer.data, img_buffer.stride);
-  cv::imshow("Painter's Canvas", cv_buffer);
-  cv::waitKey();
-#endif // WITH_OPENCV
+//  viren2d::SaveImage("test.jpg", painter->GetCanvas(false));
+//  ShowCanvas(painter->GetCanvas(false), "demo-image-canvas.jpg");
 
 
-////  painter->SetCanvas(img.cols, img.rows, viren2d::RGBA(0, 0, 200));
-
-
-
-//  painter->DrawLine(viren2d::Vec2d(10, 10), viren2d::Vec2d(image_buffer.width-10, image_buffer.height-10),
-//                    viren2d::LineStyle(6, viren2d::colors::LimeGreen(), {5, 10, 40, 10},
-//                                    viren2d::LineStyle::Cap::Round));
-
-//  painter->DrawCircle(viren2d::Vec2d(70, 90), 35,
-//                      viren2d::LineStyle(6, viren2d::RGBA(0, 0, 200), {20, 20}, viren2d::LineStyle::Cap::Round),
-//                      viren2d::rgba(0, 1, 1, .3));
-
-
-//  //   ImagePainter painter(painter1); // copy construct
-//  //  auto painter = std::move(painter1);
-//  ////  ImagePainter painter = std::move(painter1); // move constructor
-//  ////  ImagePainter painter; painter = std::move(painter1); // move assignment
-//  ////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
-
-//  viren2d::ImageBuffer canvas = painter->GetCanvas(false);
-//  viren2d::SaveImage("dummy-canvas.png", canvas);
+////  //   ImagePainter painter(painter1); // copy construct
+////  //  auto painter = std::move(painter1);
+////  ////  ImagePainter painter = std::move(painter1); // move constructor
+////  ////  ImagePainter painter; painter = std::move(painter1); // move assignment
+////  ////  ImagePainter painter; painter = painter1; // copy assignment, copy construct & move assignment
 
   return 0;
 }

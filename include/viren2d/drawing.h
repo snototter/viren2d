@@ -5,17 +5,12 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <functional>
+
 
 #include <viren2d/primitives.h>
 #include <viren2d/colors.h>
 #include <viren2d/styles.h>
-
-//TODO trajectory
-// linear pattern https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-linear
-// idea: compute trajectory length
-//       for each segment, create the corresponding linear pattern (linpat needs start/end point)
-//       color progression depends on distance "travelled"
-//       to check: memory clean up
 
 
 namespace viren2d {
@@ -23,23 +18,12 @@ namespace viren2d {
 /**
  * @brief The Painter supports drawing on a canvas.
  *
- *TODO replace doc by pybind module doc
- *
- * Workflow:
- * 1. Create a Painter
- * 2. SetCanvas()
- * 3. Draw onto the canvas via DrawXXX
- * 4. When all objects have been drawn, retrieve
- *    the visualization via GetCanvas()
- * 5. For the next visualization, start at step 2 to
- *    reuse the allocated resources.
+ *TODO replace all docstrings by the python interface doc
  */
 class Painter {
 public:
   virtual ~Painter() {}
 
-  // Explicitly default the copy/move constructors
-  // and assignment operators:
   Painter() = default;
   Painter(const Painter &other) = default;
   Painter& operator=(const Painter &other) = default;
@@ -74,9 +58,9 @@ public:
    */
   virtual void SetCanvas(const std::string &image_filename) = 0;
 
-  //TODO doc - memory will be copied; image must be RGB or RGBA!
-  // TODO support RGB and grayscale images, too:
-  // * rgb, set alpha 255
+  //TODO doc - memory will be copied; can be
+  // grayscale, RGB or RGBA
+  // * rgb --> assumes alpha 255
   // * grayscale --> gray,gray,gray, alpha
   virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
 
@@ -113,13 +97,15 @@ public:
    * @param fill_color: Provide a valid color to fill
    *            the arc.
    */
-  void DrawArc(const Vec2d &center, double radius,
-               double angle1, double angle2,
-               const LineStyle &line_style = LineStyle(),
-               bool include_center = true,
-               const Color &fill_color = Color::Invalid) {
-    DrawArcImpl(center, radius, angle1, angle2, line_style,
-                include_center, fill_color);
+  void DrawArc(
+      const Vec2d &center, double radius,
+      double angle1, double angle2,
+      const LineStyle &line_style = LineStyle(),
+      bool include_center = true,
+      const Color &fill_color = Color::Invalid) {
+    DrawArcImpl(
+          center, radius, angle1, angle2, line_style,
+          include_center, fill_color);
   }
 
 
@@ -131,20 +117,20 @@ public:
    * @param arrow_style: How to draw the arrow (specifies
    *              both line and head/tip style).
    */
-  void DrawArrow(const Vec2d &from, const Vec2d &to,
-                 const ArrowStyle &arrow_style = ArrowStyle()) {
+  void DrawArrow(
+      const Vec2d &from, const Vec2d &to,
+      const ArrowStyle &arrow_style = ArrowStyle()) {
     DrawArrowImpl(from, to, arrow_style);
   }
 
 
   /**
    * @brief Draws a 2D bounding box.
-   * TODO
    */
-  void DrawBoundingBox2D(const Rect &box,
-                         const std::vector<std::string> &label,
-                         const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    std::vector<const char*> lines;
+  void DrawBoundingBox2D(
+      const Rect &box, const std::vector<std::string> &label,
+      const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
+    std::vector<const char*> lines; //FIXME const char vs string!
     for (const auto &line : label) {
       lines.push_back(line.c_str());
     }
@@ -163,9 +149,10 @@ public:
    * @param fill_color: Provide a valid color to fill
    *                the circle.
    */
-  void DrawCircle(const Vec2d &center, double radius,
-                  const LineStyle &line_style = LineStyle(),
-                  const Color &fill_color = Color::Invalid) {
+  void DrawCircle(
+      const Vec2d &center, double radius,
+      const LineStyle &line_style = LineStyle(),
+      const Color &fill_color = Color::Invalid) {
     DrawCircleImpl(center, radius, line_style, fill_color);
   }
 
@@ -180,9 +167,10 @@ public:
    * @param fill_color: Provide a valid color to fill
    *                    the ellipse.
    */
-  void DrawEllipse(const Ellipse &ellipse,
-                   const LineStyle &line_style = LineStyle(),
-                   const Color &fill_color = Color::Invalid) {
+  void DrawEllipse(
+      const Ellipse &ellipse,
+      const LineStyle &line_style = LineStyle(),
+      const Color &fill_color = Color::Invalid) {
     DrawEllipseImpl(ellipse, line_style, fill_color);
   }
 
@@ -198,40 +186,34 @@ public:
    * @param spacing_y: Vertical cell size in pixels.
    * @param line_style: How to draw the grid lines.
    */
-  void DrawGrid(const Vec2d &top_left, const Vec2d &bottom_right,
-                double spacing_x, double spacing_y,
-                const LineStyle &line_style = LineStyle()) {
-    DrawGridImpl(top_left, bottom_right, spacing_x, spacing_y,
-                 line_style);
+  void DrawGrid(
+      const Vec2d &top_left, const Vec2d &bottom_right,
+      double spacing_x, double spacing_y,
+      const LineStyle &line_style = LineStyle()) {
+    DrawGridImpl(
+          top_left, bottom_right,
+          spacing_x, spacing_y,
+          line_style);
   }
 
 
   /**
    * @brief Draws a line.
    */
-  void DrawLine(const Vec2d &from, const Vec2d &to,
-                const LineStyle &line_style = LineStyle()) {
+  void DrawLine(
+      const Vec2d &from, const Vec2d &to,
+      const LineStyle &line_style = LineStyle()) {
     DrawLineImpl(from, to, line_style);
   }
 
 
-  /**
-   * @brief Draws a single marker/keypoint.
-   */
-  void DrawMarker(const Vec2d &position,
-                  const MarkerStyle &style = MarkerStyle()) {
+  void DrawMarker(
+      const Vec2d &position,
+      const MarkerStyle &style = MarkerStyle()) {
     DrawMarkerImpl(position, style);
   }
 
 
-  /**
-   * @brief Draws multiple markers with the same shape & size.
-   *
-   * @param markers: If a corresponding color is invalid,
-   *            the style's color will be used instead.
-   * @param style: Common style for all markers (except for
-   *            the color).
-   */
   void DrawMarkers(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style = MarkerStyle()) {
@@ -239,12 +221,10 @@ public:
   }
 
 
-  /**
-   * @brief Draws a polygon.
-   */
-  void DrawPolygon(const std::vector<Vec2d> &points,
-                   const LineStyle &line_style = LineStyle(),
-                   const Color &fill_color = Color::Invalid) {
+  void DrawPolygon(
+      const std::vector<Vec2d> &points,
+      const LineStyle &line_style = LineStyle(),
+      const Color &fill_color = Color::Invalid) {
     DrawPolygonImpl(points, line_style, fill_color);
   }
 
@@ -260,20 +240,23 @@ public:
    * @param fill_color: Provide a valid color to fill
    *                the rectangle.
    */
-  void DrawRect(const Rect &rect,
-                const LineStyle &line_style = LineStyle(),
-                const Color &fill_color = Color::Invalid) {
+  void DrawRect(
+      const Rect &rect,
+      const LineStyle &line_style = LineStyle(),
+      const Color &fill_color = Color::Invalid) {
     DrawRectImpl(rect, line_style, fill_color);
   }
 
 
   //TODO doc, test, bind
-  void DrawText(const std::vector<std::string> &text,
-                const Vec2d &anchor_position,
-                TextAnchor anchor = TextAnchorFromString("bottom-left"),
-                const TextStyle &text_style = TextStyle(),
-                const Vec2d &padding = {0.0, 0.0}, double rotation = 0.0) {
-    std::vector<const char*> lines;
+  void DrawText(
+      const std::vector<std::string> &text,
+      const Vec2d &anchor_position,
+      TextAnchor anchor = TextAnchor::BottomLeft,
+      const TextStyle &text_style = TextStyle(),
+      const Vec2d &padding = {0.0, 0.0},
+      double rotation = 0.0) {
+    std::vector<const char*> lines;//FIXME revert to string
     for (const auto &line : text) {
       lines.push_back(line.c_str());
     }
@@ -283,30 +266,37 @@ public:
 
 
   //TODO doc, test, bind
-  void DrawTextBox(const std::vector<std::string> &text,
-                   const Vec2d &anchor_position,
-                   TextAnchor anchor = TextAnchorFromString("bottom-left"),
-                   const TextStyle &text_style = TextStyle(),
-                   const Vec2d &padding = {6.0, 6.0}, double rotation = 0.0, //TODO is default 6 good enough?
-                   const LineStyle &box_line_style = LineStyle::Invalid,
-                   const Color &box_fill_color = Color::White.WithAlpha(0.6),
-                   double box_corner_radius = 0.2,
-                   const Vec2d &fixed_box_size = {-1.0, -1.0}) {
-    std::vector<const char*> lines;
+  void DrawTextBox(
+      const std::vector<std::string> &text,
+      const Vec2d &anchor_position,
+      TextAnchor anchor = TextAnchor::BottomLeft,
+      const TextStyle &text_style = TextStyle(),
+      const Vec2d &padding = {6.0, 6.0},
+      double rotation = 0.0,
+      const LineStyle &box_line_style = LineStyle::Invalid,
+      const Color &box_fill_color = Color::White.WithAlpha(0.6),
+      double box_corner_radius = 0.2,
+      const Vec2d &fixed_box_size = {-1.0, -1.0}) {
+    std::vector<const char*> lines;//FIXME revert to string
     for (const auto &line : text) {
       lines.push_back(line.c_str());
     }
-    DrawTextBoxImpl(lines, anchor_position, anchor, text_style,
-                    padding, rotation, box_line_style,
-                    box_fill_color, box_corner_radius, fixed_box_size);
+    DrawTextBoxImpl(
+          lines, anchor_position, anchor, text_style,
+          padding, rotation, box_line_style,
+          box_fill_color, box_corner_radius, fixed_box_size);
   }
 
 
   //TODO doc, test, bind
-  void DrawTrajectory(const std::vector<Vec2d> &points, const LineStyle &style,
-                      const Color &color_fade_out = Color::White.WithAlpha(0.4),
-                      bool oldest_position_first = false) {
-    DrawTrajectoryImpl(points, style, color_fade_out, oldest_position_first);
+  void DrawTrajectory(
+      const std::vector<Vec2d> &points, const LineStyle &style,
+      const Color &color_fade_out = Color::White.WithAlpha(0.4),
+      bool oldest_position_first = false,
+      int smoothing_window = 0,
+      const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
+    DrawTrajectoryImpl(points, style, color_fade_out,
+                       oldest_position_first, smoothing_window, mix_factor);
   }
 
   //TODO DrawPoints - how to handle alternating colors???
@@ -315,48 +305,55 @@ public:
 
 protected:
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawArcImpl(const Vec2d &center, double radius,
-                           double angle1, double angle2,
-                           const LineStyle &line_style,
-                           bool include_center,
-                           const Color &fill_color) = 0;
+  virtual void DrawArcImpl(
+      const Vec2d &center, double radius,
+      double angle1, double angle2,
+      const LineStyle &line_style,
+      bool include_center, const Color &fill_color) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawArrowImpl(const Vec2d &from, const Vec2d &to,
-                             const ArrowStyle &arrow_style) = 0;
+  virtual void DrawArrowImpl(
+      const Vec2d &from, const Vec2d &to,
+      const ArrowStyle &arrow_style) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawBoundingBox2DImpl(const Rect &box,
-                                     const std::vector<const char*> &label,
-                                     const BoundingBox2DStyle &style) = 0;
+  virtual void DrawBoundingBox2DImpl(
+      const Rect &box,
+      const std::vector<const char*> &label,
+      const BoundingBox2DStyle &style) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawCircleImpl(const Vec2d &center, double radius,
-                              const LineStyle &line_style,
-                              const Color &fill_color) = 0;
+  virtual void DrawCircleImpl(
+      const Vec2d &center, double radius,
+      const LineStyle &line_style,
+      const Color &fill_color) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawEllipseImpl(const Ellipse &ellipse, const LineStyle &line_style,
-                               const Color &fill_color) = 0;
+  virtual void DrawEllipseImpl(
+      const Ellipse &ellipse, const LineStyle &line_style,
+      const Color &fill_color) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawGridImpl(const Vec2d &top_left, const Vec2d &bottom_right,
-                            double spacing_x, double spacing_y,
-                            const LineStyle &line_style) = 0;
+  virtual void DrawGridImpl(
+      const Vec2d &top_left, const Vec2d &bottom_right,
+      double spacing_x, double spacing_y,
+      const LineStyle &line_style) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawLineImpl(const Vec2d &from, const Vec2d &to,
-                            const LineStyle &line_style) = 0;
+  virtual void DrawLineImpl(
+      const Vec2d &from, const Vec2d &to,
+      const LineStyle &line_style) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawMarkerImpl(const Vec2d &pos, const MarkerStyle &style) = 0;
+  virtual void DrawMarkerImpl(
+      const Vec2d &pos, const MarkerStyle &style) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
@@ -366,39 +363,42 @@ protected:
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawPolygonImpl(const std::vector<Vec2d> &points,
-                               const LineStyle &line_style,
-                               const Color &fill_color) = 0;
+  virtual void DrawPolygonImpl(
+      const std::vector<Vec2d> &points,
+      const LineStyle &line_style,
+      const Color &fill_color) = 0;
 
 
   /** Internal helper to enable default values in public interface. */
-  virtual void DrawRectImpl(const Rect &rect, const LineStyle &line_style,
-                            const Color &fill_color) = 0;
+  virtual void DrawRectImpl(
+      const Rect &rect, const LineStyle &line_style,
+      const Color &fill_color) = 0;
 
 
   /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextImpl(const std::vector<const char*> &text,
-                            const Vec2d &position, TextAnchor text_anchor,
-                            const TextStyle &text_style,
-                            const Vec2d &padding, double rotation) = 0;
+  virtual void DrawTextImpl(
+      const std::vector<const char*> &text,
+      const Vec2d &position, TextAnchor text_anchor,
+      const TextStyle &text_style,
+      const Vec2d &padding, double rotation) = 0;
 
 
   /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextBoxImpl(const std::vector<const char*> &text,
-                               const Vec2d &position, TextAnchor text_anchor,
-                               const TextStyle &text_style,
-                               const Vec2d &padding, double rotation,
-                               const LineStyle &box_line_style,
-                               const Color &box_fill_color,
-                               double box_corner_radius,
-                               const Vec2d &fixed_box_size) = 0;
+  virtual void DrawTextBoxImpl(
+      const std::vector<const char*> &text,
+      const Vec2d &position, TextAnchor text_anchor,
+      const TextStyle &text_style, const Vec2d &padding,
+      double rotation, const LineStyle &box_line_style,
+      const Color &box_fill_color, double box_corner_radius,
+      const Vec2d &fixed_box_size) = 0;
 
 
   /** Internal helper to allow default values in public interface. */
-  virtual void DrawTrajectoryImpl(const std::vector<Vec2d> &points,
-                                  const LineStyle &style,
-                                  const Color &color_fade_out,
-                                  bool oldest_position_first) = 0;
+  virtual void DrawTrajectoryImpl(
+      const std::vector<Vec2d> &points, const LineStyle &style,
+      const Color &color_fade_out, bool oldest_position_first,
+      int smoothing_window,
+      const std::function<double(double)> &mix_factor) = 0;
 };
 
 

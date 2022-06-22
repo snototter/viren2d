@@ -45,40 +45,99 @@ TODO link to list of keywords: https://docs.python.org/3.8/reference/lexical_ana
    arrays)
    
 
-## Examples
 
-TODO most examples are completely obsolete/outdated!
+## Installation
+TODO add to dev documentation:
 
-Example code requires python packages `vito` and `numpy`
+* how to set up sphinx (requirements in docs/)
 
-TODO side-effects of shared buffer should be well documented (and/or return copy by default)
-```python
-import viren2d
-# Draw something
-p = viren2d.Painter()
-p.set_canvas_filename('examples/flamingo.jpg')
-ls = viren2d.LineStyle(4.2, (1, 0, 1, .8), [20, 20], viren2d.LineStyle.Cap.Round)
-fill = viren2d.colors.Color(0, 1, 1, 0.6)
-p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
+### Dependencies
+TODO add to rtd
 
-# How to get the visualization?
-import numpy as np
-from vito import imvis
+* [pybind11](https://github.com/pybind/pybind11) TODO doc; header only; submodule
+* [spdlog](https://github.com/gabime/spdlog)  
+  TODO doc; submodule; several variants (packaged; header only; installed) - recommended: installed static lib; TODO doc install  
+  https://stackoverflow.com/a/29882995/400948  
+  ensure that you are on branch v1.x!
+  ```bash
+  cd libs/spdlog
+  mkdir build && cd build
+  cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
+  cmake --build .
+  # Install location defaults to /usr/local
+  # If you change the CMAKE_INSTALL_PREFIX, ensure that viren2d's CMakeLists.txt will
+  # find the installed spdlog library (i.e. it needs to locate the spdlogConfig* files
+  # which will be installed at /usr/local/lib/cmake/spdlog/)
+  sudo cmake --install .
+  ```
+* [stb](https://github.com/nothings/stb) TODO doc; header only; submodule
 
-# Copied memory (avoiding the additional copy from C++ buffer to numpy)
-img_copied = np.array(p.get_canvas(True), copy=False)
-imvis.imshow(img_copied)
+### Platforms known to work
+TODO add to rtd
 
-# Shared memory - changing img_np will modify the canvas memory!
-img_shared = np.array(p.get_canvas(False), copy=False)
-imvis.imshow(img_shared)
-# Demonstrating shared memory side effects:
-img_shared[:, :, 0] = 0
-img_shared = np.array(p.get_canvas(False), copy=False)
-imvis.imshow(img_shared)
-imvis.imshow(img_copied)
+So far, `viren2d` has been tested on:  
+* Ubuntu 20.04  
+  Works out of the box
+* Ubuntu 18.04  
+  You need to install CMake via [Kitware's APT repository](https://apt.kitware.com/), because the default Ubuntu repository is stuck at v3.10.
+
+There are, however, no platform-specific components in `viren2d` and all dependencies/build tools are available for Unix, Mac and Windows ([Cairo](https://www.cairographics.org/download/), [Ninja](https://ninja-build.org/), [CMake](https://cmake.org/), [python3](https://www.python.org/downloads/), any C++ compiler).  
+Please let me know if you've set it up on any other platform, so I can update the install/setup instructions accordingly.  
+
+**Watch out Windows users:**  
+There's no official CMake configuration for Cairo and the one [included here](./cmake/FindCairo.cmake) uses a hard-coded search path (i.e. `${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows`) which will not match your install location. Adjust this path or use your own `FindCairo.cmake` (and please drop me a line or [create a PR](https://github.com/snototter/viren2d/pulls) to update/simplify the installation instructions for future users).
+
+TODO this will be deprecated once we prepare for conda release
+
+
+
+### Build from Source
+Clone this repository recursively to set up the external libraries.
+```bash
+git clone --recursive https://github.com/snototter/viren2d.git
+cd viren2d
 ```
 
+To build and install the Python library (assuming you already activated your virtual environment), simply run
+```bash
+python -m pip install .
+```
+(This will automatically build any C++ dependencies)
+
+To build and install the C++ library instead, follow the standard CMake pipeline:
+```bash
+mkdir build && cd build
+# Configure
+cmake ..
+
+# Build
+cmake --build .
+
+# Install (Note that viren2d sets a local CMAKE_INSTALL_PREFIX)
+cmake --build . --target install
+```
+
+**Note for Python users:**  
+If you want to re-install `viren2d` and run into a Ninja build error (Ninja binary not found in temporary directory), you should delete the build cache first:
+```bash
+rm -r build/temp.*
+python -m pip install .
+```
+
+
+# TODOs
+* [ ] Use spdlog; set library-global debug level via interface function
+  * doc cmake options for cpp
+  * if installed via pip:
+    ```bash
+    CMAKE_ARGS="-Dviren2d_LOG_LEVEL=trace" python -m pip install .
+    ```
+  * in python, you have to call viren2d.set_log_level('debug')!
+
+
+
+
+## Examples
 
 TODO set up/build/run:
 ```
@@ -90,13 +149,13 @@ TODO set up/build/run:
 cd build
 make -j && ./demo2d
 
-#vs
+#vs python
 
 python -m pip install .
 # if this fails with /tmp/..../ninja not found:
 rm -r build/temp.linux-x86_64-cpython-38/
 python -m pip install .
-## or don't use ninja:
+## or don't use ninja (much slower):
 #export CMAKE_GENERATOR="Unix Makefiles"
 #python -m pip install .
 ```
@@ -108,19 +167,8 @@ https://packaging.python.org/en/latest/guides/publishing-package-distribution-re
 ```cpp
 r vs lvalue: ;-) https://stackoverflow.com/a/33829750/400948
 
-
 Image loading lightweight: https://stackoverflow.com/a/40812978/400948
 --> that's why I switched to https://github.com/nothings/stb
-
-How to make a clean library with CMake
-https://github.com/robotology/how-to-export-cpp-library/blob/master/CMakeLists.txt
-
-CMake include other target
-https://stackoverflow.com/a/61097014/400948
-
-
-Cairo tutorials
-https://zetcode.com/gfx/cairo/cairobackends/
 
 TODO
 FindCairo.cmake taken from
@@ -130,96 +178,11 @@ opencv <--> eigen3
 https://stackoverflow.com/questions/14783329/opencv-cvmat-and-eigenmatrix
 ```
 
-run
+
+
 ```
-TODO timing drawing calls would be nice (not really accurate due to conversion overhead, but still worth having a (better than) ballpark figure)
-
-import viren2d
-from vito import pyutils as pu
-pu.tic()
-p = viren2d.Painter()
-p.set_canvas_rgb(400, 300, (1, 1, 1))
-ls = viren2d.LineStyle(4.2, (1, 0, 1, .8), [20, 20], viren2d.LineStyle.Cap.Round)
-fill = viren2d.Color(0, 1, 1, 0.6)
-p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
-
-#for i in range(100):
-#    p.draw_rect((200, 150, 50, 90, i*3.6, 10), (4.2, (1, 0, 1, .2)), (0, 1, 1, 0.2))
-
-pu.toc()
-# 100 rects -> 15 to 16ms
-# 1 rect -> 5 ms
-p.show()
-
-
-
-
-####################################################
-# get canvas dev:
-
-# Canvas from RGB
-import viren2d
-import numpy as np
-from vito import imvis
-p = viren2d.Painter()
-img_np = np.zeros((480, 640, 3), dtype=np.uint8)
-img_np[:, :, 1] = 200
-img_np[:, :, 2] = 200 # cyan
-b = viren2d.ImageBuffer(img_np)
-p.set_canvas_image(b)
-p.draw_line((10, 200), (600, 10), (3.9, (0, 0, 1), [20, 20]))
-imvis.imshow(np.array(p.get_canvas(), copy=False))
-
-
-# Canvas from RGBA
-import viren2d
-import numpy as np
-from vito import imvis
-p = viren2d.Painter()
-img_np = np.zeros((480, 640, 4), dtype=np.uint8)
-img_np[:, :, 1] = 200
-img_np[:, :, 2] = 200 # cyan
-img_np[:, :, 3] = 128 # 50% transparency
-# Draw something
-p.set_canvas_image(img_np)
-p.draw_line((10, 200), (600, 10), (3.9, (0, 0, 1), [20, 20]))
-imvis.imshow(np.array(p.get_canvas(), copy=False)) # Show transparent canvas
-imvis.imshow(np.array(p.get_canvas().to_rgb(), copy=False)) # Drop transparency
-
-
-img_np = np.zeros((480, 640, 4), dtype=np.uint8)
-img_np[:, :, 3] = 255
-img_np[:, :, 2] = 200
-p.set_canvas_image(img_np)
-ls = viren2d.LineStyle(4.2, (1, 0, 1, .8), [20, 20], viren2d.LineStyle.Cap.Round)
-fill = viren2d.Color(0, 1, 1, 0.6)
-p.draw_rect((200, 150, 50, 90, 3.6, 10), ls, fill)
-
-from vito import imvis
-canvas = np.array(p.get_canvas(), copy=False)
-imvis.imshow(canvas)
-```
-
-# TODO Add to Tests
-
-```python
-from vito import imvis
-import numpy as np
-import viren2d
-
-viren2d.__version__
-
-# Get a list of premixed/known colors
-viren2d.color_names()
-
-# AttributeError: read-only!
-viren2d.Color.black = 3
-```
-
-
-!!!!!!!!!!!!!
-TODO compare library sizes (apt)
-opencv
+# compare library sizes (apt)
+# see https://unix.stackexchange.com/a/44087
 
 apt-cache --no-all-versions show libopencv* | awk '
 function human(x) {
@@ -233,15 +196,7 @@ $1 == "Package:" { p = $2 } $1 == "Installed-Size:"    { print p, $2, human($2)}
 
 
 $1 == "Package:" { p = $2 } $1 == "Size:"    { print p, $2, human($2)}'
-
-https://unix.stackexchange.com/a/44087
-
-
-# Testing
 ```
-pip install pytest
-pytest tests/test_*.py
-open bug? https://github.com/pytorch/pytorch/issues/50481
-```
+
 
 

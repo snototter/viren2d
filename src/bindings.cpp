@@ -8,8 +8,8 @@
 //------------------------------------------------- Module definition
 PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   m.doc() = R"doc(
-    Vision & Rendering 2D: Visualize results not too disgraceful
-    ------------------------------------------------------------
+    Visualize Computer Vision Results Neatly in 2D
+    ----------------------------------------------
 
     This toolbox simplifies visualization of common 2D computer
     vision results, such as detections, trajectories, and the like.
@@ -46,7 +46,6 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   viren2d::bindings::RegisterEllipse(m);
   viren2d::bindings::RegisterRectangle(m);
 
-
   //------------------------------------------------- Drawing - Styles
   viren2d::bindings::RegisterLineCap(m);
   viren2d::bindings::RegisterLineJoin(m);
@@ -54,16 +53,12 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   viren2d::bindings::RegisterMarkerStyle(m);
   viren2d::bindings::RegisterLineStyle(m);
-
   viren2d::bindings::RegisterArrowStyle(m);
 
-
   viren2d::bindings::RegisterAnchors(m);
-
   viren2d::bindings::RegisterTextStyle(m);
 
   viren2d::bindings::RegisterBoundingBox2DStyle(m);
-
 
   //------------------------------------------------- Drawing - ImageBuffer
   viren2d::bindings::RegisterImageBuffer(m);
@@ -77,7 +72,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //TODO **Corresponding C++ API:** ``SetLogLevel``; explain usage (compile with flag & setloglevel in code!!
   //TODO remove library init when switching to spdlog v2?
 //  m.def("set_log_level", static_cast<bool (*)(const std::string &)>(&viren2d::SetLogLevel), "TODO", py::arg(""));
-////  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
+//  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
 
 #ifdef viren2d_VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(viren2d_VERSION_INFO);

@@ -52,7 +52,7 @@ endforeach()
 set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # only std c++14, not gnu++14
-set(CMAKE_CXX_FLAGS "-Wall -Wextra") # TODO set per targets; check werkzeugkiste CMakeLists
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO set per targets; check werkzeugkiste CMakeLists
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -123,7 +123,7 @@ find_package(Cairo REQUIRED)
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 
 #TODO refactor werkzeugkiste integration -- could provide this for downloads at werkzeugkiste/cmake/werkzeugkiste.cmake
-find_package(werkzeugkiste QUIET)
+find_package(werkzeugkiste 0.5 QUIET)
 if(werkzeugkiste_FOUND)
     message(STATUS "Using werkzeugkiste v${werkzeugkiste_VERSION} (locally installed)")
 else()
@@ -149,8 +149,10 @@ endif()
 target_link_libraries(${TARGET_CPP_LIB}
                       PRIVATE werkzeugkiste::strings
                       PUBLIC werkzeugkiste::geometry)
-#TODO public werkzeugkiste::math
 
+
+# TODO remove spdlog from third-party - instead, try finding it quietly, if it fails, set up
+# header-only via fetch_content! 
 # If you installed (via cmake --install) spdlog to the default location, CMake will
 # find spdlog. For other usage scenarios, refer to the spdlog examples, e.g.
 # https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt

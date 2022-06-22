@@ -741,7 +741,7 @@ BoundingBox2DStyle::BoundingBox2DStyle()
   : line_style(), text_style(),
     box_fill_color(Color::Same.WithAlpha(0.1)),
     text_fill_color(Color::Same.WithAlpha(0.5)),
-    label_position(BoundingBoxLabelPosition::Top),
+    label_position(LabelPosition::Top),
     label_padding(5, 5), clip_label(true)
 {}
 
@@ -750,7 +750,7 @@ BoundingBox2DStyle::BoundingBox2DStyle(const LineStyle &contour,
                                        const TextStyle &label_style,
                                        const Color &bounding_box_fill_color,
                                        const Color &label_box_color,
-                                       BoundingBoxLabelPosition label_pos,
+                                       LabelPosition label_pos,
                                        const Vec2d &text_padding,
                                        bool clip_lbl)
   : line_style(contour), text_style(label_style),

@@ -4,8 +4,8 @@
 Markers & Keypoints
 ~~~~~~~~~~~~~~~~~~~
 
-Highlight locations via :meth:`viren2d.Painter.draw_marker` or
-:meth:`viren2d.Painter.draw_markers`.
+Highlight locations via :meth:`~viren2d.Painter.draw_marker` or
+:meth:`~viren2d.Painter.draw_markers`.
 
 **Marker Shape Cheat Sheet:**
 
@@ -14,7 +14,7 @@ Highlight locations via :meth:`viren2d.Painter.draw_marker` or
       :alt: Supported Marker Shapes
       :align: center
 
-This visualization has been created by the following Python code:
+This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/markers.py
       :language: python

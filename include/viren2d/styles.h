@@ -473,7 +473,7 @@ struct BoundingBox2DStyle {
    */
   Color box_fill_color;
   Color text_fill_color;
-  BoundingBoxLabelPosition label_position;
+  LabelPosition label_position;
   Vec2d label_padding;
   bool clip_label;
 
@@ -483,7 +483,7 @@ struct BoundingBox2DStyle {
                      const TextStyle &label_style,
                      const Color &bounding_box_fill_color,
                      const Color &label_box_color,
-                     BoundingBoxLabelPosition label_pos,
+                     LabelPosition label_pos,
                      const Vec2d &text_padding, bool clip_lbl);
 
   // Nothing special about the BoundingBoxStyle class, so we can have

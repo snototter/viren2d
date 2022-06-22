@@ -149,31 +149,43 @@ void RegisterAnchors(py::module &m) {
   anchor.def_static("list_all", &ListTextAnchors, doc.c_str());
 
 
-  py::enum_<BoundingBoxLabelPosition> bblp(m, "BoundingBoxLabelPosition",
+  py::enum_<LabelPosition> bblp(m, "LabelPosition",
              "Enum specifying where to place a bounding box label.");
-  bblp.value("Top", BoundingBoxLabelPosition::Top,
-             "At the **top** of the bounding box.")
-      .value("Bottom", BoundingBoxLabelPosition::Bottom,
-             "At the **bottom** of the bounding box.")
-      .value("Left", BoundingBoxLabelPosition::Left,
-             "Along the **left edge** of the bounding box, **from bottom to top**.")
-      .value("LeftT2B", BoundingBoxLabelPosition::LeftT2B,
-             "Along the **left edge** of the bounding box, from **top to bottom**.")
-      .value("Right", BoundingBoxLabelPosition::Right,
-             "Along the **right edge** of the bounding box, from **top to bottom**.")
-      .value("RightB2T", BoundingBoxLabelPosition::RightB2T,
-             "Along the **right edge** of the bounding box, from **bottom to top**.");
+  bblp.value(
+        "Top",
+        LabelPosition::Top,
+        "At the **top** of the bounding box.")
+      .value(
+        "Bottom",
+        LabelPosition::Bottom,
+        "At the **bottom** of the bounding box.")
+      .value(
+        "Left",
+        LabelPosition::Left,
+        "Along the **left edge** of the bounding box, **from bottom to top**.")
+      .value(
+        "LeftT2B",
+        LabelPosition::LeftT2B,
+        "Along the **left edge** of the bounding box, from **top to bottom**.")
+      .value(
+        "Right",
+        LabelPosition::Right,
+        "Along the **right edge** of the bounding box, from **top to bottom**.")
+      .value(
+        "RightB2T",
+        LabelPosition::RightB2T,
+        "Along the **right edge** of the bounding box, from **bottom to top**.");
 
   bblp.def(
-      "__str__", [](BoundingBoxLabelPosition lp) -> py::str {
-          return py::str(BoundingBoxLabelPositionToString(lp));
+      "__str__", [](LabelPosition lp) -> py::str {
+          return py::str(LabelPositionToString(lp));
       }, py::name("__str__"), py::is_method(m));
 
   bblp.def(
-      "__repr__", [](BoundingBoxLabelPosition lp) -> py::str {
+      "__repr__", [](LabelPosition lp) -> py::str {
           std::ostringstream s;
-          s << "<BoundingBoxLabelPosition."
-            << BoundingBoxLabelPositionToString(lp) << '>';
+          s << "<LabelPosition."
+            << LabelPositionToString(lp) << '>';
           return py::str(s.str());
       }, py::name("__repr__"), py::is_method(m));
 }
@@ -221,22 +233,26 @@ void RegisterTextStyle(py::module &m) {
   py::class_<TextStyle>text_style(m, "TextStyle", doc.c_str());
 
 
-  doc = "Creates a customized text style.\n\n"
-        "Args:\n"
-        "  size: Font size in pixels as ``float``.\n"
-        "  family: Name of the font family, refer to the class\n"
-        "    member :attr:`family` for details.\n"
-        "  color: Text color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
-        "  bold: If ``True``, the font weight will be bold (type ``bool``).\n"
-        "  italic: If ``True``, the font slant will be italic (type ``bool``).\n"
-        "  line_spacing: Scaling factor of the vertical distance between\n"
-        "    consecutive lines of text.\n"
-        "  alignment: Horizontal alignment of multi-line text as :class:`~"
-        + FullyQualifiedType("HorizontalAlignment") + "` enum.";
+  doc = R"docstr(
+      Creates a customized text style.
+
+      Args:
+        size: Font size in pixels as :class:`float`.
+        family: Name of the font family. Refer to the class
+          member :attr:`family` for details.
+        color: Text color as :class:`~viren2d.Color`.
+        bold: If ``True``, the font weight will be bold (type :class:`bool`).
+        italic: If ``True``, the font slant will be italic (type :class:`bool`).
+        line_spacing: Scaling factor of the vertical distance between
+          consecutive lines of text.
+        alignment: Horizontal alignment of multi-line text
+          as :class:`~viren2d.HorizontalAlignment` enum.
+      )docstr";
   TextStyle default_style;
   text_style.def(py::init<unsigned int, const std::string &,
                           const Color &, bool, bool, double,
-                          HorizontalAlignment>(), doc.c_str(),
+                          HorizontalAlignment>(),
+                 doc.c_str(),
          py::arg("size") = default_style.size,
          py::arg("family") = default_style.family,
          py::arg("color") = default_style.color,
@@ -245,21 +261,37 @@ void RegisterTextStyle(py::module &m) {
          py::arg("line_spacing") = default_style.line_spacing,
          py::arg("alignment") = default_style.alignment);
 
-  text_style.def("copy", [](const TextStyle &st) { return TextStyle(st); },
-           "Returns a deep copy.")
-      .def("__repr__",
-           [](const TextStyle &st)
-           { return FullyQualifiedType(st.ToString(), true); })
-      .def("__str__", &TextStyle::ToString)
-      .def(py::pickle(&TextStyleToTuple, &TextStyleFromTuple),
-           ":class:`~viren2d.TextStyle` instances can be pickled.")
-      .def(py::self == py::self, "Checks for equality.")
-      .def(py::self != py::self, "Checks for inequality.")
-      .def("is_valid", &TextStyle::IsValid,
-          "Check if the style allows rendering text.")
-      .def_readwrite("size", &TextStyle::size,
-          "float: Font size in pixels.")
-      .def_readwrite("family", &TextStyle::family, R"docstr(
+  text_style.def(
+        "copy",
+        [](const TextStyle &st) { return TextStyle(st); },
+        "Returns a deep copy.")
+      .def(
+        "__repr__",
+        [](const TextStyle &)
+        { return FullyQualifiedType("TextStyle", true); })
+      .def(
+        "__str__",
+        &TextStyle::ToString)
+      .def(
+        py::pickle(&TextStyleToTuple, &TextStyleFromTuple),
+        ":class:`~viren2d.TextStyle` instances can be pickled.")
+      .def(
+        py::self == py::self,
+        "Checks for equality.")
+      .def(
+        py::self != py::self,
+        "Checks for inequality.")
+      .def(
+        "is_valid",
+        &TextStyle::IsValid,
+        "Returns ``True`` if the style allows rendering text.")
+      .def_readwrite(
+        "size",
+        &TextStyle::size,
+        "float: Font size in pixels.")
+      .def_readwrite(
+        "family",
+        &TextStyle::family, R"docstr(
           str: Name of the font family.
 
           Most available fonts on the system should be supported.
@@ -268,35 +300,42 @@ void RegisterTextStyle(py::module &m) {
           `Cairo documentation <https://www.cairographics.org/manual/cairo-text.html#cairo_select_font_face>`__
           for more details.
           )docstr")
-      .def_readwrite("bold", &TextStyle::bold,
-          "bool: If ``True``, the font weight will be bold.")
-      .def_readwrite("italic", &TextStyle::italic,
-          "bool: If ``True``, the font slant will be italic.")
-      .def_readwrite("line_spacing", &TextStyle::line_spacing,
-          "float: Scaling factor of the vertical distance between\n"
-          "  consecutive lines of text.");
+      .def_readwrite(
+        "bold",
+        &TextStyle::bold,
+        "bool: If ``True``, the font weight will be bold.")
+      .def_readwrite(
+        "italic",
+        &TextStyle::italic,
+        "bool: If ``True``, the font slant will be italic.")
+      .def_readwrite(
+        "line_spacing",
+        &TextStyle::line_spacing,
+        "float: Scaling factor of the vertical distance between\n"
+        "  consecutive lines of text.");
 
 
-  doc = ":class:`~" + FullyQualifiedType("Color")
-      + "`: Color of the text glyphs.";
+  doc = ":class:`~viren2d.Color`: Color of the text glyphs.";
   text_style.def_readwrite("color", &TextStyle::color, doc.c_str());
 
 
-  doc = ":class:`~" + FullyQualifiedType("HorizontalAlignment") + "`: "
-        "Horizontal alignment of multi-line text.\n\n"
-        "In addition to the enum values, you can use\n"
-        "the string representations (``left|west``, ``center``,\n"
-        "``right|east``) to set this member:\n\n"
-        ">>> style.alignment = viren2d.HorizontalAlignment.Center\n"
-        ">>> style.alignment = 'center'\n";
-  text_style.def_property("alignment",
+  doc = R"docstr(
+      :class:`~viren2d.HorizontalAlignment`:  Horizontal
+        alignment of multi-line text.
+
+        In addition to the enum values, you can use
+        the string representations (``left|west``,
+        ``center``, ``right|east``) to set this member:
+
+        >>> style.alignment = viren2d.HorizontalAlignment.Center
+        >>> style.alignment = 'center'
+      )docstr";
+  text_style.def_property(
+        "alignment",
         [](TextStyle &s) { return s.alignment; },
         [](TextStyle &s, py::object o) {
             s.alignment = HorizontalAlignmentFromPyObject(o);
         }, doc.c_str());
-
-//  // A TextStyle can be initialized from a given tuple.
-//  py::implicitly_convertible<py::tuple, TextStyle>();
 }
 
 } // namespace bindings

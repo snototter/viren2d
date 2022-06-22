@@ -32,6 +32,21 @@ Color Names
    :align: center
 
 
+~~~~~~~~~~~~~~~~
+Color Utilitites
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: viren2d.fade_out_linear
+
+.. autofunction:: viren2d.fade_out_logarithmic
+
+.. autofunction:: viren2d.fade_out_quadratic
+
+.. autofunction:: viren2d.rgba
+
+.. autofunction:: viren2d.RGBa
+
+
 ~~~~~~~~~
 Vector 2D
 ~~~~~~~~~

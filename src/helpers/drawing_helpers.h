@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <vector>
+#include <functional>
 
 #include <math.h>
 #include <cairo/cairo.h>
@@ -19,17 +20,15 @@ namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- Used by all drawing helpers
 
-/**
- * @brief Sets the source color. Should be used by all
- * drawing methods (unless you know what you are doing).
- *
- * Issue in a nutshell: Cairo's `ARGB` format uses the same
- * memory layout as OpenCV's `BGRA` format. We, however,
- * want to work with `RGB(A)` images. Thus, we simply flip
- * red and blue when setting the color.
- *
- * This seemed to be the easiest/least confusing option.
- */
+/// Sets the source color. **Should be used by all
+/// drawing methods** (unless you know what you are doing).
+///
+/// Issue in a nutshell: Cairo's `ARGB` format uses the same
+/// memory layout as OpenCV's `BGRA` format. We, however,
+/// want to work with `RGB(A)` images. Thus, we simply flip
+/// red and blue when setting the color.
+///
+/// This seemed to be the easiest/least confusing option.
 inline void ApplyColor(cairo_t *context, const Color &color) {
   if (color.IsValid() && context) {
     SPDLOG_TRACE("helpers::ApplyColor: {:s}.", color);
@@ -77,7 +76,7 @@ inline cairo_line_join_t LineJoin2Cairo(LineJoin join) {
 }
 
 
-/** @brief Changes the given Cairo context to use the given MarkerStyle definitions. */
+/// Changes the given Cairo context to use the given MarkerStyle definitions.
 inline void ApplyMarkerStyle(cairo_t *context, const MarkerStyle &style) {
   SPDLOG_TRACE("helpers::ApplyMarkerStyle: style={:s}.", style);
 
@@ -92,7 +91,7 @@ inline void ApplyMarkerStyle(cairo_t *context, const MarkerStyle &style) {
 }
 
 
-/** @brief Changes the given Cairo context to use the given LineStyle definitions. */
+/// Changes the given Cairo context to use the given LineStyle definitions.
 inline void ApplyLineStyle(cairo_t *context, const LineStyle &style,
                            bool ignore_dash = false) {
   SPDLOG_TRACE("helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
@@ -117,7 +116,7 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &style,
 }
 
 
-/** @brief Changes the given Cairo context to use the given TextStyle definitions. */
+/// Changes the given Cairo context to use the given TextStyle definitions.
 inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool apply_color) {
   SPDLOG_TRACE("helpers::ApplyTextStyle: {:s}.", text_style);
 
@@ -150,14 +149,13 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
 }
 
 
-/**
- * Ensure that the canvas is set up correctly. Should be
- * called within each drawing helper function.
- */
+/// Ensures that the canvas is set up correctly. Should be
+/// called within each drawing helper function.
 inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
   if (!surface) {
-    throw std::logic_error("Invalid cairo surface (nullptr)."
-                           " Did you forget to set up the canvas first?");
+    throw std::logic_error(
+          "Invalid cairo surface (nullptr). "
+          "Did you forget to set up the canvas first?");
   }
 
   cairo_status_t surf_stat = cairo_surface_status(surface);
@@ -167,35 +165,26 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
       << "), check "
          "https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t "
          "for details.";
-    throw std::runtime_error(s.str());
+    throw std::logic_error(s.str());
   }
 
   if (!context) {
-    throw std::runtime_error("Invalid Cairo context (nullptr), "
-                             "cannot draw anymore.");
+    throw std::logic_error(
+          "Invalid Cairo context (nullptr), "
+          "cannot draw anymore.");
   }
 }
 
 
 //---------------------------------------------------- Text metrics
-/**
- * @brief Encapsulates a single text line to be drawn onto the canvas.
- *
- * TODO doc height depends on @see TextStyle
- * asc+desc
- * https://www.cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
- * or exact height
- *
- */
+/// Encapsulates a single text line to be drawn onto the canvas.
 class TextLine {
- public:
-//TODO doc
-  TextLine(const char *line, cairo_t *context,
-           cairo_font_extents_t *font_metrics);
+public:
+  TextLine(
+      const char *line, cairo_t *context,
+      cairo_font_extents_t *font_metrics);
 
   void Align(Vec2d anchor_position, TextAnchor anchor);
-
-//  Rect BoundingBox(Vec2d padding = {0, 0}, double corner_radius = 0.0) const;
 
   void PlaceText(cairo_t *context) const;
 
@@ -203,67 +192,60 @@ class TextLine {
 
   double Height() const { return height; }
 
-
 private:
-  /**
-   * @brief Pointer to the C-string text used to
-   * initialize this @see TextLine instance.
-   */
+  /// Pointer to the C-string text used to
+  /// initialize this `TextLine` instance.
   const char *text;
 
 
-  /**
-   * @brief Reference point for cairo_show_text, which
-   * will be set after @see Align().
-   */
+  /// Reference point for `cairo_show_text`, which
+  /// will be set **after** `Align` has been called.
   Vec2d reference_point;
 
 
-  /** @brief Exact width of the bounding box. */
+  /// Exact width of the bounding box.
   double width;
 
 
-  /**
-   * @brief Height of the bounding box (either exact or
-   * specified by the font metrics).
-   */
+  /// Height of the bounding box (either exact or
+  /// specified by the font metrics).
   double height;
 
 
-  /**
-   * @brief Horizontal distance from the origin to the
-   * leftmost part of the glyphs
-   */
+  /// Horizontal distance from the origin to the
+  /// leftmost part of the glyphs.
   double bearing_x;
 
 
-  /**
-   * @brief Vertical distance from the origin to the
-   * top edge of the bounding box defined by this TextExtent
-   */
+  /// Vertical distance from the origin to the
+  /// top edge of the bounding box defined by
+  /// this TextExtent.
   double bearing_y;
 
-  void Init(cairo_t *context,
-            cairo_font_extents_t *font_metrics);
+  void Init(
+      cairo_t *context,
+      cairo_font_extents_t *font_metrics);
 };
 
-/**
- * @brief The MultilineText class
- *
- * TODO doc
- * TODO upon initialization, height/width are tight:
- * * font height + exact text width
- * after Align, ...
- */
+
+/// Encapsulates multiple lines of text.
+/// Computes the text extents, takes care of
+/// alignment, and finally allows to place
+/// the lines onto the canvas.
+///
+/// Users must ensure that the text lines
+/// stay in memory as long as this object
+/// is in use!
 class MultilineText {
- public:
+public:
+  //TODO doc
   MultilineText(const std::vector<const char*> &text,
                 const TextStyle &text_style, cairo_t *context);
 
   void Align(Vec2d anchor_point, TextAnchor anchor,
              Vec2d padding, Vec2d fixed_size);
 
-  Rect BoundingBox(double corner_radius = 0.0) const; //TODO make padding a member; set in Align; reuse in BoundingBox()
+  Rect BoundingBox(double corner_radius = 0.0) const;
 
   void PlaceText(cairo_t *context) const;
 
@@ -271,11 +253,9 @@ class MultilineText {
   double Height() const;
 
 private:
-  /**
-   * @brief Top left corner of the bounding box which
-   * contains all (properly spaced) text lines.
-   * Will be set after @see Align().
-   */
+  /// Top left corner of the bounding box which
+  /// contains all (properly spaced) text lines.
+  /// Will be set after `Align` has been called.
   Vec2d top_left;
 
   Vec2d padding;
@@ -295,78 +275,88 @@ private:
 //---------------------------------------------------- Available drawing helpers
 // These declarations should stay alphabetically sorted:
 
-void DrawArc(cairo_surface_t *surface, cairo_t *context,
-             Vec2d center, double radius, double angle1, double angle2,
-             const LineStyle &line_style, bool include_center,
-             Color fill_color);
+void DrawArc(
+    cairo_surface_t *surface, cairo_t *context,
+    Vec2d center, double radius, double angle1, double angle2,
+    const LineStyle &line_style, bool include_center,
+    Color fill_color);
 
 
-void DrawArrow(cairo_surface_t *surface, cairo_t *context,
-               Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
+void DrawArrow(
+    cairo_surface_t *surface, cairo_t *context,
+    Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
 
-void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
-                       Rect rect, const std::vector<const char *> &label,
-                       const BoundingBox2DStyle &style);
+void DrawBoundingBox2D(
+    cairo_surface_t *surface, cairo_t *context,
+    Rect rect, const std::vector<const char *> &label,
+    const BoundingBox2DStyle &style);
 
 
-inline void DrawCircle(cairo_surface_t *surface, cairo_t *context,
-                       Vec2d center, double radius,
-                       const LineStyle &line_style,
-                       const Color &fill_color) {
+inline void DrawCircle(
+    cairo_surface_t *surface, cairo_t *context,
+    Vec2d center, double radius, const LineStyle &line_style,
+    const Color &fill_color) {
   DrawArc(surface, context, center, radius, 0, 360, line_style,
           false, fill_color);
 }
 
 
-void DrawEllipse(cairo_surface_t *surface, cairo_t *context,
-                 Ellipse ellipse, const LineStyle &line_style,
-                 Color fill_color);
+void DrawEllipse(
+    cairo_surface_t *surface, cairo_t *context,
+    Ellipse ellipse, const LineStyle &line_style,
+    Color fill_color);
 
 
-void DrawGrid(cairo_surface_t *surface, cairo_t *context,
-              Vec2d top_left, Vec2d bottom_right,
-              double spacing_x, double spacing_y,
-              const LineStyle &line_style);
+void DrawGrid(
+    cairo_surface_t *surface, cairo_t *context,
+    Vec2d top_left, Vec2d bottom_right,
+    double spacing_x, double spacing_y,
+    const LineStyle &line_style);
 
 
-void DrawLine(cairo_surface_t *surface, cairo_t *context,
-              Vec2d from, Vec2d to, const LineStyle &line_style);
+void DrawLine(
+    cairo_surface_t *surface, cairo_t *context,
+    Vec2d from, Vec2d to, const LineStyle &line_style);
 
 
-void DrawMarker(cairo_surface_t *surface, cairo_t *context,
-                Vec2d pos, const MarkerStyle &style);
+void DrawMarker(
+    cairo_surface_t *surface, cairo_t *context,
+    Vec2d pos, const MarkerStyle &style);
 
 
-void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
-                 const std::vector<Vec2d> &points,
-                 const LineStyle &line_style,
-                 Color fill_color);
+void DrawPolygon(
+    cairo_surface_t *surface, cairo_t *context,
+    const std::vector<Vec2d> &points,
+    const LineStyle &line_style, Color fill_color);
 
 
-void DrawRect(cairo_surface_t *surface, cairo_t *context,
-              Rect rect, const LineStyle &line_style,
-              Color fill_color);
+void DrawRect(
+    cairo_surface_t *surface, cairo_t *context,
+    Rect rect, const LineStyle &line_style,
+    Color fill_color);
 
 
-void DrawText(cairo_surface_t *surface, cairo_t *context,
-              const std::vector<const char *> &text,
-              Vec2d anchor_position, TextAnchor anchor,
-              const TextStyle &text_style, const Vec2d &padding,
-              double rotation, const LineStyle &box_line_style,
-              const Color &box_fill_color, double box_corner_radius,
-              const Vec2d &fixed_box_size);
+void DrawText(
+    cairo_surface_t *surface, cairo_t *context,
+    const std::vector<const char *> &text,
+    Vec2d anchor_position, TextAnchor anchor,
+    const TextStyle &text_style, const Vec2d &padding,
+    double rotation, const LineStyle &box_line_style,
+    const Color &box_fill_color, double box_corner_radius,
+    const Vec2d &fixed_box_size);
 
 
-void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
-                    const std::vector<Vec2d> &points, const LineStyle &style,
-                    Color color_fade_out, bool oldest_position_first);
+void DrawTrajectory(
+    cairo_surface_t *surface, cairo_t *context,
+    const std::vector<Vec2d> &points, const LineStyle &style,
+    Color color_fade_out, bool oldest_position_first,
+    const std::function<double(double)> &mix_factor);
 
 
-/** Creates a path for a rectangle with rounded corners.
- *  Assumes that the viewport is already translated (and optionally
- *  rotated).
- */
+/// Creates a path for a rectangle with rounded corners.
+/// Assumes that the viewport is already translated (and optionally
+/// rotated).
 void PathHelperRoundedRect(cairo_t *context, Rect rect);
 
 } // namespace helpers

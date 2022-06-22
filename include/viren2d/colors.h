@@ -187,14 +187,6 @@ class Color {
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //DONE [x] add Python test (tests/test_xxx.py)
-  /** @brief Copy the other's rgb & alpha components. */
-  Color(const Color &other);
-
-
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Construct a color from the NamedColor enumeration. */
   Color(const NamedColor color, double alpha=1.0);
 
@@ -204,7 +196,7 @@ class Color {
   //DONE [x] add Python bindings
   //DONE [x] add Python test (tests/test_xxx.py)
   /** Create a color from the given color specification (std::string) and alpha value. */
-  Color(const std::string &colorspec, double alpha);
+  explicit Color(const std::string &colorspec, double alpha);
 
 
   //DONE [x] add documentation
@@ -242,9 +234,10 @@ class Color {
 
   // Nothing special about the color class, so we can have
   // the default assignment/move operators/c'tors:
+  Color(const Color &other) = default;
   Color& operator=(const Color &other) = default;
-  Color(Color &&) = default;
   Color& operator=(Color &&) = default;
+  Color(Color &&) = default;
 
 
   //DONE [x] add documentation
@@ -377,12 +370,9 @@ class Color {
     return os;
   }
 
-  /**
-   * Returns a color for the given ID (e.g. object or class identifier).
-   *
-   * Useful to consistently visualize trajectories, etc.
-   */
+  // Returns a color for the given ID (e.g. an object/class identifier).
   static Color FromID(std::size_t id);
+
 
   /**
    * Returns a color for the given category/object class.
@@ -394,10 +384,6 @@ class Color {
   static Color FromCategory(const std::string &category);
 };
 
-//TODO after pseudocoloring, we might look into label2img (segmentation results, etc.)
-
-//std::ostream& operator<<(std::ostream& os, const Color& c);
-
 
 //-------------------------------------------------  Comparison operators
 
@@ -406,55 +392,49 @@ bool operator!=(const Color& lhs, const Color& rhs);
 
 
 //-------------------------------------------------  Arithmetic operators
-
-//DONE [x] add documentation
-//DONE [x] add C++ test (tests/xxx_test.cpp)
-//DONE [x] add Python bindings
-//DONE [x] add Python test (tests/test_xxx.py)
+// Multiplication with saturation_cast to [0,1].
 Color operator*(double scalar, Color rhs);
 
-//DONE [x] add documentation
-//DONE [x] add C++ test (tests/xxx_test.cpp)
-//DONE [x] add Python bindings
-//DONE [x] add Python test (tests/test_xxx.py)
+// Addition with saturation_cast to [0,1].
 Color operator+(Color lhs, const Color& rhs);
 
-//DONE [x] add documentation
-//DONE [x] add C++ test (tests/xxx_test.cpp)
-//DONE [x] add Python bindings
-//DONE [x] add Python test (tests/test_xxx.py)
+// Subtraction with saturation_cast to [0,1].
 Color operator-(Color lhs, const Color& rhs);
 
 
 //-------------------------------------------------  Convenience initialization for Color
 
-//DONE [x] add documentation
-//DONE [x] add C++ test (tests/xxx_test.cpp)
-//DONE [x] add Python bindings
-//DONE [x] add Python test (tests/test_xxx.py)
-/** Convenience wrapper to initialize @see Color from rgb values in range [0,1]. */
+// Convenience wrapper to create a Color from
+// r,g,b and alpha values must in range [0,1].
 Color rgba(double r, double g, double b, double alpha=1.0);
 
 
-//DONE [x] add documentation
-//DONE [x] add C++ test (tests/xxx_test.cpp)
-//DONE [x] add Python bindings
-//DONE [x] add Python test (tests/test_xxx.py)
-/** Convenience wrapper to initialize @see Color from RGB values in range [0,255]. Alpha must be in [0,1]. */
+// Convenience wrapper to create a Color from
+// RGB values in range [0,255].
+// Alpha must be in [0,1].
 Color RGBa(double R, double G, double B, double alpha=1.0);
 
 
-//DONE [x] add documentation
-//DONE [x] add C++ test (tests/xxx_test.cpp)
-//DONE [x] add Python bindings
-//DONE [x] add Python test (tests/test_xxx.py)
-/**
- * @brief Creates a Color from the given webcode, e.g. "#abcdef".
- *
- * If the hexstring/webcode has 8 digits, its alpha specification will
- * overrule the given "alpha" parameter.
- */
+// Creates a Color from the given webcode, e.g. "#abcdef".
+//
+// If the hexstring/webcode has 8 digits, its alpha specification
+// has precedence over the given "alpha" parameter.
 Color ColorFromHexString(const std::string &webcode, double alpha=1.0);
+
+
+// Identity function to implement a linear color transition
+// in `viren2d::Painter::DrawTrajectory`.
+double ColorFadeOutLinear(double progress);
+
+
+//Returns a quadratic factor for the color transition
+//in `viren2d::Painter::DrawTrajectory`.
+double ColorFadeOutQuadratic(double progress);
+
+
+//Returns a logarithmic factor for the color transition
+//in `viren2d::Painter::DrawTrajectory`.
+double ColorFadeOutLogarithmic(double progress);
 
 } // namespace viren2d
 
