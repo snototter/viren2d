@@ -36,6 +36,12 @@ Color Names
 Color Utilitites
 ~~~~~~~~~~~~~~~~
 
+.. autofunction:: viren2d.category_names
+
+.. autofunction:: viren2d.color_from_category
+
+.. autofunction:: viren2d.color_from_id
+
 .. autofunction:: viren2d.fade_out_linear
 
 .. autofunction:: viren2d.fade_out_logarithmic
@@ -107,6 +113,19 @@ Exemplary rectangle configurations:
    :autosummary:
    :autosummary-nosignatures:
    :members:
+
+
+~~~~~~~~~~~~~~~~~~~~~
+Primitives Utilitites
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: viren2d.ellipse_from_endpoints
+
+.. autofunction:: viren2d.rect_from_cwh
+
+.. autofunction:: viren2d.rect_from_lrtb
+
+.. autofunction:: viren2d.rect_from_ltwh
 
 
 ~~~~~~~~~~~

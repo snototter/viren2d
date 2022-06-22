@@ -245,6 +245,15 @@ void RegisterEllipse(pybind11::module &m) {
       py::arg("angle_to") = 360.0,
       py::arg("include_center") = true);
 
+  // Add alias for typing convenience
+  m.def("ellipse_from_endpoints",
+        &Ellipse::FromEndpoints,
+        "Alias of :meth:`viren2d.Ellipse.from_endpoints`.",
+        py::arg("pt1"), py::arg("pt2"), py::arg("width"),
+        py::arg("angle_from") = 0.0,
+        py::arg("angle_to") = 360.0,
+        py::arg("include_center") = true);
+
   // An ellipse can be initialized from a given tuple/list
   py::implicitly_convertible<py::tuple, Ellipse>();
   py::implicitly_convertible<py::list, Ellipse>();
@@ -464,6 +473,30 @@ void RegisterRectangle(py::module &m) {
           py::arg("width"), py::arg("height"),
           py::arg("rotation") = 0.0,
           py::arg("radius") = 0.0);
+
+  // Add aliases of the static initialization methods (for typing convenience)
+  m.def("rect_from_cwh",
+        &Rect::FromCWH,
+        "Alias of :meth:`viren2d.Rect.from_cwh`.",
+        py::arg("cx"), py::arg("cy"),
+        py::arg("width"), py::arg("height"),
+        py::arg("rotation") = 0.0,
+        py::arg("radius") = 0.0);
+
+  m.def("rect_from_lrtb",
+        &Rect::FromLRTB,
+        "Alias of :meth:`viren2d.Rect.from_lrtb`.",
+        py::arg("left"), py::arg("right"),
+        py::arg("top"), py::arg("bottom"),
+        py::arg("radius") = 0.0);
+
+  m.def("rect_from_ltwh",
+        &Rect::FromLTWH,
+        "Alias of :meth:`viren2d.Rect.from_ltwh`.",
+        py::arg("left"), py::arg("top"),
+        py::arg("width"), py::arg("height"),
+        py::arg("radius") = 0.0);
+
 
   doc = ":class:`~viren2d.Vec2d`: Provides convenience access to\n"
       "the center position (*i.e.* :attr:`cx` and :attr:`cy`) as\n"

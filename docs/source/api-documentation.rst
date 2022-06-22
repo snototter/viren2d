@@ -33,12 +33,26 @@ API Documentation
    .. autosummary::
       :nosignatures:
 
+      viren2d.category_names
+      viren2d.color_from_category
+      viren2d.color_from_id
       viren2d.color_names
       viren2d.fade_out_linear
       viren2d.fade_out_logarithmic
       viren2d.fade_out_quadratic
       viren2d.rgba
       viren2d.RGBa
+
+
+**Primitives Utilities:**
+
+   .. autosummary:: 
+      :nosignatures:
+
+      viren2d.ellipse_from_endpoints
+      viren2d.rect_from_cwh
+      viren2d.rect_from_lrtb
+      viren2d.rect_from_ltwh
 
 
 **Drawing:**

@@ -353,35 +353,57 @@ void RegisterColor(py::module &m) {
         "Checks if the r,g,b values are almost the same (+/- the given epsilon).",
         py::arg("eps") = 0.02);
 
-  // Static functions
-  color.def_static(
-        "from_id",
-        &Color::FromID, R"docstr(
-        Returns a color for the given ID/number.
-
-        Usefull to consistently use the same color for the
-        same object or object class.
-
-        TODO must be >=0
-        or we need to wrap ints < 0 to some other value
-        casting python int to std::size_t implicitly via pybind
-        results in TypeError
-        )docstr", py::arg("id"))
-      .def_static(
-        "from_category",
-        &Color::FromCategory, R"docstr(
-        Returns a color for the given category/object class.
-
-        Usefull to consistently use the same :class:`~viren2d.Color`
-        for the same object class.
-        TODO doc supported classes - likely coco? + automatic string normalization
-        )docstr");
-
   // A Color can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, Color>();
 
   // A Color can be initialized from a string representation directly.
   py::implicitly_convertible<py::str, Color>();
+
+
+  // Static initialization methods
+  doc = R"docstr(
+        Returns a color for the given ID/number.
+
+        Usefull to consistently use the same color for the
+        same object or object class.
+        Note that ``id`` must be ``>=0``, or a :class:`TypeError`
+        will be raised.
+        )docstr";
+  color.def_static("from_id", &Color::FromID, doc.c_str(), py::arg("id"));
+
+  doc = R"docstr(
+        Returns a color for the given category/object class.
+
+        Usefull to consistently use the same :class:`~viren2d.Color`
+        for the same object class.
+        See :meth:`~viren2d.Color.category_names` for a list of
+        category names which are explicitly defined. For any other
+        category names, a string hash will be computed, which is
+        then used to lookup an appropriate color.
+        )docstr";
+  color.def_static("from_category", &Color::FromCategory, doc.c_str(), py::arg("category"));
+
+  color.def_static(
+        "category_names",
+        &Color::ListCategories,
+        "Returns a list of the category names which are explicitly\n"
+        "known to :meth:`~viren2d.Color.from_category`.");
+
+
+  // Also aliases for typing convenience
+  m.def("color_from_id",
+        &Color::FromID,
+        "Alias of :meth:`viren2d.Color.from_id`.",
+        py::arg("id"));
+
+  m.def("color_from_category",
+        &Color::FromCategory,
+        "Alias of :meth:`viren2d.Color.from_category`.",
+        py::arg("category"));
+
+  m.def("category_names",
+        &Color::ListCategories,
+        "Alias of :meth:`viren2d.Color.category_names`.");
 
 
   doc = "Creates a :class:`~" + FullyQualifiedType("Color") + "` from\n"
