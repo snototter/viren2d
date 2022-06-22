@@ -400,12 +400,12 @@ void RegisterPainter(py::module &m) {
 
       Args:
         center: Center position as :class:`~viren2d.Vec2d`.
-        radius: Radius of the arc in pixels as ``float``
-        angle1: The arc will be drawn from ``angle1`` to ``angle2``
-          in clockwise direction. Both angles are specified as type
-          ``float`` in degrees, where 0 degrees points in the
-          direction of increasing *x* coordinates.
-        angle2: See ``angle1``
+        radius: Radius of the arc in pixels as :class:`float`
+        angle_from: The arc will be drawn from ``angle_from``
+          to ``angle_to`` in clockwise direction. Both angles
+          are specified in degrees as :class:`float`, where 0
+          degrees points in the direction of increasing *x* coordinates.
+        angle_to: See ``angle_from``
         line_style: A :class:`~viren2d.LineStyle` specifying how
           to draw the arc's outline.
           If you pass :attr:`viren2d.LineStyle.Invalid`, the contour
@@ -423,7 +423,7 @@ void RegisterPainter(py::module &m) {
         "draw_arc",
         &PainterWrapper::DrawArc, doc.c_str(),
         py::arg("center"), py::arg("radius"),
-        py::arg("angle1"), py::arg("angle2"),
+        py::arg("angle_from"), py::arg("angle_to"),
         py::arg("line_style") = LineStyle(),
         py::arg("include_center") = true,
         py::arg("fill_color") = Color::Invalid);
