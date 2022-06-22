@@ -72,4 +72,4 @@ API Documentation
       viren2d.HorizontalAlignment
       viren2d.VerticalAlignment
       viren2d.TextAnchor
-      viren2d.BoundingBoxLabelPosition
+      viren2d.LabelPosition

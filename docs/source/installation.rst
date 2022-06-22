@@ -30,15 +30,13 @@ Requirements
      # openSUSE
      zypper install cairo-devel
 
-* To build the Python bindings, you also need:
+* Additional requirements to build the optional Python bindings:
 
   * `Python \>= 3.6 <https://www.python.org/>`_, along with its development
     library, *i.e.* ``python3-dev`` on Linux/macOS.
   * Currently, the Python bindings are only tested with
     `pip \>= 10.0.0 <https://pypi.org/project/pip/>`_.
-
-* Finally, to use the Python bindings, you also need
-  `NumPy \>= 1.7.0 <https://numpy.org/>`_, which is only a runtime dependency.
+  * The only runtime dependency is `NumPy \>= 1.7.0 <https://numpy.org/>`_.
 
 
 ------
@@ -73,3 +71,7 @@ C++
 
    TODO need to verify the requirement list with a fresh install
 
+.. warning::
+   Ubuntu 18.04 caveat: You need to install CMake via
+   `Kitware's APT repository <https://apt.kitware.com/>`__, because the default
+   Ubuntu repository is stuck at version `3.10`.

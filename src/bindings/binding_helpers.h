@@ -56,7 +56,6 @@ void RegisterAnchors(pybind11::module &m);
 void RegisterTextStyle(pybind11::module &m);
 
 //-------------------------------------------------  Styles (BoundingBox2DStyle)
-void RegisterBoundingBoxLabelPosition(pybind11::module &m);
 void RegisterBoundingBox2DStyle(pybind11::module &m);
 
 //-------------------------------------------------  Vectors

@@ -27,7 +27,7 @@ Once you've set up the painter, you can start drawing:
       draw-primitives
       draw-markers
       draw-text
-      draw-surveillance
+      draw-tracking-by-detection
       draw-poses
       draw-3d-results
       draw-3d-calibration
@@ -35,7 +35,7 @@ Once you've set up the painter, you can start drawing:
 
 
 Finally, you simply retrieve the visualization result via 
-:meth:`viren2d.Painter.get_canvas`. This will yield a
+:meth:`~viren2d.Painter.get_canvas`. This will yield a
 :class:`viren2d.ImageBuffer`, which can easily be :ref:`used with
 common image processing libraries <tutorial-conversion>`, such as NumPy or
 OpenCV. The following examples show one option to retrieve your first

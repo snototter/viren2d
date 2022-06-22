@@ -236,58 +236,58 @@ std::vector<TextAnchor> ListTextAnchors() {
 }
 
 
-BoundingBoxLabelPosition BoundingBoxLabelPositionFromString(const std::string &pos) {
+LabelPosition LabelPositionFromString(const std::string &pos) {
   std::string slug = werkzeugkiste::strings::Lower(pos);
   slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
       return ::isspace(ch) || (ch == '-') || (ch == '_');
     }), slug.end());
 
   if (slug.compare("top") == 0) {
-    return BoundingBoxLabelPosition::Top;
+    return LabelPosition::Top;
   } else if (slug.compare("bottom") == 0) {
-    return BoundingBoxLabelPosition::Bottom;
+    return LabelPosition::Bottom;
   } else if ((slug.compare("left") == 0)
              || (slug.compare("leftb2t") == 0)) {
-    return BoundingBoxLabelPosition::LeftB2T;
+    return LabelPosition::LeftB2T;
   } else if (slug.compare("leftt2b") == 0) {
-    return BoundingBoxLabelPosition::LeftT2B;
+    return LabelPosition::LeftT2B;
   } else if ((slug.compare("right") == 0)
              || (slug.compare("rightt2b") == 0)) {
-    return BoundingBoxLabelPosition::RightT2B;
+    return LabelPosition::RightT2B;
   } else if (slug.compare("rightb2t") == 0) {
-    return BoundingBoxLabelPosition::RightB2T;
+    return LabelPosition::RightB2T;
   }
 
   std::ostringstream s;
-  s << "Could not deduce BoundingBoxLabelPosition from string \""
+  s << "Could not deduce LabelPosition from string \""
     << pos << "\".";
   throw std::invalid_argument(s.str());
 }
 
 
-std::string BoundingBoxLabelPositionToString(BoundingBoxLabelPosition pos) {
+std::string LabelPositionToString(LabelPosition pos) {
   switch (pos) {
-    case BoundingBoxLabelPosition::Top:
+    case LabelPosition::Top:
       return "top";
 
-    case BoundingBoxLabelPosition::Bottom:
+    case LabelPosition::Bottom:
       return "bottom";
 
-    case BoundingBoxLabelPosition::LeftB2T:
+    case LabelPosition::LeftB2T:
       return "left-b2t";
 
-    case BoundingBoxLabelPosition::LeftT2B:
+    case LabelPosition::LeftT2B:
       return "left-t2b";
 
-    case BoundingBoxLabelPosition::RightB2T:
+    case LabelPosition::RightB2T:
       return "right-b2t";
 
-    case BoundingBoxLabelPosition::RightT2B:
+    case LabelPosition::RightT2B:
       return "right-t2b";
 
     default: {
         std::ostringstream s;
-        s << "BoundingBoxLabelPosition value ("
+        s << "LabelPosition value ("
           << static_cast<int>(pos)
           << ") has not been mapped to string representation!";
         throw std::invalid_argument(s.str());
@@ -296,8 +296,8 @@ std::string BoundingBoxLabelPositionToString(BoundingBoxLabelPosition pos) {
 }
 
 
-std::ostream &operator<<(std::ostream &os, BoundingBoxLabelPosition pos) {
-  os << BoundingBoxLabelPositionToString(pos);
+std::ostream &operator<<(std::ostream &os, LabelPosition pos) {
+  os << LabelPositionToString(pos);
   return os;
 }
 

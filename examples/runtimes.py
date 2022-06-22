@@ -5,7 +5,7 @@ import timeit
 
 
 WIDTH, HEIGHT = 1024, 768
-REPETITIONS = [10, 1000]#, 10000]
+REPETITIONS = [10, 100]#, 1000]#, 10000]
 
 
 def _time_painter_init():
@@ -195,12 +195,133 @@ def _time_primitives():
         print(f'  * Round/rotate/fill:   {res/runs:f} ms')
 
 
+
+def _time_surveillance():
+    print('-----------------------------------------')
+    print('Timings for trajectories & bounding boxes')
+    print('-----------------------------------------')
+    painter = viren2d.Painter()
+    # Set up painter once, due to the memory allocation
+    pu.tic()
+    painter.set_canvas_rgb(WIDTH, HEIGHT)
+    res = pu.ttoc()
+    print(f'Initial {WIDTH}x{HEIGHT} canvas setup: {res:f} ms')
+
+    print()
+    print('Trajectory')
+    print('~~~~~~~~~~')
+
+    pu.tic()
+    num_points = 100
+    x = WIDTH * np.random.rand(num_points, 1)
+    y = HEIGHT * np.random.rand(num_points, 1)
+    pts = [(x[i], y[i]) for i in range(num_points)]
+    res = pu.ttoc()
+    print(f'Random trajectory creation ({num_points:d} points): {res:f} ms')
+
+    line_style = viren2d.LineStyle()
+    
+    for runs in REPETITIONS:
+        print(f'* {runs} repetitions')
+        line_style.width = 5
+        res = timeit.timeit(
+            lambda: painter.draw_trajectory(
+                pts, line_style, viren2d.Color.Invalid),
+            number=runs)
+        print(f'  * {len(pts)} points, odd line width, no gradient:  {res/runs:f} ms')
+
+        line_style.width = 6
+        res = timeit.timeit(
+            lambda: painter.draw_trajectory(
+                pts, line_style, viren2d.Color.Invalid),
+            number=runs)
+        print(f'  * {len(pts)} points, even line width, no gradient: {res/runs:f} ms')
+
+        line_style.width = 5
+        res = timeit.timeit(
+            lambda: painter.draw_trajectory(
+                pts, line_style, (0.4, 0.4, 0.4, 0.4),
+                fading_factor=viren2d.fade_out_linear),
+            number=runs)
+        print(f'  * {len(pts)} points, linear color gradient:        {res/runs:f} ms')
+
+        res = timeit.timeit(
+            lambda: painter.draw_trajectory(
+                pts, line_style, (0.4, 0.4, 0.4, 0.4),
+                fading_factor=viren2d.fade_out_quadratic),
+            number=runs)
+        print(f'  * {len(pts)} points, quadratic color gradient:     {res/runs:f} ms')
+
+        res = timeit.timeit(
+            lambda: painter.draw_trajectory(
+                pts, line_style, (0.4, 0.4, 0.4, 0.4),
+                fading_factor=lambda v: v*v),
+            number=runs)
+        print(f'  * {len(pts)} points, color gradient python lambda: {res/runs:f} ms')
+
+    print()
+    print('Bounding Box')
+    print('~~~~~~~~~~~~')
+    bbox_style = viren2d.BoundingBox2DStyle()
+    rect = viren2d.Rect(
+        (WIDTH/2, HEIGHT/2), (200, 120))
+    line_style.width = 5
+    for runs in REPETITIONS:
+        print(f'* {runs} repetitions')
+        bbox_style.box_fill_color = viren2d.Color.Invalid
+        bbox_style.text_fill_color = viren2d.Color.Invalid
+        rect.rotation = 0
+        rect.radius = 0
+        res = timeit.timeit(
+            lambda: painter.draw_bounding_box_2d(
+                rect, ['label'], bbox_style),
+            number=runs)
+        print(f'  * Square/axis-aligned box, single-line label:  {res/runs:f} ms')
+
+        res = timeit.timeit(
+            lambda: painter.draw_bounding_box_2d(
+                rect, ['this', 'is my', 'label'], bbox_style),
+            number=runs)
+        print(f'  * Square/axis-aligned box, multi-line label:   {res/runs:f} ms')
+
+        rect.rotation = 42
+        res = timeit.timeit(
+            lambda: painter.draw_bounding_box_2d(
+                rect, ['this', 'is another', 'label'], bbox_style),
+            number=runs)
+        print(f'  * Square/rotated box, multi-line label:        {res/runs:f} ms')
+
+        rect.radius = 0.2
+        res = timeit.timeit(
+            lambda: painter.draw_bounding_box_2d(
+                rect, ['this', 'is my', 'label'], bbox_style),
+            number=runs)
+        print(f'  * Rounded/rotated box, multi-line label:       {res/runs:f} ms')
+
+        bbox_style.box_fill_color = viren2d.Color.Same
+        res = timeit.timeit(
+            lambda: painter.draw_bounding_box_2d(
+                rect, ['this', 'is another', 'label'], bbox_style),
+            number=runs)
+        print(f'  * Square/rotated/filled box, multi-line label: {res/runs:f} ms')
+
+        bbox_style.box_fill_color = viren2d.Color.Same
+        bbox_style.text_fill_color = (0.2, 0.3, 0.4, 0.1)
+        res = timeit.timeit(
+            lambda: painter.draw_bounding_box_2d(
+                rect, ['this', 'is another', 'label'], bbox_style),
+            number=runs)
+        print(f'  * Square/rotated/filled box, multi-line label: {res/runs:f} ms (with text fill color)')
+        
+
 def compute_timings():
 #    img = imutils.imread('ninja.jpg', mode='RGB')
     _time_painter_init()
     print()
     _time_primitives()
-    #TODO time trajectory, bounding box, poses, etc
+    print()
+    _time_surveillance()
+    #TODO bounding box, poses, etc
 
 
 if __name__ == '__main__':

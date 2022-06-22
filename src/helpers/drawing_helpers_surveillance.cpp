@@ -87,55 +87,55 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   VerticalAlignment valign;
   double rotation = 0.0;
   switch (style.label_position) {
-    case BoundingBoxLabelPosition::Top:
-      label_box = Rect::FromLTWH(-rect.half_width(),
-                                 -rect.half_height(),
-                                 rect.width, rect.height);
+    case LabelPosition::Top:
+      label_box = Rect::FromLTWH(
+            -rect.half_width(), -rect.half_height(),
+            rect.width, rect.height);
       valign = VerticalAlignment::Top;
       break;
 
-    case BoundingBoxLabelPosition::Bottom:
-      label_box = Rect::FromLTWH(-rect.half_width(),
-                                 -rect.half_height(),
-                                 rect.width, rect.height);
+    case LabelPosition::Bottom:
+      label_box = Rect::FromLTWH(
+            -rect.half_width(), -rect.half_height(),
+            rect.width, rect.height);
       valign = VerticalAlignment::Bottom;
       break;
 
-    case BoundingBoxLabelPosition::LeftB2T:
+    case LabelPosition::LeftB2T:
       rotation = wgu::deg2rad(-90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
+      label_box = Rect::FromLTWH(
+            -rect.half_height(), -rect.half_width(),
+            rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Top;
       padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
 
-    case BoundingBoxLabelPosition::LeftT2B://FIXME t2b not working at left & right edges!
+    case LabelPosition::LeftT2B://FIXME t2b not working at left & right edges!
       rotation = wgu::deg2rad(90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
+      label_box = Rect::FromLTWH(
+            -rect.half_height(), -rect.half_width(),
+            rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Bottom;
       padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
 
-    case BoundingBoxLabelPosition::RightB2T:
+    case LabelPosition::RightB2T:
       rotation = wgu::deg2rad(-90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
+      label_box = Rect::FromLTWH(
+            -rect.half_height(), -rect.half_width(),
+            rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Bottom;
       padding = Vec2d(style.label_padding.y(), style.label_padding.x());
       break;
 
-    case BoundingBoxLabelPosition::RightT2B:
+    case LabelPosition::RightT2B:
       rotation = wgu::deg2rad(90.0);
-      label_box = Rect::FromLTWH(-rect.half_height(),
-                                 -rect.half_width(),
-                                 rect.height, rect.width);
+      label_box = Rect::FromLTWH(
+            -rect.half_height(), -rect.half_width(),
+            rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Top;
       padding = Vec2d(style.label_padding.y(), style.label_padding.x());
@@ -169,15 +169,18 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   MultilineText mlt(label, style.text_style, context);
   mlt.Align(text_anchor, valign | style.text_style.alignment, padding, {-1, -1});
   if (valign == VerticalAlignment::Top) {
-    label_box = Rect::FromLTWH(label_box.left(), label_box.top(),
-                               label_box.width, mlt.Height());
+    label_box = Rect::FromLTWH(
+          label_box.left(), label_box.top(),
+          label_box.width, mlt.Height());
   } else if (valign == VerticalAlignment::Bottom) {
-    label_box = Rect::FromLTWH(label_box.left(), label_box.bottom() - mlt.Height(),
-                               label_box.width, mlt.Height());
+    label_box = Rect::FromLTWH(
+          label_box.left(), label_box.bottom() - mlt.Height(),
+          label_box.width, mlt.Height());
   } else {
-    throw std::runtime_error("Internal vertical alignment in "
-                             "helpers::DrawBoundingBox2d must "
-                             "be either Top or Bottom!");
+    throw std::logic_error(
+          "Internal vertical alignment in "
+          "helpers::DrawBoundingBox2d must "
+          "be either Top or Bottom!");
   }
 
   // Optionally, fill the text box
@@ -194,12 +197,15 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
     if (bbox_fill.IsValid()) {
       helpers::ApplyColor(context, bbox_fill);
       auto fill_roi = (valign == VerticalAlignment::Top) ?
-            Rect::FromLTWH(label_box.left(), label_box.bottom(), label_box.width,
-                           oriented_size.height() - label_box.height)
-          : Rect::FromLRTB(label_box.left(), label_box.right(),
-                           -oriented_size.height() / 2.0, label_box.top());
-      cairo_rectangle(context, fill_roi.left(), fill_roi.top(),
-                      fill_roi.width, fill_roi.height);
+            Rect::FromLTWH(
+              label_box.left(), label_box.bottom(), label_box.width,
+              oriented_size.height() - label_box.height)
+          : Rect::FromLRTB(
+              label_box.left(), label_box.right(),
+              -oriented_size.height() / 2.0, label_box.top());
+      cairo_rectangle(
+            context, fill_roi.left(), fill_roi.top(),
+            fill_roi.width, fill_roi.height);
       cairo_fill(context);
     }
   } else {

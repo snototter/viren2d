@@ -13,7 +13,7 @@ def _process_result(
         save_image: bool,
         filename: str) -> None:
     if show_image:
-        imvis.imshow(img, title, wait_ms=100)
+        imvis.imshow(img, title, wait_ms=-1)#100)
     if save_image:
         output_folder = Path(__file__).absolute().parents[1] / 'docs' / 'source' / 'images'
         imutils.imsave(output_folder / filename, img)
@@ -64,6 +64,11 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     img = demo_rectangles()
     _process_result(
         img, show_images, 'Rectangles', save_images, 'rectangles.png')
+    
+    # Trajectory & Bounding Boxes
+    img = demo_tracking_by_detection()
+    _process_result(
+        img, show_images, 'tracking-by-detection', save_images, 'tracking-by-detection.png')
 
 
 if __name__ == '__main__':

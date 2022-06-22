@@ -84,7 +84,7 @@ std::ostream &operator<<(std::ostream &os, TextAnchor anchor);
 std::vector<TextAnchor> ListTextAnchors();
 
 
-enum class BoundingBoxLabelPosition : unsigned char {
+enum class LabelPosition : unsigned char {
   Top = 1,
   Bottom = 1 << 1,
 
@@ -99,9 +99,9 @@ enum class BoundingBoxLabelPosition : unsigned char {
 
 //TODO doc, test, etc
 //TODO bindings!!!!
-BoundingBoxLabelPosition BoundingBoxLabelPositionFromString(const std::string &pos);
-std::string BoundingBoxLabelPositionToString(BoundingBoxLabelPosition pos);
-std::ostream &operator<<(std::ostream &os, BoundingBoxLabelPosition pos);
+LabelPosition LabelPositionFromString(const std::string &pos);
+std::string LabelPositionToString(LabelPosition pos);
+std::ostream &operator<<(std::ostream &os, LabelPosition pos);
 
 } // namespace viren2d
 

@@ -30,7 +30,6 @@ pytest tests/
 cd examples
 python render_rtd_images.py
 python runtimes.py
-python demo.py
 cd ..
 
 cd docs

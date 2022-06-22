@@ -513,7 +513,9 @@ void DemoMarkers() {
 
 void DemoBoundingBox2D() {
   auto painter = viren2d::CreatePainter();
-  for (auto label_pos : {viren2d::BoundingBoxLabelPosition::Top, viren2d::BoundingBoxLabelPosition::Bottom, viren2d::BoundingBoxLabelPosition::LeftB2T, viren2d::BoundingBoxLabelPosition::RightB2T}) {
+  for (auto label_pos : {viren2d::LabelPosition::Top,
+       viren2d::LabelPosition::Bottom, viren2d::LabelPosition::LeftB2T,
+       viren2d::LabelPosition::RightB2T}) {
     painter->SetCanvas(600, 600, viren2d::Color::White);
 
     painter->DrawGrid({}, {}, 50, 50,

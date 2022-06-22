@@ -21,7 +21,7 @@ An exemplary potpourri of supported arrow styles:
       :alt: Arrows
       :align: center
 
-This visualization has been created by the following Python code:
+This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
       :language: python
@@ -43,7 +43,7 @@ A potpourri of ellipse configurations:
       :alt: Exemplary ellipses
       :align: center
 
-This visualization has been created by the following Python code:
+This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
       :language: python
@@ -66,7 +66,7 @@ Basic rectangle configurations:
       :alt: Exemplary rectangles
       :align: center
 
-This visualization has been created by the following Python code:
+This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
       :language: python

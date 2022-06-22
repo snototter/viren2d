@@ -4,8 +4,8 @@
 Text & Text Boxes
 ~~~~~~~~~~~~~~~~~
 
-Text can be rendered via :meth:`viren2d.Painter.draw_text` or
-:meth:`viren2d.Painter.draw_textbox`.
+Text can be rendered via :meth:`~viren2d.Painter.draw_text` or
+:meth:`~viren2d.Painter.draw_textbox`.
 
 
 .. _tutorial-text-anchors:
@@ -24,7 +24,7 @@ which are highlighted via :func:`~viren2d.Painter.draw_marker`:
       :alt: Text anchors
       :align: center
 
-This visualization has been created by the following Python code:
+This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
       :language: python
@@ -49,7 +49,7 @@ multi-line text boxes. The displayed text lines are an excerpt from
       :alt: Multi-line Text Alignment
       :align: center
 
-This visualization has been created by the following Python code:
+This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
       :language: python

@@ -43,8 +43,9 @@ LineStyle LineStyleFromTuple(py::tuple tpl) {
     throw std::invalid_argument(s.str());
   }
 
-  LineStyle ls(tpl[0].cast<double>(),
-                        tpl[1].cast<Color>());
+  LineStyle ls(
+        tpl[0].cast<double>(),
+        tpl[1].cast<Color>());
 
   if (tpl.size() > 2) {
     ls.dash_pattern = tpl[2].cast<std::vector<double>>();
@@ -65,12 +66,18 @@ LineStyle LineStyleFromTuple(py::tuple tpl) {
 void RegisterLineCap(pybind11::module &m) {
   py::enum_<LineCap> cap(m, "LineCap",
              "Enum specifying how to render the endpoints of a line/dash stroke.");
-  cap.value("Butt", LineCap::Butt,
-          "Start/stop the line exactly at the start/end point.")
-      .value("Round", LineCap::Round,
-          "Round ending, center of the circle is the end point.")
-      .value("Square", LineCap::Square,
-          "Square ending, center of the square is the end point.");
+  cap.value(
+        "Butt",
+        LineCap::Butt,
+        "Start/stop the line exactly at the start/end point.")
+      .value(
+        "Round",
+        LineCap::Round,
+        "Round ending, center of the circle is the end point.")
+      .value(
+        "Square",
+        LineCap::Square,
+        "Square ending, center of the square is the end point.");
 
   // .export_values() should be skipped for strongly typed enums
 
@@ -108,12 +115,18 @@ void RegisterLineJoin(pybind11::module &m) {
   py::enum_<LineJoin> join(m, "LineJoin",
              "Enum specifying how to render the junction of two lines/segments.");
 
-  join.value("Miter", LineJoin::Miter,
-             "Sharp (angled) corner.")
-      .value("Bevel", LineJoin::Bevel,
-             "The join is cut off at half the line width from the joint point.")
-      .value("Round", LineJoin::Round,
-             "Rounded join, where the center of the circle is the joint point.");
+  join.value(
+        "Miter",
+        LineJoin::Miter,
+        "Sharp (angled) corner.")
+      .value(
+        "Bevel",
+        LineJoin::Bevel,
+        "The join is cut off at half the line width from the joint point.")
+      .value(
+        "Round",
+        LineJoin::Round,
+        "Rounded join, where the center of the circle is the joint point.");
 
   join.def(
         "__str__", [](LineJoin j) -> py::str {
@@ -729,6 +742,21 @@ void RegisterArrowStyle(pybind11::module &m) {
 
 
 //-------------------------------------------------  BoundingBox2DStyle
+LabelPosition LabelPositionFromPyObject(py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    return LabelPositionFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<LabelPosition>(o)) {
+    return py::cast<LabelPosition>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast type `" << tp << "` to `"
+        << FullyQualifiedType("LabelPosition") << "`!";
+    throw std::invalid_argument(str.str());
+  }
+}
+
 py::tuple BoundingBox2DStyleToTuple(const BoundingBox2DStyle &st) {
   return py::make_tuple(st.line_style, st.text_style,
                         st.box_fill_color, st.text_fill_color,
@@ -772,17 +800,27 @@ BoundingBox2DStyle BoundingBox2DStyleFromTuple(py::tuple tpl) {
 
 
 void RegisterBoundingBox2DStyle(py::module &m) {
-  std::string doc = "How a 2D bounding box should be drawn.";
-  py::class_<BoundingBox2DStyle>bbox_style(m, "BoundingBox2DStyle", doc.c_str());
+  std::string doc = R"docstr(
+      How a 2D bounding box should be drawn."
+
+      TODO add documentation
+      )docstr";
+  py::class_<BoundingBox2DStyle> bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 
   //  //FIXME remove unnecessarily overloaded constructions
     // ---> major workflow: create default style & change members
     // ---> alternative: specify values directly in (a single) constructor
 
-  doc = "Initialize from `tuple`:\n TODO see e.g. TextStyle";
-  bbox_style.def(py::init<>(&BoundingBox2DStyleFromTuple), doc.c_str(),
-                 py::arg("tpl"));
+  doc = R"docstr(
+      Initialize from :class:`tuple`.
 
+      TODO add documentation, see e.g. TextStyle
+      )docstr";
+  bbox_style.def(
+        py::init<>(&BoundingBox2DStyleFromTuple),
+        doc.c_str(), py::arg("tpl"));
+
+  //TODO implement
 //  doc = "Customize your text style:\n"
 //        ":width:    float\n"
 //        ":color:         " + FullyQualifiedType("Color") + "\n"
@@ -801,54 +839,102 @@ void RegisterBoundingBox2DStyle(py::module &m) {
 //                 py::arg("line_spacing") = 1.2,
 //                 py::arg("alignment") = HorizontalAlignment::Left);
 
-  bbox_style.def(py::init<>(), "Creates a default, library-wide preset text style.")
-      .def("copy", [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); },
-           "Returns a deep copy.")
-      .def("__repr__",
-           [](const BoundingBox2DStyle &st)
-           { return "<" + st.ToString() + ">"; })
-      .def("__str__", &BoundingBox2DStyle::ToString)
-      .def(py::pickle(&BoundingBox2DStyleToTuple, &BoundingBox2DStyleFromTuple),
-           ":class:`~viren2d.BoundingBox2DStyle` instances can be pickled.")
-      .def(py::self == py::self, "Checks for equality.")
-      .def(py::self != py::self, "Checks for inequality.")
-      .def("is_valid", &BoundingBox2DStyle::IsValid,
-           "Check if the style allows rendering a 2D bounding box.");
+  bbox_style.def(
+        py::init<>(),
+        "Creates a default, library-wide preset text style.")
+      .def(
+        "copy",
+        [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); },
+        "Returns a deep copy.")
+      .def(
+        "__repr__",
+        [](const BoundingBox2DStyle &)
+        { return "<viren2d.BoundingBox2DStyle>"; })
+      .def(
+        "__str__",
+        &BoundingBox2DStyle::ToString)
+      .def(
+        py::pickle(&BoundingBox2DStyleToTuple, &BoundingBox2DStyleFromTuple),
+        ":class:`~viren2d.BoundingBox2DStyle` instances can be pickled.")
+      .def(
+        py::self == py::self,
+        "Checks for equality.")
+      .def(
+        py::self != py::self,
+        "Checks for inequality.")
+      .def(
+        "is_valid",
+        &BoundingBox2DStyle::IsValid,
+        "Returns ``True`` if the style allows rendering a 2D bounding box.");
 
-  doc = ":class:`" + FullyQualifiedType("LineStyle")
-      + "`: How to draw the bounding box contour.";
-  bbox_style.def_readwrite("line_style", &BoundingBox2DStyle::line_style,
-                           doc.c_str());
 
-  doc = ":class:`" + FullyQualifiedType("TextStyle")
-      + "`: How to render the label.";
-  bbox_style.def_readwrite("text_style", &BoundingBox2DStyle::text_style,
-                           doc.c_str());
+  doc = R"docstr(
+      :class:`~viren2d.LineStyle`: How to draw the bounding box contour.
+      )docstr";
+  bbox_style.def_readwrite(
+        "line_style",
+        &BoundingBox2DStyle::line_style,
+        doc.c_str());
 
-  doc = ":class:`" + FullyQualifiedType("Color")
-      + "`: Fill color of the bounding box.";
-  bbox_style.def_readwrite("box_fill_color", &BoundingBox2DStyle::box_fill_color,
-                           doc.c_str());
 
-  //FIXME type doc needed for ALL members of all bound classes :/
+  doc = R"docstr(
+      :class:`~viren2d.TextStyle`: How to render the label.
+      )docstr";
+  bbox_style.def_readwrite(
+        "text_style",
+        &BoundingBox2DStyle::text_style,
+        doc.c_str());
 
-  doc = ":class:`" + FullyQualifiedType("Color")
-      + "`: Fill color of the text box (*i.e.* the label background).";
-  bbox_style.def_readwrite("text_fill_color", &BoundingBox2DStyle::text_fill_color,
-                           doc.c_str());
 
-  doc = ":class:`" + FullyQualifiedType("BoundingBoxLabelPosition")
-      + "`: Where to place the label within the box.";
-  bbox_style.def_readwrite("label_position", &BoundingBox2DStyle::label_position,
-                           doc.c_str());
+  doc = R"docstr(
+      :class:`~viren2d.Color`: Fill color of the bounding box.
+      )docstr";
+  bbox_style.def_readwrite(
+        "box_fill_color",
+        &BoundingBox2DStyle::box_fill_color,
+        doc.c_str());
 
-  doc = ":class:`" + FullyQualifiedType("Vec2d")
-      + "`: Padding between bounding box edges and label text.";
+
+  doc = R"docstr(
+      :class:`~viren2d.Color`: Fill color of the text
+      box, *i.e.* the label background.
+      )docstr";
+  bbox_style.def_readwrite(
+        "text_fill_color",
+        &BoundingBox2DStyle::text_fill_color,
+        doc.c_str());
+
+
+  doc = R"docstr(
+      :class:`~viren2d.LabelPosition`: Where to place
+      the label within the box.
+
+      In addition to the enum values, you can use
+      the string representation to set this member:
+
+      >>> style.label_position = viren2d.LabelPosition.Left
+      >>> style.label_position = 'left'
+      )docstr";
+  bbox_style.def_property(
+        "label_position",
+        [](BoundingBox2DStyle &s) { return s.label_position; },
+        [](BoundingBox2DStyle &s, py::object o) {
+            s.label_position = LabelPositionFromPyObject(o);
+        }, doc.c_str());
+
+
+  doc = R"docstr(
+      :class:`~viren2d.Vec2d`: Padding between
+      bounding box edges and label text.
+      )docstr";
   bbox_style.def_readwrite("label_padding", &BoundingBox2DStyle::label_padding,
                            doc.c_str());
 
-  bbox_style.def_readwrite("clip_label", &BoundingBox2DStyle::clip_label,
-           "bool: Whether to clip the label at the bounding box edges.");
+  bbox_style.def_readwrite(
+        "clip_label",
+        &BoundingBox2DStyle::clip_label,
+        "bool: Set to ``True`` to clip the label at "
+        "the bounding box edges.");
 }
 } // namespace bindings
 } // namespace viren2d
