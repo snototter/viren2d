@@ -149,8 +149,10 @@ endif()
 target_link_libraries(${TARGET_CPP_LIB}
                       PRIVATE werkzeugkiste::strings
                       PUBLIC werkzeugkiste::geometry)
-#TODO public werkzeugkiste::math
 
+
+# TODO remove spdlog from third-party - instead, try finding it quietly, if it fails, set up
+# header-only via fetch_content! 
 # If you installed (via cmake --install) spdlog to the default location, CMake will
 # find spdlog. For other usage scenarios, refer to the spdlog examples, e.g.
 # https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt
