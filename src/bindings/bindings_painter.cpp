@@ -447,11 +447,6 @@ void RegisterPainter(py::module &m) {
         Arrows should always be drawn **fully opaque**. Otherwise,
         you'll experience visible blending in the crossing path
         segments (*i.e.* at the tip).
-
-        The implementation effort to completely avoid any partially
-        overlapping line segments of an arrow (and supporting all
-        varieties of :class:`~viren2d.ArrowStyle` configurations)
-        is simply not worth it.
       )docstr";
   painter.def(
         "draw_arrow",
@@ -718,15 +713,6 @@ void RegisterPainter(py::module &m) {
       In the latter case, the color transition can be controlled
       by ``fading_factor``.
 
-      Note that for fading colors, the trajectory has to
-      be drawn via separate line segments. This means that
-      the :attr:`~viren2d.LineStyle.join` setting of ``line_style``
-      will be ignored. Additionally, if transparent colors are
-      used, the segment endpoints will be visible.
-      To avoid this behavior, the trajectory needs to be drawn with
-      a single color, *i.e.* pass :attr:`viren2d.Color.Invalid` as
-      ``fade_out_color``.
-
       Args:
         points: A :class:`list` of the trajectory's coordinates
           as :class:`~viren2d.Vec2d`.
@@ -759,11 +745,25 @@ void RegisterPainter(py::module &m) {
 
       Example:
         >>> points = [(0, 0), (10, 20), (42, 30), ...]
-        >>> line_style = viren2d.LineStyle(width=5, color='azure')
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=5, color='navy-blue',
+        >>>     cap=viren2d.LineCap.Round,
+        >>>     join=viren2d.LineJoin.Round)
         >>> painter.draw_trajectory(
         >>>     points, line_style,
         >>>     smoothing_window=5,
         >>>     fading_factor=viren2d.fade_out_linear)
+
+      Note:
+        For fading colors, the trajectory has to be drawn via
+        separate line segments. This means that the
+        :attr:`~viren2d.LineStyle.join` setting of ``line_style``
+        parameter will be ignored. Additionally, if transparent
+        colors are used, the segment endpoints will be visible.
+
+        To avoid this behavior, the trajectory needs to be drawn with
+        a single color, *i.e.* pass :attr:`viren2d.Color.Invalid` as
+        ``fade_out_color``.
       )docstr";
   painter.def(
       "draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),

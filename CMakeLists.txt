@@ -123,7 +123,7 @@ find_package(Cairo REQUIRED)
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 
 #TODO refactor werkzeugkiste integration -- could provide this for downloads at werkzeugkiste/cmake/werkzeugkiste.cmake
-find_package(werkzeugkiste QUIET)
+find_package(werkzeugkiste 0.5 QUIET)
 if(werkzeugkiste_FOUND)
     message(STATUS "Using werkzeugkiste v${werkzeugkiste_VERSION} (locally installed)")
 else()

@@ -6,7 +6,7 @@ Development Guide
 
 If you plan on extending ``viren2d``, please consider the following style
 guide, design decisions and recommendations. This ensures that your new feature
-will be swiftly integrated into the library.
+can be swiftly integrated into the library.
 
 
 ~~~~~~~~~~~~

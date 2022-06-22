@@ -22,28 +22,32 @@ Visualize Computer Vision Results Neatly in 2D
 
 
 ``viren2d`` - *Visualize results not too disgraceful* - is my *Swiss Army
-knife* to visualize the results of common 2D computer vision tasks in both
-**C++ and Python** environments.
+knife* to visualize the results of common computer vision tasks in 2D.
+It is designed to be swiftly integrated into both **C++ and Python**
+environments.
 
 
-**What can you use it for?**
-  You can use it to easily overlay *detections, trajectories, text,* and more
-  on your image data. To get an idea of its capabilities, check the exemplary
-  visualizations in the :ref:`quickstart tutorial<quickstart>`\ .
+**What is it good for?**
+  It can primarily be used to overlay *detections, trajectories, text, arrows*
+  and more on image data. To get an idea of its capabilities, check out the
+  examples in the :ref:`quickstart tutorial<quickstart>`\ .
 
 
 **What's under the hood?**
-   To ensure proper rendering of your visualizations, ``viren2d`` relies on the
+   To ensure proper rendering of the visualizations, ``viren2d`` relies on the
    `Cairo graphics library <https://www.cairographics.org/>`_.
 
+   Python bindings for the C++ library are provided via 
+   `pybind11 <https://pybind11.readthedocs.io/>`__.
 
-**How do you pronounce viren2d?**
+
+**How to pronounce viren2d?**
    "*vi-ren-2d*", with *vi* as in *vision* and *ren* as in *rendering*. This is
    by the way also how you pronounce the German word *Viren* (viruses). I might
    have been affected by the aftermath of the pandemic when picking a name...
 
 
-**How do I get started?**
+**How to get started?**
    * :ref:`Install the library<installation>`.
    * Browse the :ref:`quickstart tutorial<quickstart>`.
    * Check the :ref:`API documentation<api-documentation>`.
