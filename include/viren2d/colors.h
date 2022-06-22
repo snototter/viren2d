@@ -286,8 +286,14 @@ class Color {
 
 
   /// Returns a color for the given category/object class.
-  /// TODO doc string conversion & what happens if category is unknown
+  /// Usefull to consistently use the same color for the same object class,
+  /// *e.g.* ``car`` or ``person``.
+  /// See `ListCategories` for a list of category names which are
+  /// explicitly defined. For any other category name, a string
+  /// hash will be computed, which is then used to lookup a
+  /// corresponding color.
   static Color FromCategory(const std::string &category);
+
 
   /// Returns a list of category names which are explicitly
   /// defined in the Color::FromCategory utility.
@@ -302,48 +308,50 @@ bool operator!=(const Color& lhs, const Color& rhs);
 
 
 //-------------------------------------------------  Arithmetic operators
-// Multiplication with saturation_cast to [0,1].
+/// Multiplication with saturation_cast to [0,1].
 Color operator*(double scalar, Color rhs);
 
-// Addition with saturation_cast to [0,1].
+
+/// Addition with saturation_cast to [0,1].
 Color operator+(Color lhs, const Color& rhs);
 
-// Subtraction with saturation_cast to [0,1].
+
+/// Subtraction with saturation_cast to [0,1].
 Color operator-(Color lhs, const Color& rhs);
 
 
 //-------------------------------------------------  Convenience initialization for Color
 
-// Convenience wrapper to create a Color from
-// r,g,b and alpha values must in range [0,1].
+/// Convenience wrapper to create a Color from
+/// r,g,b and alpha values must in range [0,1].
 Color rgba(double r, double g, double b, double alpha=1.0);
 
 
-// Convenience wrapper to create a Color from
-// RGB values in range [0,255].
-// Alpha must be in [0,1].
+/// Convenience wrapper to create a Color from
+/// RGB values in range [0,255].
+/// Alpha must be in [0,1].
 Color RGBa(double R, double G, double B, double alpha=1.0);
 
 
-// Creates a Color from the given webcode, e.g. "#abcdef".
-//
-// If the hexstring/webcode has 8 digits, its alpha specification
-// has precedence over the given "alpha" parameter.
+/// Creates a Color from the given webcode, e.g. "#abcdef".
+///
+/// If the hexstring/webcode has 8 digits, its alpha specification
+/// has precedence over the given "alpha" parameter.
 Color ColorFromHexString(const std::string &webcode, double alpha=1.0);
 
 
-// Identity function to implement a linear color transition
-// in `viren2d::Painter::DrawTrajectory`.
+/// Identity function to implement a linear color transition
+/// in `viren2d::Painter::DrawTrajectory`.
 double ColorFadeOutLinear(double progress);
 
 
-//Returns a quadratic factor for the color transition
-//in `viren2d::Painter::DrawTrajectory`.
+/// Returns a quadratic factor for the color transition
+/// in `viren2d::Painter::DrawTrajectory`.
 double ColorFadeOutQuadratic(double progress);
 
 
-//Returns a logarithmic factor for the color transition
-//in `viren2d::Painter::DrawTrajectory`.
+/// Returns a logarithmic factor for the color transition
+/// in `viren2d::Painter::DrawTrajectory`.
 double ColorFadeOutLogarithmic(double progress);
 
 } // namespace viren2d

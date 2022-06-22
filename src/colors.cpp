@@ -54,6 +54,9 @@ const Color kExemplaryColors[] = {
 const size_t kExemplaryColorsSize = sizeof(kExemplaryColors) / sizeof(kExemplaryColors[0]);
 
 
+/// Mapping COCO category names (+ some widely used aliases)
+/// to their object class IDs.
+/// This is used to implement `FromCategory`.
 const std::map<std::string, std::size_t> kCategoryIDMapping {
   {"background", 0}, {"person", 1}, {"bicycle", 2}, {"car", 3}, {"motorcycle", 4},
   {"airplane", 5}, {"bus", 6}, {"train", 7}, {"truck", 8}, {"boat", 9},
@@ -72,7 +75,12 @@ const std::map<std::string, std::size_t> kCategoryIDMapping {
   {"mouse", 65}, {"remote", 66}, {"keyboard", 67}, {"cell-phone", 68}, {"microwave", 69},
   {"oven", 70}, {"toaster", 71}, {"sink", 72}, {"refrigerator", 73}, {"book", 74},
   {"clock", 75}, {"vase", 76}, {"scissors", 77}, {"teddy-bear", 78}, {"hair-drier", 79},
-  {"toothbrush", 80}};
+  {"toothbrush", 80},
+  // Aliases:
+  {"human", 1}, {"pedestrian", 1},
+  {"vehicle", 3},
+  {"smartphone", 68}
+};
 
 } // namespace helpers
 
@@ -276,9 +284,6 @@ const Color Color::Invalid = Color(NamedColor::Invalid);
 
 
 Color::Color(const NamedColor color, double alpha) {
-//  SPDLOG_TRACE("Constructing color from NamedColor({:s}),"
-//               " with alpha={:.2f}.", color, alpha);
-
   this->alpha = alpha;
   std::ostringstream s;
 
@@ -422,9 +427,6 @@ Color::Color(const NamedColor color, double alpha) {
 
 
 Color::Color(const std::string &colorspec, double alpha) {
-//  SPDLOG_TRACE("Constructing color from colorspec=\"{:s}\", alpha={:.2f}.",
-//               colorspec, alpha);
-
   if (colorspec.length() > 1 && colorspec[0] == '#') {
     *this = ColorFromHexString(colorspec, alpha);
   } else {
@@ -445,8 +447,6 @@ Color::Color(const std::string &colorspec, double alpha) {
       // If so, the "string alpha" (which must be an integer in [0, 100])
       // will overwrite the constructor's alpha parameter
       const std::string aspec_ = cspec_.substr(pos + 1);
-//      SPDLOG_TRACE("Overwriting alpha parameter {:.2f} with given string"
-//                   " specification \"{:s}\"%.", alpha, aspec_);
 
       // std::stoi will throw an invalid_argument if the input can't be parsed...
       this->alpha = std::stoi(aspec_) / 100.0;
@@ -472,9 +472,6 @@ Color::Color(const std::string &colorspec, double alpha) {
 
 
 Color::Color(std::initializer_list<double> values) {
-//  SPDLOG_TRACE("Constructing color from initializer list with"
-//               " {:d} values.", values.size());
-
   if (values.size() == 0) {
     *this = Color();
   } else if (values.size() >= 3) {
@@ -572,11 +569,10 @@ bool Color::IsShadeOfGray(double epsilon) const {
 }
 
 std::string Color::ToString() const {
-  // TODO
-  // Check for being any special member
-  // BEFORE the isvalid() check, because
-  // all special members are invalid colors!
-
+  // Note that we have to check whether the
+  // color is a "special" member BEFORE the
+  // IsValid() check, because **all** special
+  // members are invalid colors!
   std::ostringstream s;
 
   if (IsSpecialSame()) {
@@ -737,11 +733,10 @@ Color Color::FromCategory(const std::string &category) {
   const auto it = helpers::kCategoryIDMapping.find(slug);
 
   if (it != helpers::kCategoryIDMapping.end()) {
-    SPDLOG_WARN("Found category '{:s}' --> returning color for class id {:d}", slug, it->second);
     return FromID(it->second);
   }
   SPDLOG_CRITICAL("Need to convert category '{:s}' (slug '{:s}') to index/hash/id", category, slug);
-  // Could implement a simple string hash, e.g.
+  // TODO implement a simple string hash, e.g.
   // https://cp-algorithms.com/string/string-hashing.html
   throw std::logic_error("TODO Color::FromCategory is not yet implemented!");
 }

@@ -372,14 +372,14 @@ void RegisterColor(py::module &m) {
   color.def_static("from_id", &Color::FromID, doc.c_str(), py::arg("id"));
 
   doc = R"docstr(
-        Returns a color for the given category/object class.
+        Returns a color for the given category name.
 
         Usefull to consistently use the same :class:`~viren2d.Color`
-        for the same object class.
+        for the same object class, *e.g.* ``car`` or ``person``.
         See :meth:`~viren2d.Color.category_names` for a list of
         category names which are explicitly defined. For any other
-        category names, a string hash will be computed, which is
-        then used to lookup an appropriate color.
+        category name, a string hash will be computed, which is
+        then used to lookup a corresponding color.
         )docstr";
   color.def_static("from_category", &Color::FromCategory, doc.c_str(), py::arg("category"));
 
