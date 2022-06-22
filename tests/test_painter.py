@@ -1,7 +1,7 @@
 import pytest
 import viren2d
 import pathlib
-import pickle
+import numpy as np
 
 
 def test_viren2d_version():
@@ -410,5 +410,74 @@ def test_draw_rect():
                 else:
                     with pytest.raises(ValueError):
                         p.draw_rect(rect, style, fill_color)
+
+
+def test_draw_trajectory():
+    # Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    # Try drawing on invalid painter
+    with pytest.raises(RuntimeError):
+        p.draw_trajectory([(0, 0), (50, 50)])
+    # Prepare canvas
+    p.set_canvas_rgb(400, 300)
+    assert p.is_valid()
+
+    # Create dummy trajectory (which may partially be
+    # outside the image boundaries)
+    num_points = 100
+    x = 600 * np.random.rand(num_points, 1) - 100
+    y = 500 * np.random.rand(num_points, 1) - 100
+    pts = [(x[i], y[i]) for i in range(num_points)]
+
+    line_style = viren2d.LineStyle()
+    
+    ##### Plain trajectory (draws a single path)
+    p.draw_trajectory(
+        pts, line_style, viren2d.Color.Invalid)
+    # Include all parameters explicitly
+    p.draw_trajectory(
+        pts, line_style, viren2d.Color.Invalid,
+        True, 3, viren2d.fade_out_linear)
+    # Use named arguments
+    p.draw_trajectory(
+        points=pts, line_style=line_style,
+        fade_out_color=viren2d.Color.Invalid)
+    # Include all parameters:
+    p.draw_trajectory(
+        points=pts, line_style=line_style,
+        fade_out_color=viren2d.Color.Invalid,
+        tail_first=False, smoothing_window=17,
+        fading_factor=viren2d.fade_out_quadratic)
+
+    # Fading out (draws multiple line segments)
+    p.draw_trajectory(
+        pts, line_style, viren2d.Color.White)
+    # Include all parameters explicitly
+    p.draw_trajectory(
+        pts, line_style, viren2d.Color.Black,
+        True, 3, viren2d.fade_out_linear)
+    # Use named arguments
+    p.draw_trajectory(
+        points=pts, line_style=line_style,
+        fade_out_color=viren2d.Color.Red)
+    # Include all parameters:
+    p.draw_trajectory(
+        points=pts, line_style=line_style,
+        fade_out_color=viren2d.Color.Blue,
+        tail_first=False, smoothing_window=17,
+        fading_factor=viren2d.fade_out_quadratic)
+    
+    ### Sweep valid and invalid configurations
+    for line_style in line_style_configurations():
+        if is_valid_line(line_style):
+            p.draw_trajectory(
+                points=pts, line_style=line_style)
+        else:
+            with pytest.raises(ValueError):
+                p.draw_trajectory(
+                    points=pts, line_style=line_style)
+            # Painter should always be kept in a valid state
+            assert p.is_valid()
 
 #TODO add tests for other draw_xxx functions    

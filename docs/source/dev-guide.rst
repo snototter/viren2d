@@ -327,6 +327,17 @@ Some **functional features**, that I'd like to see at some time in the future:
 
 *  Pseudocoloring (for any/most common input data types - not only uint8)
 
+*  Image overlay (uint8 only, via the :class:`~viren2d.Painter`)
+  
+*  Pixelization via the :class:`~viren2d.ImageBuffer` (can be realized via
+   proper indexing)
+
+*  Support loading optical flow files, *i.e.* ``.flo`` format
+  
+*  Creating a collage (auto-padding, maybe aspect-aware resizing).
+   Best option might be to reuse *image overlay*, *i.e.* initialize
+   the canvas and simply layout the images.
+
 *  Support switching between the image surface and cairo's SVG surface.
 
    Note: I did some preliminary tests on this but didn't follow this route

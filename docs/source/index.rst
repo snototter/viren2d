@@ -68,8 +68,8 @@ environments.
    * |checked| Rectangles
    * |unchecked| Text (single-/multi-line) - WIP (implemented, but not properly tested/documented)
    * |unchecked| Text boxes (single-/multi-line) - WIP (implemented, but not properly tested/documented)
-   * |unchecked| Trajectories - WIP (implemented, but not properly tested/documented)
-   
+   * |checked| Trajectories
+
 **Which features may come in the future?**
 
    * |unchecked| Object detection results: 3D bounding boxes (requires handling of camera calibration)

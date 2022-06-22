@@ -1,4 +1,4 @@
-# Visualize Computer Vision Results Neatly in 2D
+# Visualize Computer Vision Results Neatly in 2D
 [![RTD Status](https://readthedocs.org/projects/viren2d/badge/?version=latest&style=flat)](https://viren2d.readthedocs.io)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/snototter/viren2d/blob/main/LICENSE?raw=true)
 
