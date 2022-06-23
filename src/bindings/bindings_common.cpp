@@ -419,9 +419,10 @@ void RegisterColor(py::module &m) {
         Returns a list of the category names which are explicitly
         known :meth:`~viren2d.Color.from_object_category`.
 
-        Currently, this list contains all 80+1 (*i.e.* ``background``)
-        `COCO <https://cocodataset.org>`__ classes, plus additional
-        aliases, *e.g.* ``human``\ :math:`\leftrightarrow`\ ``person``, or
+        Currently, this list contains all
+        `COCO <https://cocodataset.org>`__ classes (80+1, *i.e.*
+        ``background``), plus additional aliases, *e.g.*
+        ``human``\ :math:`\leftrightarrow`\ ``person``, or
         ``vehicle``\ :math:`\leftrightarrow`\ ``car``.
 
         **Corresponding C++ API:** ``viren2d::Color::ListObjectCategories``.

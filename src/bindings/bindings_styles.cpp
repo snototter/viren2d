@@ -733,7 +733,9 @@ void RegisterArrowStyle(pybind11::module &m) {
           represents the absolute length in pixels.
           )docstr")
       .def_readwrite("tip_angle", &ArrowStyle::tip_angle,
-          "float: Interior angle (in degrees) between shaft and tip.")
+          "float: Interior angle (in degrees) between shaft and tip.\n")
+      //TODO ^document miter limit (here & in linestyle); add linestyle property miter_limit + option to query the current miter limit
+      // or simply accept, that we should not draw arrows with interior angle <= 5 ;-)
       .def_readwrite("tip_closed", &ArrowStyle::tip_closed,
            "bool: If ``True``, the arrow head will be filled.")
       .def_readwrite("double_headed", &ArrowStyle::double_headed,

@@ -72,4 +72,7 @@ def render_rtd_demos(show_images: bool, save_images: bool):
 
 
 if __name__ == '__main__':
-    render_rtd_demos(True, True)
+    #render_rtd_demos(True, True)
+    img = cheat_sheet_linestyle()
+    _process_result(
+        img, True, 'Line Style Cheat Sheet', True, 'line-style-cheat-sheet.png')

@@ -6,6 +6,18 @@ Defining Styles
 Arrow Style
 ~~~~~~~~~~~
 
+.. warning::
+   TODO replace by the proper cheat sheet
+
+**Arrow Style Cheat Sheet:**
+
+.. image:: ../images/arrows.png
+   :width: 400
+   :alt: Arrows
+   :align: center
+
+**Arrow Style Class:**
+
 .. autoclass:: viren2d.ArrowStyle
    :autosummary:
    :autosummary-nosignatures:
@@ -14,23 +26,13 @@ Arrow Style
    :show-inheritance:
    :exclude-members: cap_offset, join_offset, Invalid
 
-**Exemplary potpourri of supported arrow styles:**
-
-.. image:: ../images/arrows.png
-   :width: 400
-   :alt: Arrows
-   :align: center
-
-The code listing to create this visualization is shown in the
-:ref:`tutorial section on arrows<tutorial-draw-arrows>`.
-
 
 ~~~~~~~~~~~~~~~~~~
 Bounding Box Style
 ~~~~~~~~~~~~~~~~~~
 
 .. warning::
-   TODO doc
+   TODO documentation + cheat sheet
 
 .. autoclass:: viren2d.BoundingBox2DStyle
    :autosummary:
@@ -42,6 +44,15 @@ Bounding Box Style
 Line Style
 ~~~~~~~~~~
 
+**Line Style Cheat Sheet:**
+
+.. image:: ../images/line-cap.png
+   :width: 300
+   :alt: TODO
+   :align: center
+
+**Line Style Class:**
+
 .. autoclass:: viren2d.LineStyle
    :autosummary:
    :autosummary-nosignatures:
@@ -51,6 +62,15 @@ Line Style
 ~~~~~~~~~~~~
 Marker Style
 ~~~~~~~~~~~~
+
+**Marker Shape Cheat Sheet:**
+
+   .. image:: ../images/markers.png
+      :width: 600
+      :alt: Supported Marker Shapes
+      :align: center
+
+**Marker Style Class:**
 
 .. autoclass:: viren2d.MarkerStyle
    :autosummary:
@@ -62,17 +82,17 @@ Marker Style
 Text Style
 ~~~~~~~~~~
 
-.. autoclass:: viren2d.TextStyle
-   :autosummary:
-   :autosummary-nosignatures:
-   :members:
-
-**Exemplary positioning of text boxes:**
+**Text Anchor Cheat Sheet:**
 
 .. image:: ../images/text-anchors.png
    :width: 440
    :alt: Text positioning
    :align: center
 
-The code listing to create this visualization is shown in the
-:ref:`tutorial section on text<tutorial-text>`.
+**Text Style Class:**
+
+.. autoclass:: viren2d.TextStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+
