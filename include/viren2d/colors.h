@@ -281,8 +281,14 @@ class Color {
     return os;
   }
 
+
+  /// Returns a color for the 'x', 'y', or 'z' axis.
+  /// Also accepts 0, 1, or 2 to select the axis.
+  static Color CoordinateAxisColor(char axis);
+
+
   /// Returns a color for the given ID (e.g. an object/class identifier).
-  static Color FromID(std::size_t id);
+  static Color FromObjectID(std::size_t id);
 
 
   /// Returns a color for the given category/object class.
@@ -292,12 +298,12 @@ class Color {
   /// explicitly defined. For any other category name, a string
   /// hash will be computed, which is then used to lookup a
   /// corresponding color.
-  static Color FromCategory(const std::string &category);
+  static Color FromObjectCategory(const std::string &category);
 
 
   /// Returns a list of category names which are explicitly
   /// defined in the Color::FromCategory utility.
-  static std::vector<std::string> ListCategories();
+  static std::vector<std::string> ListObjectCategories();
 };
 
 

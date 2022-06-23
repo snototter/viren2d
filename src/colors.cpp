@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <map>
 #include <exception>
+#include <functional>  // std::hash
 
 #include <werkzeugkiste/strings/strings.h>
 #include <werkzeugkiste/geometry/utils.h>
@@ -37,6 +38,12 @@ double cast_RGB(double v) {
 
 
 /// List of exemplary colors used by FromID/FromCategory
+/// TODO resources on color palette selection:
+/// http://www.eftools.org/data/colours.html   // up to 36
+/// https://docs.looker.com/exploring-data/visualizing-query-results/color-collections // 12
+/// https://ux.mailchimp.com/patterns/data#palette
+/// https://blog.datawrapper.de/beautifulcolors/
+/// https://blog.datawrapper.de/colors-for-data-vis-style-guides/
 const Color kExemplaryColors[] = {
   RGBa(200,    0,    0), // Red
   RGBa(  0,  200,    0), // light green(ish)
@@ -722,28 +729,52 @@ Color &Color::operator-=(const Color &rhs) {
 }
 
 
-Color Color::FromID(std::size_t id) {
-  return helpers::kExemplaryColors[id % helpers::kExemplaryColorsSize];
-  // TODO axis colors: const Color kAxisColorsRGB[3] = { RGBa(255, 80, 0), RGBa(0, 200, 0), RGBa(0, 0, 255) };
+Color Color::CoordinateAxisColor(char axis) {
+  switch (axis) {
+    case 0:
+    case 'x':
+    case 'X':
+      return Color(0.94, 0.13, 0.15, 1.0);
+
+    case 1:
+    case 'y':
+    case 'Y':
+      return Color(0.19, 0.80, 0.66, 1.0);
+
+    case 2:
+    case 'z':
+    case 'Z':
+      return Color(0.09, 0.44, 0.72, 1.0);
+
+    default:
+      return Color::Magenta;
+  }
 }
 
 
-Color Color::FromCategory(const std::string &category) {
+Color Color::FromObjectID(std::size_t id) {
+  return helpers::kExemplaryColors[id % helpers::kExemplaryColorsSize];
+}
+
+
+Color Color::FromObjectCategory(const std::string &category) {
   std::string slug = wzks::Replace(wzks::Lower(category), ' ', '-');
   const auto it = helpers::kCategoryIDMapping.find(slug);
 
   if (it != helpers::kCategoryIDMapping.end()) {
-    return FromID(it->second);
+    return FromObjectID(it->second);
+  } else {
+    std::hash<std::string> string_hash;
+    return FromObjectID(string_hash(slug));
   }
-  SPDLOG_CRITICAL("Need to convert category '{:s}' (slug '{:s}') to index/hash/id", category, slug);
-  // TODO implement a simple string hash, e.g.
-  // https://cp-algorithms.com/string/string-hashing.html
-  throw std::logic_error("TODO Color::FromCategory is not yet implemented!");
 }
 
 
-std::vector<std::string> Color::ListCategories() {
-  return wzkc::GetMapKeys(helpers::kCategoryIDMapping);
+std::vector<std::string> Color::ListObjectCategories() {
+  std::vector<std::string> categories = wzkc::GetMapKeys(helpers::kCategoryIDMapping);
+  // The default comparator results in ascending order:
+  std::sort(categories.begin(), categories.end());
+  return categories;
 }
 
 

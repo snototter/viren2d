@@ -575,8 +575,8 @@ void RegisterLineStyle(pybind11::module &m) {
   doc = ":class:`~" + FullyQualifiedType("Color") + "`: "
         "Color of the line.\n\nExample:\n\n"
         ">>> style.color = viren2d.Color(1, 0, 1)\n" //TODO update example & include in other style definitions!
-        ">>> style.color = viren2d.RGB(255, 0, 255)\n"
-        ">>> style.color = 'navy-blue'\n";
+        ">>> style.color = viren2d.RGBa(255, 0, 255)\n"
+        ">>> style.color = 'magenta'\n";
   line_style.def_readwrite("color", &LineStyle::color,
            doc.c_str());
 }

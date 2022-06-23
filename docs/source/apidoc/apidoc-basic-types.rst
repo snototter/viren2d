@@ -36,17 +36,19 @@ Color Names
 Color Utilitites
 ~~~~~~~~~~~~~~~~
 
-.. autofunction:: viren2d.category_names
+.. autofunction:: viren2d.axis_color
 
-.. autofunction:: viren2d.color_from_category
+.. autofunction:: viren2d.color_from_object_category
 
-.. autofunction:: viren2d.color_from_id
+.. autofunction:: viren2d.color_from_object_id
 
 .. autofunction:: viren2d.fade_out_linear
 
 .. autofunction:: viren2d.fade_out_logarithmic
 
 .. autofunction:: viren2d.fade_out_quadratic
+
+.. autofunction:: viren2d.object_category_names
 
 .. autofunction:: viren2d.rgba
 

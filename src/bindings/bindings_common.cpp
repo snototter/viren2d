@@ -59,6 +59,24 @@ py::tuple ColorToTuple(const Color &obj) {
 }
 
 
+Color CoordinateAxisColorFromPyObject(py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    const auto str = py::cast<std::string>(o);
+    return Color::CoordinateAxisColor(str[0]);
+  } else if (py::isinstance<py::int_>(o)) {
+    return Color::CoordinateAxisColor(
+          static_cast<char>(py::cast<int>(o)));
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast type `" << tp
+        << "` to `int` or `char`!";
+    throw std::invalid_argument(str.str());
+  }
+}
+
+
 void RegisterColor(py::module &m) {
   std::string doc = R"docstr(
         Returns a list of the predefined color names.
@@ -284,10 +302,12 @@ void RegisterColor(py::module &m) {
         &Color::Inverse, R"docstr(
         Returns the inverse/complementary color.
 
-        Except for shades of gray, this returns the rgb inverse, *i.e.*
-        :math:`(1 - red, 1 - green, 1 - blue, alpha)`.
-        For gray values, it will either return black or white. In both
-        cases, the returned alpha value will always stay the same.
+        Except for shades of gray, this returns
+        :math:`(1 - red, 1 - green, 1 - blue, alpha)`, *i.e.* the
+        rgb inverse.
+        For gray values, it will either return black or white.
+        In both cases, the returned alpha value will always stay
+        the same.
 
         Why special handling of gray?
            Complementary colors should be used to provide good
@@ -362,48 +382,81 @@ void RegisterColor(py::module &m) {
 
   // Static initialization methods
   doc = R"docstr(
-        Returns a color for the given ID/number.
+        Returns a color for the (numeric) object ID.
 
         Usefull to consistently use the same color for the
         same object or object class.
         Note that ``id`` must be ``>=0``, or a :class:`TypeError`
         will be raised.
         )docstr";
-  color.def_static("from_id", &Color::FromID, doc.c_str(), py::arg("id"));
+  color.def_static(
+        "from_object_id",
+        &Color::FromObjectID,
+        doc.c_str(),
+        py::arg("id"));
+
 
   doc = R"docstr(
         Returns a color for the given category name.
 
         Usefull to consistently use the same :class:`~viren2d.Color`
         for the same object class, *e.g.* ``car`` or ``person``.
-        See :meth:`~viren2d.Color.category_names` for a list of
+        See :meth:`~viren2d.Color.object_category_names` for a list of
         category names which are explicitly defined. For any other
         category name, a string hash will be computed, which is
         then used to lookup a corresponding color.
         )docstr";
-  color.def_static("from_category", &Color::FromCategory, doc.c_str(), py::arg("category"));
+  color.def_static(
+        "from_object_category",
+        &Color::FromObjectCategory,
+        doc.c_str(),
+        py::arg("category"));
+
 
   color.def_static(
-        "category_names",
-        &Color::ListCategories,
-        "Returns a list of the category names which are explicitly\n"
-        "known to :meth:`~viren2d.Color.from_category`.");
+        "object_category_names",
+        &Color::ListObjectCategories, R"docstr(
+        Returns a list of the category names which are explicitly
+        known :meth:`~viren2d.Color.from_object_category`.
+
+        Currently, this list contains all 80+1 (*i.e.* ``background``)
+        `COCO <https://cocodataset.org>`__ classes, plus additional
+        aliases, *e.g.* ``human``:math:`\leftrightarrow```person``, or
+        ``vehicle``:math:`leftrightarrow```car``.
+
+        **Corresponding C++ API:** ``viren2d::Color::ListObjectCategories``.
+        )docstr");
 
 
   // Also aliases for typing convenience
-  m.def("color_from_id",
-        &Color::FromID,
-        "Alias of :meth:`viren2d.Color.from_id`.",
+  m.def("color_from_object_id",
+        &Color::FromObjectID,
+        "Alias of :meth:`viren2d.Color.from_object_id`.",
         py::arg("id"));
 
-  m.def("color_from_category",
-        &Color::FromCategory,
-        "Alias of :meth:`viren2d.Color.from_category`.",
+
+  m.def("color_from_object_category",
+        &Color::FromObjectCategory,
+        "Alias of :meth:`viren2d.Color.from_object_category`.",
         py::arg("category"));
 
-  m.def("category_names",
-        &Color::ListCategories,
-        "Alias of :meth:`viren2d.Color.category_names`.");
+
+  m.def("object_category_names",
+        &Color::ListObjectCategories,
+        "Alias of :meth:`viren2d.Color.object_category_names`.");
+
+  m.def("axis_color",
+        &CoordinateAxisColorFromPyObject, R"docstr(
+        Returns a color for the *x*, *y*, or *z* axis.
+
+        Can be used, for example, to visualize the origin/orientation
+        of the world coordinate system via differently colored
+        arrows.
+
+        Args:
+          axis: Either the character code of the axis (``'x'``, ``'y'``,
+            or ``'z'``), or its zero-based index as :class:`int`.
+        )docstr", py::arg("axis"));
 
 
   doc = "Creates a :class:`~" + FullyQualifiedType("Color") + "` from\n"
