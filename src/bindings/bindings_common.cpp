@@ -421,8 +421,8 @@ void RegisterColor(py::module &m) {
 
         Currently, this list contains all 80+1 (*i.e.* ``background``)
         `COCO <https://cocodataset.org>`__ classes, plus additional
-        aliases, *e.g.* ``human``:math:`\leftrightarrow```person``, or
-        ``vehicle``:math:`leftrightarrow```car``.
+        aliases, *e.g.* ``human``\ :math:`\leftrightarrow`\ ``person``, or
+        ``vehicle``\ :math:`\leftrightarrow`\ ``car``.
 
         **Corresponding C++ API:** ``viren2d::Color::ListObjectCategories``.
         )docstr");

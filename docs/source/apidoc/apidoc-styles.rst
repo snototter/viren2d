@@ -2,26 +2,6 @@
 Defining Styles
 ---------------
 
-~~~~~~~~~~~~
-Marker Style
-~~~~~~~~~~~~
-
-.. autoclass:: viren2d.MarkerStyle
-   :autosummary:
-   :autosummary-nosignatures:
-   :members:
-  
-
-~~~~~~~~~~
-Line Style
-~~~~~~~~~~
-
-.. autoclass:: viren2d.LineStyle
-   :autosummary:
-   :autosummary-nosignatures:
-   :members:
-
-
 ~~~~~~~~~~~
 Arrow Style
 ~~~~~~~~~~~
@@ -45,6 +25,39 @@ The code listing to create this visualization is shown in the
 :ref:`tutorial section on arrows<tutorial-draw-arrows>`.
 
 
+~~~~~~~~~~~~~~~~~~
+Bounding Box Style
+~~~~~~~~~~~~~~~~~~
+
+.. warning::
+   TODO doc
+
+.. autoclass:: viren2d.BoundingBox2DStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+
+
+~~~~~~~~~~
+Line Style
+~~~~~~~~~~
+
+.. autoclass:: viren2d.LineStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+
+
+~~~~~~~~~~~~
+Marker Style
+~~~~~~~~~~~~
+
+.. autoclass:: viren2d.MarkerStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+  
+
 ~~~~~~~~~~
 Text Style
 ~~~~~~~~~~
@@ -63,16 +76,3 @@ Text Style
 
 The code listing to create this visualization is shown in the
 :ref:`tutorial section on text<tutorial-text>`.
-
-~~~~~~~~~~~~~~~~~~~~~
-2D Bounding Box Style
-~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-   TODO doc
-
-.. autoclass:: viren2d.BoundingBox2DStyle
-   :autosummary:
-   :autosummary-nosignatures:
-   :members:
-
