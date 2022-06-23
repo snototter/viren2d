@@ -20,6 +20,10 @@ def _process_result(
 
 
 def render_rtd_demos(show_images: bool, save_images: bool):
+    """
+    Code of demos is sufficiently concise & will be shown
+    on RTD.
+    """
     # Arrows
     img = demo_arrows()
     _process_result(
@@ -71,8 +75,22 @@ def render_rtd_demos(show_images: bool, save_images: bool):
         img, show_images, 'tracking-by-detection', save_images, 'tracking-by-detection.png')
 
 
+def render_rtd_cheatsheets(show_images: bool, save_images: bool):
+    """
+    Cheat sheets provide a visual reference for the most important
+    settings of a style.
+    """
+    # LineStyle
+    # img = cheat_sheet_linestyle()
+    # _process_result(
+    #     img, True, 'Line Style Cheat Sheet', True, 'line-style-cheat-sheet.png')
+
+    # LineStyle
+    img = cheat_sheet_arrowstyle()
+    _process_result(
+        img, True, 'Arrow Style Cheat Sheet', True, 'arrow-style-cheat-sheet.png')
+
+
 if __name__ == '__main__':
     #render_rtd_demos(True, True)
-    img = cheat_sheet_linestyle()
-    _process_result(
-        img, True, 'Line Style Cheat Sheet', True, 'line-style-cheat-sheet.png')
+    render_rtd_cheatsheets(True, True)

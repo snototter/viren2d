@@ -5,6 +5,7 @@
 #include <exception>
 #include <cmath>
 #include <utility>
+#include <numeric> // std::accumulate FIXME (dash offset tryout)
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
@@ -139,6 +140,41 @@ Vec2d HelperClosedHead(cairo_t *context, const Vec2d &pointy_end,
 }
 
 
+inline void ApplyDashedLineStyle(//FIXME extend LineStyle instead - offset should be user-configurable!
+    cairo_t *context, const LineStyle &style, bool ignore_dash = false,
+    double line_length = -1.0) {
+  SPDLOG_TRACE("helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
+               style, ignore_dash);//FIXME
+
+  if (!context) {
+    return;
+  }
+
+  cairo_set_line_width(context, style.width);
+  cairo_set_line_cap(context, LineCap2Cairo(style.cap));
+  cairo_set_line_join(context, LineJoin2Cairo(style.join));
+  ApplyColor(context, style.color);
+
+  if (!style.dash_pattern.empty() && !ignore_dash) {
+    // https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
+    const double *dash = &style.dash_pattern[0];
+    double offset = 0.0;
+    if (line_length > 0) {
+      double dash_length = std::accumulate(
+            style.dash_pattern.begin(), style.dash_pattern.end(), 0.0);
+      if (style.dash_pattern.size() == 1) {
+        dash_length *= 2;
+      }
+      offset = (line_length - std::floor(line_length / dash_length) * dash_length) / 2.0;
+      SPDLOG_CRITICAL("FIXME check offset: {:f}, length {:f}, dash_length: {:f}", offset, line_length, dash_length);
+    }
+    cairo_set_dash(context, dash,
+                   static_cast<int>(style.dash_pattern.size()),
+                   offset);//0); // We don't need/support an offset into the dash pattern
+  }
+}
+
+
 void DrawArrow(cairo_surface_t *surface, cairo_t *context,
                Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
   CheckCanvas(surface, context);
@@ -210,7 +246,8 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
 
     // Switch to dashed line if needed
     if (arrow_style.IsDashed()) {
-      helpers::ApplyLineStyle(context, arrow_style);
+//      helpers::ApplyLineStyle(context, arrow_style);//FIXME dash offset tryouts
+      ApplyDashedLineStyle(context, arrow_style, false, shaft_from.Distance(shaft_to));
     }
     cairo_move_to(context, shaft_from.x(), shaft_from.y());
     cairo_line_to(context, shaft_to.x(), shaft_to.y());
@@ -232,7 +269,8 @@ void DrawArrow(cairo_surface_t *surface, cairo_t *context,
     // Finally, draw the shaft (swith to dashed
     // line if needed)
     if (arrow_style.IsDashed()) {
-      helpers::ApplyLineStyle(context, arrow_style);
+//      helpers::ApplyLineStyle(context, arrow_style); //FIXME dash offset tryouts
+      ApplyDashedLineStyle(context, arrow_style, false, from.Distance(to));
     }
     cairo_move_to(context, from.x(), from.y());
     cairo_line_to(context, to.x(), to.y());

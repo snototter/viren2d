@@ -420,6 +420,9 @@ void RegisterLineStyle(pybind11::module &m) {
   std::string doc = R"docstr(
       How a line/contour should be drawn.
 
+      Set the line :attr:`width` to an *odd* value to avoid
+      anti-aliasing effects.
+
       Note that several ``draw_xxx`` methods of the
       :class:`~viren2d.Painter` also accept the special
       member :attr:`~viren2d.LineStyle.Invalid`, which
@@ -534,8 +537,13 @@ void RegisterLineStyle(pybind11::module &m) {
         "the line. For solid lines, this list must be empty.\n\n"
         ">>> style.dash_pattern = [20, 30, 40, 10] # Would result in:\n"
         "'__   ____ __   ____ __   ____ __   ____ __   ____ __   ____ ...'\n")
-      .def_readwrite("width", &LineStyle::width,
-           "float: Width/thickness in pixels.")
+      .def_readwrite("width", &LineStyle::width, R"doc(
+           float: Width/thickness in pixels.
+           
+             Due to the discrete pixel grid and the internal
+             drawing conventions, *odd* line widths usually avoid
+             anti-aliasing effects.
+           )doc")
       // missing doc string: https://github.com/pybind/pybind11/issues/3815
       .def_readonly_static("Invalid", &LineStyle::Invalid, R"doc(
         Read-only special member used to skip drawing contours.

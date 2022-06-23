@@ -9,14 +9,12 @@ Arrow Style
 .. warning::
    TODO replace by the proper cheat sheet
 
-**Arrow Style Cheat Sheet:**
-
-.. image:: ../images/arrows.png
+.. figure:: ../images/arrows.png
    :width: 400
    :alt: Arrows
    :align: center
 
-**Arrow Style Class:**
+   :class:`~viren2d.ArrowStyle` Cheat Sheet
 
 .. autoclass:: viren2d.ArrowStyle
    :autosummary:
@@ -44,14 +42,12 @@ Bounding Box Style
 Line Style
 ~~~~~~~~~~
 
-**Line Style Cheat Sheet:**
-
-.. image:: ../images/line-cap.png
-   :width: 300
-   :alt: TODO
+.. figure:: ../images/line-style-cheat-sheet.png
+   :width: 400
+   :alt: Style cheat sheet for lines
    :align: center
 
-**Line Style Class:**
+   :class:`~viren2d.LineStyle` Cheat Sheet
 
 .. autoclass:: viren2d.LineStyle
    :autosummary:
@@ -63,14 +59,13 @@ Line Style
 Marker Style
 ~~~~~~~~~~~~
 
-**Marker Shape Cheat Sheet:**
+.. figure:: ../images/markers.png
+   :width: 600
+   :alt: Supported Marker Shapes
+   :align: center
 
-   .. image:: ../images/markers.png
-      :width: 600
-      :alt: Supported Marker Shapes
-      :align: center
+   :class:`~viren2d.Marker` Shape Cheat Sheet
 
-**Marker Style Class:**
 
 .. autoclass:: viren2d.MarkerStyle
    :autosummary:
@@ -82,14 +77,12 @@ Marker Style
 Text Style
 ~~~~~~~~~~
 
-**Text Anchor Cheat Sheet:**
-
-.. image:: ../images/text-anchors.png
+.. figure:: ../images/text-anchors.png
    :width: 440
    :alt: Text positioning
    :align: center
 
-**Text Style Class:**
+   :class:`~viren2d.TextAnchor` Cheat Sheet
 
 .. autoclass:: viren2d.TextStyle
    :autosummary:
