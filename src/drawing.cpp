@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cairo/cairo.h>
+#include <cairo/cairo-svg.h>
 #include <werkzeugkiste/strings/strings.h>
 #include <werkzeugkiste/container/math.h>
 
@@ -344,6 +345,43 @@ private:
 ImagePainter::ImagePainter() : Painter(),
   surface_(nullptr), context_(nullptr) {
   SPDLOG_DEBUG("ImagePainter default constructor.");
+
+  SPDLOG_CRITICAL("FIXME svg!");
+  cairo_surface_t *s = cairo_svg_surface_create("svgtest.svg", 400, 120);
+  cairo_svg_surface_restrict_to_version(s, CAIRO_SVG_VERSION_1_2);
+  cairo_t *ctx = cairo_create(s);
+
+  //works!
+  auto buf = LoadImage("../examples/flamingo.jpg", 4);
+  buf.SwapChannels(0, 2);
+  cairo_surface_t *imsurf = cairo_image_surface_create_for_data(
+        buf.data, CAIRO_FORMAT_ARGB32, buf.width, buf.height, buf.stride);
+  //TODO imagebuffer 1) SwapRedBlue() -- for convenience
+  //TODO imagebuffer 2) copy channel (e.g. to transfer alpha mask)
+
+  // works, but unnecessarily copies memory
+//  cairo_surface_t *imsurf = cairo_image_surface_create(
+//        CAIRO_FORMAT_ARGB32, buf.width, buf.height);
+//  std::memcpy(cairo_image_surface_get_data(imsurf), buf.data,
+//              4 * buf.width * buf.height);
+
+//  // image not rendered - issue: rtfm! CAIRO_FORMAT_RGB24 is 32bits!!! with the first 8 unused!
+//  auto buf = LoadImage("../examples/flamingo.jpg", 3);
+//  cairo_surface_t *imsurf = cairo_image_surface_create_for_data(
+//        buf.data, CAIRO_FORMAT_RGB24, buf.width, buf.height, buf.stride);
+  cairo_set_source_surface(ctx, imsurf, 0, 0);
+  cairo_paint(ctx);
+
+  cairo_set_source_rgb(ctx, 1, 0, 1);
+  cairo_select_font_face(ctx, "xkcd", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+  cairo_set_font_size(ctx, 40);
+  cairo_move_to(ctx, 10, 50);
+  cairo_show_text(ctx, "FIXME Test!");
+
+  cairo_surface_destroy(imsurf);
+  cairo_surface_destroy(s);
+  cairo_destroy(ctx);
+
 }
 
 
