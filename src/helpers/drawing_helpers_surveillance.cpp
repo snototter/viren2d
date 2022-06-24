@@ -1,6 +1,5 @@
 // STL
 #include <string>
-#include <sstream>
 #include <exception>
 #include <cmath>
 
@@ -17,23 +16,25 @@ namespace wgu = werkzeugkiste::geometry;
 namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- BoundingBox 2D
-void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
-                       Rect rect, const std::vector<const char*> &label,
-                       const BoundingBox2DStyle &style) {
+void DrawBoundingBox2D(
+    cairo_surface_t *surface, cairo_t *context,
+    Rect rect, const std::vector<const char*> &label,
+    const BoundingBox2DStyle &style) {
   //-------------------- Sanity checks
   CheckCanvas(surface, context);
 
   if (!style.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot draw a bounding box with an invalid style: "
-      << style;
-    throw std::invalid_argument(s.str());
+    std::string s("Cannot draw a bounding box with an invalid style: ");
+    s += style.ToString(); //TODO implement and use ToDetailedString?
+    s += '!';
+    throw std::invalid_argument(s);
   }
 
   if (!rect.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot draw an invalid bounding box: " << rect << "!";
-    throw std::invalid_argument(s.str());
+    std::string s("Cannot draw an invalid bounding box: ");
+    s += rect.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
   }
 
   //-------------------- Drawing
@@ -58,8 +59,9 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   if (rect.radius > 0.0) {
     PathHelperRoundedRect(context, rect);
   } else {
-    cairo_rectangle(context, -rect.half_width(), -rect.half_height(),
-                    rect.width, rect.height);
+    cairo_rectangle(
+          context, -rect.half_width(), -rect.half_height(),
+          rect.width, rect.height);
   }
   // Create a copy of this path to be reused for the
   // contour later on.
@@ -70,6 +72,7 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   // can reuse the copied bbox_path to draw the box' contour
   // later on.
   cairo_save(context);
+
   // Logic behind the following (quite redundant, I know) code
   // blocks:
   // * If labels should be placed along the left/right edge, we
@@ -108,17 +111,19 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Top;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
+      padding = Vec2d(
+            style.label_padding.y(), style.label_padding.x());
       break;
 
-    case LabelPosition::LeftT2B://FIXME t2b not working at left & right edges!
+    case LabelPosition::LeftT2B://FIXME double-check: t2b now seems to work!
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(
             -rect.half_height(), -rect.half_width(),
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Bottom;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
+      padding = Vec2d(
+            style.label_padding.y(), style.label_padding.x());
       break;
 
     case LabelPosition::RightB2T:
@@ -128,7 +133,8 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Bottom;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
+      padding = Vec2d(
+            style.label_padding.y(), style.label_padding.x());
       break;
 
     case LabelPosition::RightT2B:
@@ -138,15 +144,20 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Top;
-      padding = Vec2d(style.label_padding.y(), style.label_padding.x());
+      padding = Vec2d(
+            style.label_padding.y(), style.label_padding.x());
       break;
   }
 
   // In addition to the placement of the label, we also
   // have to check how to align the label text horizontally
   // within the desired region:
-  Vec2d text_anchor {0.0, (valign == VerticalAlignment::Top) ? label_box.top()
-                                                             : label_box.bottom()};
+  Vec2d text_anchor {
+    0.0,
+    (valign == VerticalAlignment::Top)
+        ? label_box.top()
+        : label_box.bottom()};
+
   switch (style.text_style.alignment) {
     case HorizontalAlignment::Left:
       text_anchor.SetX(label_box.left());
@@ -166,8 +177,11 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
   // place the label and its (optional) text box:
   cairo_rotate(context, rotation);
   ApplyTextStyle(context, style.text_style, false);
-  MultilineText mlt(label, style.text_style, context);
-  mlt.Align(text_anchor, valign | style.text_style.alignment, padding, {-1, -1});
+  MultiLineText mlt(label, style.text_style, context);
+  mlt.Align(
+        text_anchor,
+        valign | style.text_style.alignment,
+        padding, {-1, -1});
   if (valign == VerticalAlignment::Top) {
     label_box = Rect::FromLTWH(
           label_box.left(), label_box.top(),
@@ -198,11 +212,13 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
       helpers::ApplyColor(context, bbox_fill);
       auto fill_roi = (valign == VerticalAlignment::Top) ?
             Rect::FromLTWH(
-              label_box.left(), label_box.bottom(), label_box.width,
+              label_box.left(), label_box.bottom(),
+              label_box.width,
               oriented_size.height() - label_box.height)
           : Rect::FromLRTB(
               label_box.left(), label_box.right(),
-              -oriented_size.height() / 2.0, label_box.top());
+              -oriented_size.height() / 2.0,
+              label_box.top());
       cairo_rectangle(
             context, fill_roi.left(), fill_roi.top(),
             fill_roi.width, fill_roi.height);
@@ -234,6 +250,7 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
 
   // Finally, draw the label on top
   cairo_rotate(context, rotation);
+
   // Since we saved/restored the context, we
   // have to re-apply the text style:
   ApplyTextStyle(context, style.text_style, true);
@@ -245,17 +262,18 @@ void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
 
 
 //---------------------------------------------------- Trajectory 2D
-void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
-                    const std::vector<Vec2d> &points, const LineStyle &style,
-                    Color color_fade_out, bool oldest_position_first,
-                    const std::function<double(double)> &mix_factor) {
+void DrawTrajectory(
+      cairo_surface_t *surface, cairo_t *context,
+      const std::vector<Vec2d> &points, const LineStyle &style,
+      Color color_fade_out, bool oldest_position_first,
+      const std::function<double(double)> &mix_factor) {
   CheckCanvas(surface, context);
 
   if (!style.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot draw a trajectory with an invalid line style: "
-      << style;
-    throw std::invalid_argument(s.str());
+    std::string s(
+          "Cannot draw a trajectory with an invalid line style: ");
+    s += style.ToDetailedString();
+    throw std::invalid_argument(s);
   }
 
   if (points.size() < 2) {
@@ -280,7 +298,8 @@ void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
     const Color &color_last = oldest_position_first
         ? style.color
         : color_fade_out;
-    Color color_from = color_first.Mix(color_last, mix_factor(proportion_color_head));
+    Color color_from = color_first.Mix(
+          color_last, mix_factor(proportion_color_head));
     Color color_to;
 
     // Fading out requires a separate path for each line segment,
@@ -289,7 +308,7 @@ void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
       cairo_pattern_t *pattern = cairo_pattern_create_linear(
           points[idx-1].x(), points[idx-1].y(),
           points[idx].x(), points[idx].y());
-      // See ApplyColor() why we have to use bgra
+      // See ApplyColor() on why we have to use bgra:
       cairo_pattern_add_color_stop_rgba(pattern, 0.0,
           color_from.blue, color_from.green,
           color_from.red, color_from.alpha);
@@ -301,9 +320,11 @@ void DrawTrajectory(cairo_surface_t *surface, cairo_t *context,
       color_to = oldest_position_first
           ? color_fade_out.Mix(style.color, proportion_color_head)
           : style.color.Mix(color_fade_out, proportion_color_head);
-      cairo_pattern_add_color_stop_rgba(pattern, 1.0,
-          color_to.blue, color_to.green,
-          color_to.red, color_to.alpha);
+      cairo_pattern_add_color_stop_rgba(
+            pattern, 1.0,
+            color_to.blue, color_to.green,
+            color_to.red, color_to.alpha);
+
       // Draw the current line segment with this linear color gradient:
       cairo_move_to(context, points[idx-1].x(), points[idx-1].y());
       cairo_line_to(context, points[idx].x(), points[idx].y());

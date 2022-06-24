@@ -20,11 +20,10 @@ namespace wgs = werkzeugkiste::strings;
 
 namespace viren2d {
 namespace helpers {
-/**
- * Returns desired_fill if the given marker is fillable.
- * Otherwise, returns true if the marker is fillable and
- * false if it's not.
- */
+
+/// Returns desired_fill if the given marker is fillable.
+/// Otherwise, returns true if the marker is fillable and
+/// false if it's not.
 bool AdjustMarkerFill(Marker marker, bool desired_fill) {
   switch (marker) {
     case Marker::Circle:
@@ -56,10 +55,10 @@ bool AdjustMarkerFill(Marker marker, bool desired_fill) {
       return desired_fill;
   }
 
-  std::ostringstream s;
-  s << "Marker '" << marker
-    << "' has not been mapped to `AdjustMarkerFill`!";
-  throw std::invalid_argument(s.str());
+  std::string s("Marker '");
+  s += MarkerToChar(marker);
+  s += "' has not been mapped to `AdjustMarkerFill`!";
+  throw std::logic_error(s);
 }
 } // namespace helpers
 
@@ -78,7 +77,7 @@ std::string LineCapToString(LineCap cap) {
   std::ostringstream s;
   s << "LineCap (" << static_cast<int>(cap)
     << ") is not yet supported in LineCapToString()!";
-  throw std::runtime_error(s.str());
+  throw std::logic_error(s.str());
 }
 
 
@@ -92,10 +91,10 @@ LineCap LineCapFromString(const std::string &cap) {
     return LineCap::Round;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce LineCap from string representation \""
-    << cap << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce LineCap from string representation \"");
+  s += cap;
+  s += "\"!";
+  throw std::logic_error(s);
 }
 
 
@@ -118,7 +117,7 @@ std::string LineJoinToString(LineJoin join) {
   std::ostringstream s;
   s << "LineJoin (" << static_cast<int>(join)
     << ") is not yet supported in LineJoinToString()!";
-  throw std::runtime_error(s.str());
+  throw std::logic_error(s.str());
 }
 
 
@@ -132,10 +131,10 @@ LineJoin LineJoinFromString(const std::string &join) {
     return LineJoin::Round;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce LineJoin from string representation \""
-    << join << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce LineJoin from string representation \"");
+  s += join;
+  s += "\"!";
+  throw std::logic_error(s);
 }
 
 
@@ -193,10 +192,10 @@ Marker MarkerFromChar(char m) {
     return Marker::Enneagon;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce Marker from char '"
-    << m << "'.";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce Marker from char '");
+  s += m;
+  s += "'!";
+  throw std::logic_error(s);
 }
 
 
@@ -273,7 +272,7 @@ char MarkerToChar(Marker marker) {
   s << "Marker value ("
     << static_cast<int>(marker)
     << ") has not been mapped to char representation!";
-  throw std::invalid_argument(s.str());
+  throw std::logic_error(s.str());
 }
 
 
@@ -357,10 +356,12 @@ bool MarkerStyle::IsFilled() const {
 
 
 std::string MarkerStyle::ToString() const {
+  //TODO maybe change most "measurement" types of viren2d::XYStyles to int?
+  //  who wants to use 1.5px line width anyhow... --> on the
+  //  other hand, we might need the higher precision, once
+  //  we switch to svg output (need to think about it!).
+
   std::ostringstream s;
-  //FIXME maybe change "most" measurement types to int?
-  // who wants to use 1.5px line width anyhow... --> on the
-  // other hand, we might need it once we switch to svg output (need to think about it!)
   s << "MarkerStyle('" << MarkerToChar(marker)
     << std::fixed << std::setprecision(1)
     << "', sz=" << size
@@ -398,6 +399,7 @@ LineStyle::LineStyle()
   : width(2),
     color(Color(NamedColor::Azure)),
     dash_pattern({}),
+    dash_offset(0.0),
     cap(LineCap::Butt),
     join(LineJoin::Miter)
 {}
@@ -417,15 +419,27 @@ LineStyle::LineStyle(std::initializer_list<double> values) {
   }
 }
 
-LineStyle::LineStyle(double width, const Color &col,
-                     const std::vector<double> &dash,
-                     LineCap cap, LineJoin join)
+LineStyle::LineStyle(
+    double width, const Color &col,
+    const std::vector<double> &dash,
+    double offset, LineCap cap, LineJoin join)
   : width(width), color(col), dash_pattern(dash),
-    cap(cap), join(join)
+    dash_offset(offset), cap(cap), join(join)
 {}
 
 
 bool LineStyle::IsValid() const {
+  // Dash strokes must be positive. Otherwise, it would put the
+  // drawing context into an error state, see also:
+  // https://cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
+  // The following check is slightly stricter, because we don't
+  // allow *any* 0-length strokes (I don't see an actual benefit
+  // of having a dash pattern where "some" strokes can be 0)
+  for (double d : dash_pattern) {
+    if (d <= 0.0) {
+      return false;
+    }
+  }
   return (width > 0.0) && color.IsValid();
 }
 
@@ -450,10 +464,10 @@ double LineStyle::CapOffset() const {
       return width / 2.0;
   }
 
-  std::ostringstream s;
-  s << "LineCap::" << LineCapToString(cap)
-    << " is not yet supported in CapOffset()!";
-  throw std::runtime_error(s.str());
+  std::string s("LineCap::");
+  s += LineCapToString(cap);
+  s += " is not yet supported in CapOffset()!";
+  throw std::runtime_error(s);
 }
 
 
@@ -504,6 +518,11 @@ std::string LineStyle::ToDetailedString() const {
   }
   s << ']';
 
+  if (dash_pattern.size() > 0) {
+    s << "+(" << std::fixed << std::setprecision(2)
+      << dash_offset << ')';
+  }
+
   if (!IsValid())
     s << ", invalid";
   s << ")";
@@ -513,24 +532,35 @@ std::string LineStyle::ToDetailedString() const {
 
 
 bool LineStyle::Equals(const LineStyle &other) const {
-  if (!wgu::eps_equal(width, other.width))
+  if (!wgu::eps_equal(width, other.width)) {
     return false;
+  }
 
-  if (color != other.color)
+  if (color != other.color) {
     return false;
+  }
 
-  if (dash_pattern.size() != other.dash_pattern.size())
+  if (dash_pattern.size() != other.dash_pattern.size()) {
     return false;
+  }
 
-  for (size_t i = 0; i < other.dash_pattern.size(); ++i)
-    if (!wgu::eps_equal(dash_pattern[i], other.dash_pattern[i]))
+  for (size_t i = 0; i < other.dash_pattern.size(); ++i) {
+    if (!wgu::eps_equal(dash_pattern[i], other.dash_pattern[i])) {
       return false;
+    }
+  }
 
-  if (cap != other.cap)
+  if (!wgu::eps_equal(dash_offset, other.dash_offset)) {
     return false;
+  }
 
-  if (join != other.join)
+  if (cap != other.cap) {
     return false;
+  }
+
+  if (join != other.join) {
+    return false;
+  }
 
   return true;
 }
@@ -552,17 +582,27 @@ ArrowStyle::ArrowStyle()
   : LineStyle(),
     tip_length(0.2), tip_angle(20),
     tip_closed(false), double_headed(false) {
-  // Change default cap, looks nicer:
+  // Change default cap, round looks nicer:
   cap = LineCap::Round;
 }
 
 
-ArrowStyle::ArrowStyle(double width, const Color &col,
-                       double tip_len, double angle,
-                       bool fill, bool two_heads,
-                       const std::vector<double> &dash,
-                       LineCap cap, LineJoin join)
-  : LineStyle(width, col, dash, cap, join),
+ArrowStyle::ArrowStyle(
+    double width, const Color &col,
+    double tip_len, double angle,
+    bool fill, bool two_heads,
+    const std::vector<double> &dash,
+    double offset, LineCap cap, LineJoin join)
+  : LineStyle(width, col, dash, offset, cap, join),
+    tip_length(tip_len), tip_angle(angle),
+    tip_closed(fill), double_headed(two_heads)
+{}
+
+
+ArrowStyle::ArrowStyle(
+    const LineStyle &line_style, double tip_len,
+    double angle, bool fill, bool two_heads)
+  : LineStyle(line_style),
     tip_length(tip_len), tip_angle(angle),
     tip_closed(fill), double_headed(two_heads)
 {}
@@ -798,7 +838,7 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
       && (clip_label == other.clip_label);
 }
 
-
+//TODO add "to detailed string"
 std::string BoundingBox2DStyle::ToString() const {
   std::ostringstream s;
   s << "BoundingBox2DStyle("

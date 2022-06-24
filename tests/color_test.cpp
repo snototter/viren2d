@@ -328,6 +328,11 @@ TEST(ColorTest, Operators) {
   EXPECT_TRUE(viren2d::Color::Magenta == viren2d::Color("magenta"));
   EXPECT_TRUE(viren2d::Color::Yellow == viren2d::Color("#ffff00"));
 
+  EXPECT_TRUE(viren2d::Color::Invalid == viren2d::Color("invalid"));
+  EXPECT_TRUE(viren2d::Color::Invalid == viren2d::Color("INVALID"));
+  EXPECT_TRUE(viren2d::Color::Invalid == viren2d::Color("none"));
+  EXPECT_TRUE(viren2d::Color::Invalid == viren2d::Color("None"));
+
   EXPECT_TRUE(viren2d::Color::Black != viren2d::Color("black!60"));
   EXPECT_TRUE(viren2d::Color::Red != viren2d::Color("red!90"));
   EXPECT_TRUE(viren2d::Color(viren2d::NamedColor::Red, 0.9) == viren2d::Color("red!90"));

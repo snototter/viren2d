@@ -205,14 +205,14 @@ NamedColor NamedColorFromString(const std::string &name) {
   } else if (cname.compare("same") == 0) {
     return NamedColor::Same;
   } else if ((cname.compare("invalid") == 0)
-             || (cname.compare("none") == 0)) { //FIXME test "none"
+             || (cname.compare("none") == 0)) {
     return NamedColor::Invalid;
   }
 
-  std::ostringstream s;
-  s << "Could not look up NamedColor corresponding to \""
-    << name << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not look up NamedColor corresponding to \"");
+  s += name;
+  s += "\"!";
+  throw std::invalid_argument(s);
 }
 
 
@@ -292,12 +292,10 @@ const Color Color::Invalid = Color(NamedColor::Invalid);
 
 Color::Color(const NamedColor color, double alpha) {
   this->alpha = alpha;
-  std::ostringstream s;
 
   // For the following color component assignments,
   // I prefer multiple assignments (e.g. x = y = 1)
-  // as I think it's easier to read than the standard
-  // single assignments.
+  // for readability.
   switch (color) {
     case NamedColor::Black:
       red = green = blue = 0.0; break;
@@ -425,10 +423,12 @@ Color::Color(const NamedColor color, double alpha) {
       this->alpha = -1.0;  // For the special "invalid" color, we also set alpha
       break;
 
-    default:
-      s << "No color code available for named color \""
-        << NamedColorToString(color) << "\".";
-      throw std::runtime_error(s.str());
+    default: {
+        std::string s("No color code available for named color \"");
+        s += NamedColorToString(color);
+        s += "\"!";
+        throw std::runtime_error(s);
+      }
   }
 }
 
@@ -458,20 +458,20 @@ Color::Color(const std::string &colorspec, double alpha) {
       // std::stoi will throw an invalid_argument if the input can't be parsed...
       this->alpha = std::stoi(aspec_) / 100.0;
       if (this->alpha < 0.0 || this->alpha > 1.0) {
-        std::ostringstream s;
-        s << "Alpha in \"" << colorspec
-          << "\" must be an integer within [0, 100].";
-        throw std::invalid_argument(s.str());
+        std::string s("Alpha in \"");
+        s += colorspec;
+        s += "\" must be an integer within [0, 100].";
+        throw std::invalid_argument(s);
       }
 
       // ... However, std::stoi will silently accept floating point
       // representations (simply return the part before the comma). We
       // explicitly require alpha in the string to be an integer:
       if (!std::all_of(aspec_.begin(), aspec_.end(), ::isdigit)) {
-        std::ostringstream s;
-        s << "Alpha in \"" << colorspec
-          << "\" must be an integer, but it contains non-digits.";
-        throw std::invalid_argument(s.str());
+        std::string s("Alpha in \"");
+        s += colorspec;
+        s += "\" must be an integer, but it contains non-digits.";
+        throw std::invalid_argument(s);
       }
     }
   }
@@ -824,10 +824,12 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
 
   const size_t len = webcode.length();
   if (len != 7 && len != 9) {
-    std::ostringstream s;
-    s << "Input must have a leading '#' and either 6 or 8 hex digits, "
-      << "but was: \"" << webcode << "\".";
-    throw std::invalid_argument(s.str());
+    std::string s(
+          "Input must have a leading '#' and either "
+          "6 or 8 hex digits, but was: \"");
+    s += webcode;
+    s += "\"!";
+    throw std::invalid_argument(s);
   }
 
   const std::string hex = wzks::Lower(webcode);

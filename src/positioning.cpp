@@ -33,10 +33,10 @@ HorizontalAlignment HorizontalAlignmentFromString(const std::string &align) {
     return HorizontalAlignment::Right;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce HorizontalAlignment from string \""
-    << align << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce HorizontalAlignment from string \"");
+  s += align;
+  s += "\".";
+  throw std::invalid_argument(s);
 }
 
 
@@ -68,9 +68,6 @@ std::ostream &operator<<(std::ostream &os, HorizontalAlignment align) {
 }
 
 
-
-
-
 VerticalAlignment VerticalAlignmentFromString(const std::string &align) {
   std::string slug = werkzeugkiste::strings::Lower(align);
   slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
@@ -88,11 +85,12 @@ VerticalAlignment VerticalAlignmentFromString(const std::string &align) {
     return VerticalAlignment::Bottom;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce VerticalAlignment from string \""
-    << align << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce VerticalAlignment from string \"");
+  s += align;
+  s += "\".";
+  throw std::invalid_argument(s);
 }
+
 
 std::string VerticalAlignmentToString(VerticalAlignment align) {
   switch (align) {
@@ -179,10 +177,10 @@ TextAnchor TextAnchorFromString(const std::string &anchor) {
     return TextAnchor::TopRight;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce TextAnchor from string \""
-    << anchor << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce TextAnchor from string \"");
+  s += anchor;
+  s += "\".";
+  throw std::invalid_argument(s);
 }
 
 
@@ -216,7 +214,9 @@ std::string TextAnchorToString(TextAnchor anchor) {
       return "top-left";
 
     default:
-      throw std::invalid_argument("Incomplete text anchor: you must specify both horizontal & vertical alignment");
+      throw std::invalid_argument(
+            "Invalid/incomplete text anchor: you must "
+            "specify both the horizontal & vertical alignment!");
   }
 }
 
@@ -258,10 +258,10 @@ LabelPosition LabelPositionFromString(const std::string &pos) {
     return LabelPosition::RightB2T;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce LabelPosition from string \""
-    << pos << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce LabelPosition from string \"");
+  s += pos;
+  s += "\".";
+  throw std::invalid_argument(s);
 }
 
 

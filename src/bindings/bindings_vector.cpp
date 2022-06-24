@@ -249,8 +249,9 @@ void RegisterVec(py::module &m) {
 
 
     std::ostringstream alt;
-    alt << PyTypeName<_Tp>(false) << " Provides alternative read-write access to\n"
-        << "  the first dimension, (*i.e.* :attr:`x`).\n\n"
+    alt << PyTypeName<_Tp>(false)
+        << " Provides alternative read-write access to\n"
+           "  the first dimension, (*i.e.* :attr:`x`).\n\n"
            "  Can be useful if you want to use this 2D vector to\n"
            "  represent a 2D *size*. This property is only available\n"
            "  for :class:`~viren2d.Vec2d` instances.";
@@ -259,8 +260,9 @@ void RegisterVec(py::module &m) {
 
 
     std::ostringstream().swap(alt);
-    alt << PyTypeName<_Tp>(false) << " Provides alternative read-write access to\n"
-        << "  the second dimension, (*i.e.* :attr:`y`).\n\n"
+    alt << PyTypeName<_Tp>(false)
+        << " Provides alternative read-write access to\n"
+           "  the second dimension, (*i.e.* :attr:`y`).\n\n"
            "  Can be useful if you want to use this 2D vector to\n"
            "  represent a 2D *size*. This property is only available\n"
            "  for :class:`~viren2d.Vec2d` instances.";

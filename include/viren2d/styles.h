@@ -197,7 +197,7 @@ bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs);
 
 
 //-------------------------------------------------  LineStyle
-/**
+/** TODO change docstyle
  * How to draw lines & contours.
  *
  * Note: depending on the chosen line cap (or line join),
@@ -217,97 +217,108 @@ bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs);
    \endcode
  */
 struct LineStyle {
-  double width;   /**< Line width (thickness) in pixels. */
-  Color color;         /**< Color (rgb & alpha). */
-  std::vector<double> dash_pattern; /**< Dash pattern defined as series of on-off segments (lengths in pixels). Line is solid if empty. */
-  LineCap cap;    /**< How to render the endpoints. */
-  LineJoin join;  /**< How to render the junction of two lines/segments. */
+  ///< Line width (thickness) in pixels.
+  double width;
+
+  /// Color (rgb & alpha).
+  Color color;
+
+  /// Dash pattern defined as series of on-off segments (lengths in pixels). Line is solid if empty.
+  std::vector<double> dash_pattern;
+
+  /// Offset into the pattern at which the stroke begins.
+  double dash_offset;
+
+  /// How to render the line/dash stroke endpoints
+  LineCap cap;
+
+  /// How to render the junction of two lines/segments.
+  LineJoin join;
 
 
-  /** Returns a library-wide pre-set default style.
-   *  To use the painter's default style, you should use LineStyle::Default !!! TODO doc FIXME "special" default, "special " invalid or "some initialized" ??? */
+  /// Creates a library-wide pre-set default style.
   LineStyle();
 
-//TODO test
+
+  /// Creates either the default style `{}`, or
+  /// the default style with custom `{width}`.
   LineStyle(std::initializer_list<double> values);
 
 
-  LineStyle(double width, const Color &col,
-            const std::vector<double> &dash = std::vector<double>(),
-            LineCap cap = LineCap::Butt, LineJoin join = LineJoin::Miter);
+  /// Standard constructor.
+  LineStyle(
+      double width, const Color &col,
+      const std::vector<double> &dash = std::vector<double>(),
+      double offset = 0.0,
+      LineCap cap = LineCap::Butt,
+      LineJoin join = LineJoin::Miter);
 
 
-  // Nothing special about the LineStyle class, so we can have
-  // the default copy/assignment/move c'tors/operators:
+  /// Nothing special about the LineStyle class, so we can have
+  /// the default copy/assignment/move c'tors/operators:
   LineStyle(const LineStyle &other) = default;
   LineStyle& operator=(const LineStyle &other) = default;
   LineStyle(LineStyle&&) = default;
   LineStyle& operator=(LineStyle &&) = default;
 
+
+  /// Explicit destructor needed (`ArrowStyle` derives from `LineStyle`).
   virtual ~LineStyle() {}
 
 
-  /** Checks if this line style would lead to a renderable line. */
+  /// Returns true if this line style leads to a renderable line.
   virtual bool IsValid() const;
 
-  //TODO doc & test
+
+  /// Returns true if this style equals the special `Invalid` member.
   virtual bool IsSpecialInvalid() const;
-//  virtual bool IsSpecialDefault() const;
 
 
-
-  /** Returns true if this style contains a dash stroke pattern. */
+  /// Returns true if this style contains a dash stroke pattern.
   bool IsDashed() const;
 
 
-  /** Computes how much the line cap will extend the line's start/end. */
+  /// Computes how much the line cap will extend the line's start/end.
   double CapOffset() const;
 
 
-  /**
-   * Computes how much a line join will extend the joint.
-   *
-   * The interior_angle is the angle between two line segments in degrees.
-   * This requires the miter_limit because Cairo switches from MITER to BEVEL
-   * if the miter_limit is exceeded, see
-   *   https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
-   */
+  /// Computes how much a line join will extend the joint.
+  ///
+  /// The interior_angle is the angle between two line segments in degrees.
+  /// This requires the miter_limit because Cairo switches from MITER to BEVEL
+  /// if the miter_limit is exceeded, see
+  /// https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+  ///
+  /// TODO Add option to query and adjust the miter limit - e.g. via
+  ///   additional member of LineStyle?
   double JoinOffset(double interior_angle, double miter_limit = 10.0) const;
 
 
-  /** Returns true if this and the other specify the same line. */
+  /// Returns true if this and the other specify the same line.
   bool Equals(const LineStyle &other) const;
 
 
-  /** Returns a human-readable string representation. */
+  /// Returns a human-readable string representation.
   virtual std::string ToString() const;
 
   //TODO doc
   virtual std::string ToDetailedString() const;
 
-  /** Overloaded stream operator. */
+  /// Overloaded stream operator.
   friend std::ostream &operator<<(std::ostream &os, const LineStyle &style) {
     os << style.ToString();
     return os;
   }
 
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
-  /**
-   * In several painter methods, LineStyle::Invalid
-   * is used to skip drawing the outline/contour (and
-   * only fill the corresponding shape instead).
-   */
+  /// In several painter methods, LineStyle::Invalid
+  /// is used to skip drawing the outline/contour (and
+  /// only fill the corresponding shape instead).
   static const LineStyle Invalid;
 };
 
 
-// Comparison operators for LineStyle objects
+/// Comparison operators for LineStyle objects
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
 bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
 
@@ -325,22 +336,25 @@ struct ArrowStyle : public LineStyle {
   ArrowStyle();
 
 
-  ArrowStyle(double width, const Color &col,
-             double tip_len = 0.1, double angle = 20.0,
-             bool fill = false, bool two_heads = false,
-             const std::vector<double> &dash = std::vector<double>(),
-             LineCap cap = LineCap::Round, LineJoin join = LineJoin::Miter);
+  ArrowStyle(
+      double width,
+      const Color &col,
+      double tip_len = 0.1,
+      double angle = 20.0,
+      bool fill = false,
+      bool two_heads = false,
+      const std::vector<double> &dash = std::vector<double>(),
+      double offset = 0.0,
+      LineCap cap = LineCap::Round,
+      LineJoin join = LineJoin::Miter);
 
 
-  ArrowStyle(const LineStyle &line_style,
-             double tip_len = 0.1,
-             double angle = 20.0,
-             bool fill = false,
-             bool two_heads = false)
-    : LineStyle(line_style),
-      tip_length(tip_len), tip_angle(angle),
-      tip_closed(fill), double_headed(two_heads)
-  {}
+  ArrowStyle(
+      const LineStyle &line_style,
+      double tip_len = 0.1,
+      double angle = 20.0,
+      bool fill = false,
+      bool two_heads = false);
 
 
   // Nothing special about the LineStyle class, so we can have

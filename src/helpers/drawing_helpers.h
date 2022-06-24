@@ -18,22 +18,85 @@
 
 namespace viren2d {
 namespace helpers {
-//---------------------------------------------------- Used by all drawing helpers
+//---------------------------------------------------- Sanity checks
+// To be used by all drawing helpers.
+
+/// Ensures that the canvas is set up correctly. Should be
+/// called within each drawing helper function.
+inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
+  if (!surface) {
+    throw std::logic_error(
+          "Invalid cairo surface (nullptr). "
+          "Did you forget to set up the canvas first?");
+  }
+
+  cairo_status_t surf_stat = cairo_surface_status(surface);
+  if (surf_stat != CAIRO_STATUS_SUCCESS) {
+    std::ostringstream s;
+    s << "Invalid Cairo surface status (" << surf_stat
+      << "), check "
+         "https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t "
+         "for details.";
+    throw std::logic_error(s.str());
+  }
+
+  if (!context) {
+    throw std::logic_error(
+          "Invalid Cairo context (nullptr) - "
+          "cannot continue drawing.");
+  }
+}
+
+
+/// Checks if the line style is valid.
+inline void CheckLineStyle(const LineStyle &style) {
+  if (!style.IsValid()) {
+    std::string s("Cannot draw with invalid line style ");
+    s += style.ToDetailedString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+}
+
+
+/// Checks if line style *or* fill color are valid.
+/// To be used in functions which allow only filling or
+/// only drawing a shape's contour.
+inline void CheckLineStyleAndFill(
+    const LineStyle &style, Color &fill_color) {
+  if (fill_color.IsSpecialSame()) {
+    fill_color = style.color.WithAlpha(fill_color.alpha);
+  }
+  // FIXME check usage of Color::Same in all fill... calls!
+  if (!style.IsValid() && !fill_color.IsValid()) {
+    std::string s(
+          "Cannot draw with both invalid line "
+          "style and invalid fill color: ");
+    s += style.ToDetailedString();
+    s += " and ";
+    s += fill_color.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+}
+
+
+//---------------------------------------------------- ApplyXXX
+// To be used by all drawing helpers.
 
 /// Sets the source color. **Should be used by all
-/// drawing methods** (unless you know what you are doing).
+/// drawing methods**, unless you know what you are doing.
 ///
-/// Issue in a nutshell: Cairo's `ARGB` format uses the same
+/// In a nutshell: Cairo's `ARGB` format uses the same
 /// memory layout as OpenCV's `BGRA` format. We, however,
 /// want to work with `RGB(A)` images. Thus, we simply flip
-/// red and blue when setting the color.
-///
-/// This seemed to be the easiest/least confusing option.
+/// `red` and `blue` when setting the color.
 inline void ApplyColor(cairo_t *context, const Color &color) {
-  if (color.IsValid() && context) {
+  if (context && color.IsValid()) {
     SPDLOG_TRACE("helpers::ApplyColor: {:s}.", color);
-    cairo_set_source_rgba(context, color.blue, color.green,
-                          color.red, color.alpha);
+    cairo_set_source_rgba(
+          context, color.blue, color.green,
+          color.red, color.alpha);
   }
 }
 
@@ -50,15 +113,14 @@ inline cairo_line_cap_t LineCap2Cairo(LineCap cap) {
       return CAIRO_LINE_CAP_SQUARE;
   }
 
-  std::ostringstream s;
-  s << "Line cap style \"" << cap
-    << "\" is not yet mapped to Cairo type!";
-  throw std::runtime_error(s.str());
+  std::string s("Line cap style \"");
+  s += LineCapToString(cap);
+  s += "\" is not yet mapped to corresponding Cairo type!";
+  throw std::logic_error(s);
 }
 
 
 inline cairo_line_join_t LineJoin2Cairo(LineJoin join) {
-
   switch (join) {
     case LineJoin::Miter:
       return CAIRO_LINE_JOIN_MITER;
@@ -69,16 +131,20 @@ inline cairo_line_join_t LineJoin2Cairo(LineJoin join) {
     case LineJoin::Round:
       return CAIRO_LINE_JOIN_ROUND;
   }
-  std::ostringstream s;
-  s << "Line join style \"" << join
-    << "\" is not yet mapped to Cairo type!";
-  throw std::runtime_error(s.str());
+  std::string s("Line join style \"");
+  s += LineJoinToString(join);
+  s += "\" is not yet mapped to corresponding Cairo type!";
+  throw std::logic_error(s);
 }
 
 
-/// Changes the given Cairo context to use the given MarkerStyle definitions.
-inline void ApplyMarkerStyle(cairo_t *context, const MarkerStyle &style) {
-  SPDLOG_TRACE("helpers::ApplyMarkerStyle: style={:s}.", style);
+/// Changes the given Cairo context to use the
+/// given MarkerStyle definition.
+inline void ApplyMarkerStyle(
+    cairo_t *context,
+    const MarkerStyle &style) {
+  SPDLOG_TRACE(
+        "helpers::ApplyMarkerStyle: style={:s}.", style);
 
   if (!context) {
     return;
@@ -91,11 +157,15 @@ inline void ApplyMarkerStyle(cairo_t *context, const MarkerStyle &style) {
 }
 
 
-/// Changes the given Cairo context to use the given LineStyle definitions.
-inline void ApplyLineStyle(cairo_t *context, const LineStyle &style,
-                           bool ignore_dash = false) {
-  SPDLOG_TRACE("helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
-               style, ignore_dash);
+/// Changes the given Cairo context to use the
+/// given LineStyle definitions.
+inline void ApplyLineStyle(
+    cairo_t *context,
+    const LineStyle &style,
+    bool ignore_dash = false) {
+  SPDLOG_TRACE(
+        "helpers::ApplyLineStyle: style={:s}, ignore_dash={:s}.",
+        style, ignore_dash);
 
   if (!context) {
     return;
@@ -109,20 +179,27 @@ inline void ApplyLineStyle(cairo_t *context, const LineStyle &style,
   if (!style.dash_pattern.empty() && !ignore_dash) {
     // https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
     const double *dash = &style.dash_pattern[0];
-    cairo_set_dash(context, dash,
-                   static_cast<int>(style.dash_pattern.size()),
-                   0); // We don't need/support an offset into the dash pattern
+    cairo_set_dash(
+          context, dash,
+          static_cast<int>(style.dash_pattern.size()),
+          style.dash_offset);
   }
 }
 
 
-/// Changes the given Cairo context to use the given TextStyle definitions.
-inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool apply_color) {
-  SPDLOG_TRACE("helpers::ApplyTextStyle: {:s}.", text_style);
+/// Changes the given Cairo context to use the
+/// given TextStyle definitions.
+inline void ApplyTextStyle(
+    cairo_t *context,
+    const TextStyle &text_style,
+    bool apply_color) {
+  SPDLOG_TRACE(
+        "helpers::ApplyTextStyle: {:s}.", text_style);
 
   if (!context) {
     return;
   }
+
   cairo_select_font_face(
       context, text_style.family.c_str(),
       (text_style.italic ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL),
@@ -149,38 +226,19 @@ inline void ApplyTextStyle(cairo_t *context, const TextStyle &text_style, bool a
 }
 
 
-/// Ensures that the canvas is set up correctly. Should be
-/// called within each drawing helper function.
-inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
-  if (!surface) {
-    throw std::logic_error(
-          "Invalid cairo surface (nullptr). "
-          "Did you forget to set up the canvas first?");
-  }
-
-  cairo_status_t surf_stat = cairo_surface_status(surface);
-  if (surf_stat != CAIRO_STATUS_SUCCESS) {
-    std::ostringstream s;
-    s << "Invalid Cairo surface status (" << surf_stat
-      << "), check "
-         "https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t "
-         "for details.";
-    throw std::logic_error(s.str());
-  }
-
-  if (!context) {
-    throw std::logic_error(
-          "Invalid Cairo context (nullptr), "
-          "cannot draw anymore.");
-  }
-}
-
-
 //---------------------------------------------------- Text metrics
-/// Encapsulates a single text line to be drawn onto the canvas.
-class TextLine {
+/// Encapsulates a single text line to be drawn onto
+/// the canvas.
+///
+/// Workflow:
+///   1) Initialize - the caller must ensure that the
+///      text pointed to by `line` stays in memory while
+///      using this TextLine object.
+///   2) Call `Align` to compute the reference position.
+///   3) Draw onto canvas via `PlaceText`
+class SingleLineText {
 public:
-  TextLine(
+  SingleLineText(
       const char *line, cairo_t *context,
       cairo_font_extents_t *font_metrics);
 
@@ -233,23 +291,45 @@ private:
 /// alignment, and finally allows to place
 /// the lines onto the canvas.
 ///
+/// The text height will *always* depend on the
+/// chosen font - this is to allow consistent
+/// alignment in multi-line settings.
+///
+/// Workflow:
+///   1) Initialize - the caller must ensure that the
+///      text stays in memory while using this
+///      MultilineText object.
+///   2) Call `Align` to compute the reference position.
+///   3) Draw onto canvas via `PlaceText`
 /// Users must ensure that the text lines
 /// stay in memory as long as this object
 /// is in use!
-class MultilineText {
+class MultiLineText {
 public:
-  //TODO doc
-  MultilineText(const std::vector<const char*> &text,
-                const TextStyle &text_style, cairo_t *context);
+  MultiLineText(
+      const std::vector<const char*> &text,
+      const TextStyle &text_style,
+      cairo_t *context);
 
-  void Align(Vec2d anchor_point, TextAnchor anchor,
-             Vec2d padding, Vec2d fixed_size);
+  /// Computes reference points for each line.
+  /// Must be called **before** `PlaceText`
+  void Align(
+      Vec2d anchor_point,
+      TextAnchor anchor,
+      Vec2d padding,
+      Vec2d fixed_size);
 
-  Rect BoundingBox(double corner_radius = 0.0) const;
+  /// Returns the axis-aligned bounding box.
+  /// Valid results are only available
+  /// **after** `Align` was called.
+  Rect BoundingBox(
+      double corner_radius = 0.0) const;
 
+  /// Draws the text lines onto the given context.
   void PlaceText(cairo_t *context) const;
 
   double Width() const;
+
   double Height() const;
 
 private:
@@ -258,8 +338,12 @@ private:
   /// Will be set after `Align` has been called.
   Vec2d top_left;
 
+  /// Padding between reference position and
+  /// start of the glyphs.
   Vec2d padding;
 
+  /// If set, `Align` will use this as a size
+  /// hint instead of the actual text extent.
   Vec2d fixed_size;
 
   double width;
@@ -268,7 +352,7 @@ private:
 
   TextStyle style;
 
-  std::vector<TextLine> lines;
+  std::vector<SingleLineText> lines;
 };
 
 

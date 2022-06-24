@@ -14,7 +14,7 @@ namespace bindings {
 py::tuple LineStyleToTuple(const LineStyle &ls) {
   return py::make_tuple(
         ls.width, ls.color, ls.dash_pattern,
-        ls.cap, ls.join);
+        ls.dash_offset, ls.cap, ls.join);
 }
 
 
@@ -23,6 +23,7 @@ py::dict LineStyleToDict(const LineStyle &ls) {
   d["width"] = ls.width;
   d["color"] = ls.color;
   d["dash_pattern"] = ls.dash_pattern;
+  d["dash_offset"] = ls.dash_offset;
   d["cap"] = ls.cap;
   d["join"] = ls.join;
   return d;
@@ -35,7 +36,7 @@ LineStyle LineStyleFromTuple(py::tuple tpl) {
     return LineStyle();
   }
 
-  if (tpl.size() > 5) {
+  if (tpl.size() > 6) {
     std::ostringstream s;
     s << "Cannot create " << FullyQualifiedType("LineStyle")
       << " from tuple with " << tpl.size()
@@ -52,11 +53,15 @@ LineStyle LineStyleFromTuple(py::tuple tpl) {
   }
 
   if (tpl.size() > 3) {
-    ls.cap = tpl[3].cast<LineCap>();
+    ls.dash_offset = tpl[3].cast<double>();
   }
 
   if (tpl.size() > 4) {
-    ls.join = tpl[4].cast<LineJoin>();
+    ls.cap = tpl[4].cast<LineCap>();
+  }
+
+  if (tpl.size() > 5) {
+    ls.join = tpl[5].cast<LineJoin>();
   }
 
   return ls;
@@ -451,12 +456,16 @@ void RegisterLineStyle(pybind11::module &m) {
       :meth:`~viren2d.LineStyle.cap_offset` (or
       :meth:`~viren2d.LineStyle.join_offset`). For example:
 
-      >>> # Line style with a cap that would result in an offset:
+      >>> # Choose a cap which results in an offset:
       >>> line_style = viren2d.LineStyle()
       >>> line_style.cap = 'round'
-      >>> # Now, we want to draw a line exactly from `start` to `end`:
+      >>>
+      >>> # Endpoints of our line:
       >>> start = viren2d.Vec2d(10, 10)
       >>> end = viren2d.Vec2d(100, 100)
+      >>>
+      >>> # Now, to draw a line exactly from `start` to `end`,
+      >>> # we adjust the endpoints:
       >>> unit_dir = start.direction_vector(end).unit_vector()
       >>> start += line_style.cap_offset() * unit_dir
       >>> end -= line_style.cap_offset() * unit_dir
@@ -469,7 +478,7 @@ void RegisterLineStyle(pybind11::module &m) {
       Convenience method to initialize an
       :class:`~viren2d.ArrowStyle` from a
       :class:`~viren2d.LineStyle` via *dictionary
-      unpacking* (aka *splat*):
+      unpacking* (aka *splat* operator):
 
       >>> arrow_style = viren2d.ArrowStyle(
       >>>     **line_style.as_dict(),
@@ -481,45 +490,73 @@ void RegisterLineStyle(pybind11::module &m) {
 
 
   line_style.def("detailed_str", &LineStyle::ToDetailedString,
-                 "Returns a verbose string representation to facilitate deeper inspection.");
+                 "Returns a verbose string representation to facilitate debugging.");
 
 
-  doc = "Creates a customized line style.\n\n"
-        "Args:\n"
-        "  width: Width in pixels as :class:`float`.\n"
-        "  color: Line color as :class:`~" + FullyQualifiedType("Color") + "`.\n"
-        "  dash_pattern: Dash pattern defined as ``List[float]`` of on/off strokes,\n"
-        "    refer to the class member :attr:`dash_pattern` for details.\n"
-        "  cap: A :class:`~" + FullyQualifiedType("LineCap") + "` enum, specifying\n"
-        "    how to render the line's endpoints.\n"
-        "  join: A :class:`~" + FullyQualifiedType("LineJoin") + "` enum, specifying\n"
-        "    how to render the junctions of multi-segment lines.";
+  doc = R"docstr(
+      Creates a customized line style.
+
+      Args:
+        width: Width in pixels as :class:`float`.
+        color: Line color as :class:`~viren2d.Color`.
+        dash_pattern: Dash pattern defined as :class:`list[float]`
+          of on/off strokes, refer to the class
+          member :attr:`dash_pattern` for details.
+        dash_offset: Optional offset into the pattern, at which
+          the dash stroke begins (as :class:`float`). Refer to
+          the class member :attr:`dash_offset` for details.
+        cap: A :class:`~viren2d.LineCap` enum, specifying
+          how to render the line's endpoints.
+        join: A :class:`~viren2d.LineJoin` enum, specifying
+          how to render the junctions of multi-segment lines.
+      )docstr";
   LineStyle default_style;
-  line_style.def(py::init<double, Color, std::vector<double>, LineCap, LineJoin>(),
+  line_style.def(
+        py::init<double, Color, std::vector<double>, double, LineCap, LineJoin>(),
         doc.c_str(),
         py::arg("width") = default_style.width,
         py::arg("color") = default_style.color,
         py::arg("dash_pattern") = default_style.dash_pattern,
+        py::arg("dash_offset") = default_style.dash_offset,
         py::arg("cap") = default_style.cap,
         py::arg("join") = default_style.join);
 
 
-  line_style.def("copy", [](const LineStyle &st) { return LineStyle(st); },
+  line_style.def(
+        "copy",
+        [](const LineStyle &st) { return LineStyle(st); },
         "Returns a deep copy.")
-      .def("__repr__", [](const LineStyle &) { return "<viren2d.LineStyle>";})
-      .def("__str__", &LineStyle::ToString)
-      .def(py::pickle(&LineStyleToTuple, &LineStyleFromTuple),
-           ":class:`~viren2d.LineStyle` instances can be pickled.")
-      .def(py::self == py::self, "Checks for equality.")
-      .def(py::self != py::self, "Checks for inequality.")
-      .def("is_valid", &LineStyle::IsValid,
+      .def(
+        "__repr__",
+        [](const LineStyle &) { return "<viren2d.LineStyle>";})
+      .def(
+        "__str__",
+        &LineStyle::ToString)
+      .def(
+        py::pickle(&LineStyleToTuple, &LineStyleFromTuple),
+        ":class:`~viren2d.LineStyle` instances can be pickled.")
+      .def(
+        py::self == py::self,
+        "Checks for equality.")
+      .def(
+        py::self != py::self,
+        "Checks for inequality.")
+      .def(
+        "is_valid",
+        &LineStyle::IsValid,
         "Checks if the style would lead to a drawable line.")
-      .def("is_dashed", &LineStyle::IsDashed,
+      .def(
+        "is_dashed",
+        &LineStyle::IsDashed,
         "Checks if this style contains a dash stroke pattern.")
-      .def("cap_offset", &LineStyle::CapOffset,
+      .def(
+        "cap_offset",
+        &LineStyle::CapOffset,
         "Computes how much the line cap will extend the\n"
         "line's start/end.")
-      .def("join_offset", &LineStyle::JoinOffset,
+      .def(
+        "join_offset",
+        &LineStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter
         "Computes how much a line join will extend the joint.\n\n"
         "The ``interior_angle`` is the angle between two line segments\n"
         "in degrees.\n"
@@ -530,36 +567,54 @@ void RegisterLineStyle(pybind11::module &m) {
         "for details.",
         py::arg("interior_angle"),
         py::arg("miter_limit") = 10.0)
-      .def_readwrite("dash_pattern", &LineStyle::dash_pattern,
-        "list[float]: Dash pattern defined as list of on/off strokes.\n\n"
-        "A dash pattern is a list of positive values. Each value defines\n"
-        "the length (in pixels) of alternating *on* and *off* segments of\n"
-        "the line. For solid lines, this list must be empty.\n\n"
-        ">>> style.dash_pattern = [20, 30, 40, 10] # Would result in:\n"
-        "'__   ____ __   ____ __   ____ __   ____ __   ____ __   ____ ...'\n")
-      .def_readwrite("width", &LineStyle::width, R"doc(
-           float: Width/thickness in pixels.
-           
-             Due to the discrete pixel grid and the internal
-             drawing conventions, *odd* line widths usually avoid
-             anti-aliasing effects.
-           )doc")
+      .def_readwrite(
+        "dash_pattern",
+        &LineStyle::dash_pattern, R"docstr(
+        list[float]: Dash pattern defined as list of on/off strokes.
+
+          A dash pattern is a list of positive values. Each value defines
+          the length (in pixels) of alternating *on* and *off* segments of
+          the line. For solid lines, this list must be empty.
+
+          >>> style.dash_pattern = [20, 30, 40, 10] # Would result in:
+          '__   ____ __   ____ __   ____ __   ____ __   ____ __   ____ ...'
+        )docstr")
+      .def_readwrite("dash_offset", &LineStyle::dash_offset, R"docstr(
+        float: Offset into the pattern at which the dash stroke begins.
+
+          If the strokes of a :attr:`dash_pattern` do not align nicely,
+          adjust this offset (measured in pixels).
+        )docstr")
+      .def_readwrite("width", &LineStyle::width, R"docstr(
+         float: Width/thickness in pixels.
+
+           Due to the discrete pixel grid and the internal
+           drawing conventions, *odd* line widths usually avoid
+           anti-aliasing effects.
+         )docstr")
       // missing doc string: https://github.com/pybind/pybind11/issues/3815
-      .def_readonly_static("Invalid", &LineStyle::Invalid, R"doc(
-        Read-only special member used to skip drawing contours.
+      .def_readonly_static("Invalid", &LineStyle::Invalid, R"docstr(
+        :class:`~viren2d.LineStyle`: Special read-only member
+          used to skip drawing contours.
 
-        Several drawing methods of the :class:`~viren2d.Painter` support
-        only filling a shape (*i.e.* skipping the contour). For example:
+          Several drawing methods of the :class:`~viren2d.Painter` support
+          only filling a shape (*i.e.* skipping the contour). For example:
 
-        >>> painter.draw_rect(rect, viren2d.LineStyle.Invalid, 'blue!40')
-        )doc");
+          >>> painter.draw_rect(
+          >>>     rect, line_style=viren2d.LineStyle.Invalid,
+          >>>     fill_color='blue!40')
+        )docstr");
 
-  doc = ":class:`~" + FullyQualifiedType("LineCap") + "`: "
-        "How to render the endpoints of the line (or dash strokes).\n\n"
-        "In addition to the enum values, you can use\n"
-        "the corresponding string representation to set this member:\n\n"
-        ">>> style.cap = viren2d.LineCap.Round\n"
-        ">>> style.cap = 'round'\n";
+  doc = R"docstr(
+      :class:`~viren2d.LineCap`: How to render the endpoints"
+        of the line (or dash strokes).
+
+        In addition to the enum values, you can use
+        the corresponding string representation to set this member:
+
+        >>> style.cap = viren2d.LineCap.Round
+        >>> style.cap = 'round'
+      )docstr";
   line_style.def_property("cap",
         [](LineStyle &s) { return s.cap; },
         [](LineStyle &s, py::object o) {
@@ -567,12 +622,16 @@ void RegisterLineStyle(pybind11::module &m) {
         }, doc.c_str());
 
 
-  doc = ":class:`~" + FullyQualifiedType("LineJoin") + "`: "
-        "How to render the junctions of the line segments.\n\n"
-        "In addition to the enum values, you can use\n"
-        "the corresponding string representation to set this member:\n\n"
-        ">>> style.join = viren2d.LineJoin.Miter\n"
-        ">>> style.cap = 'miter'\n";
+  doc = R"docstr(
+      :class:`~viren2d.LineJoin`: How to render the junctions
+        of the line segments.
+
+        In addition to the enum values, you can use
+        the corresponding string representation to set this member:
+
+        >>> style.join = viren2d.LineJoin.Miter
+        >>> style.cap = 'miter'
+      )docstr";
   line_style.def_property("join",
         [](LineStyle &s) { return s.join; },
         [](LineStyle &s, py::object o) {
@@ -580,11 +639,15 @@ void RegisterLineStyle(pybind11::module &m) {
         }, doc.c_str());
 
 
-  doc = ":class:`~" + FullyQualifiedType("Color") + "`: "
-        "Color of the line.\n\nExample:\n\n"
-        ">>> style.color = viren2d.Color(1, 0, 1)\n" //TODO update example & include in other style definitions!
-        ">>> style.color = viren2d.RGBa(255, 0, 255)\n"
-        ">>> style.color = 'magenta'\n";
+  doc = R"docstr(
+    :class:`~viren2d.Color`: Color of the line.
+
+    Example:
+
+    >>> style.color = viren2d.Color(1, 0, 1)
+    >>> style.color = viren2d.RGBa(255, 0, 255)
+    >>> style.color = 'magenta'
+    )docstr";
   line_style.def_readwrite("color", &LineStyle::color,
            doc.c_str());
 }
@@ -687,67 +750,89 @@ void RegisterArrowStyle(pybind11::module &m) {
         tip_closed: Set ``True`` to fill the tip (type :class:`bool`).
         double_headed: Set `True` to draw arrow tips on both ends
           of the shaft (type :class:`bool`).
-        dash_pattern: Dash pattern defined as ``List[float]`` of
-          on/off strokes. Refer to the documentation of the class
-          member :attr:`dash_pattern` for details.
+        dash_pattern: Dash pattern defined as :class:`list` of :class:`float`,
+          specifying the on/off strokes. Refer to the documentation of the
+          class member :attr:`dash_pattern` for details.
+        dash_offset: Optional offset (length as :class:`float`) into the
+          pattern, at which the dash stroke begins. Refer to the
+          class member :attr:`dash_offset` for details.
         cap: A :class:`~viren2d.LineCap` enum, specifying
           how to render the line's endpoints.
         join: A :class:`~viren2d.LineJoin` enum, specifying
           how to render the junctions of multi-segment lines.
         )docstr";
   ArrowStyle default_style;
-  arrow_style.def(py::init<double, Color,
-                           double, double, bool, bool, std::vector<double>,
-                           LineCap, LineJoin>(), doc.c_str(),
-         py::arg("width") = default_style.width,
-         py::arg("color") = default_style.color,
-         py::arg("tip_length") = default_style.tip_length,
-         py::arg("tip_angle") = default_style.tip_angle,
-         py::arg("tip_closed") = default_style.tip_closed,
-         py::arg("double_headed") = default_style.double_headed,
-         py::arg("dash_pattern") = default_style.dash_pattern,
-         py::arg("cap") = default_style.cap,
-         py::arg("join") = default_style.join);
+  arrow_style.def(
+        py::init<double, Color, double, double, bool, bool,
+                 std::vector<double>, double, LineCap, LineJoin>(),
+        doc.c_str(),
+        py::arg("width") = default_style.width,
+        py::arg("color") = default_style.color,
+        py::arg("tip_length") = default_style.tip_length,
+        py::arg("tip_angle") = default_style.tip_angle,
+        py::arg("tip_closed") = default_style.tip_closed,
+        py::arg("double_headed") = default_style.double_headed,
+        py::arg("dash_pattern") = default_style.dash_pattern,
+        py::arg("dash_offset") = default_style.dash_offset,
+        py::arg("cap") = default_style.cap,
+        py::arg("join") = default_style.join);
 
 
-  arrow_style.def("as_dict", [](const ArrowStyle &s) -> py::dict {
-    return ArrowStyleToDict(s);
-  }, "Returns a dictionary representation.");
+  arrow_style.def(
+        "as_dict",
+        [](const ArrowStyle &s) -> py::dict {
+          return ArrowStyleToDict(s);
+        }, "Returns a dictionary representation.");
 
-  arrow_style.def("copy", [](const ArrowStyle &st) { return ArrowStyle(st); },
-           "Returns a deep copy.")
-      .def("__repr__",
-           [](const ArrowStyle &st)
-           { return FullyQualifiedType(st.ToString(), true); })
-      .def("__str__", &ArrowStyle::ToString)
-      .def(py::pickle(&ArrowStyleToTuple, &ArrowStyleFromTuple),
-           ":class:`~viren2d.ArrowStyle` instances can be pickled.")
-      .def(py::self == py::self, "Checks for equality.")
-      .def(py::self != py::self, "Checks for inequality.")
-      .def("is_valid", &ArrowStyle::IsValid,
-           "Checks if the style would lead to a drawable arrow.")
-      .def("tip_length_for_shaft",
-           static_cast<double (ArrowStyle::*)(double) const>(&ArrowStyle::TipLengthForShaft),
-           "Returns the length of the arrow head for the given shaft length.", py::arg("shaft_length"))
-//      .def("tip_length_for_shaft",
-//           static_cast<double (ArrowStyle::*)(const Vec2d&, const Vec2d&) const>(&ArrowStyle::TipLengthForShaft),
-//           "Returns the length of the arrow head for the given shaft.",
-//           py::arg("shaft_from"), py::arg("shaft_to"))
-      .def_readwrite("tip_length", &ArrowStyle::tip_length, R"docstr(
-          float: Length of the arrow tip.
+  arrow_style.def(
+        "copy",
+        [](const ArrowStyle &st) { return ArrowStyle(st); },
+        "Returns a deep copy.")
+      .def(
+        "__repr__",
+        [](const ArrowStyle &) { return "<viren2d.ArrowStyle>"; })
+      .def(
+        "__str__",
+        &ArrowStyle::ToString)
+      .def(
+        py::pickle(&ArrowStyleToTuple, &ArrowStyleFromTuple),
+        ":class:`~viren2d.ArrowStyle` instances can be pickled.")
+      .def(
+        py::self == py::self,
+        "Checks for equality.")
+      .def(
+        py::self != py::self,
+        "Checks for inequality.")
+      .def(
+        "is_valid",
+        &ArrowStyle::IsValid,
+        "Checks if the style would lead to a drawable arrow.")
+      .def(
+        "tip_length_for_shaft",
+        static_cast<double (ArrowStyle::*)(double) const>(&ArrowStyle::TipLengthForShaft),
+        "Returns the length of the arrow head for the given shaft length.",
+        py::arg("shaft_length"))
+      .def_readwrite(
+        "tip_length",
+        &ArrowStyle::tip_length, R"docstr(
+        float: Length of the arrow tip.
 
           If the value is between ``[0, 1]``, it is interpreted as
           percentage of the arrow's shaft length. Otherwise, it
           represents the absolute length in pixels.
-          )docstr")
-      .def_readwrite("tip_angle", &ArrowStyle::tip_angle,
-          "float: Interior angle (in degrees) between shaft and tip.\n")
-      //TODO ^document miter limit (here & in linestyle); add linestyle property miter_limit + option to query the current miter limit
-      // or simply accept, that we should not draw arrows with interior angle <= 5 ;-)
-      .def_readwrite("tip_closed", &ArrowStyle::tip_closed,
-           "bool: If ``True``, the arrow head will be filled.")
-      .def_readwrite("double_headed", &ArrowStyle::double_headed,
-           "bool: If ``True``, arrow heads will be drawn on both ends.");
+        )docstr")
+      .def_readwrite(
+        "tip_angle",
+        &ArrowStyle::tip_angle,
+        "float: Interior angle (in degrees) between shaft and tip.")
+      .def_readwrite(
+        "tip_closed",
+        &ArrowStyle::tip_closed,
+        "bool: If ``True``, the arrow head will be filled.")
+      .def_readwrite(
+        "double_headed",
+        &ArrowStyle::double_headed,
+        "bool: If ``True``, arrow heads will be drawn on both ends.");
 }
 
 

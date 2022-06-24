@@ -46,6 +46,12 @@ public:
   {}
 
 
+  PainterWrapper(const ImageBuffer &image)
+    : painter_(CreatePainter()) {
+    SetCanvasImage(image);
+  }
+
+
   void SetCanvasColor(int width, int height, const Color &color) {
     painter_->SetCanvas(width, height, color);
   }
@@ -227,23 +233,30 @@ private:
 
 void RegisterPainter(py::module &m) {
   py::class_<PainterWrapper> painter(m, "Painter", R"docstr(
-      A :class:`~viren2d.Painter` lets you draw on a canvas.
+      A *Painter* lets you draw on its canvas.
 
-      Typical usage workflow:
+      Typical workflow:
 
-      1. Create a :class:`~viren2d.Painter`:
+      1. Create a painter with an empty canvas:
 
          >>> import viren2d
          >>> painter = viren2d.Painter()
 
       2. Initialize its canvas:
 
-        * Paint an empty canvas with a given color
-          via :meth:`set_canvas_rgb`
-        * Set up the canvas from image data
-          via :meth:`set_canvas_image`
-        * Set up the canvas by loading an image from disk
-          via :meth:`set_canvas_filename`
+         * Paint an empty canvas with a given color
+           via :meth:`set_canvas_rgb`
+         * Set up the canvas from image data
+           via :meth:`set_canvas_image`
+         * Set up the canvas by loading an image from disk
+           via :meth:`set_canvas_filename`
+
+         Note that the overloaded *Painter* constructor allows
+         combining these two steps if you intend on setting up the
+         canvas from image data, *e.g.* a :class:`numpy.ndarray`:
+
+         >>> image = np.zeros((600, 800, 3), dtype=np.uint8)
+         >>> painter = viren2d.Painter(image)
 
       3. Draw onto the canvas via the painter's ``draw_xxx(...)``
          methods, for example:
@@ -259,14 +272,26 @@ void RegisterPainter(py::module &m) {
          >>> canvas = painter.get_canvas(copy=True)
          >>> img_np = np.array(canvas, copy=False)
 
-      5. Either continue drawing (step 3) or set
-         a new canvas (step 2, the same painter
-         instance can be reused).
+      5. Either continue drawing (step 3) or set up
+         a new canvas (step 2), *i.e.* it is safe to reuse the
+         same painter instance.
       )docstr");
 
   painter.def(
-        py::init<>(),
-        "Default constructor.")
+        py::init<>(), R"docstr(
+        Default constructor.
+
+        Initializes an empty canvas, *i.e.* :meth:`~viren2d.Painter.is_valid`
+        will return ``False`` until the canvas has been properly set up.
+        )docstr")
+      .def(
+        py::init<const ImageBuffer&>(), R"docstr(
+        Creates a painter and initializes its canvas.
+
+        Initializes the painter's canvas with the given image.
+        See :meth:`~viren2d.Painter.set_canvas_image` for notes
+        on supported image formats.
+        )docstr", py::arg("image"))
       .def(
         "__repr__",
         [](const PainterWrapper &p) { return p.StringRepresentation(true); })
@@ -340,6 +365,28 @@ void RegisterPainter(py::module &m) {
         The canvas width & height as the :class:`tuple` ``(W, H)``,
         where ``W`` and ``H`` denote pixels (type :class:`int`).
       )docstr");
+
+  painter.def_property_readonly(
+        "width",
+        [](PainterWrapper &pw) -> py::int_ { return pw.GetCanvasSize()[0]; },
+        "int: Width in pixels of the painter's canvas (read-only).");
+
+  painter.def_property_readonly(
+        "height",
+        [](PainterWrapper &pw) -> py::int_ { return pw.GetCanvasSize()[1]; },
+        "int: Height in pixels of the painter's canvas (read-only).");
+
+  painter.def_property_readonly(
+        "canvas_data",
+        [](PainterWrapper &pw) -> ImageBuffer { return pw.GetCanvas(false); }, R"docstr(
+        :class:`~viren2d.ImageBuffer`: Provides a **shared memory** view
+          on the painter's canvas.
+
+          >>> #TODO
+          >>> img_np = np.array(painter.canvas)
+
+          TODO update workflow docstring
+        )docstr");
 
 
   //----------------------------------------------------------------------
@@ -457,7 +504,7 @@ void RegisterPainter(py::module &m) {
 
   //----------------------------------------------------------------------
   doc = R"docstr(
-      Draws a 2D bounding box.
+      Draws a single 2D bounding box.
 
       Args:
         rect: The box geometry as :class:`~viren2d.Rect`.
@@ -474,6 +521,8 @@ void RegisterPainter(py::module &m) {
         &PainterWrapper::DrawBoundingBox2D, doc.c_str(),
         py::arg("rect"), py::arg("label"),
         py::arg("box_style") = BoundingBox2DStyle());
+
+  //TODO multiple 2d bounding boxes
 
 
   //----------------------------------------------------------------------
@@ -546,6 +595,7 @@ void RegisterPainter(py::module &m) {
         py::arg("line_style") = LineStyle(),
         py::arg("top_left") = Vec2d(),
         py::arg("bottom_right") = Vec2d());
+
 
   //----------------------------------------------------------------------
   doc = R"docstr(
@@ -654,7 +704,7 @@ void RegisterPainter(py::module &m) {
               py::arg("fill_color") = Color::Invalid);
 
   //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "Places the given text on the canvas.\n\n"
+  doc = "Renders text onto the canvas.\n\n"
       "Args:\n"
       "  text: A list of strings to be drawn.\n"
       "  position: Position of the reference point as :class:`~"
@@ -686,7 +736,7 @@ void RegisterPainter(py::module &m) {
 
 
   //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "TODO doc"
+  doc = "Draws a text box.\n\n"
       "  anchor: Either enum or string representation";
   painter.def(
         "draw_textbox",

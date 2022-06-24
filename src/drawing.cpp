@@ -518,11 +518,13 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
 
 Vec2i ImagePainter::GetCanvasSize() const {
   SPDLOG_DEBUG("ImagePainter::GetCanvasSize().");
-  if (!IsValid())
-    throw std::logic_error("Invalid canvas - did you forget SetCanvas()?");
-
-  return Vec2i(cairo_image_surface_get_width(surface_),
-               cairo_image_surface_get_height(surface_));
+  if (IsValid()) {
+    return Vec2i(
+          cairo_image_surface_get_width(surface_),
+          cairo_image_surface_get_height(surface_));
+  } else {
+    return Vec2i(0, 0);
+  }
 }
 
 ImageBuffer ImagePainter::GetCanvas(bool copy) const {

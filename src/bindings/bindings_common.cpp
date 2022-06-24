@@ -134,6 +134,9 @@ void RegisterColor(py::module &m) {
         Initializes the color from a string representation (hexcode
         or color name).
 
+        TODO add note on runtime penalty due to string
+        comparisons (want to add actual timings)
+
         **Hexcode:**
            HTML hex code string as either ``#RRGGBB`` or
            ``#RRGGBBAA``:
