@@ -1,3 +1,4 @@
+from mailbox import linesep
 import numpy as np
 import viren2d
 
@@ -10,7 +11,7 @@ def cheat_sheet_linestyle():
      # Set up empty canvas:
     painter = viren2d.Painter()
     canvas_width = 400
-    canvas_height = 400
+    canvas_height = 440
     painter.set_canvas_rgb(
         width=canvas_width, height=canvas_height, color='white!0')
 
@@ -139,6 +140,15 @@ def cheat_sheet_linestyle():
         [_dash2str(line_style.dash_pattern)], (canvas_width / 5, y),
         anchor='top-left', text_style=text_style, padding=(0, 5))
 
+    y = 405
+    line_style.dash_offset = 45
+    painter.draw_line((30, y), (canvas_width - 30, y), line_style)
+    painter.draw_text(
+        [_dash2str(line_style.dash_pattern)
+         + f', with {int(line_style.dash_offset)}px offset'],
+        (canvas_width / 5, y),
+        anchor='top-left', text_style=text_style, padding=(0, 5))
+
     # Return the visualization as a NumPy buffer (let NumPy take care of
     # the memory copy):
     shared_canvas = painter.get_canvas(copy=False)
@@ -148,85 +158,95 @@ def cheat_sheet_linestyle():
 def cheat_sheet_arrowstyle():
      # Set up empty canvas:
     painter = viren2d.Painter()
-    canvas_width = 480
-    canvas_height = 210
+    canvas_width = 600
+    canvas_height = 220
     painter.set_canvas_rgb(
-        width=canvas_width, height=canvas_height, color='white!100')#FIXME opacity
+        width=canvas_width, height=canvas_height, color='white!0')
 
    # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=18, color=(0.3, 0.3, 0.3))
-    text_style.alignment = 'center'
-    text_style.line_spacing = 1.05
-    
+        family='xkcd', size=18, color=(0.3, 0.3, 0.3),
+        alignment=viren2d.HorizontalAlignment.Center,
+        line_spacing=1.1)
+    y_txt = 110  # Same vertical anchor for all text
 
     arrow_style = viren2d.ArrowStyle(
         width=5, color='navy-blue')
 
     # 1st pair of arrows (leftmost)
+    offset_x = 60  # Distance between the 2 arrows of each "pair"
+    x1 = 50
     arrow_style.join = 'miter'
     arrow_style.tip_length = 0.3
     txt = f'{arrow_style.tip_length:0.1f}'
-    painter.draw_arrow((20, 100), (20, 5), arrow_style)
+    painter.draw_arrow((x1, y_txt - 10), (x1, 5), arrow_style)
     
     arrow_style.tip_length = 0.5
     txt += f' & {arrow_style.tip_length:0.1f},'
-    painter.draw_arrow((70, 100), (70, 5), arrow_style)
+    painter.draw_arrow((x1 + offset_x, 100), (x1 + offset_x, 5), arrow_style)
+    
     painter.draw_text(
         [f'Angle: {int(arrow_style.tip_angle):d}°,',
-        'Length:', txt, 'Open'], (45, 110),
-        'north', text_style)
+        'Lengths: ' + txt, 'Round Cap,', 'Open'],
+        (x1 + offset_x / 2, y_txt), 'north', text_style)
     
     # 2nd pair of arrows
+    x1 = 195
     arrow_style.color = 'tealgreen'
     arrow_style.tip_length = 0.4
     arrow_style.tip_closed = True
     arrow_style.tip_angle = 10
     txt = f'{int(arrow_style.tip_angle)}°'
-    painter.draw_arrow((130, 100), (130, 5), arrow_style)
+    painter.draw_arrow((x1, y_txt - 10), (x1, 5), arrow_style)
     
     arrow_style.tip_angle = 40
     txt += f' & {int(arrow_style.tip_angle)}°,'
-    painter.draw_arrow((180, 100), (180, 5), arrow_style)
+    painter.draw_arrow((x1 + offset_x, 100), (x1 + offset_x, 5), arrow_style)
+
     painter.draw_text(
         ['Angle:', txt, f'Length: {arrow_style.tip_length:.1f},',
-         'Closed'], (155, 110),
-        'north', text_style)
+         'Closed'],
+        (x1 + offset_x / 2, y_txt), 'north', text_style)
 
     # 3rd pair of arrows
+    x1 = 345
     arrow_style.color = 'maroon'
     arrow_style.tip_closed = False
     arrow_style.join = 'round'
     arrow_style.tip_length = 0.8
     arrow_style.tip_angle = 12
-    painter.draw_arrow((270, 100), (270, 5), arrow_style)
+    painter.draw_arrow((x1, y_txt - 10), (x1, 5), arrow_style)
     
     arrow_style.tip_closed = True
-    painter.draw_arrow((320, 100), (320, 5), arrow_style)
+    painter.draw_arrow((x1 + offset_x, 100), (x1 + offset_x, 5), arrow_style)
+    
     painter.draw_text(
         [f'Length: {arrow_style.tip_length:0.1f},', 
          f'Angle: {int(arrow_style.tip_angle):d}°,',
-          'Round Join,', 'Open/Closed'], (295, 110),
-        'north', text_style)
+          'Round Join,', 'Open & Closed'],
+        (x1 + offset_x / 2, y_txt), 'north', text_style)
 
     # 4th pair of arrows
+    x1 = 495
     arrow_style.color = 'indigo'
-    arrow_style.dash_pattern = [15]
+    arrow_style.dash_pattern = [20, 15]
+    txt_dash = _dash2str(arrow_style.dash_pattern)
     arrow_style.tip_closed = False
     arrow_style.tip_angle = 20
     arrow_style.tip_length = 0.4
-    txt = f'{arrow_style.tip_length:0.1f}'
-    painter.draw_arrow((395, 100), (395, 5), arrow_style)
+    painter.draw_arrow((x1, y_txt - 10), (x1, 5), arrow_style)
     
     arrow_style.tip_closed = True
-    txt += f' & {arrow_style.tip_length:0.1f}'
-    painter.draw_arrow((445, 100), (445, 5), arrow_style)
+    arrow_style.dash_pattern = [15]
+    txt_dash += ' & ' + _dash2str(arrow_style.dash_pattern)
+    painter.draw_arrow((x1 + offset_x, 100), (x1 + offset_x, 5), arrow_style)
+
     painter.draw_text(
         [f'Length: {arrow_style.tip_length:0.2f},', 
          f'Angle: {int(arrow_style.tip_angle):d}°,',
-         'Dash Pattern:', _dash2str(arrow_style.dash_pattern)], (420, 110),
-        'north', text_style)
-    
+         'Dash Patterns:', txt_dash],
+        (x1 + offset_x / 2, y_txt), 'north', text_style)
+        
     # Return the visualization as a NumPy buffer (let NumPy take care of
     # the memory copy):
     shared_canvas = painter.get_canvas(copy=False)

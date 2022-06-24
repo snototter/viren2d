@@ -144,7 +144,7 @@ void DemoLines() {
   const auto rotation = werkzeugkiste::geometry::AngleDegFromDirectionVec(pt1.DirectionVector(pt2));
 //  painter->SetDefaultTextStyle(viren2d::TextStyle(18, "Arial"));
 
-  viren2d::LineStyle line_style(22, "azure!60", {},
+  viren2d::LineStyle line_style(22, "azure!60", {}, 0.0,
                                 viren2d::LineCap::Butt);
   painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
@@ -203,7 +203,7 @@ void DemoArrows() {
                     viren2d::LineStyle(1.0, "gray!80"));
 
   auto style = viren2d::ArrowStyle(6, "navy-blue", 0.15, 20.0,
-                                   true, false, {},
+                                   true, false, {}, 0.0,
                                    viren2d::LineCap::Butt,
                                    viren2d::LineJoin::Round);
 
@@ -426,7 +426,7 @@ void DemoTrajectories() {
   painter->SetCanvas(800, 800, viren2d::Color::White);
 
   std::vector<viren2d::Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
-  auto style = viren2d::LineStyle(5, "midnight-blue", {}, viren2d::LineCap::Round);
+  auto style = viren2d::LineStyle(5, "midnight-blue", {}, 0.0, viren2d::LineCap::Round);
   bool oldest_first = false;
   for (const auto &offset : {viren2d::Vec2d(-400, 50), viren2d::Vec2d(-100, 200), viren2d::Vec2d(50, 300)}) {
     std::vector<viren2d::Vec2d> traj;

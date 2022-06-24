@@ -81,9 +81,9 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     settings of a style.
     """
     # LineStyle
-    # img = cheat_sheet_linestyle()
-    # _process_result(
-    #     img, True, 'Line Style Cheat Sheet', True, 'line-style-cheat-sheet.png')
+    img = cheat_sheet_linestyle()
+    _process_result(
+        img, True, 'Line Style Cheat Sheet', True, 'line-style-cheat-sheet.png')
 
     # LineStyle
     img = cheat_sheet_arrowstyle()
@@ -92,5 +92,5 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 
 
 if __name__ == '__main__':
-    #render_rtd_demos(True, True)
+    render_rtd_demos(True, True)
     render_rtd_cheatsheets(True, True)
