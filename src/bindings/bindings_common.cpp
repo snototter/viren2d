@@ -482,7 +482,7 @@ void RegisterColor(py::module &m) {
 
   m.def("fade_out_linear",
         &ColorFadeOutLinear, R"docstr(
-        Color transition helper for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
@@ -494,7 +494,7 @@ void RegisterColor(py::module &m) {
 
   m.def("fade_out_quadratic",
         &ColorFadeOutQuadratic, R"docstr(
-        Color transition helper for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
@@ -506,7 +506,7 @@ void RegisterColor(py::module &m) {
 
   m.def("fade_out_logarithmic",
         &ColorFadeOutLogarithmic, R"docstr(
-        Color transition helper for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.

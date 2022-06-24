@@ -273,6 +273,7 @@ void DrawTrajectory(
     std::string s(
           "Cannot draw a trajectory with an invalid line style: ");
     s += style.ToDetailedString();
+    s += '!';
     throw std::invalid_argument(s);
   }
 

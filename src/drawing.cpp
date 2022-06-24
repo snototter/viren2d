@@ -318,7 +318,7 @@ protected:
       const std::function<double(double)> &mix_factor) override {
     SPDLOG_DEBUG(
           "ImagePainter::DrawTrajectory: {:d} points, style={:s}, "
-          "fade_out={:s}, oldest_first={:s}, smooth={:d}",
+          "fade_out={:s}, oldest_first={:s}, smooth={:d}.",
           points.size(), style, color_fade_out,
           oldest_position_first, smoothing_window);
 
@@ -331,6 +331,40 @@ protected:
     helpers::DrawTrajectory(
           surface_, context_, smoothed, style, color_fade_out,
           oldest_position_first, mix_factor);
+  }
+
+
+  void DrawTrajectoriesImpl(
+      const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
+      const LineStyle &style, const Color &color_fade_out,
+      bool oldest_position_first, int smoothing_window,
+      const std::function<double(double)> &mix_factor) override {
+    SPDLOG_DEBUG(
+          "ImagePainter::DrawTrajectories: {:d} trajectories, style={:s}, "
+          "fade_out={:s}, oldest_first={:s}, smooth={:d}.",
+          trajectories.size(), style, color_fade_out,
+          oldest_position_first, smoothing_window);
+
+    LineStyle s(style);
+    for (const auto &p : trajectories) {
+      const std::vector<Vec2d> &smoothed =
+          (smoothing_window > 0)
+          ? werkzeugkiste::container::SmoothMovingAverage(
+              p.first, smoothing_window)
+          : p.first;
+
+      if (p.second.IsValid()) {
+        s.color = p.second;
+      } else if (p.second.IsSpecialSame()) {
+        s.color = style.color.WithAlpha(p.second.alpha);
+      } else {
+        s.color = p.second;
+      }
+
+      helpers::DrawTrajectory(
+            surface_, context_, smoothed, s, color_fade_out,
+            oldest_position_first, mix_factor);
+    }
   }
 
 

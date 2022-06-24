@@ -18,14 +18,31 @@ def test_painter_basics():
         p.get_canvas(False)
 
     with pytest.raises(RuntimeError):
-        p.get_canvas_size()
+        p.canvas
+    
+    assert p.width == 0
+    assert p.height == 0
     
     p.set_canvas_rgb(400, 300)
     assert p.is_valid()
 
+    assert p.canvas.width == 400
+    assert p.canvas.height == 300
+    assert p.canvas.channels == 4  # the canvas should always be RGBA!
+    assert p.width == 400
+    assert p.height == 300
+
     w, h = p.get_canvas_size()
     assert w == 400
     assert h == 300
+
+    img_np = np.ones((800, 700, 3))
+    p = viren2d.Painter(img_np)
+    assert p.is_valid()
+    assert p.width == 700
+    assert p.height == 800
+
+
 
 #TODO test init filename
 #TODO test init image
@@ -44,12 +61,10 @@ def test_painter_basics():
 
 def is_valid_line(line_style):
     return line_style.is_valid()
-#        or (line_style == viren2d.LineStyle.Default)
 
 
 def is_valid_line_or_fill(line_style, fill_color):
     return line_style.is_valid() or fill_color.is_valid()
-#        or (line_style == viren2d.LineStyle.Default)
 
 
 def color_configurations():
@@ -241,10 +256,21 @@ def test_draw_grid():
     p.draw_grid(20, 20, style)
     p.draw_grid(20, 20, style, viren2d.Vec2d(), viren2d.Vec2d())
 
+    # Draw with explicit types & named parameters
+    style = viren2d.LineStyle()
+    p.draw_grid(spacing_x=20, spacing_y=20)
+    p.draw_grid(spacing_x=20, spacing_y=20, line_style=style)
+    p.draw_grid(
+        spacing_x=20, spacing_y=20, line_style=style,
+        top_left=viren2d.Vec2d(), bottom_right=viren2d.Vec2d())
+
     # Draw with implicit conversions
     p.draw_grid(20, 20, style, (0, 0), (50, 50))
-    p.draw_grid(20, 20, line_style=style)
-  
+    # Draw with implicit conversions
+    p.draw_grid(
+        spacing_x=20, spacing_y=20, line_style=style,
+        top_left=(0, 0), bottom_right=(50, 50))
+    
     # Sweep valid and invalid configurations
     for tl in [(0, 0), (-10, 3), (100, 20)]:
       for br in [(0, 0), (-20, -70), (300, 30)]:

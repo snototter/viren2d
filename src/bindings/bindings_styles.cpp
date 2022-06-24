@@ -8,6 +8,7 @@
 #include <bindings/binding_helpers.h>
 namespace py = pybind11;
 
+
 namespace viren2d {
 namespace bindings {
 //-------------------------------------------------  LineStyle

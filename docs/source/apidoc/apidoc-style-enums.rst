@@ -6,35 +6,41 @@ Style Enumerations
 Line Cap
 ~~~~~~~~
 
-.. autoclass:: viren2d.LineCap
+.. figure:: ../images/line-cap.png
+   :width: 300
+   :alt: Line Cap Styles
+   :align: center
 
-.. include:: ../tutorial/_example_cap.rst
+   Cheat Sheet: :class:`~viren2d.LineCap`
+
+.. autoclass:: viren2d.LineCap
 
 
 ~~~~~~~~~
 Line Join
 ~~~~~~~~~
 
-.. autoclass:: viren2d.LineJoin
+.. figure:: ../images/line-join.png
+   :width: 400
+   :alt: Line Join Styles
+   :align: center
 
-.. include:: ../tutorial/_example_join.rst
+   Cheat Sheet: :class:`~viren2d.LineJoin`
+
+.. autoclass:: viren2d.LineJoin
 
 
 ~~~~~~~~~~~~~
 Marker Shapes
 ~~~~~~~~~~~~~
 
-.. autofunction:: viren2d.marker_codes
-
-.. autoclass:: viren2d.Marker
-
-**Marker Shape Cheat Sheet:**
-
-.. image:: ../images/markers.png
+.. figure:: ../images/markers.png
    :width: 600
    :alt: Supported Marker Shapes
    :align: center
 
-The code listing to create this visualization is shown in the
-:ref:`tutorial section on markers<tutorial-markers>`.
+   Cheat Sheet: :class:`~viren2d.Marker` Shapes
 
+.. autofunction:: viren2d.marker_codes
+
+.. autoclass:: viren2d.Marker

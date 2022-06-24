@@ -11,7 +11,7 @@ Arrow Style
    :alt: Style cheat sheet for arrows
    :align: center
 
-   :class:`~viren2d.ArrowStyle` Cheat Sheet
+   Cheat Sheet: :class:`~viren2d.ArrowStyle`
 
 .. autoclass:: viren2d.ArrowStyle
    :autosummary:
@@ -44,7 +44,7 @@ Line Style
    :alt: Style cheat sheet for lines
    :align: center
 
-   :class:`~viren2d.LineStyle` Cheat Sheet
+   Cheat Sheet: :class:`~viren2d.LineStyle`
 
 .. autoclass:: viren2d.LineStyle
    :autosummary:
@@ -61,7 +61,7 @@ Marker Style
    :alt: Supported Marker Shapes
    :align: center
 
-   :class:`~viren2d.Marker` Shape Cheat Sheet
+   Cheat Sheet: :class:`~viren2d.Marker`
 
 
 .. autoclass:: viren2d.MarkerStyle
@@ -79,7 +79,7 @@ Text Style
    :alt: Text positioning
    :align: center
 
-   :class:`~viren2d.TextAnchor` Cheat Sheet
+   Cheat Sheet: :class:`~viren2d.TextAnchor`
 
 .. autoclass:: viren2d.TextStyle
    :autosummary:

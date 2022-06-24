@@ -1,50 +1,15 @@
-# Development Guide
-`viren2d++`, i.e. the C++ library:
-* For each custom type (where applicable), add c'tor using
-  initializer_list (for less cluttered/more convenient use)
-* All drawing functions should shift the user-given coordinates
-  by 0.5 if needed to support sharp lines. For details see:
-  see https://www.cairographics.org/FAQ/#sharp_lines
-* Each drawing function should call `CheckCanvas` and `CheckLineStyle`
-  (or a more suitable sanity check function).
-* Drawing functions won't be tested via mocking (because mocking
-  the Cairo C interface would be a pain & I don't want to switch
-  to cairomm or write my own C++ wrapper). There are, however,
-  tests to ensure we identify code changes that would break the
-  drawing API, see `tests/test_painter.py`.  
-  Besides these interface tests, drawing functionality should
-  have understandable demos.  
-* All other functionality should be tested, ideally both in C++
-  and Python.
-* Task template for (almost) each new function:  
-  ```cpp
-  //TODO [ ] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
-  ```
- 
-`viren2d`, i.e. the Python bindings:
-* Don't use python keywords as names of function arguments
- or you can't order the arguments via "f(arg_x=foo, arg_a=1)"
-TODO link to list of keywords: https://docs.python.org/3.8/reference/lexical_analysis.html#keywords
-* Keep draw_xxx bindings in alphabetic order for maintainability
-* How to bind a new class X:
- * Implement pickling::SerializeX
- * Implement pickling::DeserializeX
- * Implement __str__ & __repr__
- * nice-to-have: operator == and !=
- * Test initialization, pickling, comparison, etc.
- * Declare it py::implicitly_convertible if a simple/intuitive
-   conversion exists
- * @deprecated Implement moddef::CreateX (init from py::tuple/list/whatever)
- * All this info does not hold for ImageBuffer - which exposes a
-   buffer view (and we need to be able to convert to/from numpy
-   arrays)
-   
+# TODO List
 
+Tasks in preparation of first stable release:
+* Task list for styles:
+  * [ ] Implement ToDetailedString() for each style.  
+    To be used in exceptions + exposed in Python API as `detailed_str`.
+  * [ ] Finalize RTD documentation, i.e. add reference/cheat sheet for each style.
+* Build pipeline:
+  * [ ] Adjust CMakeLists: fetch all dependencies (incl. spdlog and stb).
+  * [ ] Remove spdlog and stb submodules
+  * [ ] Include backup/fallback snapshots of the 3 major dependencies, i.e. spdlog, stb and pybind11 (not needed as long as they're actively maintained)
+  
 
 ## Installation
 TODO add to dev documentation:

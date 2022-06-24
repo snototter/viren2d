@@ -1,11 +1,12 @@
 #ifndef __VIREN2D_DRAWING_H__
 #define __VIREN2D_DRAWING_H__
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <utility>
 #include <functional>
+#include <memory>
+#include <string>
+//#include <tuple>
+#include <utility>
+#include <vector>
 
 
 #include <viren2d/primitives.h>
@@ -290,13 +291,28 @@ public:
 
   //TODO doc, test, bind
   void DrawTrajectory(
-      const std::vector<Vec2d> &points, const LineStyle &style,
+      const std::vector<Vec2d> &points,
+      const LineStyle &style = LineStyle(),
       const Color &color_fade_out = Color::White.WithAlpha(0.4),
       bool oldest_position_first = false,
       int smoothing_window = 0,
       const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
-    DrawTrajectoryImpl(points, style, color_fade_out,
-                       oldest_position_first, smoothing_window, mix_factor);
+    DrawTrajectoryImpl(
+          points, style, color_fade_out, oldest_position_first,
+          smoothing_window, mix_factor);
+  }
+
+
+  void DrawTrajectories(
+      const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
+      const LineStyle &style = LineStyle(),
+      const Color &color_fade_out = Color::White.WithAlpha(0.4),
+      bool oldest_position_first = false,
+      int smoothing_window = 0,
+      const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
+    DrawTrajectoriesImpl(
+          trajectories, style, color_fade_out, oldest_position_first,
+          smoothing_window, mix_factor);
   }
 
   //TODO DrawPoints - how to handle alternating colors???
@@ -398,6 +414,14 @@ protected:
       const std::vector<Vec2d> &points, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
       int smoothing_window,
+      const std::function<double(double)> &mix_factor) = 0;
+
+
+  /** Internal helper to allow default values in public interface. */
+  virtual void DrawTrajectoriesImpl(
+      const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
+      const LineStyle &style, const Color &color_fade_out,
+      bool oldest_position_first, int smoothing_window,
       const std::function<double(double)> &mix_factor) = 0;
 };
 

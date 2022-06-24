@@ -677,10 +677,11 @@ std::string Color::ToRGBaString() const {
 Color Color::WithAlpha(double alpha) const {
   // Explicitly use the copy c'tor, because we
   // want to avoid the saturation cast of the
-  // default c'tor (so we can use the special
-  // "Same" color, but with a different alpha):
+  // default c'tor. This way we can use the special
+  // "Same" color, but with a different alpha,
+  // i.e. Color::Same.WithAlpha(0.3):
   Color copy(*this);
-  copy.alpha = alpha;
+  copy.alpha = helpers::cast_01(alpha);
   return copy;
 }
 
