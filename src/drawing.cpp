@@ -268,7 +268,7 @@ protected:
 
   void DrawTextImpl(
       const std::vector<const char*> &text,
-      const Vec2d &anchor_position, TextAnchor anchor,
+      const Vec2d &anchor_position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) override {
     SPDLOG_DEBUG(
@@ -288,7 +288,7 @@ protected:
 
   void DrawTextBoxImpl(
       const std::vector<const char*> &text,
-      const Vec2d &anchor_position, TextAnchor anchor,
+      const Vec2d &anchor_position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,

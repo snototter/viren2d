@@ -242,7 +242,7 @@ public:
       const char *line, cairo_t *context,
       cairo_font_extents_t *font_metrics);
 
-  void Align(Vec2d anchor_position, TextAnchor anchor);
+  void Align(Vec2d anchor_position, Anchor anchor);
 
   void PlaceText(cairo_t *context) const;
 
@@ -314,10 +314,8 @@ public:
   /// Computes reference points for each line.
   /// Must be called **before** `PlaceText`
   void Align(
-      Vec2d anchor_point,
-      TextAnchor anchor,
-      Vec2d padding,
-      Vec2d fixed_size);
+      Vec2d anchor_point, Anchor anchor,
+      Vec2d padding, Vec2d fixed_size);
 
   /// Returns the axis-aligned bounding box.
   /// Valid results are only available
@@ -424,7 +422,7 @@ void DrawRect(
 void DrawText(
     cairo_surface_t *surface, cairo_t *context,
     const std::vector<const char *> &text,
-    Vec2d anchor_position, TextAnchor anchor,
+    Vec2d anchor_position, Anchor anchor,
     const TextStyle &text_style, const Vec2d &padding,
     double rotation, const LineStyle &box_line_style,
     const Color &box_fill_color, double box_corner_radius,

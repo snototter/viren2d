@@ -467,11 +467,11 @@ def test_draw_trajectory():
         True, 3, viren2d.fade_out_linear)
     # Use named arguments
     p.draw_trajectory(
-        points=pts, line_style=line_style,
+        trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid)
     # Include all parameters:
     p.draw_trajectory(
-        points=pts, line_style=line_style,
+        trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
@@ -485,11 +485,11 @@ def test_draw_trajectory():
         True, 3, viren2d.fade_out_linear)
     # Use named arguments
     p.draw_trajectory(
-        points=pts, line_style=line_style,
+        trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Red)
     # Include all parameters:
     p.draw_trajectory(
-        points=pts, line_style=line_style,
+        trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Blue,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
@@ -498,11 +498,11 @@ def test_draw_trajectory():
     for line_style in line_style_configurations():
         if is_valid_line(line_style):
             p.draw_trajectory(
-                points=pts, line_style=line_style)
+                trajectory=pts, line_style=line_style)
         else:
             with pytest.raises(ValueError):
                 p.draw_trajectory(
-                    points=pts, line_style=line_style)
+                    trajectory=pts, line_style=line_style)
             # Painter should always be kept in a valid state
             assert p.is_valid()
 

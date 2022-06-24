@@ -253,7 +253,7 @@ public:
   void DrawText(
       const std::vector<std::string> &text,
       const Vec2d &anchor_position,
-      TextAnchor anchor = TextAnchor::BottomLeft,
+      Anchor anchor = Anchor::BottomLeft,
       const TextStyle &text_style = TextStyle(),
       const Vec2d &padding = {0.0, 0.0},
       double rotation = 0.0) {
@@ -270,7 +270,7 @@ public:
   void DrawTextBox(
       const std::vector<std::string> &text,
       const Vec2d &anchor_position,
-      TextAnchor anchor = TextAnchor::BottomLeft,
+      Anchor anchor = Anchor::BottomLeft,
       const TextStyle &text_style = TextStyle(),
       const Vec2d &padding = {6.0, 6.0},
       double rotation = 0.0,
@@ -394,7 +394,7 @@ protected:
   /** Internal helper to allow default values in public interface. */
   virtual void DrawTextImpl(
       const std::vector<const char*> &text,
-      const Vec2d &position, TextAnchor text_anchor,
+      const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style,
       const Vec2d &padding, double rotation) = 0;
 
@@ -402,7 +402,7 @@ protected:
   /** Internal helper to allow default values in public interface. */
   virtual void DrawTextBoxImpl(
       const std::vector<const char*> &text,
-      const Vec2d &position, TextAnchor text_anchor,
+      const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,

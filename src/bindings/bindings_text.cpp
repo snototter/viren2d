@@ -123,75 +123,75 @@ void RegisterAnchors(py::module &m) {
         }, py::name("__repr__"), py::is_method(m));
 
 
-  py::enum_<TextAnchor> anchor(m, "TextAnchor",
-             "Enum specifying the location of the text anchor.");
+  py::enum_<Anchor> anchor(m, "Anchor",
+             "Enum specifying the location of the anchor.");
   anchor.value(
         "Center",
-        TextAnchor::Center,
+        Anchor::Center,
         "Horizontally & vertically centered.")
       .value(
         "Left",
-        TextAnchor::Left,
+        Anchor::Left,
         "Horizontally **left-aligned** & vertically **centered**. "
         "Alias string representation: ``west``.")
       .value(
         "Right",
-        TextAnchor::Right,
+        Anchor::Right,
         "Horizontally **right-aligned** & vertically **centered**. "
         "Alias string representation: ``east``.")
       .value(
         "Top",
-        TextAnchor::Top,
+        Anchor::Top,
         "Horizontally **centered** & vertically **top-aligned**. "
         "Alias string representation: ``north``.")
       .value(
         "Bottom",
-        TextAnchor::Bottom,
+        Anchor::Bottom,
         "Horizontally **centered** & vertically **bottom-aligned**. "
         "Alias string representation: ``south``.")
       .value(
         "TopLeft",
-        TextAnchor::TopLeft,
+        Anchor::TopLeft,
         "Horizontally **left-** & vertically **top-aligned**. "
         "Alias string representation: ``north-west``.")
       .value(
         "TopRight",
-        TextAnchor::TopRight,
+        Anchor::TopRight,
         "Horizontally **right-** & vertically **top-aligned**. "
         "Alias string representation: ``north-east``.")
       .value(
         "BottomLeft",
-        TextAnchor::BottomLeft,
+        Anchor::BottomLeft,
         "Horizontally **left-** & vertically **bottom-aligned**. "
         "Alias string representation: ``south-west``.")
       .value(
         "BottomRight",
-        TextAnchor::BottomRight,
+        Anchor::BottomRight,
         "Horizontally **right-** & vertically **bottom-aligned**. "
         "Alias string representation: ``south-east``.");
 
   anchor.def(
-        "__str__", [](TextAnchor a) -> py::str {
-            return py::str(TextAnchorToString(a));
+        "__str__", [](Anchor a) -> py::str {
+            return py::str(AnchorToString(a));
         }, py::name("__str__"), py::is_method(m));
 
   anchor.def(
-        "__repr__", [](TextAnchor a) -> py::str {
+        "__repr__", [](Anchor a) -> py::str {
             std::ostringstream s;
-            s << "'" << TextAnchorToString(a) << "'";
+            s << "'" << AnchorToString(a) << "'";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
 
 
   std::string doc = R"docstr(
-      Returns all :class:`~viren2d.TextAnchor` values.
+      Returns all :class:`~viren2d.Anchor` values.
 
       Convenience utility to easily iterate all enumeration
       values.
 
-      **Corresponding C++ API:** ``viren2d::ListTextAnchors``.
+      **Corresponding C++ API:** ``viren2d::ListAnchors``.
       )docstr";
-  anchor.def_static("list_all", &ListTextAnchors, doc.c_str());
+  anchor.def_static("list_all", &ListAnchors, doc.c_str());
 
 
   py::enum_<LabelPosition> bblp(

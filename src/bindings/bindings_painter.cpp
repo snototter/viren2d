@@ -15,31 +15,28 @@ namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
-TextAnchor TextAnchorFromPyObject(py::object &o) {
+Anchor AnchorFromPyObject(py::object &o) {
   if (py::isinstance<py::str>(o)) {
-    return TextAnchorFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<TextAnchor>(o)) {
-    return py::cast<TextAnchor>(o);
+    return AnchorFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<Anchor>(o)) {
+    return py::cast<Anchor>(o);
   } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("TextAnchor") << "`!";
-    throw std::invalid_argument(str.str());
+    std::string s("Cannot cast type `");
+    s += py::cast<std::string>(
+          o.attr("__class__").attr("__name__"));
+    s += "` to `viren2d.Anchor`!";
+    throw std::invalid_argument(s);
   }
 }
 
 
-/**
- * @brief A wrapper for the abstract `Painter`
- *
- * This is necessary because I don't want to expose
- * the `ImagePainter` - I like the current factory method
- * layout because the public headers are quite clean.
- * Thus, I cannot (read "don't want to") use pybind11's
- * trampoline mechanism.
- */
+/// A wrapper for the abstract `Painter`
+///
+/// This is necessary because I don't want to expose
+/// the `ImagePainter` - I like the current factory method
+/// layout because the public headers are quite clean.
+/// Thus, I cannot (read "don't want to") use pybind11's
+/// trampoline mechanism.
 class PainterWrapper {
 public:
   PainterWrapper() : painter_(CreatePainter())
@@ -174,7 +171,7 @@ public:
       const Vec2d &anchor_position, py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) {
-    TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
+    Anchor anchor = AnchorFromPyObject(pyanchor);
     painter_->DrawText(
           text, anchor_position, anchor,
           text_style, padding, rotation);
@@ -188,7 +185,7 @@ public:
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,
       const Vec2d &fixed_box_size) {
-    TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
+    Anchor anchor = AnchorFromPyObject(pyanchor);
     painter_->DrawTextBox(
           text, anchor_position, anchor, text_style,
           padding, rotation, box_line_style, box_fill_color,
@@ -793,7 +790,7 @@ void RegisterPainter(py::module &m) {
         position: Position of the reference point where to
           anchor the text as :class:`~viren2d.Vec2d`.
         anchor: How to orient the text w.r.t. the reference
-          point. Valid inputs are :class:`~viren2d.TextAnchor`
+          point. Valid inputs are :class:`~viren2d.Anchor`
           enum values and string representations.
 
           A string must correspond either to a *position
@@ -819,7 +816,7 @@ void RegisterPainter(py::module &m) {
       )docstr";
   painter.def("draw_text", &PainterWrapper::DrawText, doc.c_str(),
       py::arg("text"), py::arg("position"),
-      py::arg("anchor") = TextAnchor::BottomLeft,
+      py::arg("anchor") = Anchor::BottomLeft,
       py::arg("text_style") = TextStyle(),
       py::arg("padding") = Vec2d(0.0, 0.0),
       py::arg("rotation") = 0.0);
@@ -835,7 +832,7 @@ void RegisterPainter(py::module &m) {
         position: Position of the reference point where to anchor
           the text as :class:`~viren2d.Vec2d`.
         anchor: How to orient the text w.r.t. the reference
-          point. Valid inputs are :class:`~viren2d.TextAnchor`
+          point. Valid inputs are :class:`~viren2d.Anchor`
           enum values and string representations.
 
           A string must correspond either to a *position
@@ -869,7 +866,7 @@ void RegisterPainter(py::module &m) {
         &PainterWrapper::DrawTextBox, doc.c_str(),
         py::arg("text"),
         py::arg("position"),
-        py::arg("anchor") = TextAnchor::BottomLeft,
+        py::arg("anchor") = Anchor::BottomLeft,
         py::arg("text_style") = TextStyle(),
         py::arg("padding") = Vec2d::All(6.0),
         py::arg("rotation") = 0.0,

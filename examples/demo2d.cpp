@@ -113,7 +113,7 @@ void DemoColors() {
 
     text_style.color = color.Grayscale().Inverse();
     painter->DrawTextBox({color_name}, {x, y},
-                         viren2d::TextAnchor::Top,
+                         viren2d::Anchor::Top,
                          text_style, {6, 6}, 0,
                          line_style, //viren2d::LineStyle::Invalid,
                          viren2d::Color(color_name),
@@ -148,7 +148,7 @@ void DemoLines() {
                                 viren2d::LineCap::Butt);
   painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
-  painter->DrawText({lbl.str()}, {100, 200}, viren2d::TextAnchor::Center,
+  painter->DrawText({lbl.str()}, {100, 200}, viren2d::Anchor::Center,
                     viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());  // Reset stringstream
 
@@ -156,14 +156,14 @@ void DemoLines() {
   line_style.cap = viren2d::LineCap::Round;
   painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
-  painter->DrawText({lbl.str()}, {200, 200}, viren2d::TextAnchor::Center,
+  painter->DrawText({lbl.str()}, {200, 200}, viren2d::Anchor::Center,
                     viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
   line_style.cap = viren2d::LineCap::Square;
   painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
   lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
-  painter->DrawText({lbl.str()}, {300, 200}, viren2d::TextAnchor::Center,
+  painter->DrawText({lbl.str()}, {300, 200}, viren2d::Anchor::Center,
                     viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
 
@@ -385,7 +385,7 @@ void DemoText() {
     s << "Padding: " << static_cast<int>(padding.x());
     viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 10.0};
     painter->DrawTextBox({families[idx_family], s.str()},
-                         pos, viren2d::TextAnchor::Top,
+                         pos, viren2d::Anchor::Top,
                          text_style, {6, 6}, 0, viren2d::LineStyle(1, "black"), "azure!40");
 
     text_style.size = 14;
@@ -394,7 +394,7 @@ void DemoText() {
     for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
       std::ostringstream txt;
 //      txt << "!nofill, noclip!";
-      txt << viren2d::TextAnchorToString(viren2d::TextAnchorFromString(anchors[idx_anchor]));
+      txt << viren2d::AnchorToString(viren2d::AnchorFromString(anchors[idx_anchor]));
 //      txt << anchors[idx_anchor];
 
 
@@ -403,11 +403,11 @@ void DemoText() {
       painter->DrawMarker(pos, viren2d::MarkerStyle('9', 30, 1, "crimson!90", false));
       if (idx_family == 0) {
         // Just draw the text
-        painter->DrawText({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
+        painter->DrawText({txt.str()}, pos, viren2d::AnchorFromString(anchors[idx_anchor]),
                           text_style, padding);
       } else { //if (idx_family == 1) {
         // Draw a text box; size calculated from the text
-        painter->DrawTextBox({txt.str()}, pos, viren2d::TextAnchorFromString(anchors[idx_anchor]),
+        painter->DrawTextBox({txt.str()}, pos, viren2d::AnchorFromString(anchors[idx_anchor]),
                              text_style, padding, 0.0,
                              viren2d::LineStyle::Invalid,
                              "azure!40",
@@ -475,12 +475,13 @@ void DemoMarkers() {
   marker_style.thickness = 1;
 
   painter->DrawText({"Marker code:"}, {5.0, pos.y()},
-                    viren2d::TextAnchor::TopLeft, text_style);
+                    viren2d::Anchor::TopLeft, text_style);
 
   painter->DrawText({"Not filled:"}, {5.0, 50.0},
-                    viren2d::TextAnchor::Left, text_style);
+                    viren2d::Anchor::Left, text_style);
+
   painter->DrawText({"Filled:"}, {5.0, 85.0},
-                    viren2d::TextAnchor::Left, text_style);
+                    viren2d::Anchor::Left, text_style);
 
   text_style.size = 16;
   text_style.family = "monospace";
@@ -489,7 +490,7 @@ void DemoMarkers() {
     std::ostringstream s;
 //    s << '\'' << m << '\'';
     s << m;
-    painter->DrawText({s.str()}, pos, viren2d::TextAnchor::Top, text_style);
+    painter->DrawText({s.str()}, pos, viren2d::Anchor::Top, text_style);
 
     viren2d::Vec2d mpos{pos.x(), 45.0};
     marker_style.filled = false;

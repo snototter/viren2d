@@ -26,7 +26,7 @@ SingleLineText::SingleLineText(
 
 
 void SingleLineText::Align(
-    Vec2d anchor_position, TextAnchor anchor) {
+    Vec2d anchor_position, Anchor anchor) {
   // Default Cairo text `position` is bottom-left,
   // indicating the "reference point".
 
@@ -109,7 +109,7 @@ MultiLineText::MultiLineText(
 
 
 void MultiLineText::Align(
-    Vec2d anchor_point, TextAnchor anchor,
+    Vec2d anchor_point, Anchor anchor,
     Vec2d padding, Vec2d fixed_size) {
   // Store padding & fixed size as we need it for the
   // subsequent PlaceText() call.
@@ -207,7 +207,7 @@ double MultiLineText::Height() const {
 void DrawText(
     cairo_surface_t *surface, cairo_t *context,
     const std::vector<const char*> &text,
-    Vec2d anchor_position, TextAnchor anchor,
+    Vec2d anchor_position, Anchor anchor,
     const TextStyle &text_style, const Vec2d &padding,
     double rotation, const LineStyle &box_line_style,
     const Color &box_fill_color, double box_corner_radius,
@@ -236,7 +236,7 @@ void DrawText(
   anchor_position = {0, 0};
 
   // Query the rendered text extents and use them to adjust
-  // the position according to the desired text anchor.
+  // the position according to the desired anchor.
   ApplyTextStyle(context, text_style, false);
   MultiLineText mlt(text, text_style, context);
   mlt.Align(anchor_position, anchor, padding, fixed_box_size);

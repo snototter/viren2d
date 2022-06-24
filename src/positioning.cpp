@@ -120,26 +120,26 @@ std::ostream &operator<<(std::ostream &os, VerticalAlignment align) {
 }
 
 
-TextAnchor operator|(HorizontalAlignment lhs, VerticalAlignment rhs) {
-  static_assert(std::is_same<typename std::underlying_type<TextAnchor>::type,
+Anchor operator|(HorizontalAlignment lhs, VerticalAlignment rhs) {
+  static_assert(std::is_same<typename std::underlying_type<Anchor>::type,
                              typename std::underlying_type<HorizontalAlignment>::type>::value,
-                "Underlying type of TextAnchor and HorizontalAlignment must be the same");
-  static_assert(std::is_same<typename std::underlying_type<TextAnchor>::type,
+                "Underlying type of Anchor and HorizontalAlignment must be the same");
+  static_assert(std::is_same<typename std::underlying_type<Anchor>::type,
                              typename std::underlying_type<VerticalAlignment>::type>::value,
-                "Underlying type of TextAnchor and VerticalAlignment must be the same");
-  using underlying = typename std::underlying_type<TextAnchor>::type;
-  return static_cast<TextAnchor> (
+                "Underlying type of Anchor and VerticalAlignment must be the same");
+  using underlying = typename std::underlying_type<Anchor>::type;
+  return static_cast<Anchor> (
     static_cast<underlying>(lhs) | static_cast<underlying>(rhs)
   );
 }
 
 
-TextAnchor operator|(VerticalAlignment lhs, HorizontalAlignment rhs) {
+Anchor operator|(VerticalAlignment lhs, HorizontalAlignment rhs) {
   return rhs | lhs;
 }
 
 
-TextAnchor TextAnchorFromString(const std::string &anchor) {
+Anchor AnchorFromString(const std::string &anchor) {
   std::string slug = werkzeugkiste::strings::Lower(anchor);
   slug.erase(std::remove_if(slug.begin(), slug.end(), [](char ch) -> bool {
       return ::isspace(ch) || (ch == '-') || (ch == '_');
@@ -150,88 +150,88 @@ TextAnchor TextAnchorFromString(const std::string &anchor) {
   // * Eight principal compass directions (south, north-west, east, ...)
   //TODO support abbreviations? n,e,s,w; t,r,b,l;
   if (slug.compare("center") == 0) {
-    return TextAnchor::Center;
+    return Anchor::Center;
   } else if ((slug.compare("right") == 0)
              || (slug.compare("east") == 0)) {
-    return TextAnchor::Right;
+    return Anchor::Right;
   } else if ((slug.compare("bottomright") == 0)
              || (slug.compare("southeast") == 0)) {
-    return TextAnchor::BottomRight;
+    return Anchor::BottomRight;
   } else if ((slug.compare("bottom") == 0)
              || (slug.compare("south") == 0)) {
-    return TextAnchor::Bottom;
+    return Anchor::Bottom;
   } else if ((slug.compare("bottomleft") == 0)
              || (slug.compare("southwest") == 0)) {
-    return TextAnchor::BottomLeft;
+    return Anchor::BottomLeft;
   } else if ((slug.compare("left") == 0)
              || (slug.compare("west") == 0)) {
-    return TextAnchor::Left;
+    return Anchor::Left;
   } else if ((slug.compare("topleft") == 0)
              || (slug.compare("northwest") == 0)) {
-    return TextAnchor::TopLeft;
+    return Anchor::TopLeft;
   } else if ((slug.compare("top") == 0)
              || (slug.compare("north") == 0)) {
-    return TextAnchor::Top;
+    return Anchor::Top;
   } else if ((slug.compare("topright") == 0)
              || (slug.compare("northeast") == 0)) {
-    return TextAnchor::TopRight;
+    return Anchor::TopRight;
   }
 
-  std::string s("Could not deduce TextAnchor from string \"");
+  std::string s("Could not deduce Anchor from string \"");
   s += anchor;
   s += "\".";
   throw std::invalid_argument(s);
 }
 
 
-std::string TextAnchorToString(TextAnchor anchor) {
+std::string AnchorToString(Anchor anchor) {
   switch (anchor) {
-    case TextAnchor::Center:
+    case Anchor::Center:
       return "center";
 
-    case TextAnchor::Top:
+    case Anchor::Top:
       return "top";
 
-    case TextAnchor::TopRight:
+    case Anchor::TopRight:
       return "top-right";
 
-    case TextAnchor::Right:
+    case Anchor::Right:
       return "right";
 
-    case TextAnchor::BottomRight:
+    case Anchor::BottomRight:
       return "bottom-right";
 
-    case TextAnchor::Bottom:
+    case Anchor::Bottom:
       return "bottom";
 
-    case TextAnchor::BottomLeft:
+    case Anchor::BottomLeft:
       return "bottom-left";
 
-    case TextAnchor::Left:
+    case Anchor::Left:
       return "left";
 
-    case TextAnchor::TopLeft:
+    case Anchor::TopLeft:
       return "top-left";
 
     default:
       throw std::invalid_argument(
-            "Invalid/incomplete text anchor: you must "
+            "Invalid/incomplete anchor: you must "
             "specify both the horizontal & vertical alignment!");
   }
 }
 
 
-std::ostream &operator<<(std::ostream &os, TextAnchor anchor) {
-  os << TextAnchorToString(anchor);
+std::ostream &operator<<(std::ostream &os, Anchor anchor) {
+  os << AnchorToString(anchor);
   return os;
 }
 
 
-std::vector<TextAnchor> ListTextAnchors() {
+std::vector<Anchor> ListAnchors() {
   return {
-    TextAnchor::TopLeft, TextAnchor::Top, TextAnchor::TopRight,
-    TextAnchor::Left, TextAnchor::Center, TextAnchor::Right,
-    TextAnchor::BottomLeft, TextAnchor::Bottom, TextAnchor::BottomRight
+    Anchor::TopLeft, Anchor::Top, Anchor::TopRight,
+    Anchor::Left, Anchor::Center, Anchor::Right,
+    Anchor::BottomLeft, Anchor::Bottom, Anchor::BottomRight
   };
 }
 
