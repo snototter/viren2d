@@ -38,9 +38,6 @@ thus, provides fast direct access to its raw internal data representation:
 
 
 .. note::
-   When using *shared* views on the memory, you should obviously pay attention
-   to the objects' lifetimes - or meet *segfault, ye olde friend...*
-
    For the conversion example above, note that the :class:`~viren2d.Painter`
    provides an option to access its internal memory - refer to the documentation
    of its :meth:`~viren2d.Painter.get_canvas`.

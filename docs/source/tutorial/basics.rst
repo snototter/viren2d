@@ -4,21 +4,25 @@
 Know the Basics
 ---------------
 
-**How do I draw "stuff"?**
-   You need to :ref:`use a painter<tutorial-painter-usage>` and invoke its
+**How to draw "stuff"?**
+   :ref:`Initialize a painter's canvas<tutorial-painter-usage>` and invoke its
    ``draw_...`` methods.
 
+**Which "stuff" can be drawn?**
+   .. viren2d-drawing-summary::
 
-**What about the Coordinate System?**
+
+**Which coordinate system is used?**
    All coordinates assume an image coordinate system, where the origin
    ``(0, 0)`` is at the *top left* corner, the positive *x*-axis is
    pointing right and the positive *y*-axis is pointing down.
 
 
-**How do I specify angles?**
+**How to specify angles?**
    All angle measurements should be provided in *degrees*. The rotation
    direction for positive angles is from the positive *x*-axis towards the
    positive *y*-axis.
+
 
 
 .. warning::

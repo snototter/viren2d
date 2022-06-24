@@ -15,7 +15,7 @@ API Documentation
    apidoc/apidoc-drawing
 
 
-**Basic data types:**
+**Basic Data Types:**
 
    .. autosummary::
       :nosignatures:
@@ -45,7 +45,7 @@ API Documentation
       viren2d.RGBa
 
 
-**Primitives Utilities:**
+**Shape Utilities:**
 
    .. autosummary:: 
       :nosignatures:
@@ -56,14 +56,14 @@ API Documentation
       viren2d.rect_from_ltwh
 
 
-**Drawing:**
+**Drawing Functionality:**
 
-   .. autosummary::
-  
-      viren2d.Painter
+   The :class:`~viren2d.Painter` provides the following drawing functionality:
+
+   .. viren2d-drawing-summary::
 
 
-**Style definitions:**
+**Style Definitions:**
 
    .. autosummary::
       :nosignatures:

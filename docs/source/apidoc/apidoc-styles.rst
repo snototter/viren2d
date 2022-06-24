@@ -6,12 +6,9 @@ Defining Styles
 Arrow Style
 ~~~~~~~~~~~
 
-.. warning::
-   TODO replace by the proper cheat sheet
-
-.. figure:: ../images/arrows.png
-   :width: 400
-   :alt: Arrows
+.. figure:: ../images/arrow-style-cheat-sheet.png
+   :width: 600
+   :alt: Style cheat sheet for arrows
    :align: center
 
    :class:`~viren2d.ArrowStyle` Cheat Sheet

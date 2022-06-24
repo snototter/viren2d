@@ -1,6 +1,6 @@
-~~~~~~~~~~~~~~~~~~~~
-Geometric Primitives
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+Basic Shapes
+~~~~~~~~~~~~
 
 This tutorial section only shows some selected shapes & primitives with their
 corresponding code examples. For a detailed listing of supported shapes, refer
