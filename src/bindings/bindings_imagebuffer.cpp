@@ -40,24 +40,24 @@ void RegisterImageBuffer(py::module &m) {
   //TODO(doc) update docstring once ImageBuffer supports other data types
 
   py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
-          An :class:`~viren2d.ImageBuffer` holds 8-bit image data.
+          An *ImageBuffer* holds 8-bit image data.
 
-          This class is used to pass image data between your
+          This class is used to pass images between the consuming
           application and ``viren2d``. Currently, only grayscale,
           RGB, and RGBA images of type uint8 are supported.
 
-          Note that :class:`~viren2d.ImageBuffer` implements the
-          standard Python buffer protocol and thus, can be swiftly
-          converted to/from other buffer types, such as NumPy
-          arrays, for example:
+          The *ImageBuffer* implements the standard Python buffer protocol
+          and can thus be swiftly converted to/from other buffer types,
+          such as :class:`numpy.ndarray`, for example:
 
           >>> # Create an ImageBuffer from a numpy.ndarray
           >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)
+          >>>
           >>> # Create a numpy.ndarray from an ImageBuffer
           >>> img_np = np.array(img_buf, copy=False)
           )docstr")
       .def(py::init(&CreateImageBuffer), R"docstr(
-          Creates an :class:`~viren2d.ImageBuffer` from a :class:`numpy.ndarray`.
+          Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
 
           Currently, only conversion from/to NumPy arrays with
           :class:`numpy.dtype` = :class:`numpy.uint8` is supported.
@@ -136,10 +136,57 @@ void RegisterImageBuffer(py::module &m) {
            "image data (and is responsible for cleaning up).")
       .def_property_readonly("shape",
            [](const ImageBuffer &buf) { return py::make_tuple(buf.height, buf.width, buf.channels); },
-           "tuple: Shape of the image data as ``(H, W, C)`` tuple.");
+           "tuple: Shape of the image data as ``(H, W, C)`` :class:`tuple` (read-only).");
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();
+
+
+  m.def("save_image",
+        &SaveImage, R"docstr(
+        Stores an image to disk as either JPEG or PNG.
+
+        Note that PNG output will usually result in 20-50% larger files in
+        comparison to optimized PNG libraries.
+        Thus, this option should only be used if you don't already
+        work with a specialized image processing library, which offers
+        optimized image I/O.
+
+        Args:
+          filename: The output filename as :class:`str`. The
+            calling code must ensure that the directory
+            hierarchy exists.
+          image: The :class:`~viren2d.ImageBuffer` which
+            should be written to disk.
+        )docstr",
+        py::arg("filename"), py::arg("image"));
+
+  m.def("load_image",
+        &LoadImage, R"docstr(
+        Reads an image from disk.
+
+        This functionality uses the
+        `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`__
+        to load the image file. Supported formats are:
+
+           JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
+
+        Args:
+          filename: The path to the image file as :class:`str`.
+          force_channels: An :class:`int` which is used to
+            force the number of loaded channels, *e.g.* to
+            load a JPEG as RGBA format with ``force_channels = 4``.
+
+            Valid parameter settings are:
+
+               * ``0``: Load image *as-is*.
+               * ``1``: Load image as grayscale.
+               * ``2``: Load image as grayscale + alpha channel.
+               * ``3``: Load image as RGB.
+               * ``4``: Load image as RGBA.
+        )docstr",
+        py::arg("filename"),
+        py::arg("force_channels") = 0);
 }
 } // namespace bindings
 } // namespace viren2d

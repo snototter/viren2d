@@ -3,9 +3,9 @@
    a potential `pybind11 bug <https://github.com/pybind/pybind11/issues/3815>`_.
 
 
-----------------
-Basic Data Types
-----------------
+-------------------------
+Basic Shapes & Data Types
+-------------------------
 
 ~~~~~
 Color

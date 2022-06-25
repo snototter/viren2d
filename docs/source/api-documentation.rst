@@ -15,7 +15,7 @@ API Documentation
    apidoc/apidoc-drawing
 
 
-**Basic Data Types:**
+**Basic Shapes & Data Types:**
 
    .. autosummary::
       :nosignatures:
@@ -26,6 +26,17 @@ API Documentation
       viren2d.Rect
       viren2d.Vec2d
       viren2d.Vec3d
+
+
+**Basic Shape Utilities:**
+
+   .. autosummary:: 
+      :nosignatures:
+
+      viren2d.ellipse_from_endpoints
+      viren2d.rect_from_cwh
+      viren2d.rect_from_lrtb
+      viren2d.rect_from_ltwh
 
 
 **Color Utilitites:**
@@ -45,17 +56,6 @@ API Documentation
       viren2d.RGBa
 
 
-**Shape Utilities:**
-
-   .. autosummary:: 
-      :nosignatures:
-
-      viren2d.ellipse_from_endpoints
-      viren2d.rect_from_cwh
-      viren2d.rect_from_lrtb
-      viren2d.rect_from_ltwh
-
-
 .. _api-documentation-drawing-summary:
 
 **Drawing Functionality:**
@@ -63,6 +63,14 @@ API Documentation
    The :class:`~viren2d.Painter` provides the following drawing functionality:
 
    .. viren2d-drawing-summary::
+
+**Image I/O:**
+
+   .. autosummary::
+      :nosignatures:
+
+      viren2d.load_image
+      viren2d.save_image
 
 
 **Style Definitions:**

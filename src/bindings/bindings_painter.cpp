@@ -937,11 +937,11 @@ void RegisterPainter(py::module &m) {
         >>>     fading_factor=viren2d.fade_out_linear)
 
       Note:
-        For fading colors, the trajectory has to be drawn via
-        separate line segments. This means that the
+        If a valid ``fade_out_color`` is provided, the trajectory
+        has to be drawn via separate line segments. This means that the
         :attr:`~viren2d.LineStyle.join` setting of ``line_style``
-        parameter will be ignored. Additionally, if transparent
-        colors are used, the segment endpoints will be visible.
+        parameter will have no effect. Additionally, if transparent
+        colors are used, the individual segment endpoints will be visible.
 
         To avoid this behavior, the trajectory needs to be drawn with
         a single color, *i.e.* pass :attr:`viren2d.Color.Invalid` as
@@ -956,7 +956,7 @@ void RegisterPainter(py::module &m) {
         py::arg("tail_first") = true,
         py::arg("smoothing_window") = 0,
         py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
-  // TODO Adjust the docstring if we change anything. It includes
+  // TODO Double-check the docstring if we change anything, because it includes
   // the current default color mix/fading factor function(!)
 
 
@@ -1000,14 +1000,6 @@ void RegisterPainter(py::module &m) {
         py::arg("tail_first") = true,
         py::arg("smoothing_window") = 0,
         py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
-
-
-
-  //TODO(snototter) add draw_xxx methods
-
-  //TODO(snototter) add convenience functions handling multiple
-  //    inputs (plural draw_xxxS), e.g. via the PainterWrapper:
-  //    "for (element in list) : painter_->DrawElement();"
 }
 
 } // namespace bindings

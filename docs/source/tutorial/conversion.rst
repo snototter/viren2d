@@ -2,9 +2,9 @@
 
 .. _tutorial-conversion:
 
---------------------------------
-Integration with Other Libraries
---------------------------------
+---------------------------------
+Image Conversion Across Libraries
+---------------------------------
 
 ``viren2d`` was designed to have as little external dependencies as possible.
 Thus, it uses its own :class:`~viren2d.ImageBuffer` class to encapsulate image
