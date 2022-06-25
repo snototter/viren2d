@@ -89,7 +89,7 @@ example. Note that this additionally requires `Pillow <https://pillow.readthedoc
      :alt: Hello world example
      :align: center
 
-     The resulting *hello world* drawing.
+     The resulting visualization.
 
 ---
 C++
