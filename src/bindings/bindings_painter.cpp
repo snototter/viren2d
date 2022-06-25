@@ -904,8 +904,8 @@ void RegisterPainter(py::module &m) {
       by ``fading_factor``.
 
       Args:
-        points: A :class:`list` of the trajectory's coordinates
-          as :class:`~viren2d.Vec2d`.
+        trajectory: A :class:`list` of :class:`~viren2d.Vec2d` which
+          specifies the trajectory's coordinates.
         line_style: A :class:`~viren2d.LineStyle` specifying how
           to draw the trajectory (except for the color gradient).
         fade_out_color: If this is a valid :class:`~viren2d.Color`,
@@ -976,28 +976,31 @@ void RegisterPainter(py::module &m) {
 
       Allows rendering multiple trajectories with a common
       :class:`~viren2d.LineStyle`.
-      Note that ``trajectories`` is a :class:`list` of ``(trajectory,
-      color)`` :class:`tuple`\ s:
 
-      * A ``trajectory`` is a :class:`list` of the trajectory's
-        coordinates as :class:`~viren2d.Vec`.
-      * The :class:`tuple` also holds its corresponding
-        :class:`~viren2d.Color`. If this color is invalid, the color
-        of the ``line_style`` will be used instead.
+      Args:
+        trajectories: A :class:`list` of :class:`tuple`,
+          where each :class:`tuple` holds ``(trajectory, color)``:
 
-      For details on all other parameters, refer the documentation
-      of :meth:`~viren2d.Painter.draw_trajectory`.
+          * ``trajectory`` is a :class:`list` of :class:`~viren2d.Vec`,
+            *i.e.* the coordinates.
+          * ``color`` is the corresponding :class:`~viren2d.Color`.
+            If invalid, the color of the ``line_style`` parameter
+            will be used instead.
+        others: For details on all other parameters, refer to the
+          documentation of :meth:`~viren2d.Painter.draw_trajectory`.
 
       Example:
         >>> points1 = [(20,  0), (10, 20), (42, 30), ...]
         >>> points2 = [(70, 70), (50, 20), (23, 30), ...]
-        >>> traj = [(points1, 'maroon'), (points2, 'invalid')]
+        >>> trajs = [(points1, 'maroon'), (points2, 'invalid')]
+        >>>
         >>> line_style = viren2d.LineStyle(
         >>>     width=5, color='navy-blue',
         >>>     cap=viren2d.LineCap.Round,
         >>>     join=viren2d.LineJoin.Round)
+        >>>
         >>> painter.draw_trajectories(
-        >>>     trajectory=points, line_style=line_style,
+        >>>     trajectories=trajs, line_style=line_style,
         >>>     fade_out_color=(0.8, 0.8, 0.8, 0.4),
         >>>     smoothing_window=5, tail_first=True,
         >>>     fading_factor=viren2d.fade_out_linear)
