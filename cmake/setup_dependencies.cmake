@@ -1,4 +1,4 @@
-function(setup_werkzeugkiste)
+function(setup_werkzeugkiste viren2d_TARGET_CPP_LIB)
     # Checks if werkzeugkiste is installed. If not, it will be fetched from 
     # github and integrated into our build step.
     find_package(werkzeugkiste 0.5 QUIET)
@@ -21,21 +21,26 @@ function(setup_werkzeugkiste)
         FetchContent_MakeAvailable(werkzeugkiste)
         message(STATUS "[viren2d] Downloaded werkzeugkiste v${werkzeugkiste_VERSION} via FetchContent.")
     endif()
+
+    # Modern CMake, we simply need to link against the targets.
+    # This takes care of adjusting the include directories AND the
+    # linker paths as needed.
+    target_link_libraries(${TARGET_CPP_LIB}
+        PRIVATE
+            werkzeugkiste::strings
+        PUBLIC
+            werkzeugkiste::geometry)
 endfunction()
 
 
-function(setup_spdlog)
+function(setup_spdlog viren2d_TARGET_CPP_LIB)
     # spdlog could already be available (e.g. via system package) or the user
     # manually downloaded and installed (either header-only or precompiled) the
     # logging library (or adjusted the CMake search path accordingly).
-    # To accomodate this, we try the standard search workflow:
-    # * Check if Cmake finds spdlog locally installed
-    # TODO remove spdlog from third-party - instead, try finding it quietly, if it fails, set up
-    # header-only via fetch_content! 
-    # If you installed (via cmake --install) spdlog to the default location, CMake will
-    # find spdlog. For other usage scenarios, refer to the spdlog examples, e.g.
-    # https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt
-    
+    # To accomodate for these options, we use this search workflow:
+    # 1) Check if CMake finds spdlog (already installed)
+    # 2) If not found, fetch it from github
+       
     find_package(spdlog QUIET)
     if(spdlog_FOUND)
         message(STATUS "[viren2d] Found locally installed spdlog.")
@@ -79,5 +84,8 @@ function(setup_spdlog)
         else()
             message(STATUS "[viren2d] Using the precompiled spdlog, target ${viren2d_SPDLOG_TARGET}.")
         endif()
+
+        target_link_libraries(${viren2d_TARGET_CPP_LIB}
+            PRIVATE ${viren2d_SPDLOG_TARGET})
     endif()
 endfunction()

@@ -171,22 +171,19 @@ target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 # -----------------------------------------------------------------------------
 # Set up the remaining external targets to include
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dependencies.cmake)
-setup_werkzeugkiste()
-setup_spdlog()
+setup_werkzeugkiste(${TARGET_CPP_LIB})
+setup_spdlog(${TARGET_CPP_LIB})
 
 # -----------------------------------------------------------------------------
-# Compilation & linking definitions
+# Set up include paths
 
-target_link_libraries(${TARGET_CPP_LIB}
-    PRIVATE
-        werkzeugkiste::strings
-        ${viren2d_SPDLOG_TARGET}
-    PUBLIC
-        werkzeugkiste::geometry)
-
-# Set up the include paths for internal usage (PRIVATE), usage if this
-# CMakeLists.txt is included in another project (PUBLIC BUILD_INTERFACE) or if
-# the installed library is used (PUBLIC INSTALL_INTERFACE)
+# Note (summary CMake documentation):
+# * PRIVATE is for viren2d-internal usage only
+# * PUBLIC BUILD_INTERFACE is for scenarios, where another project
+#   includes this CMakeLists.txt
+# * PUBLIC INSTALL_INTERFACE is for typical library usage, i.e.
+#   viren2d has previously been installed and should now just be linked
+#   into the user's application
 target_include_directories(${TARGET_CPP_LIB}
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
