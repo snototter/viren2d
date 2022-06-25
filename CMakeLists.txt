@@ -1,63 +1,59 @@
 cmake_minimum_required(VERSION 3.15)
 
+###############################################################################
+# Project definitions
+###############################################################################
+
 # This build's version could have already been set, e.g. by the CMakeBuild
 # extension in `setup.py`
 if(NOT viren2d_VERSION)
   file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" viren2d_VERSION)
 endif()
-    
+  
 # Set up the project
 project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
 
 
-# * CPP library and CMake namespace will be named viren2d++
-# * Python bindings/library will be named viren2d
+# -----------------------------------------------------------------------------
+# C++ library and CMake namespace is "viren2d++""
+# Python bindings/library is "viren2d"
+
 set(TARGET_CPP_LIB  ${PROJECT_NAME}++)
 set(TARGET_CPP_TEST ${PROJECT_NAME}-test)
 set(TARGET_CPP_DEMO demo-${PROJECT_NAME})
 set(TARGET_PYTHON_LIB ${PROJECT_NAME})
 
 
-#TODO disable before v1 release (except for install)
-#--> python cmakebuild extension already disables these
-option(viren2d_WITH_DEMO "Build C++ demo." ON)
-option(viren2d_WITH_PYTHON "Build Python bindings." ON)
-option(viren2d_WITH_TESTS "Build test suite." ON)
-option(INSTALL_viren2d "Configure installation target." ON)
+# -----------------------------------------------------------------------------
+# User options
 
-
+option(viren2d_BUILD_DEMO "Build C++ demo." OFF)
+option(viren2d_BUILD_PYTHON "Build Python bindings." OFF)
+option(viren2d_BUILD_TESTS "Build test suite." OFF)
+option(viren2d_INSTALL "Configure installation target." OFF)
 set(viren2d_LOG_LEVEL "info" CACHE STRING "Select log level")
-#TODO adjust: very likely viren2d will only use debug & trace
 set_property(CACHE viren2d_LOG_LEVEL PROPERTY STRINGS disable trace debug info warn error)
 
 
-#!!!!!
-#FIXME use default paths, check werkzeugkiste!
-#!!!!!
-# Offer the user the choice of overriding the installation (sub-)directories
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    # will not take effect without FORCE
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install/v${viren2d_VERSION}"
-        CACHE PATH "Installation top-level directory" FORCE)
-endif()
-set(INSTALL_DIR_LIB lib CACHE PATH "Installation directory for library (relative to CMAKE_INSTALL_PREFIX or absolute)")
-set(INSTALL_DIR_INCLUDE include CACHE PATH "Installation directory for header files (relative to CMAKE_INSTALL_PREFIX or absolute)")
-set(INSTALL_DIR_CMAKE cmake CACHE PATH "Installation directory for CMake files (relative to CMAKE_INSTALL_PREFIX or absolute)")
+# -----------------------------------------------------------------------------
+# Installation paths
 
-# Ensure all paths are absolute (needed later on)
-foreach(p LIB INCLUDE CMAKE)
-    set(var INSTALL_DIR_${p})
-    if(NOT IS_ABSOLUTE "${${var}}")
-        set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-    endif()
-endforeach()
+# Use the common Unix default installation paths (the GNUInstallDirs package
+# should also provide sane paths on Windows, but I didn't check this yet):
+include(GNUInstallDirs)
+set(INSTALL_DIR_INCLUDE ${CMAKE_INSTALL_INCLUDEDIR})
+set(INSTALL_DIR_LIB ${CMAKE_INSTALL_LIBDIR})
+# A default search location for CMake config files is /usr/lib/cmake/<package-name>
+set(INSTALL_DIR_CMAKE ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
 
-# Set compiler options
+# -----------------------------------------------------------------------------
+# Compiler options
+
 set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # Only std c++14, not gnu++14
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO set per targets; check werkzeugkiste CMakeLists
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO(cmake-improvement) gcc vs msvc vs... currently assumes linux, check CMakeLists of werkzeugkiste or spdlog!
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -72,9 +68,9 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
-
-#########################################################################################
+###############################################################################
 # C++ library
+###############################################################################
 
 # Auto-generate the version.h file
 configure_file(
@@ -82,7 +78,9 @@ configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/viren2d/version.h)
 
 
+# -----------------------------------------------------------------------------
 # Header files
+
 set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
     include/viren2d/drawing.h
@@ -100,6 +98,7 @@ set(viren2d_PRIVATE_HEADER_FILES
     src/helpers/enum.h)
 
 
+# -----------------------------------------------------------------------------
 # Source files
 set(viren2d_SOURCE_FILES
     src/primitives.cpp
@@ -113,36 +112,25 @@ set(viren2d_SOURCE_FILES
     src/helpers/drawing_helpers_primitives.cpp)
 
 
-# Define the core library
+# -----------------------------------------------------------------------------
+# viren2d C++ library
+
 add_library(${TARGET_CPP_LIB}
     ${viren2d_PUBLIC_HEADER_FILES}
     ${viren2d_PRIVATE_HEADER_FILES}
     ${viren2d_SOURCE_FILES})
+
 # Add a namespace'd alias
 add_library(${TARGET_CPP_LIB}::${TARGET_CPP_LIB} ALIAS ${TARGET_CPP_LIB})
 
-
-###############################################################################
-# Ensure all dependencies are available
-
-# The ./cmake subfolder contains a custom FindCairo module
-# TODO the current version will *NOT* work on Windows - maybe wait until
-# I manage to look into conda packaging
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(Cairo REQUIRED)
-target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
+set_target_properties(${TARGET_CPP_LIB}
+    PROPERTIES
+    PUBLIC_HEADER "${viren2d_PUBLIC_HEADER_FILES}"
+    DEBUG_POSTFIX "d")
 
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dependencies.cmake)
-setup_werkzeugkiste()
-setup_spdlog()
-setup_stb()
-
-
-target_link_libraries(${TARGET_CPP_LIB}
-                      PRIVATE werkzeugkiste::strings
-                      PUBLIC werkzeugkiste::geometry)
-
+# -----------------------------------------------------------------------------
+# Change CMake user option to preprocessor definitions
 
 # Set the user-configured log level (so we can disable verbose levels at compile time)
 if(${viren2d_LOG_LEVEL} STREQUAL "trace")
@@ -164,47 +152,94 @@ elseif(${viren2d_LOG_LEVEL} STREQUAL "disable")
     target_compile_definitions(${TARGET_CPP_LIB}
         PRIVATE viren2d_LOG_LEVEL_OFF)
 else()
-    message(FATAL_ERROR "[${TARGET_CPP_LIB}] Invalid viren2d_LOG_LEVEL value (${viren2d_LOG_LEVEL})")
+    message(FATAL_ERROR "[viren2d] Invalid viren2d_LOG_LEVEL value (${viren2d_LOG_LEVEL})")
 endif()
 
 
-# Set up the include paths for internal usage (PRIVATE), usage if this CMakeLists.txt is
-# included in another project (PUBLIC BUILD_INTERFACE) or if the installed library is
-# used (PUBLIC INSTALL_INTERFACE)
+###############################################################################
+# Dependencies
+###############################################################################
+
+# The ./cmake subfolder contains a custom FindCairo module
+# TODO(windows-support) the current FindCairo version will *NOT* work
+#   out-of-the-box on Windows. Fixing this is a low-priority task, as it
+#   will likely be solved when distributing via conda
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Cairo REQUIRED)
+target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
+
+# -----------------------------------------------------------------------------
+# Set up the remaining external targets to include
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dependencies.cmake)
+setup_werkzeugkiste()
+setup_spdlog()
+
+# -----------------------------------------------------------------------------
+# Compilation & linking definitions
+
+target_link_libraries(${TARGET_CPP_LIB}
+    PRIVATE
+        werkzeugkiste::strings
+        ${viren2d_SPDLOG_TARGET}
+    PUBLIC
+        werkzeugkiste::geometry)
+
+# Set up the include paths for internal usage (PRIVATE), usage if this
+# CMakeLists.txt is included in another project (PUBLIC BUILD_INTERFACE) or if
+# the installed library is used (PUBLIC INSTALL_INTERFACE)
 target_include_directories(${TARGET_CPP_LIB}
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src"
-            "${CMAKE_CURRENT_SOURCE_DIR}/libs/stb"
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:${INSTALL_DIR_INCLUDE}>)
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libs/stb"
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${INSTALL_DIR_INCLUDE}>)
+
+# Note that STB (https://github.com/nothings/stb) is a pure header-only library.
+# We don't need to set it up (and can't easily fetch it via CMake).
+# Thus, it is included as a submodule (license-wise, we could also distribute
+# the header file(s) along with viren2d).
+# To set it up, we only need to adjust the PRIVATE include path as above.
 
 
-set_target_properties(${TARGET_CPP_LIB} PROPERTIES
-    PUBLIC_HEADER "${viren2d_PUBLIC_HEADER_FILES}"
-    DEBUG_POSTFIX "d")
+###############################################################################
+# C++ library installation
+###############################################################################
 
-
-if(INSTALL_viren2d)
-    install(TARGETS ${TARGET_CPP_LIB}
+if(viren2d_INSTALL)
+    install(
+        TARGETS ${TARGET_CPP_LIB}
         EXPORT ${TARGET_CPP_LIB}Targets
+        
         # We don't have any installable executables, so we don't need RUNTIME
         # RUNTIME DESTINATION ${INSTALL_DIR_BIN}
         LIBRARY DESTINATION ${INSTALL_DIR_LIB}
         ARCHIVE DESTINATION ${INSTALL_DIR_LIB}
         PUBLIC_HEADER DESTINATION ${INSTALL_DIR_INCLUDE}/viren2d)
-        # Since we already defined the PUBLIC include directories, the INCLUDES DESTINATION
-        # is not needed (would simply cause a duplicated path entry in the generated
-        # .cmake file
-        # INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
 
-    install(EXPORT ${TARGET_CPP_LIB}Targets
+        # Since we already defined the PUBLIC include directories,
+        # the INCLUDES DESTINATION is not needed. It would simply cause a
+        # duplicated path entry in the generated .cmake file
+        # # INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
+
+    install(
+        EXPORT ${TARGET_CPP_LIB}Targets
         FILE ${TARGET_CPP_LIB}Targets.cmake
         NAMESPACE ${TARGET_CPP_LIB}::
         DESTINATION ${INSTALL_DIR_CMAKE})
+
+    # Add "uninstall" target
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_utils.cmake)
+    add_generic_uninstall_target()
 endif()
 
+# -----------------------------------------------------------------------------
+# CMake package configuration
 
-### Set up the CMake config file, so that viren2d++ can easily be integrated in your projects
+# Set up the CMake config file, so that viren2d++ can be
+# swiftly integrated in your projects
 include(CMakePackageConfigHelpers)
+
 # Generate the version file for the config file
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}ConfigVersion.cmake"
@@ -212,12 +247,13 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion)
 
 # Create config file
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}Config.cmake"
     INSTALL_DESTINATION ${INSTALL_DIR_CMAKE})
 
 # Install config files
-if(INSTALL_viren2d)
+if(viren2d_INSTALL)
     install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}Config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}ConfigVersion.cmake"
@@ -230,26 +266,28 @@ if(INSTALL_viren2d)
 endif()
 
 
-
-#########################################################################################
+###############################################################################
 # C++ demo
+###############################################################################
 
-if(viren2d_WITH_DEMO)
+if(viren2d_BUILD_DEMO)
     add_executable(${TARGET_CPP_DEMO}
         examples/demo2d.cpp)
 
     target_link_libraries(${TARGET_CPP_DEMO}
         PRIVATE ${TARGET_CPP_LIB}::${TARGET_CPP_LIB}
-        werkzeugkiste::container) # ::container needed for the color demo (sorting utils)
-        
+        werkzeugkiste::container)
+    # werkzeugkiste::container is needed for the color demo (sorting utils)
+    # TODO demos must be cleaned up - won't need the wzk dependency anymore
+
 
     # OpenCV is optional, we only use it to display the rendered images
     find_package(OpenCV QUIET)
     if(${OpenCV_FOUND})
-        message(STATUS "${PROJECT_NAME} demo will use OpenCV v${OpenCV_VERSION} to display images.")
+        message(STATUS "[viren2d] Demo application will use OpenCV v${OpenCV_VERSION} to display images.")
 
         target_compile_definitions(${TARGET_CPP_DEMO}
-            PRIVATE WITH_OPENCV)
+            PRIVATE viren2d_WITH_OPENCV)
 
         target_link_libraries(${TARGET_CPP_DEMO}
             PRIVATE ${OpenCV_LIBRARIES})
@@ -257,11 +295,11 @@ if(viren2d_WITH_DEMO)
 endif()
 
 
-
-#########################################################################################
+###############################################################################
 # Python bindings
+###############################################################################
 
-if(viren2d_WITH_PYTHON)
+if(viren2d_BUILD_PYTHON)
     # pybind11 provides add_module which is basically a wrapper of CMake's add_library
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/pybind11)
 
@@ -291,10 +329,11 @@ if(viren2d_WITH_PYTHON)
 endif()
 
 
-#########################################################################################
+###############################################################################
 # Tests for the C++ library
+###############################################################################
 
-if(viren2d_WITH_TESTS)
+if(viren2d_BUILD_TESTS)
     # Prevent gtest from adding itself to the install target
     set(INSTALL_GTEST OFF)
     set(BUILD_GMOCK OFF)
@@ -336,9 +375,3 @@ if(viren2d_WITH_TESTS)
     include(GoogleTest)
     gtest_discover_tests(${TARGET_CPP_TEST})
 endif()
-
-
-#########################################################################################
-# Add uninstall target
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_utils.cmake)
-add_generic_uninstall_target()

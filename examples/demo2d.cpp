@@ -3,18 +3,18 @@
 
 //#include <Eigen/Dense>
 
-#ifdef WITH_OPENCV
+#ifdef viren2d_WITH_OPENCV
 #include <opencv2/opencv.hpp>
 //#include <opencv2/core/eigen.hpp>
 #include <opencv2/highgui.hpp>
-#endif // WITH_OPENCV
+#endif // viren2d_WITH_OPENCV
 
 #include <viren2d/viren2d.h>
 #include <werkzeugkiste/container/sort.h>
 #include <werkzeugkiste/geometry/utils.h>
 
 
-/** Helper to show and save the canvas. */
+/// Helper to show and save the canvas.
 void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
   // Save to disk
   if (!filename.empty()) {
@@ -22,7 +22,7 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
     std::cout << "Canvas saved to '" << filename << "'." << std::endl;
   }
 
-#ifdef WITH_OPENCV
+#ifdef viren2d_WITH_OPENCV
   viren2d::ImageBuffer copy(canvas);
   copy.SwapChannels(0, 2);
   cv::Mat cv_buffer(copy.height, copy.width,
@@ -30,9 +30,9 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
                     copy.data, copy.stride);
   cv::imshow("Painter's Canvas", cv_buffer);
   cv::waitKey();
-#else  // WITH_OPENCV
+#else  // viren2d_WITH_OPENCV
   std::cerr << "OpenCV is not available - cannot display the canvas." << std::endl;
-#endif  // WITH_OPENCV
+#endif  // viren2d_WITH_OPENCV
 }
 
 
@@ -166,29 +166,6 @@ void DemoLines() {
   painter->DrawText({lbl.str()}, {300, 200}, viren2d::Anchor::Center,
                     viren2d::TextStyle(), {0, 0}, rotation);
   lbl.str(std::string());
-
-
-//  //FIXME fading line/trajectory
-//  line_style.color = {0.0, 0.0, 0.8};
-//  line_style.width = 1;
-//  double step_length = 10;
-//  int num_steps = static_cast<int>(painter->GetCanvasSize().width() / step_length);
-//  for (int i = 0; i < num_steps; ++i) {
-//    painter->DrawLine({0.0 + i * step_length, 10.0}, {50.0 + i * step_length, 10.0}, line_style);
-//    line_style.width += 0.3;
-//  }
-//  std::cout << "final line style: " << line_style << std::endl; //TODO remove trajectory test
-
-//  //FIXME trajectory test
-//  ApplyColor(context, Color({0.0, 0.0, 0.8}));
-//  cairo_move_to(context, 0, 30);
-//  const double lw = 13;
-//  cairo_set_line_width(context, 1);
-//  cairo_line_to(context, 400, 30-lw/2.0);
-//  cairo_line_to(context, 400, 30+lw/2.0);
-//  cairo_close_path(context);
-//  cairo_fill_preserve(context);
-//  cairo_stroke(context);
 
   ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
   painter.reset();
