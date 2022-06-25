@@ -339,11 +339,14 @@ Some **functional features**, that I'd like to see at some time in the future:
    the canvas and simply layout the images.
 
 *  Support switching between the image surface and cairo's SVG surface.
+   Summary of preliminary trials:
 
-   Note: I did some preliminary tests on this but didn't follow this route
-   for now. Even with the basic SVG examples I wasn't able to correctly
-   render image data (always ended up with empty SVGs). This will need some
-   deeper digging...
+   * SVG version must be set explicitly to 1.2
+   * Only RGB images seem to be included properly in the SVG file (empty
+     outputs with other formats; didn't investigate further so far)
+   * Backend must be configurable via the Painter interface
+   * Need to decide how the units should be best handled (SVG surface
+     uses points, all other functionality assumes pixels).
 
 *  Creating stereoglyphs
 

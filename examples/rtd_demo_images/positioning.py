@@ -35,9 +35,9 @@ def demo_text_anchors():
     y = offset_y
     x = offset_x
     padding = (6, 6)
-    for anchor in viren2d.TextAnchor.list_all():
+    for anchor in viren2d.Anchor.list_all():
         pos = (x, y)
-        if anchor != viren2d.TextAnchor.Center:
+        if anchor != viren2d.Anchor.Center:
             painter.draw_marker(pos, marker_style)
 
         painter.draw_textbox(

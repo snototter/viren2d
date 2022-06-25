@@ -10,14 +10,13 @@ Visualize Computer Vision Results Neatly in 2D
 
    
 .. warning::
-   ``viren2d`` has not yet reached a stable `v1.0` release. Currently,
-   it is highly experimental and quite incomplete!
+   ``viren2d`` has not yet reached a stable `v1.0` release.
    
-   An initial stable/almost-complete version might be released around
-   September/October 2022 (this is only a hobby/leisure time project).
-   I **do not recommend** using this toolbox before v1.0 - don't say I
-   didn't warn you! Until then, the API may (and will) change anytime,
-   most features are still not properly tested, python bindings are
+   An initial, stable/feature-complete version might be released in
+   late autumn 2022 (this is only a hobby/leisure time project).
+   I **do not recommend** using this toolbox before ``v1.0``.
+   Until then, the API may and will change anytime, many features
+   are still not properly tested, python bindings are
    incomplete, the documentation is a mess, *etc.*
 
 
@@ -28,16 +27,27 @@ environments.
 
 
 **What is it good for?**
-  It can primarily be used to overlay *detections, trajectories, text, arrows*
-  and more on image data. To get an idea of its capabilities, check out the
-  examples in the :ref:`quickstart tutorial<quickstart>`\ .
+  This library is primarily designed to overlay *detections, trajectories,
+  text, arrows* and more on image data. Additionally, it can be used as a
+  simplistic drawing toolbox, if basic shapes are all you need.
+  
+  To get an idea of its capabilities, check out the
+  examples in the :ref:`quickstart tutorial<quickstart>` or the
+  cheat sheets throughout the :ref:`API documentation<api-documentation>`.
+
+
+**How to get started?**
+   * Check the requirements and :ref:`install the library<installation>`.
+   * Learn how to use the library from the :ref:`quickstart tutorial<quickstart>`.
+   * Look up the :ref:`API documentation<api-documentation>`.
+   * If you want to contribute, check the :ref:`development guide<dev-guide>`.
 
 
 **What's under the hood?**
-   To ensure proper rendering of the visualizations, ``viren2d`` relies on the
-   `Cairo graphics library <https://www.cairographics.org/>`_.
+   The heavy lifting to ensure proper rendering of the visualizations is done
+   via the `Cairo 2D graphics library <https://www.cairographics.org/>`_.
 
-   Python bindings for the C++ library are provided via 
+   Python bindings for the C++ library are realized via 
    `pybind11 <https://pybind11.readthedocs.io/>`__.
 
 
@@ -47,36 +57,32 @@ environments.
    have been affected by the aftermath of the pandemic when picking a name...
 
 
-**How to get started?**
-   * :ref:`Install the library<installation>`.
-   * Browse the :ref:`quickstart tutorial<quickstart>`.
-   * Check the :ref:`API documentation<api-documentation>`.
-   * If you want to contribute, check the :ref:`development guide<dev-guide>`.
-
-
 **Which features are available?**
-   Already implemented, documented & tested features are marked by |checked|
+   Already implemented, documented & tested features in the following list are
+   marked by |checked|. See also the up-to-date
+   :ref:`list of implemented drawing functions<api-documentation>`.
    
    * |checked| Arcs
    * |checked| Arrows
+   * |unchecked| Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
    * |checked| Circles
    * |checked| Ellipses
    * |checked| Lines
    * |checked| Markers
-   * |unchecked| Object detection results: 2D bounding boxes - WIP (implemented, but not properly tested/documented)
-   * |unchecked| Polygons - WIP (implemented, but not properly tested/documented)
+   * |unchecked| Polygons - WIP (implemented, but not fully tested/documented)
    * |checked| Rectangles
-   * |unchecked| Text (single-/multi-line) - WIP (implemented, but not properly tested/documented)
-   * |unchecked| Text boxes (single-/multi-line) - WIP (implemented, but not properly tested/documented)
+   * |unchecked| Text (single-/multi-line) - WIP (implemented, but not fully tested/documented)
+   * |unchecked| Text Boxes (single-/multi-line) - WIP (implemented, but not fully tested/documented)
    * |checked| Trajectories
 
-**Which features may come in the future?**
+**Which features are to come in the future?**
 
-   * |unchecked| Object detection results: 3D bounding boxes (requires handling of camera calibration)
-   * |unchecked| Camera calibration-related: Ground plane, horizon, axes - low priority features
+   * |unchecked| Anonymization
+   * |unchecked| Bounding Boxes (3D)
+   * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...
+   * |unchecked| Image overlay
    * |unchecked| Pose estimation results
-   * |unchecked| Image overlay - low priority feature
-   * |unchecked| Pseudocoloring - low priority feature
+   * |unchecked| Pseudocoloring
 
 
 .. toctree::

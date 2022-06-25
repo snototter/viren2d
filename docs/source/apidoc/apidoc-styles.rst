@@ -79,7 +79,7 @@ Text Style
    :alt: Text positioning
    :align: center
 
-   Cheat Sheet: :class:`~viren2d.TextAnchor`
+   Cheat Sheet: :class:`~viren2d.Anchor`
 
 .. autoclass:: viren2d.TextStyle
    :autosummary:

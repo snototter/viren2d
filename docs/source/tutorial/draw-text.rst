@@ -15,7 +15,7 @@ Text Positioning
 ................
 
 To neatly position text, you simply need a **reference position** (*i.e. x* and
-*y* coordinate) and a :class:`~viren2d.TextAnchor`. The following figure shows
+*y* coordinate) and a :class:`~viren2d.Anchor`. The following figure shows
 text boxes, along with the corresponding anchor and reference positions,
 which are highlighted via :func:`~viren2d.Painter.draw_marker`:
 

@@ -71,7 +71,7 @@ def demo_tracking_by_detection():
     line_style.width = 2
     painter.draw_textbox(
         ['Mood:', 'Mildly infuriated'], position=(420, 60),
-        anchor=viren2d.TextAnchor.BottomRight,
+        anchor=viren2d.Anchor.BottomRight,
         text_style=text_style, padding=(10, 5),
         fill_color="white!80", line_style=line_style)
 

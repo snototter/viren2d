@@ -56,6 +56,8 @@ API Documentation
       viren2d.rect_from_ltwh
 
 
+.. _api-documentation-drawing-summary:
+
 **Drawing Functionality:**
 
    The :class:`~viren2d.Painter` provides the following drawing functionality:
@@ -84,7 +86,7 @@ API Documentation
    .. autosummary::
       :nosignatures:
 
+      viren2d.Anchor
       viren2d.HorizontalAlignment
-      viren2d.VerticalAlignment
-      viren2d.TextAnchor
       viren2d.LabelPosition
+      viren2d.VerticalAlignment

@@ -3,8 +3,9 @@ function(setup_werkzeugkiste viren2d_TARGET_CPP_LIB)
     # github and integrated into our build step.
     find_package(werkzeugkiste 0.5 QUIET)
     if(werkzeugkiste_FOUND)
-        message(STATUS "[viren2d] Found locally installed werkzeugkiste v${werkzeugkiste_VERSION}.")
+        message(STATUS "[viren2d] Using locally installed werkzeugkiste v${werkzeugkiste_VERSION}.")
     else()
+        message(STATUS "[viren2d] Including werkzeugkiste via FetchContent - initial download may take some time.")
         # We only need the toolbox (no examples, no testing)
         set(werkzeugkiste_BUILD_EXAMPLES OFF)
         set(werkzeugkiste_BUILD_TESTS OFF)
@@ -19,7 +20,7 @@ function(setup_werkzeugkiste viren2d_TARGET_CPP_LIB)
             GIT_REPOSITORY https://github.com/snototter/werkzeugkiste.git
             GIT_TAG main)
         FetchContent_MakeAvailable(werkzeugkiste)
-        message(STATUS "[viren2d] Downloaded werkzeugkiste v${werkzeugkiste_VERSION} via FetchContent.")
+        message(STATUS "[viren2d] Using werkzeugkiste v${werkzeugkiste_VERSION} via FetchContent.")
     endif()
 
     # Modern CMake, we simply need to link against the targets.
@@ -45,6 +46,7 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
     if(spdlog_FOUND)
         message(STATUS "[viren2d] Found locally installed spdlog.")
     else()
+        message(STATUS "[viren2d] Including spdlog via FetchContent - initial download may take some time.")
         # Configure spdlog
         set(SPDLOG_BUILD_EXAMPLE OFF)
         set(SPDLOG_BUILD_TESTS OFF)
@@ -59,7 +61,6 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
             GIT_REPOSITORY https://github.com/gabime/spdlog.git
             GIT_TAG v1.x)
         FetchContent_MakeAvailable(spdlog)
-        message(STATUS "[viren2d] Downloaded spdlog via FetchContent.")
     endif()
 
     # Set the available target to link against.
