@@ -6,6 +6,7 @@ Tasks in preparation of first stable release:
     To be used in exceptions + exposed in Python API as `detailed_str`.
   * [ ] Finalize RTD documentation, i.e. add reference/cheat sheet for each style.
 * Build pipeline:
+  * [ ] Refactor CMakeLists - use default paths (as e.g. in `wzk`)
   * [ ] Adjust CMakeLists: fetch all dependencies (incl. spdlog and stb).
   * [ ] Remove spdlog and stb submodules
   * [ ] Include backup/fallback snapshots of the 3 major dependencies, i.e. spdlog, stb and pybind11 (not needed as long as they're actively maintained)

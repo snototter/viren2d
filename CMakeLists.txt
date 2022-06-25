@@ -1,34 +1,39 @@
 cmake_minimum_required(VERSION 3.15)
 
-# Version could have been injected (e.g. by the CMakeBuild
-# extension in setup.py)
+# This build's version could have already been set, e.g. by the CMakeBuild
+# extension in `setup.py`
 if(NOT viren2d_VERSION)
   file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" viren2d_VERSION)
 endif()
-
     
 # Set up the project
 project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
+
+
 # * CPP library and CMake namespace will be named viren2d++
 # * Python bindings/library will be named viren2d
-set(TARGET_CPP_LIB    ${PROJECT_NAME}++)
-set(TARGET_CPP_TEST   ${PROJECT_NAME}-test)
-set(TARGET_CPP_DEMO   demo-${PROJECT_NAME})
+set(TARGET_CPP_LIB  ${PROJECT_NAME}++)
+set(TARGET_CPP_TEST ${PROJECT_NAME}-test)
+set(TARGET_CPP_DEMO demo-${PROJECT_NAME})
 set(TARGET_PYTHON_LIB ${PROJECT_NAME})
 
 
 #TODO disable before v1 release (except for install)
+#--> python cmakebuild extension already disables these
 option(viren2d_WITH_DEMO "Build C++ demo." ON)
 option(viren2d_WITH_PYTHON "Build Python bindings." ON)
 option(viren2d_WITH_TESTS "Build test suite." ON)
 option(INSTALL_viren2d "Configure installation target." ON)
+
 
 set(viren2d_LOG_LEVEL "info" CACHE STRING "Select log level")
 #TODO adjust: very likely viren2d will only use debug & trace
 set_property(CACHE viren2d_LOG_LEVEL PROPERTY STRINGS disable trace debug info warn error)
 
 
+#!!!!!
 #FIXME use default paths, check werkzeugkiste!
+#!!!!!
 # Offer the user the choice of overriding the installation (sub-)directories
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     # will not take effect without FORCE
@@ -51,7 +56,7 @@ endforeach()
 # Set compiler options
 set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)  # only std c++14, not gnu++14
+set(CMAKE_CXX_EXTENSIONS OFF)  # Only std c++14, not gnu++14
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO set per targets; check werkzeugkiste CMakeLists
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -116,48 +121,28 @@ add_library(${TARGET_CPP_LIB}
 # Add a namespace'd alias
 add_library(${TARGET_CPP_LIB}::${TARGET_CPP_LIB} ALIAS ${TARGET_CPP_LIB})
 
-# ./cmake includes a custom FindCairo module
+
+###############################################################################
+# Ensure all dependencies are available
+
+# The ./cmake subfolder contains a custom FindCairo module
+# TODO the current version will *NOT* work on Windows - maybe wait until
+# I manage to look into conda packaging
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Cairo REQUIRED)
-#target_link_libraries(${TARGET_CPP_LIB} PRIVATE ${Cairo_LIBS})
 target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 
-#TODO refactor werkzeugkiste integration -- could provide this for downloads at werkzeugkiste/cmake/werkzeugkiste.cmake
-find_package(werkzeugkiste 0.5 QUIET)
-if(werkzeugkiste_FOUND)
-    message(STATUS "Using werkzeugkiste v${werkzeugkiste_VERSION} (locally installed)")
-else()
-    ####message(STATUS "werkzeugkiste not found locally, falling back to FetchContent. If you installed the library, rerun with adjusted CMAKE_PREFIX_PATH.")
-    # We only need the toolbox (no examples, no testing)
-    set(werkzeugkiste_WITH_EXAMPLES OFF)
-    set(werkzeugkiste_WITH_TESTS OFF)
-    # We use werkzeugkiste in the public viren2d interface,
-    # thus we need to install it too
-    set(INSTALL_werkzeugkiste ON)
 
-    # Fetch the library:
-    include(FetchContent)
-    FetchContent_Declare(
-      werkzeugkiste
-      GIT_REPOSITORY https://github.com/snototter/werkzeugkiste.git
-      GIT_TAG main
-    )
-    FetchContent_MakeAvailable(werkzeugkiste)
-    message(STATUS "Using werkzeugkiste v${werkzeugkiste_VERSION} (via FetchContent)")
-endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dependencies.cmake)
+setup_werkzeugkiste()
+setup_spdlog()
+setup_stb()
+
 
 target_link_libraries(${TARGET_CPP_LIB}
                       PRIVATE werkzeugkiste::strings
                       PUBLIC werkzeugkiste::geometry)
 
-
-# TODO remove spdlog from third-party - instead, try finding it quietly, if it fails, set up
-# header-only via fetch_content! 
-# If you installed (via cmake --install) spdlog to the default location, CMake will
-# find spdlog. For other usage scenarios, refer to the spdlog examples, e.g.
-# https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt
-find_package(spdlog REQUIRED)
-target_link_libraries(${TARGET_CPP_LIB} PRIVATE spdlog::spdlog)
 
 # Set the user-configured log level (so we can disable verbose levels at compile time)
 if(${viren2d_LOG_LEVEL} STREQUAL "trace")
@@ -355,13 +340,5 @@ endif()
 
 #########################################################################################
 # Add uninstall target
-if(NOT TARGET uninstall)
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-        IMMEDIATE @ONLY)
-
-    add_custom_target(uninstall
-        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-endif()
-
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_utils.cmake)
+add_generic_uninstall_target()
