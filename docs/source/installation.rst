@@ -85,6 +85,13 @@ example. Note that this additionally requires the lightweight
      :linenos:
      :caption: Python Hello World Example for ``viren2d``
 
+  .. figure:: ./images/hello_world.jpg
+     :width: 400
+     :alt: Hello world example
+     :align: center
+
+     The resulting *hello world* drawing.
+
 ---
 C++
 ---
