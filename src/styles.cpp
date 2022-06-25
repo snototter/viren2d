@@ -523,6 +523,9 @@ std::string LineStyle::ToDetailedString() const {
       << dash_offset << ')';
   }
 
+  s << ", cap=" << LineCapToString(cap)
+    << ", join=" << LineJoinToString(join);
+
   if (!IsValid())
     s << ", invalid";
   s << ")";

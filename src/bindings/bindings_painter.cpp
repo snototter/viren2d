@@ -693,15 +693,13 @@ void RegisterPainter(py::module &m) {
           how to draw the marker.
 
       Example:
-        >>> marker_style = viren2d.MarkerStyle()
-        >>> marker_style.marker = '7'
-        >>> marker_style.size = 30
-        >>> painter.draw_marker((42, 70), marker_style)
+        >>> marker_style = viren2d.MarkerStyle(marker='7', size=30, color='#ff00ff')
+        >>> painter.draw_marker(pt=(42, 70), marker_style=marker_style)
       )docstr";
   painter.def(
         "draw_marker",
         &PainterWrapper::DrawMarker, doc.c_str(),
-        py::arg("pos"), py::arg("marker_style") = MarkerStyle());
+        py::arg("pt"), py::arg("marker_style") = MarkerStyle());
 
 
   doc = R"docstr(

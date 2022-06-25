@@ -72,6 +72,18 @@ directly from the github repository:
       # Install viren2d:
       python -m pip install git+https://github.com/snototter/viren2d.git
 
+To verify the installation, you can optionally run the following copy-pastable
+example. Note that this additionally requires the lightweight
+`vito <https://pypi.org/project/vito/>`__ package, which can be installed via:
+
+  .. code-block:: console
+
+     python -m pip install vito
+
+  .. literalinclude:: ../../examples/rtd_hello_world.py
+     :language: python
+     :linenos:
+     :caption: Python Hello World Example for ``viren2d``
 
 ---
 C++

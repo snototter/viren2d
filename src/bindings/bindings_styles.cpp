@@ -283,23 +283,33 @@ MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
 }
 
 
+//FIXME add similar convenience construction to other styles, too
+//  --> TextStyle (anchor)
+//  --> BBox (label position...)
+//  --> Line/Arrow (cap/join)
+
+/// Convenience construction of a marker style,
+/// which accepts marker/cap/join definitions as
+/// either enum or char/string representation.
+MarkerStyle CreateMarkerStyle(
+    py::object &marker, double size,
+    double thickness, const Color &color,
+    bool fill, py::object &cap, py::object &join) {
+  Marker m = MarkerFromPyObject(marker);
+  LineCap c = LineCapFromPyObject(cap);
+  LineJoin j = LineJoinFromPyObject(join);
+  return MarkerStyle(m, size, thickness, color, fill, c, j);
+}
+
+
 void RegisterMarkerStyle(pybind11::module &m) {
   std::string doc = R"docstr(
       How a marker/keypoint should be drawn.
 
-      **Example:**
-
-      >>> # Initialize the default style and adjust what you need:
-      >>> style = viren2d.MarkerStyle()
-      >>> style.marker = '*'
-      >>> style.size = 10
-      >>> style.color = 'navy-blue!80'
-      >>> style.filled = True
-
-      >>> # Alternatively, you would get the same style via:
-      >>> style = viren2d.MarkerStyle(
-      >>>     marker=viren2d.Marker.Star, size=10,
-      >>>     color='navy-blue!80', filled=True)
+      Example:
+        >>> style = viren2d.MarkerStyle(
+        >>>     marker='*', size=10, color='navy-blue!80',
+        >>>     filled=True)
       )docstr";
   py::class_<MarkerStyle> style(m, "MarkerStyle", doc.c_str());
 
@@ -311,7 +321,8 @@ void RegisterMarkerStyle(pybind11::module &m) {
       Creates a customized marker style.
 
       Args:
-        marker: Shape as :class:`~viren2d.Marker` enum.
+        marker: Shape as :class:`~viren2d.Marker` enum value
+          or its character representation.
         size: Marker size in pixels as :class:`float`.
         thickness: Width/thickness of the contour in pixels
           as :class:`float`.
@@ -320,11 +331,15 @@ void RegisterMarkerStyle(pybind11::module &m) {
         filled: If ``True`` (and the shape allwos), the marker
           will be filled.
         cap: A :class:`~viren2d.LineCap` enum, specifying
-          how to render the line endpoints.
+          how to render the line endpoints. This parameter
+          can also be set to the corresponding string
+          representation, *e.g.* ``'round'``.
         join: A :class:`~viren2d.LineJoin` enum, specifying
           how to render the junctions of multi-segment lines.
+          This parameter can also be set to the corresponding
+          string representation, *e.g.* ``'miter'``.
       )docstr";
-  style.def(py::init<Marker, double, double, Color, bool, LineCap, LineJoin>(),
+  style.def(py::init<>(&CreateMarkerStyle),
             doc.c_str(),
             py::arg("marker") = default_style.marker,
             py::arg("size") = default_style.size,
@@ -349,16 +364,19 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
       .def(py::self == py::self, "Checks for equality.")
       .def(py::self != py::self, "Checks for inequality.")
-      .def("is_filled", &MarkerStyle::IsFilled,
-           "Returns ``True`` if this marker would be filled.\n\n"
-           "Note that this **may differ** from its :attr:`filled`\n"
-           "member: Some marker shapes *cannot* be filled (*e.g*\n"
-           "``'+'`` or ``'o'``), whereas some shapes *must* be"
-           "filled (*e.g.* ``'.'``).")
+      .def("is_filled", &MarkerStyle::IsFilled, R"docstr(
+           Returns ``True`` if this marker would be filled.
+
+           Note that this **may differ** from its :attr:`filled`
+           member: Some marker shapes *cannot* be filled (*e.g*
+           ``'+'`` or ``'o'``), whereas some shapes *must* be
+           filled (*e.g.* ``'.'``).
+           )docstr")
       .def("is_valid", &MarkerStyle::IsValid,
            "Checks if this style would lead to a drawable marker.");
 
-  doc = ":class:`~" + FullyQualifiedType("Color") + "`: Color of the marker's contour or fill (see :attr:`filled`).";
+  doc = ":class:`~viren2d.Color`: Color of the "
+        "marker's contour or fill (depending on :attr:`filled`).";
   style.def_readwrite("color", &MarkerStyle::color, doc.c_str());
 
   doc = ":class:`~" + FullyQualifiedType("Marker") + "`: "
@@ -419,6 +437,19 @@ void RegisterMarkerStyle(pybind11::module &m) {
       + FullyQualifiedType("Marker") + "` shapes.\n\n"
       "**Corresponding C++ API:** ``viren2d::ListMarkers``.";
   m.def("marker_codes", ListMarkers, doc.c_str());
+}
+
+
+/// Convenience construction of a line style,
+/// which accepts cap/join definitions as
+/// either enum or string representation.
+LineStyle CreateLineStyle(
+    double width, const Color &color,
+    const std::vector<double> &dash_pattern, double dash_offset,
+    py::object &cap, py::object &join) {
+  LineCap c = LineCapFromPyObject(cap);
+  LineJoin j = LineJoinFromPyObject(join);
+  return LineStyle(width, color, dash_pattern, dash_offset, c, j);
 }
 
 
@@ -506,14 +537,14 @@ void RegisterLineStyle(pybind11::module &m) {
         dash_offset: Optional offset into the pattern, at which
           the dash stroke begins (as :class:`float`). Refer to
           the class member :attr:`dash_offset` for details.
-        cap: A :class:`~viren2d.LineCap` enum, specifying
+        cap: A :class:`~viren2d.LineCap` enum, specifying //FIXME
           how to render the line's endpoints.
         join: A :class:`~viren2d.LineJoin` enum, specifying
-          how to render the junctions of multi-segment lines.
+          how to render the junctions of multi-segment lines. //FIXME
       )docstr";
   LineStyle default_style;
   line_style.def(
-        py::init<double, Color, std::vector<double>, double, LineCap, LineJoin>(),
+        py::init<>(&CreateLineStyle),
         doc.c_str(),
         py::arg("width") = default_style.width,
         py::arg("color") = default_style.color,
