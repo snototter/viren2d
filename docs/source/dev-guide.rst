@@ -4,9 +4,11 @@ Development Guide
 
 .. _dev-guide:
 
-If you plan on extending ``viren2d``, please consider the following style
-guide, design decisions and recommendations. This ensures that your new feature
-can be swiftly integrated into the library.
+Contributions to ``viren2d`` are highly welcome via
+`pull request <https://github.com/snototter/viren2d/pulls>`__.
+If you plan on adding features, please consider the following style
+guide, design decisions and recommendations. This ensures that your new
+feature can be swiftly integrated into the library.
 
 
 ~~~~~~~~~~~~
@@ -18,12 +20,14 @@ The implementation should (mostly) follow the Google coding style guides
 `for Python <https://google.github.io/styleguide/pyguide.html>`__.
 
 General design decision: The Python bindings should use **snake case**
-(except for class/type names), whereas the C++ interface should use **camel case**.
+(except for class & type names), whereas the C++ interface should use
+**camel case**.
 
 Since the documentation is build using `sphinx <https://www.sphinx-doc.org/>`__,
-the *reStructuredText* (reST) markup should be used. Check the 
+the *reStructuredText* (reST) markup should be used to document the Python
+interface. Refer to the
 `reStructuredText Primer <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_
-if you need a refresher on reST syntax.
+if you need a refresher on the reST syntax.
 
 
 ~~~~~~~~~~~~~
@@ -35,14 +39,14 @@ its :ref:`API documentation<api-documentation>` here on
 `RTD <https://readthedocs.org/>`_. So the most important advice for documenting
 new features is: **Be consistent!**
 
-The interface documentation should focus on **clarity** and **readability**.
+Following the coding style, the interface documentation should focus on
+**clarity** and **readability**. There's of course a tradeoff due to using
+reST markup for the RTD documentation.
 
-Don't forget to update the :ref:`API documentation<api-documentation>`
-once the new feature is finished.
+New features must be included in the :ref:`API documentation<api-documentation>`.
 
 Additionally, it might be useful to include a short example in the
 :ref:`quickstart tutorial<quickstart>`.
-
 
 
 ~~~~~~~~~~~~~~
@@ -57,6 +61,9 @@ Please also familiarize yourself with the
 ...........
 C++ Library
 ...........
+
+.. warning::
+   TODO order this list
 
 *  For each custom type (where applicable), add a c'tor using 
    ``std::initializer_list`` for less cluttered & more convenient use.
@@ -107,7 +114,8 @@ C++ Library
 Python Library
 ..............
 
-TODO order these points:
+.. warning::
+   TODO order this list
 
 *  When extending the :class:`~viren2d.Painter`, keep the alphabetic order of
    its ``draw_xxx`` bindings to aid maintainability.
@@ -350,16 +358,6 @@ Some **functional features**, that I'd like to see at some time in the future:
 
 *  Creating stereoglyphs
 
-*  Smoothing of trajectories.
-  
-   Although this should be implemented in werkzeugkiste, maybe along with sketch
-   filtering, like xkcd, *e.g.* 
-   `via 1D interpolation <https://github.com/slayton/matlab-xkcdify>`__ ,
-   or `as in mpl <https://github.com/JohannesBuchner/matplotlib-xkcdify>`__ - 
-   though this will be quite some work due to spline fitting (*e.g.* via
-   `ALGLIB <http://www.alglib.net/interpolation/spline3.php#header7>`__ or
-   `NCAR/EOL bspline <https://github.com/NCAR/bspline>`__)
-
 
 Some **workflow-related extensions**, I'd fancy:
 
@@ -372,5 +370,3 @@ Some **workflow-related extensions**, I'd fancy:
    push, but before the RTD workflow starts building the docs)
 
 *  Prepare github templates for PRs, issue reports, *etc.*
-
-
