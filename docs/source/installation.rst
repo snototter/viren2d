@@ -73,12 +73,11 @@ directly from the github repository:
       python -m pip install git+https://github.com/snototter/viren2d.git
 
 To verify the installation, you can optionally run the following copy-pastable
-example. Note that this additionally requires the lightweight
-`vito <https://pypi.org/project/vito/>`__ package, which can be installed via:
+example. Note that this additionally requires `Pillow <https://pillow.readthedocs.io/en/stable/>`__ package, which can be installed via:
 
   .. code-block:: console
 
-     python -m pip install vito
+     python -m pip install Pillow
 
   .. literalinclude:: ../../examples/rtd_hello_world.py
      :language: python

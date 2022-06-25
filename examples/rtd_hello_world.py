@@ -1,6 +1,6 @@
 import numpy as np
 import viren2d
-from vito import imvis
+from PIL import Image
 
 # Set up a white canvas:
 width, height = 400, 50
@@ -25,4 +25,5 @@ painter.draw_marker(
 
 # Display the image:
 shared_canvas_np = np.array(painter.canvas, copy=False)
-imvis.imshow(shared_canvas_np)
+image = Image.fromarray(shared_canvas_np)
+image.show()

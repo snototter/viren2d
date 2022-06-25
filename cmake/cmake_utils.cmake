@@ -12,4 +12,3 @@ function(add_generic_uninstall_target)
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
     endif()
 endfunction()
-
