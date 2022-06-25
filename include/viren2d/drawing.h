@@ -250,7 +250,7 @@ public:
 
 
   //TODO doc, test, bind
-  void DrawText(
+  Rect DrawText(
       const std::vector<std::string> &text,
       const Vec2d &anchor_position,
       Anchor anchor = Anchor::BottomLeft,
@@ -261,13 +261,14 @@ public:
     for (const auto &line : text) {
       lines.push_back(line.c_str());
     }
-    DrawTextImpl(lines, anchor_position, anchor,
-                 text_style, padding, rotation);
+    return DrawTextImpl(
+          lines, anchor_position, anchor,
+          text_style, padding, rotation);
   }
 
 
   //TODO doc, test, bind
-  void DrawTextBox(
+  Rect DrawTextBox(
       const std::vector<std::string> &text,
       const Vec2d &anchor_position,
       Anchor anchor = Anchor::BottomLeft,
@@ -282,7 +283,7 @@ public:
     for (const auto &line : text) {
       lines.push_back(line.c_str());
     }
-    DrawTextBoxImpl(
+    return DrawTextBoxImpl(
           lines, anchor_position, anchor, text_style,
           padding, rotation, box_line_style,
           box_fill_color, box_corner_radius, fixed_box_size);
@@ -392,7 +393,7 @@ protected:
 
 
   /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextImpl(
+  virtual Rect DrawTextImpl(
       const std::vector<const char*> &text,
       const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style,
@@ -400,7 +401,7 @@ protected:
 
 
   /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextBoxImpl(
+  virtual Rect DrawTextBoxImpl(
       const std::vector<const char*> &text,
       const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style, const Vec2d &padding,

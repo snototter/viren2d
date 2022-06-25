@@ -166,19 +166,19 @@ public:
   }
 
 
-  void DrawText(
+  Rect DrawText(
       const std::vector<std::string> &text,
       const Vec2d &anchor_position, py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) {
     Anchor anchor = AnchorFromPyObject(pyanchor);
-    painter_->DrawText(
+    return painter_->DrawText(
           text, anchor_position, anchor,
           text_style, padding, rotation);
   }
 
 
-  void DrawTextBox(
+  Rect DrawTextBox(
       const std::vector<std::string> &text,
       const Vec2d &anchor_position, py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
@@ -186,7 +186,7 @@ public:
       const Color &box_fill_color, double box_corner_radius,
       const Vec2d &fixed_box_size) {
     Anchor anchor = AnchorFromPyObject(pyanchor);
-    painter_->DrawTextBox(
+    return painter_->DrawTextBox(
           text, anchor_position, anchor, text_style,
           padding, rotation, box_line_style, box_fill_color,
           box_corner_radius, fixed_box_size);
@@ -785,11 +785,13 @@ void RegisterPainter(py::module &m) {
 
       Args:
         text: A :class:`list` of :class:`str` to be drawn.
-        position: Position of the reference point where to
-          anchor the text as :class:`~viren2d.Vec2d`.
-        anchor: How to orient the text w.r.t. the reference
-          point. Valid inputs are :class:`~viren2d.Anchor`
-          enum values and string representations.
+          For a single line, simply pass a :class:`list` which
+          holds a single :class:`str`.
+        anchor_position: Position of the reference point where
+          to anchor the text as :class:`~viren2d.Vec2d`.
+        anchor: How to orient the text w.r.t. the ``anchor_position``.
+          Valid inputs are :class:`~viren2d.Anchor` enum values
+          and string representations.
 
           A string must correspond either to a *position
           specification* - *i.e.* ``center``, ``top``, ``top-right``,
@@ -805,19 +807,24 @@ void RegisterPainter(py::module &m) {
         text_style: A :class:`~viren2d.TextStyle`, specifying
           how to render the text.
         padding: Optional distance between the closest glyph and the
-          reference point. Specified in pixels as :class:`~viren2d.Vec2d`.
-        rotation: Rotation angle in degrees as :class:`float`.
-          TODO document center of rotation
+          ``anchor_position``. Specified in pixels as :class:`~viren2d.Vec2d`.
+        rotation: Rotation angle (clockwise) in degrees as :class:`float`.
+          If specified, the text will be rotated around the ``anchor_position``.
+
+      Returns:
+        The bounding box of the drawn text as :class:`~viren2d.Rect`.
 
       Example:
         >>> #TODO
       )docstr";
-  painter.def("draw_text", &PainterWrapper::DrawText, doc.c_str(),
-      py::arg("text"), py::arg("position"),
-      py::arg("anchor") = Anchor::BottomLeft,
-      py::arg("text_style") = TextStyle(),
-      py::arg("padding") = Vec2d(0.0, 0.0),
-      py::arg("rotation") = 0.0);
+  painter.def(
+        "draw_text", &PainterWrapper::DrawText, doc.c_str(),
+        py::arg("text"),
+        py::arg("anchor_position"),
+        py::arg("anchor") = Anchor::BottomLeft,
+        py::arg("text_style") = TextStyle(),
+        py::arg("padding") = Vec2d(0.0, 0.0),
+        py::arg("rotation") = 0.0);
 
 
 
@@ -827,11 +834,13 @@ void RegisterPainter(py::module &m) {
 
       Args:
         text: A :class:`list` of :class:`str` to be drawn.
-        position: Position of the reference point where to anchor
-          the text as :class:`~viren2d.Vec2d`.
-        anchor: How to orient the text w.r.t. the reference
-          point. Valid inputs are :class:`~viren2d.Anchor`
-          enum values and string representations.
+          For a single line, simply pass a :class:`list` which
+          holds a single :class:`str`.
+        anchor_position: Position of the reference point where
+          to anchor the text as :class:`~viren2d.Vec2d`.
+        anchor: How to orient the text w.r.t. the ``anchor_position``.
+          Valid inputs are :class:`~viren2d.Anchor` enum values
+          and string representations.
 
           A string must correspond either to a *position
           specification* - *i.e.* ``center``, ``top``, ``top-right``,
@@ -846,10 +855,10 @@ void RegisterPainter(py::module &m) {
           be removed.
         text_style: A :class:`~viren2d.TextStyle`, specifying
           how to render the text.
-        padding: Optional distance between the closest glyph and the
-          reference point. Specified in pixels as :class:`~viren2d.Vec2d`.
-        rotation: Rotation angle in degrees as :class:`float`.
-          TODO document center of rotation
+        padding: Optional padding between text and the edges
+          of the box. Specified in pixels as :class:`~viren2d.Vec2d`.
+        rotation: Rotation angle (clockwise) in degrees as :class:`float`.
+          If specified, the text will be rotated around the ``anchor_position``.
         line_style: A :class:`~viren2d.LineStyle`, specifying
           how to render the border of the text box.
         fill_color: If you provide a valid :class:`~viren2d.Color`,
@@ -858,12 +867,15 @@ void RegisterPainter(py::module &m) {
           :attr:`viren2d.Rect.radius` for details on valid
           value ranges.
         fixed_size: TODO
+
+      Returns:
+        The bounding box of the drawn text as :class:`~viren2d.Rect`.
       )docstr";
   painter.def(
         "draw_textbox",
         &PainterWrapper::DrawTextBox, doc.c_str(),
         py::arg("text"),
-        py::arg("position"),
+        py::arg("anchor_position"),
         py::arg("anchor") = Anchor::BottomLeft,
         py::arg("text_style") = TextStyle(),
         py::arg("padding") = Vec2d::All(6.0),

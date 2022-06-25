@@ -419,10 +419,9 @@ void DrawRect(
     Color fill_color);
 
 
-void DrawText(
-    cairo_surface_t *surface, cairo_t *context,
+Rect DrawText(cairo_surface_t *surface, cairo_t *context,
     const std::vector<const char *> &text,
-    Vec2d anchor_position, Anchor anchor,
+    const Vec2d &anchor_position, Anchor anchor,
     const TextStyle &text_style, const Vec2d &padding,
     double rotation, const LineStyle &box_line_style,
     const Color &box_fill_color, double box_corner_radius,

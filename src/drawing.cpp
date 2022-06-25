@@ -266,7 +266,7 @@ protected:
   }
 
 
-  void DrawTextImpl(
+  Rect DrawTextImpl(
       const std::vector<const char*> &text,
       const Vec2d &anchor_position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
@@ -277,7 +277,7 @@ protected:
           text.size(), anchor_position, anchor,
           text_style, padding, rotation);
 
-    helpers::DrawText(
+    return helpers::DrawText(
           surface_, context_, text,
           anchor_position, anchor,
           text_style, padding, rotation,
@@ -286,7 +286,7 @@ protected:
   }
 
 
-  void DrawTextBoxImpl(
+  Rect DrawTextBoxImpl(
       const std::vector<const char*> &text,
       const Vec2d &anchor_position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
@@ -302,7 +302,7 @@ protected:
           box_corner_radius, (int)fixed_box_size.width(),
           (int)fixed_box_size.height());
 
-    helpers::DrawText(
+    return helpers::DrawText(
           surface_, context_, text, anchor_position, anchor,
           text_style, padding, rotation, box_line_style,
           box_fill_color, box_corner_radius, fixed_box_size);

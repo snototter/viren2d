@@ -346,13 +346,13 @@ def test_draw_marker():
     p.draw_marker((-100, 20), style)
 
     # Call draw_marker with kwargs and different parameter order
-    p.draw_marker(pos=(0, 0), marker_style=style)
-    p.draw_marker(marker_style=style, pos=(-100, 20))
-    p.draw_marker(pos=(0, 0))
+    p.draw_marker(pt=(0, 0), marker_style=style)
+    p.draw_marker(marker_style=style, pt=(-100, 20))
+    p.draw_marker(pt=(0, 0))
     with pytest.raises(TypeError): # Typo
         p.draw_marker(position=(0, 0), marker_style=style)
     with pytest.raises(TypeError): # Typo
-        p.draw_marker(pos=(0, 0), style=style)
+        p.draw_marker(pt=(0, 0), style=style)
 
     # Test draw markers
     markers = [

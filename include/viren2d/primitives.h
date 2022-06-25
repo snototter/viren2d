@@ -413,8 +413,6 @@ struct Rect {
   Rect(std::initializer_list<double> values);
 
 
-  Vec2d Center() const;
-
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Translate the center point by "offset" pixels in each dimension. */
@@ -451,13 +449,26 @@ struct Rect {
   }
 
 
-  //TODO doc & test & bind
+  /// Returns the center position.
+  Vec2d Center() const;
+
+  /// Returns the retangle's size.
   Vec2d Size() const;
-//  Vec2d Center() const;
+
+  /// Returns the x-coordinate of the left edge IFF rotation = 0.
   double left() const;
+
+  /// Returns the x-coordinate of the right edge IFF rotation = 0.
   double right() const;
+
+  /// Returns the y-coordinate of the top edge IFF rotation = 0.
   double top() const;
+
+  /// Returns the y-coordinate of the bottom edge IFF rotation = 0.
   double bottom() const;
+
+  //TODO convenient extensions:
+  // topleft/bottomright, which respect the rotation (but not radius)!
 //  Vec2d TopLeft() const;
 //  Vec2d TopRight() const;
 //  Vec2d BottomLeft() const;
