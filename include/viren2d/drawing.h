@@ -125,17 +125,11 @@ public:
   }
 
 
-  /**
-   * @brief Draws a 2D bounding box.
-   */
+  /// Draws a 2D bounding box.
   void DrawBoundingBox2D(
       const Rect &box, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    std::vector<const char*> lines; //FIXME const char vs string!
-    for (const auto &line : label) {
-      lines.push_back(line.c_str());
-    }
-    DrawBoundingBox2DImpl(box, lines, style);
+    DrawBoundingBox2DImpl(box, label, style);
   }
 
 
@@ -230,17 +224,18 @@ public:
   }
 
 
-  /**
-   * @brief Draws a rectangle in various different shapes.
-   *
-   * @param rect:   Defines the rectangle (incl. optional
-   *                rotation & corner radius)
-   * @param line_style: How to draw the outline. To skip drawing
-   *                the contour, pass LineStyle::Invalid (then
-   *                you must specify a valid 'fill_color').
-   * @param fill_color: Provide a valid color to fill
-   *                the rectangle.
-   */
+  /// Draws a rectangle.
+  ///
+  /// Args:
+  ///   rect: The :class:`~viren2d.Rect` which should be drawn.
+  ///   line_style: A :class:`~viren2d.LineStyle` specifying how
+  ///       to draw the rectangle's outline.
+  ///
+  ///       If you pass :attr:`viren2d.LineStyle.Invalid`, the
+  ///       contour will not be drawn - then, you must provide
+  ///       a valid ``fill_color``.
+  ///   fill_color: If you provide a valid :class:`~viren2d.Color`,
+  ///       the rectangle will be filled.
   void DrawRect(
       const Rect &rect,
       const LineStyle &line_style = LineStyle(),
@@ -257,12 +252,8 @@ public:
       const TextStyle &text_style = TextStyle(),
       const Vec2d &padding = {0.0, 0.0},
       double rotation = 0.0) {
-    std::vector<const char*> lines;//FIXME revert to string
-    for (const auto &line : text) {
-      lines.push_back(line.c_str());
-    }
     return DrawTextImpl(
-          lines, anchor_position, anchor,
+          text, anchor_position, anchor,
           text_style, padding, rotation);
   }
 
@@ -279,12 +270,8 @@ public:
       const Color &box_fill_color = Color::White.WithAlpha(0.6),
       double box_corner_radius = 0.2,
       const Vec2d &fixed_box_size = {-1.0, -1.0}) {
-    std::vector<const char*> lines;//FIXME revert to string
-    for (const auto &line : text) {
-      lines.push_back(line.c_str());
-    }
     return DrawTextBoxImpl(
-          lines, anchor_position, anchor, text_style,
+          text, anchor_position, anchor, text_style,
           padding, rotation, box_line_style,
           box_fill_color, box_corner_radius, fixed_box_size);
   }
@@ -321,7 +308,7 @@ public:
   //            Scaling via cairo context!
 
 protected:
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawArcImpl(
       const Vec2d &center, double radius,
       double angle1, double angle2,
@@ -329,80 +316,80 @@ protected:
       bool include_center, const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawArrowImpl(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawBoundingBox2DImpl(
       const Rect &box,
-      const std::vector<const char*> &label,
+      const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawCircleImpl(
       const Vec2d &center, double radius,
       const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawEllipseImpl(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawPolygonImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawRectImpl(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to allow default values in public interface. */
+  /// Internal helper to allow default values in public interface.
   virtual Rect DrawTextImpl(
-      const std::vector<const char*> &text,
+      const std::vector<std::string> &text,
       const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style,
       const Vec2d &padding, double rotation) = 0;
 
 
-  /** Internal helper to allow default values in public interface. */
+  /// Internal helper to allow default values in public interface.
   virtual Rect DrawTextBoxImpl(
-      const std::vector<const char*> &text,
+      const std::vector<std::string> &text,
       const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
@@ -410,7 +397,7 @@ protected:
       const Vec2d &fixed_box_size) = 0;
 
 
-  /** Internal helper to allow default values in public interface. */
+  /// Internal helper to allow default values in public interface.
   virtual void DrawTrajectoryImpl(
       const std::vector<Vec2d> &points, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
@@ -418,7 +405,7 @@ protected:
       const std::function<double(double)> &mix_factor) = 0;
 
 
-  /** Internal helper to allow default values in public interface. */
+  /// Internal helper to allow default values in public interface.
   virtual void DrawTrajectoriesImpl(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,

@@ -120,7 +120,7 @@ void RegisterImageBuffer(py::module &m) {
            )docstr")
       .def("__repr__",
            [](const ImageBuffer &)
-           { return FullyQualifiedType("ImageBuffer", true); })
+           { return "<viren2d.ImageBuffer>"; })
       .def("__str__", &ImageBuffer::ToString)
       .def_readonly("width", &ImageBuffer::width,
            "int: Image width in pixels (read-only).")

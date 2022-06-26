@@ -14,18 +14,18 @@ namespace bindings {
 
 //------------------------------------------------- Vec(tor) from tuple
 template<typename _Tp, int dim>
-werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(py::object object) {
+werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(const py::object &object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
   using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
 
-  if (type.compare("tuple") != 0 && type.compare("list") != 0) {
+  if ((type.compare("tuple") != 0) && (type.compare("list") != 0)) {
     std::ostringstream s;
     s << "Cannot cast " << type << " to " << FullyQualifiedType(VC::TypeName())
       << ", we only support casting from tuples and lists.";
     throw std::invalid_argument(s.str());
   }
 
-  py::tuple tpl = object.cast<py::tuple>();
+  const py::tuple tpl = object.cast<py::tuple>();
   if (!tpl.empty() && tpl.size() != dim) {
     std::ostringstream s;
     s << "Cannot create " << FullyQualifiedType(VC::TypeName())
@@ -107,13 +107,13 @@ void RegisterVec(py::module &m) {
 
 
   std::ostringstream().swap(doc);
-  doc << PyTypeName<_Tp>(false) << " Read-write access to the first dimension.";
+  doc << PyTypeName<_Tp>(false) << " Read-write access to the first dimension, *i.e.* same as ``vec[0]``.";
   vec_cls.def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x),
                        &VC::SetX, doc.str().c_str());
 
 
   std::ostringstream().swap(doc);
-  doc << PyTypeName<_Tp>(false) << " Read-write access to the second dimension.";
+  doc << PyTypeName<_Tp>(false) << " Read-write access to the second dimension, *i.e.* same as ``vec[1]``.";
   vec_cls.def_property("y", static_cast<const _Tp &(VC::*)() const>(&VC::y),
                        &VC::SetY, doc.str().c_str());
 
@@ -282,7 +282,7 @@ void RegisterVec(py::module &m) {
 
   if (dim > 2) {
     std::ostringstream().swap(doc);
-    doc << PyTypeName<_Tp>(false) << " Read-write access to the third dimension.";
+    doc << PyTypeName<_Tp>(false) << " Read-write access to the third dimension, *i.e.* same as ``vec[2]``.";
     vec_cls.def_property("z", static_cast<const _Tp &(VC::*)() const>(&VC::z),
                          &VC::SetZ, doc.str().c_str());
   }
@@ -296,7 +296,7 @@ void RegisterVec(py::module &m) {
 
   if (dim > 3) {
     std::ostringstream().swap(doc);
-    doc << PyTypeName<_Tp>(false) << " Read-write access to the fourth dimension.";
+    doc << PyTypeName<_Tp>(false) << " Read-write access to the fourth dimension, *i.e.*  same as ``vec[3]``.";
     vec_cls.def_property("w", static_cast<const _Tp &(VC::*)() const>(&VC::w),
                          &VC::SetW, doc.str().c_str());
   }

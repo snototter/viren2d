@@ -21,7 +21,7 @@ py::tuple TextStyleToTuple(const TextStyle &obj) {
 }
 
 
-TextStyle TextStyleFromTuple(py::tuple tpl) {
+TextStyle TextStyleFromTuple(const py::tuple &tpl) {
   // Convert empty tuple to pre-defined default style
   if(tpl.empty()) {
     return TextStyle();
@@ -29,8 +29,7 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
 
   if (tpl.size() > 7) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType("TextStyle")
-      << " from tuple with "
+    s << "Cannot create `viren2d.TextStyle` from tuple with "
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
   }
@@ -68,7 +67,7 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
 
 void RegisterAnchors(py::module &m) {
   py::enum_<HorizontalAlignment> halign(m, "HorizontalAlignment",
-             "Enum specifying the horizontal alignment.");
+             "Options for horizontal alignment.");
   halign.value(
         "Left",
         HorizontalAlignment::Left,
@@ -96,7 +95,7 @@ void RegisterAnchors(py::module &m) {
 
 
   py::enum_<VerticalAlignment> valign(m, "VerticalAlignment",
-             "Enum specifying the vertical alignment.");
+             "Options for vertical alignment.");
   valign.value(
         "Top",
         VerticalAlignment::Top,
@@ -124,7 +123,7 @@ void RegisterAnchors(py::module &m) {
 
 
   py::enum_<Anchor> anchor(m, "Anchor",
-             "Enum specifying the location of the anchor.");
+             "Placement options with respect to a reference point.");
   anchor.value(
         "Center",
         Anchor::Center,
@@ -196,7 +195,7 @@ void RegisterAnchors(py::module &m) {
 
   py::enum_<LabelPosition> bblp(
         m, "LabelPosition",
-        "Enum specifying where to place a bounding box label.");
+        "Placement options for labels.");
   bblp.value(
         "Top",
         LabelPosition::Top,
@@ -241,7 +240,7 @@ void RegisterAnchors(py::module &m) {
 }
 
 
-HorizontalAlignment HorizontalAlignmentFromPyObject(py::object &o) {
+HorizontalAlignment HorizontalAlignmentFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     const auto str = py::cast<std::string>(o);
     return HorizontalAlignmentFromString(str);
@@ -251,10 +250,24 @@ HorizontalAlignment HorizontalAlignmentFromPyObject(py::object &o) {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("HorizontalAlignment") << "`!";
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.HorizontalAlignment`!";
     throw std::invalid_argument(str.str());
   }
+}
+
+
+/// Convenience construction of a text style,
+/// which accepts alignment definition as
+/// either enum or string representation.
+TextStyle CreateTextStyle(
+    unsigned int font_size, const std::string &font_family,
+    const Color &font_color, bool font_bold, bool font_italic,
+    double spacing, const py::object &align) {
+  HorizontalAlignment halign = HorizontalAlignmentFromPyObject(align);
+  return TextStyle(
+        font_size, font_family, font_color,
+        font_bold, font_italic, spacing, halign);
 }
 
 
@@ -262,23 +275,12 @@ void RegisterTextStyle(py::module &m) {
   std::string doc = R"docstr(
       How text should be rendered.
 
-      **Example:**
-
-      >>> # Initialize the default style and adjust what you need:
-      >>> style = viren2d.TextStyle()
-      >>> style.family = 'monospace'
-      >>> style.size = 10
-      >>> style.color = 'navy-blue!80'
-      >>> style.bold = True
-      >>> style.alignment = 'left'
-      >>> style.line_spacing = 1.1
-
-      >>> # Alternatively, you would get the same style via:
-      >>> style = viren2d.TextStyle(
-      >>>     family='monospace', size=10,
-      >>>     color='navy-blue!80', bold=True
-      >>>     alignment=viren2d.HorizontalAlignment.Left,
-      >>>     line_spacing=1.1)
+      Example:
+        >>> text_style = viren2d.TextStyle(
+        >>>     family='monospace', size=18,
+        >>>     color='navy-blue', bold=True,
+        >>>     italic=False, line_spacing=1.1,
+        >>>     alignment='left')
       )docstr";
   py::class_<TextStyle>text_style(m, "TextStyle", doc.c_str());
 
@@ -296,20 +298,21 @@ void RegisterTextStyle(py::module &m) {
         line_spacing: Scaling factor of the vertical distance between
           consecutive lines of text.
         alignment: Horizontal alignment of multi-line text
-          as :class:`~viren2d.HorizontalAlignment` enum.
+          as :class:`~viren2d.HorizontalAlignment` enum. This parameter
+          also accepts the corresponding string representation.
       )docstr";
+
   TextStyle default_style;
-  text_style.def(py::init<unsigned int, const std::string &,
-                          const Color &, bool, bool, double,
-                          HorizontalAlignment>(),
-                 doc.c_str(),
-         py::arg("size") = default_style.size,
-         py::arg("family") = default_style.family,
-         py::arg("color") = default_style.color,
-         py::arg("bold") = default_style.bold,
-         py::arg("italic") = default_style.italic,
-         py::arg("line_spacing") = default_style.line_spacing,
-         py::arg("alignment") = default_style.alignment);
+  text_style.def(
+        py::init<>(&CreateTextStyle),
+        doc.c_str(),
+        py::arg("size") = default_style.size,
+        py::arg("family") = default_style.family,
+        py::arg("color") = default_style.color,
+        py::arg("bold") = default_style.bold,
+        py::arg("italic") = default_style.italic,
+        py::arg("line_spacing") = default_style.line_spacing,
+        py::arg("alignment") = default_style.alignment);
 
   text_style.def(
         "copy",
@@ -375,7 +378,7 @@ void RegisterTextStyle(py::module &m) {
 
         In addition to the enum values, you can use
         the string representations (``left|west``,
-        ``center``, ``right|east``) to set this member:
+        ``center|middle``, ``right|east``) to set this member:
 
         >>> style.alignment = viren2d.HorizontalAlignment.Center
         >>> style.alignment = 'center'

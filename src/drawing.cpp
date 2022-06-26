@@ -138,11 +138,11 @@ protected:
 
 
   void DrawBoundingBox2DImpl(
-      const Rect &rect, const std::vector<const char*> &label,
+      const Rect &rect, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) override {
     SPDLOG_DEBUG(
           "ImagePainter::DrawBoundingBox2D: {:s},"
-          " label=\"{:s}\", style={:s}.", rect, label, style);//TODO werkzeugkiste: string shortening!
+          " label=\"{:s}\", style={:s}.", rect, label, style);//TODO use werkzeugkiste string shortening!
 
     helpers::DrawBoundingBox2D(
           surface_, context_, rect, label, style);
@@ -267,7 +267,7 @@ protected:
 
 
   Rect DrawTextImpl(
-      const std::vector<const char*> &text,
+      const std::vector<std::string> &text,
       const Vec2d &anchor_position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) override {
@@ -287,7 +287,7 @@ protected:
 
 
   Rect DrawTextBoxImpl(
-      const std::vector<const char*> &text,
+      const std::vector<std::string> &text,
       const Vec2d &anchor_position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,

@@ -14,7 +14,7 @@
 
 
 namespace viren2d {
-/** @brief Utilities to simplify module definition. */
+/// Utilities to simplify the module definition.
 namespace bindings {
 //-------------------------------------------------  Common (Binding utils)
 
@@ -27,7 +27,7 @@ std::string FullyQualifiedType(const std::string &name, bool with_tags = false);
 
 //-------------------------------------------------  Common (Color definition)
 void RegisterColor(pybind11::module &m);
-Color ColorFromTuple(pybind11::tuple tpl);
+Color ColorFromTuple(const pybind11::tuple &tpl);
 pybind11::tuple ColorToTuple(const Color &obj);
 
 

@@ -67,7 +67,7 @@ inline void CheckLineStyleAndFill(
   if (fill_color.IsSpecialSame()) {
     fill_color = style.color.WithAlpha(fill_color.alpha);
   }
-  // FIXME check usage of Color::Same in all fill... calls!
+
   if (!style.IsValid() && !fill_color.IsValid()) {
     std::string s(
           "Cannot draw with both invalid line "
@@ -307,7 +307,7 @@ private:
 class MultiLineText {
 public:
   MultiLineText(
-      const std::vector<const char*> &text,
+      const std::vector<std::string> &text,
       const TextStyle &text_style,
       cairo_t *context);
 
@@ -369,9 +369,8 @@ void DrawArrow(
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
 
-void DrawBoundingBox2D(
-    cairo_surface_t *surface, cairo_t *context,
-    Rect rect, const std::vector<const char *> &label,
+void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
+    Rect rect, const std::vector<std::string> &label,
     const BoundingBox2DStyle &style);
 
 
@@ -420,7 +419,7 @@ void DrawRect(
 
 
 Rect DrawText(cairo_surface_t *surface, cairo_t *context,
-    const std::vector<const char *> &text,
+    const std::vector<std::string> &text,
     const Vec2d &anchor_position, Anchor anchor,
     const TextStyle &text_style, const Vec2d &padding,
     double rotation, const LineStyle &box_line_style,

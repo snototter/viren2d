@@ -20,7 +20,7 @@ py::tuple EllipseToTuple(const Ellipse &obj) {
 }
 
 
-Ellipse EllipseFromTupleOrList(py::object object) {
+Ellipse EllipseFromTupleOrList(const py::object &object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
@@ -31,7 +31,7 @@ Ellipse EllipseFromTupleOrList(py::object object) {
   }
 
   // A list can safely be cast into a tuple:
-  py::tuple tpl = object.cast<py::tuple>();
+  const py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 8) {
     std::ostringstream s;
     s << "Cannot create an Ellipse from tuple/list with "
@@ -40,7 +40,7 @@ Ellipse EllipseFromTupleOrList(py::object object) {
   }
 
   Ellipse obj;
-  size_t consumed_elements = 0;
+  std::size_t consumed_elements = 0;
   try {
     // Try initialization from viren2d types first
     auto center = tpl[0].cast<Vec2d>();
@@ -57,10 +57,11 @@ Ellipse EllipseFromTupleOrList(py::object object) {
         << tpl.size() << " entries!";
       throw std::invalid_argument(s.str());
     }
-    obj = Ellipse(tpl[0].cast<double>(),
-                           tpl[1].cast<double>(),
-                           tpl[2].cast<double>(),
-                           tpl[3].cast<double>());
+    obj = Ellipse(
+        tpl[0].cast<double>(),
+        tpl[1].cast<double>(),
+        tpl[2].cast<double>(),
+        tpl[3].cast<double>());
     consumed_elements = 4;
   }
 
@@ -88,7 +89,7 @@ Ellipse EllipseFromTupleOrList(py::object object) {
 }
 
 
-Ellipse EllipseFromTuple(py::tuple tpl) {
+Ellipse EllipseFromTuple(const py::tuple &tpl) {
   return EllipseFromTupleOrList(tpl);
 }
 
@@ -267,7 +268,7 @@ py::tuple RectToTuple(const Rect &obj) {
 }
 
 
-Rect RectFromTupleOrList(py::object object) {
+Rect RectFromTupleOrList(const py::object &object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
@@ -277,7 +278,7 @@ Rect RectFromTupleOrList(py::object object) {
     throw std::invalid_argument(s.str());
   }
 
-  py::tuple tpl = object.cast<py::tuple>();
+  const py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 6) {
     std::ostringstream s;
     s << "Cannot create a viren2d.Rect from tuple/list with "
@@ -322,7 +323,7 @@ Rect RectFromTupleOrList(py::object object) {
 }
 
 
-Rect RectFromTuple(py::tuple tpl) {
+Rect RectFromTuple(const py::tuple &tpl) {
   return RectFromTupleOrList(tpl);
 }
 

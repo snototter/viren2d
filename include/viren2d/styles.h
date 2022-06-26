@@ -430,12 +430,14 @@ struct TextStyle {
   TextStyle();
 
 
-  TextStyle(unsigned int font_size,
-            const std::string &font_family,
-            const Color &font_color = Color::Black,
-            bool font_bold = false, bool font_italic = false,
-            double spacing = 1.2,
-            HorizontalAlignment align = HorizontalAlignment::Left);
+  TextStyle(
+      unsigned int font_size,
+      const std::string &font_family,
+      const Color &font_color = Color::Black,
+      bool font_bold = false,
+      bool font_italic = false,
+      double spacing = 1.2,
+      HorizontalAlignment align = HorizontalAlignment::Left);
 
 
   // Nothing special about the TextStyle class, so we can have
@@ -472,19 +474,16 @@ bool operator!=(const TextStyle &lhs, const TextStyle &rhs);
 
 
 //-------------------------------------------------  BoundingBox2DStyle
-/** How to draw a 2D bounding box. */
+/// How to draw a 2D bounding box.
 struct BoundingBox2DStyle {
   LineStyle line_style; //TODO documentation
   TextStyle text_style;
 
-  /**
-   * Optional fill color of the bounding box.
-   *
-   * This is a public member for user convenience. Drawing
-   * methods, however, should use @see BoxFillColor() which
-   * takes care of "special" color choices (like "use the same
-   * color as the contour but with a different alpha").
-   */
+  /// Optional fill color of the bounding box.
+  /// This is a public member for user convenience. Drawing
+  /// methods, however, should use @see BoxFillColor() which
+  /// takes care of "special" color choices (like "use the same
+  /// color as the contour but with a different alpha").
   Color box_fill_color;
   Color text_fill_color;
   LabelPosition label_position;
@@ -493,12 +492,14 @@ struct BoundingBox2DStyle {
 
   BoundingBox2DStyle();
 
-  BoundingBox2DStyle(const LineStyle &contour,
-                     const TextStyle &label_style,
-                     const Color &bounding_box_fill_color,
-                     const Color &label_box_color,
-                     LabelPosition label_pos,
-                     const Vec2d &text_padding, bool clip_lbl);
+  BoundingBox2DStyle(
+      const LineStyle &contour,
+      const TextStyle &label_style,
+      const Color &bounding_box_fill_color,
+      const Color &label_box_color,
+      LabelPosition label_pos,
+      const Vec2d &text_padding,
+      bool clip_lbl);
 
   // Nothing special about the BoundingBoxStyle class, so we can have
   // the default copy/assignment/move c'tors/operators:

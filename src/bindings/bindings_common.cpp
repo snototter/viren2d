@@ -23,7 +23,7 @@ std::string FullyQualifiedType(const std::string &name, bool with_tags) {
 }
 
 
-Color ColorFromTuple(py::tuple tpl) {
+Color ColorFromTuple(const pybind11::tuple &tpl) {
   // Return invalid color for empty tuple
   if (tpl.empty()) {
     return Color();
@@ -31,11 +31,11 @@ Color ColorFromTuple(py::tuple tpl) {
 
   if (tpl.size() < 3 || tpl.size() > 4) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType("Color")
-      << " from tuple with " << tpl.size()
-      << " values. Expected 3 or 4!";
+    s << "Cannot create `viren2d.Color` from tuple with "
+      << tpl.size() << " values. Expected 3 or 4!";
     throw std::invalid_argument(s.str());
   }
+
   // Restore exactly as given. We don't want saturating
   // casts to potentially influence the serialization:
   Color col;
@@ -59,7 +59,7 @@ py::tuple ColorToTuple(const Color &obj) {
 }
 
 
-Color CoordinateAxisColorFromPyObject(py::object &o) {
+Color CoordinateAxisColorFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     const auto str = py::cast<std::string>(o);
     return Color::CoordinateAxisColor(str[0]);
@@ -98,13 +98,18 @@ void RegisterColor(py::module &m) {
            If you initialize a color from a ``tuple(r,g,b,a)``, you **must
            ensure that the r,g,b values are within** ``[0, 1]``.
 
-           The *caveat* lies in *saturation casting* performed by
+           This is due to the *saturation cast* performed by
            :class:`~viren2d.Color`. For example, the following ``tuple``
            will be converted to ``(1, 1, 1)``, *i.e.* the polygon would
-           be filled with *white* instead!
+           be actually filled with *white*!
 
            >>> # Mistakenly specifying a color as `RGB` tuple instead of `rgb`:
            >>> painter.draw_polygon(..., fill_color=(20, 20, 75))
+
+           To specify a color as *RGB*, use :func:`viren2d.RGBa` instead:
+
+           >>> # Correctly specifying a color as `RGB`:
+           >>> painter.draw_polygon(..., fill_color=viren2d.RGBa(20, 20, 75))
         )docstr");
 
   color.def(py::init<>(), R"docstr(
@@ -463,7 +468,7 @@ void RegisterColor(py::module &m) {
         )docstr", py::arg("axis"));
 
 
-  doc = "Creates a :class:`~" + FullyQualifiedType("Color") + "` from\n"
+  doc = "Creates a :class:`~viren2d.Color` from\n"
         ":math:`r,g,b,a \\in [0,1]`.\n\n"
         "**Corresponding C++ API:** ``viren2d::rgba``.";
   m.def("rgba", &rgba, doc.c_str(),
@@ -471,8 +476,8 @@ void RegisterColor(py::module &m) {
         py::arg("alpha")=1.0);
 
 
-  doc = "Creates a :class:`~" + FullyQualifiedType("Color") + "` from\n"
-        ":math:`R,G,B \\in [0, 255]` and :math:`a \\in [0, 1]`.\n\n"
+  doc = "Creates a :class:`~viren2d.Color` from\n"
+        ":math:`R,G,B \\in [0, 255]` and alpha :math:`a \\in [0, 1]`.\n\n"
         "**Corresponding C++ API:** ``viren2d::RGBa``.";
   m.def("RGBa", &RGBa,
         doc.c_str(),

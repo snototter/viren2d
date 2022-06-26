@@ -282,5 +282,5 @@ def test_pickling():
         restored = pickle.loads(data)
         assert ms == restored
     
-    #TODO implement marker tests in test_styles.py
-    
+# TODO test text style
+# TODO test bounding box 2d style

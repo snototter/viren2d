@@ -31,17 +31,16 @@ py::dict LineStyleToDict(const LineStyle &ls) {
 }
 
 
-LineStyle LineStyleFromTuple(py::tuple tpl) {
+LineStyle LineStyleFromTuple(const py::tuple &tpl) {
   // Convert empty tuple to pre-defined default style
   if (tpl.empty()) {
     return LineStyle();
   }
 
-  if (tpl.size() > 6) {
+  if ((tpl.size() < 2) || (tpl.size() > 6)) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType("LineStyle")
-      << " from tuple with " << tpl.size()
-      << (tpl.size() == 1 ? " entry!" : " entries!");
+    s << "Cannot create `viren2d.LineStyle` from tuple with "
+      << tpl.size() << (tpl.size() == 1 ? " entry!" : " entries!");
     throw std::invalid_argument(s.str());
   }
 
@@ -101,7 +100,7 @@ void RegisterLineCap(pybind11::module &m) {
 }
 
 
-LineCap LineCapFromPyObject(py::object &o) {
+LineCap LineCapFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     return LineCapFromString(py::cast<std::string>(o));
   } else if (py::isinstance<LineCap>(o)) {
@@ -110,8 +109,8 @@ LineCap LineCapFromPyObject(py::object &o) {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("LineCap") << "`!";
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.LineCap`!";
     throw std::invalid_argument(str.str());
   }
 }
@@ -148,7 +147,7 @@ void RegisterLineJoin(pybind11::module &m) {
 }
 
 
-LineJoin LineJoinFromPyObject(py::object &o) {
+LineJoin LineJoinFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     return LineJoinFromString(py::cast<std::string>(o));
   } else if (py::isinstance<LineJoin>(o)) {
@@ -157,8 +156,8 @@ LineJoin LineJoinFromPyObject(py::object &o) {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("LineJoin") << "`!";
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.LineJoin`!";
     throw std::invalid_argument(str.str());
   }
 }
@@ -214,7 +213,7 @@ void RegisterMarker(pybind11::module &m) {
 }
 
 
-Marker MarkerFromPyObject(py::object &o) {
+Marker MarkerFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     const auto str = py::cast<std::string>(o);
     return MarkerFromChar(str[0]);
@@ -224,8 +223,8 @@ Marker MarkerFromPyObject(py::object &o) {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("Marker") << "`!";
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.Marker`!";
     throw std::invalid_argument(str.str());
   }
 }
@@ -246,9 +245,8 @@ MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
 
   if (tpl.size() > 7) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType("MarkerStyle")
-      << " from tuple with " << tpl.size()
-      << " entries (expected max. 7)!";
+    s << "Cannot create `viren2d.MarkerStyle` from tuple with "
+      << tpl.size() << " entries (expected max. 7)!";
     throw std::invalid_argument(s.str());
   }
 
@@ -283,18 +281,12 @@ MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
 }
 
 
-//FIXME add similar convenience construction to other styles, too
-//  --> TextStyle (anchor)
-//  --> BBox (label position...)
-//  --> Line/Arrow (cap/join)
-
 /// Convenience construction of a marker style,
 /// which accepts marker/cap/join definitions as
 /// either enum or char/string representation.
 MarkerStyle CreateMarkerStyle(
-    py::object &marker, double size,
-    double thickness, const Color &color,
-    bool fill, py::object &cap, py::object &join) {
+    const py::object &marker, double size, double thickness, const Color &color,
+    bool fill, const py::object &cap, const py::object &join) {
   Marker m = MarkerFromPyObject(marker);
   LineCap c = LineCapFromPyObject(cap);
   LineJoin j = LineJoinFromPyObject(join);
@@ -309,8 +301,9 @@ void RegisterMarkerStyle(pybind11::module &m) {
       Example:
         >>> style = viren2d.MarkerStyle(
         >>>     marker='*', size=10, color='navy-blue!80',
-        >>>     filled=True)
-      )docstr";
+        >>>     thickness=1, filled=True,
+        >>>     cap='round', join='miter')
+      )docstr";  
   py::class_<MarkerStyle> style(m, "MarkerStyle", doc.c_str());
 
   style.def(py::pickle(&MarkerStyleToTuple, &MarkerStyleFromTuple),
@@ -332,11 +325,11 @@ void RegisterMarkerStyle(pybind11::module &m) {
           will be filled.
         cap: A :class:`~viren2d.LineCap` enum, specifying
           how to render the line endpoints. This parameter
-          can also be set to the corresponding string
+          can also be set via the corresponding string
           representation, *e.g.* ``'round'``.
         join: A :class:`~viren2d.LineJoin` enum, specifying
           how to render the junctions of multi-segment lines.
-          This parameter can also be set to the corresponding
+          This parameter can also be set via the corresponding
           string representation, *e.g.* ``'miter'``.
       )docstr";
   style.def(py::init<>(&CreateMarkerStyle),
@@ -379,12 +372,15 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "marker's contour or fill (depending on :attr:`filled`).";
   style.def_readwrite("color", &MarkerStyle::color, doc.c_str());
 
-  doc = ":class:`~" + FullyQualifiedType("Marker") + "`: "
-        "Marker shape.\n\n"
-        "In addition to the enum values, you can use\n"
-        "the character codes to set this member:\n\n"
-        ">>> style.marker = viren2d.Marker.Cross\n"
-        ">>> style.marker = 'x'\n";
+  doc = R"docstr(
+      :class:`~viren2d.Marker`: Marker shape.
+
+        In addition to the enum values, you can use
+        the character codes to set this member:
+
+        >>> style.marker = viren2d.Marker.Cross
+        >>> style.marker = 'x'
+      )docstr";
   style.def_property("marker",
         [](MarkerStyle &s) { return s.marker; },
         [](MarkerStyle &s, py::object o) {
@@ -407,7 +403,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "filled (*e.g.* ``'.'``). For these shapes, the value\n"
         "of :attr:`filled` will be ignored.");
 
-  doc = ":class:`~" + FullyQualifiedType("LineCap") + "`: "
+  doc = ":class:`~viren2d.LineCap`: "
         "How to render the endpoints of the marker's contour.\n\n"
         "In addition to the enum values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
@@ -420,7 +416,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
         }, doc.c_str());
 
 
-  doc = ":class:`~" + FullyQualifiedType("LineJoin") + "`: "
+  doc = ":class:`~viren2d.LineJoin`: "
         "How to render the junctions of the marker's contour.\n\n"
         "In addition to the enum values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
@@ -433,8 +429,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
         }, doc.c_str());
 
 
-  doc = "Lists the character codes of all :class:`~"
-      + FullyQualifiedType("Marker") + "` shapes.\n\n"
+  doc = "Lists the character codes of all :class:`~viren2d.Marker` shapes.\n\n"
       "**Corresponding C++ API:** ``viren2d::ListMarkers``.";
   m.def("marker_codes", ListMarkers, doc.c_str());
 }
@@ -446,7 +441,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
 LineStyle CreateLineStyle(
     double width, const Color &color,
     const std::vector<double> &dash_pattern, double dash_offset,
-    py::object &cap, py::object &join) {
+    const py::object &cap, const py::object &join) {
   LineCap c = LineCapFromPyObject(cap);
   LineJoin j = LineJoinFromPyObject(join);
   return LineStyle(width, color, dash_pattern, dash_offset, c, j);
@@ -467,18 +462,10 @@ void RegisterLineStyle(pybind11::module &m) {
       but it's contour should not be drawn.
 
       Example:
-
-      >>> # Initialize the default style and adjust what you need:
-      >>> style = viren2d.LineStyle()
-      >>> style.width = 7
-      >>> style.color = 'crimson'
-      >>> style.cap = 'round'
-      >>> style.dash_pattern = [20, 10]
-
-      >>> # Alternatively, you would get the same style via:
-      >>> style = viren2d.LineStyle(
-      >>>     width=7, color='crimson',
-      >>>     cap='round', dash_pattern=[20, 10])
+        >>> style = viren2d.LineStyle(
+        >>>     width=7, color='crimson',
+        >>>     dash_pattern=[20, 10], dash_offset=0.0,
+        >>>     cap='round', join='miter')
 
       Note that depending on the selected :attr:`cap`
       (or :attr:`join`), the corresponding line (or joints)
@@ -489,8 +476,7 @@ void RegisterLineStyle(pybind11::module &m) {
       :meth:`~viren2d.LineStyle.join_offset`). For example:
 
       >>> # Choose a cap which results in an offset:
-      >>> line_style = viren2d.LineStyle()
-      >>> line_style.cap = 'round'
+      >>> line_style = viren2d.LineStyle(cap='round')
       >>>
       >>> # Endpoints of our line:
       >>> start = viren2d.Vec2d(10, 10)
@@ -537,10 +523,14 @@ void RegisterLineStyle(pybind11::module &m) {
         dash_offset: Optional offset into the pattern, at which
           the dash stroke begins (as :class:`float`). Refer to
           the class member :attr:`dash_offset` for details.
-        cap: A :class:`~viren2d.LineCap` enum, specifying //FIXME
-          how to render the line's endpoints.
+        cap: A :class:`~viren2d.LineCap` enum, specifying
+          how to render the line endpoints. This parameter
+          can also be set using the corresponding string
+          representation, *e.g.* ``'round'``.
         join: A :class:`~viren2d.LineJoin` enum, specifying
-          how to render the junctions of multi-segment lines. //FIXME
+          how to render the junctions of multi-segment lines.
+          This parameter can also be set using the corresponding
+          string representation, *e.g.* ``'miter'``.
       )docstr";
   LineStyle default_style;
   line_style.def(
@@ -624,7 +614,7 @@ void RegisterLineStyle(pybind11::module &m) {
            drawing conventions, *odd* line widths usually avoid
            anti-aliasing effects.
          )docstr")
-      // missing doc string: https://github.com/pybind/pybind11/issues/3815
+      //TODO doc string is missing in python package, see: https://github.com/pybind/pybind11/issues/3815
       .def_readonly_static("Invalid", &LineStyle::Invalid, R"docstr(
         :class:`~viren2d.LineStyle`: Special read-only member
           used to skip drawing contours.
@@ -709,7 +699,7 @@ py::dict ArrowStyleToDict(const ArrowStyle &obj) {
 }
 
 
-viren2d::ArrowStyle ArrowStyleFromTuple(py::tuple tpl) {
+viren2d::ArrowStyle ArrowStyleFromTuple(const py::tuple &tpl) {
   // Convert empty tuple to pre-defined default style
   if(tpl.empty()) {
     return viren2d::ArrowStyle();
@@ -717,9 +707,8 @@ viren2d::ArrowStyle ArrowStyleFromTuple(py::tuple tpl) {
 
   if (tpl.size() > 5) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType("ArrowStyle")
-      << " from tuple with "
-      << tpl.size() << " entries!";
+    s << "Cannot create `viren2d.ArrowStyle` from tuple with "
+      << tpl.size() << " entries (expected max. 5)!";
     throw std::invalid_argument(s.str());
   }
 
@@ -744,25 +733,32 @@ viren2d::ArrowStyle ArrowStyleFromTuple(py::tuple tpl) {
 }
 
 
+/// Convenience construction of an arrow style,
+/// which accepts cap/join definitions as
+/// either enum or string representation.
+ArrowStyle CreateArrowStyle(
+    double width, const Color &color, double tip_len, double angle,
+    bool fill, bool two_heads, const std::vector<double> &dash_pattern,
+    double dash_offset, const py::object &cap, const py::object &join) {
+  LineCap c = LineCapFromPyObject(cap);
+  LineJoin j = LineJoinFromPyObject(join);
+  return ArrowStyle(
+        width, color, tip_len, angle, fill, two_heads,
+        dash_pattern, dash_offset, c, j);
+}
+
+
 void RegisterArrowStyle(pybind11::module &m) {
   std::string doc = R"docstr(
       How an arrow should be drawn.
 
-      **Example:**
-
-      >>> # Initialize the default style and adjust what you need:
-      >>> style = viren2d.ArrowStyle()
-      >>> style.width = 5
-      >>> style.color = 'black'
-      >>> style.tip_length = 0.3
-      >>> style.tip_angle = 20
-      >>> style.tip_closed = True
-
-      >>> # Alternatively, you would get the same style via:
-      >>> style = viren2d.ArrowStyle(
-      >>>     width=5, color='black',
-      >>>     tip_length=0.3, tip_angle=20,
-      >>>     tip_closed=True)
+      Example:
+        >>> style = viren2d.ArrowStyle(
+        >>>     width=5, color='black',
+        >>>     tip_length=0.3, tip_angle=20,
+        >>>     tip_closed=True, double_headed=False,
+        >>>     dash_pattern=[], dash_offset=0.0,
+        >>>     cap='round', join='miter')
       )docstr";
   py::class_<ArrowStyle, LineStyle> arrow_style(m, "ArrowStyle", doc.c_str());
 
@@ -789,14 +785,17 @@ void RegisterArrowStyle(pybind11::module &m) {
           pattern, at which the dash stroke begins. Refer to the
           class member :attr:`dash_offset` for details.
         cap: A :class:`~viren2d.LineCap` enum, specifying
-          how to render the line's endpoints.
+          how to render the line endpoints. This parameter
+          can also be set using the corresponding string
+          representation, *e.g.* ``'round'``.
         join: A :class:`~viren2d.LineJoin` enum, specifying
           how to render the junctions of multi-segment lines.
+          This parameter can also be set using the corresponding
+          string representation, *e.g.* ``'miter'``.
         )docstr";
   ArrowStyle default_style;
   arrow_style.def(
-        py::init<double, Color, double, double, bool, bool,
-                 std::vector<double>, double, LineCap, LineJoin>(),
+        py::init<>(&CreateArrowStyle),
         doc.c_str(),
         py::arg("width") = default_style.width,
         py::arg("color") = default_style.color,
@@ -869,7 +868,7 @@ void RegisterArrowStyle(pybind11::module &m) {
 
 
 //-------------------------------------------------  BoundingBox2DStyle
-LabelPosition LabelPositionFromPyObject(py::object &o) {
+LabelPosition LabelPositionFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     return LabelPositionFromString(py::cast<std::string>(o));
   } else if (py::isinstance<LabelPosition>(o)) {
@@ -878,51 +877,81 @@ LabelPosition LabelPositionFromPyObject(py::object &o) {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("LabelPosition") << "`!";
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.LabelPosition`!";
     throw std::invalid_argument(str.str());
   }
 }
 
+
 py::tuple BoundingBox2DStyleToTuple(const BoundingBox2DStyle &st) {
-  return py::make_tuple(st.line_style, st.text_style,
-                        st.box_fill_color, st.text_fill_color,
-                        st.label_position, st.label_padding,
-                        st.clip_label);
+  return py::make_tuple(
+        st.line_style, st.text_style, st.box_fill_color, st.text_fill_color,
+        st.label_position, st.label_padding, st.clip_label);
 }
 
 
-BoundingBox2DStyle BoundingBox2DStyleFromTuple(py::tuple tpl) {
+/// Convenience construction of an arrow style,
+/// which accepts cap/join definitions as
+/// either enum or string representation.
+BoundingBox2DStyle CreateBoundingBox2DStyle(
+    const LineStyle &line_style,
+    const TextStyle &text_style,
+    const Color &bbox_fill_color,
+    const Color &label_box_color,
+    const py::object &label_pos,
+    const Vec2d &text_padding,
+    bool clip_lbl) {
+  LabelPosition lpos = LabelPositionFromPyObject(label_pos);
+  return BoundingBox2DStyle(
+        line_style, text_style, bbox_fill_color, label_box_color,
+        lpos, text_padding, clip_lbl);
+}
+
+
+BoundingBox2DStyle BoundingBox2DStyleFromTuple(const py::tuple &tpl) {
   // Convert empty tuple to pre-defined default style
   if (tpl.empty()) {
     return BoundingBox2DStyle();
   }
 
-//  if (tpl.size() > 5) {
-//    std::ostringstream s;
-//    s << "Cannot create " << FullyQualifiedType("LineStyle")
-//      << " from tuple with " << tpl.size()
-//      << (tpl.size() == 1 ? " entry!" : " entries!");
-//    throw std::invalid_argument(s.str());
-//  }
+  if (tpl.size() > 7) {
+    std::ostringstream s;
+    s << "Cannot create `viren2d.BoundingBox2DStyle` from tuple with "
+      << tpl.size() << (tpl.size() == 1 ? " entry!" : " entries!");
+    throw std::invalid_argument(s.str());
+  }
 
-//  LineStyle ls(tpl[0].cast<double>(),
-//                        tpl[1].cast<Color>());
+  BoundingBox2DStyle bstyle;
+  if (tpl.size() > 0) {
+    bstyle.line_style = tpl[0].cast<LineStyle>();
+  }
 
-//  if (tpl.size() > 2) {
-//    ls.dash_pattern = tpl[2].cast<std::vector<double>>();
-//  }
+  if (tpl.size() > 1) {
+    bstyle.text_style = tpl[1].cast<TextStyle>();
+  }
 
-//  if (tpl.size() > 3) {
-//    ls.cap = tpl[3].cast<LineCap>();
-//  }
+  if (tpl.size() > 2) {
+    bstyle.box_fill_color = tpl[2].cast<Color>();
+  }
 
-//  if (tpl.size() > 4) {
-//    ls.join = tpl[4].cast<LineJoin>();
-//  }
+  if (tpl.size() > 3) {
+    bstyle.text_fill_color = tpl[3].cast<Color>();
+  }
 
-//  return ls;
-  throw std::runtime_error("TODO: Not yet implemented");
+  if (tpl.size() > 4) {
+    bstyle.label_position = tpl[4].cast<LabelPosition>();
+  }
+
+  if (tpl.size() > 5) {
+    bstyle.label_padding = tpl[5].cast<Vec2d>();
+  }
+
+  if (tpl.size() > 6) {
+    bstyle.clip_label = tpl[6].cast<bool>();
+  }
+
+  return bstyle;
 }
 
 
@@ -930,46 +959,49 @@ void RegisterBoundingBox2DStyle(py::module &m) {
   std::string doc = R"docstr(
       How a 2D bounding box should be drawn."
 
-      TODO add documentation
+      Example:
+        >>> line_style = viren2d.LineStyle()
+        >>> text_style = viren2d.TextStyle()
+        >>> box_style = viren2d.BoundingBox2DStyle(
+        >>>   line_style=line_style, text_style=text_style,
+        >>>   box_fill_color='same!20', text_fill_color='white!60',
+        >>>   label_position='top', clip_label=True)
       )docstr";
   py::class_<BoundingBox2DStyle> bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 
-  //  //FIXME remove unnecessarily overloaded constructions
-    // ---> major workflow: create default style & change members
-    // ---> alternative: specify values directly in (a single) constructor
-
   doc = R"docstr(
-      Initialize from :class:`tuple`.
+      Creates a customized bounding box style.
 
-      TODO add documentation, see e.g. TextStyle
+      Args:
+        line_style: A :class:`~viren2d.LineStyle` specifying
+          how to render the box outline.
+        text_style: A :class:`~viren2d.TextStyle` specifying
+          how to render the label text.
+        box_fill_color: Optional :class:`~viren2d.Color` to
+          fill the box.
+        text_fill_color: Optional :class:`~viren2d.Color` to
+          fill the background of the label.
+        label_position: A :class:`~viren2d.LabelPosition` specifying
+          where to place the label. In addition to the enum value,
+          this parameter can be set using its string representation.
+        label_padding: Padding between the nearest bounding box
+          edges and the label as :class:`~viren2d.Vec`.
+        clip_label: If ``True``, the label will be clipped if it
+          exceeds the bounding box.
       )docstr";
+  BoundingBox2DStyle default_style;
   bbox_style.def(
-        py::init<>(&BoundingBox2DStyleFromTuple),
-        doc.c_str(), py::arg("tpl"));
-
-  //TODO implement
-//  doc = "Customize your text style:\n"
-//        ":width:    float\n"
-//        ":color:         " + FullyQualifiedType("Color") + "\n"
-//        ":dash_pattern:  list[float]\n"
-//        ":cap:      " + FullyQualifiedType("LineCap") + "\n"
-//        ":join:     " + FullyQualifiedType("LineJoin");
-//  text_style.def(py::init<unsigned int, const std::string &,
-//                          const Color &, bool, bool, double,
-//                          HorizontalAlignment>(),
-//                 "TODO doc",
-//                 py::arg("size"),
-//                 py::arg("family"),
-//                 py::arg("color") = Color::Black,
-//                 py::arg("bold") = false,
-//                 py::arg("italic") = false,
-//                 py::arg("line_spacing") = 1.2,
-//                 py::arg("alignment") = HorizontalAlignment::Left);
+        py::init<>(&CreateBoundingBox2DStyle),
+        doc.c_str(),
+        py::arg("line_style") = default_style.line_style,
+        py::arg("text_style") = default_style.text_style,
+        py::arg("box_fill_color") = default_style.box_fill_color,
+        py::arg("text_fill_color") = default_style.text_fill_color,
+        py::arg("label_position") = default_style.label_position,
+        py::arg("label_padding") = default_style.label_padding,
+        py::arg("clip_label") = default_style.clip_label);
 
   bbox_style.def(
-        py::init<>(),
-        "Creates a default, library-wide preset text style.")
-      .def(
         "copy",
         [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); },
         "Returns a deep copy.")
@@ -1054,8 +1086,10 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       :class:`~viren2d.Vec2d`: Padding between
       bounding box edges and label text.
       )docstr";
-  bbox_style.def_readwrite("label_padding", &BoundingBox2DStyle::label_padding,
-                           doc.c_str());
+  bbox_style.def_readwrite(
+        "label_padding",
+        &BoundingBox2DStyle::label_padding,
+        doc.c_str());
 
   bbox_style.def_readwrite(
         "clip_label",
@@ -1065,4 +1099,3 @@ void RegisterBoundingBox2DStyle(py::module &m) {
 }
 } // namespace bindings
 } // namespace viren2d
-

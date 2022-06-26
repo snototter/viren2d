@@ -26,7 +26,7 @@ function(setup_werkzeugkiste viren2d_TARGET_CPP_LIB)
     # Modern CMake, we simply need to link against the targets.
     # This takes care of adjusting the include directories AND the
     # linker paths as needed.
-    target_link_libraries(${TARGET_CPP_LIB}
+    target_link_libraries(${viren2d_TARGET_CPP_LIB}
         PRIVATE
             werkzeugkiste::strings
         PUBLIC
@@ -46,21 +46,28 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
     if(spdlog_FOUND)
         message(STATUS "[viren2d] Found locally installed spdlog.")
     else()
-        message(STATUS "[viren2d] Including spdlog via FetchContent - initial download may take some time.")
+        #TODO check, then clean up the previous fetchcontent version
+        #message(STATUS "[viren2d] Including spdlog via FetchContent - initial download may take some time.")
+        ## Configure spdlog
+        #set(SPDLOG_BUILD_EXAMPLE OFF)
+        #set(SPDLOG_BUILD_TESTS OFF)
+        #set(SPDLOG_INSTALL OFF)
+        #
+        ## Fetch the library:
+        ## IMPORTANT: we need the v1 branch for now (there's a major refactoring
+        ## going on - had issues with the initialization when trying an early v2)
+        #include(FetchContent)
+        #FetchContent_Declare(
+        #    spdlog
+        #    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        #    GIT_TAG v1.x)
+        #FetchContent_MakeAvailable(spdlog)
+        message(STATUS "[viren2d] Including spdlog from git submodule.")
         # Configure spdlog
         set(SPDLOG_BUILD_EXAMPLE OFF)
         set(SPDLOG_BUILD_TESTS OFF)
         set(SPDLOG_INSTALL OFF)
-
-        # Fetch the library:
-        # IMPORTANT: we need the v1 branch for now (there's a major refactoring
-        # going on - had issues with the initialization when trying an early v2)
-        include(FetchContent)
-        FetchContent_Declare(
-            spdlog
-            GIT_REPOSITORY https://github.com/gabime/spdlog.git
-            GIT_TAG v1.x)
-        FetchContent_MakeAvailable(spdlog)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/spdlog)
     endif()
 
     # Set the available target to link against.

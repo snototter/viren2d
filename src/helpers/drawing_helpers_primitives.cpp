@@ -658,6 +658,7 @@ void DrawRect(
     Rect rect, const LineStyle &line_style,
     Color fill_color) {
   CheckCanvas(surface, context);
+  // Fill color may be changed here if it is 'same'
   CheckLineStyleAndFill(line_style, fill_color);
 
   if (!rect.IsValid()) {

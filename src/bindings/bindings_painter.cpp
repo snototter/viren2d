@@ -15,7 +15,7 @@ namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
-Anchor AnchorFromPyObject(py::object &o) {
+Anchor AnchorFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     return AnchorFromString(py::cast<std::string>(o));
   } else if (py::isinstance<Anchor>(o)) {
@@ -168,7 +168,7 @@ public:
 
   Rect DrawText(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, py::object &pyanchor,
+      const Vec2d &anchor_position, const py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) {
     Anchor anchor = AnchorFromPyObject(pyanchor);
@@ -180,7 +180,7 @@ public:
 
   Rect DrawTextBox(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, py::object &pyanchor,
+      const Vec2d &anchor_position, const py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,
@@ -764,16 +764,25 @@ void RegisterPainter(py::module &m) {
               py::arg("fill_color") = Color::Invalid);
 
 
-  //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
-        "Args:\n  rect: The :class:`~" + FullyQualifiedType("Rect") + "`\n"
-        "    object which should be drawn.\n"
-        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
-        "    to draw the rectangle's outline.\n"
-        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
-        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
-        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
-        "    the rectangle will be filled.";
+  //TODO example //----------------------------------------------------------------------
+  doc = R"docstr(
+      Draws a rectangle.
+
+      Args:
+        rect: The :class:`~viren2d.Rect` which should be drawn.
+        line_style: A :class:`~viren2d.LineStyle` specifying how
+          to draw the rectangle's outline.
+
+          If you pass :attr:`viren2d.LineStyle.Invalid`, the
+          contour will not be drawn - then, you must provide
+          a valid ``fill_color``.
+        fill_color: If you provide a valid :class:`~viren2d.Color`,
+          the rectangle will be filled.
+
+        Example:
+          >>> line_style = viren2d.LineStyle()
+          >>> painter.draw_rect(rect=rect, line_style=line_style, fill_color='same!20')
+        )docstr";
   painter.def("draw_rect", &PainterWrapper::DrawRect, doc.c_str(),
               py::arg("rect"),
               py::arg("line_style") = LineStyle(),

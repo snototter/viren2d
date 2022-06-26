@@ -91,7 +91,7 @@ void SingleLineText::Init(
 
 
 MultiLineText::MultiLineText(
-    const std::vector<const char *> &text,
+    const std::vector<std::string> &text,
     const TextStyle &text_style, cairo_t *context)
   : top_left(0.0, 0.0), padding(0.0, 0.0), fixed_size(0.0, 0.0),
     width(0.0), height(0.0), style(text_style) {
@@ -100,7 +100,7 @@ MultiLineText::MultiLineText(
 
   for (std::size_t idx = 0; idx < text.size(); ++idx) {
     lines.push_back(
-          SingleLineText(text[idx], context, &font_extent));
+          SingleLineText(text[idx].c_str(), context, &font_extent));
     width = std::max(width, lines[idx].Width());
 
     height += (lines[idx].Height() * ((idx > 0) ? text_style.line_spacing : 1.0));
@@ -195,9 +195,8 @@ double MultiLineText::Height() const {
 
 
 //---------------------------------------------------- Text (plain & boxed)
-Rect DrawText(
-    cairo_surface_t *surface, cairo_t *context,
-    const std::vector<const char*> &text,
+Rect DrawText(cairo_surface_t *surface, cairo_t *context,
+    const std::vector<std::string> &text,
     const Vec2d &anchor_position, Anchor anchor,
     const TextStyle &text_style, const Vec2d &padding,
     double rotation, const LineStyle &box_line_style,

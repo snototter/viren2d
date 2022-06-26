@@ -18,7 +18,7 @@ namespace helpers {
 //---------------------------------------------------- BoundingBox 2D
 void DrawBoundingBox2D(
     cairo_surface_t *surface, cairo_t *context,
-    Rect rect, const std::vector<const char*> &label,
+    Rect rect, const std::vector<std::string> &label,
     const BoundingBox2DStyle &style) {
   //-------------------- Sanity checks
   CheckCanvas(surface, context);

@@ -160,6 +160,8 @@ endif()
 # Dependencies
 ###############################################################################
 
+# TODO(cmake-housekeeping) instead of fetchcontent, spdlog should be added like stb!
+
 # The ./cmake subfolder contains a custom FindCairo module
 # TODO(windows-support) the current FindCairo version will *NOT* work
 #   out-of-the-box on Windows. Fixing this is a low-priority task, as it
