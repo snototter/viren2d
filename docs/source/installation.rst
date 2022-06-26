@@ -96,7 +96,28 @@ C++
 ---
 
 .. warning::
-   TODO cpp documentation missing - populate with instructions from readme/point
-   to the cmake examples (local vs fetch content)
+   TODO point to the cmake fetch example
    
    (DONE) requirement list checked with fresh/clean Ubuntu 20.04 and 22.04
+
+   TODO check fetch content with fresh OS install
+
+.. code-block:: cmake
+
+   # viren2d requires at least C++14
+   set(CMAKE_CXX_STANDARD 14)
+
+   # Let CMake download and set up the viren2d dependency
+   include(FetchContent)
+   FetchContent_Declare(
+       viren2d
+       GIT_REPOSITORY https://github.com/snototter/viren2d.git
+       GIT_TAG main)
+   FetchContent_MakeAvailable(viren2d)
+
+   # Create the demo executable
+   add_executable(myexe my_source_file.cpp)
+
+   # Add the viren2d dependency (include paths will be set
+   # up automatically)
+   target_link_libraries(myexe PRIVATE viren2d++::viren2d++)

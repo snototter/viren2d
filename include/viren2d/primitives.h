@@ -345,37 +345,43 @@ bool operator!=(const Ellipse& lhs, const Ellipse& rhs);
 
 
 //-------------------------------------------------  Rectangle
-/**
- * @brief Rectangle for visualization.
- *
- * Note that it is defined by its CENTER coordinates
- * width, height, angle (clockwise rotation in degrees),
- * and a corner radius (for rounded rectangles).
- */
+/// Rectangle for visualization.
+///
+/// Note that it is defined by its CENTER coordinates
+/// width, height, angle (clockwise rotation in degrees),
+/// and a corner radius (for rounded rectangles).
 struct Rect {
-  double cx;        ///< Center coordinate in x direction.
-  double cy;        ///< Center coordinate in y direction.
-  double width;     ///< Width of rectangle.
-  double height;    ///< Height of rectangle.
-  double rotation;  ///< Clockwise rotation in degrees.
-  double radius;    ///< Corner radius. Must be <= min(width, height)/2. TODO doc percentage if < 1
+  /// Center coordinate in x direction.
+  double cx;
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings - not allowed
-  //DONE [x] add Python test (tests/test_xxx.py)
-  /** Default c'tor creats an invalid rectangle. */
+  /// Center coordinate in y direction.
+  double cy;
+
+  /// Width of the rectangle.
+  double width;
+
+  /// Height of the rectangle.
+  double height;
+
+  /// Clockwise rotation in degrees.
+  double rotation;
+
+  /// Corner radius.
+  /// If `0 <= radius <= 0.5`, the actural corner radius
+  /// will be computed as `radius * min(width, height)`.
+  /// If `radius > 1`, it denotes the absolute corner radius in pixels.
+  /// Otherwise, *i.e.* `0.5 < radius < 1`, the rectangle will be invalid.
+  double radius;
+
+
+  /// Default c'tor creates an invalid rectangle.
   Rect()
     : cx(0.0), cy(0.0), width(0.0), height(0.0),
       rotation(0.0), radius(0.0)
   {}
 
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //DONE [x] add Python test (tests/test_xxx.py)
-  /** Create a rectangle. */
+  /// Creates a custom rectangle.
   Rect(double center_x, double center_y, double w, double h,
        double rot = 0.0, double corner_radius = 0.0)
     : cx(center_x), cy(center_y), width(w), height(h),
@@ -383,11 +389,7 @@ struct Rect {
   {}
 
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //DONE [x] add Python test (tests/test_xxx.py)
-  /** Create a rectangle. */
+  /// Creates a custom rectangle.
   Rect(const Vec2d &center, const Vec2d &size,
        double rot = 0.0, double corner_radius = 0.0)
     : cx(center.x()), cy(center.y()),
@@ -403,19 +405,14 @@ struct Rect {
   Rect(Rect&&) = default;
   Rect& operator=(Rect &&) = default;
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  /**
-   * @brief Construct from an initializer list with 4 to 6 elements.
-   * Minimum: {cx, cy, w, h}
-   * Maximum: {cx, cy, w, h, rotation, corner_radius}
-   */
+
+  /// Creates a Rect from an initializer list with 4 to 6 elements.
+  /// * Minimum: {cx, cy, w, h}
+  /// * Maximum: {cx, cy, w, h, rotation, corner_radius}
   Rect(std::initializer_list<double> values);
 
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  /** @brief Translate the center point by "offset" pixels in each dimension. */
+  /// Translate the center point by "offset" pixels in each dimension.
   Rect &operator+=(double offset);
 
   //DONE [x] add documentation
