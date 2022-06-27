@@ -10,7 +10,11 @@ Tasks in preparation of first stable release:
   * [ ] Adjust CMakeLists: fetch all dependencies (incl. spdlog and stb).
   * [ ] Remove spdlog and stb submodules
   * [ ] Include backup/fallback snapshots of the 3 major dependencies, i.e. spdlog, stb and pybind11 (not needed as long as they're actively maintained)
-  
+* Tests:
+  * restructure!
+* Examples:
+  * restructure, see ``examples/hello-world-cpp`` (clear and concise)
+
 
 ## Installation
 TODO add to dev documentation:
