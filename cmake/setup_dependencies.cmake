@@ -42,7 +42,7 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
     # 1) Check if CMake finds spdlog (already installed)
     # 2) If not found, fetch it from github
        
-    find_package(spdlog QUIET)
+    #find_package(spdlog QUIET)
     if(spdlog_FOUND)
         message(STATUS "[viren2d] Found locally installed spdlog.")
     else()
@@ -92,7 +92,7 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
         else()
             message(STATUS "[viren2d] Using the precompiled spdlog, target ${viren2d_SPDLOG_TARGET}.")
         endif()
-
+        message(WARNING "TARGET ${viren2d_TARGET_CPP_LIB} adding... ${viren2d_SPDLOG_TARGET} as PRIVATE LINK!")
         target_link_libraries(${viren2d_TARGET_CPP_LIB}
             PRIVATE ${viren2d_SPDLOG_TARGET})
     endif()

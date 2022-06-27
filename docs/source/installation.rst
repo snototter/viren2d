@@ -95,14 +95,13 @@ example. Note that this additionally requires `Pillow <https://pillow.readthedoc
 C++
 ---
 
-.. warning::
-   TODO point to the cmake fetch example
-   
-   (DONE) requirement list checked with fresh/clean Ubuntu 20.04 and 22.04
-
-   TODO check fetch content with fresh OS install
+The recommended way of integrating ``viren2d`` in your application is via
+`CMake's FetchContent module <https://cmake.org/cmake/help/latest/module/FetchContent.html>`__,
+as shown below. For the corresponding demo application, refer to the
+`C++ hello world example <https://github.com/snototter/viren2d/tree/main/examples/hello-world-cpp>`__.
 
 .. code-block:: cmake
+   :caption: Exemplary ``CMakeLists.txt`` to integrate ``viren2d`` via CMake's FetchContent module. 
 
    # viren2d requires at least C++14
    set(CMAKE_CXX_STANDARD 14)
@@ -121,3 +120,21 @@ C++
    # Add the viren2d dependency (include paths will be set
    # up automatically)
    target_link_libraries(myexe PRIVATE viren2d++::viren2d++)
+
+.. note::
+   The `FetchContent_MakeAvailable <https://cmake.org/cmake/help/latest/module/FetchContent.html#command:fetchcontent_makeavailable>`__
+   feature requires CMake>=3.14.
+
+Since this is a standalone demo, only the C++ source file and the example's
+``CMakeLists.txt`` are needed. *FetchContent* will download and set up all
+dependencies as needed. If these two files are placed in a ``hello-world-example``
+folder, a typical CMake build would look like:
+
+.. code-block:: console
+
+   cd hello-world-example
+   mkdir && cd build
+   cmake ..
+   cmake --build .
+   ./hello-world
+
