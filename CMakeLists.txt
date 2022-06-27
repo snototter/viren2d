@@ -13,7 +13,7 @@ endif()
 # Set up the project
 project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
 
-set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)#FIXME remove
+#TODO cmake dependency graph for debugging: set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
 # -----------------------------------------------------------------------------
 # C++ library and CMake namespace is "viren2d++""
 # Python bindings/library is "viren2d"

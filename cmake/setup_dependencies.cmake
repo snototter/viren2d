@@ -43,32 +43,33 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
     # 2) If not found, fetch it from github
        
     #find_package(spdlog QUIET)
-    if(spdlog_FOUND)
-        message(STATUS "[viren2d] Found locally installed spdlog.")
-    else()
-        #TODO check, then clean up the previous fetchcontent version
-        #message(STATUS "[viren2d] Including spdlog via FetchContent - initial download may take some time.")
-        ## Configure spdlog
-        #set(SPDLOG_BUILD_EXAMPLE OFF)
-        #set(SPDLOG_BUILD_TESTS OFF)
-        #set(SPDLOG_INSTALL OFF)
-        #
-        ## Fetch the library:
-        ## IMPORTANT: we need the v1 branch for now (there's a major refactoring
-        ## going on - had issues with the initialization when trying an early v2)
-        #include(FetchContent)
-        #FetchContent_Declare(
-        #    spdlog
-        #    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        #    GIT_TAG v1.x)
-        #FetchContent_MakeAvailable(spdlog)
-        message(STATUS "[viren2d] Including spdlog from git submodule.")
-        # Configure spdlog
-        set(SPDLOG_BUILD_EXAMPLE OFF)
-        set(SPDLOG_BUILD_TESTS OFF)
-        set(SPDLOG_INSTALL OFF)
-        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/spdlog)
-    endif()
+    #if(spdlog_FOUND)
+    #    message(STATUS "[viren2d] Found locally installed spdlog.")
+    #else()
+    #TODO check, then clean up the previous fetchcontent version
+    #message(STATUS "[viren2d] Including spdlog via FetchContent - initial download may take some time.")
+    ## Configure spdlog
+    #set(SPDLOG_BUILD_EXAMPLE OFF)
+    #set(SPDLOG_BUILD_TESTS OFF)
+    #set(SPDLOG_INSTALL OFF)
+    #
+    ## Fetch the library:
+    ## IMPORTANT: we need the v1 branch for now (there's a major refactoring
+    ## going on - had issues with the initialization when trying an early v2)
+    #include(FetchContent)
+    #FetchContent_Declare(
+    #    spdlog
+    #    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    #    GIT_TAG v1.x)
+    #FetchContent_MakeAvailable(spdlog)
+    message(STATUS "[viren2d] Including spdlog from git submodule.")
+    # Configure spdlog
+    set(SPDLOG_BUILD_EXAMPLE OFF)
+    set(SPDLOG_BUILD_TESTS OFF)
+    set(SPDLOG_INSTALL ${viren2d_INSTALL})# FORCE)
+    message(WARNING "TODO check why spdlog is missing from export targets (even if forced... didn't find the proper setup yet)")
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/spdlog)
+    #endif()
 
     # Set the available target to link against.
     # Start with header-only which should be available, no matter how/where
@@ -92,7 +93,7 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
         else()
             message(STATUS "[viren2d] Using the precompiled spdlog, target ${viren2d_SPDLOG_TARGET}.")
         endif()
-        message(WARNING "TARGET ${viren2d_TARGET_CPP_LIB} adding... ${viren2d_SPDLOG_TARGET} as PRIVATE LINK!")
+
         target_link_libraries(${viren2d_TARGET_CPP_LIB}
             PRIVATE ${viren2d_SPDLOG_TARGET})
     endif()
