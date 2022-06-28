@@ -112,8 +112,6 @@ def test_channel_swapping():
     assert np.array_equal(data[:, :, 1], res[:, :, 1])
     assert np.array_equal(data[:, :, 0], res[:, :, 2])
     
-    
-
 
 def test_buffer_side_effects():
     data = (255 * np.random.rand(5, 15, 3)).astype(np.uint8)
@@ -163,3 +161,26 @@ def test_buffer_side_effects():
     assert not np.array_equal(data, old_deep_copy)
     assert not np.array_equal(np_shared, old_deep_copy)
     assert np.array_equal(np_copied, old_deep_copy)
+
+
+def test_dtypes():
+    for channels in [1, 2, 3]:
+        for tp in [np.uint8, np.int32, np.float32, np.float64]:
+            buf_np = np.ones((3, 5, channels), dtype=tp)
+            buf_vi = viren2d.ImageBuffer(buf_np, copy=False)
+            assert buf_vi.width == 5
+            assert buf_vi.height == 3
+            assert buf_vi.channels == channels
+            #TODO random initialization
+            # convert back (copy)
+            # check format, shape, dtype
+            # check values for equality
+
+    for tp in [np.int8, np.int16, np.float16]:
+        buf_np = np.ones((3, 5), dtype=tp)
+        with pytest.raises(ValueError):
+            viren2d.ImageBuffer(buf_np)
+
+    invalid = np.asfortranarray(np.ones((3, 5), dtype=np.uint8))
+    with pytest.raises(ValueError):
+        viren2d.ImageBuffer(invalid)

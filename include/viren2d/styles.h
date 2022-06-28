@@ -101,7 +101,9 @@ enum class Marker : unsigned char {
   // * MarkerToChar
   // * MarkerStyle::IsFilled - i.e. AdjustMarkerFill() - and MarkerStyle::IsValid
   // * helpers::DrawMarker
-  // If you add a marker BELOW TriangleRight, you must change ListMarkers() too!
+  // Note that "Point" and "Enneagon" are used throughout the code base to
+  // denote the first & last enum entries. If you need to change these,
+  // also adjust ListMarkers() and the test suite accordingly!
 };
 
 

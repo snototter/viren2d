@@ -31,14 +31,10 @@ environments.
   text, arrows* and more on image data. Additionally, it can be used as a
   simplistic drawing toolbox, if basic shapes are all you need.
   
-  To get an idea of its capabilities, check out the
-  examples in the :ref:`quickstart tutorial<quickstart>` or the
-  cheat sheets throughout the :ref:`API documentation<api-documentation>`.
-
 
 **How to get started?**
    * Check the requirements and :ref:`install the library<installation>`.
-   * Learn how to use the library from the :ref:`quickstart tutorial<quickstart>`.
+   * Learn how to use the library by the examples in the :ref:`quickstart tutorial<quickstart>`.
    * Look up the :ref:`API documentation<api-documentation>`.
    * If you want to contribute, check the :ref:`development guide<dev-guide>`.
 

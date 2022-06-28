@@ -84,6 +84,7 @@ configure_file(
 set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
     include/viren2d/drawing.h
+    include/viren2d/imagebuffer.h
     include/viren2d/primitives.h
     include/viren2d/positioning.h
     include/viren2d/styles.h
@@ -103,9 +104,10 @@ set(viren2d_PRIVATE_HEADER_FILES
 set(viren2d_SOURCE_FILES
     src/primitives.cpp
     src/colors.cpp
+    src/drawing.cpp
+    src/imagebuffer.cpp
     src/positioning.cpp
     src/styles.cpp
-    src/drawing.cpp
     src/helpers/logging.cpp
     src/helpers/drawing_helpers_text.cpp
     src/helpers/drawing_helpers_surveillance.cpp

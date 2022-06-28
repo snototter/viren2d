@@ -25,9 +25,9 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 #ifdef viren2d_WITH_OPENCV
   viren2d::ImageBuffer copy(canvas);
   copy.SwapChannels(0, 2);
-  cv::Mat cv_buffer(copy.height, copy.width,
-                    CV_MAKETYPE(CV_8U, copy.channels),
-                    copy.data, copy.stride);
+  cv::Mat cv_buffer(copy.Height(), copy.Width(),
+                    CV_MAKETYPE(CV_8U, copy.Channels()),
+                    copy.MutableData(), copy.Stride());
   cv::imshow("Painter's Canvas", cv_buffer);
   cv::waitKey();
 #else  // viren2d_WITH_OPENCV

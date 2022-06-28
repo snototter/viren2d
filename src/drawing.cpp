@@ -503,7 +503,7 @@ void ImagePainter::SetCanvas(const std::string &image_filename) {
 void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
   SPDLOG_DEBUG("ImagePainter::SetCanvas(image_buffer{:s}).",
                image_buffer);
-  if (image_buffer.channels != 4) {
+  if (image_buffer.Channels() != 4) {
     SetCanvas(image_buffer.ToChannels(4));
   } else {
     // Currently, we clean up previously created contexts/surfaces to
@@ -530,9 +530,9 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
 
     SPDLOG_TRACE("ImagePainter::SetCanvas: Creating Cairo surface and context from image buffer.");
     surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                          image_buffer.width, image_buffer.height);
-    std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.data,
-                4 * image_buffer.width * image_buffer.height);
+                                          image_buffer.Width(), image_buffer.Height());
+    std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.ImmutableData(),
+                4 * image_buffer.Width() * image_buffer.Height());
     context_ = cairo_create(surface_);
 
     // Needed to ensure that the underlying image surface
@@ -576,9 +576,9 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
 
   ImageBuffer buffer;
   if (copy) {
-    buffer.CreateCopy(data, width, height, channels, stride);
+    buffer.CreateCopy(data, width, height, channels, stride, ImageBufferType::UInt8);
   } else {
-    buffer.CreateSharedBuffer(data, width, height, channels, stride);
+    buffer.CreateSharedBuffer(data, width, height, channels, stride, ImageBufferType::UInt8);
   }
   return buffer;
 }
