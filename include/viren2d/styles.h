@@ -24,7 +24,7 @@
 
 namespace viren2d {
 //-------------------------------------------------  Line endpoints
-/** How to render the endpoints of a line. */
+/// How to render the endpoints of a line.
 enum class LineCap : unsigned char {
   Butt = 0,  ///< Start/stop the line exactly at the start/end point.
   Round,     ///< Rounded end, where the center of the circle is the line's start/end point.
@@ -32,15 +32,15 @@ enum class LineCap : unsigned char {
 };
 
 
-/** Returns the string representation. */
+/// Returns the string representation.
 std::string LineCapToString(LineCap cap);
 
 
-/** Returns a LineCap from its string representation. */
+/// Returns a LineCap from its string representation.
 LineCap LineCapFromString(const std::string &cap);
 
 
-/** Output stream operator to print a LineCap. */
+/// Output stream operator to print a LineCap.
 std::ostream &operator<<(std::ostream &os, LineCap cap);
 
 

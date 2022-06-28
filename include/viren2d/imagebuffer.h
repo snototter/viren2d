@@ -3,10 +3,10 @@
 
 #include <string>
 #include <ostream>
-#include <initializer_list>
-#include <cmath>
 
 namespace viren2d {
+
+/// Data types supported by the ImageBuffer class.
 enum class ImageBufferType : int {
   UInt8 = 0,
   Int32,
@@ -14,25 +14,27 @@ enum class ImageBufferType : int {
   Double
 };
 
+
+/// Returns the string representation.
 std::string ImageBufferTypeToString(ImageBufferType t);
+
+
+/// Returns the size of the corresponding data type in bytes.
 int ItemSizeFromImageBufferType(ImageBufferType t);
 
+
+/// Output stream operator to print a LineCap.
+std::ostream &operator<<(std::ostream &os, ImageBufferType t);
+
+
 //---------------------------------------------------- Image buffer
-// TODO
-// 1) encapsulate, no more public members
-// 2) dtype enum (ImageBufferType::UInt8, UChar, Float, Double, ...)
-// 3) elemsize from imagebuffertype (uint8/uchar -> 1, float -> sizeof(float), ...)
-// 4) pybind: check elemsize matches dtype
-// 5) imagebuffer::createcopy/... uses dtype parameter instead of item size
-// 6) at implementieren
-/**
- * @brief An ImageBuffer holds 8-bit images.
- *
- * Usage: either copy existing image data via @see CreateCopy(), or
- *        use existing memory via @see CreateSharedBuffer(). The
- *        latter does NOT take ownership of the memory (cleaning up
- *        remains the caller's responsibility).
- */
+
+/// Holds image data. Supported data types, see `ImageBufferType`.
+///
+/// Usage: Either copy existing image data via `CreateCopy`, or
+///   share the same memory via `CreateSharedBuffer`. The latter
+///   does NOT take ownership of the memory (i.e. cleaning up
+///   remains the caller's responsibility).
 class ImageBuffer {
 public:
   /// Creates an empty ImageBuffer.
@@ -42,101 +44,187 @@ public:
   /// Allocates memory to hold a W x H x CH image of the specified type.
   ImageBuffer(int w, int h, int ch, ImageBufferType buf_type);
 
+
+  /// Destructor frees the memory, if it was allocated
+  /// by this ImageBuffer.
   ~ImageBuffer();
 
-  //FIXME doc: copies data if other.owns_data; otherwise, *this will also be a shared buffer!
-  ImageBuffer(const ImageBuffer &other); // copy c'tor
 
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  ImageBuffer(ImageBuffer &&other) noexcept; // move c'tor
+  /// Copy c'tor: Copies the data IFF other.owns_data is true.
+  /// Otherwise, this ImageBuffer will also be a shared buffer.
+  /// For a guaranteed deep copy, use CreateCopy()!
+  ImageBuffer(const ImageBuffer &other) noexcept;
 
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  ImageBuffer &operator=(const ImageBuffer &other); // copy assignment
 
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  ImageBuffer &operator=(ImageBuffer &&other) noexcept; // move assignment
+  /// Move constructor.
+  ImageBuffer(ImageBuffer &&other) noexcept;
 
+
+  /// Copy assignment operator.
+  ImageBuffer &operator=(const ImageBuffer &other);
+
+
+  /// Move assignment operator.
+  ImageBuffer &operator=(ImageBuffer &&other) noexcept;
+
+
+  /// Returns the number of pixels in each row.
   inline int Width() const { return width; }
+
+  /// Returns the number of pixels in each row.
+  inline int Columns() const { return width; }
+
+
+  /// Returns the number of rows.
   inline int Height() const { return height; }
+
+  /// Returns the number of rows.
+  inline int Rows() const { return height; }
+
+
+  /// Number of values per pixel.
   inline int Channels() const { return channels; }
-  inline int Stride() const { return stride; }
+
+
+  /// Number of bytes per subsequent rows in memory.
+  inline int RowStride() const { return row_stride; }
+
+
+  /// Returns the size in bytes of a single element/value.
+  /// Multiply by Channels() to get the memory consumption per pixel.
   inline int ItemSize() const { return item_size; }
+
+
+  /// Returns this buffers data type.
   inline ImageBufferType BufferType() const { return buffer_type; }
+
+
+  /// Returns the number of elements (i.e. values of the
+  /// chosen data type) in this buffer.
   inline int NumElements() const { return width * height * channels; }
+
+
+  /// Returns the number of bytes.
   inline int NumBytes() const { return NumElements() * item_size; }
 
+
+  /// Returns true if this ImageBuffer is responsible for
+  /// cleaning up the corresponding data.
   inline bool OwnsData() const { return owns_data; }
-  inline bool IsContiguous() const { return stride == (width * channels * item_size); }
-
-  inline unsigned char const *ImmutableData() const { return data; }
-  inline unsigned char *MutableData() { return data; }
-
-  template<typename _Tp>
-  inline _Tp const *ImmutableRowPtr(int row) const { return reinterpret_cast<_Tp*>(&data[row*stride]); }
-
-  template<typename _Tp>
-  inline _Tp *MutableRowPtr(int row) { return reinterpret_cast<_Tp*>(&data[row*stride]); }
-
-  template<typename _Tp>
-  _Tp &At(int row, int col, int channel=0) {
-    return *reinterpret_cast<_Tp*>(&data[row * stride + col * channels * item_size + channel * item_size]);
-  }
 
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  /**
-   * @brief Reuses the given image data.
-   *
-   * This ImageBuffer will point to the given image data. It will
-   * NOT take ownership.
-   */
-  void CreateSharedBuffer(
-      unsigned char *buffer,
-      int width, int height, int channels, int stride,
-      ImageBufferType buffer_type);
-
-
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  /**
-   * @brief Copies the given image data.
-   */
-  void CreateCopy(unsigned char const *buffer, int width, int height, int channels, int stride, ImageBufferType buffer_type);
-
-  ImageBuffer CreateCopy() const;
-
-
-  void SwapChannels(int ch1, int ch2);
-
-  // TODO doc - sets owns_data = true; obviously, call it only if you want this buffer to free the memory!
+  /// Sets this->owns_data = true;
+  /// Obviously to be used only, if the calling code ensures that
+  /// the former `data` owner will NOT free the memory.
   void TakeOwnership();
 
 
-  /**
-   * TODO documentation!
-   *
-   * Only the following conversions are supported:
-   * * From single-channel to 1-, 3-, or 4-channel output.
-   * * From 3-channel to 3- or 4-channel output, *i.e.* adding
-   *   an alpha channel.
-   * * From 4-channel to 3- or 4-channel output, *i.e.* removing
-   *   the alpha channel.
-   *
-   * Other configurations are **not** supported.
-   */
+  /// Returns true if the underlying `data` memory is contiguous.
+  inline bool IsContiguous() const { return row_stride == (width * channels * item_size); }
+
+
+  /// Returns a mutable pointer to the underlying `data` memory.
+  inline unsigned char *MutableData() { return data; }
+
+
+  /// Returns an immutable pointer to the underlying `data` memory.
+  inline unsigned char const *ImmutableData() const { return data; }
+
+
+  /// Returns a mutable pointer of the specified type to the
+  /// underlying `data` memory.
+  template<typename _Tp> inline
+  _Tp *MutablePtr(int row, int col, int channel=0) {
+    return reinterpret_cast<_Tp *>(data + (row * row_stride) + (col * channels * item_size) + (channel * item_size));
+  }
+
+
+  /// Returns an immutable pointer of the specified type to the
+  /// underlying `data` memory.
+  template<typename _Tp> inline
+  _Tp const *ImmutablePtr(int row, int col, int channel=0) const {
+    return reinterpret_cast<_Tp const *>(data + (row * row_stride) + (col * channels * item_size) + (channel * item_size));
+  }
+
+
+  /// Returns a reference to modify the specified pixel element.
+  template<typename _Tp> inline
+  _Tp& At(int row, int col, int channel=0) {
+    return *MutablePtr<_Tp>(row, col, channel);
+  }
+
+
+  /// Returns a readonly reference to the specified pixel element.
+  template<typename _Tp> inline
+  const _Tp& At(int row, int col, int channel=0) const {
+    return *ImmutablePtr<_Tp>(row, col, channel);
+  }
+
+
+  /// Reuses the given image data, i.e. this ImageBuffer will point
+  /// to the given image data - it will NOT take ownership.
+  ///
+  /// Args:
+  ///   buffer: Image data
+  ///   width: Number of columns
+  ///   height: Number of rows
+  ///   channels: Number of elements at each (row, column) location.
+  ///   row_stride: Number of bytes between consecutive rows.
+  ///   buffer_type: Element type.
+  void CreateSharedBuffer(
+      unsigned char *buffer,
+      int width, int height, int channels, int row_stride,
+      ImageBufferType buffer_type);
+
+
+  /// Copies the given image data.
+  ///
+  /// Args:
+  ///   buffer: Image data
+  ///   width: Number of columns
+  ///   height: Number of rows
+  ///   channels: Number of elements at each (row, column) location.
+  ///   row_stride: Number of bytes between consecutive rows.
+  ///   buffer_type: Element type.
+  void CreateCopy(
+      unsigned char const *buffer,
+      int width, int height, int channels, int row_stride,
+      ImageBufferType buffer_type);
+
+
+  /// Returns a deep copy.
+  ImageBuffer CreateCopy() const;
+
+
+  /// Swaps the specified (0-based) channels *in-place*.
+  void SwapChannels(int ch1, int ch2);
+
+
+
+  /// Returns an ImageBuffer with the given number
+  /// of channels. Note that only the following channel
+  /// conversions are supported:
+  /// * From single-channel to 1-, 3-, or 4-channel output.
+  /// * From 3-channel to 3- or 4-channel output, *i.e.* adding
+  ///   an alpha channel.
+  /// * From 4-channel to 3- or 4-channel output, *i.e.* removing
+  ///   the alpha channel.
+  ///
+  /// Other configurations are **not** supported.
   ImageBuffer ToChannels(int output_channels) const;
 
 
-  //DONE [x] add documentation
-  //DONE [x] add C++ test (tests/xxx_test.cpp)
-  //DONE [x] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  /** @brief Returns true if this buffer points to a valid memory location. */
+  /// Returns a single-channel buffer deeply copied from this ImageBuffer.
+  ImageBuffer Channel(int channel) const;
+
+
+  /// Returns true if this buffer points to a valid memory location.
   bool IsValid() const;
 
-  /// Returns a readable representation.
+
+  /// Returns a human readable representation.
   std::string ToString() const;
+
 
   /// Overloaded stream operator.
   friend std::ostream &operator<<(std::ostream &os, const ImageBuffer &buffer) {
@@ -144,25 +232,43 @@ public:
     return os;
   }
 
+
 private:
-  unsigned char *data;  ///< Pointer to the image data.
-  int width;            ///< Width of the image in pixels.
-  int height;           ///< Height of the image in pixels.
-  int channels;         ///< Number of channels.
+  /// Pointer to the image data.
+  unsigned char *data;
+
+  /// Number of pixels in each row.
+  int width;
+
+  /// Number of rows.
+  int height;
+
+  /// Number of channels (i.e. elements of
+  /// the specified buffer type per pixel).
+  int channels;
 
   /// Size of a single element in bytes.
   int item_size;
-  int stride;           ///< Stride (number of bytes) per row.
-  ImageBufferType buffer_type;
-  bool owns_data;      ///< Flag indicating if we own the memory (i.e. if we need to clean up).
 
+  /// Number of bytes between subsequent rows.
+  int row_stride;
+
+  /// This buffer's data type.
+  ImageBufferType buffer_type;
+
+  /// Flag which indicates if this buffer owns the
+  /// memory, i.e. if it is responsible for cleaning up.
+  bool owns_data;
+
+
+  /// Frees the memory if needed and resets
+  /// the members accordingly.
   void Cleanup();
 };
 
 
-//DONE [x] add documentation
-//DONE [x] add C++ test (tests/xxx_test.cpp)
-//DONE [x] add Python bindings (via Painter)
+//TODO test with 16bit png - should work according to stb, need to check
+// the imagebuffer setup
 /**
  * @brief Loads an image from disk.
  *
@@ -190,6 +296,7 @@ private:
 ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=0);
 
 
+//TODO need to check 16-bit png support:
 /// Saves the ImageBuffer to disk as either JPEG or PNG.
 ///
 /// We use the stb/stb_image_write library for writing. Note
@@ -201,46 +308,22 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=
 void SaveImage(const std::string &image_filename, const ImageBuffer &image);
 
 
-//TODO(snototter) rgb(a)2gray (single output channel vs 3 channels for drawing)
+//TODO(extension) rgb(a)2gray & bgr(a)2gray
 
 
-//DONE [x] add documentation
-//TODO [ ] add C++ test (tests/xxx_test.cpp)
-//TODO [ ] add Python bindings
-//TODO [ ] add Python test (tests/test_xxx.py)
-//TODO [ ] add C++ demo
-//TODO [ ] add Python demo
-/** @brief Converts a grayscale ImageBuffer to RGB. */
+/// Converts a grayscale ImageBuffer to RGB.
 ImageBuffer Gray2RGB(const ImageBuffer &img);
 
 
-//DONE [x] add documentation
-//TODO [ ] add C++ test (tests/xxx_test.cpp)
-//TODO [ ] add Python bindings
-//TODO [ ] add Python test (tests/test_xxx.py)
-//TODO [ ] add C++ demo
-//TODO [ ] add Python demo
-/** @brief Converts a grayscale ImageBuffer to RGBA. */
+/// Converts a grayscale ImageBuffer to RGBA.
 ImageBuffer Gray2RGBA(const ImageBuffer &img);
 
 
-//DONE [x] add documentation
-//TODO [ ] add C++ test (tests/xxx_test.cpp)
-//TODO [ ] add Python bindings
-//TODO [ ] add Python test (tests/test_xxx.py)
-//TODO [ ] add C++ demo
-//TODO [ ] add Python demo
-/** @brief Converts a RGBA ImageBuffer to RGB. */
+/// Converts a RGBA ImageBuffer to RGB.
 ImageBuffer RGBA2RGB(const ImageBuffer &img);
 
 
-//DONE [x] add documentation
-//TODO [ ] add C++ test (tests/xxx_test.cpp)
-//TODO [ ] add Python bindings
-//TODO [ ] add Python test (tests/test_xxx.py)
-//TODO [ ] add C++ demo
-//TODO [ ] add Python demo
-/** @brief Converts a RGB ImageBuffer to RGBA. */
+/// Converts a RGB ImageBuffer to RGBA.
 ImageBuffer RGB2RGBA(const ImageBuffer &img);
 
 } // namespace viren2d

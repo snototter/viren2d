@@ -2,6 +2,10 @@
 
 .. _tutorial-conversion:
 
+.. warning:: 
+   Test conversion examples with refactored ImageBuffer interface!
+
+
 ---------------------------------
 Image Conversion Across Libraries
 ---------------------------------
@@ -78,28 +82,13 @@ whether to copy the data or not:
 viren2d |right-arrow| OpenCV
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Since :class:`~viren2d.ImageBuffer` uses the row-major storage order,
-converting it to an
-`n-dimensional OpenCV array <https://docs.opencv.org/3.4/d3/d63/classcv_1_1Mat.html>`__,
-*i.e.* a ``cv::Mat``, is straightforward:
-
-.. code-block:: cpp
-   :linenos:
-
-   // Suppose we already have an ImageBuffer, e.g. via Painter::GetCanvas.
-   viren2d::ImageBuffer img_buffer = ...
-   
-   // Create an OpenCV matrix header which reuses the memory (to
-   // avoid additional memory allocation)
-   cv::Mat cv_buffer(
-       img_buffer.height, img_buffer.width,
-       CV_MAKETYPE(CV_8U, img_buffer.channels),
-       img_buffer.data, img_buffer.stride);
-
+Since both :class:`~viren2d.ImageBuffer` and OpenCV's ``cv::Mat`` use standard
+C-style memory layout, *i.e.* row-major storage order, converting between these
+classes is straightforward.
 
 The only **caveat** is that OpenCV works with images in **BGR(A)**
 format by design, whereas ``viren2d`` uses the **RGB(A)** format.
-Thus, usually you'll want/have to swap the *red* and *blue* channels:
+Thus, usually you'll need to swap the *red* and *blue* channels:
 
 .. code-block:: cpp
    :linenos:
@@ -112,11 +101,15 @@ Thus, usually you'll want/have to swap the *red* and *blue* channels:
    img_buffer.SwapChannels(0, 2);
 
    // Create an OpenCV matrix header which reuses the memory (to
-   // avoid additional memory allocation)
+   // avoid additional memory allocation).
+   // Note that the painter will always return its visualization
+   // as ImageBuffer of type `ImageBufferType::UInt8`, which
+   // corresponds to OpenCV's `CV_8U`, as the underlying type
+   // for both is `uint8_t`.
    cv::Mat cv_buffer(
-       img_buffer.height, img_buffer.width,
-       CV_MAKETYPE(CV_8U, img_buffer.channels),
-       img_buffer.data, img_buffer.stride);
+       img_buffer.Height(), img_buffer.Width(),
+       CV_MAKETYPE(CV_8U, img_buffer.Channels()),
+       img_buffer.MutableData(), img_buffer.RowStride());
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,7 +122,7 @@ straightforward:
 .. code-block:: cpp
    :linenos:
 
-   // Suppose we already have an OpenCV image
+   // Suppose we already have an OpenCV image of type `CV_32F`
    cv::Mat img_cv = ...
 
    // Either create a shared ImageBuffer:
@@ -137,12 +130,14 @@ straightforward:
 
    img_buf.CreateSharedBuffer(
        img_cv.data, img_cv.cols, img_cv.rows,
-       img_cv.channels(), img_cv.step);
+       img_cv.channels(), img_cv.step,
+       viren2d::ImageBufferType::Float);
 
    // Or let the ImageBuffer copy the data:
    img_buf.CreateCopy(
        img_cv.data,img_cv.cols, img_cv.rows,
-       img_cv.channels(), img_cv.step);
+       img_cv.channels(), img_cv.step,
+       viren2d::ImageBufferType::Float);
    
    // If the OpenCV image is in BGR(A) format, you
    // may want to convert it to RGB(A). Note, however,

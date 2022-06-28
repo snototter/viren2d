@@ -37,9 +37,9 @@ int main(int /*argc*/, char **/*argv*/) {
   // Create an OpenCV matrix header which reuses the memory (to
   // avoid additional memory allocation)
   cv::Mat cv_buffer(
-      img_buffer.height, img_buffer.width,
-      CV_MAKETYPE(CV_8U, img_buffer.channels),
-      img_buffer.data, img_buffer.stride);
+      img_buffer.Height(), img_buffer.Width(),
+      CV_MAKETYPE(CV_8U, img_buffer.Channels()),
+      img_buffer.MutableData(), img_buffer.RowStride());
 
   cv::imshow("Canvas", cv_buffer);
   cv::waitKey(-1);

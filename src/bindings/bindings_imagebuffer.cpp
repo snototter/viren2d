@@ -53,8 +53,8 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
       && !buf_dtype.is(py::dtype::of<double>())) {
     std::string s("Incompatible `dtype`: ");
     s += py::cast<std::string>(buf_dtype.attr("name"));
-    s += ". ImageBuffer can only be constructed from:"
-         "uint8, int32, float32, float64!";
+    s += ". ImageBuffer can only be constructed from: "
+         "uint8, int32, float32, or float64!";
     // TODO(dev): Update error message with newly supported types, and
     //   extend type handling in `ImageBufferTypeFromDType`!
     throw std::invalid_argument(s);
@@ -111,7 +111,6 @@ inline std::string FormatDescriptor(ImageBufferType t) {
 
 
 py::buffer_info ImageBufferInfo(ImageBuffer &img) {
-  //FIXME data type!!!
   return py::buffer_info(
       img.MutableData(),
       static_cast<std::size_t>(img.ItemSize()), // Size of each element
@@ -120,7 +119,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
       { static_cast<std::size_t>(img.Height()),
         static_cast<std::size_t>(img.Width()),
         static_cast<std::size_t>(img.Channels()) }, // Buffer dimensions
-      { static_cast<std::size_t>(img.Stride()),
+      { static_cast<std::size_t>(img.RowStride()),
         static_cast<std::size_t>(img.Channels()),
         static_cast<std::size_t>(img.ItemSize()) } // Strides (in bytes) per dimension
   );
@@ -131,11 +130,12 @@ void RegisterImageBuffer(py::module &m) {
   //TODO(doc) update docstring once ImageBuffer supports other data types
 
   py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
-          An *ImageBuffer* holds 8-bit image data.
+          Encapsulates image data.
 
           This class is used to pass images between the consuming
-          application and ``viren2d``. Currently, only grayscale,
-          RGB, and RGBA images of type uint8 are supported.
+          application and ``viren2d``. Supported data types are:
+          :class:`numpy.uint8`, :class:`numpy.int32`, :class:`numpy.float32`,
+          and :class:`numpy.float64`.
 
           The *ImageBuffer* implements the standard Python buffer protocol
           and can thus be swiftly converted to/from other buffer types,
@@ -210,8 +210,8 @@ void RegisterImageBuffer(py::module &m) {
         &ImageBuffer::Channels,
         "int: Number of channels (read-only).")
       .def_property_readonly(
-        "stride",
-        &ImageBuffer::Stride,
+        "row_stride",
+        &ImageBuffer::RowStride,
         "int: Stride in bytes per row  (read-only).")
       .def_property_readonly(
         "owns_data",

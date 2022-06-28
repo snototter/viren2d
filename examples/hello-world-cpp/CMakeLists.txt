@@ -7,7 +7,6 @@ project(viren2d-demo-hello-world)
 # viren2d requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 
-
 # Let CMake download and set up the viren2d dependency
 include(FetchContent)
 FetchContent_Declare(
@@ -15,7 +14,6 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/snototter/viren2d.git
   GIT_TAG main)
 FetchContent_MakeAvailable(viren2d)
-
 
 # Create the demo executable
 add_executable(hello-world

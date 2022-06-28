@@ -63,13 +63,15 @@ to use the default package manager, ``pip``, which supports installation
 directly from the github repository:
 
    .. code-block:: console
+      :caption: Set up a virtual environment with up-to-date pip.
 
-      # Set up a virtual environment with up-to-date pip:
       python3 -m venv venv
       source venv/bin/activate
       python -m pip install -U pip
  
-      # Install viren2d:
+   .. code-block:: console
+      :caption: Install ``viren2d``.
+
       python -m pip install git+https://github.com/snototter/viren2d.git
 
 To verify the installation, you can optionally run the following copy-pastable
@@ -82,7 +84,7 @@ example. Note that this additionally requires `Pillow <https://pillow.readthedoc
   .. literalinclude:: ../../examples/rtd_hello_world.py
      :language: python
      :linenos:
-     :caption: Python Hello World Example for ``viren2d``
+     :caption: Python Hello World Example for ``viren2d``.
 
   .. figure:: ./images/hello_world.jpg
      :width: 400
@@ -100,41 +102,27 @@ The recommended way of integrating ``viren2d`` in your application is via
 as shown below. For the corresponding demo application, refer to the
 `C++ hello world example <https://github.com/snototter/viren2d/tree/main/examples/hello-world-cpp>`__.
 
-.. code-block:: cmake
-   :caption: Exemplary ``CMakeLists.txt`` to integrate ``viren2d`` via CMake's FetchContent module. 
 
-   # viren2d requires at least C++14
-   set(CMAKE_CXX_STANDARD 14)
+  .. literalinclude:: ../../examples/hello-world-cpp/CMakeLists.txt
+     :language: cmake
+     :linenos:
+     :lines: 7-23
+     :caption: Exemplary ``CMakeLists.txt`` to integrate ``viren2d`` via CMake's FetchContent module. 
 
-   # Let CMake download and set up the viren2d dependency
-   include(FetchContent)
-   FetchContent_Declare(
-       viren2d
-       GIT_REPOSITORY https://github.com/snototter/viren2d.git
-       GIT_TAG main)
-   FetchContent_MakeAvailable(viren2d)
-
-   # Create the demo executable
-   add_executable(myexe my_source_file.cpp)
-
-   # Add the viren2d dependency (include paths will be set
-   # up automatically)
-   target_link_libraries(myexe PRIVATE viren2d++::viren2d++)
-
-.. note::
-   The `FetchContent_MakeAvailable <https://cmake.org/cmake/help/latest/module/FetchContent.html#command:fetchcontent_makeavailable>`__
-   feature requires CMake>=3.14.
+  .. note::
+     The `FetchContent_MakeAvailable <https://cmake.org/cmake/help/latest/module/FetchContent.html#command:fetchcontent_makeavailable>`__
+     module requires CMake>=3.14.
 
 Since this is a standalone demo, only the C++ source file and the example's
 ``CMakeLists.txt`` are needed. *FetchContent* will download and set up all
-dependencies as needed. If these two files are placed in a ``hello-world-example``
+dependencies as needed.
+For example, if these two files are placed in a ``hello-world-example``
 folder, a typical CMake build would look like:
 
-.. code-block:: console
+  .. code-block:: console
 
-   cd hello-world-example
-   mkdir && cd build
-   cmake ..
-   cmake --build .
-   ./hello-world
-
+     cd hello-world-example
+     mkdir && cd build
+     cmake ..
+     cmake --build .
+     ./hello-world

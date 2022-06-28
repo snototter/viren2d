@@ -30,7 +30,7 @@ environments.
   This library is primarily designed to overlay *detections, trajectories,
   text, arrows* and more on image data. Additionally, it can be used as a
   simplistic drawing toolbox, if basic shapes are all you need.
-  
+
 
 **How to get started?**
    * Check the requirements and :ref:`install the library<installation>`.
