@@ -233,6 +233,8 @@ void RegisterImageBuffer(py::module &m) {
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();
 
+  //TODO expose dtype, itemsize for convenience
+
 
   m.def("save_image",
         &SaveImage, R"docstr(
