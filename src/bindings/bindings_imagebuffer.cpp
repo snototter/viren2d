@@ -61,6 +61,7 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
          "uint8, int16, int32, float32, or float64!";
     // TODO(dev): Update error message with newly supported types, and
     //   extend type handling in `ImageBufferTypeFromDType`!
+    //   Also update the docstring of `ImageBuffer`!
     throw std::invalid_argument(s);
   }
 
@@ -143,12 +144,12 @@ void RegisterImageBuffer(py::module &m) {
 
           This class is used to pass images between the consuming
           application and ``viren2d``. Supported data types are:
-          :class:`numpy.uint8`, :class:`numpy.int32`, :class:`numpy.float32`,
-          and :class:`numpy.float64`.
+          :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.int32`,
+          :class:`numpy.float32`, and :class:`numpy.float64`.
 
           The *ImageBuffer* implements the standard Python buffer protocol
           and can thus be swiftly converted to/from other buffer types,
-          such as :class:`numpy.ndarray`, for example:
+          such as a :class:`numpy.ndarray`, for example:
 
           >>> # Create an ImageBuffer from a numpy.ndarray
           >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)

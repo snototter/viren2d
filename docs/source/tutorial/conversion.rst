@@ -2,10 +2,6 @@
 
 .. _tutorial-conversion:
 
-.. warning:: 
-   Test conversion examples with refactored ImageBuffer interface!
-
-
 ---------------------------------
 Image Conversion Across Libraries
 ---------------------------------
@@ -32,6 +28,7 @@ thus, provides fast direct access to its raw internal data representation:
    import viren2d
 
    # Get an ImageBuffer, e.g. as the result of previous drawing steps:
+   painter = viren2d.Painter(height=600, width=800, color='azure')
    img_buf = painter.get_canvas()
    
    # Create a shared NumPy array (no memory allocation)
@@ -45,11 +42,11 @@ thus, provides fast direct access to its raw internal data representation:
    For the conversion example above, note that the :class:`~viren2d.Painter`
    provides an option to access its internal memory - refer to the documentation
    of its :meth:`~viren2d.Painter.get_canvas`.
-   Thus, you can easily get a :class:`numpy.ndarray` which shares the memory
-   with the painter's *canvas* (and you should be careful if you then either
-   modify the array values or keep on drawing...)
+   Thus, you can easily get a :class:`numpy.ndarray` which *shares* the memory
+   with the painter's *canvas* - and you should be careful if you then either
+   modify the array values or keep on drawing...
 
-   **TL;DR:** You should know about scopes & garbage collection when using
+   **TL;DR:** You should be aware of variable scopes & garbage collection when using
    shared memory views, **and** it's always a good idea to read the docs of any
    API you're using.
 

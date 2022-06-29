@@ -22,8 +22,18 @@ def test_painter_basics():
     
     assert p.width == 0
     assert p.height == 0
-    
-    p.set_canvas_rgb(400, 300)
+
+    p.set_canvas_rgb(width=800, height=600)
+    assert p.is_valid()
+    assert p.canvas.width == 800
+    assert p.canvas.height == 600
+    assert p.canvas.channels == 4  # the canvas should always be RGBA!
+    assert p.canvas.itemsize == 1  # and of type uint8
+    assert p.canvas.dtype == np.dtype('uint8')
+    assert p.width == 800
+    assert p.height == 600
+
+    p.set_canvas_rgb(300, 400)  # parameter order is (H, W)
     assert p.is_valid()
 
     assert p.canvas.width == 400
@@ -107,7 +117,7 @@ def test_draw_arc():
     with pytest.raises(RuntimeError):
         p.draw_arc((0, 0), 15, 0, 10)
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     style = viren2d.LineStyle()
@@ -144,7 +154,7 @@ def test_draw_arrow():
     with pytest.raises(RuntimeError):
         p.draw_arrow((0, 0), (50, 50))
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     # Draw with explicit types
@@ -180,7 +190,7 @@ def test_draw_circles():
     with pytest.raises(RuntimeError):
         p.draw_circle((10, 10), 5)
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
     
     # Draw with explicit types
@@ -214,7 +224,7 @@ def test_draw_ellipse():
     with pytest.raises(RuntimeError):
         p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)))
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
 
@@ -247,7 +257,7 @@ def test_draw_grid():
     with pytest.raises(RuntimeError):
         p.draw_grid(20, 20, viren2d.LineStyle())
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
     
     # Draw with explicit types
@@ -294,7 +304,7 @@ def test_draw_line():
     with pytest.raises(RuntimeError):
         p.draw_line((0, 0), (50, 50), viren2d.LineStyle())
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     ### Draw with explicit types
@@ -331,7 +341,7 @@ def test_draw_marker():
     with pytest.raises(RuntimeError):
         p.draw_marker((0, 0))
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     # Draw inside/on the border/outside of the canvas
@@ -379,7 +389,7 @@ def test_draw_rect():
     with pytest.raises(RuntimeError):
         p.draw_rect(((0, 0), (30, 50)))
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
 
@@ -446,7 +456,7 @@ def test_draw_trajectory():
     with pytest.raises(RuntimeError):
         p.draw_trajectory([(0, 0), (50, 50)])
     # Prepare canvas
-    p.set_canvas_rgb(400, 300)
+    p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     # Create dummy trajectory (which may partially be

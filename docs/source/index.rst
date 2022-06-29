@@ -20,10 +20,9 @@ Visualize Computer Vision Results Neatly in 2D
    incomplete, the documentation is a mess, *etc.*
 
 
-``viren2d`` - *Visualize results not too disgraceful* - is my *Swiss Army
-knife* to visualize the results of common computer vision tasks in 2D.
-It is designed to be swiftly integrated into both **C++ and Python**
-environments.
+``viren2d`` is my *Swiss Army knife* to visualize the results of common
+computer vision tasks in 2D. It is designed to be swiftly integrated into
+both **C++ and Python** environments.
 
 
 **What is it good for?**
@@ -89,4 +88,3 @@ environments.
    quickstart
    api-documentation
    dev-guide
-

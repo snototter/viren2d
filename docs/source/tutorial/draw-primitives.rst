@@ -2,7 +2,7 @@
 Basic Shapes
 ~~~~~~~~~~~~
 
-This tutorial section only shows some selected shapes & primitives with their
+This tutorial section shows some selected shapes & primitives with their
 corresponding code examples. For a detailed listing of supported shapes, refer
 to the :class:`~viren2d.Painter`'s API documentation.
 

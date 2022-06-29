@@ -49,14 +49,14 @@ public:
   }
 
 
-  PainterWrapper(int width, int height, const Color &color)
+  PainterWrapper(int height, int width, const Color &color)
     : painter_(CreatePainter()) {
-    SetCanvasColor(width, height, color);
+    SetCanvasColor(height, width, color);
   }
 
 
-  void SetCanvasColor(int width, int height, const Color &color) {
-    painter_->SetCanvas(width, height, color);
+  void SetCanvasColor(int height, int width, const Color &color) {
+    painter_->SetCanvas(height, width, color);
   }
 
 
@@ -327,7 +327,7 @@ void RegisterPainter(py::module &m) {
         Initializes the painter's canvas and fills it
         with the given :class:`~viren2d.Color`.
         )docstr",
-        py::arg("width"), py::arg("height"),
+        py::arg("height"), py::arg("width"),
         py::arg("color") = Color::White)
       .def(
         "__repr__",
@@ -350,14 +350,14 @@ void RegisterPainter(py::module &m) {
 
       Examples:
         >>> painter = viren2d.Painter()
-        >>> painter.set_canvas_rgb(800, 600)
-        >>> painter.set_canvas_rgb(800, 600, 'crimson')
-        >>> painter.set_canvas_rgb(800, 600, (0.5, 0.3, 0.9))
+        >>> painter.set_canvas_rgb(height=600, width=800)
+        >>> painter.set_canvas_rgb(width=800, height=600, color='crimson')
+        >>> painter.set_canvas_rgb(width=800, height=600, color=(0.5, 0.3, 0.9))
       )docstr";
   painter.def(
         "set_canvas_rgb",
         &PainterWrapper::SetCanvasColor, doc.c_str(),
-        py::arg("width"), py::arg("height"),
+        py::arg("height"), py::arg("width"),
         py::arg("color") = Color::White);
 
   painter.def(

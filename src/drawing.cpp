@@ -99,7 +99,7 @@ public:
 
   bool IsValid() const override;
 
-  void SetCanvas(int width, int height, const Color &color) override;
+  void SetCanvas(int height, int width, const Color &color) override;
 
   void SetCanvas(const std::string &image_filename) override;
 
@@ -446,11 +446,10 @@ bool ImagePainter::IsValid() const {
 }
 
 
-void ImagePainter::SetCanvas(int width, int height,
-                             const Color &color) {
-  SPDLOG_DEBUG("ImagePainter::SetCanvas(width={:d},"
-               " height={:d}, color={:s}).",
-               width, height, color);
+void ImagePainter::SetCanvas(int height, int width, const Color &color) {
+  SPDLOG_DEBUG(
+        "ImagePainter::SetCanvas(width={:d}, height={:d}, color={:s}).",
+        width, height, color);
   // Check if we can reuse the current image surface to
   // save ourselves the memory allocation:
   if (surface_) {
@@ -473,8 +472,9 @@ void ImagePainter::SetCanvas(int width, int height,
   // If we couldn't reuse the surface (or we didn't have one
   // to start with), we have to create the canvas:
   if (!surface_) {
-    SPDLOG_TRACE("ImagePainter::SetCanvas: Creating Cairo image surface for {:d}x{:d} canvas.",
-                 width, height);
+    SPDLOG_TRACE(
+          "ImagePainter::SetCanvas: Creating Cairo image surface for {:d}x{:d} canvas.",
+          width, height);
     surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                           width, height);
   }
@@ -494,8 +494,7 @@ void ImagePainter::SetCanvas(int width, int height,
 
 
 void ImagePainter::SetCanvas(const std::string &image_filename) {
-  SPDLOG_DEBUG("ImagePainter::SetCanvas(filename={:s}).",
-               image_filename);
+  SPDLOG_DEBUG("ImagePainter::SetCanvas(filename={:s}).", image_filename);
   // Force to load 4 bytes per pixel (STBI_rgb_alpha), so we
   // can easily plug/copy it into the Cairo surface
   ImageBuffer buffer = LoadImage(image_filename, 4);
@@ -531,10 +530,12 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
     }
 
     SPDLOG_TRACE("ImagePainter::SetCanvas: Creating Cairo surface and context from image buffer.");
-    surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                          image_buffer.Width(), image_buffer.Height());
-    std::memcpy(cairo_image_surface_get_data(surface_), image_buffer.ImmutableData(),
-                4 * image_buffer.Width() * image_buffer.Height());
+    surface_ = cairo_image_surface_create(
+          CAIRO_FORMAT_ARGB32, image_buffer.Width(), image_buffer.Height());
+    std::memcpy(
+          cairo_image_surface_get_data(surface_),
+          image_buffer.ImmutableData(),
+          4 * image_buffer.Width() * image_buffer.Height());
     context_ = cairo_create(surface_);
 
     // Needed to ensure that the underlying image surface

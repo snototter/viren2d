@@ -2,8 +2,8 @@
 
 auto painter = viren2d::CreatePainter();
 
-// Either create an empty canvas:
-painter->SetCanvas(800, 600, viren2d::Color(viren2d::NamedColor::NavyBlue));
+// Either create an empty canvas (H=600, W=800):
+painter->SetCanvas(600, 800, viren2d::Color(viren2d::NamedColor::NavyBlue));
 
 // Initialize with an existing viren2d::ImageBuffer:
 painter->SetCanvas(image_buffer);

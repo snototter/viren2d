@@ -17,15 +17,11 @@
 
 namespace viren2d {
 
-/**
- * @brief The Painter supports drawing on a canvas.
- *
- *TODO replace all docstrings by the python interface doc
- */
+/// The Painter provides functionality to draw on a canvas.
 class Painter {
 public:
+  // The basic interface is trivially con-/destructable, assignable & movable.
   virtual ~Painter() {}
-
   Painter() = default;
   Painter(const Painter &other) = default;
   Painter& operator=(const Painter &other) = default;
@@ -33,21 +29,18 @@ public:
   Painter& operator=(Painter &&) = default;
 
 
-  /** @brief Returns true if the painter's canvas is valid.
-   *
-   * You have to set up the painter's canvas before drawing
-   * or retrieving, @see SetCanvas
-   */
+  /// Returns true if the painter's canvas is valid.
+  ///
+  /// You have to set up the painter's canvas before drawing
+  ///  or retrieving, see the overloaded `SetCanvas` methods.
   virtual bool IsValid() const = 0;
 
 
-  /**
-   * @brief Initializes the canvas with the given color.
-   *
-   * This or any overloaded SetCanvas() must be called before
-   * any other DrawXXX calls can be performed.
-   */
-  virtual void SetCanvas(int width, int height, const Color &color) = 0;
+  /// Initializes the canvas with the given color.
+  ///
+  /// This or any overloaded SetCanvas() must be called before
+  /// any other DrawXXX calls can be performed.
+  virtual void SetCanvas(int height, int width, const Color &color) = 0;
 
 
   /**

@@ -92,7 +92,7 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 void DemoColors() {
   auto painter = viren2d::CreatePainter();
   const int canvas_width = 750;
-  painter->SetCanvas(canvas_width, 448,
+  painter->SetCanvas(448, canvas_width,
                      viren2d::Color::White.WithAlpha(0.0));
 
   auto text_style = viren2d::TextStyle(18, "xkcd",
@@ -337,7 +337,7 @@ void DemoRects() {
 
 void DemoText() {
   auto painter = viren2d::CreatePainter();
-  painter->SetCanvas(600, 550, viren2d::Color::White);
+  painter->SetCanvas(550, 600, viren2d::Color::White);
 
 
   const std::vector<std::string> anchors = {
@@ -438,7 +438,7 @@ void DemoTrajectories() {
 
 void DemoMarkers() {
   auto painter = viren2d::CreatePainter();
-  painter->SetCanvas(800, 100, viren2d::Color::White); //.WithAlpha(0.0));
+  painter->SetCanvas(100, 800, viren2d::Color::White); //.WithAlpha(0.0));
 
   auto text_style = viren2d::TextStyle();
   text_style.size = 16;

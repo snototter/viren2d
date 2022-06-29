@@ -1,6 +1,6 @@
-~~~~~~~~~~~~~~~~~~
-Camera Calibration
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+Camera Geometry
+~~~~~~~~~~~~~~~
 
 .. warning::
    TODO doc
