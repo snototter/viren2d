@@ -48,8 +48,8 @@ public:
   ImageBuffer();
 
 
-  /// Allocates memory to hold a W x H x CH image of the specified type.
-  ImageBuffer(int w, int h, int ch, ImageBufferType buf_type);
+  /// Allocates memory to hold a H x W x CH image of the specified type.
+  ImageBuffer(int h, int w, int ch, ImageBufferType buf_type);
 
 
   /// Destructor frees the memory, if it was allocated
@@ -75,18 +75,12 @@ public:
   ImageBuffer &operator=(ImageBuffer &&other) noexcept;
 
 
-  /// Returns the number of pixels in each row.
-  inline int Width() const { return width; }
-
-//  /// Returns the number of pixels in each row.
-//  inline int Columns() const { return width; }
-
-
   /// Returns the number of rows.
   inline int Height() const { return height; }
 
-//  /// Returns the number of rows.
-//  inline int Rows() const { return height; }
+
+  /// Returns the number of pixels in each row.
+  inline int Width() const { return width; }
 
 
   /// Number of values per pixel.
@@ -94,10 +88,15 @@ public:
 
 
   /// Number of bytes per subsequent rows in memory.
+  /// On a freshly allocated buffer, this
+  /// equals `width * num_channels * item_size`.
   inline int RowStride() const { return row_stride; }
 
-  //FIXME
-  inline int ColumnStride() const { return channels * item_size; }
+
+  /// Number of bytes between subsequent pixels.
+  /// On a freshly allocated buffer, this
+  /// equals `num_channels * item_size`.
+  inline int ColumnStride() const { return column_stride; }
 
 
   /// Returns the size in bytes of a single element/value.
@@ -130,7 +129,10 @@ public:
 
 
   /// Returns true if the underlying `data` memory is contiguous.
-  inline bool IsContiguous() const { return row_stride == (width * channels * item_size); }
+  inline bool IsContiguous() const {
+    return (row_stride == width * channels * item_size)
+        && (column_stride == channels * item_size);
+  }
 
 
   /// Returns a mutable pointer to the underlying `data` memory.
@@ -145,8 +147,7 @@ public:
   /// underlying `data` memory.
   template<typename _Tp> inline
   _Tp *MutablePtr(int row, int col, int channel=0) {
-    return reinterpret_cast<_Tp *>(
-          data + (row * row_stride) + (col * ColumnStride()) + (channel * item_size));
+    return reinterpret_cast<_Tp *>(data + ByteOffset(row, col, channel));
   }
 
 
@@ -154,8 +155,7 @@ public:
   /// underlying `data` memory.
   template<typename _Tp> inline
   _Tp const *ImmutablePtr(int row, int col, int channel=0) const {
-    return reinterpret_cast<_Tp const *>(
-          data + (row * row_stride) + (col * ColumnStride()) + (channel * item_size));
+    return reinterpret_cast<_Tp const *>(data + ByteOffset(row, col, channel));
   }
 
 
@@ -194,30 +194,32 @@ public:
   ///
   /// Args:
   ///   buffer: Image data
-  ///   width: Number of columns
   ///   height: Number of rows
+  ///   width: Number of columns
   ///   channels: Number of elements at each (row, column) location.
   ///   row_stride: Number of bytes between consecutive rows.
   ///   buffer_type: Element type.
+  /// TODO doc col stride
   void CreateSharedBuffer(
       unsigned char *buffer,
-      int width, int height, int channels, int row_stride,
-      ImageBufferType buffer_type);
+      int height, int width, int channels, int row_stride,
+      ImageBufferType buffer_type, int column_stride);
 
 
   /// Copies the given image data.
   ///
   /// Args:
   ///   buffer: Image data
-  ///   width: Number of columns
   ///   height: Number of rows
+  ///   width: Number of columns
   ///   channels: Number of elements at each (row, column) location.
   ///   row_stride: Number of bytes between consecutive rows.
   ///   buffer_type: Element type.
+  /// TODO doc col stride
   void CreateCopiedBuffer(
       unsigned char const *buffer,
-      int width, int height, int channels, int row_stride,
-      ImageBufferType buffer_type);
+      int height, int width, int channels, int row_stride,
+      ImageBufferType buffer_type, int column_stride);
 
 
   /// Returns a deep copy.
@@ -268,11 +270,11 @@ private:
   /// Pointer to the image data.
   unsigned char *data;
 
-  /// Number of pixels in each row.
-  int width;
-
   /// Number of rows.
   int height;
+
+  /// Number of pixels in each row.
+  int width;
 
   /// Number of channels (i.e. elements of
   /// the specified buffer type per pixel).
@@ -283,6 +285,9 @@ private:
 
   /// Number of bytes between subsequent rows.
   int row_stride;
+
+  /// Number of bytes between subsequent columns.
+  int column_stride;
 
   /// This buffer's data type.
   ImageBufferType buffer_type;
@@ -308,6 +313,11 @@ private:
         << height << "x" << width << "x" << channels << '!';
       throw std::out_of_range(s.str()); //FIXME change c'tor to H!!, W, C!!!
     }
+  }
+
+
+  inline int ByteOffset(int row, int col, int channel) const {
+    return (row * row_stride) + (col * column_stride) + (channel * item_size);
   }
 };
 

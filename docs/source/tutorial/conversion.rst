@@ -129,13 +129,13 @@ straightforward:
    viren2d::ImageBuffer img_buf;
 
    img_buf.CreateSharedBuffer(
-       img_cv.data, img_cv.cols, img_cv.rows,
+       img_cv.data, img_cv.rows, img_cv.cols,
        img_cv.channels(), img_cv.step,
        viren2d::ImageBufferType::Float);
 
    // Or let the ImageBuffer copy the data:
    img_buf.CreateCopy(
-       img_cv.data,img_cv.cols, img_cv.rows,
+       img_cv.data,img_cv.rows, img_cv.cols,
        img_cv.channels(), img_cv.step,
        viren2d::ImageBufferType::Float);
    

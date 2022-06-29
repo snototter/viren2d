@@ -146,7 +146,7 @@ TEST(ImageBufferTest, ImageLoading) {
   EXPECT_EQ(empty.ImmutableData(), nullptr);
   EXPECT_FALSE(empty.IsValid());
 
-  empty = viren2d::ImageBuffer(10, 20, 1, viren2d::ImageBufferType::UInt8);
+  empty = viren2d::ImageBuffer(20, 10, 1, viren2d::ImageBufferType::UInt8);
   EXPECT_TRUE(empty.IsValid());
   EXPECT_EQ(empty.Width(), 10);
   EXPECT_EQ(empty.Height(), 20);
@@ -228,9 +228,10 @@ TEST(ImageBufferTest, ImageLoading) {
     // Create a shared buffer
     viren2d::ImageBuffer tmp;
     tmp.CreateSharedBuffer(
-          ptrs[i]->MutableData(), ptrs[i]->Width(),
-          ptrs[i]->Height(), ptrs[i]->Channels(),
-          ptrs[i]->RowStride(), ptrs[i]->BufferType());
+          ptrs[i]->MutableData(), ptrs[i]->Height(),
+          ptrs[i]->Width(), ptrs[i]->Channels(),
+          ptrs[i]->RowStride(), ptrs[i]->BufferType(),
+          ptrs[i]->ColumnStride());
     EXPECT_FALSE(tmp.OwnsData());
     EXPECT_TRUE(ptrs[i]->OwnsData());
 
@@ -243,9 +244,10 @@ TEST(ImageBufferTest, ImageLoading) {
 
     // Create a copy
     tmp.CreateCopiedBuffer(
-          ptrs[i]->ImmutableData(), ptrs[i]->Width(),
-          ptrs[i]->Height(), ptrs[i]->Channels(),
-          ptrs[i]->RowStride(), ptrs[i]->BufferType());
+          ptrs[i]->ImmutableData(), ptrs[i]->Height(),
+          ptrs[i]->Width(), ptrs[i]->Channels(),
+          ptrs[i]->RowStride(), ptrs[i]->BufferType(),
+          ptrs[i]->ColumnStride());
     // Both must now own their allocated data
     EXPECT_TRUE(tmp.OwnsData());
     EXPECT_TRUE(ptrs[i]->OwnsData());
@@ -342,7 +344,7 @@ TEST(ImageBufferTest, Conversion) {
 
 
 TEST(ImageBufferTest, FloatBuffer) {
-  viren2d::ImageBuffer buffer(10, 5, 3, viren2d::ImageBufferType::Float);
+  viren2d::ImageBuffer buffer(5, 10, 3, viren2d::ImageBufferType::Float);
   float v = 0.0f;
 
   for (int row = 0; row < buffer.Height(); ++row) {
@@ -421,7 +423,10 @@ TEST(ImageBufferTest, FloatBuffer) {
 
 //TODO test grayscale conversion
 TEST(ImageBufferTest, GrayscaleDouble) {
-  viren2d::ImageBuffer buf(1, 3, 3, viren2d::ImageBufferType::Double);
+  viren2d::ImageBuffer buf(3, 1, 3, viren2d::ImageBufferType::Double);
+  EXPECT_EQ(buf.Width(), 1);
+  EXPECT_EQ(buf.Height(), 3);
+  EXPECT_EQ(buf.Channels(), 3);
   buf.AtChecked<double>(0, 0, 0) = 1.0;
   buf.AtChecked<double>(0, 0, 1) = 1.0;
   buf.AtChecked<double>(0, 0, 2) = 1.0;

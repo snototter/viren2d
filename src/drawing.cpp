@@ -579,10 +579,10 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
   ImageBuffer buffer;
   if (copy) {
     buffer.CreateCopiedBuffer(
-          data, width, height, channels, stride, ImageBufferType::UInt8);
+          data, height, width, channels, stride, ImageBufferType::UInt8, -1);
   } else {
     buffer.CreateSharedBuffer(
-          data, width, height, channels, stride, ImageBufferType::UInt8);
+          data, height, width, channels, stride, ImageBufferType::UInt8, -1);
   }
   return buffer;
 }

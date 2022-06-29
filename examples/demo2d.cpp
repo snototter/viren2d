@@ -586,7 +586,7 @@ void DemoConversionOpenCV() {
   // color format to demonstrate the potential side-effect:
   viren2d::ImageBuffer img_buf;
   img_buf.CreateSharedBuffer(
-        roi.data, roi.cols, roi.rows,
+        roi.data, roi.rows, roi.cols,
         roi.channels(), roi.step);
   img_buf.SwapChannels(0, 2);
 

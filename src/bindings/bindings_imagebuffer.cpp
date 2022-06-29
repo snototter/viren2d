@@ -75,6 +75,7 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
 
   ImageBuffer img;
   const int row_stride = static_cast<int>(buf.strides(0));
+  const int col_stride = static_cast<int>(buf.strides(1));
   const int height = static_cast<int>(buf.shape(0));
   const int width = static_cast<int>(buf.shape(1));
   const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
@@ -82,11 +83,11 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   if (copy) {
     img.CreateCopiedBuffer(
           static_cast<unsigned char const*>(buf.data()),
-          width, height, channels, row_stride, buffer_type);
+          height, width, channels, row_stride, buffer_type, col_stride);
   } else {
     img.CreateSharedBuffer(
           static_cast<unsigned char*>(buf.mutable_data()),
-          width, height, channels, row_stride, buffer_type);
+          height, width, channels, row_stride, buffer_type, col_stride);
   }
 
   return img;

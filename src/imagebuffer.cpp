@@ -62,7 +62,7 @@ void SwapChannels(ImageBuffer &buffer, int ch1, int ch2) {
 
 template<typename _Tp>
 ImageBuffer ExtractChannel(const ImageBuffer &src, int channel) {
-  ImageBuffer dst(src.Width(), src.Height(), 1, src.BufferType());
+  ImageBuffer dst(src.Height(), src.Width(), 1, src.BufferType());
 
   int rows = src.Height();
   int values_per_row = src.Width() * src.Channels();
@@ -110,7 +110,7 @@ ImageBuffer ConversionHelperGray(
   }
 
   // Create destination buffer (will have contiguous memory)
-  ImageBuffer dst(src.Width(), src.Height(), channels_out, src.BufferType());
+  ImageBuffer dst(src.Height(), src.Width(), channels_out, src.BufferType());
 
   int rows = src.Height();
   int cols = src.Width(); // src channels is 1
@@ -190,7 +190,7 @@ ImageBuffer ConversionHelperRGB(
   }
 
   // Create destination buffer (will have contiguous memory)
-  ImageBuffer dst(src.Width(), src.Height(), channels_out, src.BufferType());
+  ImageBuffer dst(src.Height(), src.Width(), channels_out, src.BufferType());
 
   int rows = src.Height();
   int cols = src.Width();
@@ -257,7 +257,7 @@ ImageBuffer RGBx2Gray(
         (is_bgr_format ? "BGR(A)" : "RGB(A)"), channels_out);
 
   // Create destination buffer (will have contiguous memory)
-  ImageBuffer dst(src.Width(), src.Height(), channels_out, src.BufferType());
+  ImageBuffer dst(src.Height(), src.Width(), channels_out, src.BufferType());
 
   int rows = src.Height();
   int cols = src.Width();
@@ -295,6 +295,7 @@ ImageBuffer RGBx2Gray(
   return dst;
 }
 } // namespace helpers
+
 
 //---------------------------------------------------- Image buffer
 std::string ImageBufferTypeToString(ImageBufferType t) {
@@ -381,11 +382,12 @@ std::ostream &operator<<(std::ostream &os, ImageBufferType t) {
 
 ImageBuffer::ImageBuffer()
   : data(nullptr),
-    width(0),
     height(0),
+    width(0),
     channels(0),
     item_size(0),
     row_stride(0),
+    column_stride(0),
     buffer_type(ImageBufferType::UInt8),
     owns_data(false) {
   SPDLOG_DEBUG("ImageBuffer default constructor.");
@@ -393,18 +395,19 @@ ImageBuffer::ImageBuffer()
 
 
 ImageBuffer::ImageBuffer(
-    int w, int h, int ch, ImageBufferType buf_type) {
+    int h, int w, int ch, ImageBufferType buf_type) {
   SPDLOG_DEBUG(
         "ImageBuffer constructor allocating memory for a "
         "{:d}x{:d}x{:d} {:s} image.",
-        w, h, ch, ImageBufferTypeToString(buf_type));
-  width = w;
+        h, w, ch, ImageBufferTypeToString(buf_type));
   height = h;
+  width = w;
   channels = ch;
   buffer_type = buf_type;
   item_size = ItemSizeFromImageBufferType(buf_type);
-  const int num_bytes = width * height * channels * item_size;
-  row_stride = width * channels * item_size;
+  column_stride = channels * item_size;
+  row_stride = width * column_stride;
+  const int num_bytes = height * row_stride;
   owns_data = true;
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
   if (!data) {
@@ -427,13 +430,14 @@ ImageBuffer::~ImageBuffer() {
 ImageBuffer::ImageBuffer(const ImageBuffer &other) noexcept {
   SPDLOG_DEBUG(
         "ImageBuffer copy constructor, with other: {:s}.", other.ToString());
-  owns_data = other.owns_data;
-  width = other.width;
   height = other.height;
+  width = other.width;
   channels = other.channels;
   item_size = other.item_size;
   buffer_type = other.buffer_type;
   row_stride = other.row_stride;
+  column_stride = other.column_stride;
+  owns_data = other.owns_data;
 
   if (other.owns_data) {
     const int num_bytes = other.NumBytes();
@@ -456,11 +460,12 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other) noexcept {
 
 ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
   : data(other.data),
-    width(other.width),
     height(other.height),
+    width(other.width),
     channels(other.channels),
     item_size(other.item_size),
     row_stride(other.row_stride),
+    column_stride(other.column_stride),
     buffer_type(other.buffer_type),
     owns_data(other.owns_data) {
   SPDLOG_DEBUG("ImageBuffer move constructor.");
@@ -484,6 +489,7 @@ ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
   std::swap(channels, other.channels);
   std::swap(item_size, other.item_size);
   std::swap(row_stride, other.row_stride);
+  std::swap(column_stride, other.column_stride);
   std::swap(buffer_type, other.buffer_type);
   std::swap(owns_data, other.owns_data);
   return *this;
@@ -491,12 +497,13 @@ ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
 
 
 void ImageBuffer::CreateSharedBuffer(
-    unsigned char *buffer, int width, int height,
-    int channels, int row_stride, ImageBufferType buffer_type) {
-  SPDLOG_DEBUG("ImageBuffer::CreateSharedBuffer(w={:d}, h={:d},"
-               " ch={:d}, row_stride={:d}, {:s}).",
-               width, height, channels, item_size, row_stride,
-               ImageBufferTypeToString(buffer_type));
+    unsigned char *buffer, int height, int width, int channels,
+    int row_stride, ImageBufferType buffer_type, int column_stride) {
+  SPDLOG_DEBUG(
+        "ImageBuffer::CreateSharedBuffer: h={:d}, w={:d},"
+        " ch={:d}, {:s}, row_stride={:d}, col_stride={:d}.",
+        height, width, channels, ImageBufferTypeToString(buffer_type),
+        row_stride, column_stride);
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -508,17 +515,20 @@ void ImageBuffer::CreateSharedBuffer(
   this->row_stride = row_stride;
   this->buffer_type = buffer_type;
   this->item_size = ItemSizeFromImageBufferType(buffer_type);
+  this->column_stride = (column_stride < 0) ? (channels * this->item_size) : column_stride;
+  //TODO add tests for numpy views with unusual column strides
+  // maybe we'll want to extend ImageBuffer to handle these, too.
 }
 
 
 void ImageBuffer::CreateCopiedBuffer(
-    unsigned char const *buffer, int width, int height,
-    int channels, int row_stride, ImageBufferType buffer_type) {
+    unsigned char const *buffer, int height, int width, int channels,
+    int row_stride, ImageBufferType buffer_type, int column_stride) {
   SPDLOG_DEBUG(
-        "ImageBuffer::CreateCopy(w={:d}, h={:d},"
-        " ch={:d}, row_stride={:d}, {:s}).",
-        width, height, channels, item_size, row_stride,
-        ImageBufferTypeToString(buffer_type));
+        "ImageBuffer::CreateSharedBuffer: h={:d}, w={:d},"
+        " ch={:d}, {:s}, row_stride={:d}, col_stride={:d}.",
+        height, width, channels, ImageBufferTypeToString(buffer_type),
+        row_stride, column_stride);
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -538,13 +548,16 @@ void ImageBuffer::CreateCopiedBuffer(
   this->row_stride = row_stride;
   this->buffer_type = buffer_type;
   this->item_size = ItemSizeFromImageBufferType(buffer_type);
+  this->column_stride = (column_stride < 0) ? (channels * this->item_size) : column_stride;
+  //TODO add tests for numpy views with unusual column strides
+  // maybe we'll want to extend ImageBuffer to handle these, too.
 }
 
 
 ImageBuffer ImageBuffer::DeepCopy() const {
   ImageBuffer cp;
   cp.CreateCopiedBuffer(
-        data, width, height, channels, row_stride, buffer_type);
+        data, height, width, channels, row_stride, buffer_type, column_stride);
   return cp;
 }
 
@@ -770,7 +783,7 @@ void ImageBuffer::Cleanup() {
   if (data && owns_data) {
     SPDLOG_TRACE(
           "ImageBuffer freeing {:d}x{:d}x{:d}={:d} entries a {:d} byte(s).",
-          width, height, channels, width * height * channels, item_size);
+          width, height, channels, NumElements(), item_size);
     std::free(data);
   }
   data = nullptr;
@@ -781,6 +794,7 @@ void ImageBuffer::Cleanup() {
   item_size = 0;
   buffer_type = ImageBufferType::UInt8;
   row_stride = 0;
+  column_stride = 0;
 }
 
 
@@ -792,15 +806,16 @@ ImageBuffer LoadImage(
         image_filename, force_num_channels);
 
   int width, height, bytes_per_pixel;
-  unsigned char *data = stbi_load(image_filename.c_str(),
-                                  &width, &height,
-                                  &bytes_per_pixel,
-                                  force_num_channels);
+  unsigned char *data = stbi_load(
+        image_filename.c_str(), &width, &height, &bytes_per_pixel,
+        force_num_channels);
   if (!data) {
-    std::ostringstream s;
-    s << "Could not load image from '" << image_filename << "'!";
-    throw std::runtime_error(s.str());
+    std::string s("Could not load image from '");
+    s += image_filename;
+    s += "'!";
+    throw std::runtime_error(s);
   }
+
   const int num_channels = (force_num_channels != STBI_default)
       ? force_num_channels : bytes_per_pixel;
 
@@ -808,8 +823,8 @@ ImageBuffer LoadImage(
   // First, let ImageBuffer reuse the buffer (no separate memory allocation)
   ImageBuffer buffer;
   buffer.CreateSharedBuffer(
-        data, width, height, num_channels,
-        width * num_channels, ImageBufferType::UInt8);
+        data, height, width, num_channels,
+        width * num_channels, ImageBufferType::UInt8, -1);
   // Then, transfer ownership
   buffer.TakeOwnership();
   // Alternatively, we could:
