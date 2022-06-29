@@ -3,12 +3,15 @@
 
 #include <string>
 #include <ostream>
+#include <sstream>
+#include <exception>
 
 namespace viren2d {
 
 /// Data types supported by the ImageBuffer class.
 enum class ImageBufferType : int {
   UInt8 = 0,
+  Int16,
   Int32,
   Float,
   Double
@@ -19,19 +22,23 @@ enum class ImageBufferType : int {
 std::string ImageBufferTypeToString(ImageBufferType t);
 
 
+/// Returns the ImageBufferType corresponding to the given string representation.
+ImageBufferType ImageBufferTypeFromString(const std::string &s);
+
+
 /// Returns the size of the corresponding data type in bytes.
 int ItemSizeFromImageBufferType(ImageBufferType t);
 
 
-/// Output stream operator to print a LineCap.
+/// Output stream operator to print an ImageBufferType.
 std::ostream &operator<<(std::ostream &os, ImageBufferType t);
 
 
 //---------------------------------------------------- Image buffer
 
-/// Holds image data. Supported data types, see `ImageBufferType`.
+/// Holds image data. For supported data types, see `ImageBufferType`.
 ///
-/// Usage: Either copy existing image data via `CreateCopy`, or
+/// Usage: Either copy existing image data via `CreateCopiedBuffer`, or
 ///   share the same memory via `CreateSharedBuffer`. The latter
 ///   does NOT take ownership of the memory (i.e. cleaning up
 ///   remains the caller's responsibility).
@@ -52,7 +59,7 @@ public:
 
   /// Copy c'tor: Copies the data IFF other.owns_data is true.
   /// Otherwise, this ImageBuffer will also be a shared buffer.
-  /// For a guaranteed deep copy, use CreateCopy()!
+  /// For a guaranteed deep copy, use `DeepCopy`!
   ImageBuffer(const ImageBuffer &other) noexcept;
 
 
@@ -71,15 +78,15 @@ public:
   /// Returns the number of pixels in each row.
   inline int Width() const { return width; }
 
-  /// Returns the number of pixels in each row.
-  inline int Columns() const { return width; }
+//  /// Returns the number of pixels in each row.
+//  inline int Columns() const { return width; }
 
 
   /// Returns the number of rows.
   inline int Height() const { return height; }
 
-  /// Returns the number of rows.
-  inline int Rows() const { return height; }
+//  /// Returns the number of rows.
+//  inline int Rows() const { return height; }
 
 
   /// Number of values per pixel.
@@ -88,6 +95,9 @@ public:
 
   /// Number of bytes per subsequent rows in memory.
   inline int RowStride() const { return row_stride; }
+
+  //FIXME
+  inline int ColumnStride() const { return channels * item_size; }
 
 
   /// Returns the size in bytes of a single element/value.
@@ -135,7 +145,8 @@ public:
   /// underlying `data` memory.
   template<typename _Tp> inline
   _Tp *MutablePtr(int row, int col, int channel=0) {
-    return reinterpret_cast<_Tp *>(data + (row * row_stride) + (col * channels * item_size) + (channel * item_size));
+    return reinterpret_cast<_Tp *>(
+          data + (row * row_stride) + (col * ColumnStride()) + (channel * item_size));
   }
 
 
@@ -143,21 +154,38 @@ public:
   /// underlying `data` memory.
   template<typename _Tp> inline
   _Tp const *ImmutablePtr(int row, int col, int channel=0) const {
-    return reinterpret_cast<_Tp const *>(data + (row * row_stride) + (col * channels * item_size) + (channel * item_size));
+    return reinterpret_cast<_Tp const *>(
+          data + (row * row_stride) + (col * ColumnStride()) + (channel * item_size));
   }
 
 
   /// Returns a reference to modify the specified pixel element.
   template<typename _Tp> inline
-  _Tp& At(int row, int col, int channel=0) {
+  _Tp& AtUnchecked(int row, int col, int channel=0) {
     return *MutablePtr<_Tp>(row, col, channel);
   }
 
 
-  /// Returns a readonly reference to the specified pixel element.
+  /// Returns a read-only reference to the specified pixel element.
   template<typename _Tp> inline
-  const _Tp& At(int row, int col, int channel=0) const {
+  const _Tp& AtUnchecked(int row, int col, int channel=0) const {
     return *ImmutablePtr<_Tp>(row, col, channel);
+  }
+
+
+  /// Returns a reference to modify the specified pixel element.
+  template<typename _Tp> inline
+  _Tp& AtChecked(int row, int col, int channel=0) {
+    CheckAccess(row, col, channel);
+    return AtUnchecked<_Tp>(row, col, channel);
+  }
+
+
+  /// Returns a read-only reference to the specified pixel element.
+  template<typename _Tp> inline
+  const _Tp& AtChecked(int row, int col, int channel=0) const {
+    CheckAccess(row, col, channel);
+    return AtUnchecked<_Tp>(row, col, channel);
   }
 
 
@@ -186,19 +214,18 @@ public:
   ///   channels: Number of elements at each (row, column) location.
   ///   row_stride: Number of bytes between consecutive rows.
   ///   buffer_type: Element type.
-  void CreateCopy(
+  void CreateCopiedBuffer(
       unsigned char const *buffer,
       int width, int height, int channels, int row_stride,
       ImageBufferType buffer_type);
 
 
   /// Returns a deep copy.
-  ImageBuffer CreateCopy() const;
+  ImageBuffer DeepCopy() const;
 
 
   /// Swaps the specified (0-based) channels *in-place*.
   void SwapChannels(int ch1, int ch2);
-
 
 
   /// Returns an ImageBuffer with the given number
@@ -212,6 +239,10 @@ public:
   ///
   /// Other configurations are **not** supported.
   ImageBuffer ToChannels(int output_channels) const;
+
+
+  //TODO
+  ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format=false) const;
 
 
   /// Returns a single-channel buffer deeply copied from this ImageBuffer.
@@ -264,6 +295,20 @@ private:
   /// Frees the memory if needed and resets
   /// the members accordingly.
   void Cleanup();
+
+
+  inline void CheckAccess(int row, int col, int channel) const {
+    if ((row < 0) || (row >= height)
+        || (col < 0) || (col >= width)
+        || (channel < 0) || (channel >= channels)) {
+      std::ostringstream s;
+      s << "Buffer index (row=" << row << ", col="
+        << col << ", ch=" << channel
+        << ") is out of range for ImageBuffer of size: "
+        << height << "x" << width << "x" << channels << '!';
+      throw std::out_of_range(s.str()); //FIXME change c'tor to H!!, W, C!!!
+    }
+  }
 };
 
 
@@ -318,13 +363,15 @@ ImageBuffer Gray2RGB(const ImageBuffer &img);
 /// Converts a grayscale ImageBuffer to RGBA.
 ImageBuffer Gray2RGBA(const ImageBuffer &img);
 
-
+//TODO refactor RGBx2RGB
 /// Converts a RGBA ImageBuffer to RGB.
 ImageBuffer RGBA2RGB(const ImageBuffer &img);
 
-
+//TODO refactor RGBx2RGBA
 /// Converts a RGB ImageBuffer to RGBA.
 ImageBuffer RGB2RGBA(const ImageBuffer &img);
+
+//TODO implement RGBx2Gray(buf, is_bgr_format, num_output_channels)
 
 } // namespace viren2d
 

@@ -26,7 +26,7 @@ def demo_color_names():
         color = viren2d.Color(color_name)
         text_style.color = color.grayscale().inverse()
 
-        painter.draw_textbox(
+        painter.draw_text_box(
             [color_name], (x, y), anchor=viren2d.Anchor.Top,
             text_style=text_style, padding=(6, 6),
             rotation=0, line_style=line_style,

@@ -5,7 +5,7 @@ Text & Text Boxes
 ~~~~~~~~~~~~~~~~~
 
 Text can be rendered via :meth:`~viren2d.Painter.draw_text` or
-:meth:`~viren2d.Painter.draw_textbox`.
+:meth:`~viren2d.Painter.draw_text_box`.
 
 
 .. _tutorial-text-anchors:

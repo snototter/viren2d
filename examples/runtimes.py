@@ -8,6 +8,55 @@ WIDTH, HEIGHT = 1024, 768
 REPETITIONS = [10, 100]#, 1000]#, 10000]
 
 
+def _time_imagebuffer():
+    print('-----------------------------')
+    print("Timings for ImageBuffer inits")
+    print('-----------------------------')
+
+    print('ImageBuffer share/copy numpy array')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+
+    for runs in REPETITIONS:
+        print(f'* {runs} repetitions')
+        for dt in [np.uint8, np.int32, np.float32, np.float64]:
+            for channels in [1, 3, 4]:
+                data = (255 * np.random.rand(5, 15, channels)).astype(dt)
+
+                res = timeit.timeit(
+                    lambda: viren2d.ImageBuffer(data, copy=False),
+                    number=runs)
+                print(f' * Share buffer, {dt.__name__:7s} {WIDTH}x{HEIGHT}x{channels}: {res/runs:f} ms')
+
+                res = timeit.timeit(
+                    lambda: viren2d.ImageBuffer(data, copy=True),
+                    number=runs)
+                print(f' * Copy buffer,  {dt.__name__:7s} {WIDTH}x{HEIGHT}x{channels}: {res/runs:f} ms')
+
+    print()
+    print('Init Canvas from ImageBuffer/numpy')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+
+    painter = viren2d.Painter()
+    # Set up painter once, due to the memory allocation
+    pu.tic()
+    painter.set_canvas_rgb(WIDTH, HEIGHT)
+    res = pu.ttoc()
+    print(f'Initial {WIDTH}x{HEIGHT} canvas setup: {res:f} ms')
+    for runs in REPETITIONS:
+        print(f'* {runs} repetitions')
+        for channels in [3, 4]:
+            data = (255 * np.random.rand(5, 15, channels)).astype(np.uint8)
+            res = timeit.timeit(
+                lambda: painter.set_canvas_image(viren2d.ImageBuffer(data, copy=False)),
+                number=runs)
+            print(f' * Initialize canvas from shared buffer (explicit), {WIDTH}x{HEIGHT}x{channels}: {res/runs:f} ms')
+
+            res = timeit.timeit(
+                lambda: painter.set_canvas_image(data),
+                number=runs)
+            print(f' * Initialize canvas from numpy (implicit), {WIDTH}x{HEIGHT}x{channels}:         {res/runs:f} ms')
+
+
 def _time_painter_init():
     print('----------------------------')
     print("Timings for painter's canvas")
@@ -58,14 +107,14 @@ def _time_primitives():
             lambda: painter.draw_line(
                 (50, 50), (WIDTH-50, HEIGHT-50), line_style),
             number=runs)
-        print(f'  * Odd width:  {res/runs:f} ms, {line_style}')
+        print(f'  * Odd width:   {res/runs:f} ms, {line_style}')
 
         line_style.width = 6
         res = timeit.timeit(
             lambda: painter.draw_line(
                 (50, 50), (WIDTH-50, HEIGHT-50), line_style),
             number=runs)
-        print(f'  * Even width: {res/runs:f} ms, {line_style}')
+        print(f'  * Even width:  {res/runs:f} ms, {line_style}')
 
     print()
     print('Arcs')
@@ -79,7 +128,7 @@ def _time_primitives():
                 angle_from=45, angle_to=330,
                 line_style=line_style),
             number=runs)
-        print(f'  * Odd line width:  {res/runs:f} ms')
+        print(f'  * Odd line width:    {res/runs:f} ms')
 
         line_style.width = 6
         res = timeit.timeit(
@@ -88,7 +137,7 @@ def _time_primitives():
                 angle_from=45, angle_to=330,
                 line_style=line_style),
             number=runs)
-        print(f'  * Even line width: {res/runs:f} ms')
+        print(f'  * Even line width:   {res/runs:f} ms')
 
         res = timeit.timeit(
             lambda: painter.draw_arc(
@@ -97,7 +146,7 @@ def _time_primitives():
                 line_style=line_style,
                 fill_color=(0.2, 0.3, 0.4)),
             number=runs)
-        print(f'  * Filled:          {res/runs:f} ms')
+        print(f'  * Filled:            {res/runs:f} ms')
 
     print()
     print('Ellipses')
@@ -193,7 +242,6 @@ def _time_primitives():
                 rect, line_style, (0.4, 0.5, 0.6)),
             number=runs)
         print(f'  * Round/rotate/fill:   {res/runs:f} ms')
-
 
 
 def _time_surveillance():
@@ -311,11 +359,13 @@ def _time_surveillance():
             lambda: painter.draw_bounding_box_2d(
                 rect, ['this', 'is another', 'label'], bbox_style),
             number=runs)
-        print(f'  * Square/rotated/filled box, multi-line label: {res/runs:f} ms (with text fill color)')
+        print(f'  * Square/rotated/filled box, multi-line label: {res/runs:f} ms (with explicit text fill color)')
         
 
 def compute_timings():
 #    img = imutils.imread('ninja.jpg', mode='RGB')
+    _time_imagebuffer()
+    print()
     _time_painter_init()
     print()
     _time_primitives()

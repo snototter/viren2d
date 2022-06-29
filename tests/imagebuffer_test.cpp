@@ -15,19 +15,19 @@ template <typename _Tp>
     for (int col = 0; col < buf.Width(); ++col) {
       if ((buf.BufferType() == viren2d::ImageBufferType::Float)
           || (buf.BufferType() == viren2d::ImageBufferType::Double)) {
-        if (!wgu::eps_equal(buf.At<_Tp>(row, col, channel), value)) {
+        if (!wgu::eps_equal(buf.AtChecked<_Tp>(row, col, channel), value)) {
           return ::testing::AssertionFailure()
               << "`CheckChannelConstant` (float/double): " << buf.ToString()
               << ", channel=" << channel << ", value=" << value
               << " differs at row=" << row << ", col=" << col;
         }
       } else {
-        if (buf.At<_Tp>(row, col, channel) != value) {
+        if (buf.AtChecked<_Tp>(row, col, channel) != value) {
           return ::testing::AssertionFailure()
               << "`CheckChannelConstant` (integral type): " << buf.ToString()
               << ", channel=" << channel << ", value=" << value
               << " differs at row=" << row << ", col=" << col
-              << ", actual value=" << buf.At<_Tp>(row, col, channel);
+              << ", actual value=" << buf.AtChecked<_Tp>(row, col, channel);
         }
       }
     }
@@ -40,16 +40,24 @@ template <typename _Tp>
     const viren2d::ImageBuffer &buf, int channel, double value) {
   switch (buf.BufferType()) {
     case viren2d::ImageBufferType::UInt8:
-      return CheckChannelConstantHelper<uint8_t>(buf, channel, static_cast<uint8_t>(value));
+      return CheckChannelConstantHelper<uint8_t>(
+            buf, channel, static_cast<uint8_t>(value));
+
+    case viren2d::ImageBufferType::Int16:
+      return CheckChannelConstantHelper<int16_t>(
+            buf, channel, static_cast<int16_t>(value));
 
     case viren2d::ImageBufferType::Int32:
-      return CheckChannelConstantHelper<int32_t>(buf, channel, static_cast<int32_t>(value));
+      return CheckChannelConstantHelper<int32_t>(
+            buf, channel, static_cast<int32_t>(value));
 
     case viren2d::ImageBufferType::Float:
-      return CheckChannelConstantHelper<float>(buf, channel, static_cast<float>(value));
+      return CheckChannelConstantHelper<float>(
+            buf, channel, static_cast<float>(value));
 
     case viren2d::ImageBufferType::Double:
-      return CheckChannelConstantHelper<double>(buf, channel, value);
+      return CheckChannelConstantHelper<double>(
+            buf, channel, value);
   }
 
   return ::testing::AssertionFailure() << "ImageBufferType "
@@ -68,22 +76,23 @@ template<typename _Tp>
       if ((buf1.BufferType() == viren2d::ImageBufferType::Float)
           || (buf1.BufferType() == viren2d::ImageBufferType::Double)) {
         if (!wgu::eps_equal(
-              buf1.At<_Tp>(row, col, ch1), buf2.At<_Tp>(row, col, ch2))) {
+              buf1.AtChecked<_Tp>(row, col, ch1),
+              buf2.AtChecked<_Tp>(row, col, ch2))) {
           return ::testing::AssertionFailure()
               << "`CheckChannelEquals` (float/double): " << buf1.ToString()
               << ", channel=" << ch1 << ", vs. " << buf2.ToString()
               << ", channel=" << ch2 << " differs at row=" << row << ", col=" << col
-              << ". Values: " << static_cast<double>(buf1.At<_Tp>(row, col, ch1)) << " vs. "
-              << static_cast<double>(buf2.At<_Tp>(row, col, ch2)) << '!';
+              << ". Values: " << static_cast<double>(buf1.AtChecked<_Tp>(row, col, ch1)) << " vs. "
+              << static_cast<double>(buf2.AtChecked<_Tp>(row, col, ch2)) << '!';
         }
       } else {
-        if (buf1.At<_Tp>(row, col, ch1) != buf2.At<_Tp>(row, col, ch2)) {
+        if (buf1.AtChecked<_Tp>(row, col, ch1) != buf2.AtChecked<_Tp>(row, col, ch2)) {
           return ::testing::AssertionFailure()
               << "`CheckChannelEquals` (integral type): " << buf1.ToString()
               << ", channel=" << ch1 << ", vs. " << buf2.ToString()
               << ", channel=" << ch2 << " differs at row=" << row << ", col=" << col
-              << ". Values: " << static_cast<double>(buf1.At<_Tp>(row, col, ch1)) << " vs. "
-              << static_cast<double>(buf2.At<_Tp>(row, col, ch2)) << '!';
+              << ". Values: " << static_cast<double>(buf1.AtChecked<_Tp>(row, col, ch1)) << " vs. "
+              << static_cast<double>(buf2.AtChecked<_Tp>(row, col, ch2)) << '!';
         }
       }
     }
@@ -112,6 +121,9 @@ template<typename _Tp>
   switch (buf1.BufferType()) {
     case viren2d::ImageBufferType::UInt8:
       return CheckChannelEqualsHelper<uint8_t>(buf1, ch1, buf2, ch2);
+
+    case viren2d::ImageBufferType::Int16:
+      return CheckChannelEqualsHelper<int16_t>(buf1, ch1, buf2, ch2);
 
     case viren2d::ImageBufferType::Int32:
       return CheckChannelEqualsHelper<int32_t>(buf1, ch1, buf2, ch2);
@@ -230,7 +242,7 @@ TEST(ImageBufferTest, ImageLoading) {
     EXPECT_EQ(ptrs[i]->ImmutableData()[2], tmp.ImmutableData()[2]);
 
     // Create a copy
-    tmp.CreateCopy(
+    tmp.CreateCopiedBuffer(
           ptrs[i]->ImmutableData(), ptrs[i]->Width(),
           ptrs[i]->Height(), ptrs[i]->Channels(),
           ptrs[i]->RowStride(), ptrs[i]->BufferType());
@@ -336,7 +348,7 @@ TEST(ImageBufferTest, FloatBuffer) {
   for (int row = 0; row < buffer.Height(); ++row) {
     for (int col = 0; col < buffer.Width(); ++col) {
       for (int channel = 0; channel < buffer.Channels(); ++channel) {
-        buffer.At<float>(row, col, channel) = v;
+        buffer.AtChecked<float>(row, col, channel) = v;
         v += 1.0;
       }
     }
@@ -351,7 +363,7 @@ TEST(ImageBufferTest, FloatBuffer) {
   } value;
   value.as_float = static_cast<float>(buffer.Channels());
 
-  EXPECT_DOUBLE_EQ(buffer.At<float>(0, 1, 0), value.as_float);
+  EXPECT_DOUBLE_EQ(buffer.AtChecked<float>(0, 1, 0), value.as_float);
 
   value.as_float = 0.0f;
   unsigned char const *uchar_ptr = buffer.ImmutableData();
@@ -360,7 +372,7 @@ TEST(ImageBufferTest, FloatBuffer) {
     float const *row_ptr = buffer.ImmutablePtr<float>(row, 0, 0);
     for (int col = 0; col < buffer.Width(); ++col) {
       for (int channel = 0; channel < buffer.Channels(); ++channel) {
-        EXPECT_DOUBLE_EQ(buffer.At<float>(row, col, channel), value.as_float);
+        EXPECT_DOUBLE_EQ(buffer.AtChecked<float>(row, col, channel), value.as_float);
 
         EXPECT_EQ(row_ptr[col * buffer.Channels() + channel], value.as_float);
 
@@ -374,7 +386,7 @@ TEST(ImageBufferTest, FloatBuffer) {
     }
   }
 
-  viren2d::ImageBuffer copy = buffer.CreateCopy();
+  viren2d::ImageBuffer copy = buffer.DeepCopy();
   EXPECT_TRUE(CheckChannelEquals(copy, 0, buffer, 0));
   EXPECT_TRUE(CheckChannelEquals(copy, 1, buffer, 1));
   EXPECT_TRUE(CheckChannelEquals(copy, 2, buffer, 2));
@@ -405,4 +417,38 @@ TEST(ImageBufferTest, FloatBuffer) {
 
   EXPECT_THROW(buffer.Channel(-1), std::invalid_argument);
   EXPECT_THROW(buffer.Channel(3), std::invalid_argument);
+}
+
+//TODO test grayscale conversion
+TEST(ImageBufferTest, GrayscaleDouble) {
+  viren2d::ImageBuffer buf(1, 3, 3, viren2d::ImageBufferType::Double);
+  buf.AtChecked<double>(0, 0, 0) = 1.0;
+  buf.AtChecked<double>(0, 0, 1) = 1.0;
+  buf.AtChecked<double>(0, 0, 2) = 1.0;
+
+  buf.AtChecked<double>(1, 0, 0) = 1.0;
+  buf.AtChecked<double>(1, 0, 1) = 1.0;
+  buf.AtChecked<double>(1, 0, 2) = 1.0;
+
+  buf.AtChecked<double>(2, 0, 0) = 1.0;
+  buf.AtChecked<double>(2, 0, 1) = 1.0;
+  buf.AtChecked<double>(2, 0, 2) = 1.0;
+
+  viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
+  EXPECT_EQ(gray.Width(), buf.Width());
+  EXPECT_EQ(gray.Height(), buf.Height());
+  EXPECT_EQ(gray.Channels(), 4);
+
+  //FIXME check values, adjust values above
+
+  // Alpha channel check
+  EXPECT_TRUE(CheckChannelConstant(gray, 3, 255.0));
+//  EXPECT_DOUBLE_EQ(gray.At<double>(0, 0, 3), 255);
+//  EXPECT_DOUBLE_EQ(gray.At<double>(1, 0, 3), 255);
+//  EXPECT_DOUBLE_EQ(gray.At<double>(2, 0, 3), 255);
+}
+
+
+TEST(ImageBufferTest, GrayscaleUInt8) {
+//FIXME implement test!
 }

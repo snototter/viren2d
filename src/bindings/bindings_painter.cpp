@@ -308,20 +308,21 @@ void RegisterPainter(py::module &m) {
         Default constructor.
 
         Initializes an empty canvas, *i.e.* :meth:`~viren2d.Painter.is_valid`
-        will return ``False`` until the canvas has been properly set up.
+        will return ``False`` until the canvas has been properly set up
+        via :meth:`~viren2d.Painter.set_canvas_image`, *etc.*
         )docstr")
       .def(
         py::init<const ImageBuffer&>(), R"docstr(
-        Creates a painter from an image.
+        Creates a painter and initializes its canvas from an image.
 
         Initializes the painter's canvas with the given image.
-        See :meth:`~viren2d.Painter.set_canvas_image` for notes
-        on supported image formats.
+        See :meth:`~viren2d.Painter.set_canvas_image` for supported
+        image formats and parameter types.
         )docstr",
         py::arg("image"))
       .def(
         py::init<int, int, Color>(), R"docstr(
-        Creates a painter with a custom canvas.
+        Creates a painter with a customized canvas.
 
         Initializes the painter's canvas and fills it
         with the given :class:`~viren2d.Color`.
@@ -419,7 +420,8 @@ void RegisterPainter(py::module &m) {
           on the painter's canvas for convenience.
 
           See :meth:`~viren2d.Painter.get_canvas` for details about the
-          image format of the canvas.
+          image format of the canvas. Can be used to convert the current
+          visualization into a :class:`numpy.ndarray` via:
 
           >>> img_np = np.array(painter.canvas)
         )docstr");
@@ -501,7 +503,10 @@ void RegisterPainter(py::module &m) {
           the arc will be filled.
 
       Example:
-        >>> line_style = viren2d.LineStyle(width=5, color='maroon')
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=5, color='maroon',
+        >>>     dash_pattern=[], dash_offset=0.0,
+        >>>     cap='round', join='miter')
         >>> painter.draw_arc(
         >>>     center=(50, 50), radius=20, angle_from=30, angle_to=330,
         >>>     line_style=line_style, include_center=True,
@@ -529,7 +534,14 @@ void RegisterPainter(py::module &m) {
           how to draw the arrow.
 
       Example:
-        >>> #TODO
+        >>> arrow_style = viren2d.ArrowStyle(
+        >>>     width=3, color='black',
+        >>>     tip_length=0.3, tip_angle=20,
+        >>>     tip_closed=True, double_headed=False,
+        >>>     dash_pattern=[], dash_offset=0.0,
+        >>>     cap='round', join='miter')
+        >>> painter.draw_arrow(
+        >>>     pt1=(10, 10), pt2=(42, 42), arrow_style=arrow_style)
 
       Note:
         Arrows should always be drawn **fully opaque**. Otherwise,
@@ -649,8 +661,6 @@ void RegisterPainter(py::module &m) {
         >>> painter.draw_grid(
         >>>     spacing_x=50, spacing_y=50, line_style=line_style,
         >>>     top_left=(50, 50), bottom_right=(150, 150))
-
-
       )docstr";
   painter.def("draw_grid", &PainterWrapper::DrawGrid, doc.c_str(),
         py::arg("spacing_x"), py::arg("spacing_y"),
@@ -670,9 +680,10 @@ void RegisterPainter(py::module &m) {
           how to draw the line.
 
       Example:
-        >>> line_style = viren2d.LineStyle(width=3, color='azure')
-        >>> painter.draw_line((42, 42), (86, 86), line_style)
-        >>> # Or via named arguments:
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=7, color='crimson!80',
+        >>>     dash_pattern=[20, 10], dash_offset=0.0,
+        >>>     cap='round', join='miter')
         >>> painter.draw_line(
         >>>     pt1=(42, 42), pt2=(86, 86), line_style=line_style)
       )docstr";
@@ -693,7 +704,10 @@ void RegisterPainter(py::module &m) {
           how to draw the marker.
 
       Example:
-        >>> marker_style = viren2d.MarkerStyle(marker='7', size=30, color='#ff00ff')
+        >>> marker_style = viren2d.MarkerStyle(
+        >>>     marker='7', size=20, color='navy-blue!80',
+        >>>     thickness=1, filled=True,
+        >>>     cap='round', join='miter')
         >>> painter.draw_marker(pt=(42, 70), marker_style=marker_style)
       )docstr";
   painter.def(
@@ -779,10 +793,10 @@ void RegisterPainter(py::module &m) {
         fill_color: If you provide a valid :class:`~viren2d.Color`,
           the rectangle will be filled.
 
-        Example:
-          >>> line_style = viren2d.LineStyle()
-          >>> painter.draw_rect(rect=rect, line_style=line_style, fill_color='same!20')
-        )docstr";
+      Example:
+        >>> line_style = viren2d.LineStyle()
+        >>> painter.draw_rect(rect=rect, line_style=line_style, fill_color='same!20')
+      )docstr";
   painter.def("draw_rect", &PainterWrapper::DrawRect, doc.c_str(),
               py::arg("rect"),
               py::arg("line_style") = LineStyle(),
@@ -881,7 +895,7 @@ void RegisterPainter(py::module &m) {
         The bounding box of the drawn text as :class:`~viren2d.Rect`.
       )docstr";
   painter.def(
-        "draw_textbox",
+        "draw_text_box",
         &PainterWrapper::DrawTextBox, doc.c_str(),
         py::arg("text"),
         py::arg("anchor_position"),

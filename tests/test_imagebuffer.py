@@ -10,46 +10,47 @@ def test_buffer_passing():
     # Although ImageBuffer is only used for 1-, 3-,
     # and 4-channel image data so far, we can still
     # test its creation with an arbitrary number of channels:
-    for channels in [1, 2, 3, 4, 5, 10]:
-        data = (255 * np.random.rand(5, 15, channels)).astype(np.uint8)
-        # Ensure that our later constant will not cause a broken test
-        data[3, 4, :] = 99
+    for dt in [np.uint8, np.int16, np.int32, np.float32, np.float64]:
+        for channels in [1, 2, 3, 4, 5, 10]:
+            data = (255 * np.random.rand(5, 15, channels)).astype(dt)
+            # Ensure that our later constant will not cause a broken test
+            data[3, 4, :] = 99
 
-        # Create image buffers (shared & copy)
-        buf_shared = viren2d.ImageBuffer(data, copy=False)
-        assert not buf_shared.owns_data
-        assert buf_shared.shape == (5, 15, channels)
-        assert buf_shared.channels == channels
-        assert buf_shared.width == data.shape[1]
-        assert buf_shared.height == data.shape[0]
-        assert buf_shared.is_valid()
+            # Create image buffers (shared & copy)
+            buf_shared = viren2d.ImageBuffer(data, copy=False)
+            assert not buf_shared.owns_data
+            assert buf_shared.shape == (5, 15, channels)
+            assert buf_shared.channels == channels
+            assert buf_shared.width == data.shape[1]
+            assert buf_shared.height == data.shape[0]
+            assert buf_shared.is_valid()
 
-        buf_copied = viren2d.ImageBuffer(data, copy=True)
-        assert buf_copied.owns_data
-        assert buf_copied.shape == (5, 15, channels)
-        
-        # Convert back (the numpy arrays both *share* the memory
-        # with their corresponding ImageBuffer)
-        res_shared = np.array(buf_shared, copy=False)
-        assert np.array_equal(data, res_shared)
-        res_copied = np.array(buf_copied, copy=False)
-        assert np.array_equal(data, res_copied)
+            buf_copied = viren2d.ImageBuffer(data, copy=True)
+            assert buf_copied.owns_data
+            assert buf_copied.shape == (5, 15, channels)
+            
+            # Convert back (the numpy arrays both *share* the memory
+            # with their corresponding ImageBuffer)
+            res_shared = np.array(buf_shared, copy=False)
+            assert np.array_equal(data, res_shared)
+            res_copied = np.array(buf_copied, copy=False)
+            assert np.array_equal(data, res_copied)
 
-        # Check if the memory is actually shared
-        data[3, 4, :] = 42
-        assert np.array_equal(data, res_shared)
-        assert not np.array_equal(data, res_copied)
+            # Check if the memory is actually shared
+            data[3, 4, :] = 42
+            assert np.array_equal(data, res_shared)
+            assert not np.array_equal(data, res_copied)
 
-        # If we have a grayscale, rgb, or rgba image, also
-        # test that to_rgb/a works as expected:
-        if channels in [1, 3, 4]:
-            as_rgb = buf_shared.to_rgb()
-            assert as_rgb.channels == 3
-            assert as_rgb.owns_data
+            # If we have a grayscale, rgb, or rgba image, also
+            # test that to_rgb/a works as expected:
+            if channels in [1, 3, 4]:
+                as_rgb = buf_shared.to_rgb()
+                assert as_rgb.channels == 3
+                assert as_rgb.owns_data
 
-            as_rgba = buf_shared.to_rgba()
-            assert as_rgba.channels == 4
-            assert as_rgba.owns_data
+                as_rgba = buf_shared.to_rgba()
+                assert as_rgba.channels == 4
+                assert as_rgba.owns_data
 
     # Create from a 2D array explicitly
     data = (255 * np.random.rand(5, 15)).astype(np.uint8)
@@ -165,7 +166,7 @@ def test_buffer_side_effects():
 
 def test_dtypes():
     for channels in [1, 2, 3]:
-        for tp in [np.uint8, np.int32, np.float32, np.float64]:
+        for tp in [np.uint8, np.int16, np.int32, np.float32, np.float64]:
             buf_np = np.ones((3, 5, channels), dtype=tp)
             buf_vi = viren2d.ImageBuffer(buf_np, copy=False)
             assert buf_vi.width == 5
@@ -176,7 +177,7 @@ def test_dtypes():
             # check format, shape, dtype
             # check values for equality
 
-    for tp in [np.int8, np.int16, np.float16]:
+    for tp in [np.int8, np.uint16, np.uint32, np.uint64, np.int64, np.float16]:
         buf_np = np.ones((3, 5), dtype=tp)
         with pytest.raises(ValueError):
             viren2d.ImageBuffer(buf_np)

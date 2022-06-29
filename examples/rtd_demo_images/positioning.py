@@ -40,7 +40,7 @@ def demo_text_anchors():
         if anchor != viren2d.Anchor.Center:
             painter.draw_marker(pos, marker_style)
 
-        painter.draw_textbox(
+        painter.draw_text_box(
             [str(anchor)], pos, anchor=anchor, text_style=text_style,
             padding=padding, rotation=0, line_style=viren2d.LineStyle.Invalid,
             fill_color='azure!40', radius=0.15)
@@ -79,19 +79,19 @@ def demo_multiline_text():
 
     text_style = viren2d.TextStyle(family='xkcd', size=14)
     text_style.alignment = 'left'
-    painter.draw_textbox(
+    painter.draw_text_box(
         poem, (5, 5), anchor='top-left', text_style=text_style,
         padding=padding, rotation=0, line_style=line_style,
         fill_color=color, radius=0.1)
 
     text_style.alignment = 'center'
-    painter.draw_textbox(
+    painter.draw_text_box(
         poem, (canvas_width / 2, 5), anchor='top', text_style=text_style,
         padding=padding, rotation=0, line_style=line_style,
         fill_color=color, radius=0.1)
 
     text_style.alignment = 'right'
-    painter.draw_textbox(
+    painter.draw_text_box(
         poem, (canvas_width - 5, 5), anchor='top-right', text_style=text_style,
         padding=padding, rotation=0, line_style=line_style,
         fill_color=color, radius=0.1)

@@ -7,15 +7,18 @@
 #include <bindings/binding_helpers.h>
 #include <viren2d/imagebuffer.h>
 
+
 namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
 //------------------------------------------------- ImageBuffer from numpy array
 inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
-  if (dt.is(py::dtype::of<unsigned char>())) {
+  if (dt.is(py::dtype::of<uint8_t>())) {
     return ImageBufferType::UInt8;
-  } else if (dt.is(py::dtype::of<int>())) {
+  } else if (dt.is(py::dtype::of<int16_t>())) {
+    return ImageBufferType::Int16;
+  } else if (dt.is(py::dtype::of<int32_t>())) {
     return ImageBufferType::Int32;
   } else if (dt.is(py::dtype::of<float>())) {
     return ImageBufferType::Float;
@@ -47,14 +50,15 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   }
 
   pybind11::dtype buf_dtype = buf.dtype();
-  if (!buf_dtype.is(py::dtype::of<unsigned char>())
-      && !buf_dtype.is(py::dtype::of<int>())
+  if (!buf_dtype.is(py::dtype::of<uint8_t>())
+      && !buf_dtype.is(py::dtype::of<int16_t>())
+      && !buf_dtype.is(py::dtype::of<int32_t>())
       && !buf_dtype.is(py::dtype::of<float>())
       && !buf_dtype.is(py::dtype::of<double>())) {
     std::string s("Incompatible `dtype`: ");
     s += py::cast<std::string>(buf_dtype.attr("name"));
     s += ". ImageBuffer can only be constructed from: "
-         "uint8, int32, float32, or float64!";
+         "uint8, int16, int32, float32, or float64!";
     // TODO(dev): Update error message with newly supported types, and
     //   extend type handling in `ImageBufferTypeFromDType`!
     throw std::invalid_argument(s);
@@ -76,7 +80,7 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
   if (copy) {
-    img.CreateCopy(
+    img.CreateCopiedBuffer(
           static_cast<unsigned char const*>(buf.data()),
           width, height, channels, row_stride, buffer_type);
   } else {
@@ -84,6 +88,7 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
           static_cast<unsigned char*>(buf.mutable_data()),
           width, height, channels, row_stride, buffer_type);
   }
+
   return img;
 }
 
@@ -92,6 +97,9 @@ inline std::string FormatDescriptor(ImageBufferType t) {
   switch (t) {
     case ImageBufferType::UInt8:
       return py::format_descriptor<uint8_t>::format();
+
+    case ImageBufferType::Int16:
+      return py::format_descriptor<int16_t>::format();
 
     case ImageBufferType::Int32:
       return py::format_descriptor<int32_t>::format();
@@ -120,7 +128,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
         static_cast<std::size_t>(img.Width()),
         static_cast<std::size_t>(img.Channels()) }, // Buffer dimensions
       { static_cast<std::size_t>(img.RowStride()),
-        static_cast<std::size_t>(img.Channels()),
+        static_cast<std::size_t>(img.ColumnStride()), //static_cast<std::size_t>(img.Channels()), //FIXME
         static_cast<std::size_t>(img.ItemSize()) } // Strides (in bytes) per dimension
   );
 }
@@ -129,7 +137,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
 void RegisterImageBuffer(py::module &m) {
   //TODO(doc) update docstring once ImageBuffer supports other data types
 
-  py::class_<ImageBuffer>(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
+  py::class_<ImageBuffer> imgbuf(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
           Encapsulates image data.
 
           This class is used to pass images between the consuming
@@ -146,8 +154,9 @@ void RegisterImageBuffer(py::module &m) {
           >>>
           >>> # Create a numpy.ndarray from an ImageBuffer
           >>> img_np = np.array(img_buf, copy=False)
-          )docstr")
-      .def(py::init(&CreateImageBuffer), R"docstr(
+          )docstr");
+
+  imgbuf.def(py::init(&CreateImageBuffer), R"docstr(
           Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
 
           Currently, only conversion from/to NumPy arrays with
@@ -162,7 +171,7 @@ void RegisterImageBuffer(py::module &m) {
               is to share the data instead, which avoids memory allocation.
           )docstr", py::arg("array"), py::arg("copy")=false)
      .def_buffer(&ImageBufferInfo)
-      .def("copy", [](const ImageBuffer &buf) { return buf.CreateCopy(); }, R"docstr(
+      .def("copy", [](const ImageBuffer &buf) { return buf.DeepCopy(); }, R"docstr(
         Returns a deep copy.
 
         The returned copy will **always** allocate and copy the memory,
@@ -181,17 +190,19 @@ void RegisterImageBuffer(py::module &m) {
            Returns a 3-channel representation.
 
            This conversion is only supported for :class:`~viren2d.ImageBuffer`
-           instances which have 1, 3, or 4 channels.
+           instances which have 1, 3, or 4 channels. Thus, it will only
+           **duplicate**/**copy** channels, or **remove** the alpha channel
+           (despite it's name, it is format-agnostic, *i.e.* it doesn't matter
+           whether you apply it on a RGB(A) or BGR(A) buffer).
+
            Note that this call will always allocate and copy memory, even
            if ``self`` is already a 3-channel buffer.
            )docstr")
       .def("to_rgba", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr(
            Returns a 4-channel representation.
 
-           This conversion is only supported for :class:`~viren2d.ImageBuffer`
-           instances which have 1, 3, or 4 channels.
-           Note that this call will always allocate and copy memory, even
-           if ``self`` is already a 4-channel buffer.
+           Refer to :meth:`~viren2d.ImageBuffer.to_rgb` as all comments
+           apply analogously.
            )docstr")
       .def("__repr__",
            [](const ImageBuffer &)
@@ -212,7 +223,11 @@ void RegisterImageBuffer(py::module &m) {
       .def_property_readonly(
         "row_stride",
         &ImageBuffer::RowStride,
-        "int: Stride in bytes per row  (read-only).")
+        "int: Stride in bytes per row (read-only).")
+      .def_property_readonly(
+        "column_stride",
+        &ImageBuffer::ColumnStride,
+        "int: Stride in bytes per column (read-only).")
       .def_property_readonly(
         "owns_data",
         &ImageBuffer::OwnsData,
@@ -224,11 +239,15 @@ void RegisterImageBuffer(py::module &m) {
         [](const ImageBuffer &buf) {
             return py::make_tuple(
                   buf.Height(), buf.Width(), buf.Channels());
-        }, "tuple: Shape of the image data as ``(H, W, C)`` :class:`tuple` (read-only).")
+        }, "tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).")
       .def_property_readonly(
-        "item_size",
+        "itemsize",
         &ImageBuffer::ItemSize,
-        "int: Size (in bytes) of a single buffer element.");
+        "int: Size (in bytes) of a single buffer element.")
+      .def_property_readonly(
+        "dtype",
+        [](const ImageBuffer &buf) { return py::dtype(FormatDescriptor(buf.BufferType())); },
+        "numpy.dtype: Underlying data type (read-only).");
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();

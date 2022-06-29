@@ -303,10 +303,10 @@ Color::Color(const NamedColor color, double alpha) {
     case NamedColor::White:
       red = green = blue = 1.0; break;
 
-    case NamedColor::Gray:  // "Grey" is just an alias
+    case NamedColor::Gray:
       red = green = blue = 0.5; break;
 
-    case NamedColor::LightGray:  // "LightGrey" is just an alias
+    case NamedColor::LightGray:
       red = green = blue = 0.78; break;
 
     case NamedColor::Red:

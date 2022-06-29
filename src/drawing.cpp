@@ -22,6 +22,7 @@
 #include <helpers/drawing_helpers.h>
 #include <helpers/logging.h>
 
+// FIXME enable/disable logging (disable if spdlog is not installed - this should fix the public linkage issue with the 'install' target)
 
 //-------------------------------------------------
 // Preprocessor macros to initialize the library
@@ -80,6 +81,7 @@ INITIALIZER(initialize) {
 }
 
 
+//TODO refactor -> PainterImpl, outsource surface handling (SVG vs Image)
 /** Implements the Painter interface using a Cairo image surface. */
 class ImagePainter : public Painter {
 public:
@@ -576,9 +578,11 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
 
   ImageBuffer buffer;
   if (copy) {
-    buffer.CreateCopy(data, width, height, channels, stride, ImageBufferType::UInt8);
+    buffer.CreateCopiedBuffer(
+          data, width, height, channels, stride, ImageBufferType::UInt8);
   } else {
-    buffer.CreateSharedBuffer(data, width, height, channels, stride, ImageBufferType::UInt8);
+    buffer.CreateSharedBuffer(
+          data, width, height, channels, stride, ImageBufferType::UInt8);
   }
   return buffer;
 }

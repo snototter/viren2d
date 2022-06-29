@@ -14,7 +14,8 @@
 
 #ifdef __GNUC__
 // GCC reports a lot of missing field initializers, which is known,
-// not easy to fix & not a real problem: https://github.com/nothings/stb/issues/1099
+// not easy to fix & not a real problem, see
+// https://github.com/nothings/stb/issues/1099
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif  // __GNUC__
@@ -91,6 +92,11 @@ ImageBuffer ConversionHelperGray(
         "ImageBuffer converting grayscale to {:d} channels.",
         channels_out);
 
+  if (!src.IsValid()) {
+    throw std::logic_error(
+          "Cannot convert an invalid ImageBuffer to RGB(A)!");
+  }
+
   if (src.Channels() != 1) {
     throw std::invalid_argument("Input image must be grayscale!");
   }
@@ -116,11 +122,11 @@ ImageBuffer ConversionHelperGray(
 
   for (int row = 0; row < rows; ++row) {
     for (int col = 0; col < cols; ++col) {
-      dst.At<_Tp>(row, col, 0) = src.At<_Tp>(row, col, 0);
-      dst.At<_Tp>(row, col, 1) = src.At<_Tp>(row, col, 0);
-      dst.At<_Tp>(row, col, 2) = src.At<_Tp>(row, col, 0);
+      dst.AtUnchecked<_Tp>(row, col, 0) = src.AtUnchecked<_Tp>(row, col, 0);
+      dst.AtUnchecked<_Tp>(row, col, 1) = src.AtUnchecked<_Tp>(row, col, 0);
+      dst.AtUnchecked<_Tp>(row, col, 2) = src.AtUnchecked<_Tp>(row, col, 0);
       if (channels_out == 4) {
-        dst.At<_Tp>(row, col, 3) = 255;
+        dst.AtUnchecked<_Tp>(row, col, 3) = 255;
       }
     }
   }
@@ -130,10 +136,14 @@ ImageBuffer ConversionHelperGray(
 
 
 /// Selects the corresponding templated ConversionHelper
-inline ImageBuffer Gray2RGBx(const ImageBuffer &img, int num_channels_out) {
+inline ImageBuffer Gray2RGBx(
+    const ImageBuffer &img, int num_channels_out) {
   switch(img.BufferType()) {
     case ImageBufferType::UInt8:
       return ConversionHelperGray<uint8_t>(img, num_channels_out);
+
+    case ImageBufferType::Int16:
+      return ConversionHelperGray<int16_t>(img, num_channels_out);
 
     case ImageBufferType::Int32:
       return ConversionHelperGray<int32_t>(img, num_channels_out);
@@ -144,6 +154,7 @@ inline ImageBuffer Gray2RGBx(const ImageBuffer &img, int num_channels_out) {
     case ImageBufferType::Double:
       return ConversionHelperGray<double>(img, num_channels_out);
   }
+
   // Throw an exception as fallback, because due to the default
   // compiler settings, we would have ignored the warning about
   // missing case values.
@@ -161,6 +172,11 @@ ImageBuffer ConversionHelperRGB(
         "ImageBuffer converting RGB(A) to {:d} channels.",
         channels_out);
 
+  if (!src.IsValid()) {
+    throw std::logic_error(
+          "Cannot convert an invalid ImageBuffer to RGB(A)!");
+  }
+
   if (src.Channels() != 3 && src.Channels() != 4) {
     throw std::invalid_argument("Input image must be RGB or RGBA!");
   }
@@ -177,33 +193,23 @@ ImageBuffer ConversionHelperRGB(
   ImageBuffer dst(src.Width(), src.Height(), channels_out, src.BufferType());
 
   int rows = src.Height();
-  int cols = src.Width(); // src channels is 1
+  int cols = src.Width();
   // dst was freshly allocated, so it's guaranteed to be contiguous
   if (src.IsContiguous()) {
     cols *= rows;
     rows = 1;
   }
 
-  SPDLOG_CRITICAL(
-        "ImageBuffer converting RGB(A) to {:d} channels. contiguous src: {};"
-        " dst contiguous: {}, dst.channels {}/src.channels {}, typeid {:s}; "
-        "add[0,0,0]: {}, [0,0,1]: {}, [0,0,2]: {}",
-        channels_out, src.IsContiguous(), dst.IsContiguous(),
-        dst.Channels(), src.Channels(), typeid(_Tp).name(),
-        static_cast<void *>(&dst.At<_Tp>(0, 0, 0)),
-        static_cast<void *>(&dst.At<_Tp>(0, 0, 1)),
-        static_cast<void *>(&dst.At<_Tp>(0, 0, 2)));
-
   for (int row = 0; row < rows; ++row) {
     for (int col = 0; col < cols; ++col) {
-      dst.At<_Tp>(row, col, 0) = src.At<_Tp>(row, col, 0);
-      dst.At<_Tp>(row, col, 1) = src.At<_Tp>(row, col, 1);
-      dst.At<_Tp>(row, col, 2) = src.At<_Tp>(row, col, 2);
+      dst.AtUnchecked<_Tp>(row, col, 0) = src.AtUnchecked<_Tp>(row, col, 0);
+      dst.AtUnchecked<_Tp>(row, col, 1) = src.AtUnchecked<_Tp>(row, col, 1);
+      dst.AtUnchecked<_Tp>(row, col, 2) = src.AtUnchecked<_Tp>(row, col, 2);
       // Two cases:
       // * RGBA --> RGB, we're already done
       // * RGB  --> RGBA, we must add the alpha channel
       if (channels_out == 4) {
-        dst.At<_Tp>(0, col, 3) = 255;
+        dst.AtUnchecked<_Tp>(0, col, 3) = 255;
       }
     }
   }
@@ -213,10 +219,14 @@ ImageBuffer ConversionHelperRGB(
 
 
 /// Selects the corresponding templated ConversionHelper
-inline ImageBuffer RGBx2RGBx(const ImageBuffer &img, int num_channels_out) {
+inline ImageBuffer RGBx2RGBx(
+    const ImageBuffer &img, int num_channels_out) {
   switch(img.BufferType()) {
     case ImageBufferType::UInt8:
       return ConversionHelperRGB<uint8_t>(img, num_channels_out);
+
+    case ImageBufferType::Int16:
+      return ConversionHelperRGB<int16_t>(img, num_channels_out);
 
     case ImageBufferType::Int32:
       return ConversionHelperRGB<int32_t>(img, num_channels_out);
@@ -235,6 +245,55 @@ inline ImageBuffer RGBx2RGBx(const ImageBuffer &img, int num_channels_out) {
   s += "`!";
   throw std::logic_error(s);
 }
+
+
+template <typename _Tp>
+ImageBuffer RGBx2Gray(
+    const ImageBuffer &src,
+    int channels_out,
+    bool is_bgr_format) {
+  SPDLOG_DEBUG(
+        "ImageBuffer converting {:s} to {:d}-channel grayscale.",
+        (is_bgr_format ? "BGR(A)" : "RGB(A)"), channels_out);
+
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src.Width(), src.Height(), channels_out, src.BufferType());
+
+  int rows = src.Height();
+  int cols = src.Width();
+  // dst was freshly allocated, so it's guaranteed to be contiguous
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  const int ch_r = is_bgr_format ? 2 : 0;
+  const int ch_b = is_bgr_format ? 0 : 2;
+
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      // L = 0.2989 R + 0.5870 G + 0.1141 B
+      const _Tp luminance = static_cast<_Tp>(
+            (0.2989 * src.AtUnchecked<_Tp>(row, col, ch_r))
+            + (0.5870 * src.AtUnchecked<_Tp>(row, col, 1))
+            + (0.1141 * src.AtUnchecked<_Tp>(row, col, ch_b)));
+//FIXME remove      SPDLOG_CRITICAL("lum {} at {},{} src: {}x{}x{}", luminance, row, col,
+//                      src.Width(), src.Height(), src.Channels());
+      dst.AtUnchecked<_Tp>(row, col, 0) = luminance;
+      if (channels_out > 1) {
+        dst.AtUnchecked<_Tp>(row, col, 1) = luminance;
+      }
+      if (channels_out > 2) {
+        dst.AtUnchecked<_Tp>(row, col, 2) = luminance;
+      }
+      if (channels_out == 4) {
+        dst.AtUnchecked<_Tp>(0, col, 3) = 255;
+      }
+    }
+  }
+
+  return dst;
+}
 } // namespace helpers
 
 //---------------------------------------------------- Image buffer
@@ -242,6 +301,9 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
   switch (t) {
     case ImageBufferType::UInt8:
       return "uint8";
+
+    case ImageBufferType::Int16:
+      return "int16";
 
     case ImageBufferType::Int32:
       return "int32";
@@ -252,6 +314,7 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
     case ImageBufferType::Double:
       return "double";
   }
+  //TODO(dev) Include newly added string represenation in ImageBufferFromString, too!
 
   std::ostringstream s;
   s << "ImageBufferType `" << static_cast<int>(t)
@@ -260,10 +323,38 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
 }
 
 
+ImageBufferType ImageBufferTypeFromString(const std::string &s) {
+  std::string srep = werkzeugkiste::strings::Lower(s);
+  if (srep.compare("uint8") == 0) {
+    return ImageBufferType::UInt8;
+  } else if ((srep.compare("int16") == 0)
+             || (srep.compare("short") == 0)) {
+    return ImageBufferType::Int16;
+  } else if ((srep.compare("int") == 0)
+             || (srep.compare("int32") == 0)) {
+    return ImageBufferType::Int32;
+  } else if ((srep.compare("float") == 0)
+             || (srep.compare("float32") == 0)) {
+    return ImageBufferType::Float;
+  } else if ((srep.compare("double") == 0)
+             || (srep.compare("float64") == 0)) {
+    return ImageBufferType::Double;
+  } else {
+    std::string msg("Could not look up `ImageBufferType` corresponding to \"");
+    msg += s;
+    msg += "\"!";
+    throw std::invalid_argument(msg);
+  }
+}
+
+
 int ItemSizeFromImageBufferType(ImageBufferType t) {
   switch (t) {
     case ImageBufferType::UInt8:
       return static_cast<int>(sizeof(uint8_t));
+
+    case ImageBufferType::Int16:
+      return static_cast<int>(sizeof(int16_t));
 
     case ImageBufferType::Int32:
       return static_cast<int>(sizeof(int32_t));
@@ -289,14 +380,20 @@ std::ostream &operator<<(std::ostream &os, ImageBufferType t) {
 
 
 ImageBuffer::ImageBuffer()
-  : data(nullptr), width(0), height(0), channels(0),
-    item_size(0), row_stride(0), buffer_type(ImageBufferType::UInt8),
+  : data(nullptr),
+    width(0),
+    height(0),
+    channels(0),
+    item_size(0),
+    row_stride(0),
+    buffer_type(ImageBufferType::UInt8),
     owns_data(false) {
   SPDLOG_DEBUG("ImageBuffer default constructor.");
 }
 
 
-ImageBuffer::ImageBuffer(int w, int h, int ch, ImageBufferType buf_type) {
+ImageBuffer::ImageBuffer(
+    int w, int h, int ch, ImageBufferType buf_type) {
   SPDLOG_DEBUG(
         "ImageBuffer constructor allocating memory for a "
         "{:d}x{:d}x{:d} {:s} image.",
@@ -358,9 +455,14 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other) noexcept {
 
 
 ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
-  : data(other.data), width(other.width), height(other.height),
-    channels(other.channels), item_size(other.item_size),
-    row_stride(other.row_stride), owns_data(other.owns_data) {
+  : data(other.data),
+    width(other.width),
+    height(other.height),
+    channels(other.channels),
+    item_size(other.item_size),
+    row_stride(other.row_stride),
+    buffer_type(other.buffer_type),
+    owns_data(other.owns_data) {
   SPDLOG_DEBUG("ImageBuffer move constructor.");
   // Reset "other", but ensure that the memory won't be freed:
   other.owns_data = false;
@@ -377,17 +479,19 @@ ImageBuffer &ImageBuffer::operator=(const ImageBuffer &other) {
 ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
   SPDLOG_DEBUG("ImageBuffer move assignment operator.");
   std::swap(data, other.data);
-  std::swap(owns_data, other.owns_data);
   std::swap(width, other.width);
   std::swap(height, other.height);
   std::swap(channels, other.channels);
   std::swap(item_size, other.item_size);
   std::swap(row_stride, other.row_stride);
+  std::swap(buffer_type, other.buffer_type);
+  std::swap(owns_data, other.owns_data);
   return *this;
 }
 
 
-void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int height,
+void ImageBuffer::CreateSharedBuffer(
+    unsigned char *buffer, int width, int height,
     int channels, int row_stride, ImageBufferType buffer_type) {
   SPDLOG_DEBUG("ImageBuffer::CreateSharedBuffer(w={:d}, h={:d},"
                " ch={:d}, row_stride={:d}, {:s}).",
@@ -396,8 +500,8 @@ void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int heigh
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
-  owns_data = false;
-  data = buffer;
+  this->owns_data = false;
+  this->data = buffer;
   this->width = width;
   this->height = height;
   this->channels = channels;
@@ -407,7 +511,8 @@ void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int width, int heigh
 }
 
 
-void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
+void ImageBuffer::CreateCopiedBuffer(
+    unsigned char const *buffer, int width, int height,
     int channels, int row_stride, ImageBufferType buffer_type) {
   SPDLOG_DEBUG(
         "ImageBuffer::CreateCopy(w={:d}, h={:d},"
@@ -436,9 +541,10 @@ void ImageBuffer::CreateCopy(unsigned char const *buffer, int width, int height,
 }
 
 
-ImageBuffer ImageBuffer::CreateCopy() const {
+ImageBuffer ImageBuffer::DeepCopy() const {
   ImageBuffer cp;
-  cp.CreateCopy(data, width, height, channels, row_stride, buffer_type);
+  cp.CreateCopiedBuffer(
+        data, width, height, channels, row_stride, buffer_type);
   return cp;
 }
 
@@ -456,13 +562,17 @@ void ImageBuffer::SwapChannels(int ch1, int ch2) {
     throw std::invalid_argument(s.str());
   }
 
-  if (!data || (ch1 == ch2)) {
+  if ((!data) || (ch1 == ch2)) {
     return;
   }
 
   switch (buffer_type) {
     case ImageBufferType::UInt8:
       helpers::SwapChannels<uint8_t>(*this, ch1, ch2);
+      return;
+
+    case ImageBufferType::Int16:
+      helpers::SwapChannels<int16_t>(*this, ch1, ch2);
       return;
 
     case ImageBufferType::Int32:
@@ -494,6 +604,10 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
   SPDLOG_DEBUG(
         "ImageBuffer::ToChannels converting {:d} to {:d} channels.",
         channels, output_channels);
+  if (!IsValid()) {
+    throw std::logic_error(
+          "Cannot convert an invalid ImageBuffer in `ToChannels`!");
+  }
 
   if ((channels != 1) && (channels != 3) && (channels != 4)) {
     std::ostringstream s;
@@ -507,7 +621,7 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
   if (channels == 1) {
     // Grayscale-to-something
     if (output_channels == 1) {
-      return CreateCopy();
+      return DeepCopy();
     } else if ((output_channels == 3)
                || (output_channels == 4)){
       return helpers::Gray2RGBx(*this, output_channels);
@@ -520,7 +634,7 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
   } else if (channels == 3) {
     // RGB-to-something
     if (output_channels == 3) {
-      return CreateCopy();
+      return DeepCopy();
     } else if (output_channels == 4) {
       return helpers::RGBx2RGBx(*this, 4);
     } else {
@@ -534,13 +648,60 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
     if (output_channels == 3) {
       return helpers::RGBx2RGBx(*this, 3);
     } else if (output_channels == 4) {
-      return CreateCopy();
+      return DeepCopy();
     } else {
       std::ostringstream s;
       s << "Conversion from 4-channel ImageBuffer to "
         << output_channels << " output channel(s) is not supported!";
       throw std::invalid_argument(s.str());
     }
+  }
+}
+
+
+ImageBuffer ImageBuffer::ToGrayscale(
+    int output_channels, bool is_bgr_format) const {
+  if (!IsValid()) {
+    throw std::logic_error(
+          "Cannot convert an invalid ImageBuffer to grayscale!");
+  }
+
+  if (channels == 1) {
+    return ToChannels(output_channels);
+  } else if ((channels == 3)
+             || (channels == 4)) {
+    switch (buffer_type) {
+      case ImageBufferType::UInt8:
+        return helpers::RGBx2Gray<uint8_t>(
+              *this, output_channels, is_bgr_format);
+
+      case ImageBufferType::Int16:
+        return helpers::RGBx2Gray<int16_t>(
+              *this, output_channels, is_bgr_format);
+
+      case ImageBufferType::Int32:
+        return helpers::RGBx2Gray<int32_t>(
+              *this, output_channels, is_bgr_format);
+
+      case ImageBufferType::Float:
+        return helpers::RGBx2Gray<float>(
+              *this, output_channels, is_bgr_format);
+
+      case ImageBufferType::Double:
+        return helpers::RGBx2Gray<double>(
+              *this, output_channels, is_bgr_format);
+    }
+
+    std::string s("ImageBufferType `");
+    s += ImageBufferTypeToString(buffer_type);
+    s += "` not handled in `ToGrayscale` switch!";
+    throw std::logic_error(s);
+  } else {
+    std::ostringstream s;
+    s << "`ToGrayscale` conversion is only supported for "
+         "1-, 3-, and 4-channel buffers. This one has "
+      << channels << '!';
+    throw std::logic_error(s.str());
   }
 }
 
@@ -557,6 +718,9 @@ ImageBuffer ImageBuffer::Channel(int channel) const {
   switch (buffer_type) {
     case ImageBufferType::UInt8:
       return helpers::ExtractChannel<uint8_t>(*this, channel);
+
+    case ImageBufferType::Int16:
+      return helpers::ExtractChannel<int16_t>(*this, channel);
 
     case ImageBufferType::Int32:
       return helpers::ExtractChannel<int32_t>(*this, channel);
@@ -576,7 +740,7 @@ ImageBuffer ImageBuffer::Channel(int channel) const {
 
 
 bool ImageBuffer::IsValid() const {
-  return data != nullptr;
+  return (data != nullptr);
 }
 
 

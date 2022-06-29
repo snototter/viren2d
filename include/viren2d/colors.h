@@ -24,9 +24,7 @@ enum class NamedColor : unsigned short {
   Black = 0,  ///< "Black" must be the first enum value.
   White,
   Gray,
-  Grey = Gray,  // alias
   LightGray,
-  LightGrey = LightGray, // alias
 
   Red,
   Green,

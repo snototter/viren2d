@@ -69,7 +69,7 @@ def demo_tracking_by_detection():
     text_style.line_spacing = 1.0
     text_style.color = 'crimson'
     line_style.width = 2
-    painter.draw_textbox(
+    painter.draw_text_box(
         ['Mood:', 'Mildly infuriated'], position=(420, 60),
         anchor=viren2d.Anchor.BottomRight,
         text_style=text_style, padding=(10, 5),
