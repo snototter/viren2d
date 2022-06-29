@@ -562,6 +562,23 @@ ImageBuffer ImageBuffer::DeepCopy() const {
 }
 
 
+ImageBuffer ImageBuffer::ROI(int left, int top, int roi_width, int roi_height) {
+  if ((left < 0) || ((left + roi_width) > width)
+      || (top < 0) || ((top + roi_height) > height)) {
+    std::ostringstream s;
+    s << "Invalid ROI(l=" << left << ", t=" << top << ", w=" << roi_width
+      << ", h=" << roi_height << ") for ImageBuffer of size w=" << width
+      << ", h=" << height << '!';
+    throw std::invalid_argument(s.str());
+  }
+  ImageBuffer roi;
+  unsigned char *roi_data = data + ByteOffset(top, left, 0);
+  roi.CreateSharedBuffer(
+        roi_data, roi_height, roi_width, channels, row_stride, buffer_type, column_stride);
+  return roi;
+}
+
+
 void ImageBuffer::SwapChannels(int ch1, int ch2) {
   SPDLOG_DEBUG("ImageBuffer::SwapChannels {:d} & {:d}.", ch1, ch2);
 

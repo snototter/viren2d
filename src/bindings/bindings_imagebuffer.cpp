@@ -137,8 +137,6 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
 
 
 void RegisterImageBuffer(py::module &m) {
-  //TODO(doc) update docstring once ImageBuffer supports other data types
-
   py::class_<ImageBuffer> imgbuf(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
           Encapsulates image data.
 
@@ -153,7 +151,7 @@ void RegisterImageBuffer(py::module &m) {
 
           >>> # Create an ImageBuffer from a numpy.ndarray
           >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)
-          >>>
+
           >>> # Create a numpy.ndarray from an ImageBuffer
           >>> img_np = np.array(img_buf, copy=False)
           )docstr");
@@ -179,6 +177,24 @@ void RegisterImageBuffer(py::module &m) {
         The returned copy will **always** allocate and copy the memory,
         even if you call this method on a *shared* buffer.
         )docstr")
+      .def("roi", &ImageBuffer::ROI, R"docstr(
+        Returns an ImageBuffer which points to the given region of interest.
+
+        Allows selecting a rectangular region of interest within this
+        :class:`~viren2d.ImageBuffer`. The returned buffer will always
+        *share* its memory - be aware of this when performing pixel
+        modifications on the ROI afterwards.
+
+        Args:
+           left: Position of the ROI's left edge as :class:`int`.
+           top: Position of the ROI's top edge as :class:`int`.
+           width: Width of the ROI as :class:`int`.
+           height: Height of the ROI as :class:`int`.
+
+        Example:
+           >>> roi = painter.canvas.roi(left=10, top=50, width=100, height=200)
+        )docstr",
+        py::arg("left"), py::arg("top"), py::arg("width"), py::arg("height"))
       .def("is_valid", &ImageBuffer::IsValid,
            "Returns ``True`` if this buffer points to a valid memory location.")
       .def("swap_channels", &ImageBuffer::SwapChannels, R"docstr(
@@ -253,8 +269,6 @@ void RegisterImageBuffer(py::module &m) {
 
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();
-
-  //TODO expose dtype, itemsize for convenience
 
 
   m.def("save_image",

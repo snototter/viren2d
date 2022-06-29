@@ -57,6 +57,26 @@ def _time_imagebuffer():
             print(f' * Initialize canvas from numpy (implicit), {WIDTH}x{HEIGHT}x{channels}:         {res/runs:f} ms')
 
 
+def _time_color_init():
+    print('--------------------------------')
+    print("Timings for color initialization")
+    print('--------------------------------')
+
+    for runs in REPETITIONS:
+        for cstr in ['magenta', 'red!20', 'forest-green!80', '#00ff00', '#ff00aabb']:
+            res = timeit.timeit(
+                lambda: viren2d.Color(cstr),
+                number=runs)
+            print(f'* From string:  {res/runs:f} ms - "{cstr}"')
+            
+            color = viren2d.Color(cstr)
+            ctuple = color.as_rgba()
+            res = timeit.timeit(
+                lambda: viren2d.Color(ctuple),
+                number=runs)
+            print(f'* From tuple:   {res/runs:f} ms - {ctuple}')
+
+
 def _time_painter_init():
     print('----------------------------')
     print("Timings for painter's canvas")
@@ -364,6 +384,8 @@ def _time_surveillance():
 
 def compute_timings():
 #    img = imutils.imread('ninja.jpg', mode='RGB')
+    _time_color_init()
+    print()
     _time_imagebuffer()
     print()
     _time_painter_init()

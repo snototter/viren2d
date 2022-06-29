@@ -568,7 +568,7 @@ void DemoBoundingBox2D() {
 
 
 void DemoConversionOpenCV() {
-#ifdef WITH_OPENCV
+#ifdef viren2d_WITH_OPENCV
 #ifdef EXAMPLE_IMAGE_FILE
   std::string image_filename(EXAMPLE_IMAGE_FILE);
 #else  // EXAMPLE_IMAGE_FILE
@@ -582,12 +582,29 @@ void DemoConversionOpenCV() {
   // let's get a non-continuous OpenCV matrix:
   cv::Mat roi = img_cv.colRange(50, img_cv.cols - 50);
 
+  ///// FIXME make separate ROI demo
+  viren2d::ImageBuffer buf;
+  buf.CreateSharedBuffer(
+        roi.data, roi.rows, roi.cols,
+        roi.channels(), roi.step1(0),
+        viren2d::ImageBufferType::UInt8, roi.step1(1));
+
+  viren2d::ImageBuffer buf_roi = buf.ROI(10, 50, 100, 200);
+  for (int r = 0; r < buf_roi.Height(); ++r) {
+    for (int c = 0; c < buf_roi.Width(); ++c) {
+      buf_roi.AtChecked<uint8_t>(r, c, 0) = 255;
+      buf_roi.AtChecked<uint8_t>(r, c, 1) = 0;
+      buf_roi.AtChecked<uint8_t>(r, c, 2) = 255;
+    }
+  }
+
+
   // Create a shared buffer (on purpose) and change
   // color format to demonstrate the potential side-effect:
   viren2d::ImageBuffer img_buf;
   img_buf.CreateSharedBuffer(
         roi.data, roi.rows, roi.cols,
-        roi.channels(), roi.step);
+        roi.channels(), roi.step1(0), viren2d::ImageBufferType::UInt8, roi.step1(1));
   img_buf.SwapChannels(0, 2);
 
   // Now, use the ImageBuffer to set up a canvas and
@@ -596,7 +613,7 @@ void DemoConversionOpenCV() {
   painter->SetCanvas(img_buf);
 
   painter->DrawArrow(
-        {0.0, 0.0}, {img_buf.width / 2.0, img_buf.height / 2.0},
+        {0.0, 0.0}, {img_buf.Width() / 2.0, img_buf.Height() / 2.0},
         viren2d::ArrowStyle(10, "navy-blue!80", 0.2, 20.0));
 
   // Retrieve the visualization, and show the image.
@@ -604,23 +621,23 @@ void DemoConversionOpenCV() {
   // the buffer to BGR(A) format:
   viren2d::ImageBuffer copy = painter->GetCanvas(true);
   copy.SwapChannels(0, 2);
-  cv::Mat cv_buffer(copy.height, copy.width,
-                    CV_MAKETYPE(CV_8U, copy.channels),
-                    copy.data, copy.stride);
+  cv::Mat cv_buffer(copy.Height(), copy.Width(),
+                    CV_MAKETYPE(CV_8U, copy.Channels()),
+                    copy.MutableData(), copy.RowStride());
 
   cv::imshow("Painter's Canvas", cv_buffer);
   cv::imshow("Shared Buffer Side Effects", img_cv);
 
   cv::waitKey();
   painter.reset();
-#else  // WITH_OPENCV
+#else  // viren2d_WITH_OPENCV
   std::cerr << "OpenCV is not available - cannot display the canvas." << std::endl;
-#endif  // WITH_OPENCV
+#endif  // viren2d_WITH_OPENCV
 }
 
 
 int main(int /*argc*/, char **/*argv*/) {
-//  DemoConversionOpenCV();
+  DemoConversionOpenCV();
 //  //viren2d::Color::FromCategory("Person");
 //  std::cout << "Color by ID: " << viren2d::Color::FromID(17) << std::endl;
 ////  if (!viren2d::SetLogLevel("trace")) {

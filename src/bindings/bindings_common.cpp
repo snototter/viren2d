@@ -139,9 +139,6 @@ void RegisterColor(py::module &m) {
         Initializes the color from a string representation (hexcode
         or color name).
 
-        TODO add note on runtime penalty due to string
-        comparisons (want to add actual timings)
-
         **Hexcode:**
            HTML hex code string as either ``#RRGGBB`` or
            ``#RRGGBBAA``:
@@ -338,8 +335,8 @@ void RegisterColor(py::module &m) {
         "float: Opacity within ``[0, 1]``, where ``0`` is fully transparent\n"
         "and ``1`` is fully opaque.");
 
-  // TODO(snototter) pybind11 bug, documentation of static members is
-  // missing in python, see https://github.com/pybind/pybind11/issues/3815
+  // TODO(pybind11 bug) documentation of static members is missing in python, see:
+  //   https://github.com/pybind/pybind11/issues/3815
   color.def_readonly_static(
         "White", &Color::White,
         "Read-only white color instantiation.")

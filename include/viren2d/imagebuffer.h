@@ -226,6 +226,10 @@ public:
   ImageBuffer DeepCopy() const;
 
 
+  // TODO shared buffer
+  ImageBuffer ROI(int left, int top, int roi_width, int roi_height);
+
+
   /// Swaps the specified (0-based) channels *in-place*.
   void SwapChannels(int ch1, int ch2);
 
