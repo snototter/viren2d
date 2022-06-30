@@ -38,6 +38,7 @@ extensions = [
   'sphinx.ext.napoleon',  # Parse Google and NumPy docstrings
   'sphinx.ext.mathjax',
   'sphinx.ext.intersphinx',
+  'sphinx_copybutton',  # Copy button for code examples
   'autodocsumm', # adds TOC for autosummary: https://autodocsumm.readthedocs.io/en/latest/index.html
 ]
 
@@ -75,6 +76,7 @@ exclude_patterns = []
 #html_theme = 'alabaster'
 
 html_theme = "sphinx_rtd_theme"
+#html_theme = "furo"
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -90,8 +92,8 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
-#html_static_path = ['_static']
+#html_static_path = []
+html_static_path = ['_static']
 
 
 # Include operators in autodoc
@@ -174,6 +176,7 @@ class Viren2dDrawingSummary(Directive):
 def setup(app):
     # I want to include overloaded operators in autodoc
     app.connect("autodoc-skip-member", autodoc_skip_member)
+    app.add_css_file("dark.css")
 
     # Custom directives
     app.add_directive("viren2d-drawing-summary", Viren2dDrawingSummary)
