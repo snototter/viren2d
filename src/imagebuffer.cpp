@@ -35,7 +35,8 @@
 
 namespace viren2d {
 namespace helpers {
-template<typename _Tp>
+
+template<typename _Tp> inline
 void SwapChannels(ImageBuffer &buffer, int ch1, int ch2) {
   int rows = buffer.Height();
   int values_per_row = buffer.Width() * buffer.Channels();
@@ -138,6 +139,8 @@ ImageBuffer ConversionHelperGray(
 /// Selects the corresponding templated ConversionHelper
 inline ImageBuffer Gray2RGBx(
     const ImageBuffer &img, int num_channels_out) {
+  //FIXME maybe obsolete with typedef?
+  // We need to ensure the specializations are there!!!
   switch(img.BufferType()) {
     case ImageBufferType::UInt8:
       return ConversionHelperGray<uint8_t>(img, num_channels_out);
@@ -298,6 +301,70 @@ ImageBuffer RGBx2Gray(
 
   return dst;
 }
+
+
+template <typename _Tp, int C>
+void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
+  // Increase the block size at the edges of the ROI if needed:
+  const int num_blocks_horz = roi.Width() / block_width;
+  const int missed_horz = roi.Width() - (num_blocks_horz * block_width);
+  const int extend_left = missed_horz / 2;
+  const int extend_right = missed_horz - extend_left;
+
+  const int num_blocks_vert = roi.Height() / block_height;
+  const int missed_vert = roi.Height() - (num_blocks_vert * block_height);
+  const int extend_top = missed_vert / 2;
+  const int extend_bottom = missed_vert - extend_top;
+
+  int top = 0;
+  for (int brow = 0; brow < num_blocks_vert; ++brow) {
+    // At the top & bottom edge, the blocks might be up to
+    // block_height/2 larger, to ensure proper anonymization
+    // there, too.
+    const int bheight = (brow == 0)
+        ? (block_height + extend_top)
+        : ((brow == num_blocks_vert - 1)
+           ? (block_height + extend_bottom)
+           : block_height);
+    // All pixels within a block are assigned the value of the center pixel:
+    const int cy = top + bheight / 2;
+
+    int left = 0;
+    for (int bcol = 0; bcol < num_blocks_horz; ++bcol) {
+      const int bwidth = (bcol == 0)
+          ? (block_width + extend_left)
+          : ((bcol == num_blocks_horz - 1)
+             ? (block_width + extend_right)
+             : block_width);
+      const int cx = left + bwidth / 2;
+      viren2d::ImageBuffer block = roi.ROI(left, top, bwidth, bheight);
+      if (C == 1) {
+        block.SetToScalar<_Tp>(roi.AtUnchecked<_Tp>(cy, cx, 0));
+      } else if (C == 2) {
+        block.SetToPixel<_Tp>(
+              roi.AtUnchecked<_Tp>(cy, cx, 0),
+              roi.AtUnchecked<_Tp>(cy, cx, 1));
+      } else if (C == 3) {
+        block.SetToPixel<_Tp>(
+              roi.AtUnchecked<_Tp>(cy, cx, 0),
+              roi.AtUnchecked<_Tp>(cy, cx, 1),
+              roi.AtUnchecked<_Tp>(cy, cx, 2));
+      } else if (C == 4) {
+        block.SetToPixel<_Tp>(
+              roi.AtUnchecked<_Tp>(cy, cx, 0),
+              roi.AtUnchecked<_Tp>(cy, cx, 1),
+              roi.AtUnchecked<_Tp>(cy, cx, 2),
+              roi.AtUnchecked<_Tp>(cy, cx, 3));
+      } else {
+        throw std::logic_error("Pixelization helper only supports up to 4 channels!");
+      }
+
+      left += bwidth;
+    }
+
+    top += bheight;
+  }
+}
 } // namespace helpers
 
 
@@ -353,7 +420,7 @@ ImageBufferType ImageBufferTypeFromString(const std::string &s) {
 }
 
 
-int ItemSizeFromImageBufferType(ImageBufferType t) {
+int ElementSizeFromImageBufferType(ImageBufferType t) {
   switch (t) {
     case ImageBufferType::UInt8:
       return static_cast<int>(sizeof(uint8_t));
@@ -389,7 +456,7 @@ ImageBuffer::ImageBuffer()
     height(0),
     width(0),
     channels(0),
-    item_size(0),
+    element_size(0),
     row_stride(0),
     column_stride(0),
     buffer_type(ImageBufferType::UInt8),
@@ -408,8 +475,8 @@ ImageBuffer::ImageBuffer(
   width = w;
   channels = ch;
   buffer_type = buf_type;
-  item_size = ItemSizeFromImageBufferType(buf_type);
-  column_stride = channels * item_size;
+  element_size = ElementSizeFromImageBufferType(buf_type);
+  column_stride = channels * element_size;
   row_stride = width * column_stride;
   const int num_bytes = height * row_stride;
   owns_data = true;
@@ -437,7 +504,7 @@ ImageBuffer::ImageBuffer(const ImageBuffer &other) noexcept {
   height = other.height;
   width = other.width;
   channels = other.channels;
-  item_size = other.item_size;
+  element_size = other.element_size;
   buffer_type = other.buffer_type;
   row_stride = other.row_stride;
   column_stride = other.column_stride;
@@ -467,7 +534,7 @@ ImageBuffer::ImageBuffer(ImageBuffer &&other) noexcept
     height(other.height),
     width(other.width),
     channels(other.channels),
-    item_size(other.item_size),
+    element_size(other.element_size),
     row_stride(other.row_stride),
     column_stride(other.column_stride),
     buffer_type(other.buffer_type),
@@ -491,7 +558,7 @@ ImageBuffer &ImageBuffer::operator=(ImageBuffer &&other) noexcept {
   std::swap(width, other.width);
   std::swap(height, other.height);
   std::swap(channels, other.channels);
-  std::swap(item_size, other.item_size);
+  std::swap(element_size, other.element_size);
   std::swap(row_stride, other.row_stride);
   std::swap(column_stride, other.column_stride);
   std::swap(buffer_type, other.buffer_type);
@@ -518,8 +585,8 @@ void ImageBuffer::CreateSharedBuffer(
   this->channels = channels;
   this->row_stride = row_stride;
   this->buffer_type = buffer_type;
-  this->item_size = ItemSizeFromImageBufferType(buffer_type);
-  this->column_stride = (column_stride < 0) ? (channels * this->item_size) : column_stride;
+  this->element_size = ElementSizeFromImageBufferType(buffer_type);
+  this->column_stride = (column_stride < 0) ? (channels * this->element_size) : column_stride;
   //TODO add tests for numpy views with unusual column strides
   // maybe we'll want to extend ImageBuffer to handle these, too.
 }
@@ -536,7 +603,7 @@ void ImageBuffer::CreateCopiedBuffer(
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
-  const int num_bytes = height * row_stride;
+  const int num_bytes = height * row_stride;//FIXME H*W*C*bytes
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
   if (!data) {
     std::ostringstream s;
@@ -544,15 +611,15 @@ void ImageBuffer::CreateCopiedBuffer(
     throw std::runtime_error(s.str());
   }
   owns_data = true;
-
+//FIXME if not contiguous, copy pixel per pixel or row by row
   std::memcpy(data, buffer, num_bytes);
   this->width = width;
   this->height = height;
   this->channels = channels;
   this->row_stride = row_stride;
   this->buffer_type = buffer_type;
-  this->item_size = ItemSizeFromImageBufferType(buffer_type);
-  this->column_stride = (column_stride < 0) ? (channels * this->item_size) : column_stride;
+  this->element_size = ElementSizeFromImageBufferType(buffer_type);
+  this->column_stride = (column_stride < 0) ? (channels * this->element_size) : column_stride;
   //TODO add tests for numpy views with unusual column strides
   // maybe we'll want to extend ImageBuffer to handle these, too.
 }
@@ -567,14 +634,22 @@ ImageBuffer ImageBuffer::DeepCopy() const {
 
 
 ImageBuffer ImageBuffer::ROI(int left, int top, int roi_width, int roi_height) {
+  if ((roi_width <= 0) || (roi_height <= 0)) {
+    std::ostringstream s;
+    s << "Invalid ROI(l=" << left << ", t=" << top << ", w=" << roi_width
+      << ", h=" << roi_height << "), height & width must be > 0!";
+    throw std::invalid_argument(s.str());
+  }
+
   if ((left < 0) || ((left + roi_width) > width)
       || (top < 0) || ((top + roi_height) > height)) {
     std::ostringstream s;
     s << "Invalid ROI(l=" << left << ", t=" << top << ", w=" << roi_width
       << ", h=" << roi_height << ") for ImageBuffer of size w=" << width
       << ", h=" << height << '!';
-    throw std::invalid_argument(s.str());
+    throw std::out_of_range(s.str());
   }
+
   ImageBuffer roi;
   unsigned char *roi_data = data + ByteOffset(top, left, 0);
   roi.CreateSharedBuffer(
@@ -812,7 +887,7 @@ void ImageBuffer::Cleanup() {
   width = 0;
   height = 0;
   channels = 0;
-  item_size = 0;
+  element_size = 0;
   buffer_type = ImageBufferType::UInt8;
   row_stride = 0;
   column_stride = 0;
@@ -908,22 +983,131 @@ void SaveImage(
 }
 
 
-ImageBuffer Gray2RGB(const ImageBuffer &img) {
-  return helpers::Gray2RGBx(img, 3);
+//void AnonymizeSolidColor(
+//    ImageBuffer &image,
+//    int roi_left, int roi_top, int roi_width, int roi_height,
+//    const Color &color) {
+//  //FIXME scale color for uint8, etc.
+//}
+
+
+void Pixelate(
+    ImageBuffer &image,
+    int block_width, int block_height,
+    int roi_left, int roi_top, int roi_width, int roi_height) {
+  // ROI returns a shared image buffer and performs out-of-range checks:
+  const bool full_image = (roi_left == -1) && (roi_top == -1)
+      && (roi_width == -1) && (roi_height == -1);
+  viren2d::ImageBuffer roi = full_image
+      ? image.ROI(0, 0, image.Width(), image.Height())
+      : image.ROI(roi_left, roi_top, roi_width, roi_height);
+
+  // Definitely not the most elegant way of calling
+  // the corresponding helper, but given the current
+  // variadic `SetToPixel` template (and that I can't
+  // think of a use case where we have more than 4
+  // channels to pixelate), this is good enough for me:
+  switch (image.BufferType()) {
+    case ImageBufferType::UInt8: {
+        if (image.Channels() == 1) {
+          helpers::Pixelate<uint8_t, 1>(roi, block_width, block_height);
+        } else if (image.Channels() == 2) {
+          helpers::Pixelate<uint8_t, 2>(roi, block_width, block_height);
+        } else if (image.Channels() == 3) {
+          helpers::Pixelate<uint8_t, 3>(roi, block_width, block_height);
+        } else if (image.Channels() == 4) {
+          helpers::Pixelate<uint8_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `uint8_t` ImageBuffer has "
+            << image.Channels() << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Int16: {
+        if (image.Channels() == 1) {
+          helpers::Pixelate<int16_t, 1>(roi, block_width, block_height);
+        } else if (image.Channels() == 2) {
+          helpers::Pixelate<int16_t, 2>(roi, block_width, block_height);
+        } else if (image.Channels() == 3) {
+          helpers::Pixelate<int16_t, 3>(roi, block_width, block_height);
+        } else if (image.Channels() == 4) {
+          helpers::Pixelate<int16_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `int16_t` ImageBuffer has "
+            << image.Channels() << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Int32: {
+        if (image.Channels() == 1) {
+          helpers::Pixelate<int32_t, 1>(roi, block_width, block_height);
+        } else if (image.Channels() == 2) {
+          helpers::Pixelate<int32_t, 2>(roi, block_width, block_height);
+        } else if (image.Channels() == 3) {
+          helpers::Pixelate<int32_t, 3>(roi, block_width, block_height);
+        } else if (image.Channels() == 4) {
+          helpers::Pixelate<int32_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `int32_t` ImageBuffer has "
+            << image.Channels() << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Float: {
+        if (image.Channels() == 1) {
+          helpers::Pixelate<float, 1>(roi, block_width, block_height);
+        } else if (image.Channels() == 2) {
+          helpers::Pixelate<float, 2>(roi, block_width, block_height);
+        } else if (image.Channels() == 3) {
+          helpers::Pixelate<float, 3>(roi, block_width, block_height);
+        } else if (image.Channels() == 4) {
+          helpers::Pixelate<float, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `float` ImageBuffer has "
+            << image.Channels() << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Double: {
+        if (image.Channels() == 1) {
+          helpers::Pixelate<double, 1>(roi, block_width, block_height);
+        } else if (image.Channels() == 2) {
+          helpers::Pixelate<double, 2>(roi, block_width, block_height);
+        } else if (image.Channels() == 3) {
+          helpers::Pixelate<double, 3>(roi, block_width, block_height);
+        } else if (image.Channels() == 4) {
+          helpers::Pixelate<double, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `float` ImageBuffer has "
+            << image.Channels() << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+  }
+
+  std::ostringstream s;
+  s << "Type `" << ImageBufferTypeToString(image.BufferType())
+    << "` was not handled in `Pixelate` switch!";
+  throw std::logic_error(s.str());
 }
 
-
-ImageBuffer Gray2RGBA(const ImageBuffer &img) {
-  return helpers::Gray2RGBx(img, 4);
-}
-
-
-ImageBuffer RGBA2RGB(const ImageBuffer &img) {
-  return helpers::RGBx2RGBx(img, 3);
-}
-
-
-ImageBuffer RGB2RGBA(const ImageBuffer &img) {
-  return helpers::RGBx2RGBx(img, 4);
-}
 } // namespace viren2d

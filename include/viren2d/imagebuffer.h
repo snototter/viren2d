@@ -5,6 +5,12 @@
 #include <ostream>
 #include <sstream>
 #include <exception>
+#include <cstdint>  // For fixed width integer types (stdint.h in C)
+#include <type_traits>
+#include <algorithm> // std::min
+#include <initializer_list>
+
+#include <viren2d/colors.h>
 
 namespace viren2d {
 
@@ -18,6 +24,29 @@ enum class ImageBufferType : int {
 };
 
 
+/// Templated type alias which provides the
+/// underlying type (either fixed width integer
+/// or single/double precision float) for an ImageBuffer.
+template<ImageBufferType T>
+using image_buffer_t = typename std::conditional<
+  T == ImageBufferType::UInt8,
+  uint8_t,
+  typename std::conditional<
+    T == ImageBufferType::Int16,
+    int16_t,
+    typename std::conditional<
+      T == ImageBufferType::Int32,
+      int32_t,
+      typename std::conditional<
+        T == ImageBufferType::Float,
+        float,
+        double
+      >::type
+    >::type
+  >::type
+>::type;
+
+
 /// Returns the string representation.
 std::string ImageBufferTypeToString(ImageBufferType t);
 
@@ -27,7 +56,7 @@ ImageBufferType ImageBufferTypeFromString(const std::string &s);
 
 
 /// Returns the size of the corresponding data type in bytes.
-int ItemSizeFromImageBufferType(ImageBufferType t);
+int ElementSizeFromImageBufferType(ImageBufferType t);
 
 
 /// Output stream operator to print an ImageBufferType.
@@ -79,8 +108,16 @@ public:
   inline int Height() const { return height; }
 
 
+  /// Alias for the height.
+  inline int Rows() const { return height; }
+
+
   /// Returns the number of pixels in each row.
   inline int Width() const { return width; }
+
+
+  /// Alias for the width.
+  inline int Columns() const { return width; }
 
 
   /// Number of values per pixel.
@@ -101,20 +138,23 @@ public:
 
   /// Returns the size in bytes of a single element/value.
   /// Multiply by Channels() to get the memory consumption per pixel.
-  inline int ItemSize() const { return item_size; }
+  inline int ElementSize() const { return element_size; }
 
 
   /// Returns this buffers data type.
   inline ImageBufferType BufferType() const { return buffer_type; }
 
 
+  /// Returns the number of pixels, i.e. W*H.
+  inline int NumPixels() const { return width * height; }
+
   /// Returns the number of elements (i.e. values of the
-  /// chosen data type) in this buffer.
-  inline int NumElements() const { return width * height * channels; }
+  /// chosen data type), i.e. W*H*C.
+  inline int NumElements() const { return NumPixels() * channels; }
 
 
   /// Returns the number of bytes.
-  inline int NumBytes() const { return NumElements() * item_size; }
+  inline int NumBytes() const { return NumElements() * element_size; }
 
 
   /// Returns true if this ImageBuffer is responsible for
@@ -130,8 +170,8 @@ public:
 
   /// Returns true if the underlying `data` memory is contiguous.
   inline bool IsContiguous() const {
-    return (row_stride == width * channels * item_size)
-        && (column_stride == channels * item_size);
+    return (row_stride == width * channels * element_size)
+        && (column_stride == channels * element_size);
   }
 
 
@@ -176,7 +216,7 @@ public:
   /// Returns a reference to modify the specified pixel element.
   template<typename _Tp> inline
   _Tp& AtChecked(int row, int col, int channel=0) {
-    CheckAccess(row, col, channel);
+    CheckIndexedAccess(row, col, channel);
     return AtUnchecked<_Tp>(row, col, channel);
   }
 
@@ -184,8 +224,56 @@ public:
   /// Returns a read-only reference to the specified pixel element.
   template<typename _Tp> inline
   const _Tp& AtChecked(int row, int col, int channel=0) const {
-    CheckAccess(row, col, channel);
+    CheckIndexedAccess(row, col, channel);
     return AtUnchecked<_Tp>(row, col, channel);
+  }
+
+
+  //TODO doc
+  template <typename _Tp, typename... _Ts> inline
+  void SetToPixel(_Tp element0, _Ts... elements) {
+//  void SetToPixel(std::initializer_list<_Tp> elements) {
+    const int num_el = 1 + sizeof...(elements);
+    const int num_channels = std::min(channels, num_el);
+    const _Tp lst[num_el] = {element0, static_cast<_Tp>(elements)...};
+//    const int num_channels = std::min(
+//          channels, static_cast<int>(elements.size()));
+//    typename std::initializer_list<_Tp>::const_iterator lst = elements.begin();
+    int rows = height;
+    int cols = width;
+
+    if (IsContiguous()) {
+      cols *= rows;
+      rows = 1;
+    }
+
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        for (int ch = 0; ch < num_channels; ++ch) {
+          AtUnchecked<_Tp>(row, col, ch) = lst[ch];
+        }
+      }
+    }
+  }
+
+  //TODO doc
+  template <typename _Tp> inline
+  void SetToScalar(_Tp element) {
+    int rows = height;
+    int cols = width;
+
+    if (IsContiguous()) {
+      cols *= rows;
+      rows = 1;
+    }
+
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        for (int ch = 0; ch < channels; ++ch) {
+          AtUnchecked<_Tp>(row, col, ch) = element;
+        }
+      }
+    }
   }
 
 
@@ -284,8 +372,10 @@ private:
   /// the specified buffer type per pixel).
   int channels;
 
-  /// Size of a single element in bytes.
-  int item_size;
+  /// Size of a single element in bytes, *i.e.*
+  /// a 3-channel image would hold 3 "elements"
+  /// per (x,y) pixel position.
+  int element_size;
 
   /// Number of bytes between subsequent rows.
   int row_stride;
@@ -306,7 +396,7 @@ private:
   void Cleanup();
 
 
-  inline void CheckAccess(int row, int col, int channel) const {
+  inline void CheckIndexedAccess(int row, int col, int channel) const {
     if ((row < 0) || (row >= height)
         || (col < 0) || (col >= width)
         || (channel < 0) || (channel >= channels)) {
@@ -321,7 +411,7 @@ private:
 
 
   inline int ByteOffset(int row, int col, int channel) const {
-    return (row * row_stride) + (col * column_stride) + (channel * item_size);
+    return (row * row_stride) + (col * column_stride) + (channel * element_size);
   }
 };
 
@@ -367,25 +457,11 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=
 void SaveImage(const std::string &image_filename, const ImageBuffer &image);
 
 
-//TODO(extension) rgb(a)2gray & bgr(a)2gray
-
-
-/// Converts a grayscale ImageBuffer to RGB.
-ImageBuffer Gray2RGB(const ImageBuffer &img);
-
-
-/// Converts a grayscale ImageBuffer to RGBA.
-ImageBuffer Gray2RGBA(const ImageBuffer &img);
-
-//TODO refactor RGBx2RGB
-/// Converts a RGBA ImageBuffer to RGB.
-ImageBuffer RGBA2RGB(const ImageBuffer &img);
-
-//TODO refactor RGBx2RGBA
-/// Converts a RGB ImageBuffer to RGBA.
-ImageBuffer RGB2RGBA(const ImageBuffer &img);
-
-//TODO implement RGBx2Gray(buf, is_bgr_format, num_output_channels)
+//TODO doc
+void Pixelate(
+    ImageBuffer &image,
+    int block_width, int block_height,
+    int roi_left, int roi_top, int roi_width, int roi_height);
 
 } // namespace viren2d
 

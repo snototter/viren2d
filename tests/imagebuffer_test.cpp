@@ -151,7 +151,7 @@ TEST(ImageBufferTest, ImageLoading) {
   EXPECT_EQ(empty.Width(), 10);
   EXPECT_EQ(empty.Height(), 20);
   EXPECT_EQ(empty.Channels(), 1);
-  EXPECT_EQ(empty.ItemSize(), 1);
+  EXPECT_EQ(empty.ElementSize(), 1);
   EXPECT_EQ(empty.BufferType(), viren2d::ImageBufferType::UInt8);
 
   // Load non-existing file
@@ -212,7 +212,7 @@ TEST(ImageBufferTest, ImageLoading) {
     EXPECT_EQ(ptrs[i]->RowStride(),
               ptrs[i]->Width() * ptrs[i]->Channels() * sizeof(unsigned char));
     // ... and RGB images should always be loaded as uint8.
-    EXPECT_EQ(ptrs[i]->ItemSize(), 1);
+    EXPECT_EQ(ptrs[i]->ElementSize(), 1);
     EXPECT_EQ(ptrs[i]->BufferType(), viren2d::ImageBufferType::UInt8);
 
     // The ImageBuffer must be the owner of the data
@@ -357,7 +357,7 @@ TEST(ImageBufferTest, FloatBuffer) {
   }
 
   EXPECT_EQ(sizeof(float), 4);
-  EXPECT_EQ(4, viren2d::ItemSizeFromImageBufferType(viren2d::ImageBufferType::Float));
+  EXPECT_EQ(4, viren2d::ElementSizeFromImageBufferType(viren2d::ImageBufferType::Float));
 
   union U {
     std::uint8_t as_bytes[4];
@@ -380,7 +380,7 @@ TEST(ImageBufferTest, FloatBuffer) {
 
         for (int b = 0; b < 4; ++b) {
           EXPECT_EQ(
-              uchar_ptr[row * buffer.RowStride() + col * buffer.Channels() * buffer.ItemSize() + channel * buffer.ItemSize() + b],
+              uchar_ptr[row * buffer.RowStride() + col * buffer.Channels() * buffer.ElementSize() + channel * buffer.ElementSize() + b],
               value.as_bytes[b]);
         }
         value.as_float += 1.0;
@@ -562,4 +562,84 @@ TEST(ImageBufferTest, GrayscaleUInt8) {
   EXPECT_EQ(gray2.BufferType(), buf.BufferType());
 
   EXPECT_TRUE(CheckChannelEquals(gray2, 0, gray, 0));
+}
+
+
+TEST(ImageBufferTest, ROIInt16) {
+  viren2d::ImageBuffer buf(2, 5, 3, viren2d::ImageBufferType::Int16);
+  EXPECT_EQ(buf.Columns(), 5);
+  EXPECT_EQ(buf.Rows(), 2);
+  EXPECT_EQ(buf.Channels(), 3);
+  EXPECT_EQ(buf.NumElements(), 2 * 5 * 3);
+  EXPECT_EQ(buf.NumBytes(), 2 * 5 * 3 * sizeof(short));
+  EXPECT_EQ(buf.NumPixels(), 2 * 5);
+  EXPECT_EQ(buf.ElementSize(), sizeof(short));
+  EXPECT_EQ(buf.ElementSize(), sizeof(signed short int));
+  EXPECT_EQ(
+        buf.ElementSize(),
+        sizeof(viren2d::image_buffer_t<viren2d::ImageBufferType::Int16>));
+
+
+  for (int row = 0; row < buf.Rows(); ++row) {
+    for (int col = 0; col < buf.Columns(); ++col) {
+      short val = row * buf.Width() + col;
+      for (int ch = 0; ch < buf.Channels(); ++ch) {
+        buf.AtChecked<int16_t>(row, col, ch) = val + (ch * buf.NumPixels());
+      }
+    }
+  }
+
+  EXPECT_THROW(buf.ROI(5, 5, 10, 2), std::out_of_range);
+  EXPECT_THROW(buf.ROI(1, 0, 1, 10), std::out_of_range);
+  EXPECT_THROW(buf.ROI(1, 0, 1, 0), std::invalid_argument);
+  //TODO check other invalid rois (negative numbers, etc)
+
+  viren2d::ImageBuffer roi = buf.ROI(1, 0, 2, 1);
+  EXPECT_EQ(roi.Columns(), 2);
+  EXPECT_EQ(roi.Rows(), 1);
+  EXPECT_EQ(roi.Channels(), buf.Channels());
+  EXPECT_FALSE(roi.IsContiguous());
+  EXPECT_FALSE(roi.OwnsData());
+
+  const int num_pixels = buf.NumPixels();
+  EXPECT_EQ(roi.AtChecked<short>(0, 0, 0), 1);
+  EXPECT_EQ(roi.AtChecked<short>(0, 0, 1), 1 + num_pixels);
+  EXPECT_EQ(roi.AtChecked<short>(0, 0, 2), 1 + 2 * num_pixels);
+
+  EXPECT_THROW(roi.AtChecked<short>(1, 0, 0), std::out_of_range);
+  EXPECT_NO_THROW(roi.AtUnchecked<short>(1, 0, 0));
+  EXPECT_THROW(roi.AtChecked<short>(0, 2, 0), std::out_of_range);
+
+  EXPECT_EQ(roi.AtChecked<short>(0, 1, 0), 2);
+  EXPECT_EQ(roi.AtChecked<short>(0, 1, 1), 2 + num_pixels);
+  EXPECT_EQ(roi.AtChecked<short>(0, 1, 2), 2 + 2 * num_pixels);
+
+
+  roi = buf.ROI(1, 0, 1, 2);
+  EXPECT_EQ(roi.Columns(), 1);
+  EXPECT_EQ(roi.Rows(), 2);
+  EXPECT_FALSE(roi.IsContiguous());
+  EXPECT_FALSE(roi.OwnsData());
+
+  EXPECT_EQ(roi.AtChecked<short>(0, 0, 0), 1);
+  EXPECT_EQ(roi.AtChecked<short>(0, 0, 1), 1 + num_pixels);
+  EXPECT_EQ(roi.AtChecked<short>(0, 0, 2), 1 + 2 * num_pixels);
+
+  EXPECT_THROW(roi.AtChecked<short>(0, 1, 0), std::out_of_range);
+  EXPECT_NO_THROW(roi.AtUnchecked<short>(0, 1, 0));
+  EXPECT_THROW(roi.AtChecked<short>(0, 1, 0), std::out_of_range);
+
+  EXPECT_EQ(roi.AtChecked<short>(1, 0, 0), 6);
+  EXPECT_EQ(roi.AtChecked<short>(1, 0, 1), 6 + num_pixels);
+  EXPECT_EQ(roi.AtChecked<short>(1, 0, 2), 6 + 2 * num_pixels);
+
+
+  roi.SetToScalar<short>(0);
+  for (int ch = 0; ch < buf.Channels(); ++ch) {
+    EXPECT_TRUE(CheckChannelConstant(roi, ch, 0));
+  }
+  roi.SetToPixel<short>(3, 42);
+  EXPECT_TRUE(CheckChannelConstant(roi, 0, 3));
+  EXPECT_TRUE(CheckChannelConstant(roi, 1, 42));
+  EXPECT_TRUE(CheckChannelConstant(roi, 2, 0));
 }

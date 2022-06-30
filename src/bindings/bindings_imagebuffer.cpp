@@ -46,7 +46,9 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   // Buffer layout must be row-major (C-style)
   if ((buf.flags() & py::array::c_style) != py::array::c_style) {
     throw std::invalid_argument(
-          "An ImageBuffer can only be constructed from C-style buffers!");
+          "An ImageBuffer can only be constructed from C-style buffers! "
+          "Check `image_np.flags` and explicitly copy the NumPy array via "
+          "`image_np.copy()` before passing it into the ImageBuffer constructor.");
   }
 
   pybind11::dtype buf_dtype = buf.dtype();
@@ -66,10 +68,10 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   }
 
   const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
-  if (ItemSizeFromImageBufferType(buffer_type) != static_cast<int>(buf_dtype.itemsize())) {
+  if (ElementSizeFromImageBufferType(buffer_type) != static_cast<int>(buf_dtype.itemsize())) {
     std::ostringstream s;
     s << "ImageBuffer `" << ImageBufferTypeToString(buffer_type)
-      << "` expected item size " << ItemSizeFromImageBufferType(buffer_type)
+      << "` expected item size " << ElementSizeFromImageBufferType(buffer_type)
       << " bytes, but python buffer info states " << buf_dtype.itemsize() << "!";
     throw std::logic_error(s.str());
   }
@@ -123,7 +125,7 @@ inline std::string FormatDescriptor(ImageBufferType t) {
 py::buffer_info ImageBufferInfo(ImageBuffer &img) {
   return py::buffer_info(
       img.MutableData(),
-      static_cast<std::size_t>(img.ItemSize()), // Size of each element
+      static_cast<std::size_t>(img.ElementSize()), // Size of each element
       FormatDescriptor(img.BufferType()), // Python struct-style format descriptor
       3, // We'll always return ndim=3 buffers by design
       { static_cast<std::size_t>(img.Height()),
@@ -131,7 +133,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
         static_cast<std::size_t>(img.Channels()) }, // Buffer dimensions
       { static_cast<std::size_t>(img.RowStride()),
         static_cast<std::size_t>(img.ColumnStride()),
-        static_cast<std::size_t>(img.ItemSize()) } // Strides (in bytes) per dimension
+        static_cast<std::size_t>(img.ElementSize()) } // Strides (in bytes) per dimension
   );
 }
 
@@ -226,6 +228,44 @@ void RegisterImageBuffer(py::module &m) {
            [](const ImageBuffer &)
            { return "<viren2d.ImageBuffer>"; })
       .def("__str__", &ImageBuffer::ToString)
+      .def(
+        "pixelate",
+        [](ImageBuffer &image,
+           int block_width, int block_height,
+           int roi_left, int roi_top, int roi_width, int roi_height) {
+          Pixelate(image, block_width, block_height, roi_left, roi_top, roi_width, roi_height);
+        }, R"docstr(
+        Pixelates a rectangular region of interest in-place.
+
+        Performs **in-place** pixelation of images with **up to 4**
+        :attr:`channels`. All pixels within a *block* will be set to
+        the value of the block's center pixel.
+
+        If the chosen block size does not align with the region of interest,
+        the size of the outer blocks (left, right, top and bottom) will be
+        increased to ensure proper pixelation of these areas.
+
+        If ``left``, ``top``, ``width`` **and** ``height`` are all ``-1``,
+        the whole image will be pixelated.
+
+        Args:
+          block_width: Width of a pixelation block as :class:`int`.
+          block_height: Height of a pixelation block as :class:`int`.
+          left: Position of the ROI's left edge as :class:`int`.
+          top: Position of the ROI's top edge as :class:`int`.
+          width: Width of the ROI as :class:`int`.
+          height: Height of the ROI as :class:`int`.
+
+        Example:
+          >>> img_buf.pixelate(
+          >>>     block_width=20, block_height=10,
+          >>>     left=100, top=50, width=300, height=150)
+        )docstr",
+        py::arg("block_width"), py::arg("block_height"),
+        py::arg("left") = -1,
+        py::arg("top") = -1,
+        py::arg("width") = -1,
+        py::arg("height") = -1)
       .def_property_readonly(
         "width",
         &ImageBuffer::Width,
@@ -260,7 +300,7 @@ void RegisterImageBuffer(py::module &m) {
         }, "tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).")
       .def_property_readonly(
         "itemsize",
-        &ImageBuffer::ItemSize,
+        &ImageBuffer::ElementSize,
         "int: Size (in bytes) of a single buffer element.")
       .def_property_readonly(
         "dtype",

@@ -589,14 +589,15 @@ void DemoConversionOpenCV() {
         roi.channels(), roi.step1(0),
         viren2d::ImageBufferType::UInt8, roi.step1(1));
 
-  viren2d::ImageBuffer buf_roi = buf.ROI(10, 50, 100, 200);
-  for (int r = 0; r < buf_roi.Height(); ++r) {
-    for (int c = 0; c < buf_roi.Width(); ++c) {
-      buf_roi.AtChecked<uint8_t>(r, c, 0) = 255;
-      buf_roi.AtChecked<uint8_t>(r, c, 1) = 0;
-      buf_roi.AtChecked<uint8_t>(r, c, 2) = 255;
-    }
-  }
+  viren2d::Pixelate(buf, 0, 50, 250, 200, 15, 23);
+//  viren2d::ImageBuffer buf_roi = buf.ROI(0, 50, 250, 200);
+//  for (int r = 0; r < buf_roi.Height(); ++r) {
+//    for (int c = 0; c < buf_roi.Width(); ++c) {
+//      buf_roi.AtChecked<uint8_t>(r, c, 0) = 255;
+//      buf_roi.AtChecked<uint8_t>(r, c, 1) = 0;
+//      buf_roi.AtChecked<uint8_t>(r, c, 2) = 255;
+//    }
+//  }
 
 
   // Create a shared buffer (on purpose) and change
