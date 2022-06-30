@@ -421,7 +421,12 @@ TEST(ImageBufferTest, FloatBuffer) {
   EXPECT_THROW(buffer.Channel(3), std::invalid_argument);
 }
 
-//TODO test grayscale conversion
+
+inline double GrayReference(double r, double g, double b) {
+  return (0.2989 * r) + (0.5870 * g) + (0.1141 * b);
+}
+
+
 TEST(ImageBufferTest, GrayscaleDouble) {
   viren2d::ImageBuffer buf(3, 1, 3, viren2d::ImageBufferType::Double);
   EXPECT_EQ(buf.Width(), 1);
@@ -431,29 +436,130 @@ TEST(ImageBufferTest, GrayscaleDouble) {
   buf.AtChecked<double>(0, 0, 1) = 1.0;
   buf.AtChecked<double>(0, 0, 2) = 1.0;
 
-  buf.AtChecked<double>(1, 0, 0) = 1.0;
-  buf.AtChecked<double>(1, 0, 1) = 1.0;
-  buf.AtChecked<double>(1, 0, 2) = 1.0;
+  buf.AtChecked<double>(1, 0, 0) = 0.1;
+  buf.AtChecked<double>(1, 0, 1) = 10.0;
+  buf.AtChecked<double>(1, 0, 2) = 100.0;
 
-  buf.AtChecked<double>(2, 0, 0) = 1.0;
-  buf.AtChecked<double>(2, 0, 1) = 1.0;
-  buf.AtChecked<double>(2, 0, 2) = 1.0;
+  buf.AtChecked<double>(2, 0, 0) = 1234.0;
+  buf.AtChecked<double>(2, 0, 1) = 5678.0;
+  buf.AtChecked<double>(2, 0, 2) = 9.0;
+
+  viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
+  EXPECT_EQ(gray.Width(), buf.Width());
+  EXPECT_EQ(gray.Height(), buf.Height());
+  EXPECT_EQ(gray.Channels(), 4);
+  EXPECT_EQ(gray.BufferType(), buf.BufferType());
+
+  // Check first layer
+  EXPECT_DOUBLE_EQ(gray.AtChecked<double>(0, 0, 0), GrayReference(1.0, 1.0, 1.0));
+  EXPECT_DOUBLE_EQ(gray.AtChecked<double>(1, 0, 0), GrayReference(0.1, 10.0, 100.0));
+  EXPECT_DOUBLE_EQ(gray.AtChecked<double>(2, 0, 0), GrayReference(1234.0, 5678.0, 9.0));
+  // Next two layers must be the same
+  EXPECT_TRUE(CheckChannelEquals(gray, 0, gray, 1));
+  EXPECT_TRUE(CheckChannelEquals(gray, 0, gray, 2));
+  // Alpha channel check
+  EXPECT_TRUE(CheckChannelConstant(gray, 3, 255.0));
+
+
+  // Repeat with BGR format
+  gray = buf.ToGrayscale(3, true);
+  EXPECT_EQ(gray.Width(), buf.Width());
+  EXPECT_EQ(gray.Height(), buf.Height());
+  EXPECT_EQ(gray.Channels(), 3);
+
+  // Check first layer
+  EXPECT_DOUBLE_EQ(
+        gray.AtChecked<double>(0, 0, 0),
+        GrayReference(1.0, 1.0, 1.0));
+  EXPECT_DOUBLE_EQ(
+        gray.AtChecked<double>(1, 0, 0),
+        GrayReference(100.0, 10.0, 0.1));
+  EXPECT_DOUBLE_EQ(
+        gray.AtChecked<double>(2, 0, 0),
+        GrayReference(9.0, 5678.0, 1234.0));
+  // Next two layers must be the same
+  EXPECT_TRUE(CheckChannelEquals(gray, 0, gray, 1));
+  EXPECT_TRUE(CheckChannelEquals(gray, 0, gray, 2));
+
+
+  // Check that single-channel output yields the same conversion results
+  viren2d::ImageBuffer gray2 = buf.ToGrayscale(1, true);
+  EXPECT_EQ(gray2.Width(), buf.Width());
+  EXPECT_EQ(gray2.Height(), buf.Height());
+  EXPECT_EQ(gray2.Channels(), 1);
+  EXPECT_EQ(gray2.BufferType(), buf.BufferType());
+
+  EXPECT_TRUE(CheckChannelEquals(gray2, 0, gray, 0));
+}
+
+
+TEST(ImageBufferTest, GrayscaleUInt8) {
+  viren2d::ImageBuffer buf(1, 5, 4, viren2d::ImageBufferType::UInt8);
+  EXPECT_EQ(buf.Width(), 5);
+  EXPECT_EQ(buf.Height(), 1);
+  EXPECT_EQ(buf.Channels(), 4);
+  buf.AtChecked<uint8_t>(0, 0, 0) = 1;
+  buf.AtChecked<uint8_t>(0, 0, 1) = 1;
+  buf.AtChecked<uint8_t>(0, 0, 2) = 1;
+  buf.AtChecked<uint8_t>(0, 0, 3) = 100;
+
+  buf.AtChecked<uint8_t>(0, 1, 0) = 100;
+  buf.AtChecked<uint8_t>(0, 1, 1) = 1;
+  buf.AtChecked<uint8_t>(0, 1, 2) = 10;
+  buf.AtChecked<uint8_t>(0, 1, 3) = 200;
+
+  buf.AtChecked<uint8_t>(0, 2, 0) = 10;
+  buf.AtChecked<uint8_t>(0, 2, 1) = 1;
+  buf.AtChecked<uint8_t>(0, 2, 2) = 100;
+  buf.AtChecked<uint8_t>(0, 2, 3) = 255;
+
+  buf.AtChecked<uint8_t>(0, 3, 0) = -1;
+  buf.AtChecked<uint8_t>(0, 3, 1) = -1;
+  buf.AtChecked<uint8_t>(0, 3, 2) = -1;
+  buf.AtChecked<uint8_t>(0, 3, 3) = -1;
+
+  buf.AtChecked<uint8_t>(0, 4, 0) = 255;
+  buf.AtChecked<uint8_t>(0, 4, 1) = 255;
+  buf.AtChecked<uint8_t>(0, 4, 2) = 255;
+  buf.AtChecked<uint8_t>(0, 4, 3) = 5;
 
   viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
   EXPECT_EQ(gray.Channels(), 4);
 
-  //FIXME check values, adjust values above
-
+  // Check first layer
+  EXPECT_EQ(
+        gray.AtChecked<uint8_t>(0, 0, 0),
+        static_cast<uint8_t>(GrayReference(1.0, 1.0, 1.0)));
+  EXPECT_EQ(
+        gray.AtChecked<uint8_t>(0, 1, 0),
+        static_cast<uint8_t>(GrayReference(100.0, 1.0, 10.0)));
+  EXPECT_EQ(
+        gray.AtChecked<uint8_t>(0, 2, 0),
+        static_cast<uint8_t>(GrayReference(10.0, 1.0, 100.0)));
+  EXPECT_EQ(
+        gray.AtChecked<uint8_t>(0, 3, 0),
+        static_cast<uint8_t>(GrayReference(255.0, 255.0, 255.0)));
+  EXPECT_EQ(
+        gray.AtChecked<uint8_t>(0, 4, 0),
+        static_cast<uint8_t>(GrayReference(255.0, 255.0, 255.0)));
+  // Next two layers must be the same
+  EXPECT_TRUE(CheckChannelEquals(gray, 0, gray, 1));
+  EXPECT_TRUE(CheckChannelEquals(gray, 0, gray, 2));
   // Alpha channel check
-  EXPECT_TRUE(CheckChannelConstant(gray, 3, 255.0));
-//  EXPECT_DOUBLE_EQ(gray.At<double>(0, 0, 3), 255);
-//  EXPECT_DOUBLE_EQ(gray.At<double>(1, 0, 3), 255);
-//  EXPECT_DOUBLE_EQ(gray.At<double>(2, 0, 3), 255);
-}
+  EXPECT_EQ(gray.AtChecked<uint8_t>(0, 0, 3), 100);
+  EXPECT_EQ(gray.AtChecked<uint8_t>(0, 1, 3), 200);
+  EXPECT_EQ(gray.AtChecked<uint8_t>(0, 2, 3), 255);
+  EXPECT_EQ(gray.AtChecked<uint8_t>(0, 3, 3), 255);
+  EXPECT_EQ(gray.AtChecked<uint8_t>(0, 4, 3), 5);
 
+  // Check that single-channel output yields the same conversion results
+  viren2d::ImageBuffer gray2 = buf.ToGrayscale(1, false);
+  EXPECT_EQ(gray2.Width(), buf.Width());
+  EXPECT_EQ(gray2.Height(), buf.Height());
+  EXPECT_EQ(gray2.Channels(), 1);
+  EXPECT_EQ(gray2.BufferType(), buf.BufferType());
 
-TEST(ImageBufferTest, GrayscaleUInt8) {
-//FIXME implement test!
+  EXPECT_TRUE(CheckChannelEquals(gray2, 0, gray, 0));
 }

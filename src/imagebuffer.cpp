@@ -269,25 +269,29 @@ ImageBuffer RGBx2Gray(
 
   const int ch_r = is_bgr_format ? 2 : 0;
   const int ch_b = is_bgr_format ? 0 : 2;
+  _Tp luminance;
 
   for (int row = 0; row < rows; ++row) {
     for (int col = 0; col < cols; ++col) {
       // L = 0.2989 R + 0.5870 G + 0.1141 B
-      const _Tp luminance = static_cast<_Tp>(
+      luminance = static_cast<_Tp>(
             (0.2989 * src.AtUnchecked<_Tp>(row, col, ch_r))
             + (0.5870 * src.AtUnchecked<_Tp>(row, col, 1))
             + (0.1141 * src.AtUnchecked<_Tp>(row, col, ch_b)));
-//FIXME remove      SPDLOG_CRITICAL("lum {} at {},{} src: {}x{}x{}", luminance, row, col,
-//                      src.Width(), src.Height(), src.Channels());
+
       dst.AtUnchecked<_Tp>(row, col, 0) = luminance;
       if (channels_out > 1) {
         dst.AtUnchecked<_Tp>(row, col, 1) = luminance;
-      }
-      if (channels_out > 2) {
-        dst.AtUnchecked<_Tp>(row, col, 2) = luminance;
-      }
-      if (channels_out == 4) {
-        dst.AtUnchecked<_Tp>(0, col, 3) = 255;
+        if (channels_out > 2) {
+          dst.AtUnchecked<_Tp>(row, col, 2) = luminance;
+          if (channels_out == 4) {
+            if (src.Channels() == 4) {
+              dst.AtUnchecked<_Tp>(row, col, 3) = src.AtUnchecked<_Tp>(row, col, 3);
+            } else {
+              dst.AtUnchecked<_Tp>(row, col, 3) = 255;
+            }
+          }
+        }
       }
     }
   }

@@ -313,9 +313,9 @@ private:
       std::ostringstream s;
       s << "Buffer index (row=" << row << ", col="
         << col << ", ch=" << channel
-        << ") is out of range for ImageBuffer of size: "
-        << height << "x" << width << "x" << channels << '!';
-      throw std::out_of_range(s.str()); //FIXME change c'tor to H!!, W, C!!!
+        << ") is out of range for ImageBuffer of size h="
+        << height << ", w=" << width << " a " << channels << " channels!";
+      throw std::out_of_range(s.str());
     }
   }
 

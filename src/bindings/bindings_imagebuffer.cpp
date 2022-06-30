@@ -130,7 +130,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
         static_cast<std::size_t>(img.Width()),
         static_cast<std::size_t>(img.Channels()) }, // Buffer dimensions
       { static_cast<std::size_t>(img.RowStride()),
-        static_cast<std::size_t>(img.ColumnStride()), //static_cast<std::size_t>(img.Channels()), //FIXME
+        static_cast<std::size_t>(img.ColumnStride()),
         static_cast<std::size_t>(img.ItemSize()) } // Strides (in bytes) per dimension
   );
 }

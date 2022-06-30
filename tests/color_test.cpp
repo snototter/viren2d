@@ -362,7 +362,7 @@ TEST(ColorTest, Operators) {
   EXPECT_TRUE(CheckColor(color, 0.1, 0.0, 0.1, 0.2));
   EXPECT_EQ((viren2d::Color::Magenta / 10.0).WithAlpha(0.2), color);
 
-  // Addition with saturation casts //FIXME
+  // Addition with saturation casts //FIXME test thoroughly
   auto add = color + color;
   EXPECT_EQ(2 * color, add);
   copy.green = 0.3;
