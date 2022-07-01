@@ -19,80 +19,24 @@
 #include <helpers/drawing_helpers.h>
 #include <helpers/logging.h>
 
-//// FIXME enable/disable logging (disable if spdlog is not installed - this should fix the public linkage issue with the 'install' target)
-
-////-------------------------------------------------
-//// Preprocessor macros to initialize the library
-//// upon loading. This is needed to automatically
-//// set up logging.
-//// Included for convenience & because I wanted to
-//// check on library initialization/unloading hooks.
-//// The initialization code belongs in drawing.cpp,
-//// because this will always be linked into the
-//// library user's application.
-////
-//// The macros are taken from:
-//// https://stackoverflow.com/a/2390626/400948
-
-//#ifdef __cplusplus
-//    #define INITIALIZER(f) \
-//        static void f(void); \
-//        struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_; \
-//        static void f(void)
-//#elif defined(_MSC_VER)
-//    #pragma section(".CRT$XCU",read)
-//    #define INITIALIZER2_(f,p) \
-//        static void f(void); \
-//        __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
-//        __pragma(comment(linker,"/include:" p #f "_")) \
-//        static void f(void)
-//    #ifdef _WIN64
-//        #define INITIALIZER(f) INITIALIZER2_(f,"")
-//    #else
-//        #define INITIALIZER(f) INITIALIZER2_(f,"_")
-//    #endif
-//#else
-//    #define INITIALIZER(f) \
-//        static void f(void) __attribute__((constructor)); \
-//        static void f(void)
-//#endif
-
-
-//-------------------------------------------------
 
 namespace viren2d {
 
-//void shutdown() {
-//  SPDLOG_DEBUG("Shutting down the viren2d++ library.");
-//  spdlog::shutdown();
-//}
-
-
-//INITIALIZER(initialize) {
-////  spdlog::set_level(spdlog::level::trace);
-////  spdlog::set_pattern("[%l][%@, %!] %v");
-//  spdlog::set_level(viren2d_ACTIVE_SPDLOG_LEVEL); //TODO change (cmake variable) to default info/warn before release
-//  SPDLOG_DEBUG("Initializing the viren2d++ library.");
-
-//  std::atexit(shutdown);
-//}
-
-
 //TODO refactor -> PainterImpl, outsource surface handling (SVG vs Image)
-/** Implements the Painter interface using a Cairo image surface. */
-class ImagePainter : public Painter {
+/// Implements the Painter interface
+class PainterImpl : public Painter {
 public:
-  ImagePainter();
+  PainterImpl();
 
-  virtual ~ImagePainter();
+  virtual ~PainterImpl();
 
-  ImagePainter(const ImagePainter &other);
+  PainterImpl(const PainterImpl &other);
 
-  ImagePainter(ImagePainter &&other) noexcept;
+  PainterImpl(PainterImpl &&other) noexcept;
 
-  ImagePainter& operator=(const ImagePainter &other);
+  PainterImpl& operator=(const PainterImpl &other);
 
-  ImagePainter& operator=(ImagePainter &&other) noexcept;
+  PainterImpl& operator=(PainterImpl &&other) noexcept;
 
   bool IsValid() const override;
 
@@ -113,10 +57,10 @@ protected:
       double angle1, double angle2, const LineStyle &line_style,
       bool include_center, const Color &fill_color) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawArc: c={:s}, r={:.1f}, a1={:.1f},"
-          " a2={:.1f}, style={:s}, inc_center={:s},"
-          " fill={:s}.", center, radius, angle1, angle2,
-          line_style, include_center, fill_color);
+          "DrawArc: c={:s}, r={:.1f}, a1={:.1f}, a2={:.1f}, style={:s}, "
+          "inc_center={:s}, fill={:s}.",
+          center, radius, angle1, angle2, line_style,
+          include_center, fill_color);
 
     helpers::DrawArc(
           surface_, context_, center, radius,
@@ -129,7 +73,7 @@ protected:
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawArrow: p1={:s}, p2={:s}, style={:s}.",
+          "DrawArrow: p1={:s} --> p2={:s}, style={:s}.",
           from, to, arrow_style);
 
     helpers::DrawArrow(surface_, context_, from, to, arrow_style);
@@ -140,8 +84,8 @@ protected:
       const Rect &rect, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawBoundingBox2D: {:s},"
-          " label=\"{:s}\", style={:s}.", rect, label, style);//TODO use werkzeugkiste string shortening!
+          "DrawBoundingBox2D: {:s}, {:d} label lines, style={:s}.",
+          rect, label.size(), style);
 
     helpers::DrawBoundingBox2D(
           surface_, context_, rect, label, style);
@@ -153,9 +97,8 @@ protected:
       const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawCircle: c={:s}, r={:.1f},"
-          " style={:s}, fill={:s}.", center, radius,
-          line_style, fill_color);
+          "DrawCircle: c={:s}, r={:.1f}, style={:s}, fill={:s}.",
+          center, radius, line_style, fill_color);
 
     helpers::DrawCircle(
           surface_, context_, center, radius,
@@ -167,7 +110,7 @@ protected:
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawEllipse: {:s}, style={:s}, fill={:s}.",
+          "DrawEllipse: {:s}, style={:s}, fill={:s}.",
           ellipse, line_style, fill_color);
 
     helpers::DrawEllipse(
@@ -180,8 +123,7 @@ protected:
       double spacing_x, double spacing_y,
       const LineStyle &line_style) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawGrid: cells={:.1f}x{:.1f}, "
-          "tl={:s}, br={:s}, style={:s}.",
+          "DrawGrid: cells={:.1f}x{:.1f}, tl={:s}, br={:s}, style={:s}.",
           spacing_x, spacing_y, top_left, bottom_right, line_style);
 
     helpers::DrawGrid(
@@ -211,8 +153,7 @@ protected:
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawLine: p1={:s}, p2={:s}, style={:s}.",
-          from, to, line_style);
+          "DrawLine: p1={:s}, p2={:s}, style={:s}.", from, to, line_style);
 
     helpers::DrawLine(
           surface_, context_, from, to, line_style);
@@ -221,9 +162,7 @@ protected:
 
   void DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) override {
-    SPDLOG_DEBUG(
-          "ImagePainter::DrawMarker: pos={:s}, style={:s}.",
-          pos, style);
+    SPDLOG_DEBUG("DrawMarker: pos={:s}, style={:s}.", pos, style);
 
     helpers::DrawMarker(surface_, context_, pos, style);
   }
@@ -232,8 +171,8 @@ protected:
   void DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) override {
-    SPDLOG_DEBUG("ImagePainter::DrawMarkers: {:d} markers, style={:s}.",
-                 markers.size(), style);
+    SPDLOG_DEBUG(
+          "DrawMarkers: {:d} markers, style={:s}.", markers.size(), style);
 
     // Currently, we simply forward each point to the
     // "single marker" Cairo helper. While there is undoubtedly
@@ -260,8 +199,7 @@ protected:
       const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawPolygon: {:d} points, "
-          "style={:s}, fill={:s}.",
+          "DrawPolygon: {:d} points, style={:s}, fill={:s}.",
           points.size(), line_style, fill_color);
 
     helpers::DrawPolygon(
@@ -273,8 +211,7 @@ protected:
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawRect: {:s}, "
-          "style={:s}, fill={:s}.",
+          "DrawRect: {:s}, style={:s}, fill={:s}.",
           rect, line_style, fill_color);
 
     helpers::DrawRect(
@@ -288,16 +225,13 @@ protected:
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawText: {:d} lines at {:s}, {:s} "
-          "style={:s}, padding={:s}, rotation={:.1f}°.",
-          text.size(), anchor_position, anchor,
-          text_style, padding, rotation);
+          "DrawText: {:d} lines at {:s} {:s}, style={:s}, padding={:s}, "
+          "rotation={:.1f}°.",
+          text.size(), anchor_position, anchor, text_style, padding, rotation);
 
     return helpers::DrawText(
-          surface_, context_, text,
-          anchor_position, anchor,
-          text_style, padding, rotation,
-          LineStyle::Invalid, Color::Invalid,
+          surface_, context_, text, anchor_position, anchor, text_style,
+          padding, rotation, LineStyle::Invalid, Color::Invalid,
           0.0, {-1.0, -1.0});
   }
 
@@ -310,18 +244,17 @@ protected:
       const Color &box_fill_color, double box_corner_radius,
       const Vec2d &fixed_box_size) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawTextBox: {:d} lines at {:s}, {:s} "
-          "style={:s}, padding={:s}, rotation={:.1f}°, box-style={:s}, "
-          "box-fill={:s}, box-radius={:.1f}, box-fixed-size={:d}x{:d}.",
-          text.size(), anchor_position, anchor, text_style,
-          padding, rotation, box_line_style, box_fill_color,
-          box_corner_radius, (int)fixed_box_size.width(),
-          (int)fixed_box_size.height());
+          "DrawTextBox: {:d} lines at {:s} {:s}, style={:s}, padding={:s}, "
+          "rotation={:.1f}°, box-style={:s},  box-fill={:s}, box-radius={:.1f}, "
+          "box-fixed-size={:d}x{:d}.",
+          text.size(), anchor_position, anchor, text_style, padding, rotation,
+          box_line_style, box_fill_color, box_corner_radius,
+          (int)fixed_box_size.width(), (int)fixed_box_size.height());
 
     return helpers::DrawText(
-          surface_, context_, text, anchor_position, anchor,
-          text_style, padding, rotation, box_line_style,
-          box_fill_color, box_corner_radius, fixed_box_size);
+          surface_, context_, text, anchor_position, anchor, text_style,
+          padding, rotation, box_line_style, box_fill_color,
+          box_corner_radius, fixed_box_size);
   }
 
 
@@ -333,7 +266,7 @@ protected:
       int smoothing_window,
       const std::function<double(double)> &mix_factor) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawTrajectory: {:d} points, style={:s}, "
+          "DrawTrajectory: {:d} points, style={:s}, "
           "fade_out={:s}, oldest_first={:s}, smooth={:d}.",
           points.size(), style, color_fade_out,
           oldest_position_first, smoothing_window);
@@ -356,7 +289,7 @@ protected:
       bool oldest_position_first, int smoothing_window,
       const std::function<double(double)> &mix_factor) override {
     SPDLOG_DEBUG(
-          "ImagePainter::DrawTrajectories: {:d} trajectories, style={:s}, "
+          "DrawTrajectories: {:d} trajectories, style={:s}, "
           "fade_out={:s}, oldest_first={:s}, smooth={:d}.",
           trajectories.size(), style, color_fade_out,
           oldest_position_first, smoothing_window);
@@ -385,20 +318,19 @@ protected:
 
 
 private:
-  //TODO document
   cairo_surface_t *surface_;
   cairo_t *context_;
 };
 
 
-ImagePainter::ImagePainter() : Painter(),
+PainterImpl::PainterImpl() : Painter(),
   surface_(nullptr), context_(nullptr) {
-  SPDLOG_DEBUG("ImagePainter default constructor.");
+  SPDLOG_DEBUG("PainterImpl default constructor.");
 }
 
 
-ImagePainter::~ImagePainter() {
-  SPDLOG_TRACE("ImagePainter destructor.");
+PainterImpl::~PainterImpl() {
+  SPDLOG_DEBUG("PainterImpl destructor.");
   if (context_)
     cairo_destroy(context_);
   if (surface_)
@@ -406,13 +338,13 @@ ImagePainter::~ImagePainter() {
 }
 
 
-ImagePainter::ImagePainter(const ImagePainter &other) // copy constructor
+PainterImpl::PainterImpl(const PainterImpl &other) // copy constructor
   : Painter(),
     surface_(nullptr), context_(nullptr) {
-  SPDLOG_TRACE("ImagePainter copy constructor.");
+  SPDLOG_DEBUG("PainterImpl copy constructor.");
   if (other.surface_)
   {
-    SPDLOG_TRACE("Copying other ImagePainter's surface.");
+    SPDLOG_TRACE("Copying other PainterImpl's surface.");
     cairo_format_t format = cairo_image_surface_get_format(other.surface_);
     assert(format == CAIRO_FORMAT_ARGB32 || format == CAIRO_FORMAT_RGB24);
     const int width = cairo_image_surface_get_width(other.surface_);
@@ -432,38 +364,39 @@ ImagePainter::ImagePainter(const ImagePainter &other) // copy constructor
 }
 
 
-ImagePainter::ImagePainter(ImagePainter &&other) noexcept
+PainterImpl::PainterImpl(PainterImpl &&other) noexcept
   : Painter(),
     surface_(std::exchange(other.surface_, nullptr)),
     context_(std::exchange(other.context_, nullptr)) {
-  SPDLOG_TRACE("ImagePainter move constructor.");
+  SPDLOG_DEBUG("PainterImpl move constructor.");
 }
 
 
-ImagePainter& ImagePainter::operator=(const ImagePainter &other) { // Copy assignment
-  SPDLOG_TRACE("ImagePainter copy assignment operator.");
-  return *this = ImagePainter(other);
+PainterImpl& PainterImpl::operator=(const PainterImpl &other) { // Copy assignment
+  SPDLOG_DEBUG("PainterImpl copy assignment operator.");
+  return *this = PainterImpl(other);
 }
 
 
-ImagePainter& ImagePainter::operator=(ImagePainter &&other) noexcept { // Move assignment
-  SPDLOG_TRACE("ImagePainter move assignment operator.");
+PainterImpl& PainterImpl::operator=(PainterImpl &&other) noexcept { // Move assignment
+  SPDLOG_DEBUG("PainterImpl move assignment operator.");
   std::swap(surface_, other.surface_);
   std::swap(context_, other.context_);
   return *this;
 }
 
 
-bool ImagePainter::IsValid() const {
-  SPDLOG_TRACE("ImagePainter::IsValid().");
+bool PainterImpl::IsValid() const {
   return (surface_ != nullptr) && (context_ != nullptr);
 }
 
-
-void ImagePainter::SetCanvas(int height, int width, const Color &color) {
+//FIXME PainterImpl
+//FIXME log --> set level via CMakeLists.txt
+void PainterImpl::SetCanvas(int height, int width, const Color &color) {
   SPDLOG_DEBUG(
-        "ImagePainter::SetCanvas(width={:d}, height={:d}, color={:s}).",
+        "SetCanvas: width={:d}, height={:d}, color={:s}).",
         width, height, color);
+
   // Check if we can reuse the current image surface to
   // save ourselves the memory allocation:
   if (surface_) {
@@ -487,18 +420,16 @@ void ImagePainter::SetCanvas(int height, int width, const Color &color) {
   // to start with), we have to create the canvas:
   if (!surface_) {
     SPDLOG_TRACE(
-          "ImagePainter::SetCanvas: Creating Cairo image surface for {:d}x{:d} canvas.",
+          "SetCanvas: Creating Cairo image surface for w={:d}, h={:d} canvas.",
           width, height);
-    surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                          width, height);
+    surface_ = cairo_image_surface_create(
+          CAIRO_FORMAT_ARGB32, width, height);
   }
 
   if (!context_) {
-    SPDLOG_TRACE("ImagePainter::SetCanvas: Creating Cairo context.");
     context_ = cairo_create(surface_);
   }
 
-  SPDLOG_TRACE("ImagePainter::SetCanvas: Painting the canvas using {:s}.", color);
   // Now simply fill the canvas with the given color:
   cairo_save(context_);
   helpers::ApplyColor(context_, color);
@@ -507,17 +438,17 @@ void ImagePainter::SetCanvas(int height, int width, const Color &color) {
 }
 
 
-void ImagePainter::SetCanvas(const std::string &image_filename) {
-  SPDLOG_DEBUG("ImagePainter::SetCanvas(filename={:s}).", image_filename);
+void PainterImpl::SetCanvas(const std::string &image_filename) {
+  SPDLOG_DEBUG("SetCanvas: filename={:s}.", image_filename);
   // Force to load 4 bytes per pixel (STBI_rgb_alpha), so we
   // can easily plug/copy it into the Cairo surface
   ImageBuffer buffer = LoadImage(image_filename, 4);
   SetCanvas(buffer);
 }
 
-void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
-  SPDLOG_DEBUG("ImagePainter::SetCanvas(image_buffer{:s}).",
-               image_buffer);
+
+void PainterImpl::SetCanvas(const ImageBuffer &image_buffer) {
+  SPDLOG_DEBUG("SetCanvas: {:s}).", image_buffer.ToString());
   if (image_buffer.Channels() != 4) {
     SetCanvas(image_buffer.ToChannels(4));
   } else {
@@ -532,18 +463,19 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
     // * copy-flag false, existing data --> clean up data, reuse surface
     // * copy-flag false, no surface --> surface create_for_data
     if (context_) {
-      SPDLOG_TRACE("ImagePainter::SetCanvas: Releasing previous Cairo context.");
+      SPDLOG_TRACE("SetCanvas: Releasing previous Cairo context.");
       cairo_destroy(context_);
       context_ = nullptr;
     }
 
     if (surface_) {
-      SPDLOG_TRACE("ImagePainter::SetCanvas: Releasing previous Cairo surface.");
+      SPDLOG_TRACE("SetCanvas: Releasing previous Cairo surface.");
       cairo_surface_destroy(surface_);
       surface_ = nullptr;
     }
 
-    SPDLOG_TRACE("ImagePainter::SetCanvas: Creating Cairo surface and context from image buffer.");
+    SPDLOG_TRACE(
+          "SetCanvas: Creating Cairo surface and context from image buffer.");
     surface_ = cairo_image_surface_create(
           CAIRO_FORMAT_ARGB32, image_buffer.Width(), image_buffer.Height());
     std::memcpy(
@@ -552,23 +484,13 @@ void ImagePainter::SetCanvas(const ImageBuffer &image_buffer) {
           4 * image_buffer.Width() * image_buffer.Height());
     context_ = cairo_create(surface_);
 
-    // Needed to ensure that the underlying image surface
-    // will be rendered:
+    // Ensure that the underlying image surface will be rendered immediately:
     cairo_surface_mark_dirty(surface_);
-
-    /// FIXME how to dim? image + transparent color; image + grayscale?
-    /// caveat: cairo uses premultiplied alpha
-    //cairo_save(context_);
-    //helpers::ApplyColor(context_, "white!50");
-    ////cairo_paint_with_alpha(context_, 0.5);
-    //cairo_paint(context_);
-    //cairo_restore(context_);
   }
 }
 
 
-Vec2i ImagePainter::GetCanvasSize() const {
-  SPDLOG_DEBUG("ImagePainter::GetCanvasSize().");
+Vec2i PainterImpl::GetCanvasSize() const {
   if (IsValid()) {
     return Vec2i(
           cairo_image_surface_get_width(surface_),
@@ -578,10 +500,12 @@ Vec2i ImagePainter::GetCanvasSize() const {
   }
 }
 
-ImageBuffer ImagePainter::GetCanvas(bool copy) const {
-  SPDLOG_DEBUG("ImagePainter::GetCanvas(copy={}).", copy);
-  if (!IsValid())
-    throw std::logic_error("Invalid canvas - did you forget SetCanvas()?");
+ImageBuffer PainterImpl::GetCanvas(bool copy) const {
+  SPDLOG_DEBUG("GetCanvas: copy={}.", copy);
+
+  if (!IsValid()) {
+    throw std::logic_error("Invalid canvas - did you forget `SetCanvas()`?");
+  }
 
   assert(cairo_image_surface_get_format(surface_) == CAIRO_FORMAT_ARGB32);
   const int channels = 4;
@@ -608,8 +532,7 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
 
 
 std::unique_ptr<Painter> CreatePainter() {
-  SPDLOG_DEBUG("Creating image painter.");
-  return std::unique_ptr<Painter>(new ImagePainter());
+  return std::unique_ptr<Painter>(new PainterImpl());
 }
 
 } // namespace viren2d
