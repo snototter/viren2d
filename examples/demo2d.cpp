@@ -592,7 +592,7 @@ void DemoConversionOpenCV() {
         viren2d::ImageBufferType::UInt8);
 
   viren2d::ImageBuffer gray = buf.ToGrayscale(3);
-  viren2d::ImageBuffer blend = viren2d::Blend(buf, gray, 0.6);
+  viren2d::ImageBuffer blend = buf.Blend(gray, 0.7);
 
   {
     cv::Mat cvtmp(blend.Height(), blend.Width(),
@@ -612,7 +612,7 @@ void DemoConversionOpenCV() {
   }
 //  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
   viren2d::LoadImage("/home/snototter/workspace/utilities/vito/examples/depth.png", 0);
-  viren2d::Pixelate(buf, 15, 23, 0, 50, 250, 200);
+  buf.Pixelate(15, 23, 0, 50, 250, 200);
 //  viren2d::ImageBuffer buf_roi = buf.ROI(0, 50, 250, 200);
 //  for (int r = 0; r < buf_roi.Height(); ++r) {
 //    for (int c = 0; c < buf_roi.Width(); ++c) {

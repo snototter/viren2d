@@ -410,10 +410,10 @@ template <typename _Tp>
 ImageBuffer Blend(
     const ImageBuffer &src1,
     const ImageBuffer &src2,
-    double alpha1) {
+    double alpha2) {
   SPDLOG_DEBUG(
-        "Blending ImageBuffer {:s} and {:s} with alpha {:f}.",
-        src1.ToString(), src2.ToString(), alpha1);
+        "Blending {:s} and {:s} with alpha_other={:f}.",
+        src1.ToString(), src2.ToString(), alpha2);
 
   if ((src1.Width() != src2.Width())
       || (src1.Height() != src2.Height())
@@ -451,8 +451,8 @@ ImageBuffer Blend(
       for (int ch = 0; ch < channels_out; ++ch) {
         if (ch < channels_to_blend) {
           blended = static_cast<_Tp>(
-                alpha1 * src1.AtUnchecked<_Tp>(row, col, ch)
-                + (1.0 - alpha1) * src2.AtUnchecked<_Tp>(row, col, ch));
+                ((1.0 - alpha2) * src1.AtUnchecked<_Tp>(row, col, ch))
+                + (alpha2 * src2.AtUnchecked<_Tp>(row, col, ch)));
           dst.AtUnchecked<_Tp>(row, col, ch) = blended;
         } else {
           dst.AtUnchecked<_Tp>(row, col, ch) = rem_channels.AtUnchecked<_Tp>(row, col, ch);

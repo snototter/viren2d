@@ -57,7 +57,7 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
   //TODO(dev) Include newly added string representation in ImageBufferFromString, too!
 
   std::ostringstream s;
-  s << "ImageBufferType `" << static_cast<int>(t)
+  s << "Type `" << static_cast<int>(t)
     << "` not handled in `ImageBufferTypeToString` switch!";
   throw std::logic_error(s.str());
 }
@@ -106,7 +106,7 @@ int ElementSizeFromImageBufferType(ImageBufferType t) {
       return static_cast<int>(sizeof(double));
   }
 
-  std::string s("ImageBufferType `");
+  std::string s("Type `");
   s += ImageBufferTypeToString(t);
   s += "` not handled in `FormatDescriptor` switch!";
   throw std::logic_error(s);
@@ -389,7 +389,7 @@ void ImageBuffer::SwapChannels(int ch1, int ch2) {
       return;
   }
 
-  std::string s("ImageBufferType `");
+  std::string s("Type `");
   s += ImageBufferTypeToString(buffer_type);
   s += "` not handled in `SwapChannels` switch!";
   throw std::logic_error(s);
@@ -461,8 +461,6 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
 
 
 ImageBuffer ImageBuffer::ToUInt8(int output_channels) const {
-  // FIXME: move sanity checks into the helpers!
-
   if (!IsValid()) {
     throw std::logic_error(
           "Cannot convert an invalid ImageBuffer to `uint8`!");
@@ -485,7 +483,7 @@ ImageBuffer ImageBuffer::ToUInt8(int output_channels) const {
       return helpers::ToUInt8<double>(*this, output_channels, 255);
   }
 
-  std::string s("ImageBufferType `");
+  std::string s("Type `");
   s += ImageBufferTypeToString(buffer_type);
   s += "` not handled in `ToUInt8` switch!";
   throw std::logic_error(s);
@@ -525,7 +523,7 @@ ImageBuffer ImageBuffer::ToGrayscale(
               *this, output_channels, is_bgr_format);
     }
 
-    std::string s("ImageBufferType `");
+    std::string s("Type `");
     s += ImageBufferTypeToString(buffer_type);
     s += "` not handled in `ToGrayscale` switch!";
     throw std::logic_error(s);
@@ -536,6 +534,163 @@ ImageBuffer ImageBuffer::ToGrayscale(
       << channels << '!';
     throw std::logic_error(s.str());
   }
+}
+
+
+void ImageBuffer::Pixelate(
+    int block_width, int block_height,
+    int roi_left, int roi_top, int roi_width, int roi_height) {
+  if (!IsValid()) {
+    throw std::logic_error(
+          "Cannot pixelate an invalid ImageBuffer!");
+  }
+
+  // ROI returns a shared image buffer and performs out-of-range checks:
+  const bool full_image = (roi_left == -1) && (roi_top == -1)
+      && (roi_width == -1) && (roi_height == -1);
+  viren2d::ImageBuffer roi = full_image
+      ? ROI(0, 0, width, height)
+      : ROI(roi_left, roi_top, roi_width, roi_height);
+
+  // Definitely not the most elegant way of calling
+  // the corresponding helper, but given the current
+  // variadic `SetToPixel` template (and that I can't
+  // think of a use case where we have more than 4
+  // channels to pixelate), this is good enough for me:
+  switch (buffer_type) {
+    case ImageBufferType::UInt8: {
+        if (channels == 1) {
+          helpers::Pixelate<uint8_t, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<uint8_t, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<uint8_t, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<uint8_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `uint8_t` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Int16: {
+        if (channels == 1) {
+          helpers::Pixelate<int16_t, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<int16_t, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<int16_t, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<int16_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `int16_t` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Int32: {
+        if (channels == 1) {
+          helpers::Pixelate<int32_t, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<int32_t, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<int32_t, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<int32_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `int32_t` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Float: {
+        if (channels == 1) {
+          helpers::Pixelate<float, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<float, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<float, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<float, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `float` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Double: {
+        if (channels == 1) {
+          helpers::Pixelate<double, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<double, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<double, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<double, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelization is only supported for up to 4-channel "
+               "images, but this `float` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+  }
+
+  std::string s("Type `");
+  s += ImageBufferTypeToString(buffer_type);
+  s += "` was not handled in `Pixelate` switch!";
+  throw std::logic_error(s);
+}
+
+
+ImageBuffer ImageBuffer::Blend(const ImageBuffer &other, double alpha_other) const {
+  if (!IsValid() || !other.IsValid()) {
+    throw std::logic_error(
+          "Cannot blend invalid ImageBuffers!");
+  }
+
+  switch(buffer_type) {
+    case ImageBufferType::UInt8:
+      return helpers::Blend<uint8_t>(*this, other, alpha_other);
+
+    case ImageBufferType::Int16:
+      return helpers::Blend<int16_t>(*this, other, alpha_other);
+
+    case ImageBufferType::Int32:
+      return helpers::Blend<int32_t>(*this, other, alpha_other);
+
+    case ImageBufferType::Float:
+      return helpers::Blend<float>(*this, other, alpha_other);
+
+    case ImageBufferType::Double:
+      return helpers::Blend<double>(*this, other, alpha_other);
+  }
+
+  // Throw an exception as fallback, because due to the default
+  // compiler settings, we would have ignored the warning about
+  // missing case values.
+  std::string s("Type `");
+  s += ImageBufferTypeToString(buffer_type);
+  s += "` was not handled in `Blend` switch!";
+  throw std::logic_error(s);
 }
 
 
@@ -565,7 +720,7 @@ ImageBuffer ImageBuffer::Channel(int channel) const {
       return helpers::ExtractChannel<double>(*this, channel);
   }
 
-  std::string s("ImageBufferType `");
+  std::string s("Type `");
   s += ImageBufferTypeToString(buffer_type);
   s += "` not handled in `Channel` switch!";
   throw std::logic_error(s);
@@ -742,163 +897,6 @@ void SaveImage(
       << "' - failed with `stb` error code " << stb_result << '!';
     throw std::runtime_error(s.str());
   }
-}
-
-
-//void AnonymizeSolidColor(
-//    ImageBuffer &image,
-//    int roi_left, int roi_top, int roi_width, int roi_height,
-//    const Color &color) {
-//  //FIXME scale color for uint8, etc.
-//}
-
-
-void Pixelate(
-    ImageBuffer &image,
-    int block_width, int block_height,
-    int roi_left, int roi_top, int roi_width, int roi_height) {
-  // ROI returns a shared image buffer and performs out-of-range checks:
-  const bool full_image = (roi_left == -1) && (roi_top == -1)
-      && (roi_width == -1) && (roi_height == -1);
-  viren2d::ImageBuffer roi = full_image
-      ? image.ROI(0, 0, image.Width(), image.Height())
-      : image.ROI(roi_left, roi_top, roi_width, roi_height);
-
-  // Definitely not the most elegant way of calling
-  // the corresponding helper, but given the current
-  // variadic `SetToPixel` template (and that I can't
-  // think of a use case where we have more than 4
-  // channels to pixelate), this is good enough for me:
-  switch (image.BufferType()) {
-    case ImageBufferType::UInt8: {
-        if (image.Channels() == 1) {
-          helpers::Pixelate<uint8_t, 1>(roi, block_width, block_height);
-        } else if (image.Channels() == 2) {
-          helpers::Pixelate<uint8_t, 2>(roi, block_width, block_height);
-        } else if (image.Channels() == 3) {
-          helpers::Pixelate<uint8_t, 3>(roi, block_width, block_height);
-        } else if (image.Channels() == 4) {
-          helpers::Pixelate<uint8_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
-               "images, but this `uint8_t` ImageBuffer has "
-            << image.Channels() << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
-
-    case ImageBufferType::Int16: {
-        if (image.Channels() == 1) {
-          helpers::Pixelate<int16_t, 1>(roi, block_width, block_height);
-        } else if (image.Channels() == 2) {
-          helpers::Pixelate<int16_t, 2>(roi, block_width, block_height);
-        } else if (image.Channels() == 3) {
-          helpers::Pixelate<int16_t, 3>(roi, block_width, block_height);
-        } else if (image.Channels() == 4) {
-          helpers::Pixelate<int16_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
-               "images, but this `int16_t` ImageBuffer has "
-            << image.Channels() << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
-
-    case ImageBufferType::Int32: {
-        if (image.Channels() == 1) {
-          helpers::Pixelate<int32_t, 1>(roi, block_width, block_height);
-        } else if (image.Channels() == 2) {
-          helpers::Pixelate<int32_t, 2>(roi, block_width, block_height);
-        } else if (image.Channels() == 3) {
-          helpers::Pixelate<int32_t, 3>(roi, block_width, block_height);
-        } else if (image.Channels() == 4) {
-          helpers::Pixelate<int32_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
-               "images, but this `int32_t` ImageBuffer has "
-            << image.Channels() << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
-
-    case ImageBufferType::Float: {
-        if (image.Channels() == 1) {
-          helpers::Pixelate<float, 1>(roi, block_width, block_height);
-        } else if (image.Channels() == 2) {
-          helpers::Pixelate<float, 2>(roi, block_width, block_height);
-        } else if (image.Channels() == 3) {
-          helpers::Pixelate<float, 3>(roi, block_width, block_height);
-        } else if (image.Channels() == 4) {
-          helpers::Pixelate<float, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
-               "images, but this `float` ImageBuffer has "
-            << image.Channels() << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
-
-    case ImageBufferType::Double: {
-        if (image.Channels() == 1) {
-          helpers::Pixelate<double, 1>(roi, block_width, block_height);
-        } else if (image.Channels() == 2) {
-          helpers::Pixelate<double, 2>(roi, block_width, block_height);
-        } else if (image.Channels() == 3) {
-          helpers::Pixelate<double, 3>(roi, block_width, block_height);
-        } else if (image.Channels() == 4) {
-          helpers::Pixelate<double, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
-               "images, but this `float` ImageBuffer has "
-            << image.Channels() << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
-  }
-
-  std::string s("Type `");
-  s += ImageBufferTypeToString(image.BufferType());
-  s += "` was not handled in `Pixelate` switch!";
-  throw std::logic_error(s);
-}
-
-
-ImageBuffer Blend(
-    const ImageBuffer &buf1, const ImageBuffer &buf2, double alpha1) {
-  switch(buf1.BufferType()) {
-    case ImageBufferType::UInt8:
-      return helpers::Blend<uint8_t>(buf1, buf2, alpha1);
-
-    case ImageBufferType::Int16:
-      return helpers::Blend<int16_t>(buf1, buf2, alpha1);
-
-    case ImageBufferType::Int32:
-      return helpers::Blend<int32_t>(buf1, buf2, alpha1);
-
-    case ImageBufferType::Float:
-      return helpers::Blend<float>(buf1, buf2, alpha1);
-
-    case ImageBufferType::Double:
-      return helpers::Blend<double>(buf1, buf2, alpha1);
-  }
-
-  // Throw an exception as fallback, because due to the default
-  // compiler settings, we would have ignored the warning about
-  // missing case values.
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buf1.BufferType());
-  s += "` was not handled in `Blend` switch!";
-  throw std::logic_error(s);
 }
 
 } // namespace viren2d

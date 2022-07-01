@@ -127,7 +127,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
       img.MutableData(),
       static_cast<std::size_t>(img.ElementSize()), // Size of each element
       FormatDescriptor(img.BufferType()), // Python struct-style format descriptor
-      3, // We'll always return ndim=3 buffers by design
+      3,  //Always return ndim=3 (by design)
       { static_cast<std::size_t>(img.Height()),
         static_cast<std::size_t>(img.Width()),
         static_cast<std::size_t>(img.Channels()) }, // Buffer dimensions
@@ -140,46 +140,51 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
 
 void RegisterImageBuffer(py::module &m) {
   py::class_<ImageBuffer> imgbuf(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
-          Encapsulates image data.
+        Encapsulates image data.
 
-          This class is used to pass images between the consuming
-          application and ``viren2d``. Supported data types are:
-          :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.int32`,
-          :class:`numpy.float32`, and :class:`numpy.float64`.
+        This class is used to pass images between the consuming
+        application and ``viren2d``. Supported data types are:
+        :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.int32`,
+        :class:`numpy.float32`, and :class:`numpy.float64`.
 
-          The *ImageBuffer* implements the standard Python buffer protocol
-          and can thus be swiftly converted to/from other buffer types,
-          such as a :class:`numpy.ndarray`, for example:
+        The *ImageBuffer* implements the standard Python buffer protocol
+        and can thus be swiftly converted to/from other buffer types,
+        such as a :class:`numpy.ndarray`, for example:
 
-          >>> # Create an ImageBuffer from a numpy.ndarray
-          >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)
+        >>> # Create an ImageBuffer from a numpy.ndarray
+        >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)
 
-          >>> # Create a numpy.ndarray from an ImageBuffer
-          >>> img_np = np.array(img_buf, copy=False)
-          )docstr");
+        >>> # Create a numpy.ndarray from an ImageBuffer
+        >>> img_np = np.array(img_buf, copy=False)
+        )docstr");
 
-  imgbuf.def(py::init(&CreateImageBuffer), R"docstr(
-          Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
+  imgbuf.def(
+        py::init(&CreateImageBuffer), R"docstr(
+        Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
 
-          Currently, only conversion from/to NumPy arrays with
-          :class:`numpy.dtype` = :class:`numpy.uint8` is supported.
-          This will change once I get around to implementing the
-          pseudocoloring functionality in ``viren2d``.
+        Currently, only conversion from/to NumPy arrays with
+        :class:`numpy.dtype` = :class:`numpy.uint8` is supported.
+        This will change once I get around to implementing the
+        pseudocoloring functionality in ``viren2d``.
 
-          Args:
-            array: The :class:`numpy.ndarray` holding the image data.
-            copy: If ``True``, the :class:`~viren2d.ImageBuffer` will
-              make a copy of the given ``array``. The default (``False``)
-              is to share the data instead, which avoids memory allocation.
-          )docstr", py::arg("array"), py::arg("copy")=false)
-     .def_buffer(&ImageBufferInfo)
-      .def("copy", [](const ImageBuffer &buf) { return buf.DeepCopy(); }, R"docstr(
+        Args:
+          array: The :class:`numpy.ndarray` holding the image data.
+          copy: If ``True``, the :class:`~viren2d.ImageBuffer` will
+            make a copy of the given ``array``. The default (``False``)
+            is to share the data instead, which avoids memory allocation.
+        )docstr", py::arg("array"), py::arg("copy")=false)
+      .def_buffer(&ImageBufferInfo)
+      .def(
+        "copy",
+        &ImageBuffer::DeepCopy, R"docstr(
         Returns a deep copy.
 
         The returned copy will **always** allocate and copy the memory,
         even if you call this method on a *shared* buffer.
         )docstr")
-      .def("roi", &ImageBuffer::ROI, R"docstr(
+      .def(
+        "roi",
+        &ImageBuffer::ROI, R"docstr(
         Returns an ImageBuffer which points to the given region of interest.
 
         Allows selecting a rectangular region of interest within this
@@ -197,44 +202,53 @@ void RegisterImageBuffer(py::module &m) {
            >>> roi = painter.canvas.roi(left=10, top=50, width=100, height=200)
         )docstr",
         py::arg("left"), py::arg("top"), py::arg("width"), py::arg("height"))
-      .def("is_valid", &ImageBuffer::IsValid,
-           "Returns ``True`` if this buffer points to a valid memory location.")
-      .def("swap_channels", &ImageBuffer::SwapChannels, R"docstr(
-           Swaps the specified channels **in-place**.
+      .def(
+        "is_valid",
+        &ImageBuffer::IsValid,
+        "Returns ``True`` if this buffer points to a valid memory location.")
+      .def(
+        "swap_channels",
+        &ImageBuffer::SwapChannels, R"docstr(
+        Swaps the specified channels **in-place**.
 
-           Args:
-             ch1: Zero-based index of the first channel as :class:`int`.
-             ch2: Zero-based index of the second channel as :class:`int`.
-           )docstr", py::arg("ch1"), py::arg("ch2"))
-      .def("to_rgb", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(3); }, R"docstr(
-           Returns a 3-channel representation.
+        Args:
+          ch1: Zero-based index of the first channel as :class:`int`.
+          ch2: Zero-based index of the second channel as :class:`int`.
+        )docstr", py::arg("ch1"), py::arg("ch2"))
+      .def(
+        "to_rgb",
+        [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(3); }, R"docstr(
+        Returns a 3-channel representation.
 
-           This conversion is only supported for :class:`~viren2d.ImageBuffer`
-           instances which have 1, 3, or 4 channels. Thus, it will only
-           **duplicate**/**copy** channels, or **remove** the alpha channel
-           (despite it's name, it is format-agnostic, *i.e.* it doesn't matter
-           whether you apply it on a RGB(A) or BGR(A) buffer).
+        This conversion is only supported for :class:`~viren2d.ImageBuffer`
+        instances which have 1, 3, or 4 channels. Thus, it will only
+        **duplicate**/**copy** channels, or **remove** the alpha channel
+        (despite it's name, it is format-agnostic, *i.e.* it doesn't matter
+        whether you apply it on a RGB(A) or BGR(A) buffer).
 
-           Note that this call will always allocate and copy memory, even
-           if ``self`` is already a 3-channel buffer.
-           )docstr")
-      .def("to_rgba", [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr(
-           Returns a 4-channel representation.
+        Note that this call will always allocate and copy memory, even
+        if ``self`` is already a 3-channel buffer.
 
-           Refer to :meth:`~viren2d.ImageBuffer.to_rgb` as all comments
-           apply analogously.
-           )docstr")
-      .def("__repr__",
-           [](const ImageBuffer &)
-           { return "<viren2d.ImageBuffer>"; })
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels``.
+        )docstr")
+      .def(
+        "to_rgba",
+        [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr(
+        Returns a 4-channel representation.
+
+        Refer to :meth:`~viren2d.ImageBuffer.to_rgb` as all comments
+        apply analogously.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels``.
+        )docstr")
+      .def(
+        "__repr__",
+        [](const ImageBuffer &)
+        { return "<viren2d.ImageBuffer>"; })
       .def("__str__", &ImageBuffer::ToString)
       .def(
         "pixelate",
-        [](ImageBuffer &image,
-           int block_width, int block_height,
-           int roi_left, int roi_top, int roi_width, int roi_height) {
-          Pixelate(image, block_width, block_height, roi_left, roi_top, roi_width, roi_height);
-        }, R"docstr(
+        &ImageBuffer::Pixelate, R"docstr(
         Pixelates a rectangular region of interest in-place.
 
         Performs **in-place** pixelation of images with **up to 4**
@@ -266,6 +280,79 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("top") = -1,
         py::arg("width") = -1,
         py::arg("height") = -1)
+      .def(
+        "to_uint8",
+        &ImageBuffer::ToUInt8, R"docstr(
+        Converts this buffer to ``uint8``.
+
+        If the underlying type is `float` or `double`,
+        the values will be **multiplied by 255**. Otherwise,
+        the values will be clamped into [0, 255].
+
+        Args:
+          num_channels: Number of output channels as :class:`int`. The following
+            configurations are supported:
+            * For a single-channel buffer: ``num_channels`` either 1, 3, or 4.
+            * For a 3-channel buffer: ``num_channels`` either 3 or 4.
+            * For a 4-channel buffer: ``num_channels`` either 3 or 4.
+        )docstr", py::arg("num_channels"))
+      .def(
+        "to_grayscale",
+        &ImageBuffer::ToGrayscale, R"docstr(
+        Returns the grayscale image.
+
+        Args:
+          num_channels: Number of output channels as :class:`int`, must be `<=4`.
+            The first (up to) 3 channels will contain the repeated luminance,
+            whereas the 4th channel will always be 255 (*i.e.* alpha, fully opaque).
+          is_bgr: Set to ``True`` if the channels of this image are in BGR format.
+        )docstr",
+        py::arg("num_channels"),
+        py::arg("is_bgr") = false)
+      .def(
+        "channel",
+        &ImageBuffer::Channel, R"docstr(
+        Extracts a single channel.
+
+        Args:
+          channel: The 0-based channel index as :class:`int`.
+
+        Returns:
+          A single-channel :class:`~viren2d.ImageBuffer` holding a deep copy of
+          the specified channel.
+        )docstr", py::arg("channel"))
+      .def(
+        "min_max",
+        [](const ImageBuffer &buf, int channel) {
+          double minval, maxval;
+          Vec2i minloc, maxloc;
+          buf.MinMaxLocation(&minval, &maxval, &minloc, &maxloc, channel);
+          return py::make_tuple(minval, maxval, minloc, maxloc);
+        }, R"docstr(
+        Computes the min/max (incl. locations) for the given channel.
+
+        Returns:
+          A :class:`tuple` which contains ``(min_val, max_val, min_loc, max_loc)``,
+          where ``min_val`` & ``max_val`` are the extremal values of the selected
+          channel as :class:`float` and ``min_loc`` & ``max_loc`` are the
+          *x* & *y* positions as :class:`~viren2d.Vec2i`.
+        )docstr")
+      .def(
+        "blend",
+        &ImageBuffer::Blend, R"docstr(
+        Returns an alpha-blended image.
+
+        Creates a new image as the result of
+        :math:`(1 - \alpha) * self + \alpha * other``.
+        If the number of channels is not the same, the number of
+        output channels will be the maximum of ``self.channels``
+        and ``other.channels``. In this case, *non-blendable* channels
+        are copied from the input buffer which has more channels.
+
+        Args:
+          other: The other :class:`~viren2d.ImageBuffer` to blend.
+          alpha: Blending factor as :class:`float` :math:`\in [0,1]`.
+        )docstr", py::arg("other"), py::arg("alpha"))
       .def_property_readonly(
         "width",
         &ImageBuffer::Width,
@@ -307,6 +394,7 @@ void RegisterImageBuffer(py::module &m) {
         [](const ImageBuffer &buf) { return py::dtype(FormatDescriptor(buf.BufferType())); },
         "numpy.dtype: Underlying data type (read-only).");
 
+
   // An ImageBuffer can be initialized from a numpy array
   py::implicitly_convertible<py::array, ImageBuffer>();
 
@@ -329,6 +417,7 @@ void RegisterImageBuffer(py::module &m) {
             should be written to disk.
         )docstr",
         py::arg("filename"), py::arg("image"));
+
 
   m.def("load_image",
         &LoadImage, R"docstr(

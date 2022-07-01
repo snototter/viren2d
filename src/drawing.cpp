@@ -22,7 +22,14 @@
 
 namespace viren2d {
 
-//TODO refactor -> PainterImpl, outsource surface handling (SVG vs Image)
+
+//TODO(svg-extension) outsource surface handling (SVG vs Image)
+// units in general:
+// 1pt = 1/72 in
+// 1px = 1/96 in
+// cairo 1.16 supports setting "user units" - check rollout status of v1.16 across target OS
+
+
 /// Implements the Painter interface
 class PainterImpl : public Painter {
 public:

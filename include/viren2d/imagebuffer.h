@@ -339,8 +339,39 @@ public:
   ImageBuffer ToUInt8(int output_channels) const;
 
 
-  //TODO doc
+  /// Returns the grayscale image.
+  ///
+  /// Args:
+  ///   num_channels: Number of output channels as :class:`int`, must be ``<=4``.
+  ///     The first (up to) 3 channels will contain the repeated luminance,
+  ///     whereas the 4th channel will always be 255 (*i.e.* alpha, fully opaque).
+  ///   is_bgr: Set to ``true`` if the channels of this image are in BGR format.
   ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format=false) const;
+
+
+  /// Performs **in-place** pixelation of images with **up to 4**
+  /// :attr:`channels`. All pixels within a *block* will be set to
+  /// the value of the block's center pixel.
+  ///
+  /// If the chosen block size does not align with the region of interest,
+  /// the size of the outer blocks (left, right, top and bottom) will be
+  /// increased to ensure proper pixelation of these areas.
+  ///
+  /// If ``left``, ``top``, ``width`` **and** ``height`` are all ``-1``,
+  /// the whole image will be pixelated.
+  void Pixelate(
+      int block_width, int block_height,
+      int roi_left, int roi_top, int roi_width, int roi_height);
+
+
+  /// Returns an alpha-blended image.
+  ///
+  /// Computes ``((1 - alpha) * this) + (alpha * other)``.
+  /// If the number of channels is not the same, the number of
+  /// output channels will be the maximum of ``this.channels``
+  /// and ``other.channels``. In this case, *non-blendable* channels
+  /// are copied from the input buffer which has more channels.
+  ImageBuffer Blend(const ImageBuffer &other, double alpha_other) const;
 
 
   /// Returns a single-channel buffer deeply copied from this ImageBuffer.
@@ -471,17 +502,6 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=
 /// libraries for that.
 void SaveImage(const std::string &image_filename, const ImageBuffer &image);
 
-
-//TODO doc
-void Pixelate(
-    ImageBuffer &image,
-    int block_width, int block_height,
-    int roi_left, int roi_top, int roi_width, int roi_height);
-
-
-//TODO doc
-ImageBuffer Blend(
-    const ImageBuffer &buf1, const ImageBuffer &buf2, double alpha1);
 
 } // namespace viren2d
 
