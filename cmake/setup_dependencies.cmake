@@ -70,31 +70,58 @@ function(setup_spdlog viren2d_TARGET_CPP_LIB)
     #message(WARNING "TODO check why spdlog is missing from export targets (even if forced... didn't find the proper setup yet)")
     #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/spdlog)
     ##endif()
+    
+    if(spdlog_FOUND)
+        message(STATUS "[viren2d] Found spdlog.")
+        if(TARGET spdlog::spdlog_header_only)
+            set(viren2d_SPDLOG_TARGET spdlog::spdlog_header_only)
+        endif()
+        # Then, replace the target, if the compiled spdlog version is available
+        if(TARGET spdlog::spdlog)
+            set(viren2d_SPDLOG_TARGET spdlog::spdlog)
+        endif()
+        
+        if(TARGET ${viren2d_SPDLOG_TARGET})
+            if (viren2d_SPDLOG_TARGET MATCHES "spdlog.*header_only")
+                message(STATUS "[viren2d] Using the header-only spdlog, target ${viren2d_SPDLOG_TARGET}.")
+            else()
+                message(STATUS "[viren2d] Using the precompiled spdlog, target ${viren2d_SPDLOG_TARGET}.")
+            endif()
+
+            target_link_libraries(${viren2d_TARGET_CPP_LIB}
+                PRIVATE ${viren2d_SPDLOG_TARGET})
+            target_compile_definitions(${viren2d_TARGET_CPP_LIB}
+                PRIVATE viren2d_ENABLE_LOGGING)
+        endif()
+    else()
+        message(STATUS "[viren2d] spdlog not found - logging is disabled. For install instructions, see https://github.com/gabime/spdlog")
+    endif()
+
 
     # Set the available target to link against.
     # Start with header-only which should be available, no matter how/where
     # we found it.
-    if(TARGET spdlog::spdlog_header_only)
-        set(viren2d_SPDLOG_TARGET spdlog::spdlog_header_only)
-    endif()
-    # Then, replace the target, if the compiled spdlog version is available
-    if(TARGET spdlog::spdlog)
-        set(viren2d_SPDLOG_TARGET spdlog::spdlog)
-    endif()
+#    if(TARGET spdlog::spdlog_header_only)
+#        set(viren2d_SPDLOG_TARGET spdlog::spdlog_header_only)
+#    endif()
+#    # Then, replace the target, if the compiled spdlog version is available
+#    if(TARGET spdlog::spdlog)
+#        set(viren2d_SPDLOG_TARGET spdlog::spdlog)
+#    endif()
     
-    # Currently, it is not possible to disable logging (i.e. exclude
-    # any missing #include's) in viren2d. Thus, we have to ensure that
-    # spdlog can be integrated:
-    if(NOT TARGET ${viren2d_SPDLOG_TARGET})
-        message(FATAL_ERROR "[viren2d] Could neither find nor fetch spdlog, please set it up manually: https://github.com/gabime/spdlog")
-    else()
-        if (viren2d_SPDLOG_TARGET MATCHES "spdlog.*header_only")
-            message(STATUS "[viren2d] Using the header-only spdlog, target ${viren2d_SPDLOG_TARGET}.")
-        else()
-            message(STATUS "[viren2d] Using the precompiled spdlog, target ${viren2d_SPDLOG_TARGET}.")
-        endif()
-
-        target_link_libraries(${viren2d_TARGET_CPP_LIB}
-            PRIVATE ${viren2d_SPDLOG_TARGET})
-    endif()
+#    # Currently, it is not possible to disable logging (i.e. exclude
+#    # any missing #include's) in viren2d. Thus, we have to ensure that
+#    # spdlog can be integrated:
+#    if(NOT TARGET ${viren2d_SPDLOG_TARGET})
+#        message(FATAL_ERROR "[viren2d] Could neither find nor fetch spdlog, please set it up manually: https://github.com/gabime/spdlog")
+#    else()
+#        if (viren2d_SPDLOG_TARGET MATCHES "spdlog.*header_only")
+#            message(STATUS "[viren2d] Using the header-only spdlog, target ${viren2d_SPDLOG_TARGET}.")
+#        else()
+#            message(STATUS "[viren2d] Using the precompiled spdlog, target ${viren2d_SPDLOG_TARGET}.")
+#        endif()
+#
+#        target_link_libraries(${viren2d_TARGET_CPP_LIB}
+#            PRIVATE ${viren2d_SPDLOG_TARGET})
+#    endif()
 endfunction()

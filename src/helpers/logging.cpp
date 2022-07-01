@@ -1,3 +1,5 @@
+#ifdef viren2d_ENABLE_LOGGING
+
 #include <sstream>
 
 #include <werkzeugkiste/strings/strings.h>
@@ -164,4 +166,4 @@ bool SetLogLevel(const std::string &lvl) {
 }
 
 }  // namespace viren2d
-
+#endif  // viren2d_ENABLE_LOGGING
