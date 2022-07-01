@@ -396,6 +396,13 @@ void DrawGrid(
     const LineStyle &line_style);
 
 
+void DrawImage(cairo_surface_t *surface, cairo_t *context,
+    const ImageBuffer &image,
+    const Vec2d &anchor_position, Anchor anchor,
+    double alpha, double scale_x, double scale_y,
+    double rotation, double clip_factor);
+
+
 void DrawLine(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const LineStyle &line_style);

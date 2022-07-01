@@ -133,6 +133,17 @@ public:
   }
 
 
+  void DrawImage(
+      ImageBuffer &image, const Vec2d &anchor_position,
+      const py::object &anchor, double alpha, double scale_x, double scale_y,
+      double rotation, double clip_factor) {
+    Anchor a = AnchorFromPyObject(anchor);
+    painter_->DrawImage(
+          image, anchor_position, a, alpha,
+          scale_x, scale_y, rotation, clip_factor);
+  }
+
+
   void DrawLine(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) {
@@ -671,6 +682,38 @@ void RegisterPainter(py::module &m) {
 
   //----------------------------------------------------------------------
   doc = R"docstr(
+      Overlays an image.
+
+      TODO doc clip_factor
+
+      Args:
+        image: The image as :class:`~viren2d.ImageBuffer` or :class:`numpy.ndarray`.
+        anchor: How to orient the text w.r.t. the ``anchor_position``.
+          Valid inputs are :class:`~viren2d.Anchor` enum values
+          and their string representations. For details, refer to the
+          ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
+        alpha: Opacity as :class:`float` :math:`\in [0,1]`, where ``1`` is fully
+          opaque and ``0`` is fully transparent.
+        scale_x: Horizontal scaling factor as :class:`float`.
+        scale_y: Vertical scaling factor as :class:`float`.
+        rotation: Clockwise rotation in degrees as :class:`float`.
+        clip_factor: TODO 0 < c <= 0.5 --> corner radius (see rounded rect), > 0.5 ellipse; <= 0 no clip
+
+      Example:
+        >>> #TODO
+      )docstr";
+  painter.def(
+        "draw_image", &PainterWrapper::DrawImage, doc.c_str(),
+        py::arg("image"), py::arg("anchor_position"),
+        py::arg("anchor") = Anchor::TopLeft,
+        py::arg("alpha") = 1.0,
+        py::arg("scale_x") = 1.0,
+        py::arg("scale_y") = 1.0,
+        py::arg("rotation") = 0.0,
+        py::arg("clip_factor") = 0.0);
+
+  //----------------------------------------------------------------------
+  doc = R"docstr(
       Draws a line.
 
       Args:
@@ -814,7 +857,7 @@ void RegisterPainter(py::module &m) {
           to anchor the text as :class:`~viren2d.Vec2d`.
         anchor: How to orient the text w.r.t. the ``anchor_position``.
           Valid inputs are :class:`~viren2d.Anchor` enum values
-          and string representations.
+          and their string representations.
 
           A string must correspond either to a *position
           specification* - *i.e.* ``center``, ``top``, ``top-right``,
@@ -863,19 +906,8 @@ void RegisterPainter(py::module &m) {
           to anchor the text as :class:`~viren2d.Vec2d`.
         anchor: How to orient the text w.r.t. the ``anchor_position``.
           Valid inputs are :class:`~viren2d.Anchor` enum values
-          and string representations.
-
-          A string must correspond either to a *position
-          specification* - *i.e.* ``center``, ``top``, ``top-right``,
-          ``right``, ``bottom-right``, ``bottom``, ``bottom-left``,
-          ``left``, or ``top-left`` - or one of the 8 *compass
-          directions* - *i.e.* ``north``, ``north-east``, ``east``,
-          ``south-east``, ``south``, ``south-west``, ``west``,
-          or ``north-west``).
-
-          Before parsing, the input string will be converted to
-          lowercase and any whitespaces, dashes & underscores will
-          be removed.
+          and string representations. For details, refer to the
+          ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
         text_style: A :class:`~viren2d.TextStyle`, specifying
           how to render the text.
         padding: Optional padding between text and the edges

@@ -139,8 +139,6 @@ ImageBuffer ConversionHelperGray(
 /// Selects the corresponding templated ConversionHelper
 inline ImageBuffer Gray2RGBx(
     const ImageBuffer &img, int num_channels_out) {
-  //FIXME maybe obsolete with typedef?
-  // We need to ensure the specializations are there!!!
   switch(img.BufferType()) {
     case ImageBufferType::UInt8:
       return ConversionHelperGray<uint8_t>(img, num_channels_out);
@@ -306,6 +304,12 @@ ImageBuffer RGBx2Gray(
 template <typename _Tp, int C>
 void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
   // Increase the block size at the edges of the ROI if needed:
+  SPDLOG_DEBUG(
+        "Pixelate {:s} with block_width={:d}, block_height={:d}",
+        roi.ToString(), block_width, block_height);
+  if ((block_width <= 0) || (block_height <= 0)) {
+    throw std::invalid_argument("Block width & height must be > 0 in `Pixelate`!");
+  }
   const int num_blocks_horz = roi.Width() / block_width;
   const int missed_horz = roi.Width() - (num_blocks_horz * block_width);
   const int extend_left = missed_horz / 2;
@@ -365,6 +369,177 @@ void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
     top += bheight;
   }
 }
+
+
+template <typename _Tp>
+void MinMaxLocation(
+    const ImageBuffer &buf, int channel,
+    double *min_val, double *max_val,
+    Vec2i *min_loc, Vec2i *max_loc) {
+  if ((channel < 0) || (channel >= buf.Channels())) {
+    std::ostringstream s;
+    s << "Cannot perform `MinMaxLocation` on channel " << channel
+      << " with a buffer that has " << buf.Channels() << " channels!";
+    throw std::out_of_range(s.str());
+  }
+
+  int rows = buf.Height();
+  int cols = buf.Width();
+  if (buf.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  _Tp _minval = buf.AtUnchecked<_Tp>(0, 0, channel);
+  _Tp _maxval = buf.AtUnchecked<_Tp>(0, 0, channel);
+  Vec2i _minloc{0, 0};
+  Vec2i _maxloc{0, 0};
+  // To report the image location, we need to keep track
+  // of it (in case we're working with a contiguous buffer...)
+  Vec2i curr_loc{0, -1};
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      curr_loc[0] = col % buf.Width();
+      if (curr_loc[0] == 0) {
+        ++curr_loc[1];
+      }
+      const _Tp val = buf.AtUnchecked<_Tp>(row, col, channel);
+      if (val < _minval) {
+        _minval = val;
+        _minloc = curr_loc;
+      }
+      if (val > _maxval) {
+        _maxval = val;
+        _maxloc = curr_loc;
+      }
+    }
+  }
+
+  if (min_val) {
+    *min_val = static_cast<double>(_minval);
+  }
+  if (max_val) {
+    *max_val = static_cast<double>(_maxval);
+  }
+  if (min_loc) {
+    *min_loc = _minloc;
+  }
+  if (max_loc) {
+    *max_loc = _maxloc;
+  }
+}
+
+
+template <typename _Tp>
+ImageBuffer Blend(
+    const ImageBuffer &src1,
+    const ImageBuffer &src2,
+    double alpha1) {
+  SPDLOG_DEBUG(
+        "Blending ImageBuffer {:s} and {:s} with alpha {:f}.",
+        src1.ToString(), src2.ToString(), alpha1);
+
+  if ((src1.Width() != src2.Width())
+      || (src1.Height() != src2.Height())
+      || (src1.BufferType() != src2.BufferType())) {
+    std::string s(
+          "Blending is only supported for ImageBuffers with same size and "
+          "type, but got: ");
+    s += src1.ToString();
+    s += " vs. ";
+    s += src2.ToString();
+    s += '!';
+    throw std::logic_error(s);
+  }
+
+  const int channels_out = std::max(src1.Channels(), src2.Channels());
+  const int channels_to_blend = std::min(src1.Channels(), src2.Channels());
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src1.Height(), src1.Width(), channels_out, src1.BufferType());
+
+  // If the number of input channels are not the same, we fill the result
+  // with values from the buffer that has more channels.
+  const ImageBuffer &rem_channels = (src1.Channels() > src2.Channels()) ? src1 : src2;
+
+  int rows = src1.Height();
+  int cols = src1.Width();
+  if (src1.IsContiguous() && src2.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  _Tp blended;
+
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      for (int ch = 0; ch < channels_out; ++ch) {
+        if (ch < channels_to_blend) {
+          blended = static_cast<_Tp>(
+                alpha1 * src1.AtUnchecked<_Tp>(row, col, ch)
+                + (1.0 - alpha1) * src2.AtUnchecked<_Tp>(row, col, ch));
+          dst.AtUnchecked<_Tp>(row, col, ch) = blended;
+        } else {
+          dst.AtUnchecked<_Tp>(row, col, ch) = rem_channels.AtUnchecked<_Tp>(row, col, ch);
+        }
+      }
+    }
+  }
+
+  return dst;
+}
+
+
+template <typename _Tp>
+ImageBuffer ToUInt8(const ImageBuffer &src, int channels_out, uint8_t scale) {
+  SPDLOG_DEBUG(
+        "Converting {:s} to {:d}-channel `uint8`, scale={}.",
+        src.ToString(), channels_out, (int)scale);
+
+  if ((channels_out < 1) || (channels_out == 2) || (channels_out > 4)
+      || (channels_out < src.Channels())) {
+    std::ostringstream s;
+    s << "Number of output channels must be 1, 3, or 4 and >= buffer channels (i.e. "
+      << src.Channels() << "), but requested: " << channels_out << '!';
+    throw std::invalid_argument(s.str());
+  }
+
+  if (src.BufferType() == ImageBufferType::UInt8) {
+    return src.ToChannels(channels_out);
+  }
+
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src.Height(), src.Width(), channels_out, ImageBufferType::UInt8);
+
+  int rows = src.Height();
+  int cols = src.Width();
+  // dst was freshly allocated, so it's guaranteed to be contiguous
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      for (int ch = 0; ch < channels_out; ++ch) {
+        if (ch < src.Channels()) {
+          dst.AtUnchecked<uint8_t>(row, col, ch) = static_cast<uint8_t>(
+                scale * src.AtUnchecked<_Tp>(row, col, ch));
+        } else {
+          if (ch == 3) {
+            dst.AtUnchecked<uint8_t>(row, col, ch) = 255;
+          } else {
+            dst.AtUnchecked<uint8_t>(row, col, ch) = *(dst.ImmutablePtr<uint8_t>(row, col, 0));
+          }
+        }
+      }
+    }
+  }
+
+
+
+  return dst;
+}
+
 } // namespace helpers
 
 
@@ -603,7 +778,7 @@ void ImageBuffer::CreateCopiedBuffer(
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
-  const int num_bytes = height * row_stride;//FIXME H*W*C*bytes
+  const int num_bytes = height * row_stride;//FIXME FIXME !!! H*W*C*bytes
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
   if (!data) {
     std::ostringstream s;
@@ -768,6 +943,38 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
 }
 
 
+ImageBuffer ImageBuffer::ToUInt8(int output_channels) const {
+  // FIXME: move sanity checks into the helpers!
+
+  if (!IsValid()) {
+    throw std::logic_error(
+          "Cannot convert an invalid ImageBuffer to `uint8`!");
+  }
+
+  switch (buffer_type) {
+    case ImageBufferType::UInt8:
+      return helpers::ToUInt8<uint8_t>(*this, output_channels, 1);
+
+    case ImageBufferType::Int16:
+      return helpers::ToUInt8<int16_t>(*this, output_channels, 1);
+
+    case ImageBufferType::Int32:
+      return helpers::ToUInt8<int32_t>(*this, output_channels, 1);
+
+    case ImageBufferType::Float:
+      return helpers::ToUInt8<float>(*this, output_channels, 255);
+
+    case ImageBufferType::Double:
+      return helpers::ToUInt8<double>(*this, output_channels, 255);
+  }
+
+  std::string s("ImageBufferType `");
+  s += ImageBufferTypeToString(buffer_type);
+  s += "` not handled in `ToUInt8` switch!";
+  throw std::logic_error(s);
+}
+
+
 ImageBuffer ImageBuffer::ToGrayscale(
     int output_channels, bool is_bgr_format) const {
   if (!IsValid()) {
@@ -853,6 +1060,44 @@ bool ImageBuffer::IsValid() const {
 }
 
 
+void ImageBuffer::MinMaxLocation(
+    double *min_val, double *max_val,
+    Vec2i *min_loc, Vec2i *max_loc,
+    int channel) const {
+  switch (buffer_type) {
+    case ImageBufferType::UInt8:
+      helpers::MinMaxLocation<uint8_t>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
+    case ImageBufferType::Int16:
+      helpers::MinMaxLocation<int16_t>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
+    case ImageBufferType::Int32:
+      helpers::MinMaxLocation<int32_t>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
+    case ImageBufferType::Float:
+      helpers::MinMaxLocation<float>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
+    case ImageBufferType::Double:
+      helpers::MinMaxLocation<double>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+  }
+
+  std::string s("Type `");
+  s += ImageBufferTypeToString(buffer_type);
+  s += "` was not handled in `MinMaxLocation` switch!";
+  throw std::logic_error(s);
+}
+
+
 std::string ImageBuffer::ToString() const {
   if (!IsValid()) {
     return "ImageBuffer(invalid)";
@@ -914,6 +1159,8 @@ ImageBuffer LoadImage(
 
   const int num_channels = (force_num_channels != STBI_default)
       ? force_num_channels : bytes_per_pixel;
+  //FIXME
+  SPDLOG_CRITICAL("STBI bytes per pixel: {:d}", bytes_per_pixel);
 
 
   // First, let ImageBuffer reuse the buffer (no separate memory allocation)
@@ -1104,10 +1351,39 @@ void Pixelate(
       }
   }
 
-  std::ostringstream s;
-  s << "Type `" << ImageBufferTypeToString(image.BufferType())
-    << "` was not handled in `Pixelate` switch!";
-  throw std::logic_error(s.str());
+  std::string s("Type `");
+  s += ImageBufferTypeToString(image.BufferType());
+  s += "` was not handled in `Pixelate` switch!";
+  throw std::logic_error(s);
+}
+
+
+ImageBuffer Blend(
+    const ImageBuffer &buf1, const ImageBuffer &buf2, double alpha1) {
+  switch(buf1.BufferType()) {
+    case ImageBufferType::UInt8:
+      return helpers::Blend<uint8_t>(buf1, buf2, alpha1);
+
+    case ImageBufferType::Int16:
+      return helpers::Blend<int16_t>(buf1, buf2, alpha1);
+
+    case ImageBufferType::Int32:
+      return helpers::Blend<int32_t>(buf1, buf2, alpha1);
+
+    case ImageBufferType::Float:
+      return helpers::Blend<float>(buf1, buf2, alpha1);
+
+    case ImageBufferType::Double:
+      return helpers::Blend<double>(buf1, buf2, alpha1);
+  }
+
+  // Throw an exception as fallback, because due to the default
+  // compiler settings, we would have ignored the warning about
+  // missing case values.
+  std::string s("Type `");
+  s += ImageBufferTypeToString(buf1.BufferType());
+  s += "` was not handled in `Blend` switch!";
+  throw std::logic_error(s);
 }
 
 } // namespace viren2d

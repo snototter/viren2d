@@ -193,6 +193,23 @@ protected:
   }
 
 
+  void DrawImageImpl(
+      const ImageBuffer &image,
+      const Vec2d &anchor_position, Anchor anchor,
+      double alpha, double scale_x, double scale_y,
+      double rotation, double clip_factor) override {
+    SPDLOG_DEBUG(
+          "DrawImage: {:s}, {:s} at {:s}, alpha={:.2f}, scale_x={:.2f}, "
+          "scale_y={:.2f}, rotation={:.2f}°, clip_factor={:.2f}.",
+          image.ToString(), AnchorToString(anchor), anchor_position.ToString(),
+          alpha, scale_x, scale_y, rotation, clip_factor);
+
+    helpers::DrawImage(
+          surface_, context_, image, anchor_position, anchor, alpha,
+          scale_x, scale_y, rotation, clip_factor);
+  }
+
+
   void DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) override {

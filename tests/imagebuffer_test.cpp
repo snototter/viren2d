@@ -359,6 +359,17 @@ TEST(ImageBufferTest, FloatBuffer) {
   EXPECT_EQ(sizeof(float), 4);
   EXPECT_EQ(4, viren2d::ElementSizeFromImageBufferType(viren2d::ImageBufferType::Float));
 
+  // MinMaxLocation test
+  double minval, maxval;
+  viren2d::Vec2i minloc, maxloc;
+  buffer.MinMaxLocation(&minval, &maxval, &minloc, &maxloc, 2);
+  EXPECT_EQ(minloc, viren2d::Vec2i(0, 0));
+  EXPECT_EQ(maxloc, viren2d::Vec2i(9, 4));
+  EXPECT_DOUBLE_EQ(minval, 2.0);
+  EXPECT_DOUBLE_EQ(maxval, buffer.NumElements() - 1.0);
+
+
+  // Check access via uchar vs float
   union U {
     std::uint8_t as_bytes[4];
     std::float_t as_float;
@@ -444,6 +455,22 @@ TEST(ImageBufferTest, GrayscaleDouble) {
   buf.AtChecked<double>(2, 0, 1) = 5678.0;
   buf.AtChecked<double>(2, 0, 2) = 9.0;
 
+  // Sidetrack: MinMaxLocation for double precision buffer
+  double minval, maxval;
+  viren2d::Vec2i minloc, maxloc;
+  buf.MinMaxLocation(&minval, &maxval, &minloc, &maxloc, 0);
+  EXPECT_EQ(minloc, viren2d::Vec2i(0, 1));
+  EXPECT_EQ(maxloc, viren2d::Vec2i(0, 2));
+  EXPECT_DOUBLE_EQ(minval, 0.1);
+  EXPECT_DOUBLE_EQ(maxval, 1234.0);
+
+  buf.MinMaxLocation(&minval, &maxval, &minloc, &maxloc, 2);
+  EXPECT_EQ(minloc, viren2d::Vec2i(0, 0));
+  EXPECT_EQ(maxloc, viren2d::Vec2i(0, 1));
+  EXPECT_DOUBLE_EQ(minval, 1.0);
+  EXPECT_DOUBLE_EQ(maxval, 100.0);
+
+  // Back to grayscale conversion
   viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
@@ -567,8 +594,6 @@ TEST(ImageBufferTest, GrayscaleUInt8) {
 
 TEST(ImageBufferTest, ROIInt16) {
   viren2d::ImageBuffer buf(2, 5, 3, viren2d::ImageBufferType::Int16);
-  EXPECT_EQ(buf.Columns(), 5);
-  EXPECT_EQ(buf.Rows(), 2);
   EXPECT_EQ(buf.Channels(), 3);
   EXPECT_EQ(buf.NumElements(), 2 * 5 * 3);
   EXPECT_EQ(buf.NumBytes(), 2 * 5 * 3 * sizeof(short));
@@ -580,8 +605,8 @@ TEST(ImageBufferTest, ROIInt16) {
         sizeof(viren2d::image_buffer_t<viren2d::ImageBufferType::Int16>));
 
 
-  for (int row = 0; row < buf.Rows(); ++row) {
-    for (int col = 0; col < buf.Columns(); ++col) {
+  for (int row = 0; row < buf.Height(); ++row) {
+    for (int col = 0; col < buf.Width(); ++col) {
       short val = row * buf.Width() + col;
       for (int ch = 0; ch < buf.Channels(); ++ch) {
         buf.AtChecked<int16_t>(row, col, ch) = val + (ch * buf.NumPixels());
@@ -595,8 +620,8 @@ TEST(ImageBufferTest, ROIInt16) {
   //TODO check other invalid rois (negative numbers, etc)
 
   viren2d::ImageBuffer roi = buf.ROI(1, 0, 2, 1);
-  EXPECT_EQ(roi.Columns(), 2);
-  EXPECT_EQ(roi.Rows(), 1);
+  EXPECT_EQ(roi.Width(), 2);
+  EXPECT_EQ(roi.Height(), 1);
   EXPECT_EQ(roi.Channels(), buf.Channels());
   EXPECT_FALSE(roi.IsContiguous());
   EXPECT_FALSE(roi.OwnsData());
@@ -616,8 +641,8 @@ TEST(ImageBufferTest, ROIInt16) {
 
 
   roi = buf.ROI(1, 0, 1, 2);
-  EXPECT_EQ(roi.Columns(), 1);
-  EXPECT_EQ(roi.Rows(), 2);
+  EXPECT_EQ(roi.Width(), 1);
+  EXPECT_EQ(roi.Height(), 2);
   EXPECT_FALSE(roi.IsContiguous());
   EXPECT_FALSE(roi.OwnsData());
 

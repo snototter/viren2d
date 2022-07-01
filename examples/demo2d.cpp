@@ -402,6 +402,8 @@ void DemoTrajectories() {
   auto painter = viren2d::CreatePainter();
   painter->SetCanvas(800, 800, viren2d::Color::White);
 
+  painter->DrawGrid({0, 0}, {0, 0}, 50, 50, {1});
+
   std::vector<viren2d::Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
   auto style = viren2d::LineStyle(5, "midnight-blue", {}, 0.0, viren2d::LineCap::Round);
   bool oldest_first = false;
@@ -589,7 +591,28 @@ void DemoConversionOpenCV() {
         roi.channels(), roi.step1(0),
         viren2d::ImageBufferType::UInt8, roi.step1(1));
 
-  viren2d::Pixelate(buf, 0, 50, 250, 200, 15, 23);
+  viren2d::ImageBuffer gray = buf.ToGrayscale(3);
+  viren2d::ImageBuffer blend = viren2d::Blend(buf, gray, 0.6);
+
+  {
+    cv::Mat cvtmp(blend.Height(), blend.Width(),
+                    CV_MAKETYPE(CV_8U, blend.Channels()),
+                    blend.MutableData(), blend.RowStride());
+
+      cv::imshow("Blend", cvtmp);
+  }
+
+
+  for (int ch = 0; ch < buf.Channels(); ++ch) {
+    double min, max;
+    viren2d::Vec2i minloc, maxloc;
+    buf.MinMaxLocation(&min, &max, &minloc, &maxloc, ch);
+    std::cout << "Channel " << ch << ", min at " << minloc << " ("
+              << min << "), max at " << maxloc << " (" << max << ")" << std::endl;
+  }
+  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
+  viren2d::LoadImage("/home/snototter/workspace/utilities/vito/examples/depth.png", 0);
+  viren2d::Pixelate(buf, 15, 23, 0, 50, 250, 200);
 //  viren2d::ImageBuffer buf_roi = buf.ROI(0, 50, 250, 200);
 //  for (int r = 0; r < buf_roi.Height(); ++r) {
 //    for (int c = 0; c < buf_roi.Width(); ++c) {

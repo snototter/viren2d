@@ -186,6 +186,20 @@ public:
   }
 
 
+  //TODO doc
+  void DrawImage(
+      const ImageBuffer &image,
+      const Vec2d &anchor_position,
+      Anchor anchor = Anchor::TopLeft,
+      double alpha = 1.0,
+      double scale_x = 1.0, double scale_y = 1.0,
+      double rotation = 0.0, double clip_factor = 0.0) {
+    DrawImageImpl(
+          image, anchor_position, anchor, alpha,
+          scale_x, scale_y, rotation, clip_factor);
+  }
+
+
   /**
    * @brief Draws a line.
    */
@@ -341,6 +355,14 @@ protected:
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) = 0;
+
+
+  /// Internal helper to enable default values in public interface.
+  virtual void DrawImageImpl(
+      const ImageBuffer &image,
+      const Vec2d &anchor_position, Anchor anchor,
+      double alpha, double scale_x, double scale_y,
+      double rotation, double clip_factor) = 0;
 
 
   /// Internal helper to enable default values in public interface.

@@ -404,7 +404,7 @@ LineStyle::LineStyle()
     join(LineJoin::Miter)
 {}
 
-
+//FIXME remove!
 LineStyle::LineStyle(std::initializer_list<double> values) {
   if (values.size() < 2) {
     *this = LineStyle();

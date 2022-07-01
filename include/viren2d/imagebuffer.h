@@ -10,7 +10,8 @@
 #include <algorithm> // std::min
 #include <initializer_list>
 
-#include <viren2d/colors.h>
+//#include <viren2d/colors.h>
+#include <viren2d/primitives.h>
 
 namespace viren2d {
 
@@ -103,21 +104,14 @@ public:
   /// Move assignment operator.
   ImageBuffer &operator=(ImageBuffer &&other) noexcept;
 
+  inline Vec2i Size() const { return Vec2i(width, height); }
 
   /// Returns the number of rows.
   inline int Height() const { return height; }
 
 
-  /// Alias for the height.
-  inline int Rows() const { return height; }
-
-
   /// Returns the number of pixels in each row.
   inline int Width() const { return width; }
-
-
-  /// Alias for the width.
-  inline int Columns() const { return width; }
 
 
   /// Number of values per pixel.
@@ -147,6 +141,7 @@ public:
 
   /// Returns the number of pixels, i.e. W*H.
   inline int NumPixels() const { return width * height; }
+
 
   /// Returns the number of elements (i.e. values of the
   /// chosen data type), i.e. W*H*C.
@@ -232,13 +227,10 @@ public:
   //TODO doc
   template <typename _Tp, typename... _Ts> inline
   void SetToPixel(_Tp element0, _Ts... elements) {
-//  void SetToPixel(std::initializer_list<_Tp> elements) {
     const int num_el = 1 + sizeof...(elements);
     const int num_channels = std::min(channels, num_el);
     const _Tp lst[num_el] = {element0, static_cast<_Tp>(elements)...};
-//    const int num_channels = std::min(
-//          channels, static_cast<int>(elements.size()));
-//    typename std::initializer_list<_Tp>::const_iterator lst = elements.begin();
+
     int rows = height;
     int cols = width;
 
@@ -291,7 +283,7 @@ public:
   void CreateSharedBuffer(
       unsigned char *buffer,
       int height, int width, int channels, int row_stride,
-      ImageBufferType buffer_type, int column_stride);
+      ImageBufferType buffer_type, int column_stride = -1);
 
 
   /// Copies the given image data.
@@ -307,7 +299,7 @@ public:
   void CreateCopiedBuffer(
       unsigned char const *buffer,
       int height, int width, int channels, int row_stride,
-      ImageBufferType buffer_type, int column_stride);
+      ImageBufferType buffer_type, int column_stride = -1);
 
 
   /// Returns a deep copy.
@@ -335,7 +327,19 @@ public:
   ImageBuffer ToChannels(int output_channels) const;
 
 
-  //TODO
+  /// Converts this buffer to `uint8_t`.
+  /// If the underlying type is `float` or `double`,
+  /// the values will be **multiplied by 255**. Otherwise,
+  /// the values will be clamped into [0, 255].
+  ///
+  /// The following channel configurations are supported:
+  /// * 1-channel buffer: output_channels either 1, 3, or 4
+  /// * 3-channel buffer: output_channels either 3 or 4
+  /// * 4-channel buffer: output_channels either 3 or 4
+  ImageBuffer ToUInt8(int output_channels) const;
+
+
+  //TODO doc
   ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format=false) const;
 
 
@@ -345,6 +349,14 @@ public:
 
   /// Returns true if this buffer points to a valid memory location.
   bool IsValid() const;
+
+
+  /// Computes the minimum & maximum values over a single channel.
+  /// To compute only the locations, pass nullptr for min_val/max_val.
+  void MinMaxLocation(
+      double *min_val, double *max_val,
+      Vec2i *min_loc = nullptr, Vec2i *max_loc = nullptr,
+      int channel = 0) const;
 
 
   /// Returns a human readable representation.
@@ -396,6 +408,7 @@ private:
   void Cleanup();
 
 
+  /// Checks that the given indices are valid.
   inline void CheckIndexedAccess(int row, int col, int channel) const {
     if ((row < 0) || (row >= height)
         || (col < 0) || (col >= width)
@@ -410,6 +423,7 @@ private:
   }
 
 
+  /// Returns the offset in bytes to the given indices.
   inline int ByteOffset(int row, int col, int channel) const {
     return (row * row_stride) + (col * column_stride) + (channel * element_size);
   }
@@ -417,7 +431,8 @@ private:
 
 
 //TODO test with 16bit png - should work according to stb, need to check
-// the imagebuffer setup
+// the imagebuffer setup --> requires different stbi interface! here, we
+// would need LoadImage8 & LoadImage16
 /**
  * @brief Loads an image from disk.
  *
@@ -462,6 +477,11 @@ void Pixelate(
     ImageBuffer &image,
     int block_width, int block_height,
     int roi_left, int roi_top, int roi_width, int roi_height);
+
+
+//TODO doc
+ImageBuffer Blend(
+    const ImageBuffer &buf1, const ImageBuffer &buf2, double alpha1);
 
 } // namespace viren2d
 
