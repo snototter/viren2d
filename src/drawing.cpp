@@ -5,10 +5,7 @@
 #include <cassert>
 #include <cstring> // memcpy
 #include <cstdlib> // atexit
-
-#include <math.h>
-
-#include <spdlog/spdlog.h>
+#include <cmath>
 
 #include <cairo/cairo.h>
 #include <werkzeugkiste/strings/strings.h>
@@ -22,63 +19,63 @@
 #include <helpers/drawing_helpers.h>
 #include <helpers/logging.h>
 
-// FIXME enable/disable logging (disable if spdlog is not installed - this should fix the public linkage issue with the 'install' target)
+//// FIXME enable/disable logging (disable if spdlog is not installed - this should fix the public linkage issue with the 'install' target)
 
-//-------------------------------------------------
-// Preprocessor macros to initialize the library
-// upon loading. This is needed to automatically
-// set up logging.
-// Included for convenience & because I wanted to
-// check on library initialization/unloading hooks.
-// The initialization code belongs in drawing.cpp,
-// because this will always be linked into the
-// library user's application.
-//
-// The macros are taken from:
-// https://stackoverflow.com/a/2390626/400948
+////-------------------------------------------------
+//// Preprocessor macros to initialize the library
+//// upon loading. This is needed to automatically
+//// set up logging.
+//// Included for convenience & because I wanted to
+//// check on library initialization/unloading hooks.
+//// The initialization code belongs in drawing.cpp,
+//// because this will always be linked into the
+//// library user's application.
+////
+//// The macros are taken from:
+//// https://stackoverflow.com/a/2390626/400948
 
-#ifdef __cplusplus
-    #define INITIALIZER(f) \
-        static void f(void); \
-        struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_; \
-        static void f(void)
-#elif defined(_MSC_VER)
-    #pragma section(".CRT$XCU",read)
-    #define INITIALIZER2_(f,p) \
-        static void f(void); \
-        __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
-        __pragma(comment(linker,"/include:" p #f "_")) \
-        static void f(void)
-    #ifdef _WIN64
-        #define INITIALIZER(f) INITIALIZER2_(f,"")
-    #else
-        #define INITIALIZER(f) INITIALIZER2_(f,"_")
-    #endif
-#else
-    #define INITIALIZER(f) \
-        static void f(void) __attribute__((constructor)); \
-        static void f(void)
-#endif
+//#ifdef __cplusplus
+//    #define INITIALIZER(f) \
+//        static void f(void); \
+//        struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_; \
+//        static void f(void)
+//#elif defined(_MSC_VER)
+//    #pragma section(".CRT$XCU",read)
+//    #define INITIALIZER2_(f,p) \
+//        static void f(void); \
+//        __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
+//        __pragma(comment(linker,"/include:" p #f "_")) \
+//        static void f(void)
+//    #ifdef _WIN64
+//        #define INITIALIZER(f) INITIALIZER2_(f,"")
+//    #else
+//        #define INITIALIZER(f) INITIALIZER2_(f,"_")
+//    #endif
+//#else
+//    #define INITIALIZER(f) \
+//        static void f(void) __attribute__((constructor)); \
+//        static void f(void)
+//#endif
 
 
 //-------------------------------------------------
 
 namespace viren2d {
 
-void shutdown() {
-  SPDLOG_DEBUG("Shutting down the viren2d++ library.");
-  spdlog::shutdown();
-}
+//void shutdown() {
+//  SPDLOG_DEBUG("Shutting down the viren2d++ library.");
+//  spdlog::shutdown();
+//}
 
 
-INITIALIZER(initialize) {
-//  spdlog::set_level(spdlog::level::trace);
-//  spdlog::set_pattern("[%l][%@, %!] %v");
-  spdlog::set_level(viren2d_ACTIVE_SPDLOG_LEVEL); //TODO change (cmake variable) to default info/warn before release
-  SPDLOG_DEBUG("Initializing the viren2d++ library.");
+//INITIALIZER(initialize) {
+////  spdlog::set_level(spdlog::level::trace);
+////  spdlog::set_pattern("[%l][%@, %!] %v");
+//  spdlog::set_level(viren2d_ACTIVE_SPDLOG_LEVEL); //TODO change (cmake variable) to default info/warn before release
+//  SPDLOG_DEBUG("Initializing the viren2d++ library.");
 
-  std::atexit(shutdown);
-}
+//  std::atexit(shutdown);
+//}
 
 
 //TODO refactor -> PainterImpl, outsource surface handling (SVG vs Image)
@@ -588,22 +585,27 @@ ImageBuffer ImagePainter::GetCanvas(bool copy) const {
 
   assert(cairo_image_surface_get_format(surface_) == CAIRO_FORMAT_ARGB32);
   const int channels = 4;
+  // For CAIRO_FORMAT_ARGB32, the pixel stride is 4 bytes, i.e. the
+  // number of channels
 
   unsigned char *data = cairo_image_surface_get_data(surface_);
   const int width = cairo_image_surface_get_width(surface_);
   const int height = cairo_image_surface_get_height(surface_);
-  const int stride = cairo_image_surface_get_stride(surface_);
+  const int row_stride = cairo_image_surface_get_stride(surface_);
 
   ImageBuffer buffer;
   if (copy) {
     buffer.CreateCopiedBuffer(
-          data, height, width, channels, stride, ImageBufferType::UInt8, -1);
+          data, height, width, channels,
+          row_stride, channels, ImageBufferType::UInt8);
   } else {
     buffer.CreateSharedBuffer(
-          data, height, width, channels, stride, ImageBufferType::UInt8, -1);
+          data, height, width, channels,
+          row_stride, channels, ImageBufferType::UInt8);
   }
   return buffer;
 }
+
 
 std::unique_ptr<Painter> CreatePainter() {
   SPDLOG_DEBUG("Creating image painter.");

@@ -15,11 +15,7 @@ void DrawImage(
     double rotation, double clip_factor) {
   CheckCanvas(surface, context);
 
-  //TODO ToUInt8(num_channels) would be useful
-  // floats will be scaled, others are taken as is
-  // or only accept uint8 here?
-
-  ImageBuffer img4 = image.ToUInt8(4); //image.ToChannels(4);
+  ImageBuffer img4 = image.ToUInt8(4);
 
   cairo_save(context);
   cairo_translate(context, anchor_position.x(), anchor_position.y());

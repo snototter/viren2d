@@ -226,7 +226,7 @@ void DemoCircles() {
 
   auto style = viren2d::LineStyle(3, "navy-blue!90");
 
-  viren2d::SetLogLevel("trace");
+//  viren2d::SetLogLevel("trace");
   painter->DrawCircle({100, 100}, 50, style, "red");
 
   style.dash_pattern = {20, 15};
@@ -588,8 +588,8 @@ void DemoConversionOpenCV() {
   viren2d::ImageBuffer buf;
   buf.CreateSharedBuffer(
         roi.data, roi.rows, roi.cols,
-        roi.channels(), roi.step1(0),
-        viren2d::ImageBufferType::UInt8, roi.step1(1));
+        roi.channels(), roi.step1(0), roi.step1(1),
+        viren2d::ImageBufferType::UInt8);
 
   viren2d::ImageBuffer gray = buf.ToGrayscale(3);
   viren2d::ImageBuffer blend = viren2d::Blend(buf, gray, 0.6);
@@ -610,7 +610,7 @@ void DemoConversionOpenCV() {
     std::cout << "Channel " << ch << ", min at " << minloc << " ("
               << min << "), max at " << maxloc << " (" << max << ")" << std::endl;
   }
-  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
+//  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
   viren2d::LoadImage("/home/snototter/workspace/utilities/vito/examples/depth.png", 0);
   viren2d::Pixelate(buf, 15, 23, 0, 50, 250, 200);
 //  viren2d::ImageBuffer buf_roi = buf.ROI(0, 50, 250, 200);
@@ -628,7 +628,9 @@ void DemoConversionOpenCV() {
   viren2d::ImageBuffer img_buf;
   img_buf.CreateSharedBuffer(
         roi.data, roi.rows, roi.cols,
-        roi.channels(), roi.step1(0), viren2d::ImageBufferType::UInt8, roi.step1(1));
+        roi.channels(), roi.step1(0), roi.step1(1),
+
+        viren2d::ImageBufferType::UInt8);
   img_buf.SwapChannels(0, 2);
 
   // Now, use the ImageBuffer to set up a canvas and

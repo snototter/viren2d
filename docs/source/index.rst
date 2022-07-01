@@ -62,8 +62,10 @@ both **C++ and Python** environments.
    * |unchecked| Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
    * |checked| Circles
    * |checked| Ellipses
+   * |unchecked| Image overlay - WIP
    * |checked| Lines
    * |checked| Markers
+   * |unchecked| Pixelation - WIP
    * |unchecked| Polygons - WIP (implemented, but not fully tested/documented)
    * |checked| Rectangles
    * |unchecked| Text (single-/multi-line) - WIP (implemented, but not fully tested/documented)
@@ -72,10 +74,8 @@ both **C++ and Python** environments.
 
 **Which features are to come in the future?**
 
-   * |unchecked| Anonymization
    * |unchecked| Bounding Boxes (3D)
-   * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...
-   * |unchecked| Image overlay
+   * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...   
    * |unchecked| Pose estimation results
    * |unchecked| Pseudocoloring
 

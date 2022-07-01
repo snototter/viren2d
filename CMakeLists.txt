@@ -13,11 +13,9 @@ endif()
 # Set up the project
 project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
 
-#TODO cmake dependency graph for debugging: set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
 # -----------------------------------------------------------------------------
 # C++ library and CMake namespace is "viren2d++""
 # Python bindings/library is "viren2d"
-set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
 set(TARGET_CPP_LIB  ${PROJECT_NAME}++)
 set(TARGET_CPP_TEST ${PROJECT_NAME}-test)
 set(TARGET_CPP_DEMO demo-${PROJECT_NAME})
@@ -31,8 +29,9 @@ option(viren2d_BUILD_DEMO "Build C++ demo." OFF)
 option(viren2d_BUILD_PYTHON "Build Python bindings." OFF)
 option(viren2d_BUILD_TESTS "Build test suite." OFF)
 option(viren2d_INSTALL "Configure installation target." OFF)
-set(viren2d_LOG_LEVEL "info" CACHE STRING "Select log level")
-set_property(CACHE viren2d_LOG_LEVEL PROPERTY STRINGS disable trace debug info warn error)
+
+#set(viren2d_LOG_LEVEL "info" CACHE STRING "Select log level")
+#set_property(CACHE viren2d_LOG_LEVEL PROPERTY STRINGS disable trace debug info warn error)
 
 
 # -----------------------------------------------------------------------------
@@ -54,8 +53,6 @@ set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # Only std c++14, not gnu++14
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO(cmake-improvement) gcc vs msvc vs... currently assumes linux, check CMakeLists of werkzeugkiste or spdlog!
-#FIXME above line needs to check env[CXX_FLAGS] (for gcov, we need: -fprofile-arcs -ftest-coverage)
-message(WARNING "cpp flags: ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -85,12 +82,12 @@ configure_file(
 
 set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
+    include/viren2d/colormaps.h
     include/viren2d/drawing.h
     include/viren2d/imagebuffer.h
     include/viren2d/primitives.h
     include/viren2d/positioning.h
     include/viren2d/styles.h
-    include/viren2d/logging.h
     include/viren2d/version.h
     include/viren2d/viren2d.h)
 
@@ -98,6 +95,7 @@ set(viren2d_PUBLIC_HEADER_FILES
 set(viren2d_PRIVATE_HEADER_FILES
     src/helpers/logging.h
     src/helpers/drawing_helpers.h
+    src/helpers/imagebuffer_helpers.impl.h
     src/helpers/enum.h)
 
 
@@ -106,11 +104,11 @@ set(viren2d_PRIVATE_HEADER_FILES
 set(viren2d_SOURCE_FILES
     src/primitives.cpp
     src/colors.cpp
+    src/colormaps.cpp
     src/drawing.cpp
     src/imagebuffer.cpp
     src/positioning.cpp
     src/styles.cpp
-    src/helpers/logging.cpp
     src/helpers/drawing_helpers_text.cpp
     src/helpers/drawing_helpers_image.cpp
     src/helpers/drawing_helpers_surveillance.cpp
@@ -137,35 +135,34 @@ set_target_properties(${TARGET_CPP_LIB}
 # -----------------------------------------------------------------------------
 # Change CMake user option to preprocessor definitions
 
-# Set the user-configured log level (so we can disable verbose levels at compile time)
-if(${viren2d_LOG_LEVEL} STREQUAL "trace")
-    target_compile_definitions(${TARGET_CPP_LIB}
-        PRIVATE viren2d_LOG_LEVEL_TRACE)
-elseif(${viren2d_LOG_LEVEL} STREQUAL "debug")
-    target_compile_definitions(${TARGET_CPP_LIB}
-        PRIVATE viren2d_LOG_LEVEL_DEBUG)
-elseif(${viren2d_LOG_LEVEL} STREQUAL "info")
-    target_compile_definitions(${TARGET_CPP_LIB}
-        PRIVATE viren2d_LOG_LEVEL_INFO)
-elseif(${viren2d_LOG_LEVEL} STREQUAL "warn")
-    target_compile_definitions(${TARGET_CPP_LIB}
-        PRIVATE viren2d_LOG_LEVEL_WARN)
-elseif(${viren2d_LOG_LEVEL} STREQUAL "error")
-    target_compile_definitions(${TARGET_CPP_LIB}
-        PRIVATE viren2d_LOG_LEVEL_ERROR)
-elseif(${viren2d_LOG_LEVEL} STREQUAL "disable")
-    target_compile_definitions(${TARGET_CPP_LIB}
-        PRIVATE viren2d_LOG_LEVEL_OFF)
-else()
-    message(FATAL_ERROR "[viren2d] Invalid viren2d_LOG_LEVEL value (${viren2d_LOG_LEVEL})")
-endif()
+#TODO remove
+## Set the user-configured log level (so we can disable verbose levels at compile time)
+#if(${viren2d_LOG_LEVEL} STREQUAL "trace")
+#    target_compile_definitions(${TARGET_CPP_LIB}
+#        PRIVATE viren2d_LOG_LEVEL_TRACE)
+#elseif(${viren2d_LOG_LEVEL} STREQUAL "debug")
+#    target_compile_definitions(${TARGET_CPP_LIB}
+#        PRIVATE viren2d_LOG_LEVEL_DEBUG)
+#elseif(${viren2d_LOG_LEVEL} STREQUAL "info")
+#    target_compile_definitions(${TARGET_CPP_LIB}
+#        PRIVATE viren2d_LOG_LEVEL_INFO)
+#elseif(${viren2d_LOG_LEVEL} STREQUAL "warn")
+#    target_compile_definitions(${TARGET_CPP_LIB}
+#        PRIVATE viren2d_LOG_LEVEL_WARN)
+#elseif(${viren2d_LOG_LEVEL} STREQUAL "error")
+#    target_compile_definitions(${TARGET_CPP_LIB}
+#        PRIVATE viren2d_LOG_LEVEL_ERROR)
+#elseif(${viren2d_LOG_LEVEL} STREQUAL "disable")
+#    target_compile_definitions(${TARGET_CPP_LIB}
+#        PRIVATE viren2d_LOG_LEVEL_OFF)
+#else()
+#    message(FATAL_ERROR "[viren2d] Invalid viren2d_LOG_LEVEL value (${viren2d_LOG_LEVEL})")
+#endif()
 
 
 ###############################################################################
 # Dependencies
 ###############################################################################
-
-# TODO(cmake-housekeeping) instead of fetchcontent, spdlog should be added like stb!
 
 # The ./cmake subfolder contains a custom FindCairo module
 # TODO(windows-support) the current FindCairo version will *NOT* work

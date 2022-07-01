@@ -127,7 +127,7 @@ public:
   /// Number of bytes between subsequent pixels.
   /// On a freshly allocated buffer, this
   /// equals `num_channels * item_size`.
-  inline int ColumnStride() const { return column_stride; }
+  inline int PixelStride() const { return pixel_stride; }
 
 
   /// Returns the size in bytes of a single element/value.
@@ -166,7 +166,7 @@ public:
   /// Returns true if the underlying `data` memory is contiguous.
   inline bool IsContiguous() const {
     return (row_stride == width * channels * element_size)
-        && (column_stride == channels * element_size);
+        && (pixel_stride == channels * element_size);
   }
 
 
@@ -283,7 +283,7 @@ public:
   void CreateSharedBuffer(
       unsigned char *buffer,
       int height, int width, int channels, int row_stride,
-      ImageBufferType buffer_type, int column_stride = -1);
+      int pixel_stride, ImageBufferType buffer_type);
 
 
   /// Copies the given image data.
@@ -299,7 +299,7 @@ public:
   void CreateCopiedBuffer(
       unsigned char const *buffer,
       int height, int width, int channels, int row_stride,
-      ImageBufferType buffer_type, int column_stride = -1);
+      int pixel_stride, ImageBufferType buffer_type);
 
 
   /// Returns a deep copy.
@@ -392,8 +392,8 @@ private:
   /// Number of bytes between subsequent rows.
   int row_stride;
 
-  /// Number of bytes between subsequent columns.
-  int column_stride;
+  /// Number of bytes between subsequent pixels.
+  int pixel_stride;
 
   /// This buffer's data type.
   ImageBufferType buffer_type;
@@ -425,7 +425,7 @@ private:
 
   /// Returns the offset in bytes to the given indices.
   inline int ByteOffset(int row, int col, int channel) const {
-    return (row * row_stride) + (col * column_stride) + (channel * element_size);
+    return (row * row_stride) + (col * pixel_stride) + (channel * element_size);
   }
 };
 

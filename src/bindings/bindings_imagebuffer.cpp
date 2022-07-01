@@ -86,11 +86,11 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   if (copy) {
     img.CreateCopiedBuffer(
           static_cast<unsigned char const*>(buf.data()),
-          height, width, channels, row_stride, buffer_type, col_stride);
+          height, width, channels, row_stride, col_stride, buffer_type);
   } else {
     img.CreateSharedBuffer(
           static_cast<unsigned char*>(buf.mutable_data()),
-          height, width, channels, row_stride, buffer_type, col_stride);
+          height, width, channels, row_stride, col_stride, buffer_type);
   }
 
   return img;
@@ -132,7 +132,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
         static_cast<std::size_t>(img.Width()),
         static_cast<std::size_t>(img.Channels()) }, // Buffer dimensions
       { static_cast<std::size_t>(img.RowStride()),
-        static_cast<std::size_t>(img.ColumnStride()),
+        static_cast<std::size_t>(img.PixelStride()),
         static_cast<std::size_t>(img.ElementSize()) } // Strides (in bytes) per dimension
   );
 }
@@ -283,9 +283,9 @@ void RegisterImageBuffer(py::module &m) {
         &ImageBuffer::RowStride,
         "int: Stride in bytes per row (read-only).")
       .def_property_readonly(
-        "column_stride",
-        &ImageBuffer::ColumnStride,
-        "int: Stride in bytes per column (read-only).")
+        "pixel_stride",
+        &ImageBuffer::PixelStride,
+        "int: Stride in bytes per pixel (read-only).")
       .def_property_readonly(
         "owns_data",
         &ImageBuffer::OwnsData,
@@ -313,7 +313,7 @@ void RegisterImageBuffer(py::module &m) {
 
   m.def("save_image",
         &SaveImage, R"docstr(
-        Stores an image to disk as either JPEG or PNG.
+        Stores an 8-bit image to disk as either JPEG or PNG.
 
         Note that PNG output will usually result in 20-50% larger files in
         comparison to optimized PNG libraries.
@@ -332,7 +332,7 @@ void RegisterImageBuffer(py::module &m) {
 
   m.def("load_image",
         &LoadImage, R"docstr(
-        Reads an image from disk.
+        Reads an 8-bit image from disk.
 
         This functionality uses the
         `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`__
