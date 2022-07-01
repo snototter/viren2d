@@ -142,10 +142,12 @@ void RegisterImageBuffer(py::module &m) {
   py::class_<ImageBuffer> imgbuf(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
         Encapsulates image data.
 
-        This class is used to pass images between the consuming
+        This class is primarily used to pass images between the client
         application and ``viren2d``. Supported data types are:
         :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.int32`,
         :class:`numpy.float32`, and :class:`numpy.float64`.
+        Additionally, it provides several basic image manipulation methods
+        to adjust an image quickly for visualization.
 
         The *ImageBuffer* implements the standard Python buffer protocol
         and can thus be swiftly converted to/from other buffer types,

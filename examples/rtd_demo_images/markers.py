@@ -5,12 +5,13 @@ import viren2d
 def demo_markers():
     # Set up empty canvas:
     painter = viren2d.Painter()
-    painter.set_canvas_rgb(width=600, height=310, color='white!0')
+    painter.set_canvas_rgb(
+        width=600, height=310, color=viren2d.RGBa(26, 28, 29))
 
     # Style specifications:
-    text_style = viren2d.TextStyle(color=(0.3, 0.3, 0.3))
+    text_style = viren2d.TextStyle(color=viren2d.RGBa(192, 186, 177))
     marker_style = viren2d.MarkerStyle(
-        size=25, thickness=1, color='navy-blue')
+        size=25, thickness=1, color='azure!80')
 
     def prepare_display_row(y1, y2, y3):
         text_style.family = 'xkcd'

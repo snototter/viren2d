@@ -68,7 +68,7 @@ def demo_ellipses():
 def demo_arrows():
     # Set up empty canvas:
     painter = viren2d.Painter()
-    painter.set_canvas_rgb(400, 200, color='white!0')
+    painter.set_canvas_rgb(height=200, width=400, color='white!0')
 
     # Style specification:
     arrow_style = viren2d.ArrowStyle(

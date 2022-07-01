@@ -14,7 +14,7 @@ def demo_line_cap():
         family='xkcd', size=18, color='white')
 
     line_style = viren2d.LineStyle(
-        width=29, color='navy-blue!80')
+        width=29, color='azure!80')
 
     y = 20
     line_style.cap = 'butt'
@@ -53,16 +53,16 @@ def demo_line_join():
     # Set up empty canvas:
     painter = viren2d.Painter()
     canvas_width = 400
-    canvas_height = 240
+    canvas_height = 200
     painter.set_canvas_rgb(
         width=canvas_width, height=canvas_height, color='white!0')
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=18, color=(0.3, 0.3, 0.3))
+        family='xkcd', size=18, color='white')
 
     line_style = viren2d.LineStyle(
-        width=49, color='navy-blue!80')
+        width=49, color='azure!80')
     
     # Draw polygons with different line join styles:
     poly = [(40, 20), (120, 100), (40, 180)]
@@ -70,24 +70,24 @@ def demo_line_join():
     painter.draw_polygon(poly, line_style)
 
     painter.draw_text(
-        [str(line_style.join)], (80, 210),
-        'north', text_style)
+        [str(line_style.join)], (80, 140),
+        'center', text_style, rotation=-45)
 
     poly = [(p[0] + 120, p[1]) for p in poly]
     line_style.join = 'bevel'
     painter.draw_polygon(poly, line_style)
 
     painter.draw_text(
-        [str(line_style.join)], (200, 210),
-        'north', text_style)
+        [str(line_style.join)], (200, 140),
+        'center', text_style, rotation=-45)
 
     poly = [(p[0] + 120, p[1]) for p in poly]
     line_style.join = 'round'
     painter.draw_polygon(poly, line_style)
 
     painter.draw_text(
-        [str(line_style.join)], (320, 210),
-        'north', text_style)
+        [str(line_style.join)], (320, 140),
+        'center', text_style, rotation=-45)
 
     # Return the visualization as a NumPy buffer (let NumPy take care of
     # the memory copy):
