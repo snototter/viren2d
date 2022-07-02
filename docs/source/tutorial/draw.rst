@@ -26,6 +26,7 @@ Once you've set up the painter, you can start drawing:
 
       draw-primitives
       draw-markers
+      draw-image
       draw-tracking-by-detection
       draw-poses
       draw-3d-results

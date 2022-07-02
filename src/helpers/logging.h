@@ -3,18 +3,18 @@
 
 
 #ifdef viren2d_ENABLE_LOGGING
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
+#  include <spdlog/spdlog.h>
+#  include <spdlog/fmt/ostr.h>
 
 // TODO add cmake options to set log levels & disable debug:
 // https://github.com/gabime/spdlog/wiki/0.-FAQ#how-to-remove-all-debug-statements-at-compile-time-
 // different log levels (nice concise summary) - https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
 //TODO Decide whether to trace each method invocation - or debug-log the "most" important (preference: trace each call, so we can actually trace what's going on if it should ever break)
 
-#if defined(SPDLOG_ACTIVE_LEVEL)
-#undef SPDLOG_ACTIVE_LEVEL
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
-#endif  // unset SPDLOG_ACTIVE_LEVEL
+#  if defined(SPDLOG_ACTIVE_LEVEL)
+#    undef SPDLOG_ACTIVE_LEVEL
+#    define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+#  endif  // unset SPDLOG_ACTIVE_LEVEL
 
 //#if defined(viren2d_LOG_LEVEL_TRACE)
 //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
@@ -46,10 +46,11 @@
 //#error "No valid viren2d_LOG_LEVEL_xxx parameter has been specified."
 //#endif  // viren2d_LOG_LEVEL definition
 
+#  else  // viren2d_ENABLE_LOGGING
+#    define SPDLOG_TRACE(...) (void)0
+#    define SPDLOG_DEBUG(...) (void)0
+#    define SPDLOG_INFO(...) (void)0
+#    define SPDLOG_WARN(...) (void)0
+#    define SPDLOG_CRITICAL(...) (void)0
 #endif  // viren2d_ENABLE_LOGGING
-#  define SPDLOG_TRACE(...) (void)0
-#  define SPDLOG_DEBUG(...) (void)0
-#  define SPDLOG_INFO(...) (void)0
-#  define SPDLOG_WARN(...) (void)0
-#  define SPDLOG_CRITICAL(...) (void)0
 #endif  // __VIREN2D_HELPERS_LOGGING_H__

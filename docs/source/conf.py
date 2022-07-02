@@ -110,8 +110,7 @@ def autodoc_skip_member(app, what, name, obj, would_skip, options):
 
 
 # Provides a summary table with links to the most important
-# interface functionality, e.g. Painter.draw_xxx methods, maybe later
-# on pseudocoloring, ...
+# interface functionality, i.e. Painter.draw_xxx methods.
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import StringList

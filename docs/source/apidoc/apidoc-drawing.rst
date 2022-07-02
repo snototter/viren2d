@@ -20,12 +20,9 @@ Painter
 Image I/O
 ~~~~~~~~~
 
-.. note::
-   The image I/O functions are only provided for convenience.
-   Their capabilities are quite limited in comparison to specialized image
-   processing libraries, *i.e.* only loading/storing 8-bit images is
-   supported.
+The image I/O functions are quite limited in comparison to specialized image
+processing libraries, *i.e.* only loading/saving 8-bit images is supported.
 
-.. autofunction:: viren2d.load_image
+.. autofunction:: viren2d.load_image_uint8
 
-.. autofunction:: viren2d.save_image
+.. autofunction:: viren2d.save_image_uint8

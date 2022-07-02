@@ -4,6 +4,38 @@
 Installation
 ============
 
+-----------------
+Operating Systems
+-----------------
+
+Currently, the main target operating systems are GNU/Linux distributions.
+There are, however, no platform-specific components in ``viren2d`` and all
+dependencies and build tools are available for Unix, Mac and Windows.
+Please let me know if you've set it up on any other platform, so I can update
+the installation instructions accordingly.
+
+
+   .. important::
+      **Windows:** There is no official CMake package configuration for Cairo and
+      `the one included with <https://github.com/snototter/viren2d/blob/main/cmake/FindCairo.cmake>`__
+      ``viren2d`` uses a *hard-coded* search path, *i.e.*
+      ``${CMAKE_CURRENT_LIST_DIR}/libs/cairo-windows``. You will have to adjust
+      this path or use your own `FindCairo.cmake`.
+      
+      If you find a simple setup/build workflow for Windows, please drop me a line
+      or `consider creating a PR <https://github.com/snototter/viren2d/pulls>`__
+      to update the installation instructions for future users.
+
+
+   .. important::
+      **Ubuntu:** If you run `Ubuntu<=18.04`, you need to install CMake via  
+      `Kitware's APT repository <https://apt.kitware.com/>`__. The default
+      software repository is stuck at CMake version *3.10*.
+
+      From Ubuntu 20.04 on, everything works out-of-the-box. Note, however,
+      I only tested on the LTS versions.
+
+
 ------------
 Requirements
 ------------
@@ -25,11 +57,6 @@ must be set up manually:
     
     # On Fedora & openSUSE distributions, you need to install the same
     # packages via your package manager, i.e. `yum` or `zypper`.
-    
-  .. note::
-     If you run **Ubuntu 18.04**, the default software repository is stuck at
-     CMake version `3.10`. To get a more recent version, install CMake via
-     `Kitware's APT repository <https://apt.kitware.com/>`__.
 
 * The `Cairo 2D graphics library <https://www.cairographics.org/download>`__.
 
@@ -49,7 +76,10 @@ must be set up manually:
 
   * `Python \>= 3.6 <https://www.python.org/>`_, along with its development
     library, *i.e.* system package ``python3-dev`` on Linux/macOS.
-  * Currently, the Python bindings are only tested with
+
+    On Windows, please follow the setup instructions of
+    `pybind11 <https://pybind11.readthedocs.io/en/stable/basics.html>`__.
+  * Python's standard package installer
     `pip \>= 10.0.0 <https://pypi.org/project/pip/>`_.
   * The only runtime dependency is `NumPy \>= 1.7.0 <https://numpy.org/>`_.
 

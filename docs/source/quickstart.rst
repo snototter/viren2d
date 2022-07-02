@@ -9,5 +9,5 @@ Quickstart
 
    tutorial/basics
    tutorial/draw
-   tutorial/pseudocolor
+   tutorial/colormaps
    tutorial/conversion

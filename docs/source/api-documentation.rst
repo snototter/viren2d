@@ -69,8 +69,8 @@ API Documentation
    .. autosummary::
       :nosignatures:
 
-      viren2d.load_image
-      viren2d.save_image
+      viren2d.load_image_uint8
+      viren2d.save_image_uint8
 
 
 **Style Definitions:**

@@ -336,7 +336,7 @@ void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
               roi.AtUnchecked<_Tp>(cy, cx, 2),
               roi.AtUnchecked<_Tp>(cy, cx, 3));
       } else {
-        throw std::logic_error("Pixelization helper only supports up to 4 channels!");
+        throw std::logic_error("Pixelation helper only supports up to 4 channels!");
       }
 
       left += bwidth;

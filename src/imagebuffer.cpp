@@ -569,7 +569,7 @@ void ImageBuffer::Pixelate(
           helpers::Pixelate<uint8_t, 4>(roi, block_width, block_height);
         } else {
           std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
+          s << "Pixelation is only supported for up to 4-channel "
                "images, but this `uint8_t` ImageBuffer has "
             << channels << '!';
           throw std::logic_error(s.str());
@@ -588,7 +588,7 @@ void ImageBuffer::Pixelate(
           helpers::Pixelate<int16_t, 4>(roi, block_width, block_height);
         } else {
           std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
+          s << "Pixelation is only supported for up to 4-channel "
                "images, but this `int16_t` ImageBuffer has "
             << channels << '!';
           throw std::logic_error(s.str());
@@ -607,7 +607,7 @@ void ImageBuffer::Pixelate(
           helpers::Pixelate<int32_t, 4>(roi, block_width, block_height);
         } else {
           std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
+          s << "Pixelation is only supported for up to 4-channel "
                "images, but this `int32_t` ImageBuffer has "
             << channels << '!';
           throw std::logic_error(s.str());
@@ -626,7 +626,7 @@ void ImageBuffer::Pixelate(
           helpers::Pixelate<float, 4>(roi, block_width, block_height);
         } else {
           std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
+          s << "Pixelation is only supported for up to 4-channel "
                "images, but this `float` ImageBuffer has "
             << channels << '!';
           throw std::logic_error(s.str());
@@ -645,7 +645,7 @@ void ImageBuffer::Pixelate(
           helpers::Pixelate<double, 4>(roi, block_width, block_height);
         } else {
           std::ostringstream s;
-          s << "Pixelization is only supported for up to 4-channel "
+          s << "Pixelation is only supported for up to 4-channel "
                "images, but this `float` ImageBuffer has "
             << channels << '!';
           throw std::logic_error(s.str());
@@ -811,11 +811,11 @@ void ImageBuffer::Cleanup() {
 }
 
 
-ImageBuffer LoadImageUint8(
+ImageBuffer LoadImageUInt8(
     const std::string &image_filename,
     int force_num_channels) {
   SPDLOG_DEBUG(
-        "ImageBuffer::LoadImage(\"{:s}\", force_num_channels={:d}).",
+        "LoadImageUInt8: \"{:s}\", force_num_channels={:d}.",
         image_filename, force_num_channels);
 
   int width, height, bytes_per_pixel;
@@ -855,7 +855,7 @@ void SaveImageUInt8(
     const std::string &image_filename,
     const ImageBuffer &image) {
   SPDLOG_DEBUG(
-        "ImageBuffer::SaveImage(\"{:s}\", {:s}).",
+        "SaveImage: \"{:s}\", {:s}.",
         image_filename, image);
 
   int stb_result = 0; // stb return code 0 indicates failure

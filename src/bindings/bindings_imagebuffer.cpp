@@ -164,10 +164,10 @@ void RegisterImageBuffer(py::module &m) {
         py::init(&CreateImageBuffer), R"docstr(
         Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
 
-        Currently, only conversion from/to NumPy arrays with
-        :class:`numpy.dtype` = :class:`numpy.uint8` is supported.
-        This will change once I get around to implementing the
-        pseudocoloring functionality in ``viren2d``.
+        Note that the :class:`numpy.ndarray` must be C-contiguous, see its
+        :attr:`numpy.ndarray.flags`. If it is not, create a
+        :meth:`numpy.ndarray.copy` before passing into any viren2d
+        function.
 
         Args:
           array: The :class:`numpy.ndarray` holding the image data.

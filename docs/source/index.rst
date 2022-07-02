@@ -76,8 +76,9 @@ both **C++ and Python** environments.
 
    * |unchecked| Bounding Boxes (3D)
    * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...   
+   * |unchecked| Colormaps/Pseudocoloring
    * |unchecked| Pose estimation results
-   * |unchecked| Pseudocoloring
+
 
 
 .. toctree::

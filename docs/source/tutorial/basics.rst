@@ -11,6 +11,17 @@ Know the Basics
 **Which "stuff" can be drawn?**
    .. viren2d-drawing-summary::
 
+**What about other visualizations?**
+   Besides drawing, ``viren2d`` also provides:
+
+   *  Colormaps to (pseudo-)colorize 2D image/depth data
+
+..
+   *  TODO Optical flow visualizations
+
+   *  Pixelation to implement proper anonymization,
+      see :meth:`~viren2d.ImageBuffer.pixelate`.
+   
 
 **Which coordinate system is used?**
    All coordinates assume an image coordinate system, where the origin
@@ -22,13 +33,3 @@ Know the Basics
    All angle measurements should be provided in *degrees*. The rotation
    direction for positive angles is from the positive *x*-axis towards the
    positive *y*-axis.
-
-
-
-.. warning::
-   TODO This overview page should be extended with info on pseudocolorization;
-   anonymization (once ImageBuffer supports pixelization)
-
-   |right-arrow| add "What about other visualizations?"
-      Then, refer to pseudocoloring (label2img, segmentation results, etc.)
-

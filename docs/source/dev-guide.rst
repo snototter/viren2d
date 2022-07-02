@@ -333,14 +333,9 @@ Nice-to-Have
 
 Some **functional features**, that I'd like to see at some time in the future:
 
-*  Pseudocoloring (for any/most common input data types - not only uint8)
+*  Pseudocoloring (ImageBuffer already supports the most useful formats).
 
-*  Image overlay (uint8 only, via the :class:`~viren2d.Painter`)
-  
-*  Pixelization via the :class:`~viren2d.ImageBuffer` (can be realized via
-   proper indexing)
-
-*  Support loading optical flow files, *i.e.* ``.flo`` format
+*  Support loading/saving/visualizing optical flow files, *i.e.* ``.flo`` format.
   
 *  Creating a collage (auto-padding, maybe aspect-aware resizing).
    Best option might be to reuse *image overlay*, *i.e.* initialize
@@ -357,6 +352,8 @@ Some **functional features**, that I'd like to see at some time in the future:
      uses points, all other functionality assumes pixels).
 
 *  Creating stereoglyphs
+  
+*  Extend ImageBuffer to support the more "exotic" data types.
 
 
 Some **workflow-related extensions**, I'd fancy:
