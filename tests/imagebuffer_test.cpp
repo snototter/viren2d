@@ -156,17 +156,17 @@ TEST(ImageBufferTest, ImageLoading) {
 
   // Load non-existing file
   EXPECT_THROW(
-        viren2d::LoadImage("this-file-does-not-exist.png"),
+        viren2d::LoadImageUInt8("this-file-does-not-exist.png"),
         std::runtime_error);
 
   // Load existing file in different modes
-  auto buffer_gray = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 1);
+  auto buffer_gray = viren2d::LoadImageUInt8(viren2d_EXAMPLE_IMAGE_FILE, 1);
   EXPECT_TRUE(buffer_gray.IsValid());
-  auto buffer_graya = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 2);
+  auto buffer_graya = viren2d::LoadImageUInt8(viren2d_EXAMPLE_IMAGE_FILE, 2);
   EXPECT_TRUE(buffer_graya.IsValid());
-  auto buffer_rgb = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 3);
+  auto buffer_rgb = viren2d::LoadImageUInt8(viren2d_EXAMPLE_IMAGE_FILE, 3);
   EXPECT_TRUE(buffer_rgb.IsValid());
-  auto buffer_rgba = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 4);
+  auto buffer_rgba = viren2d::LoadImageUInt8(viren2d_EXAMPLE_IMAGE_FILE, 4);
   EXPECT_TRUE(buffer_rgba.IsValid());
 
   // Check that the correct number of channels has been loaded
@@ -288,8 +288,8 @@ TEST(ImageBufferTest, ImageLoading) {
 
 TEST(ImageBufferTest, Conversion) {
   // Load existing file as grayscale & rgb
-  viren2d::ImageBuffer buffer_gray = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 1);
-  viren2d::ImageBuffer buffer_rgb = viren2d::LoadImage(viren2d_EXAMPLE_IMAGE_FILE, 3);
+  viren2d::ImageBuffer buffer_gray = viren2d::LoadImageUInt8(viren2d_EXAMPLE_IMAGE_FILE, 1);
+  viren2d::ImageBuffer buffer_rgb = viren2d::LoadImageUInt8(viren2d_EXAMPLE_IMAGE_FILE, 3);
 
   // Check that the correct number of channels has been loaded
   EXPECT_EQ(buffer_gray.Channels(), 1);

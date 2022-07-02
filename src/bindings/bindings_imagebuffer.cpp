@@ -401,8 +401,8 @@ void RegisterImageBuffer(py::module &m) {
   py::implicitly_convertible<py::array, ImageBuffer>();
 
 
-  m.def("save_image",
-        &SaveImage, R"docstr(
+  m.def("save_image_uint8",
+        &SaveImageUInt8, R"docstr(
         Stores an 8-bit image to disk as either JPEG or PNG.
 
         Note that PNG output will usually result in 20-50% larger files in
@@ -421,8 +421,8 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("filename"), py::arg("image"));
 
 
-  m.def("load_image",
-        &LoadImage, R"docstr(
+  m.def("load_image_uint8",
+        &LoadImageUInt8, R"docstr(
         Reads an 8-bit image from disk.
 
         This functionality uses the

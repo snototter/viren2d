@@ -480,7 +480,7 @@ private:
 ///     * 2: load as grayscale + alpha channel
 ///     * 3: load as rgb
 ///     * 4: load as rgb + alpha channel
-ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=0);
+ImageBuffer LoadImageUInt8(const std::string &image_filename, int force_num_channels=0);
 
 
 /// Saves an 8-bit image to disk as either JPEG or PNG.
@@ -491,7 +491,7 @@ ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=
 /// I consider writing to disk only a nice-to-have feature,
 /// thus I'm not including any other specialized third-party
 /// libraries for that.
-void SaveImage(const std::string &image_filename, const ImageBuffer &image);
+void SaveImageUInt8(const std::string &image_filename, const ImageBuffer &image);
 
 
 } // namespace viren2d

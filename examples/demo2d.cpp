@@ -36,7 +36,6 @@ void ShowCanvas(viren2d::ImageBuffer canvas, const std::string &filename) {
 }
 
 
-
 //viren2d::Vec3d rgb2hsv(const viren2d::Color &rgb) {
 //  auto rgbvec = 255 * viren2d::Vec3d(rgb.red, rgb.green, rgb.blue);
 //  double max = rgbvec.MaxValue();
@@ -611,7 +610,7 @@ void DemoConversionOpenCV() {
               << min << "), max at " << maxloc << " (" << max << ")" << std::endl;
   }
 //  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
-  viren2d::LoadImage("/home/snototter/workspace/utilities/vito/examples/depth.png", 0);
+  viren2d::LoadImageUInt8("/home/snototter/workspace/utilities/vito/examples/depth.png", 0);
   buf.Pixelate(15, 23, 0, 50, 250, 200);
 //  viren2d::ImageBuffer buf_roi = buf.ROI(0, 50, 250, 200);
 //  for (int r = 0; r < buf_roi.Height(); ++r) {
@@ -691,7 +690,7 @@ int main(int /*argc*/, char **/*argv*/) {
 //#else  // EXAMPLE_IMAGE_FILE
 //  std::string image_filename("../examples/flamingo.jpg");
 //#endif  // EXAMPLE_IMAGE_FILE
-//  viren2d::ImageBuffer image_buffer = viren2d::LoadImage(image_filename, 4);
+//  viren2d::ImageBuffer image_buffer = viren2d::LoadImageUInt8(image_filename, 4);
 
 //  auto painter = viren2d::CreatePainter();
 

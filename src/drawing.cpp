@@ -449,7 +449,7 @@ void PainterImpl::SetCanvas(const std::string &image_filename) {
   SPDLOG_DEBUG("SetCanvas: filename={:s}.", image_filename);
   // Force to load 4 bytes per pixel (STBI_rgb_alpha), so we
   // can easily plug/copy it into the Cairo surface
-  ImageBuffer buffer = LoadImage(image_filename, 4);
+  ImageBuffer buffer = LoadImageUInt8(image_filename, 4);
   SetCanvas(buffer);
 }
 

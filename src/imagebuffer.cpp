@@ -811,7 +811,7 @@ void ImageBuffer::Cleanup() {
 }
 
 
-ImageBuffer LoadImage(
+ImageBuffer LoadImageUint8(
     const std::string &image_filename,
     int force_num_channels) {
   SPDLOG_DEBUG(
@@ -851,7 +851,7 @@ ImageBuffer LoadImage(
 }
 
 
-void SaveImage(
+void SaveImageUInt8(
     const std::string &image_filename,
     const ImageBuffer &image) {
   SPDLOG_DEBUG(
