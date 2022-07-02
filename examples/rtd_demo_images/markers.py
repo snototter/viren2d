@@ -11,7 +11,7 @@ def demo_markers():
     # Style specifications:
     text_style = viren2d.TextStyle(color=viren2d.RGBa(192, 186, 177))
     marker_style = viren2d.MarkerStyle(
-        size=25, thickness=1, color='azure!80')
+        size=25, thickness=2, color='azure!80')
 
     def prepare_display_row(y1, y2, y3):
         text_style.family = 'xkcd'

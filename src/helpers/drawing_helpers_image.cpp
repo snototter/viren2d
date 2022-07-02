@@ -10,7 +10,7 @@ namespace helpers {
 void DrawImage(
     cairo_surface_t *surface, cairo_t *context,
     const ImageBuffer &image,
-    const Vec2d &anchor_position, Anchor anchor,
+    const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor) {
   CheckCanvas(surface, context);
@@ -18,7 +18,7 @@ void DrawImage(
   ImageBuffer img4 = image.ToUInt8(4);
 
   cairo_save(context);
-  cairo_translate(context, anchor_position.x(), anchor_position.y());
+  cairo_translate(context, position.x(), position.y());
   cairo_rotate(context, rotation * 3.14159 / 180.0);
   cairo_scale(context, scale_x, scale_y);
 

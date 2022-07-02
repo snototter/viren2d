@@ -134,12 +134,12 @@ public:
 
 
   void DrawImage(
-      ImageBuffer &image, const Vec2d &anchor_position,
+      ImageBuffer &image, const Vec2d &position,
       const py::object &anchor, double alpha, double scale_x, double scale_y,
       double rotation, double clip_factor) {
     Anchor a = AnchorFromPyObject(anchor);
     painter_->DrawImage(
-          image, anchor_position, a, alpha,
+          image, position, a, alpha,
           scale_x, scale_y, rotation, clip_factor);
   }
 
@@ -179,26 +179,26 @@ public:
 
   Rect DrawText(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, const py::object &pyanchor,
+      const Vec2d &position, const py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) {
     Anchor anchor = AnchorFromPyObject(pyanchor);
     return painter_->DrawText(
-          text, anchor_position, anchor,
+          text, position, anchor,
           text_style, padding, rotation);
   }
 
 
   Rect DrawTextBox(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, const py::object &pyanchor,
+      const Vec2d &position, const py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,
       const Vec2d &fixed_box_size) {
     Anchor anchor = AnchorFromPyObject(pyanchor);
     return painter_->DrawTextBox(
-          text, anchor_position, anchor, text_style,
+          text, position, anchor, text_style,
           padding, rotation, box_line_style, box_fill_color,
           box_corner_radius, fixed_box_size);
   }
@@ -684,11 +684,9 @@ void RegisterPainter(py::module &m) {
   doc = R"docstr(
       Overlays an image.
 
-      TODO doc clip_factor
-
       Args:
         image: The image as :class:`~viren2d.ImageBuffer` or :class:`numpy.ndarray`.
-        anchor: How to orient the text w.r.t. the ``anchor_position``.
+        anchor: How to orient the text with respect to ``position``.
           Valid inputs are :class:`~viren2d.Anchor` enum values
           and their string representations. For details, refer to the
           ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
@@ -704,7 +702,8 @@ void RegisterPainter(py::module &m) {
       )docstr";
   painter.def(
         "draw_image", &PainterWrapper::DrawImage, doc.c_str(),
-        py::arg("image"), py::arg("anchor_position"),
+        py::arg("image"),
+        py::arg("position"),
         py::arg("anchor") = Anchor::TopLeft,
         py::arg("alpha") = 1.0,
         py::arg("scale_x") = 1.0,
@@ -853,9 +852,9 @@ void RegisterPainter(py::module &m) {
         text: A :class:`list` of :class:`str` to be drawn.
           For a single line, simply pass a :class:`list` which
           holds a single :class:`str`.
-        anchor_position: Position of the reference point where
+        position: Position of the reference point where
           to anchor the text as :class:`~viren2d.Vec2d`.
-        anchor: How to orient the text w.r.t. the ``anchor_position``.
+        anchor: How to orient the text w.r.t. the ``position``.
           Valid inputs are :class:`~viren2d.Anchor` enum values
           and their string representations.
 
@@ -873,9 +872,9 @@ void RegisterPainter(py::module &m) {
         text_style: A :class:`~viren2d.TextStyle`, specifying
           how to render the text.
         padding: Optional distance between the closest glyph and the
-          ``anchor_position``. Specified in pixels as :class:`~viren2d.Vec2d`.
-        rotation: Rotation angle (clockwise) in degrees as :class:`float`.
-          If specified, the text will be rotated around the ``anchor_position``.
+          ``position``. Specified in pixels as :class:`~viren2d.Vec2d`.
+        rotation: Rotation angle (clockwise around ``position``) in
+          degrees as :class:`float`.
 
       Returns:
         The bounding box of the drawn text as :class:`~viren2d.Rect`.
@@ -886,7 +885,7 @@ void RegisterPainter(py::module &m) {
   painter.def(
         "draw_text", &PainterWrapper::DrawText, doc.c_str(),
         py::arg("text"),
-        py::arg("anchor_position"),
+        py::arg("position"),
         py::arg("anchor") = Anchor::BottomLeft,
         py::arg("text_style") = TextStyle(),
         py::arg("padding") = Vec2d(0.0, 0.0),
@@ -902,9 +901,9 @@ void RegisterPainter(py::module &m) {
         text: A :class:`list` of :class:`str` to be drawn.
           For a single line, simply pass a :class:`list` which
           holds a single :class:`str`.
-        anchor_position: Position of the reference point where
+        position: Position of the reference point where
           to anchor the text as :class:`~viren2d.Vec2d`.
-        anchor: How to orient the text w.r.t. the ``anchor_position``.
+        anchor: How to orient the text with respect to ``position``.
           Valid inputs are :class:`~viren2d.Anchor` enum values
           and string representations. For details, refer to the
           ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
@@ -912,8 +911,8 @@ void RegisterPainter(py::module &m) {
           how to render the text.
         padding: Optional padding between text and the edges
           of the box. Specified in pixels as :class:`~viren2d.Vec2d`.
-        rotation: Rotation angle (clockwise) in degrees as :class:`float`.
-          If specified, the text will be rotated around the ``anchor_position``.
+        rotation: Rotation angle (clockwise around ``position``) in
+          degrees as :class:`float`.
         line_style: A :class:`~viren2d.LineStyle`, specifying
           how to render the border of the text box.
         fill_color: If you provide a valid :class:`~viren2d.Color`,
@@ -930,7 +929,7 @@ void RegisterPainter(py::module &m) {
         "draw_text_box",
         &PainterWrapper::DrawTextBox, doc.c_str(),
         py::arg("text"),
-        py::arg("anchor_position"),
+        py::arg("position"),
         py::arg("anchor") = Anchor::BottomLeft,
         py::arg("text_style") = TextStyle(),
         py::arg("padding") = Vec2d::All(6.0),

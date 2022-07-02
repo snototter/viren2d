@@ -11,7 +11,7 @@ text_style = viren2d.TextStyle(
     family='sans-serif', size=35, color='crimson', bold=True)
 
 bbox = painter.draw_text(
-    text=['Hello World!'], anchor_position=(width/2, height/2),
+    text=['Hello World!'], position=(width/2, height/2),
     anchor='center', text_style=text_style)
 
 # Draw markers to the left & right:

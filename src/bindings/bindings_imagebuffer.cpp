@@ -331,7 +331,7 @@ void RegisterImageBuffer(py::module &m) {
           buf.MinMaxLocation(&minval, &maxval, &minloc, &maxloc, channel);
           return py::make_tuple(minval, maxval, minloc, maxloc);
         }, R"docstr(
-        Computes the min/max (incl. locations) for the given channel.
+        Computes the min/max values and locations for the given channel.
 
         Returns:
           A :class:`tuple` which contains ``(min_val, max_val, min_loc, max_loc)``,

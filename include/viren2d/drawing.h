@@ -189,13 +189,13 @@ public:
   //TODO doc
   void DrawImage(
       const ImageBuffer &image,
-      const Vec2d &anchor_position,
+      const Vec2d &position,
       Anchor anchor = Anchor::TopLeft,
       double alpha = 1.0,
       double scale_x = 1.0, double scale_y = 1.0,
       double rotation = 0.0, double clip_factor = 0.0) {
     DrawImageImpl(
-          image, anchor_position, anchor, alpha,
+          image, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor);
   }
 
@@ -255,13 +255,13 @@ public:
   //TODO doc, test, bind
   Rect DrawText(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position,
+      const Vec2d &position,
       Anchor anchor = Anchor::BottomLeft,
       const TextStyle &text_style = TextStyle(),
       const Vec2d &padding = {0.0, 0.0},
       double rotation = 0.0) {
     return DrawTextImpl(
-          text, anchor_position, anchor,
+          text, position, anchor,
           text_style, padding, rotation);
   }
 
@@ -269,7 +269,7 @@ public:
   //TODO doc, test, bind
   Rect DrawTextBox(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position,
+      const Vec2d &position,
       Anchor anchor = Anchor::BottomLeft,
       const TextStyle &text_style = TextStyle(),
       const Vec2d &padding = {6.0, 6.0},
@@ -279,7 +279,7 @@ public:
       double box_corner_radius = 0.2,
       const Vec2d &fixed_box_size = {-1.0, -1.0}) {
     return DrawTextBoxImpl(
-          text, anchor_position, anchor, text_style,
+          text, position, anchor, text_style,
           padding, rotation, box_line_style,
           box_fill_color, box_corner_radius, fixed_box_size);
   }
@@ -360,7 +360,7 @@ protected:
   /// Internal helper to enable default values in public interface.
   virtual void DrawImageImpl(
       const ImageBuffer &image,
-      const Vec2d &anchor_position, Anchor anchor,
+      const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
       double rotation, double clip_factor) = 0;
 

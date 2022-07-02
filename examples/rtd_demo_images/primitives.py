@@ -8,16 +8,16 @@ def demo_ellipses():
     canvas_width = 600
     canvas_height = 220
     painter.set_canvas_rgb(
-        width=canvas_width, height=canvas_height, color='white!0')
+        width=canvas_width, height=canvas_height, color=viren2d.RGBa(26, 28, 29))
 
     # Style specifications:
-    text_style = viren2d.TextStyle(family='xkcd', size=23, line_spacing=0.8)
-    text_style.alignment = 'center'
+    text_style = viren2d.TextStyle(
+        family='xkcd', size=23, line_spacing=0.8, alignment='center')
 
     line_style = viren2d.LineStyle(
-        width=3, color='midnight-blue')
+        width=5, color='forest-green')
     
-    fill_color = 'carrot'
+    fill_color = 'ivory!80'
 
     # Top-left ellipse:
     ellipse = viren2d.Ellipse(
@@ -40,6 +40,7 @@ def demo_ellipses():
     ellipse.angle_from = 45
     ellipse.angle_to = 315
     painter.draw_ellipse(ellipse, line_style)
+    text_style.color = 'ivory'
 
     painter.draw_text(
         ['30°'], ellipse.center, 'right', text_style,
@@ -106,13 +107,13 @@ def demo_rectangles():
     canvas_width = 600
     canvas_height = 220
     painter.set_canvas_rgb(
-        width=canvas_width, height=canvas_height, color='white!0')
+        width=canvas_width, height=canvas_height, color=viren2d.RGBa(26, 28, 29))
 
     # Style specification:
     line_style = viren2d.LineStyle(
-        width=3, color='midnight-blue')
+        width=5, color='forest-green')
 
-    fill_color = 'carrot'
+    fill_color = 'ivory!80'
 
     # Square rectangles (left):
     rect = viren2d.Rect(center=(40, 110), size=(60, 180))
@@ -130,7 +131,7 @@ def demo_rectangles():
     painter.draw_rect(rect, line_style, fill_color)
 
     # Dashed & rotated rectangles (right):
-    line_style.dash_pattern = [10, 5]
+    line_style.dash_pattern = [20, 10]
     rect.cx = 460
     rect.rotation = 10
     painter.draw_rect(rect, line_style)

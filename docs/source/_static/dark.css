@@ -1629,15 +1629,15 @@ body[data-theme="dark"] #text-anchors img {
 
     .highlight {
         background-image: initial;
-        background-color: rgb(61, 82, 0);
+        background-color: rgb(40, 50, 10);
     }
 
     .highlight .c {
-        color: rgb(119, 179, 195);
+        color: rgb(140, 220, 250);
     }
 
     .highlight .err {
-        border-color: rgb(179, 0, 0);
+        border-color: rgb(129, 0, 0);
     }
 
     .highlight .k {
@@ -1649,11 +1649,11 @@ body[data-theme="dark"] #text-anchors img {
     }
 
     .highlight .ch {
-        color: rgb(119, 179, 195);
+        color: rgb(140, 220, 250);
     }
 
     .highlight .cm {
-        color: rgb(119, 179, 195);
+        color: rgb(140, 220, 250);
     }
 
     .highlight .cp {

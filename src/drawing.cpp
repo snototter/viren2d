@@ -141,17 +141,17 @@ protected:
 
   void DrawImageImpl(
       const ImageBuffer &image,
-      const Vec2d &anchor_position, Anchor anchor,
+      const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
       double rotation, double clip_factor) override {
     SPDLOG_DEBUG(
           "DrawImage: {:s}, {:s} at {:s}, alpha={:.2f}, scale_x={:.2f}, "
           "scale_y={:.2f}, rotation={:.2f}°, clip_factor={:.2f}.",
-          image.ToString(), AnchorToString(anchor), anchor_position.ToString(),
+          image.ToString(), AnchorToString(anchor), position.ToString(),
           alpha, scale_x, scale_y, rotation, clip_factor);
 
     helpers::DrawImage(
-          surface_, context_, image, anchor_position, anchor, alpha,
+          surface_, context_, image, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor);
   }
 
@@ -228,16 +228,16 @@ protected:
 
   Rect DrawTextImpl(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, Anchor anchor,
+      const Vec2d &position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) override {
     SPDLOG_DEBUG(
           "DrawText: {:d} lines at {:s} {:s}, style={:s}, padding={:s}, "
           "rotation={:.1f}°.",
-          text.size(), anchor_position, anchor, text_style, padding, rotation);
+          text.size(), position, anchor, text_style, padding, rotation);
 
     return helpers::DrawText(
-          surface_, context_, text, anchor_position, anchor, text_style,
+          surface_, context_, text, position, anchor, text_style,
           padding, rotation, LineStyle::Invalid, Color::Invalid,
           0.0, {-1.0, -1.0});
   }
@@ -245,7 +245,7 @@ protected:
 
   Rect DrawTextBoxImpl(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, Anchor anchor,
+      const Vec2d &position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,
@@ -254,12 +254,12 @@ protected:
           "DrawTextBox: {:d} lines at {:s} {:s}, style={:s}, padding={:s}, "
           "rotation={:.1f}°, box-style={:s},  box-fill={:s}, box-radius={:.1f}, "
           "box-fixed-size={:d}x{:d}.",
-          text.size(), anchor_position, anchor, text_style, padding, rotation,
+          text.size(), position, anchor, text_style, padding, rotation,
           box_line_style, box_fill_color, box_corner_radius,
           (int)fixed_box_size.width(), (int)fixed_box_size.height());
 
     return helpers::DrawText(
-          surface_, context_, text, anchor_position, anchor, text_style,
+          surface_, context_, text, position, anchor, text_style,
           padding, rotation, box_line_style, box_fill_color,
           box_corner_radius, fixed_box_size);
   }

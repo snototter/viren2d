@@ -397,8 +397,7 @@ void DrawGrid(
 
 
 void DrawImage(cairo_surface_t *surface, cairo_t *context,
-    const ImageBuffer &image,
-    const Vec2d &anchor_position, Anchor anchor,
+    const ImageBuffer &image, const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor);
 

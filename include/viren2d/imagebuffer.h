@@ -461,38 +461,29 @@ private:
 };
 
 
-//TODO test with 16bit png - should work according to stb, need to check
-// the imagebuffer setup --> requires different stbi interface! here, we
-// would need LoadImage8 & LoadImage16
-/**
- * @brief Loads an image from disk.
- *
- * We use the stb/stb_image library for reading/decoding.
- * Supported formats as of now:
- *   JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
- *
- * Check for stb updates if your format is missing:
- *   https://github.com/nothings/stb/blob/master/stb_image.h
- *
- * @param image_filename Path to image file
- *
- * @param force_num_channels can be used to force the number of
- *              loaded channels (e.g. load a JPEG as RGBA by
- *              specifying force_num_channels=4).
- *              Supported:
- *                0: load as-is
- *                1: load as grayscale
- *                2: load as grayscale + alpha channel
- *                3: load as rgb
- *                4: load as rgb + alpha channel
- *
- * @return ImageBuffer
- */
+/// Loads an 8-bit image from disk.
+///
+/// We use the stb/stb_image library for reading/decoding.
+/// Supported formats as of now:
+///   JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
+///
+/// Check for stb updates if your format is missing:
+///   https://github.com/nothings/stb/blob/master/stb_image.h
+///
+/// Args:
+///   image_filename: Path to image file
+///   force_num_channels: can be used to force the number of
+///     loaded channels (e.g. load a JPEG as RGBA by
+///     specifying force_num_channels=4). Supported:
+///     * 0: load as-is
+///     * 1: load as grayscale
+///     * 2: load as grayscale + alpha channel
+///     * 3: load as rgb
+///     * 4: load as rgb + alpha channel
 ImageBuffer LoadImage(const std::string &image_filename, int force_num_channels=0);
 
 
-//TODO need to check 16-bit png support:
-/// Saves the ImageBuffer to disk as either JPEG or PNG.
+/// Saves an 8-bit image to disk as either JPEG or PNG.
 ///
 /// We use the stb/stb_image_write library for writing. Note
 /// that PNG output is not optimal (20-50% larger file size

@@ -47,10 +47,10 @@ This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
       :language: python
-      :lines: 13-60
+      :lines: 13-61
       :linenos:
       :dedent: 4
-      :emphasize-lines: 10, 17, 26, 36, 41, 45
+      :emphasize-lines: 10, 17, 26, 37, 42, 46
 
 
 .. _tutorial-draw-rects:
@@ -70,7 +70,7 @@ This visualization has been created with the following Python code:
 
    .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
       :language: python
-      :lines: 111-139
+      :lines: 112-140
       :linenos:
       :dedent: 4
       :emphasize-lines: 7, 14, 22
