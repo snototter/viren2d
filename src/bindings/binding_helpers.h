@@ -65,6 +65,9 @@ void RegisterVectors(pybind11::module &m);
 void RegisterImageBuffer(pybind11::module &m);
 void RegisterPainter(pybind11::module &m);
 
+//-------------------------------------------------  Colormaps
+void RegisterColormaps(pybind11::module &m);
+
 } // namespace bindings
 } // namespace viren2d
 

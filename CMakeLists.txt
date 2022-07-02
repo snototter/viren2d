@@ -94,6 +94,7 @@ set(viren2d_PUBLIC_HEADER_FILES
 
 set(viren2d_PRIVATE_HEADER_FILES
     src/helpers/logging.h
+    src/helpers/colormaps_helpers.h
     src/helpers/drawing_helpers.h
     src/helpers/imagebuffer_helpers.impl.h
     src/helpers/enum.h)
@@ -109,6 +110,7 @@ set(viren2d_SOURCE_FILES
     src/imagebuffer.cpp
     src/positioning.cpp
     src/styles.cpp
+    src/helpers/colormaps_helpers.cpp
     src/helpers/drawing_helpers_text.cpp
     src/helpers/drawing_helpers_image.cpp
     src/helpers/drawing_helpers_surveillance.cpp
@@ -307,6 +309,7 @@ if(viren2d_BUILD_PYTHON)
     pybind11_add_module(${TARGET_PYTHON_LIB}
         src/bindings/binding_helpers.h
         src/bindings/bindings_common.cpp
+        src/bindings/bindings_colormaps.cpp
         src/bindings/bindings_imagebuffer.cpp
         src/bindings/bindings_primitives.cpp
         src/bindings/bindings_styles.cpp

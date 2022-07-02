@@ -80,7 +80,7 @@ void DrawImage(
     // Clip rect with rounded corners
     Vec2d center = pattern_offset + (Vec2d(img4.Size()) / 2.0);
     helpers::PathHelperRoundedRect(
-          context, Rect(center, Vec2d(img4.Size()), 0.0, 0.5));
+          context, Rect(center, Vec2d(img4.Size()), 0.0, clip_factor));
     cairo_clip(context);
   }
 

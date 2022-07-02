@@ -61,6 +61,7 @@ both **C++ and Python** environments.
    * |checked| Arrows
    * |unchecked| Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
    * |checked| Circles
+   * |unchecked| Colormaps/Pseudocoloring - WIP
    * |checked| Ellipses
    * |unchecked| Image overlay - WIP
    * |checked| Lines
@@ -72,11 +73,10 @@ both **C++ and Python** environments.
    * |unchecked| Text Boxes (single-/multi-line) - WIP (implemented, but not fully tested/documented)
    * |checked| Trajectories
 
-**Which features are to come in the future?**
+**Which features will be added in the future?**
 
    * |unchecked| Bounding Boxes (3D)
    * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...   
-   * |unchecked| Colormaps/Pseudocoloring
    * |unchecked| Pose estimation results
 
 

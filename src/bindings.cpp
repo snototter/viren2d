@@ -66,6 +66,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Drawing - Painter
   viren2d::bindings::RegisterPainter(m);
 
+  //------------------------------------------------- Visualization - Colormaps
+  viren2d::bindings::RegisterColormaps(m);
+
 //  //TODO(snototter) copy python documentation to cpp
 
 //  //------------------------------------------------- Logging

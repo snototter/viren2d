@@ -864,7 +864,7 @@ void RegisterPainter(py::module &m) {
           ``left``, or ``top-left`` - or one of the 8 *compass
           directions* - *i.e.* ``north``, ``north-east``, ``east``,
           ``south-east``, ``south``, ``south-west``, ``west``,
-          or ``north-west``).
+          or ``north-west``.
 
           Before parsing, the input string will be converted to
           lowercase and any whitespaces, dashes & underscores will

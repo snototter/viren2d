@@ -76,7 +76,6 @@ must be set up manually:
 
   * `Python \>= 3.6 <https://www.python.org/>`_, along with its development
     library, *i.e.* system package ``python3-dev`` on Linux/macOS.
-
     On Windows, please follow the setup instructions of
     `pybind11 <https://pybind11.readthedocs.io/en/stable/basics.html>`__.
   * Python's standard package installer

@@ -15,8 +15,8 @@
 
 //TODO logging
 
-namespace wgu = werkzeugkiste::geometry;
-namespace wgs = werkzeugkiste::strings;
+namespace wkg = werkzeugkiste::geometry;
+namespace wks = werkzeugkiste::strings;
 
 namespace viren2d {
 namespace helpers {
@@ -57,7 +57,7 @@ bool AdjustMarkerFill(Marker marker, bool desired_fill) {
 
   std::string s("Marker '");
   s += MarkerToChar(marker);
-  s += "' has not been mapped to `AdjustMarkerFill`!";
+  s += "' is not mapped in `AdjustMarkerFill`!";
   throw std::logic_error(s);
 }
 } // namespace helpers
@@ -76,13 +76,13 @@ std::string LineCapToString(LineCap cap) {
 
   std::ostringstream s;
   s << "LineCap (" << static_cast<int>(cap)
-    << ") is not yet supported in LineCapToString()!";
+    << ") is not mapped in `LineCapToString`!";
   throw std::logic_error(s.str());
 }
 
 
 LineCap LineCapFromString(const std::string &cap) {
-  const auto lower = wgs::Lower(cap);
+  const auto lower = wks::Trim(wks::Lower(cap));
   if (lower.compare("butt") == 0) {
     return LineCap::Butt;
   } else if (lower.compare("square") == 0) {
@@ -91,7 +91,7 @@ LineCap LineCapFromString(const std::string &cap) {
     return LineCap::Round;
   }
 
-  std::string s("Could not deduce LineCap from string representation \"");
+  std::string s("Could not deduce `LineCap` from string representation \"");
   s += cap;
   s += "\"!";
   throw std::logic_error(s);
@@ -116,13 +116,13 @@ std::string LineJoinToString(LineJoin join) {
 
   std::ostringstream s;
   s << "LineJoin (" << static_cast<int>(join)
-    << ") is not yet supported in LineJoinToString()!";
+    << ") is not mapped in `LineJoinToString`!";
   throw std::logic_error(s.str());
 }
 
 
 LineJoin LineJoinFromString(const std::string &join) {
-  const auto lower = wgs::Lower(join);
+  const auto lower = wks::Lower(join);
   if (lower.compare("miter") == 0) {
     return LineJoin::Miter;
   } else if (lower.compare("bevel") == 0) {
@@ -131,7 +131,7 @@ LineJoin LineJoinFromString(const std::string &join) {
     return LineJoin::Round;
   }
 
-  std::string s("Could not deduce LineJoin from string representation \"");
+  std::string s("Could not deduce `LineJoin` from string representation \"");
   s += join;
   s += "\"!";
   throw std::logic_error(s);
@@ -271,7 +271,8 @@ char MarkerToChar(Marker marker) {
   std::ostringstream s;
   s << "Marker value ("
     << static_cast<int>(marker)
-    << ") has not been mapped to char representation!";
+    << ") has not been mapped to char representation "
+       "in `MarkerToChar`!";
   throw std::logic_error(s.str());
 }
 
@@ -328,8 +329,8 @@ MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
 
 bool MarkerStyle::Equals(const MarkerStyle &other) const {
   return (marker == other.marker)
-      && wgu::eps_equal(size, other.size)
-      && wgu::eps_equal(thickness, other.thickness)
+      && wkg::eps_equal(size, other.size)
+      && wkg::eps_equal(thickness, other.thickness)
       && (color == other.color)
       && (filled == other.filled);
 }
@@ -466,7 +467,7 @@ double LineStyle::CapOffset() const {
 
   std::string s("LineCap::");
   s += LineCapToString(cap);
-  s += " is not yet supported in CapOffset()!";
+  s += " is not mapped in `CapOffset`!";
   throw std::runtime_error(s);
 }
 
@@ -474,7 +475,7 @@ double LineStyle::CapOffset() const {
 double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
   // For a diagram of how to compute the miter length, see
   //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
-  const double miter_length = width / std::max(1e-6, std::sin(wgu::deg2rad(interior_angle / 2.0)));
+  const double miter_length = width / std::max(1e-6, std::sin(wkg::deg2rad(interior_angle / 2.0)));
   if (((miter_length / width) > miter_limit)  // Cairo would switch to BEVEL
       || (join == LineJoin::Round)
       || (join == LineJoin::Bevel)) {
@@ -535,7 +536,7 @@ std::string LineStyle::ToDetailedString() const {
 
 
 bool LineStyle::Equals(const LineStyle &other) const {
-  if (!wgu::eps_equal(width, other.width)) {
+  if (!wkg::eps_equal(width, other.width)) {
     return false;
   }
 
@@ -548,12 +549,12 @@ bool LineStyle::Equals(const LineStyle &other) const {
   }
 
   for (size_t i = 0; i < other.dash_pattern.size(); ++i) {
-    if (!wgu::eps_equal(dash_pattern[i], other.dash_pattern[i])) {
+    if (!wkg::eps_equal(dash_pattern[i], other.dash_pattern[i])) {
       return false;
     }
   }
 
-  if (!wgu::eps_equal(dash_offset, other.dash_offset)) {
+  if (!wkg::eps_equal(dash_offset, other.dash_offset)) {
     return false;
   }
 
@@ -677,10 +678,10 @@ double ArrowStyle::TipOffset(double miter_limit) const {
 
 
 bool ArrowStyle::Equals(const ArrowStyle &other) const {
-  if (!wgu::eps_equal(tip_length, other.tip_length))
+  if (!wkg::eps_equal(tip_length, other.tip_length))
     return false;
 
-  if (!wgu::eps_equal(tip_angle, other.tip_angle))
+  if (!wkg::eps_equal(tip_angle, other.tip_angle))
     return false;
 
   if (tip_closed != other.tip_closed)
@@ -740,7 +741,7 @@ bool TextStyle::Equals(const TextStyle &other) const {
       && (color == other.color)
       && (bold == other.bold)
       && (italic == other.italic)
-      && wgu::eps_equal(line_spacing, other.line_spacing);
+      && wkg::eps_equal(line_spacing, other.line_spacing);
 }
 
 

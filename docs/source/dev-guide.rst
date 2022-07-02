@@ -333,8 +333,6 @@ Nice-to-Have
 
 Some **functional features**, that I'd like to see at some time in the future:
 
-*  Pseudocoloring (ImageBuffer already supports the most useful formats).
-
 *  Support loading/saving/visualizing optical flow files, *i.e.* ``.flo`` format.
   
 *  Creating a collage (auto-padding, maybe aspect-aware resizing).

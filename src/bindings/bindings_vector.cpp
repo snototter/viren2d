@@ -309,6 +309,9 @@ void RegisterVec(py::module &m) {
 void RegisterVectors(pybind11::module &m) {
   RegisterVec<double, 2>(m);
   RegisterVec<double, 3>(m);
+
+  RegisterVec<int, 2>(m);
+  RegisterVec<int, 3>(m);
 }
 
 } // namespace bindings

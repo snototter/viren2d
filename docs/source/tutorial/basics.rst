@@ -14,13 +14,16 @@ Know the Basics
 **What about other visualizations?**
    Besides drawing, ``viren2d`` also provides:
 
-   *  Colormaps to (pseudo-)colorize 2D image/depth data
+   *  Scaled colorization with various colormaps, see :func:`~viren2d.colorize`.
+
+   *  Pixelation, *e.g.* to implement anonymization,
+      see :meth:`~viren2d.ImageBuffer.pixelate`.
 
 ..
    *  TODO Optical flow visualizations
+   *  TODO refer to Colorizer!
 
-   *  Pixelation to implement proper anonymization,
-      see :meth:`~viren2d.ImageBuffer.pixelate`.
+   
    
 
 **Which coordinate system is used?**
