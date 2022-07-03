@@ -21,6 +21,7 @@
 
 
 //FIXME: should implement a ToDetailedString() for all styles (to be called whenever tests fail)
+//FIXME switch to coding/documentation style
 
 namespace viren2d {
 //-------------------------------------------------  Line endpoints
@@ -120,9 +121,11 @@ std::ostream &operator<<(std::ostream &os, Marker marker);
 
 
 /** Returns the char representations of all implemented marker shapes. */
-std::vector<char> ListMarkers();
+std::vector<Marker> ListMarkers();
 
 
+//TODO separate contour and fill color!
+// tricky part: n-grams are currently drawn as a intersecting lines, not the outer contour
 /** How to render a marker/keypoint. */
 struct MarkerStyle {
   Marker marker;       ///< Marker type.

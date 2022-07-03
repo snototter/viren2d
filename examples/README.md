@@ -43,8 +43,8 @@ been properly set up.
 ## Demo
 The `demo-{cpp|python}` examples are showcase applications with the intend to
 demonstrate most of the available functionality.
-* **C++:**
-* **Python:**
+* **C++:** TODO a) integrated into library build (option viren2d_BUILD_DEMO), b) standalone application
+* **Python:** TODO not yet implemented; will maybe never come
 
 
 ## Read the Docs Examples

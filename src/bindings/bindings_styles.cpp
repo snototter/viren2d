@@ -164,9 +164,10 @@ LineJoin LineJoinFromPyObject(const py::object &o) {
 
 
 void RegisterMarker(pybind11::module &m) {
-  py::enum_<Marker>(m, "Marker",
-                    "Enum specifying the marker shape.")
-      .value("Point", Marker::Point,
+  py::enum_<Marker> marker(
+        m, "Marker", "Enum specifying the marker shape.");
+
+  marker.value("Point", Marker::Point,
              "Point, *i.e.* a filled circle, char representation: ``'.'``.")
       .value("Circle", Marker::Circle,
              "A circle (not filled), char representation: ``'o'``.")
@@ -210,6 +211,32 @@ void RegisterMarker(pybind11::module &m) {
              "Left-pointing triangle marker, char representation: ``'<'``.")
       .value("TriangleRight", Marker::TriangleRight,
              "Right-pointing triangle marker, char representation: ``'>'``.");
+
+  marker.def(
+        "__str__", [](Marker m) -> py::str {
+            std::string s("'");
+            s += MarkerToChar(m);
+            s += "'";
+            return py::str(s);
+        }, py::name("__str__"), py::is_method(m));
+
+  marker.def(
+        "__repr__", [](Marker m) -> py::str {
+            std::string s("<Marker '");
+            s += MarkerToChar(m);
+            s += "'>";
+            return py::str(s);
+        }, py::name("__repr__"), py::is_method(m));
+
+  std::string doc = R"docstr(
+      Returns all :class:`~viren2d.Marker` values.
+
+      Convenience utility to easily iterate all enumeration
+      values.
+
+      **Corresponding C++ API:** ``viren2d::ListMarkers``.
+      )docstr";
+  marker.def_static("list_all", &ListMarkers, doc.c_str());
 }
 
 
@@ -427,11 +454,6 @@ void RegisterMarkerStyle(pybind11::module &m) {
         [](MarkerStyle &s, py::object o) {
             s.join = LineJoinFromPyObject(o);
         }, doc.c_str());
-
-
-  doc = "Lists the character codes of all :class:`~viren2d.Marker` shapes.\n\n"
-      "**Corresponding C++ API:** ``viren2d::ListMarkers``.";
-  m.def("marker_codes", ListMarkers, doc.c_str());
 }
 
 

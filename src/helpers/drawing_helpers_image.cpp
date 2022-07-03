@@ -12,7 +12,8 @@ void DrawImage(
     const ImageBuffer &image,
     const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
-    double rotation, double clip_factor) {
+    double rotation, double clip_factor,
+    const LineStyle &line_style) {
   CheckCanvas(surface, context);
 
   ImageBuffer img4 = image.ToUInt8(4);
@@ -61,6 +62,8 @@ void DrawImage(
       break;
   }
 
+  cairo_path_t *image_contour = nullptr;
+  const bool need_contour = line_style.IsValid();
   // Clip ROI as a circle/ellipse
   if (clip_factor > 0.5) {
     // We'll scale the context, so we can draw the ellipse as a
@@ -75,21 +78,62 @@ void DrawImage(
     cairo_scale(context, clip_scale_x, clip_scale_y);
     cairo_arc(context, 0.0, 0.0, 1.0, 0.0, 2 * M_PI);
     cairo_restore(context);
+
+    if (need_contour) {
+      image_contour = cairo_copy_path(context);
+    }
+
     cairo_clip(context);
+
   } else if (clip_factor > 0.0) {
-    // Clip rect with rounded corners
-    Vec2d center = pattern_offset + (Vec2d(img4.Size()) / 2.0);
+    // Clip rect with rounded corners - the path helper assumes that
+    // the rectangle is centered, thus we have to translate the context:
+    cairo_save(context);
+    cairo_translate(
+          context,
+          pattern_offset.x() + img4.Width() / 2.0,
+          pattern_offset.y() + img4.Height() / 2.0);
     helpers::PathHelperRoundedRect(
-          context, Rect(center, Vec2d(img4.Size()), 0.0, clip_factor));
+          context, Rect({0.0, 0.0}, Vec2d(img4.Size()), 0.0, clip_factor));
+    cairo_restore(context);
+
+    if (need_contour) {
+      image_contour = cairo_copy_path(context);
+    }
+
     cairo_clip(context);
+
+  } else {
+    if (need_contour) {
+      cairo_rectangle(
+            context, pattern_offset.x(), pattern_offset.y(),
+            img4.Width(), img4.Height());
+      image_contour = cairo_copy_path(context);
+    }
   }
 
+
+  // Paint the image onto the (already clipped) canvas:
   cairo_surface_t *imsurf = cairo_image_surface_create_for_data(
         img4.MutableData(), CAIRO_FORMAT_ARGB32,
         img4.Width(), img4.Height(), img4.RowStride());
   cairo_set_source_surface(
         context, imsurf, pattern_offset.x(), pattern_offset.y());
   cairo_paint_with_alpha(context, alpha);
+
+
+  // Draw the contour if requested:
+  if (need_contour && (image_contour != nullptr)) {
+    ApplyLineStyle(context, line_style);
+    //TODO draw contour!
+    // We always draw the box' contour:
+    cairo_new_path(context);
+    ApplyLineStyle(context, line_style);
+    cairo_append_path(context, image_contour);
+    cairo_path_destroy(image_contour);
+    cairo_stroke(context);
+  }
+
   cairo_restore(context);
   cairo_surface_destroy(imsurf);
 }

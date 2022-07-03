@@ -38,12 +38,12 @@ def demo_markers():
     left = 145
     prepare_display_row(y1, y2, y3)
     x = left
-    for code in viren2d.marker_codes():
+    for marker in viren2d.Marker.list_all():
         # Put the marker's char code on top:
-        painter.draw_text([f"'{code}'"], (x, y1), 'center', text_style)
+        painter.draw_text([str(marker)], (x, y1), 'center', text_style)
 
         # Draw the marker's outline (if it's shape allows):
-        marker_style.marker = code
+        marker_style.marker = marker
         marker_style.filled = False
         if not marker_style.is_filled():
             painter.draw_marker((x, y2), marker_style)

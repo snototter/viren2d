@@ -67,7 +67,6 @@ API Documentation
       :nosignatures:
 
       viren2d.Colormap
-      viren2d.colormap_names
       viren2d.colorize
       viren2d.peaks
 
@@ -100,7 +99,6 @@ API Documentation
       viren2d.LineCap
       viren2d.LineJoin
       viren2d.LineStyle
-      viren2d.marker_codes
       viren2d.Marker
       viren2d.MarkerStyle
       viren2d.TextStyle

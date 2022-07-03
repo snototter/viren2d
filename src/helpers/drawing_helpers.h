@@ -399,7 +399,7 @@ void DrawGrid(
 void DrawImage(cairo_surface_t *surface, cairo_t *context,
     const ImageBuffer &image, const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
-    double rotation, double clip_factor);
+    double rotation, double clip_factor, const LineStyle &line_style);
 
 
 void DrawLine(
@@ -442,7 +442,7 @@ void DrawTrajectory(
 
 /// Creates a path for a rectangle with rounded corners.
 /// Assumes that the viewport is already translated (and optionally
-/// rotated).
+/// rotated)!
 void PathHelperRoundedRect(cairo_t *context, Rect rect);
 
 } // namespace helpers

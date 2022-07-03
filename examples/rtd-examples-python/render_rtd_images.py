@@ -73,6 +73,21 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     img = demo_tracking_by_detection()
     _process_result(
         img, show_images, 'tracking-by-detection', save_images, 'tracking-by-detection.png')
+    
+    # Image overlay
+    img = demo_image_overlay()
+    _process_result(
+        img, show_images, 'image-overlay', save_images, 'image-overlay.png')
+    
+    # Image anchors
+    img = demo_image_anchors()
+    _process_result(
+        img, show_images, 'image-anchors', save_images, 'image-anchors.png')
+    
+    # Colormap demo
+    img = demo_colormaps()
+    _process_result(
+        img, show_images, 'colormaps', save_images, 'colormap-peaks.png')
 
 
 def render_rtd_cheatsheets(show_images: bool, save_images: bool):
@@ -90,7 +105,6 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     _process_result(
         img, True, 'Arrow Style Cheat Sheet', True, 'arrow-style-cheat-sheet.png')
 
-    
     # Colormaps
     img = cheat_sheet_colormaps()
     _process_result(

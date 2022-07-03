@@ -41,6 +41,4 @@ Marker Shapes
 
    Cheat Sheet: :class:`~viren2d.Marker` Shapes
 
-.. autofunction:: viren2d.marker_codes
-
 .. autoclass:: viren2d.Marker

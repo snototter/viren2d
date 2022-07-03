@@ -136,11 +136,11 @@ public:
   void DrawImage(
       ImageBuffer &image, const Vec2d &position,
       const py::object &anchor, double alpha, double scale_x, double scale_y,
-      double rotation, double clip_factor) {
+      double rotation, double clip_factor, const LineStyle &line_style) {
     Anchor a = AnchorFromPyObject(anchor);
     painter_->DrawImage(
           image, position, a, alpha,
-          scale_x, scale_y, rotation, clip_factor);
+          scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
 
@@ -696,6 +696,9 @@ void RegisterPainter(py::module &m) {
         scale_y: Vertical scaling factor as :class:`float`.
         rotation: Clockwise rotation in degrees as :class:`float`.
         clip_factor: TODO 0 < c <= 0.5 --> corner radius (see rounded rect), > 0.5 ellipse; <= 0 no clip
+        line_style: A :class:`~viren2d.LineStyle` specifying how to draw the
+          contour. If :attr:`viren2d.LineStyle.Invalid` is passed, this step
+          will be skipped.
 
       Example:
         >>> #TODO
@@ -709,7 +712,9 @@ void RegisterPainter(py::module &m) {
         py::arg("scale_x") = 1.0,
         py::arg("scale_y") = 1.0,
         py::arg("rotation") = 0.0,
-        py::arg("clip_factor") = 0.0);
+        py::arg("clip_factor") = 0.0,
+        py::arg("line_style") = LineStyle::Invalid);
+
 
   //----------------------------------------------------------------------
   doc = R"docstr(

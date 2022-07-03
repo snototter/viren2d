@@ -193,10 +193,11 @@ public:
       Anchor anchor = Anchor::TopLeft,
       double alpha = 1.0,
       double scale_x = 1.0, double scale_y = 1.0,
-      double rotation = 0.0, double clip_factor = 0.0) {
+      double rotation = 0.0, double clip_factor = 0.0,
+      const LineStyle &line_style = LineStyle::Invalid) {
     DrawImageImpl(
           image, position, anchor, alpha,
-          scale_x, scale_y, rotation, clip_factor);
+          scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
 
@@ -362,7 +363,7 @@ protected:
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
-      double rotation, double clip_factor) = 0;
+      double rotation, double clip_factor, const LineStyle &line_style) = 0;
 
 
   /// Internal helper to enable default values in public interface.

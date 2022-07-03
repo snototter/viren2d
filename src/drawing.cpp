@@ -143,16 +143,16 @@ protected:
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
-      double rotation, double clip_factor) override {
+      double rotation, double clip_factor, const LineStyle &line_style) override {
     SPDLOG_DEBUG(
           "DrawImage: {:s}, {:s} at {:s}, alpha={:.2f}, scale_x={:.2f}, "
-          "scale_y={:.2f}, rotation={:.2f}°, clip_factor={:.2f}.",
+          "scale_y={:.2f}, rotation={:.2f}°, clip_factor={:.2f}, line_style={:s}.",
           image.ToString(), AnchorToString(anchor), position.ToString(),
-          alpha, scale_x, scale_y, rotation, clip_factor);
+          alpha, scale_x, scale_y, rotation, clip_factor, line_style.ToString());
 
     helpers::DrawImage(
           surface_, context_, image, position, anchor, alpha,
-          scale_x, scale_y, rotation, clip_factor);
+          scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
 
@@ -172,6 +172,9 @@ protected:
     SPDLOG_DEBUG("DrawMarker: pos={:s}, style={:s}.", pos, style);
 
     helpers::DrawMarker(surface_, context_, pos, style);
+
+    //TODO(improvement): Marker should support different contour & fill colors
+    // --> makes it easier to highlight points!
   }
 
 

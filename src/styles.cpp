@@ -283,14 +283,14 @@ std::ostream &operator<<(std::ostream &os, Marker marker) {
 }
 
 
-std::vector<char> ListMarkers() {
+std::vector<Marker> ListMarkers() {
   SPDLOG_TRACE("ListMarkers().");
-  std::vector<char> lst;
+  std::vector<Marker> lst;
   typedef ContinuousEnumIterator<Marker,
     Marker::Point, Marker::Enneagon> MarkerIterator;
 
   for (Marker m: MarkerIterator()) {
-    lst.push_back(MarkerToChar(m));
+    lst.push_back(m);
   }
 
   return lst;

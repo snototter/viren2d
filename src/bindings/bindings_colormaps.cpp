@@ -106,6 +106,18 @@ void RegisterColormapEnum(pybind11::module &m) {
             s << "<Colormap." << ColormapToString(c) << '>';
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
+
+
+  std::string doc = R"docstr(
+      Returns all :class:`~viren2d.Colormap` values.
+
+      Convenience utility to easily iterate all enumeration
+      values.
+
+      **Corresponding C++ API:** ``viren2d::ListColormaps``.
+      )docstr";
+  cm.def_static("list_all", &ListColormaps, doc.c_str());
+
 }
 
 
@@ -171,7 +183,6 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("output_channels") = 3,
         py::arg("bins") = 256);
 
-  m.def("colormap_names", &ListColormaps, "TODO DOC corresponding cpp api...");
 
   m.def("peaks",
         &Peaks, R"docstr(

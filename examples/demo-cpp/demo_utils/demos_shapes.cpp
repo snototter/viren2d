@@ -157,15 +157,14 @@ void DemoMarkers() {
   text_style.size = 16;
   text_style.family = "monospace";
 
-  for (char m : ListMarkers()) {
+  for (Marker m : ListMarkers()) {
     std::ostringstream s;
-//    s << '\'' << m << '\'';
     s << m;
     painter->DrawText({s.str()}, pos, Anchor::Top, text_style);
 
     Vec2d mpos{pos.x(), 45.0};
     marker_style.filled = false;
-    marker_style.marker = MarkerFromChar(m);
+    marker_style.marker = m;
     if (!marker_style.IsFilled()) {
       painter->DrawMarker(mpos, marker_style);
     }

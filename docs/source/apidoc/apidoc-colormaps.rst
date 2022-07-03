@@ -22,8 +22,6 @@ Colormap Utilities
 
 .. autofunction:: viren2d.colorize
 
-.. autofunction:: viren2d.colormap_names
-
 .. autofunction:: viren2d.peaks   
 
 .. warning::
