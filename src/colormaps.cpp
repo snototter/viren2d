@@ -8,6 +8,7 @@
 #include <viren2d/colormaps.h>
 
 #include <helpers/colormaps_helpers.h>
+#include <helpers/enum.h>
 #include <helpers/logging.h>
 
 namespace wks = werkzeugkiste::strings;
@@ -15,105 +16,118 @@ namespace wks = werkzeugkiste::strings;
 namespace viren2d {
 
 /// Returns the string representation.
-std::string ColorMapToString(ColorMap cm) {
+std::string ColormapToString(Colormap cm) {
   switch (cm) {
-    case ColorMap::Autumn:
+    case Colormap::Autumn:
       return "autumn";
-    case ColorMap::Bone:
+    case Colormap::Bone:
       return "bone";
-    case ColorMap::Cold:
+    case Colormap::Cold:
       return "cold";
-    case ColorMap::Disparity:
+    case Colormap::Disparity:
       return "disparity";
-    case ColorMap::Earth:
+    case Colormap::Earth:
       return "earth";
-    case ColorMap::Grayscale:
+    case Colormap::Grayscale:
       return "grayscale";
-    case ColorMap::Hot:
+    case Colormap::Hot:
       return "hot";
-    case ColorMap::HSV:
+    case Colormap::HSV:
       return "hsv";
-    case ColorMap::Inferno:
+    case Colormap::Inferno:
       return "inferno";
-    case ColorMap::Jet:
+    case Colormap::Jet:
       return "jet";
-    case ColorMap::Magma:
+    case Colormap::Magma:
       return "magma";
-    case ColorMap::Pastel:
+    case Colormap::Pastel:
       return "pastel";
-    case ColorMap::Plasma:
+    case Colormap::Plasma:
       return "plasma";
-    case ColorMap::Sepia:
+    case Colormap::Sepia:
       return "sepia";
-    case ColorMap::Temperature:
+    case Colormap::Temperature:
       return "temperature";
-    case ColorMap::Thermal:
+    case Colormap::Thermal:
       return "thermal";
-    case ColorMap::Turbo:
+    case Colormap::Turbo:
       return "turbo";
-    case ColorMap::Viridis:
+    case Colormap::Viridis:
       return "viridis";
   }
   //TODO(dev) For each new colormap, also extend ColorMapFromString!
 
   std::ostringstream s;
-  s << "ColorMap (" << static_cast<int>(cm)
-    << ") is not yet supported in `ColorMapToString`!";
+  s << "Colormap (" << static_cast<int>(cm)
+    << ") is not yet supported in `ColormapToString`!";
   throw std::logic_error(s.str());
 }
 
 
-ColorMap ColorMapFromString(const std::string &cm) {
+Colormap ColormapFromString(const std::string &cm) {
   const auto lower = wks::Trim(wks::Lower(cm));
   if (lower.compare("autumn") == 0) {
-    return ColorMap::Autumn;
+    return Colormap::Autumn;
   } else if (lower.compare("bone") == 0) {
-    return ColorMap::Bone;
+    return Colormap::Bone;
   } else if (lower.compare("cold") == 0) {
-    return ColorMap::Cold;
+    return Colormap::Cold;
   } else if (lower.compare("disparity") == 0) {
-    return ColorMap::Disparity;
+    return Colormap::Disparity;
   } else if (lower.compare("earth") == 0) {
-    return ColorMap::Earth;
+    return Colormap::Earth;
   } else if ((lower.compare("grayscale") == 0)
              || (lower.compare("greyscale") == 0)) {
-    return ColorMap::Grayscale;
+    return Colormap::Grayscale;
   } else if (lower.compare("hot") == 0) {
-    return ColorMap::Hot;
+    return Colormap::Hot;
   } else if (lower.compare("hsv") == 0) {
-    return ColorMap::HSV;
+    return Colormap::HSV;
   } else if (lower.compare("inferno") == 0) {
-    return ColorMap::Inferno;
+    return Colormap::Inferno;
   } else if (lower.compare("jet") == 0) {
-    return ColorMap::Jet;
+    return Colormap::Jet;
   } else if (lower.compare("magma") == 0) {
-    return ColorMap::Magma;
+    return Colormap::Magma;
   } else if (lower.compare("pastel") == 0) {
-    return ColorMap::Pastel;
+    return Colormap::Pastel;
   } else if (lower.compare("plasma") == 0) {
-    return ColorMap::Plasma;
+    return Colormap::Plasma;
   } else if (lower.compare("sepia") == 0) {
-    return ColorMap::Sepia;
+    return Colormap::Sepia;
   } else if (lower.compare("temperature") == 0) {
-    return ColorMap::Temperature;
+    return Colormap::Temperature;
   } else if (lower.compare("thermal") == 0) {
-    return ColorMap::Thermal;
+    return Colormap::Thermal;
   } else if (lower.compare("turbo") == 0) {
-    return ColorMap::Turbo;
+    return Colormap::Turbo;
   } else if (lower.compare("viridis") == 0) {
-    return ColorMap::Viridis;
+    return Colormap::Viridis;
   }
 
-  std::string s("Could not deduce `ColorMap` from string representation \"");
+  std::string s("Could not deduce `Colormap` from string representation \"");
   s += cm;
   s += "\"!";
   throw std::logic_error(s);
 }
 
 
-std::ostream &operator<<(std::ostream &os, ColorMap cm) {
-  os << ColorMapToString(cm);
+std::ostream &operator<<(std::ostream &os, Colormap cm) {
+  os << ColormapToString(cm);
   return os;
+}
+
+
+//FIXME rename enum to Colorm!ap
+std::vector<std::string> ListColormaps() {
+  std::vector<std::string> lst;
+  typedef ContinuousEnumIterator<Colormap,
+    Colormap::Autumn, Colormap::Viridis> ColormapIterator;
+
+  for (Colormap cm: ColormapIterator()) {
+    lst.push_back(ColormapToString(cm));
+  }
+  return lst;
 }
 
 
@@ -167,11 +181,11 @@ ImageBuffer ColorLookup(
 
 
 ImageBuffer Colorize(
-    const ImageBuffer &data, ColorMap colormap,
+    const ImageBuffer &data, Colormap colormap,
     double limit_low, double limit_high, int output_channels, int bins) {
   SPDLOG_DEBUG(
         "Colorize {:s} with {:s}, limits [{:f}, {:f}].",
-        data.ToString(), ColorMapToString(colormap),
+        data.ToString(), ColormapToString(colormap),
         limit_low, limit_high);
 
   if ((bins < 2) || (bins > 256)) {
@@ -204,7 +218,7 @@ ImageBuffer Colorize(
     throw std::invalid_argument(s.str());
   }
 
-  const helpers::RGBColor *map = helpers::GetColorMap(colormap);
+  const helpers::RGBColor *map = helpers::GetColormap(colormap);
 
   switch (data.BufferType()) {
     case ImageBufferType::UInt8:

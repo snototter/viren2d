@@ -251,3 +251,29 @@ def cheat_sheet_arrowstyle():
     # the memory copy):
     shared_canvas = painter.get_canvas(copy=False)
     return np.array(shared_canvas, copy=True)
+
+
+
+def cheat_sheet_colormaps():
+     # Set up empty canvas:
+    painter = viren2d.Painter()
+    canvas_width = 520
+    canvas_height = 630
+    painter.set_canvas_rgb(
+        width=canvas_width, height=canvas_height, color='white!0')
+
+   # Style specifications:
+    text_style = viren2d.TextStyle(
+        family='xkcd', size=22, color=(0.05, 0.05, 0.05))
+    
+    row = np.array([[i] * 2 for i in range(256)]).astype(np.uint8).flatten()
+    data = np.repeat(row.reshape((1,-1)), 25, axis=0)
+
+    y = 15
+    for cname in viren2d.colormap_names():
+        vis = viren2d.colorize(data, colormap=cname, low=0, high=255)
+        pos = (canvas_width / 2, y)
+        painter.draw_image(vis, position=pos, anchor='center', clip_factor=0.3)
+        painter.draw_text([cname], position=pos, anchor='center', text_style=text_style)
+        y += 35
+    return np.array(painter.canvas, copy=True)

@@ -3,14 +3,15 @@
 
 #include <string>
 #include <ostream>
+#include <vector>
 
 #include <viren2d/imagebuffer.h>
 
 
 namespace viren2d {
 
-/// Available color maps.
-enum class ColorMap : unsigned char
+/// Available colormaps.
+enum class Colormap : unsigned char
 {
   /// Red-yellow colormap, similar to MATLAB's autumn.
   Autumn = 0,
@@ -72,23 +73,28 @@ enum class ColorMap : unsigned char
 
   /// Perceptually uniform. Default colormap of matplotlib.
   Viridis
+
+  //TODO(dev): If you add an enum value *after* Viridis, adjust the iterator TODO in ListColormaps - later on in the test suite, too!
 };
 
 
 /// Returns the string representation.
-std::string ColorMapToString(ColorMap cm);
+std::string ColormapToString(Colormap cm);
 
 
 /// Returns the ColorMap enum from its string representation.
-ColorMap ColorMapFromString(const std::string &cm);
+Colormap ColormapFromString(const std::string &cm);
 
 
 /// Output stream operator to print a ColorMap enum.
-std::ostream &operator<<(std::ostream &os, ColorMap cm);
+std::ostream &operator<<(std::ostream &os, Colormap cm);
+
+//TODO doc, fixme ColorMap --> Colormap
+std::vector<std::string> ListColormaps();
 
 
 // TODO doc num output channels either 3 or 4
-ImageBuffer Colorize(const ImageBuffer &data, ColorMap colormap,
+ImageBuffer Colorize(const ImageBuffer &data, Colormap colormap,
     double limit_low, double limit_high,
     int output_channels = 3, int bins = 256);
 

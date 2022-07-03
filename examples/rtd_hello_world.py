@@ -4,7 +4,7 @@ from PIL import Image
 
 # Set up a white canvas:
 width, height = 400, 50
-painter = viren2d.Painter(width=width, height=height, color='#ffffff')
+painter = viren2d.Painter(width=width, height=height, color='#ffffff') #FIXME adjust colors for dark theme!
 
 # Draw "Hello World":
 text_style = viren2d.TextStyle(

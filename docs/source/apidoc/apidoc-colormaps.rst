@@ -6,10 +6,14 @@ Colormaps
 ColorMap
 ~~~~~~~~
 
-.. warning::
-   TODO add cheat sheet/demo
+.. figure:: ../images/colormaps-cheat-sheet.png
+   :width: 520
+   :alt: Cheat sheet for available colormaps
+   :align: center
 
-.. autoclass:: viren2d.ColorMap
+   Cheat Sheet: :class:`~viren2d.Colormap`
+
+.. autoclass:: viren2d.Colormap
 
 
 ~~~~~~~~~~~~~~~~~~
@@ -17,6 +21,8 @@ Colormap Utilities
 ~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: viren2d.colorize
+
+.. autofunction:: viren2d.colormap_names
 
 .. autofunction:: viren2d.peaks   
 

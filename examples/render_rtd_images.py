@@ -90,7 +90,14 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     _process_result(
         img, True, 'Arrow Style Cheat Sheet', True, 'arrow-style-cheat-sheet.png')
 
+    
+    # Colormaps
+    img = cheat_sheet_colormaps()
+    _process_result(
+        img, True, 'Colormaps Cheat Sheet', True, 'colormaps-cheat-sheet.png')
+
 
 if __name__ == '__main__':
-    render_rtd_demos(True, True)
-    # render_rtd_cheatsheets(True, True)
+    #FIXME re-enable:
+    # render_rtd_demos(True, True)
+    render_rtd_cheatsheets(True, True)
