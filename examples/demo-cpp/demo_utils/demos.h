@@ -9,10 +9,14 @@ void PrintDemoHeader(const std::string &title);
 
 /// Saves the canvas to disk & optionally displays the image (iff OpenCV is
 /// available on your system).
-void ProcessDemoOutput(ImageBuffer canvas, const std::string &filename);
+void ProcessDemoOutput(const ImageBuffer &canvas, const std::string &filename);
 
 
 void DemoArrows();
+
+void DemoBoundingBoxes2D();
+
+void DemoRects();
 
 
 } // namespace demos

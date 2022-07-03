@@ -1,14 +1,52 @@
-//#include <demo_utils/demos.h>
+#include <viren2d/viren2d.h>
+#include <demo_utils/demos.h>
 
-//namespace viren2d {
-//namespace demos {
-//} // namespace demos
-//} // namespace viren2d
+namespace viren2d {
+namespace demos {
+void DemoRects() {
+  PrintDemoHeader("Rectangles");
+
+  auto painter = CreatePainter();
+  painter->SetCanvas(600, 600, Color::White);
+  painter->DrawGrid({}, {}, 50, 50,
+                    LineStyle(1.0, "gray!60"));
+
+  auto style = LineStyle(3, "navy-blue!90");
+
+  auto rect = Rect(100, 150, 100, 200);
+  painter->DrawRect(rect, style, "light-blue!30");
+
+  rect.cx += 150;
+  rect.radius = 0.5;
+  painter->DrawRect(rect, style);
+
+  rect.cx += 200;
+  rect.rotation = 45;
+  painter->DrawRect(rect, style);
+
+  rect.cx = 100;
+  rect.cy += 300;
+  rect.rotation = 10;
+  rect.radius = 0.1;
+  painter->DrawRect(rect, style, Color::Same.WithAlpha(0.4));// style.color.WithAlpha(0.4));
+
+  rect.cx += 150;
+  rect.rotation += 10;
+  rect.radius = 30;
+  painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
+
+  ProcessDemoOutput(painter->GetCanvas(false), "demo-output-rects.png");
+  painter.reset();
+}
+
+
+} // namespace demos
+} // namespace viren2d
 
 
 
-////viren2d::Vec3d rgb2hsv(const viren2d::Color &rgb) {
-////  auto rgbvec = 255 * viren2d::Vec3d(rgb.red, rgb.green, rgb.blue);
+////Vec3d rgb2hsv(const Color &rgb) {
+////  auto rgbvec = 255 * Vec3d(rgb.red, rgb.green, rgb.blue);
 ////  double max = rgbvec.MaxValue();
 ////  double diff = max - rgbvec.MinValue();
 
@@ -33,13 +71,13 @@
 ////    hue += 360.0;
 ////  }
 
-////  return viren2d::Vec3d(std::round(hue),
+////  return Vec3d(std::round(hue),
 ////                        std::round(saturation),
 ////                        std::round(max * 100.0/255.0));
 ////}
 
 
-////double hsv_dist(viren2d::Vec3d hsv) {
+////double hsv_dist(Vec3d hsv) {
 ////  // ref hsv
 ////  double h1 = 0.0;
 ////  double s1 = 1.0;
@@ -60,33 +98,33 @@
 
 //// TODO check resources linked at https://stackoverflow.com/a/35114586
 //void DemoColors() {
-//  auto painter = viren2d::CreatePainter();
+//  auto painter = CreatePainter();
 //  const int canvas_width = 750;
 //  painter->SetCanvas(448, canvas_width,
-//                     viren2d::Color::White.WithAlpha(0.0));
+//                     Color::White.WithAlpha(0.0));
 
-//  auto text_style = viren2d::TextStyle(18, "xkcd",
-//                                       viren2d::Color::Black,
+//  auto text_style = TextStyle(18, "xkcd",
+//                                       Color::Black,
 //                                       false, false, 1.0,
-//                                       viren2d::HorizontalAlignment::Center);
-//  auto line_style = viren2d::LineStyle(1, viren2d::Color::Black);
+//                                       HorizontalAlignment::Center);
+//  auto line_style = LineStyle(1, Color::Black);
 ////FIXME check horz alignment: single line vs multi-line text!!
 
-//  const viren2d::Vec2d box_size{130.0, 36.0};
+//  const Vec2d box_size{130.0, 36.0};
 //  const double box_spacing = 20.0;
 //  const double left = box_size.width() / 2.0 + box_spacing / 2.0;
 //  double x = left;
 //  double y = box_spacing / 2.0;
 
-//  for (const auto &color_name : viren2d::ListNamedColors()) {
-//    auto color = viren2d::Color(color_name);
+//  for (const auto &color_name : ListNamedColors()) {
+//    auto color = Color(color_name);
 
 //    text_style.color = color.Grayscale().Inverse();
 //    painter->DrawTextBox({color_name}, {x, y},
-//                         viren2d::Anchor::Top,
+//                         Anchor::Top,
 //                         text_style, {6, 6}, 0,
-//                         line_style, //viren2d::LineStyle::Invalid,
-//                         viren2d::Color(color_name),
+//                         line_style, //LineStyle::Invalid,
+//                         Color(color_name),
 //                         0.3, box_size);
 
 //    x += box_size.width() + box_spacing;
@@ -102,39 +140,39 @@
 
 
 //void DemoLines() {
-//  auto painter = viren2d::CreatePainter();
+//  auto painter = CreatePainter();
 //  std::ostringstream lbl;
-//  painter->SetCanvas(400, 400, viren2d::Color::White);
+//  painter->SetCanvas(400, 400, Color::White);
 
-//  painter->DrawGrid({}, {}, 50, 50, viren2d::LineStyle(1.0, "gray!50"));
+//  painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!50"));
 
-//  viren2d::Vec2d pt1 {50, 50};
-//  viren2d::Vec2d pt2 {150, 350};
+//  Vec2d pt1 {50, 50};
+//  Vec2d pt2 {150, 350};
 
 //  const auto rotation = werkzeugkiste::geometry::AngleDegFromDirectionVec(pt1.DirectionVector(pt2));
-////  painter->SetDefaultTextStyle(viren2d::TextStyle(18, "Arial"));
+////  painter->SetDefaultTextStyle(TextStyle(18, "Arial"));
 
-//  viren2d::LineStyle line_style(22, "azure!60", {}, 0.0,
-//                                viren2d::LineCap::Butt);
+//  LineStyle line_style(22, "azure!60", {}, 0.0,
+//                                LineCap::Butt);
 //  painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
-//  lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
-//  painter->DrawText({lbl.str()}, {100, 200}, viren2d::Anchor::Center,
-//                    viren2d::TextStyle(), {0, 0}, rotation);
+//  lbl << "LineCap::" << LineCapToString(line_style.cap);
+//  painter->DrawText({lbl.str()}, {100, 200}, Anchor::Center,
+//                    TextStyle(), {0, 0}, rotation);
 //  lbl.str(std::string());  // Reset stringstream
 
 
-//  line_style.cap = viren2d::LineCap::Round;
+//  line_style.cap = LineCap::Round;
 //  painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
-//  lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
-//  painter->DrawText({lbl.str()}, {200, 200}, viren2d::Anchor::Center,
-//                    viren2d::TextStyle(), {0, 0}, rotation);
+//  lbl << "LineCap::" << LineCapToString(line_style.cap);
+//  painter->DrawText({lbl.str()}, {200, 200}, Anchor::Center,
+//                    TextStyle(), {0, 0}, rotation);
 //  lbl.str(std::string());
 
-//  line_style.cap = viren2d::LineCap::Square;
+//  line_style.cap = LineCap::Square;
 //  painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
-//  lbl << "LineCap::" << viren2d::LineCapToString(line_style.cap);
-//  painter->DrawText({lbl.str()}, {300, 200}, viren2d::Anchor::Center,
-//                    viren2d::TextStyle(), {0, 0}, rotation);
+//  lbl << "LineCap::" << LineCapToString(line_style.cap);
+//  painter->DrawText({lbl.str()}, {300, 200}, Anchor::Center,
+//                    TextStyle(), {0, 0}, rotation);
 //  lbl.str(std::string());
 
 //  ShowCanvas(painter->GetCanvas(false), "demo-output-lines.png");
@@ -146,15 +184,15 @@
 
 
 //void DemoCircles() {
-//  auto painter = viren2d::CreatePainter();
-//  painter->SetCanvas(500, 500, viren2d::Color::White);
+//  auto painter = CreatePainter();
+//  painter->SetCanvas(500, 500, Color::White);
 
 //  painter->DrawGrid({}, {}, 50, 50,
-//                    viren2d::LineStyle(1.0, "gray!60"));
+//                    LineStyle(1.0, "gray!60"));
 
-//  auto style = viren2d::LineStyle(3, "navy-blue!90");
+//  auto style = LineStyle(3, "navy-blue!90");
 
-////  viren2d::SetLogLevel("trace");
+////  SetLogLevel("trace");
 //  painter->DrawCircle({100, 100}, 50, style, "red");
 
 //  style.dash_pattern = {20, 15};
@@ -162,7 +200,7 @@
 
 //  style.dash_pattern = {};
 //  style.width = 0;
-//  auto fill = viren2d::Color("blue!40");
+//  auto fill = Color("blue!40");
 //  painter->DrawCircle({400, 100}, 50, style, fill);
 
 //  style.width = 4;
@@ -187,15 +225,15 @@
 
 //  style.width = 3;
 //  painter->DrawEllipse({100, 400, 100, 50, 0, 45, -45}, style);
-////  painter->DrawEllipse(viren2d::Ellipse({100, 400}, {100, 50}, 0, 45, -45), style);
+////  painter->DrawEllipse(Ellipse({100, 400}, {100, 50}, 0, 45, -45), style);
 
 //  style.dash_pattern = {10, 10};
-//  painter->DrawEllipse(viren2d::Ellipse({250, 400}, {100, 50}, 45, 45, -45, false),
+//  painter->DrawEllipse(Ellipse({250, 400}, {100, 50}, 45, 45, -45, false),
 //                       style, fill);
 
 //  style.dash_pattern = {};
 //  style.width = 0;
-//  painter->DrawEllipse(viren2d::Ellipse({400, 400}, {100, 50}, 180, 45, -45, true),
+//  painter->DrawEllipse(Ellipse({400, 400}, {100, 50}, 180, 45, -45, true),
 //                       style, fill);
 
 //  ShowCanvas(painter->GetCanvas(false), "demo-output-circles.png");
@@ -204,19 +242,19 @@
 
 
 //void DemoPolygon() {
-//  auto painter = viren2d::CreatePainter();
-//  painter->SetCanvas(800, 800, viren2d::Color::White);
+//  auto painter = CreatePainter();
+//  painter->SetCanvas(800, 800, Color::White);
 
 //  painter->DrawGrid({}, {}, 50, 50,
-//                    viren2d::LineStyle(1.0, "gray!80"));
+//                    LineStyle(1.0, "gray!80"));
 
-//  auto line_style = viren2d::LineStyle(3.0, "crimson");
+//  auto line_style = LineStyle(3.0, "crimson");
 //  painter->DrawPolygon({{10, 10}, {50, 50}, {70, 50}, {60, 60}, {20, 10}},
 //                       line_style);
 
 //  line_style.color = "azure";
 //  painter->DrawPolygon({{100, 100}, {250, 350}, {180, 180}, {400, 200}},
-//                       line_style, viren2d::Color::Same.WithAlpha(0.4));
+//                       line_style, Color::Same.WithAlpha(0.4));
 
 //  line_style.color = "midnight-blue";
 //  painter->DrawPolygon({{500, 100}, {600, 150}, {550, 300}, {500, 150}},
@@ -227,45 +265,12 @@
 //}
 
 
-//void DemoRects() {
-//  auto painter = viren2d::CreatePainter();
-//  painter->SetCanvas(600, 600, viren2d::Color::White);
 
-//  painter->DrawGrid({}, {}, 50, 50,
-//                    viren2d::LineStyle(1.0, "gray!60"));
-
-//  auto style = viren2d::LineStyle(3, "navy-blue!90");
-
-//  auto rect = viren2d::Rect(100, 150, 100, 200);
-//  painter->DrawRect(rect, style, "light-blue!30");
-
-//  rect.cx += 150;
-//  rect.radius = 0.5;
-//  painter->DrawRect(rect, style);
-
-//  rect.cx += 200;
-//  rect.rotation = 45;
-//  painter->DrawRect(rect, style);
-
-//  rect.cx = 100;
-//  rect.cy += 300;
-//  rect.rotation = 10;
-//  rect.radius = 0.1;
-//  painter->DrawRect(rect, style, viren2d::Color::Same.WithAlpha(0.4));// style.color.WithAlpha(0.4));
-
-//  rect.cx += 150;
-//  rect.rotation += 10;
-//  rect.radius = 30;
-//  painter->DrawRect(rect, style, style.color.WithAlpha(0.4));
-
-//  ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
-//  painter.reset();
-//}
 
 
 //void DemoText() {
-//  auto painter = viren2d::CreatePainter();
-//  painter->SetCanvas(550, 600, viren2d::Color::White);
+//  auto painter = CreatePainter();
+//  painter->SetCanvas(550, 600, Color::White);
 
 
 //  const std::vector<std::string> anchors = {
@@ -278,20 +283,20 @@
 
 
 //  for (size_t idx_family = 0; idx_family < families.size(); ++idx_family) {
-//    auto text_style = viren2d::TextStyle();
+//    auto text_style = TextStyle();
 //    text_style.size = 16;
 //    text_style.family = families[idx_family];
 //    text_style.line_spacing = 1.0;
-//    text_style.alignment = viren2d::HorizontalAlignment::Center;
+//    text_style.alignment = HorizontalAlignment::Center;
 
-//    auto padding = viren2d::Vec2d::All(idx_family * 3);
+//    auto padding = Vec2d::All(idx_family * 3);
 
 //    std::ostringstream s;
 //    s << "Padding: " << static_cast<int>(padding.x());
-//    viren2d::Vec2d pos = {100.0 + idx_family * 200.0, 10.0};
+//    Vec2d pos = {100.0 + idx_family * 200.0, 10.0};
 //    painter->DrawTextBox({families[idx_family], s.str()},
-//                         pos, viren2d::Anchor::Top,
-//                         text_style, {6, 6}, 0, viren2d::LineStyle(1, "black"), "azure!40");
+//                         pos, Anchor::Top,
+//                         text_style, {6, 6}, 0, LineStyle(1, "black"), "azure!40");
 
 //    text_style.size = 14;
 //    text_style.color = "navy-blue";
@@ -299,22 +304,22 @@
 //    for (size_t idx_anchor = 0; idx_anchor < anchors.size(); ++idx_anchor) {
 //      std::ostringstream txt;
 ////      txt << "!nofill, noclip!";
-//      txt << viren2d::AnchorToString(viren2d::AnchorFromString(anchors[idx_anchor]));
+//      txt << AnchorToString(AnchorFromString(anchors[idx_anchor]));
 ////      txt << anchors[idx_anchor];
 
 
 //      pos.SetY(100.0 + idx_anchor * 50.0);
-//      //painter->DrawCircle(pos, 5, viren2d::LineStyle::Invalid, "black!40");
-//      painter->DrawMarker(pos, viren2d::MarkerStyle('9', 30, 1, "crimson!90", false));
+//      //painter->DrawCircle(pos, 5, LineStyle::Invalid, "black!40");
+//      painter->DrawMarker(pos, MarkerStyle('9', 30, 1, "crimson!90", false));
 //      if (idx_family == 0) {
 //        // Just draw the text
-//        painter->DrawText({txt.str()}, pos, viren2d::AnchorFromString(anchors[idx_anchor]),
+//        painter->DrawText({txt.str()}, pos, AnchorFromString(anchors[idx_anchor]),
 //                          text_style, padding);
 //      } else { //if (idx_family == 1) {
 //        // Draw a text box; size calculated from the text
-//        painter->DrawTextBox({txt.str()}, pos, viren2d::AnchorFromString(anchors[idx_anchor]),
+//        painter->DrawTextBox({txt.str()}, pos, AnchorFromString(anchors[idx_anchor]),
 //                             text_style, padding, 0.0,
-//                             viren2d::LineStyle::Invalid,
+//                             LineStyle::Invalid,
 //                             "azure!40",
 //                             0.25);
 //      }
@@ -327,20 +332,20 @@
 
 
 //void DemoTrajectories() {
-//  auto painter = viren2d::CreatePainter();
-//  painter->SetCanvas(800, 800, viren2d::Color::White);
+//  auto painter = CreatePainter();
+//  painter->SetCanvas(800, 800, Color::White);
 
 //  painter->DrawGrid({0, 0}, {0, 0}, 50, 50, {1});
 
-//  std::vector<viren2d::Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
-//  auto style = viren2d::LineStyle(5, "midnight-blue", {}, 0.0, viren2d::LineCap::Round);
+//  std::vector<Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
+//  auto style = LineStyle(5, "midnight-blue", {}, 0.0, LineCap::Round);
 //  bool oldest_first = false;
-//  for (const auto &offset : {viren2d::Vec2d(-400, 50), viren2d::Vec2d(-100, 200), viren2d::Vec2d(50, 300)}) {
-//    std::vector<viren2d::Vec2d> traj;
+//  for (const auto &offset : {Vec2d(-400, 50), Vec2d(-100, 200), Vec2d(50, 300)}) {
+//    std::vector<Vec2d> traj;
 //    for (const auto &pt : trajectory) {
 //      traj.push_back(pt + offset);
 //    }
-//    painter->DrawTrajectory(traj, style, viren2d::Color("gray!20"), oldest_first);
+//    painter->DrawTrajectory(traj, style, Color("gray!20"), oldest_first);
 //    oldest_first = !oldest_first;
 //  }
 
@@ -348,16 +353,16 @@
 //                {150, 500}, {200, 550}, {250, 500}, {300, 600},
 //                {350, 500}, {400, 600}, {450, 550}, {500, 700}};
 //  style.color = "red";
-//  painter->DrawTrajectory(trajectory, style, "black!100", true, 5, viren2d::ColorFadeOutLinear);
+//  painter->DrawTrajectory(trajectory, style, "black!100", true, 5, ColorFadeOutLinear);
 
-//  std::vector<viren2d::Vec2d> pts;
+//  std::vector<Vec2d> pts;
 //  for (const auto &pt : trajectory)
-//    pts.push_back(pt + viren2d::Vec2d{0.0, 100.0});
+//    pts.push_back(pt + Vec2d{0.0, 100.0});
 //  painter->DrawTrajectory(pts, style, "black!100");
 
 //  pts.clear();
 //  for (const auto &pt : trajectory)
-//    pts.push_back(pt + viren2d::Vec2d{0.0, 200.0});
+//    pts.push_back(pt + Vec2d{0.0, 200.0});
 //  painter->DrawTrajectory(pts, style, "black!100");
 
 //  ShowCanvas(painter->GetCanvas(false), "demo-output-polygon.png");
@@ -367,41 +372,41 @@
 
 
 //void DemoMarkers() {
-//  auto painter = viren2d::CreatePainter();
-//  painter->SetCanvas(100, 800, viren2d::Color::White); //.WithAlpha(0.0));
+//  auto painter = CreatePainter();
+//  painter->SetCanvas(100, 800, Color::White); //.WithAlpha(0.0));
 
-//  auto text_style = viren2d::TextStyle();
+//  auto text_style = TextStyle();
 //  text_style.size = 16;
 //  text_style.family = "xkcd";//"monospace";
-//  text_style.color = viren2d::RGBa(60, 60, 60);
+//  text_style.color = RGBa(60, 60, 60);
 
-//  viren2d::Vec2d pos {110.0, 5.0};
-//  viren2d::MarkerStyle marker_style;
+//  Vec2d pos {110.0, 5.0};
+//  MarkerStyle marker_style;
 //  marker_style.color = "navy-blue";
 //  marker_style.size = 19;
 //  marker_style.thickness = 1;
 
 //  painter->DrawText({"Marker code:"}, {5.0, pos.y()},
-//                    viren2d::Anchor::TopLeft, text_style);
+//                    Anchor::TopLeft, text_style);
 
 //  painter->DrawText({"Not filled:"}, {5.0, 50.0},
-//                    viren2d::Anchor::Left, text_style);
+//                    Anchor::Left, text_style);
 
 //  painter->DrawText({"Filled:"}, {5.0, 85.0},
-//                    viren2d::Anchor::Left, text_style);
+//                    Anchor::Left, text_style);
 
 //  text_style.size = 16;
 //  text_style.family = "monospace";
 
-//  for (char m : viren2d::ListMarkers()) {
+//  for (char m : ListMarkers()) {
 //    std::ostringstream s;
 ////    s << '\'' << m << '\'';
 //    s << m;
-//    painter->DrawText({s.str()}, pos, viren2d::Anchor::Top, text_style);
+//    painter->DrawText({s.str()}, pos, Anchor::Top, text_style);
 
-//    viren2d::Vec2d mpos{pos.x(), 45.0};
+//    Vec2d mpos{pos.x(), 45.0};
 //    marker_style.filled = false;
-//    marker_style.marker = viren2d::MarkerFromChar(m);
+//    marker_style.marker = MarkerFromChar(m);
 //    if (!marker_style.IsFilled()) {
 //      painter->DrawMarker(mpos, marker_style);
 //    }
@@ -419,82 +424,7 @@
 //  painter.reset();
 //}
 
-//void DemoBoundingBox2D() {
-//  auto painter = viren2d::CreatePainter();
-//  for (auto label_pos : {viren2d::LabelPosition::Top,
-//       viren2d::LabelPosition::Bottom, viren2d::LabelPosition::LeftB2T,
-//       viren2d::LabelPosition::RightB2T}) {
-//    painter->SetCanvas(600, 600, viren2d::Color::White);
 
-//    painter->DrawGrid({}, {}, 50, 50,
-//                      viren2d::LineStyle(1.0, "gray!60"));
-
-//    viren2d::BoundingBox2DStyle style;
-//    style.label_padding.SetX(10);
-//    style.label_padding.SetY(5);
-//    style.text_fill_color = viren2d::Color::Same.WithAlpha(0.3);
-//    style.clip_label = true;
-//    style.text_style = viren2d::TextStyle(10, "monospace");
-
-//    style.label_position = label_pos;
-//    style.text_style.alignment = viren2d::HorizontalAlignment::Left;
-
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 50, 100, 80, 0.2),
-//                               {"fill B & T, clip ABCDEFG"}, style);
-
-
-//    style.box_fill_color = viren2d::Color::Same.WithAlpha(0.5);
-//    style.text_fill_color = viren2d::Color::Same.WithAlpha(0.2);
-//    style.clip_label = false;
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 150, 100, 80, 0.2),
-//                               {"fill B 0.5 & T 0.2, noclip"}, style);
-
-
-//    style.box_fill_color = viren2d::Color::Invalid;
-//    style.text_fill_color = viren2d::Color::Same.WithAlpha(0.3);
-//    style.clip_label = true;
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 250, 100, 80, 0.2),
-//                               {"fill T 0.3, clip label"}, style);
-
-
-//    style.box_fill_color = viren2d::Color("crimson!50");
-//    style.text_fill_color = viren2d::Color::Invalid;
-//    style.clip_label = false;
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 350, 100, 80, 0.2),
-//                               {"fill B crimson!50, noclip", style.ToString()}, style);
-
-//    style.box_fill_color = viren2d::Color::Invalid;
-//    style.text_fill_color = viren2d::Color::Invalid;
-//    style.clip_label = true;
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(50, 450, 100, 80, 0),
-//                               {"no fill, but clip", style.ToString()}, style);
-
-
-//    style.clip_label = true;
-//    style.box_fill_color = viren2d::Color::Same.WithAlpha(0.3);
-//    style.text_fill_color = viren2d::Color("crimson!60");
-//    style.text_style = viren2d::TextStyle(14, "Arial", "black", true);
-
-//    style.text_style.alignment = viren2d::HorizontalAlignment::Center;
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(200, 50, 100, 250, 0.4),
-//                               {"Centered", "label"}, style);
-
-
-//    style.text_style.alignment = viren2d::HorizontalAlignment::Left;
-//    style.text_fill_color = viren2d::Color::Same.WithAlpha(0.3);
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(350, 50, 100, 250),
-//                               {"Left-aligned", "label"}, style);
-
-//    style.box_fill_color = viren2d::Color::Invalid;
-//    style.text_fill_color = viren2d::Color::Same.WithAlpha(0.5);
-//    style.text_style.alignment = viren2d::HorizontalAlignment::Right;
-//    painter->DrawBoundingBox2D(viren2d::Rect::FromLTWH(475, 50, 100, 250),
-//                               {"Right-aligned", "label"}, style);
-
-//    ShowCanvas(painter->GetCanvas(false), "demo-output-rects.png");
-//  }
-//  painter.reset();
-//}
 
 
 //void DemoConversionOpenCV() {
@@ -513,14 +443,14 @@
 //  cv::Mat roi = img_cv.colRange(50, img_cv.cols - 50);
 
 //  ///// FIXME make separate ROI demo
-//  viren2d::ImageBuffer buf;
+//  ImageBuffer buf;
 //  buf.CreateSharedBuffer(
 //        roi.data, roi.rows, roi.cols,
 //        roi.channels(), roi.step1(0), roi.step1(1),
-//        viren2d::ImageBufferType::UInt8);
+//        ImageBufferType::UInt8);
 
-//  viren2d::ImageBuffer gray = buf.ToGrayscale(3);
-//  viren2d::ImageBuffer blend = buf.Blend(gray, 0.7);
+//  ImageBuffer gray = buf.ToGrayscale(3);
+//  ImageBuffer blend = buf.Blend(gray, 0.7);
 
 //  {
 //    cv::Mat cvtmp(blend.Height(), blend.Width(),
@@ -533,15 +463,15 @@
 
 //  for (int ch = 0; ch < buf.Channels(); ++ch) {
 //    double min, max;
-//    viren2d::Vec2i minloc, maxloc;
+//    Vec2i minloc, maxloc;
 //    buf.MinMaxLocation(&min, &max, &minloc, &maxloc, ch);
 //    std::cout << "Channel " << ch << ", min at " << minloc << " ("
 //              << min << "), max at " << maxloc << " (" << max << ")" << std::endl;
 //  }
-////  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
-//  viren2d::LoadImageUInt8("/home/snototter/workspace/utilities/vito/examples/depth.png", 0);
+////  SetLogLevel(LogLevel::Trace);
+//  LoadImageUInt8("/home/snototter/workspace/utilities/vito/examples/depth.png", 0);
 //  buf.Pixelate(15, 23, 0, 50, 250, 200);
-////  viren2d::ImageBuffer buf_roi = buf.ROI(0, 50, 250, 200);
+////  ImageBuffer buf_roi = buf.ROI(0, 50, 250, 200);
 ////  for (int r = 0; r < buf_roi.Height(); ++r) {
 ////    for (int c = 0; c < buf_roi.Width(); ++c) {
 ////      buf_roi.AtChecked<uint8_t>(r, c, 0) = 255;
@@ -553,27 +483,27 @@
 
 //  // Create a shared buffer (on purpose) and change
 //  // color format to demonstrate the potential side-effect:
-//  viren2d::ImageBuffer img_buf;
+//  ImageBuffer img_buf;
 //  img_buf.CreateSharedBuffer(
 //        roi.data, roi.rows, roi.cols,
 //        roi.channels(), roi.step1(0), roi.step1(1),
 
-//        viren2d::ImageBufferType::UInt8);
+//        ImageBufferType::UInt8);
 //  img_buf.SwapChannels(0, 2);
 
 //  // Now, use the ImageBuffer to set up a canvas and
 //  // draw something
-//  auto painter = viren2d::CreatePainter();
+//  auto painter = CreatePainter();
 //  painter->SetCanvas(img_buf);
 
 //  painter->DrawArrow(
 //        {0.0, 0.0}, {img_buf.Width() / 2.0, img_buf.Height() / 2.0},
-//        viren2d::ArrowStyle(10, "navy-blue!80", 0.2, 20.0));
+//        ArrowStyle(10, "navy-blue!80", 0.2, 20.0));
 
 //  // Retrieve the visualization, and show the image.
 //  // Since we'll use cv::imshow, we need to convert
 //  // the buffer to BGR(A) format:
-//  viren2d::ImageBuffer copy = painter->GetCanvas(true);
+//  ImageBuffer copy = painter->GetCanvas(true);
 //  copy.SwapChannels(0, 2);
 //  cv::Mat cv_buffer(copy.Height(), copy.Width(),
 //                    CV_MAKETYPE(CV_8U, copy.Channels()),

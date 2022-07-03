@@ -1,4 +1,3 @@
-
 #include <viren2d/viren2d.h>
 #include <demo_utils/demos.h>
 

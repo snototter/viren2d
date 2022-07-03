@@ -20,9 +20,12 @@ endif()
 add_executable(${viren2d_TARGET_CPP_DEMO}
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_color.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_imagebuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_lines.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_shapes.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_shapes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_text.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_tracking_by_detection.cpp)
 
 
 target_include_directories(${viren2d_TARGET_CPP_DEMO}

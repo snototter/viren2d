@@ -20,14 +20,14 @@ namespace demos {
 
 void PrintDemoHeader(const std::string &title) {
   std::cout
-      << "----------------------------------------------------------------------\n  "
+      << "\n----------------------------------------------------------------------\n  "
       << title
       << "\n----------------------------------------------------------------------"
       << std::endl;
 }
 
 
-void ProcessDemoOutput(ImageBuffer canvas, const std::string &filename) {
+void ProcessDemoOutput(const ImageBuffer &canvas, const std::string &filename) {
   // Save to disk
   if (!filename.empty()) {
     viren2d::SaveImageUInt8(filename, canvas);
@@ -49,10 +49,9 @@ void ProcessDemoOutput(ImageBuffer canvas, const std::string &filename) {
 
 
 void Showcase() {
-
   DemoArrows();
-
-
+  DemoBoundingBoxes2D();
+  DemoRects();
 }
 
 } // namespace demos
