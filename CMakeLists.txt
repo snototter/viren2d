@@ -16,10 +16,10 @@ project(viren2d VERSION ${viren2d_VERSION} LANGUAGES CXX)
 # -----------------------------------------------------------------------------
 # C++ library and CMake namespace is "viren2d++""
 # Python bindings/library is "viren2d"
-set(TARGET_CPP_LIB  ${PROJECT_NAME}++)
-set(TARGET_CPP_TEST ${PROJECT_NAME}-test)
-set(TARGET_CPP_DEMO demo-${PROJECT_NAME})
-set(TARGET_PYTHON_LIB ${PROJECT_NAME})
+set(viren2d_TARGET_CPP_LIB  ${PROJECT_NAME}++)
+set(viren2d_TARGET_CPP_TEST ${PROJECT_NAME}-test)
+set(viren2d_TARGET_CPP_DEMO demo-${PROJECT_NAME})
+set(viren2d_TARGET_PYTHON_LIB ${PROJECT_NAME})
 
 
 # -----------------------------------------------------------------------------
@@ -120,46 +120,18 @@ set(viren2d_SOURCE_FILES
 # -----------------------------------------------------------------------------
 # viren2d C++ library
 
-add_library(${TARGET_CPP_LIB}
+add_library(${viren2d_TARGET_CPP_LIB}
     ${viren2d_PUBLIC_HEADER_FILES}
     ${viren2d_PRIVATE_HEADER_FILES}
     ${viren2d_SOURCE_FILES})
 
 # Add a namespace'd alias
-add_library(${TARGET_CPP_LIB}::${TARGET_CPP_LIB} ALIAS ${TARGET_CPP_LIB})
+add_library(${viren2d_TARGET_CPP_LIB}::${viren2d_TARGET_CPP_LIB} ALIAS ${viren2d_TARGET_CPP_LIB})
 
-set_target_properties(${TARGET_CPP_LIB}
+set_target_properties(${viren2d_TARGET_CPP_LIB}
     PROPERTIES
     PUBLIC_HEADER "${viren2d_PUBLIC_HEADER_FILES}"
     DEBUG_POSTFIX "d")
-
-
-# -----------------------------------------------------------------------------
-# Change CMake user option to preprocessor definitions
-
-#TODO remove
-## Set the user-configured log level (so we can disable verbose levels at compile time)
-#if(${viren2d_LOG_LEVEL} STREQUAL "trace")
-#    target_compile_definitions(${TARGET_CPP_LIB}
-#        PRIVATE viren2d_LOG_LEVEL_TRACE)
-#elseif(${viren2d_LOG_LEVEL} STREQUAL "debug")
-#    target_compile_definitions(${TARGET_CPP_LIB}
-#        PRIVATE viren2d_LOG_LEVEL_DEBUG)
-#elseif(${viren2d_LOG_LEVEL} STREQUAL "info")
-#    target_compile_definitions(${TARGET_CPP_LIB}
-#        PRIVATE viren2d_LOG_LEVEL_INFO)
-#elseif(${viren2d_LOG_LEVEL} STREQUAL "warn")
-#    target_compile_definitions(${TARGET_CPP_LIB}
-#        PRIVATE viren2d_LOG_LEVEL_WARN)
-#elseif(${viren2d_LOG_LEVEL} STREQUAL "error")
-#    target_compile_definitions(${TARGET_CPP_LIB}
-#        PRIVATE viren2d_LOG_LEVEL_ERROR)
-#elseif(${viren2d_LOG_LEVEL} STREQUAL "disable")
-#    target_compile_definitions(${TARGET_CPP_LIB}
-#        PRIVATE viren2d_LOG_LEVEL_OFF)
-#else()
-#    message(FATAL_ERROR "[viren2d] Invalid viren2d_LOG_LEVEL value (${viren2d_LOG_LEVEL})")
-#endif()
 
 
 ###############################################################################
@@ -172,13 +144,13 @@ set_target_properties(${TARGET_CPP_LIB}
 #   will likely be solved when distributing via conda
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Cairo REQUIRED)
-target_link_libraries(${TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
+target_link_libraries(${viren2d_TARGET_CPP_LIB} PRIVATE Cairo::Cairo)
 
 # -----------------------------------------------------------------------------
 # Set up the remaining external targets to include
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dependencies.cmake)
-setup_werkzeugkiste(${TARGET_CPP_LIB})
-setup_spdlog(${TARGET_CPP_LIB})
+setup_werkzeugkiste(${viren2d_TARGET_CPP_LIB})
+setup_spdlog(${viren2d_TARGET_CPP_LIB})
 
 # -----------------------------------------------------------------------------
 # Set up include paths
@@ -190,7 +162,7 @@ setup_spdlog(${TARGET_CPP_LIB})
 # * PUBLIC INSTALL_INTERFACE is for typical library usage, i.e.
 #   viren2d has previously been installed and should now just be linked
 #   into the user's application
-target_include_directories(${TARGET_CPP_LIB}
+target_include_directories(${viren2d_TARGET_CPP_LIB}
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
         "${CMAKE_CURRENT_SOURCE_DIR}/libs/stb"
@@ -211,8 +183,8 @@ target_include_directories(${TARGET_CPP_LIB}
 
 if(viren2d_INSTALL)
     install(
-        TARGETS ${TARGET_CPP_LIB}
-        EXPORT ${TARGET_CPP_LIB}Targets
+        TARGETS ${viren2d_TARGET_CPP_LIB}
+        EXPORT ${viren2d_TARGET_CPP_LIB}Targets
         
         # We don't have any installable executables, so we don't need RUNTIME
         # RUNTIME DESTINATION ${INSTALL_DIR_BIN}
@@ -226,9 +198,9 @@ if(viren2d_INSTALL)
         # # INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
 
     install(
-        EXPORT ${TARGET_CPP_LIB}Targets
-        FILE ${TARGET_CPP_LIB}Targets.cmake
-        NAMESPACE ${TARGET_CPP_LIB}::
+        EXPORT ${viren2d_TARGET_CPP_LIB}Targets
+        FILE ${viren2d_TARGET_CPP_LIB}Targets.cmake
+        NAMESPACE ${viren2d_TARGET_CPP_LIB}::
         DESTINATION ${INSTALL_DIR_CMAKE})
 
     # Add "uninstall" target
@@ -245,27 +217,27 @@ include(CMakePackageConfigHelpers)
 
 # Generate the version file for the config file
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}ConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${viren2d_TARGET_CPP_LIB}ConfigVersion.cmake"
     VERSION "${viren2d_VERSION}"
     COMPATIBILITY AnyNewerVersion)
 
 # Create config file
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${viren2d_TARGET_CPP_LIB}Config.cmake"
     INSTALL_DESTINATION ${INSTALL_DIR_CMAKE})
 
 # Install config files
 if(viren2d_INSTALL)
     install(FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}Config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_CPP_LIB}ConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${viren2d_TARGET_CPP_LIB}Config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${viren2d_TARGET_CPP_LIB}ConfigVersion.cmake"
         DESTINATION ${INSTALL_DIR_CMAKE})
 
     # Generate the export targets for the build tree
-    export(EXPORT ${TARGET_CPP_LIB}Targets
-        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/${TARGET_CPP_LIB}Targets.cmake"
-        NAMESPACE ${TARGET_CPP_LIB}::)
+    export(EXPORT ${viren2d_TARGET_CPP_LIB}Targets
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/${viren2d_TARGET_CPP_LIB}Targets.cmake"
+        NAMESPACE ${viren2d_TARGET_CPP_LIB}::)
 endif()
 
 
@@ -274,27 +246,7 @@ endif()
 ###############################################################################
 
 if(viren2d_BUILD_DEMO)
-    add_executable(${TARGET_CPP_DEMO}
-        examples/demo2d.cpp)
-
-    target_link_libraries(${TARGET_CPP_DEMO}
-        PRIVATE ${TARGET_CPP_LIB}::${TARGET_CPP_LIB}
-        werkzeugkiste::container)
-    # werkzeugkiste::container is needed for the color demo (sorting utils)
-    # TODO demos must be cleaned up - won't need the wzk dependency anymore
-
-
-    # OpenCV is optional, we only use it to display the rendered images
-    find_package(OpenCV QUIET)
-    if(${OpenCV_FOUND})
-        message(STATUS "[viren2d] Demo application will use OpenCV v${OpenCV_VERSION} to display images.")
-
-        target_compile_definitions(${TARGET_CPP_DEMO}
-            PRIVATE viren2d_WITH_OPENCV)
-
-        target_link_libraries(${TARGET_CPP_DEMO}
-            PRIVATE ${OpenCV_LIBRARIES})
-    endif()
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples/demo-cpp)
 endif()
 
 
@@ -306,7 +258,7 @@ if(viren2d_BUILD_PYTHON)
     # pybind11 provides add_module which is basically a wrapper of CMake's add_library
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/pybind11)
 
-    pybind11_add_module(${TARGET_PYTHON_LIB}
+    pybind11_add_module(${viren2d_TARGET_PYTHON_LIB}
         src/bindings/binding_helpers.h
         src/bindings/bindings_common.cpp
         src/bindings/bindings_colormaps.cpp
@@ -318,18 +270,18 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/bindings_vector.cpp
         src/bindings.cpp)
 
-    target_compile_definitions(${TARGET_PYTHON_LIB} PRIVATE
+    target_compile_definitions(${viren2d_TARGET_PYTHON_LIB} PRIVATE
         viren2d_VERSION_INFO=${viren2d_VERSION}
         viren2d_PYMODULE_NAME=${PROJECT_NAME})
 
-    target_include_directories(${TARGET_PYTHON_LIB} PRIVATE
+    target_include_directories(${viren2d_TARGET_PYTHON_LIB} PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-    set_target_properties(${TARGET_PYTHON_LIB} PROPERTIES
+    set_target_properties(${viren2d_TARGET_PYTHON_LIB} PROPERTIES
         OUTPUT_NAME ${PROJECT_NAME})
 
-    target_link_libraries(${TARGET_PYTHON_LIB}
-        PRIVATE ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
+    target_link_libraries(${viren2d_TARGET_PYTHON_LIB}
+        PRIVATE ${viren2d_TARGET_CPP_LIB}::${viren2d_TARGET_CPP_LIB})
 endif()
 
 
@@ -354,7 +306,7 @@ if(viren2d_BUILD_TESTS)
     
     enable_testing()
 
-    add_executable(${TARGET_CPP_TEST}
+    add_executable(${viren2d_TARGET_CPP_TEST}
         src/helpers/enum.h
         tests/color_test.cpp
         tests/primitives_test.cpp
@@ -362,20 +314,20 @@ if(viren2d_BUILD_TESTS)
         tests/utils_test.cpp
         tests/style_test.cpp)
 
-    target_include_directories(${TARGET_CPP_TEST}
+    target_include_directories(${viren2d_TARGET_CPP_TEST}
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-    target_link_libraries(${TARGET_CPP_TEST}
+    target_link_libraries(${viren2d_TARGET_CPP_TEST}
         PRIVATE
         gtest_main
         werkzeugkiste::strings
-        ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
+        ${viren2d_TARGET_CPP_LIB}::${viren2d_TARGET_CPP_LIB})
 
-    target_compile_definitions(${TARGET_CPP_TEST} PRIVATE
+    target_compile_definitions(${viren2d_TARGET_CPP_TEST} PRIVATE
         viren2d_EXAMPLE_IMAGE_FILE="${CMAKE_CURRENT_SOURCE_DIR}/examples/data/flamingo.jpg"
         viren2d_EXAMPLE_IMAGE_WIDTH=400
         viren2d_EXAMPLE_IMAGE_HEIGHT=400)
 
     include(GoogleTest)
-    gtest_discover_tests(${TARGET_CPP_TEST})
+    gtest_discover_tests(${viren2d_TARGET_CPP_TEST})
 endif()
