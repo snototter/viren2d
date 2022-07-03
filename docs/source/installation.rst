@@ -110,10 +110,10 @@ example. Note that this additionally requires `Pillow <https://pillow.readthedoc
 
      python -m pip install Pillow
 
-  .. literalinclude:: ../../examples/rtd_hello_world.py
+  .. literalinclude:: ../../examples/hello-world-python/hello_world.py
      :language: python
      :linenos:
-     :caption: Python Hello World Example for ``viren2d``.
+     :caption: ``viren2d`` Hello World Example in Python.
 
   .. figure:: ./images/hello_world.jpg
      :width: 400

@@ -6,7 +6,7 @@ import pathlib
 def demo_tracking_by_detection():
     painter = viren2d.Painter()
     painter.set_canvas_filename(
-        str(pathlib.Path(__file__).parent.parent / 'ninja.jpg'))
+        str(pathlib.Path(__file__).parent.parent / 'data' / 'ninja.jpg'))
 
     line_style = viren2d.LineStyle(width=4, color='navy-blue!80')
     

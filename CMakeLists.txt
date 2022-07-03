@@ -372,7 +372,7 @@ if(viren2d_BUILD_TESTS)
         ${TARGET_CPP_LIB}::${TARGET_CPP_LIB})
 
     target_compile_definitions(${TARGET_CPP_TEST} PRIVATE
-        viren2d_EXAMPLE_IMAGE_FILE="${CMAKE_CURRENT_SOURCE_DIR}/examples/flamingo.jpg"
+        viren2d_EXAMPLE_IMAGE_FILE="${CMAKE_CURRENT_SOURCE_DIR}/examples/data/flamingo.jpg"
         viren2d_EXAMPLE_IMAGE_WIDTH=400
         viren2d_EXAMPLE_IMAGE_HEIGHT=400)
 

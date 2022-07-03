@@ -573,7 +573,7 @@ void DemoConversionOpenCV() {
 #ifdef EXAMPLE_IMAGE_FILE
   std::string image_filename(EXAMPLE_IMAGE_FILE);
 #else  // EXAMPLE_IMAGE_FILE
-  std::string image_filename("../examples/flamingo.jpg");
+  std::string image_filename("../examples/data/flamingo.jpg");
   std::cerr << "Filename of example image not given, using default (relative!) path: "
             << image_filename << std::endl;
 #endif  // EXAMPLE_IMAGE_FILE
@@ -688,7 +688,7 @@ int main(int /*argc*/, char **/*argv*/) {
 //#ifdef EXAMPLE_IMAGE_FILE
 //  std::string image_filename(EXAMPLE_IMAGE_FILE);
 //#else  // EXAMPLE_IMAGE_FILE
-//  std::string image_filename("../examples/flamingo.jpg");
+//  std::string image_filename("../examples/data/flamingo.jpg");
 //#endif  // EXAMPLE_IMAGE_FILE
 //  viren2d::ImageBuffer image_buffer = viren2d::LoadImageUInt8(image_filename, 4);
 

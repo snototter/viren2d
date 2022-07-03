@@ -11,7 +11,7 @@
 int main(int /*argc*/, char **/*argv*/) {
   auto painter = viren2d::CreatePainter();
   
-  painter->SetCanvas(400, 50, viren2d::Color::White);
+  painter->SetCanvas(50, 400, viren2d::Color::White);
 
   // Draw "Hello World"
   viren2d::TextStyle text_style(35.0, "sans-serif", "crimson", true, false);

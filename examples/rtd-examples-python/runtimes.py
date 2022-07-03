@@ -383,7 +383,6 @@ def _time_surveillance():
         
 
 def compute_timings():
-#    img = imutils.imread('ninja.jpg', mode='RGB')
     _time_color_init()
     print()
     _time_imagebuffer()
