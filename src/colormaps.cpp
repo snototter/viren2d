@@ -118,7 +118,6 @@ std::ostream &operator<<(std::ostream &os, Colormap cm) {
 }
 
 
-//FIXME rename enum to Colorm!ap
 std::vector<std::string> ListColormaps() {
   std::vector<std::string> lst;
   typedef ContinuousEnumIterator<Colormap,

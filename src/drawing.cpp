@@ -400,8 +400,7 @@ bool PainterImpl::IsValid() const {
   return (surface_ != nullptr) && (context_ != nullptr);
 }
 
-//FIXME PainterImpl
-//FIXME log --> set level via CMakeLists.txt
+
 void PainterImpl::SetCanvas(int height, int width, const Color &color) {
   SPDLOG_DEBUG(
         "SetCanvas: width={:d}, height={:d}, color={:s}).",

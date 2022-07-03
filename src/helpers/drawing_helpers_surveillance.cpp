@@ -115,7 +115,7 @@ void DrawBoundingBox2D(
             style.label_padding.y(), style.label_padding.x());
       break;
 
-    case LabelPosition::LeftT2B://FIXME double-check: t2b now seems to work!
+    case LabelPosition::LeftT2B://TODO double-check: t2b now seems to work!
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(
             -rect.half_height(), -rect.half_width(),
