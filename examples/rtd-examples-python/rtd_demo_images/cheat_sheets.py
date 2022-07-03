@@ -264,7 +264,7 @@ def cheat_sheet_colormaps():
 
    # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=22, color=(0.05, 0.05, 0.05))
+        family='xkcd', size=21, color=(0.05, 0.05, 0.05))
     
     row = np.array([[i] * 2 for i in range(256)]).astype(np.uint8).flatten()
     data = np.repeat(row.reshape((1,-1)), 25, axis=0)

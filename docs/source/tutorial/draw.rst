@@ -1,8 +1,8 @@
 .. _tutorial-painter-usage:
 
----------------------
-Tutorial: The Painter
----------------------
+-------
+Drawing
+-------
 
 The :py:class:`~viren2d.Painter` class allows you to draw either onto an
 existing image or onto an empty canvas. Simply set it up via:

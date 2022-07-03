@@ -11,15 +11,15 @@ def demo_text_anchors():
         width=canvas_width, height=canvas_height, color='white!0')
 
     # Style specifications:
-    text_style = viren2d.TextStyle(family='xkcd', size=18)
-    text_style.alignment = 'center'
+    text_style = viren2d.TextStyle(
+        family='xkcd', size=18, alignment='center', color='white')
 
     line_style = viren2d.LineStyle(
         width=1, dash_pattern=[10, 10], color=(0.4, 0.4, 0.4))
 
     marker_style = viren2d.MarkerStyle(
         viren2d.Marker.Pentagram, size=18, thickness=1,
-        filled=True, color='navy-blue!80')
+        filled=True, color='maroon!80')
 
     # Draw a grid
     offset_x = 20
@@ -43,7 +43,7 @@ def demo_text_anchors():
         painter.draw_text_box(
             [str(anchor)], pos, anchor=anchor, text_style=text_style,
             padding=padding, rotation=0, line_style=viren2d.LineStyle.Invalid,
-            fill_color='azure!40', radius=0.15)
+            fill_color='azure!80', radius=0.15)
 
         x += delta_x
         if x >= canvas_width:

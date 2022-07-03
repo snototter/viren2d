@@ -23,7 +23,7 @@ An exemplary potpourri of supported arrow styles:
 
 This visualization has been created with the following Python code:
 
-   .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
+   .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/primitives.py
       :language: python
       :lines: 68-100
       :emphasize-lines: 7-10, 15, 21, 24, 28
@@ -45,7 +45,7 @@ A potpourri of ellipse configurations:
 
 This visualization has been created with the following Python code:
 
-   .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
+   .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/primitives.py
       :language: python
       :lines: 13-61
       :linenos:
@@ -68,7 +68,7 @@ Basic rectangle configurations:
 
 This visualization has been created with the following Python code:
 
-   .. literalinclude:: ../../../examples/rtd_demo_images/primitives.py
+   .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/primitives.py
       :language: python
       :lines: 112-140
       :linenos:

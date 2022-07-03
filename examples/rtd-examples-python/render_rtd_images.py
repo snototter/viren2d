@@ -15,7 +15,7 @@ def _process_result(
     if show_image:
         imvis.imshow(img, title, wait_ms=-1)#100)
     if save_image:
-        output_folder = Path(__file__).absolute().parents[1] / 'docs' / 'source' / 'images'
+        output_folder = Path(__file__).absolute().parents[2] / 'docs' / 'source' / 'images'
         imutils.imsave(output_folder / filename, img)
 
 
@@ -98,6 +98,5 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 
 
 if __name__ == '__main__':
-    #FIXME re-enable:
-    # render_rtd_demos(True, True)
+    render_rtd_demos(True, True)
     render_rtd_cheatsheets(True, True)

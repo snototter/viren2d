@@ -26,7 +26,7 @@ which are highlighted via :func:`~viren2d.Painter.draw_marker`:
 
 This visualization has been created with the following Python code:
 
-   .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
+   .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/positioning.py
       :language: python
       :linenos:
       :lines: 35-51
@@ -51,7 +51,7 @@ multi-line text boxes. The displayed text lines are an excerpt from
 
 This visualization has been created with the following Python code:
 
-   .. literalinclude:: ../../../examples/rtd_demo_images/positioning.py
+   .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/positioning.py
       :language: python
       :lines: 67-97
       :linenos:
