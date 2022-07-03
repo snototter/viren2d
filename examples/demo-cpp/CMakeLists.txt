@@ -27,6 +27,10 @@ add_executable(${viren2d_TARGET_CPP_DEMO}
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_text.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_tracking_by_detection.cpp)
 
+target_compile_definitions(${viren2d_TARGET_CPP_DEMO}
+    PRIVATE
+    viren2d_EXAMPLE_IMAGE_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../data/flamingo.jpg")
+
 
 target_include_directories(${viren2d_TARGET_CPP_DEMO}
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")

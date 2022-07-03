@@ -16,8 +16,21 @@ void DemoArrows();
 
 void DemoBoundingBoxes2D();
 
+void DemoCircles();
+
+void DemoImageBufferConversionOpenCV();
+
+void DemoLines();
+
+void DemoMarkers();
+
+void DemoPolygons();
+
 void DemoRects();
 
+void DemoText();
+
+void DemoTrajectories();
 
 } // namespace demos
 } // namespace viren2d

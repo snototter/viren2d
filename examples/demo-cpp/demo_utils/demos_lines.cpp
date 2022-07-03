@@ -49,5 +49,50 @@ void DemoArrows() {
   painter.reset();
 }
 
+
+void DemoLines() {
+  PrintDemoHeader("Lines");
+
+  auto painter = CreatePainter();
+  std::ostringstream lbl;
+  painter->SetCanvas(400, 400, Color::White);
+
+  painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!50"));
+
+  Vec2d pt1 {50, 50};
+  Vec2d pt2 {150, 350};
+
+  const auto rotation = werkzeugkiste::geometry::AngleDegFromDirectionVec(
+        pt1.DirectionVector(pt2));
+
+  LineStyle line_style(22, "azure!60", {}, 0.0, LineCap::Butt);
+  painter->DrawLine({50.0, 50.0}, {150.0, 350.0}, line_style);
+  lbl << "LineCap::" << LineCapToString(line_style.cap);
+  painter->DrawText(
+        {lbl.str()}, {100, 200}, Anchor::Center,
+        TextStyle(), {0, 0}, rotation);
+  lbl.str(std::string());  // Reset stringstream
+
+
+  line_style.cap = LineCap::Round;
+  painter->DrawLine({150.0, 50.0}, {250.0, 350}, line_style);
+  lbl << "LineCap::" << LineCapToString(line_style.cap);
+  painter->DrawText(
+        {lbl.str()}, {200, 200}, Anchor::Center,
+        TextStyle(), {0, 0}, rotation);
+  lbl.str(std::string());
+
+  line_style.cap = LineCap::Square;
+  painter->DrawLine({250.0, 50.0}, {350.0, 350.0}, line_style);
+  lbl << "LineCap::" << LineCapToString(line_style.cap);
+  painter->DrawText(
+        {lbl.str()}, {300, 200}, Anchor::Center,
+        TextStyle(), {0, 0}, rotation);
+  lbl.str(std::string());
+
+  ProcessDemoOutput(painter->GetCanvas(false), "demo-output-lines.png");
+  painter.reset();
+}
+
 } // namespace demos
 } // namespace viren2d
