@@ -3,7 +3,10 @@ import numpy as np
 import viren2d
 
 
-def test_buffer_passing():
+def test_buffer_conversion():
+    with pytest.raises(TypeError):
+        viren2d.ImageBuffer(None)
+
     with pytest.raises(ValueError):
         viren2d.ImageBuffer(np.array([], dtype=np.uint8))
 
@@ -172,8 +175,8 @@ def test_dtypes():
             assert buf_vi.width == 5
             assert buf_vi.height == 3
             assert buf_vi.channels == channels
-            #TODO random initialization
-            # convert back (copy)
+            #TODO idea: test with randomly initialized np array
+            # convert back (with deep copy)
             # check format, shape, dtype
             # check values for equality
 
@@ -185,3 +188,27 @@ def test_dtypes():
     invalid = np.asfortranarray(np.ones((3, 5), dtype=np.uint8))
     with pytest.raises(ValueError):
         viren2d.ImageBuffer(invalid)
+
+
+def test_pixelation():
+    img_np = np.ones((7, 5, 2), dtype=np.int32)
+    img_np[:, :, 1] = 17
+    img_np[3:6, 2:3, :] = 99
+    buf = viren2d.ImageBuffer(img_np, copy=False)
+    buf.pixelate(block_width=4, block_height=3)
+    assert np.all(img_np[:3, :, 0] == 1)
+    assert np.all(img_np[3:, :, 0] == 99)
+    assert np.all(img_np[:3, :, 1] == 17)
+    assert np.all(img_np[3:, :, 0] == 99)
+
+    img_np = np.ones((7, 5, 2), dtype=np.uint8)
+    img_np[:, :, 1] = 42
+    img_np[3:6, 2:4, :] = 33
+    buf = viren2d.ImageBuffer(img_np, copy=False)
+    buf.pixelate(block_width=2, block_height=3)
+    assert np.all(img_np[:3, :, 0] == 1)
+    assert np.all(img_np[:, :2, 0] == 1)
+    assert np.all(img_np[3:, 2:, 0] == 33)
+    assert np.all(img_np[:3, :, 1] == 42)
+    assert np.all(img_np[:, :2, 1] == 42)
+    assert np.all(img_np[3:, 2:, 1] == 33)

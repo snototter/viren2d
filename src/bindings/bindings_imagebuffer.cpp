@@ -251,7 +251,7 @@ void RegisterImageBuffer(py::module &m) {
       .def(
         "pixelate",
         &ImageBuffer::Pixelate, R"docstr(
-        Pixelates a rectangular region of interest in-place.
+        Pixelates a rectangular region of interest **in-place**.
 
         Performs **in-place** pixelation of images with **up to 4**
         :attr:`channels`. All pixels within a *block* will be set to

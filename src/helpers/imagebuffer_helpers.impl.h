@@ -8,7 +8,7 @@
 
 #include <helpers/logging.h>
 
-
+#include <iostream> //FIXME remove
 namespace viren2d {
 namespace helpers {
 
@@ -288,13 +288,21 @@ void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
   }
   const int num_blocks_horz = roi.Width() / block_width;
   const int missed_horz = roi.Width() - (num_blocks_horz * block_width);
-  const int extend_left = missed_horz / 2;
-  const int extend_right = missed_horz - extend_left;
+  int extend_left = missed_horz / 2;
+  int extend_right = missed_horz - extend_left;
+  if (num_blocks_horz == 1) {
+    extend_left += extend_right;
+    extend_right = 0;
+  }
 
   const int num_blocks_vert = roi.Height() / block_height;
   const int missed_vert = roi.Height() - (num_blocks_vert * block_height);
-  const int extend_top = missed_vert / 2;
-  const int extend_bottom = missed_vert - extend_top;
+  int extend_top = missed_vert / 2;
+  int extend_bottom = missed_vert - extend_top;
+  if (num_blocks_vert == 1) {
+    extend_top += extend_bottom;
+    extend_bottom = 0;
+  }
 
   int top = 0;
   for (int brow = 0; brow < num_blocks_vert; ++brow) {
@@ -308,7 +316,6 @@ void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
            : block_height);
     // All pixels within a block are assigned the value of the center pixel:
     const int cy = top + bheight / 2;
-
     int left = 0;
     for (int bcol = 0; bcol < num_blocks_horz; ++bcol) {
       const int bwidth = (bcol == 0)
