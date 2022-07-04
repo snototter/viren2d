@@ -75,7 +75,7 @@ enum class ColorMap : unsigned char
   /// Perceptually uniform. Default color map of matplotlib.
   Viridis
 
-  //TODO(dev): If you add an enum value *after* Viridis, adjust the iterator TODO in ListColormaps - later on in the test suite, too!
+  //TODO(dev): If you add an enum value *after* Viridis, adjust the iterator TODO in ListColorMaps - later on in the test suite, too!
 };
 
 

@@ -116,7 +116,7 @@ std::ostream &operator<<(std::ostream &os, ColorMap cm) {
 }
 
 
-std::vector<ColorMap> ListColormaps() {
+std::vector<ColorMap> ListColorMaps() {
   std::vector<ColorMap> lst;
   typedef ContinuousEnumIterator<ColorMap,
     ColorMap::Autumn, ColorMap::Viridis> ColormapIterator;
