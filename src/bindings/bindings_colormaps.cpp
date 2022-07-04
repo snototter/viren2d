@@ -158,8 +158,8 @@ Colorizer CreateColorizer(
 void RegisterColormaps(pybind11::module &m) {
   RegisterColorMapEnum(m);
 
-  py::enum_<Colorizer::LimitsMode> mode(m, "ColorMap",
-             "TODO DOC");
+  py::enum_<Colorizer::LimitsMode> mode(m, "LimitsMode",
+             "TODO DOC LimitsMode");
 
   //TODO bind mode!
   py::class_<Colorizer> colorizer(m, "Colorizer", R"docstr(
