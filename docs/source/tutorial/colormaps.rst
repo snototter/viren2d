@@ -28,4 +28,5 @@ camera stream).
 
 
 .. warning::
-   TODO add example
+   TODO add example; group color map cheat sheet by sequential, cyclic, categorical, and rainbow;
+   link to kovesi's article

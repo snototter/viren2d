@@ -21,6 +21,9 @@ Color Map Utilities
 ~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.Colorizer
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
 
 .. autofunction:: viren2d.colorize
 

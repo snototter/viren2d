@@ -180,8 +180,9 @@ void RegisterColormaps(pybind11::module &m) {
         Args:
           color_map:
           mode: TODO as :class:`str`
+
             * ``'continuos'``: Computes the upper and lower limits for
-              visualization **for each new image**.
+              visualization **per image**.
             * ``'fixed'``: Provide upper and lower limits as ``low`` and ``high`` parameters.
             * ``'once'``: TODO
         )docstr",
