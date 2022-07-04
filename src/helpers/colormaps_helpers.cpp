@@ -7,11 +7,11 @@
 // TODO(extension) maybe add 'hell' and other cyclic maps from
 // https://github.com/GalacticDynamics-Oxford/Agama/blob/master/py/agamaColormaps.py
 
-/// Python script to convert vito's Colormaps for
+/// Python script to convert vito's color maps for
 /// use with viren2d:
 
 /**************************************************
-from vito import Colormaps
+from vito import colormaps
 
 def cmap2viren(cname: str, per_row: int = 4):
     cmap = Colormaps.by_name(cname, return_rgb=True)
@@ -24,9 +24,9 @@ def cmap2viren(cname: str, per_row: int = 4):
         idx += 1
         if idx < len(cmap):
             cmap_str += ', '
-    print(f'constexpr RGBColor kColormap{cname}[] = {{{cmap_str}\n}};')
+    print(f'constexpr RGBColor kColorMap{cname}[] = {{{cmap_str}\n}};')
 
-for cname in Colormaps.Colormap_names:
+for cname in colormaps.colormap_names:
     cmap2viren(cname)
     print()
     print()
@@ -34,7 +34,7 @@ for cname in Colormaps.Colormap_names:
 
 namespace viren2d {
 namespace helpers {
-constexpr RGBColor kColormapAutumn[] = {
+constexpr RGBColor kColorMapAutumn[] = {
   RGBColor(255,   0,   0), RGBColor(255,   1,   0), RGBColor(255,   2,   0), RGBColor(255,   3,   0),
   RGBColor(255,   4,   0), RGBColor(255,   5,   0), RGBColor(255,   6,   0), RGBColor(255,   7,   0),
   RGBColor(255,   8,   0), RGBColor(255,   9,   0), RGBColor(255,  10,   0), RGBColor(255,  11,   0),
@@ -102,7 +102,7 @@ constexpr RGBColor kColormapAutumn[] = {
 };
 
 
-constexpr RGBColor kColormapBone[] = {
+constexpr RGBColor kColorMapBone[] = {
   RGBColor(  0,   0,   0), RGBColor(  1,   1,   1), RGBColor(  2,   2,   2), RGBColor(  3,   3,   4),
   RGBColor(  4,   4,   5), RGBColor(  4,   4,   6), RGBColor(  5,   5,   7), RGBColor(  6,   6,   8),
   RGBColor(  7,   7,  10), RGBColor(  8,   8,  11), RGBColor(  9,   9,  12), RGBColor( 10,  10,  13),
@@ -170,7 +170,7 @@ constexpr RGBColor kColormapBone[] = {
 };
 
 
-constexpr RGBColor kColormapCold[] = {
+constexpr RGBColor kColorMapCold[] = {
   RGBColor(  0,   0,   0), RGBColor(  0,   0,   3), RGBColor(  0,   0,   6), RGBColor(  0,   0,   9),
   RGBColor(  0,   0,  12), RGBColor(  0,   0,  15), RGBColor(  0,   0,  18), RGBColor(  0,   0,  21),
   RGBColor(  0,   0,  24), RGBColor(  0,   0,  27), RGBColor(  0,   0,  30), RGBColor(  0,   0,  33),
@@ -238,7 +238,7 @@ constexpr RGBColor kColormapCold[] = {
 };
 
 
-constexpr RGBColor kColormapDisparity[] = {
+constexpr RGBColor kColorMapDisparity[] = {
   RGBColor(  0,   0,   0), RGBColor(  0,   0,   9), RGBColor(  0,   0,  18), RGBColor(  0,   0,  26),
   RGBColor(  0,   0,  35), RGBColor(  0,   0,  44), RGBColor(  0,   0,  53), RGBColor(  0,   0,  61),
   RGBColor(  0,   0,  70), RGBColor(  0,   0,  79), RGBColor(  0,   0,  88), RGBColor(  0,   0,  96),
@@ -306,7 +306,7 @@ constexpr RGBColor kColormapDisparity[] = {
 };
 
 
-constexpr RGBColor kColormapEarth[] = {
+constexpr RGBColor kColorMapEarth[] = {
   RGBColor(  0,   0,   0), RGBColor(  0,   2,   1), RGBColor(  0,   3,   2), RGBColor(  0,   5,   2),
   RGBColor(  0,   6,   3), RGBColor(  0,   8,   4), RGBColor(  0,   9,   5), RGBColor(  0,  11,   6),
   RGBColor(  0,  12,   7), RGBColor(  0,  14,   7), RGBColor(  0,  15,   8), RGBColor(  0,  17,   9),
@@ -374,7 +374,7 @@ constexpr RGBColor kColormapEarth[] = {
 };
 
 
-constexpr RGBColor kColormapGrayscale[] = {
+constexpr RGBColor kColorMapGrayscale[] = {
   RGBColor(  0,   0,   0), RGBColor(  1,   1,   1), RGBColor(  2,   2,   2), RGBColor(  3,   3,   3),
   RGBColor(  4,   4,   4), RGBColor(  5,   5,   5), RGBColor(  6,   6,   6), RGBColor(  7,   7,   7),
   RGBColor(  8,   8,   8), RGBColor(  9,   9,   9), RGBColor( 10,  10,  10), RGBColor( 11,  11,  11),
@@ -442,7 +442,7 @@ constexpr RGBColor kColormapGrayscale[] = {
 };
 
 
-constexpr RGBColor kColormapHot[] = {
+constexpr RGBColor kColorMapHot[] = {
   RGBColor(  0,   0,   0), RGBColor(  3,   0,   0), RGBColor(  5,   0,   0), RGBColor(  8,   0,   0),
   RGBColor( 11,   0,   0), RGBColor( 13,   0,   0), RGBColor( 16,   0,   0), RGBColor( 19,   0,   0),
   RGBColor( 21,   0,   0), RGBColor( 24,   0,   0), RGBColor( 27,   0,   0), RGBColor( 29,   0,   0),
@@ -510,7 +510,7 @@ constexpr RGBColor kColormapHot[] = {
 };
 
 
-constexpr RGBColor kColormapHSV[] = {
+constexpr RGBColor kColorMapHSV[] = {
   RGBColor(255,   0,   0), RGBColor(255,   6,   0), RGBColor(255,  12,   0), RGBColor(255,  18,   0),
   RGBColor(255,  24,   0), RGBColor(255,  30,   0), RGBColor(255,  36,   0), RGBColor(255,  42,   0),
   RGBColor(255,  48,   0), RGBColor(255,  54,   0), RGBColor(255,  60,   0), RGBColor(255,  66,   0),
@@ -578,7 +578,7 @@ constexpr RGBColor kColormapHSV[] = {
 };
 
 
-constexpr RGBColor kColormapInferno[] = {
+constexpr RGBColor kColorMapInferno[] = {
   RGBColor(  0,   0,   4), RGBColor(  1,   0,   5), RGBColor(  1,   1,   6), RGBColor(  1,   1,   8),
   RGBColor(  2,   1,  10), RGBColor(  2,   2,  12), RGBColor(  2,   2,  14), RGBColor(  3,   2,  16),
   RGBColor(  4,   3,  18), RGBColor(  4,   3,  20), RGBColor(  5,   4,  23), RGBColor(  6,   4,  25),
@@ -646,7 +646,7 @@ constexpr RGBColor kColormapInferno[] = {
 };
 
 
-constexpr RGBColor kColormapJet[] = {
+constexpr RGBColor kColorMapJet[] = {
   RGBColor(  0,   0, 128), RGBColor(  0,   0, 132), RGBColor(  0,   0, 136), RGBColor(  0,   0, 140),
   RGBColor(  0,   0, 144), RGBColor(  0,   0, 147), RGBColor(  0,   0, 152), RGBColor(  0,   0, 156),
   RGBColor(  0,   0, 160), RGBColor(  0,   0, 163), RGBColor(  0,   0, 168), RGBColor(  0,   0, 172),
@@ -714,7 +714,7 @@ constexpr RGBColor kColormapJet[] = {
 };
 
 
-constexpr RGBColor kColormapMagma[] = {
+constexpr RGBColor kColorMapMagma[] = {
   RGBColor(  0,   0,   4), RGBColor(  1,   0,   5), RGBColor(  1,   1,   6), RGBColor(  1,   1,   8),
   RGBColor(  2,   1,   9), RGBColor(  2,   2,  11), RGBColor(  2,   2,  13), RGBColor(  3,   3,  15),
   RGBColor(  3,   3,  18), RGBColor(  4,   4,  20), RGBColor(  5,   4,  22), RGBColor(  6,   5,  24),
@@ -782,7 +782,7 @@ constexpr RGBColor kColormapMagma[] = {
 };
 
 
-constexpr RGBColor kColormapPastel[] = {
+constexpr RGBColor kColorMapPastel[] = {
   RGBColor(  0,   0,   0), RGBColor(  3,   0,   0), RGBColor(  7,   0,   0), RGBColor( 10,   0,   0),
   RGBColor( 13,   0,   1), RGBColor( 16,   0,   1), RGBColor( 20,   0,   1), RGBColor( 23,   0,   1),
   RGBColor( 26,   0,   1), RGBColor( 30,   0,   1), RGBColor( 33,   0,   1), RGBColor( 36,   0,   1),
@@ -850,7 +850,7 @@ constexpr RGBColor kColormapPastel[] = {
 };
 
 
-constexpr RGBColor kColormapPlasma[] = {
+constexpr RGBColor kColorMapPlasma[] = {
   RGBColor( 13,   8, 135), RGBColor( 16,   7, 136), RGBColor( 19,   7, 137), RGBColor( 22,   7, 138),
   RGBColor( 25,   6, 140), RGBColor( 27,   6, 141), RGBColor( 29,   6, 142), RGBColor( 32,   6, 143),
   RGBColor( 34,   6, 144), RGBColor( 36,   6, 145), RGBColor( 38,   5, 145), RGBColor( 40,   5, 146),
@@ -918,7 +918,7 @@ constexpr RGBColor kColormapPlasma[] = {
 };
 
 
-constexpr RGBColor kColormapSepia[] = {
+constexpr RGBColor kColorMapSepia[] = {
   RGBColor(  0,   0,   0), RGBColor(  2,   1,   1), RGBColor(  4,   3,   2), RGBColor(  6,   4,   3),
   RGBColor(  7,   5,   4), RGBColor(  9,   7,   6), RGBColor( 11,   8,   7), RGBColor( 13,   9,   8),
   RGBColor( 14,  11,   9), RGBColor( 16,  12,  10), RGBColor( 17,  13,  11), RGBColor( 18,  14,  12),
@@ -986,7 +986,7 @@ constexpr RGBColor kColormapSepia[] = {
 };
 
 
-constexpr RGBColor kColormapTemperature[] = {
+constexpr RGBColor kColorMapTemperature[] = {
   RGBColor( 36,   0, 217), RGBColor( 35,   2, 219), RGBColor( 35,   4, 221), RGBColor( 34,   6, 223),
   RGBColor( 33,   8, 225), RGBColor( 32,  10, 227), RGBColor( 32,  11, 229), RGBColor( 31,  13, 231),
   RGBColor( 30,  15, 233), RGBColor( 29,  17, 235), RGBColor( 29,  19, 237), RGBColor( 28,  21, 239),
@@ -1054,7 +1054,7 @@ constexpr RGBColor kColormapTemperature[] = {
 };
 
 
-constexpr RGBColor kColormapThermal[] = {
+constexpr RGBColor kColorMapThermal[] = {
   RGBColor(  0,   0,   0), RGBColor(  3,   1,   4), RGBColor(  5,   2,   8), RGBColor(  8,   2,  12),
   RGBColor( 10,   3,  15), RGBColor( 13,   4,  18), RGBColor( 15,   5,  21), RGBColor( 17,   6,  23),
   RGBColor( 18,   7,  25), RGBColor( 20,   7,  27), RGBColor( 21,   8,  29), RGBColor( 23,   9,  32),
@@ -1122,7 +1122,7 @@ constexpr RGBColor kColormapThermal[] = {
 };
 
 
-constexpr RGBColor kColormapTurbo[] = {
+constexpr RGBColor kColorMapTurbo[] = {
   RGBColor( 48,  18,  59), RGBColor( 49,  21,  66), RGBColor( 50,  24,  74), RGBColor( 52,  27,  81),
   RGBColor( 53,  30,  88), RGBColor( 54,  33,  95), RGBColor( 55,  35, 101), RGBColor( 56,  38, 108),
   RGBColor( 57,  41, 114), RGBColor( 58,  44, 121), RGBColor( 59,  47, 127), RGBColor( 60,  50, 133),
@@ -1190,7 +1190,7 @@ constexpr RGBColor kColormapTurbo[] = {
 };
 
 
-constexpr RGBColor kColormapViridis[] = {
+constexpr RGBColor kColorMapViridis[] = {
   RGBColor( 68,   1,  84), RGBColor( 68,   2,  86), RGBColor( 69,   4,  87), RGBColor( 69,   5,  89),
   RGBColor( 70,   7,  90), RGBColor( 70,   8,  92), RGBColor( 70,  10,  93), RGBColor( 70,  11,  94),
   RGBColor( 71,  13,  96), RGBColor( 71,  14,  97), RGBColor( 71,  16,  99), RGBColor( 71,  17, 100),
@@ -1259,48 +1259,48 @@ constexpr RGBColor kColormapViridis[] = {
 
 
 
-const RGBColor *GetColormap(Colormap colormap) {
-  switch(colormap) {
-    case Colormap::Autumn:
-      return kColormapAutumn;
-    case Colormap::Bone:
-      return kColormapBone;
-    case Colormap::Cold:
-      return kColormapCold;
-    case Colormap::Disparity:
-      return kColormapDisparity;
-    case Colormap::Earth:
-      return kColormapEarth;
-    case Colormap::Grayscale:
-      return kColormapGrayscale;
-    case Colormap::Hot:
-      return kColormapHot;
-    case Colormap::HSV:
-      return kColormapHSV;
-    case Colormap::Inferno:
-      return kColormapInferno;
-    case Colormap::Jet:
-      return kColormapJet;
-    case Colormap::Magma:
-      return kColormapMagma;
-    case Colormap::Pastel:
-      return kColormapPastel;
-    case Colormap::Plasma:
-      return kColormapPlasma;
-    case Colormap::Sepia:
-      return kColormapSepia;
-    case Colormap::Temperature:
-      return kColormapTemperature;
-    case Colormap::Thermal:
-      return kColormapThermal;
-    case Colormap::Turbo:
-      return kColormapTurbo;
-    case Colormap::Viridis:
-      return kColormapViridis;
+const RGBColor *GetColorMap(ColorMap color_map) {
+  switch(color_map) {
+    case ColorMap::Autumn:
+      return kColorMapAutumn;
+    case ColorMap::Bone:
+      return kColorMapBone;
+    case ColorMap::Cold:
+      return kColorMapCold;
+    case ColorMap::Disparity:
+      return kColorMapDisparity;
+    case ColorMap::Earth:
+      return kColorMapEarth;
+    case ColorMap::Grayscale:
+      return kColorMapGrayscale;
+    case ColorMap::Hot:
+      return kColorMapHot;
+    case ColorMap::HSV:
+      return kColorMapHSV;
+    case ColorMap::Inferno:
+      return kColorMapInferno;
+    case ColorMap::Jet:
+      return kColorMapJet;
+    case ColorMap::Magma:
+      return kColorMapMagma;
+    case ColorMap::Pastel:
+      return kColorMapPastel;
+    case ColorMap::Plasma:
+      return kColorMapPlasma;
+    case ColorMap::Sepia:
+      return kColorMapSepia;
+    case ColorMap::Temperature:
+      return kColorMapTemperature;
+    case ColorMap::Thermal:
+      return kColorMapThermal;
+    case ColorMap::Turbo:
+      return kColorMapTurbo;
+    case ColorMap::Viridis:
+      return kColorMapViridis;
   }
-  std::string s("Colormap for `");
-  s += ColormapToString(colormap);
-  s += "` is not mapped in `GetColormap`!";
+  std::string s("Color map for `");
+  s += ColorMapToString(color_map);
+  s += "` is not mapped in `GetColorMap`!";
   throw std::logic_error(s);
 }
 

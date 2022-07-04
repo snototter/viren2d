@@ -1,18 +1,20 @@
----------
-Colormaps
----------
+----------
+Color Maps
+----------
 
-Choose any supported :class:`~viren2d.Colormap` to colorize 2D input data via
-:meth:`~viren2d.colorize`.
+Choose any supported :class:`~viren2d.ColorMap` to colorize 2D input data via
+:meth:`~viren2d.colorize` or the :class:`~viren2d.Colorizer` (for repeatedly
+colorizing inputs with similar characteristics, *e.g.* when displaying a ToF
+camera stream).
 
-**Colormap Cheat Sheet:**
+**Color Map Cheat Sheet:**
 
    .. image:: ../images/colormaps-cheat-sheet.png
       :width: 520
-      :alt: Available colormaps
+      :alt: Available color maps
       :align: center
 
-**Colormap Example:**
+**Color Map Example:**
 
 .. comment
    This visualization has been created with the following Python code:
@@ -26,4 +28,4 @@ Choose any supported :class:`~viren2d.Colormap` to colorize 2D input data via
 
 
 .. warning::
-   TODO add example, colorizer, ...
+   TODO add example

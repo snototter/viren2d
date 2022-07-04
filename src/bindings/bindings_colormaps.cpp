@@ -1,5 +1,6 @@
 #include <sstream>
 #include <stdexcept>
+#include <limits>
 
 #include <pybind11/stl.h>
 
@@ -11,127 +12,127 @@ namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
-void RegisterColormapEnum(pybind11::module &m) {
-  py::enum_<Colormap> cm(m, "Colormap",
-             "Available colormaps.");
+void RegisterColorMapEnum(pybind11::module &m) {
+  py::enum_<ColorMap> cm(m, "ColorMap",
+             "Available color maps.");
   cm.value(
         "Autumn",
-        Colormap::Autumn,
-        "Red-yellow colormap.")
+        ColorMap::Autumn,
+        "Red-yellow color map.")
       .value(
         "Bone",
-        Colormap::Bone,
-        "Black-blue-white colormap.")
+        ColorMap::Bone,
+        "Black-blue-white color map.")
       .value(
         "Cold",
-        Colormap::Cold,
-        "Black-blue-cyan-white colormap.")
+        ColorMap::Cold,
+        "Black-blue-cyan-white color map.")
       .value(
         "Disparity",
-        Colormap::Disparity,
-        "High contrast colormap with subtle gradient discontinuities, suitable"
+        ColorMap::Disparity,
+        "High contrast color map with subtle gradient discontinuities, suitable"
         "for depth/disparity images.")
       .value(
         "Earth",
-        Colormap::Earth,
-        "Black-green-white colormap. Has linear grayscale changes when printed "
+        ColorMap::Earth,
+        "Black-green-white color map. Has linear grayscale changes when printed "
         "in black & white.")
       .value(
         "Grayscale",
-        Colormap::Grayscale,
-        "Linear grayscale gradient.")
+        ColorMap::Grayscale,
+        "Standard linear grayscale gradient color map.")
       .value(
         "Hot",
-        Colormap::Hot,
-        "Black-red-yellow-white colormap.")
+        ColorMap::Hot,
+        "Black-red-yellow-white color map.")
       .value(
         "HSV",
-        Colormap::HSV,
-        "Red-yellow-green-cyan-blue-magenta-red colormap.")
+        ColorMap::HSV,
+        "Red-yellow-green-cyan-blue-magenta-red color map.")
       .value(
         "Inferno",
-        Colormap::Inferno,
-        "Black-purple-red-yellow, perceptually uniform colormap with "
+        ColorMap::Inferno,
+        "Black-purple-red-yellow, perceptually uniform color map with "
         "monotonically increasing luminance.")
       .value(
         "Jet",
-        Colormap::Jet,
-        "Rainbow colormap - note that despite their good contrast, "
+        ColorMap::Jet,
+        "Rainbow color map - note that despite their good contrast, "
         "`these maps should be avoided! <http://jakevdp.github.io/blog/2014/10/16/how-bad-is-your-colormap/>`__!")
       .value(
         "Magma",
-        Colormap::Magma,
-        "Perceptually uniform colormap, similar to :attr:`~viren2d.ColorMap.Inferno`.")
+        ColorMap::Magma,
+        "Perceptually uniform color map, similar to :attr:`~viren2d.ColorMap.Inferno`.")
       .value(
         "Pastel",
-        Colormap::Pastel,
-        "Black-pastel-white colormap. Has linear grayscale changes when printed in black & white.")
+        ColorMap::Pastel,
+        "Black-pastel-white color map. Has linear grayscale changes when printed in black & white.")
       .value(
         "Plasma",
-        Colormap::Plasma,
-        "Perceptually uniform colormap, similar to :attr:`~viren2d.ColorMap.Inferno`, "
+        ColorMap::Plasma,
+        "Perceptually uniform color map, similar to :attr:`~viren2d.ColorMap.Inferno`, "
         "but avoids black.")
       .value(
         "Sepia",
-        Colormap::Sepia,
-        "Black-brown-white colormap, perceptually uniform.")
+        ColorMap::Sepia,
+        "Black-brown-white color map, perceptually uniform.")
       .value(
         "Temperature",
-        Colormap::Temperature,
-        "Blue-pale-dark red colormap, for visualizing data related to "
+        ColorMap::Temperature,
+        "Blue-pale-dark red color map, for visualizing data related to "
         "temperature. Has good contrast for colorblind viewers.")
       .value(
         "Thermal",
-        Colormap::Thermal,
-        "Black-purple-red-yellow-white colormap.")
+        ColorMap::Thermal,
+        "Black-purple-red-yellow-white color map.")
       .value(
         "Turbo",
-        Colormap::Turbo,
-        "An improved rainbow colormap, "
+        ColorMap::Turbo,
+        "An improved rainbow color map, "
         "`similar to (but smoother than) Jet <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__.")
       .value(
         "Viridis",
-        Colormap::Viridis,
-        "Perceptually uniform. Default colormap of `matplotlib <https://matplotlib.org/>`__.");
+        ColorMap::Viridis,
+        "Perceptually uniform. Default color map of `matplotlib <https://matplotlib.org/>`__.");
 
 
   cm.def(
-        "__str__", [](Colormap c) -> py::str {
-            return py::str(ColormapToString(c));
+        "__str__", [](ColorMap c) -> py::str {
+            return py::str(ColorMapToString(c));
         }, py::name("__str__"), py::is_method(m));
 
   cm.def(
-        "__repr__", [](Colormap c) -> py::str {
+        "__repr__", [](ColorMap c) -> py::str {
             std::ostringstream s;
-            s << "<Colormap." << ColormapToString(c) << '>';
+            s << "<Colormap." << ColorMapToString(c) << '>';
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
 
 
   std::string doc = R"docstr(
-      Returns all :class:`~viren2d.Colormap` values.
+      Returns all :class:`~viren2d.ColorMap` values.
 
       Convenience utility to easily iterate all enumeration
       values.
 
-      **Corresponding C++ API:** ``viren2d::ListColormaps``.
+      **Corresponding C++ API:** ``viren2d::ListColorMaps``.
       )docstr";
-  cm.def_static("list_all", &ListColormaps, doc.c_str());
+  cm.def_static("list_all", &ListColorMaps, doc.c_str());
 
 }
 
 
-Colormap ColormapFromPyObject(const py::object &o) {
+ColorMap ColorMapFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
-    return ColormapFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<Colormap>(o)) {
-    return py::cast<Colormap>(o);
+    return ColorMapFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<ColorMap>(o)) {
+    return py::cast<ColorMap>(o);
   } else {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
     str << "Cannot cast type `" << tp
-        << "` to `viren2d.Colormap`!";
+        << "` to `viren2d.ColorMap`!";
     throw std::invalid_argument(str.str());
   }
 }
@@ -141,13 +142,62 @@ ImageBuffer ColorizationHelper(
     const ImageBuffer &data, const py::object &colormap,
     double limit_low, double limit_high, int output_channels,
     int bins) {
-  Colormap cmap = ColormapFromPyObject(colormap);
+  ColorMap cmap = ColorMapFromPyObject(colormap);
   return Colorize(data, cmap, limit_low, limit_high, output_channels, bins);
 }
 
 
+Colorizer CreateColorizer(
+    ColorMap color_map, const std::string &limits_mode, int bins,
+    int output_channels, double low, double high) {
+  Colorizer::LimitsMode lm = LimitsModeFromString(limits_mode);
+  return Colorizer(color_map, lm, bins, output_channels, low, high);
+}
+
+
 void RegisterColormaps(pybind11::module &m) {
-  RegisterColormapEnum(m);
+  RegisterColorMapEnum(m);
+
+  py::enum_<Colorizer::LimitsMode> mode(m, "ColorMap",
+             "TODO DOC");
+
+  //TODO bind mode!
+  py::class_<Colorizer> colorizer(m, "Colorizer", R"docstr(
+      TODO
+
+      TODO useful in scenarios, where we need to apply the
+      same colorization to similar data. For example, when
+      displaying the live stream of a time-of-flight sensor.
+
+      Example:
+        >>> #TODO
+      )docstr");
+
+  colorizer.def(
+        py::init<>(&CreateColorizer), R"docstr(
+        TODO doc
+
+        Args:
+          color_map:
+          mode: TODO as :class:`str`
+            * ``'continuos'``: Computes the upper and lower limits for
+              visualization **for each new image**.
+            * ``'fixed'``: Provide upper and lower limits as ``low`` and ``high`` parameters.
+            * ``'once'``: TODO
+        )docstr",
+        py::arg("color_map"),
+        py::arg("mode") = "continuous",
+        py::arg("bins") = 256,
+        py::arg("output_channels") = 3,
+        py::arg("low") = std::numeric_limits<double>::infinity(),
+        py::arg("high") = std::numeric_limits<double>::infinity())
+      .def_property(
+        "limit_low", &Colorizer::LimitLow, &Colorizer::SetLimitLow,
+        ":class:`float`: TODO doc")
+      .def_property(
+        "limit_high", &Colorizer::LimitHigh, &Colorizer::SetLimitHigh,
+        ":class:`float`: TODO doc");
+
 
   m.def("colorize",
         &ColorizationHelper, R"docstr(
@@ -177,7 +227,7 @@ void RegisterColormaps(pybind11::module &m) {
           >>>     data, colormap='viridis', low=-8, high=8, bins=256, output_channels=3)
         )docstr",
         py::arg("data"),
-        py::arg("colormap") = Colormap::Viridis,
+        py::arg("colormap") = ColorMap::Viridis,
         py::arg("low") = 0.0,
         py::arg("high") = 1.0,
         py::arg("output_channels") = 3,

@@ -1,7 +1,36 @@
+#include <viren2d/viren2d.h>
 #include <demo_utils/demos.h>
 
 namespace viren2d {
 namespace demos {
+
+void DemoColorMaps() {
+  PrintDemoHeader("Color maps");
+
+  auto painter = CreatePainter();
+  painter->SetCanvas(520, 1040, Color::White);
+
+  LineStyle line_style(3, Color::Black);
+
+  ImageBuffer peaks = Peaks(500, 500);
+
+  // For colorizing only a single/few image(s), you should use
+  // `Colorize` instead of the `Colorizer`.
+  // This class is useful, if you have to apply the same colorization
+  // over and over again (e.g. when streaming from a ToF sensor).
+  Colorizer pseudocolor(ColorMap::Inferno);
+
+  ImageBuffer vis = pseudocolor(peaks);
+  painter->DrawImage(vis, {10, 10}, Anchor::TopLeft, 1.0, 1.0, 1.0, 0.0, 0.2, line_style);
+
+  pseudocolor.SetBins(10);
+  vis = pseudocolor(peaks);
+  painter->DrawImage(vis, {1030, 10}, Anchor::TopRight, 1.0, 1.0, 1.0, 0.0, 0.2, line_style);
+
+  ProcessDemoOutput(painter->GetCanvas(false), "demo-output-color-maps.png");
+  painter.reset();
+}
+
 
   ////Vec3d rgb2hsv(const Color &rgb) {
   ////  auto rgbvec = 255 * Vec3d(rgb.red, rgb.green, rgb.blue);

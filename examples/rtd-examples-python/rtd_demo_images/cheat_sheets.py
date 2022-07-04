@@ -270,7 +270,7 @@ def cheat_sheet_colormaps():
     data = np.repeat(row.reshape((1,-1)), 25, axis=0)
 
     y = 15
-    for cmap in viren2d.Colormap.list_all():
+    for cmap in viren2d.ColorMap.list_all():
         vis = viren2d.colorize(data, colormap=cmap, low=0, high=255)
         pos = (canvas_width / 2, y)
         painter.draw_image(vis, position=pos, anchor='center', clip_factor=0.3)

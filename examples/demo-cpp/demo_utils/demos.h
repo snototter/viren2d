@@ -18,6 +18,8 @@ void DemoBoundingBoxes2D();
 
 void DemoCircles();
 
+void DemoColorMaps();
+
 void DemoImageBufferConversionOpenCV();
 
 void DemoLines();

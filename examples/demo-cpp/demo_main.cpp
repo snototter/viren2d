@@ -49,6 +49,7 @@ void Showcase() {
   DemoArrows();
   DemoBoundingBoxes2D();
   DemoCircles();
+  DemoColorMaps();
   DemoImageBufferConversionOpenCV();
   DemoLines();
   DemoMarkers();

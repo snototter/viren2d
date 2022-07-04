@@ -4,6 +4,7 @@
 #include <string>
 #include <ostream>
 #include <vector>
+#include <limits>
 
 #include <viren2d/imagebuffer.h>
 
@@ -11,32 +12,32 @@
 namespace viren2d {
 
 /// Available colormaps.
-enum class Colormap : unsigned char
+enum class ColorMap : unsigned char
 {
-  /// Red-yellow colormap, similar to MATLAB's autumn.
+  /// Red-yellow color map, similar to MATLAB's autumn.
   Autumn = 0,
 
-  /// Black-blue-white colormap, similar to MATLAB's bone.
+  /// Black-blue-white color map, similar to MATLAB's bone.
   Bone,
 
-  /// Black-blue-cyan-white colormap.
+  /// Black-blue-cyan-white color map.
   Cold,
 
-  /// High contrast colormap with subtle gradient discontinuities, suitable
+  /// High contrast color map with subtle gradient discontinuities, suitable
   /// for depth/disparity images.
   Disparity,
 
-  /// Black-green-white colormap.
+  /// Black-green-white color map.
   /// Has linear grayscale changes when printed in black & white.
   Earth,
 
   /// Convert input to grayscale
   Grayscale,
 
-  /// Black-red-yellow-white colormap, similar to MATLAB's hot.
+  /// Black-red-yellow-white color map, similar to MATLAB's hot.
   Hot,
 
-  /// Red-yellow-green-cyan-blue-magenta-red colormap.
+  /// Red-yellow-green-cyan-blue-magenta-red color map.
   HSV,
 
   /// Perceptually uniform.
@@ -50,28 +51,28 @@ enum class Colormap : unsigned char
   /// Perceptually uniform.
   Magma,
 
-  /// Black-pastel-white colormap.
+  /// Black-pastel-white color map.
   /// Has linear grayscale changes when printed in black & white.
   Pastel,
 
   /// Perceptually uniform.
   Plasma,
 
-  /// Black-brown-white colormap, perceptually uniform.
+  /// Black-brown-white color map, perceptually uniform.
   Sepia,
 
-  /// Blue-pale-dark red colormap, for visualizing data related to
+  /// Blue-pale-dark red color map, for visualizing data related to
   /// temperature. Has good contrast for colorblind viewers.
   Temperature,
 
-  /// Black-purple-red-yellow-white colormap.
+  /// Black-purple-red-yellow-white color map.
   Thermal,
 
-  /// An improved rainbow colormap, similar to (but smoother than) Jet.
+  /// An improved rainbow color map, similar to (but smoother than) Jet.
   /// https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html
   Turbo,
 
-  /// Perceptually uniform. Default colormap of matplotlib.
+  /// Perceptually uniform. Default color map of matplotlib.
   Viridis
 
   //TODO(dev): If you add an enum value *after* Viridis, adjust the iterator TODO in ListColormaps - later on in the test suite, too!
@@ -79,22 +80,75 @@ enum class Colormap : unsigned char
 
 
 /// Returns the string representation.
-std::string ColormapToString(Colormap cm);
+std::string ColorMapToString(ColorMap cm);
 
 
 /// Returns the ColorMap enum from its string representation.
-Colormap ColormapFromString(const std::string &cm);
+ColorMap ColorMapFromString(const std::string &cm);
 
 
 /// Output stream operator to print a ColorMap enum.
-std::ostream &operator<<(std::ostream &os, Colormap cm);
+std::ostream &operator<<(std::ostream &os, ColorMap cm);
 
-//TODO doc, fixme ColorMap --> Colormap
-std::vector<std::string> ListColormaps();
+std::vector<ColorMap> ListColorMaps();
+
+
+class Colorizer {
+public:
+  enum class LimitsMode {
+    FromDataContinuously = 0,
+    FromDataOnce,
+    Fixed
+  };
+
+  Colorizer(
+      ColorMap cmap,  // TODO gouldian
+      LimitsMode mode = LimitsMode::FromDataContinuously,
+      int num_bins = 256,
+      int channels_out = 3,
+      double low = std::numeric_limits<double>::infinity(),
+      double high = std::numeric_limits<double>::infinity());
+
+  void SetLimitLow(double low);
+  double LimitLow() const { return limit_low; }
+
+  void SetLimitHigh(double high);
+  double LimitHigh() const { return limit_high; }
+
+  void SetColorMap(ColorMap cmap);
+  ColorMap GetColorMap() const { return color_map; }
+
+  void SetBins(int num_bins);
+  int Bins() const { return bins; }
+
+  void SetOutputChannels(int channels_out);
+  int OutputChannels() const { return output_channels; }
+
+  ImageBuffer operator()(const ImageBuffer &data);
+
+private:
+  ColorMap color_map;
+  LimitsMode limits_mode;
+  int bins;
+  int output_channels;
+  double limit_low;
+  double limit_high;
+
+  void ValidateConfiguration() const;
+};
+
+
+/// Returns the string representation.
+std::string LimitsModeToString(Colorizer::LimitsMode lm);
+
+
+/// Returns the LimitsMode enum from its string representation.
+Colorizer::LimitsMode LimitsModeFromString(const std::string &lm);
 
 
 // TODO doc num output channels either 3 or 4
-ImageBuffer Colorize(const ImageBuffer &data, Colormap colormap,
+ImageBuffer Colorize(
+    const ImageBuffer &data, ColorMap color_map,
     double limit_low, double limit_high,
     int output_channels = 3, int bins = 256);
 

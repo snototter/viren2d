@@ -14,117 +14,115 @@
 namespace wks = werkzeugkiste::strings;
 
 namespace viren2d {
-
-/// Returns the string representation.
-std::string ColormapToString(Colormap cm) {
+std::string ColorMapToString(ColorMap cm) {
   switch (cm) {
-    case Colormap::Autumn:
+    case ColorMap::Autumn:
       return "autumn";
-    case Colormap::Bone:
+    case ColorMap::Bone:
       return "bone";
-    case Colormap::Cold:
+    case ColorMap::Cold:
       return "cold";
-    case Colormap::Disparity:
+    case ColorMap::Disparity:
       return "disparity";
-    case Colormap::Earth:
+    case ColorMap::Earth:
       return "earth";
-    case Colormap::Grayscale:
+    case ColorMap::Grayscale:
       return "grayscale";
-    case Colormap::Hot:
+    case ColorMap::Hot:
       return "hot";
-    case Colormap::HSV:
+    case ColorMap::HSV:
       return "hsv";
-    case Colormap::Inferno:
+    case ColorMap::Inferno:
       return "inferno";
-    case Colormap::Jet:
+    case ColorMap::Jet:
       return "jet";
-    case Colormap::Magma:
+    case ColorMap::Magma:
       return "magma";
-    case Colormap::Pastel:
+    case ColorMap::Pastel:
       return "pastel";
-    case Colormap::Plasma:
+    case ColorMap::Plasma:
       return "plasma";
-    case Colormap::Sepia:
+    case ColorMap::Sepia:
       return "sepia";
-    case Colormap::Temperature:
+    case ColorMap::Temperature:
       return "temperature";
-    case Colormap::Thermal:
+    case ColorMap::Thermal:
       return "thermal";
-    case Colormap::Turbo:
+    case ColorMap::Turbo:
       return "turbo";
-    case Colormap::Viridis:
+    case ColorMap::Viridis:
       return "viridis";
   }
-  //TODO(dev) For each new colormap, also extend ColorMapFromString!
+  //TODO(dev) For each new color map, also extend ColorMapFromString!
 
   std::ostringstream s;
-  s << "Colormap (" << static_cast<int>(cm)
-    << ") is not yet supported in `ColormapToString`!";
+  s << "ColorMap (" << static_cast<int>(cm)
+    << ") is not yet supported in `ColorMapToString`!";
   throw std::logic_error(s.str());
 }
 
 
-Colormap ColormapFromString(const std::string &cm) {
-  const auto lower = wks::Trim(wks::Lower(cm));
+ColorMap ColorMapFromString(const std::string &cm) {
+  const std::string lower = wks::Trim(wks::Lower(cm));
   if (lower.compare("autumn") == 0) {
-    return Colormap::Autumn;
+    return ColorMap::Autumn;
   } else if (lower.compare("bone") == 0) {
-    return Colormap::Bone;
+    return ColorMap::Bone;
   } else if (lower.compare("cold") == 0) {
-    return Colormap::Cold;
+    return ColorMap::Cold;
   } else if (lower.compare("disparity") == 0) {
-    return Colormap::Disparity;
+    return ColorMap::Disparity;
   } else if (lower.compare("earth") == 0) {
-    return Colormap::Earth;
+    return ColorMap::Earth;
   } else if ((lower.compare("grayscale") == 0)
              || (lower.compare("greyscale") == 0)) {
-    return Colormap::Grayscale;
+    return ColorMap::Grayscale;
   } else if (lower.compare("hot") == 0) {
-    return Colormap::Hot;
+    return ColorMap::Hot;
   } else if (lower.compare("hsv") == 0) {
-    return Colormap::HSV;
+    return ColorMap::HSV;
   } else if (lower.compare("inferno") == 0) {
-    return Colormap::Inferno;
+    return ColorMap::Inferno;
   } else if (lower.compare("jet") == 0) {
-    return Colormap::Jet;
+    return ColorMap::Jet;
   } else if (lower.compare("magma") == 0) {
-    return Colormap::Magma;
+    return ColorMap::Magma;
   } else if (lower.compare("pastel") == 0) {
-    return Colormap::Pastel;
+    return ColorMap::Pastel;
   } else if (lower.compare("plasma") == 0) {
-    return Colormap::Plasma;
+    return ColorMap::Plasma;
   } else if (lower.compare("sepia") == 0) {
-    return Colormap::Sepia;
+    return ColorMap::Sepia;
   } else if (lower.compare("temperature") == 0) {
-    return Colormap::Temperature;
+    return ColorMap::Temperature;
   } else if (lower.compare("thermal") == 0) {
-    return Colormap::Thermal;
+    return ColorMap::Thermal;
   } else if (lower.compare("turbo") == 0) {
-    return Colormap::Turbo;
+    return ColorMap::Turbo;
   } else if (lower.compare("viridis") == 0) {
-    return Colormap::Viridis;
+    return ColorMap::Viridis;
   }
 
-  std::string s("Could not deduce `Colormap` from string representation \"");
+  std::string s("Could not deduce `ColorMap` from string representation \"");
   s += cm;
   s += "\"!";
   throw std::logic_error(s);
 }
 
 
-std::ostream &operator<<(std::ostream &os, Colormap cm) {
-  os << ColormapToString(cm);
+std::ostream &operator<<(std::ostream &os, ColorMap cm) {
+  os << ColorMapToString(cm);
   return os;
 }
 
 
-std::vector<std::string> ListColormaps() {
-  std::vector<std::string> lst;
-  typedef ContinuousEnumIterator<Colormap,
-    Colormap::Autumn, Colormap::Viridis> ColormapIterator;
+std::vector<ColorMap> ListColormaps() {
+  std::vector<ColorMap> lst;
+  typedef ContinuousEnumIterator<ColorMap,
+    ColorMap::Autumn, ColorMap::Viridis> ColormapIterator;
 
-  for (Colormap cm: ColormapIterator()) {
-    lst.push_back(ColormapToString(cm));
+  for (ColorMap cm: ColormapIterator()) {
+    lst.push_back(cm);
   }
   return lst;
 }
@@ -179,13 +177,145 @@ ImageBuffer ColorLookup(
 }
 
 
+
+Colorizer::Colorizer(ColorMap cmap,
+    LimitsMode mode, int num_bins, int channels_out,
+    double low, double high)
+  : color_map(cmap), limits_mode(mode), bins(num_bins),
+    output_channels(channels_out), limit_low(low), limit_high(high) {
+  ValidateConfiguration();
+}
+
+
+void Colorizer::SetLimitLow(double low) {
+  // If the limits are set, we switch the mode - TODO add to interface doc!
+  limits_mode = LimitsMode::Fixed;
+  limit_low = low;
+  ValidateConfiguration();
+}
+
+
+void Colorizer::SetLimitHigh(double high) {
+  limits_mode = LimitsMode::Fixed;
+  limit_high = high;
+  ValidateConfiguration();
+}
+
+
+void Colorizer::SetColorMap(ColorMap cmap) {
+  color_map = cmap;
+}
+
+
+void Colorizer::SetBins(int num_bins) {
+  bins = num_bins;
+  ValidateConfiguration();
+}
+
+
+void Colorizer::SetOutputChannels(int channels_out) {
+  output_channels = channels_out;
+  ValidateConfiguration();
+}
+
+
+ImageBuffer Colorizer::operator()(const ImageBuffer &data) {
+  if ((limits_mode == LimitsMode::FromDataContinuously)
+      || (limits_mode == LimitsMode::FromDataOnce)) {
+    // Sanity checks are performed by a) MinMaxLocation (if buffer was invalid)
+    // and b) by Colorize (if buffer had more than a single channel), so we
+    // can simply try to update the upper/lower limits:
+    data.MinMaxLocation(&limit_low, &limit_high, nullptr, nullptr, 0);
+
+    // Ensure that we only compute the limits once if requested to do so:
+    if (limits_mode == LimitsMode::FromDataOnce) {
+      limits_mode = LimitsMode::Fixed;
+    }
+  }
+  return Colorize(data, color_map, limit_low, limit_high, output_channels, bins);
+}
+
+
+void Colorizer::ValidateConfiguration() const {
+  if ((bins < 2) || (bins > 256)) {
+    std::ostringstream s;
+    s << "Number of bins in `Colorizer` must be >= 2 and <= 256, but got: "
+      << bins << '!';
+    throw std::invalid_argument(s.str());
+  }
+
+  if ((limits_mode == LimitsMode::Fixed)
+      && (std::isinf(limit_low)
+          || std::isinf(limit_high)
+          || (limit_high <= limit_low))) {
+    std::ostringstream s;
+    s << "Invalid colorization limits [" << std::fixed
+      << std::setprecision(2) << limit_low
+      << ", " << limit_high << "]!";
+    throw std::invalid_argument(s.str());
+  }
+
+  if ((output_channels < 3)
+      || (output_channels > 4)) {
+    std::ostringstream s;
+    s << "Parameter `output_channels` in `Colorizer` must be "
+         "either 3 or 4, but got: " << output_channels << '!';
+    throw std::invalid_argument(s.str());
+  }
+}
+
+
+std::string LimitsModeToString(Colorizer::LimitsMode lm) {
+  switch (lm) {
+    case Colorizer::LimitsMode::Fixed:
+      return "fixed";
+
+    case Colorizer::LimitsMode::FromDataContinuously:
+      return "continuous";
+
+    case Colorizer::LimitsMode::FromDataOnce:
+      return "once";
+  }
+
+  std::ostringstream s;
+  s << "LimitsMode (" << static_cast<int>(lm)
+    << ") is not yet supported in `LimitsModeToString`!";
+  throw std::logic_error(s.str());
+}
+
+
+Colorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
+  //FIXME
+  const std::string lower = wks::Trim(wks::Lower(lm));
+
+  if (wks::StartsWith(lower, "fix")) {
+    return Colorizer::LimitsMode::Fixed;
+  } else if (wks::StartsWith(lower, "cont")) {
+    return Colorizer::LimitsMode::FromDataContinuously;
+  } else if (lower.compare("once") == 0) {
+    return Colorizer::LimitsMode::FromDataOnce;
+  }
+
+  std::string s("Could not deduce `LimitsMode` from string representation \"");
+  s += lm;
+  s += "\"!";
+  throw std::logic_error(s);
+}
+
+
 ImageBuffer Colorize(
-    const ImageBuffer &data, Colormap colormap,
+    const ImageBuffer &data, ColorMap color_map,
     double limit_low, double limit_high, int output_channels, int bins) {
   SPDLOG_DEBUG(
         "Colorize {:s} with {:s}, limits [{:f}, {:f}].",
-        data.ToString(), ColormapToString(colormap),
+        data.ToString(), ColorMapToString(color_map),
         limit_low, limit_high);
+
+  if (data.Channels() != 1) {
+    std::string s("`Colorize` requires a single-channel data buffer, not ");
+    s += data.ToString();
+    throw std::invalid_argument(s);
+  }
 
   if ((bins < 2) || (bins > 256)) {
     std::ostringstream s;
@@ -194,18 +324,11 @@ ImageBuffer Colorize(
     throw std::invalid_argument(s.str());
   }
 
-  if (data.Channels() != 1) {
-    std::string s("`Colorize` requires a single-channel data buffer, not ");
-    s += data.ToString();
-    throw std::invalid_argument(s);
-  }
-
   if (limit_high <= limit_low) {
     std::ostringstream s;
-    s << "Invalid limits [" << std::fixed
+    s << "Invalid colorization limits [" << std::fixed
       << std::setprecision(2) << limit_low
-      << ", " << limit_high << "] in `Colorize` for "
-      << data.ToString() << '!';
+      << ", " << limit_high << "]!";
     throw std::invalid_argument(s.str());
   }
 
@@ -217,7 +340,7 @@ ImageBuffer Colorize(
     throw std::invalid_argument(s.str());
   }
 
-  const helpers::RGBColor *map = helpers::GetColormap(colormap);
+  const helpers::RGBColor *map = helpers::GetColorMap(color_map);
 
   switch (data.BufferType()) {
     case ImageBufferType::UInt8:
