@@ -13,7 +13,7 @@ void DrawImage(
     const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor,
-    const LineStyle &line_style) {
+    LineStyle line_style) {
   CheckCanvas(surface, context);
 
   ImageBuffer img4 = image.ToUInt8(4);
@@ -95,6 +95,7 @@ void DrawImage(
           pattern_offset.y() + img4.Height() / 2.0);
     helpers::PathHelperRoundedRect(
           context, Rect({0.0, 0.0}, Vec2d(img4.Size()), 0.0, clip_factor));
+
     cairo_restore(context);
 
     if (need_contour) {
@@ -112,7 +113,6 @@ void DrawImage(
     }
   }
 
-
   // Paint the image onto the (already clipped) canvas:
   cairo_surface_t *imsurf = cairo_image_surface_create_for_data(
         img4.MutableData(), CAIRO_FORMAT_ARGB32,
@@ -124,11 +124,11 @@ void DrawImage(
 
   // Draw the contour if requested:
   if (need_contour && (image_contour != nullptr)) {
+    // Adjust the line thickness since the context is currently
+    // scaled
+    line_style.width /= std::max(scale_x, scale_y);
     ApplyLineStyle(context, line_style);
-    //TODO draw contour!
-    // We always draw the box' contour:
     cairo_new_path(context);
-    ApplyLineStyle(context, line_style);
     cairo_append_path(context, image_contour);
     cairo_path_destroy(image_contour);
     cairo_stroke(context);

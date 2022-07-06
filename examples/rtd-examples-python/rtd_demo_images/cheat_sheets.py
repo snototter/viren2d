@@ -258,7 +258,7 @@ def cheat_sheet_colormaps():
      # Set up empty canvas:
     painter = viren2d.Painter()
     canvas_width = 520
-    canvas_height = 630
+    canvas_height = 1000
     painter.set_canvas_rgb(
         width=canvas_width, height=canvas_height, color='white!0')
 

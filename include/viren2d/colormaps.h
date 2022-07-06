@@ -35,9 +35,12 @@ enum class ColorMap : unsigned char
   /// High contrast color map for depth & disparity images.
   /// Based on `disparity` for MATLAB
   /// `by Oliver Woodford <https://github.com/ojwoodford/sc>`__,
-  /// who released it under the BSD 3-Clause license
+  /// who released it under the BSD 3-Clause license.
   Disparity,
 
+  /// A blue-green-brown color map to visualize topography data. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *gist_earth* map.
+  Earth,
 
   /// Color map for categorical data, best suited for **light backgrounds**,
   /// i.e. light colors are omitted. This color map is adapted from
@@ -80,6 +83,11 @@ enum class ColorMap : unsigned char
   /// and integrated into matplotlib >= 1.15.
   Inferno,
 
+
+  /// A green-blue color map to visualize water depths. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *ocean* map.
+  Ocean,
+
   /// Cyclic magenta-yellow-green-blue color map for four orientations/phase
   /// angles to be visualized. This is the CET-C2 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
@@ -104,11 +112,11 @@ enum class ColorMap : unsigned char
   /// under the CC-BY 4.0 license.
   Relief,
 
-  /// Low contrast, blue-green-orange perceptually uniform sequential color map
-  /// for relief shading. This is the CET-I2 color map by
+  /// Low contrast (isoluminant), blue-green-orange perceptually uniform
+  /// sequential color map for relief shading. This is the CET-I2 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
-  ReliefIsoluminant,
+  ReliefLowContrast,
 
   /// Diverging blue-white-red color map.
   /// This is the CET-D01A color map by
@@ -122,12 +130,16 @@ enum class ColorMap : unsigned char
   /// under the CC-BY 4.0 license.
   TemperatureDark,
 
+  /// A blue-green-yellowish-brownish color map to visualize topography
+  /// data. Based on `matplotlib's <https://matplotlib.org>`__ *terrain* map.
+  Terrain,
+
   /// Black-purple-red-yellow-white sequential color map for
   /// thermographic images, also known as `iron` or `ironbow`.
   Thermal,
 
-  /// A rainbow color map similar to the well-known `jet`, but following a
-  /// smoother path through the CIELAB color space. Published by
+  /// A rainbow color map similar to the well-known MATLAB `jet`, but following
+  /// a smoother path through the CIELAB color space. Published by
   /// `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
   /// under the Apache-2.0 license.
   Turbo,
@@ -248,6 +260,13 @@ ImageBuffer Colorize(
     const ImageBuffer &data, ColorMap color_map,
     double limit_low, double limit_high,
     int output_channels = 3, int bins = 256);
+
+
+// data: single-channel --> will be converted to float/double
+// if int/uint will be scaled by 255.0!
+// output = colorization * data
+ImageBuffer ReliefShading(
+    const ImageBuffer &data, const ImageBuffer &colorization);
 
 
 /// Computes exemplary data from translated and scaled Gaussian

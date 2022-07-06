@@ -287,9 +287,9 @@ void RegisterImageBuffer(py::module &m) {
         &ImageBuffer::ToUInt8, R"docstr(
         Converts this buffer to ``uint8``.
 
-        If the underlying type is `float` or `double`,
-        the values will be **multiplied by 255**. Otherwise,
-        the values will be clamped into [0, 255].
+        If the underlying type is :class:`numpy.float32` or :class:`numpy.float64`,
+        the values will be **multiplied by 255**. Otherwise, the values will
+        be clamped into [0, 255].
 
         Args:
           num_channels: Number of output channels as :class:`int`. The following
@@ -298,6 +298,15 @@ void RegisterImageBuffer(py::module &m) {
             * For a 3-channel buffer: ``num_channels`` either 3 or 4.
             * For a 4-channel buffer: ``num_channels`` either 3 or 4.
         )docstr", py::arg("num_channels"))
+      .def(
+        "to_float32",
+        &ImageBuffer::ToFloat, R"docstr(
+        Converts this buffer to ``float32``.
+
+        If the underlying type is integral (*e.g.* :class:`numpy.uint8`,
+        :class:`numpy.int32`), the values will be **divided by 255**.
+        The number of channels remains the same.
+        )docstr")
       .def(
         "to_grayscale",
         &ImageBuffer::ToGrayscale, R"docstr(

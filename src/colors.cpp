@@ -44,6 +44,7 @@ double cast_RGB(double v) {
 /// https://ux.mailchimp.com/patterns/data#palette
 /// https://blog.datawrapper.de/beautifulcolors/
 /// https://blog.datawrapper.de/colors-for-data-vis-style-guides/
+/// FIXME use categorical colormap (glasbey dark or light)!
 const Color kExemplaryColors[] = {
   RGBa(200,    0,    0), // Red
   RGBa(  0,  200,    0), // light green(ish)

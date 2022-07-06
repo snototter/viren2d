@@ -47,6 +47,12 @@ void RegisterColorMapEnum(pybind11::module &m) {
         who released it under the BSD 3-Clause license.
         )docstr")
       .value(
+        "Earth",
+        ColorMap::Earth, R"docstr(
+        A blue-green-brown color map to visualize topography data. Based on
+        `matplotlib's <https://matplotlib.org>`__ *gist_earth* map.
+        )docstr")
+      .value(
         "GlasbeyDark",
         ColorMap::GlasbeyDark, R"docstr(
         Color map for categorical data, best suited for **light backgrounds**,
@@ -103,6 +109,12 @@ void RegisterColorMapEnum(pybind11::module &m) {
         and integrated into `matplotlib >= 1.15 <https://matplotlib.org/>`__.
         )docstr")
       .value(
+        "Ocean",
+        ColorMap::Ocean, R"docstr(
+        A green-blue color map to visualize water depths. Based on
+        `matplotlib's <https://matplotlib.org>`__ *ocean* map.
+        )docstr")
+      .value(
         "Orientation",
         ColorMap::Orientation, R"docstr(
         Cyclic magenta-yellow-green-blue color map for four orientations/phase
@@ -136,9 +148,9 @@ void RegisterColorMapEnum(pybind11::module &m) {
         )docstr")
       .value(
         "ReliefIsoluminant",
-        ColorMap::ReliefIsoluminant, R"docstr(
-        Low contrast, blue-green-orange perceptually uniform sequential color map
-        for relief shading. This is the CET-I2 color map by
+        ColorMap::ReliefLowContrast, R"docstr(
+        Low contrast (isoluminant), blue-green-orange perceptually uniform
+        sequential color map for relief shading. This is the CET-I2 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -159,6 +171,12 @@ void RegisterColorMapEnum(pybind11::module &m) {
         under the CC-BY 4.0 license.
         )docstr")
       .value(
+        "Terrain",
+        ColorMap::Terrain, R"docstr(
+        A blue-green-yellowish-brownish color map to visualize topography
+        data. Based on `matplotlib's <https://matplotlib.org>`__ *terrain* map.
+        )docstr")
+      .value(
         "Thermal",
         ColorMap::Thermal, R"docstr(
         Black-purple-red-yellow-white sequential color map for
@@ -167,8 +185,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
       .value(
         "Turbo",
         ColorMap::Turbo, R"docstr(
-        A rainbow color map similar to the well-known `jet`, but following a
-        smoother path through the CIELAB color space. Published by
+        A rainbow color map similar to the well-known MATLAB `jet`, but following
+        a smoother path through the CIELAB color space. Published by
         `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
         under the Apache-2.0 license.
         )docstr")
@@ -331,6 +349,29 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("output_channels") = 3,
         py::arg("bins") = 256);
 
+//FIXME 0,1 default --> inf,inf ? & compute from data by default!! FIXME FIXME
+
+  m.def("relief_shading",
+        &ReliefShading, R"docstr(
+        TODO doc multiplicative combination for relief shading.
+
+        Args:
+          data: A single channel :class:`~viren2d.ImageBuffer` or
+            :class:`numpy.ndarray` holding the topographic data.
+            TODO doc implicit scaling if integral type!
+
+          colorization: An :class:`~viren2d.ImageBuffer` or
+            :class:`numpy.ndarray` of type :class:`numpy.uint8` holding the
+            color image to be shaded.
+
+        Returns:
+          TODO
+
+        Example:
+          >>> #TODO
+        )docstr",
+        py::arg("data"),
+        py::arg("colorization"));
 
   m.def("peaks",
         &Peaks, R"docstr(

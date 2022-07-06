@@ -25,6 +25,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "color-blind";
     case ColorMap::Disparity:
       return "disparity";
+    case ColorMap::Earth:
+      return "earth";
     case ColorMap::GlasbeyDark:
       return "glasbey-dark";
     case ColorMap::GlasbeyLight:
@@ -41,6 +43,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "hsv";
     case ColorMap::Inferno:
       return "inferno";
+    case ColorMap::Ocean:
+      return "ocean";
     case ColorMap::Orientation:
       return "orientation";
     case ColorMap::OrientationColorBlind:
@@ -49,12 +53,14 @@ std::string ColorMapToString(ColorMap cm) {
       return "rainbow";
     case ColorMap::Relief:
       return "relief";
-    case ColorMap::ReliefIsoluminant:
-      return "relief-isoluminant";
+    case ColorMap::ReliefLowContrast:
+      return "relief-low-contrast";
     case ColorMap::Temperature:
       return "temperature";
     case ColorMap::TemperatureDark:
       return "temperature-dark";
+    case ColorMap::Terrain:
+      return "terrain";
     case ColorMap::Thermal:
       return "thermal";
     case ColorMap::Turbo:
@@ -89,6 +95,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::ColorBlind;
   } else if (lower.compare("disparity") == 0) {
     return ColorMap::Disparity;
+  } else if (lower.compare("earth") == 0) {
+    return ColorMap::Earth;
   } else if (lower.compare("glasbeydark") == 0) {
     return ColorMap::GlasbeyDark;
   } else if (lower.compare("glasbeylight") == 0) {
@@ -106,6 +114,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::HSV;
   } else if (lower.compare("inferno") == 0) {
     return ColorMap::Inferno;
+  } else if (lower.compare("ocean") == 0) {
+    return ColorMap::Ocean;
   } else if (lower.compare("orientation") == 0) {
     return ColorMap::Orientation;
   } else if (lower.compare("orientationcolorblind") == 0) {
@@ -116,11 +126,13 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Relief;
   } else if ((lower.compare("reliefisoluminant") == 0)
              || (lower.compare("relieflowcontrast") == 0)) {
-    return ColorMap::ReliefIsoluminant;
+    return ColorMap::ReliefLowContrast;
   } else if (lower.compare("temperature") == 0) {
     return ColorMap::Temperature;
   } else if (lower.compare("temperaturedark") == 0) {
     return ColorMap::TemperatureDark;
+  } else if (lower.compare("terrain") == 0) {
+    return ColorMap::Terrain;
   } else if (lower.compare("thermal") == 0) {
     return ColorMap::Thermal;
   } else if (lower.compare("turbo") == 0) {
@@ -320,7 +332,6 @@ std::string LimitsModeToString(Colorizer::LimitsMode lm) {
 
 
 Colorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
-  //FIXME
   const std::string lower = wks::Trim(wks::Lower(lm));
 
   if (wks::StartsWith(lower, "fix")) {
@@ -403,6 +414,64 @@ ImageBuffer Colorize(
   s += ImageBufferTypeToString(data.BufferType());
   s += "` not handled in `Colorize` switch!";
   throw std::logic_error(s);
+}
+
+
+ImageBuffer ReliefShading(
+    const ImageBuffer &data, const ImageBuffer &colorization) {
+  if (data.Channels() != 1) {
+    std::string s("Input `data` to `ReliefShading` must be single-channel, but got: ");
+    s += data.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  if (colorization.BufferType() != ImageBufferType::UInt8) {
+    std::string s("Input `colorization` to `ReliefShading` must be `uint8`, but got: ");
+    s += colorization.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  if ((colorization.Width() != data.Width())
+      || (colorization.Height() != data.Height())) {
+    std::string s("Input resolution to `ReliefShading` does not match, got: ");
+    s += data.ToString();
+    s += " vs. ";
+    s += colorization.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  const ImageBuffer &data_float = (data.BufferType() == ImageBufferType::Float)
+      ? data : data.ToFloat();
+
+  ImageBuffer dst = colorization.DeepCopy();
+
+  int rows = data.Height();
+  int cols = data.Width();
+  // The deeply copied dst will always be contiguous.
+  if (data.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  unsigned char *prow_dst;
+  const float *prow_data;
+  for (int row = 0; row < rows; ++row) {
+    prow_dst = dst.MutablePtr<unsigned char>(row, 0, 0);
+    prow_data = data_float.ImmutablePtr<float>(row, 0, 0);
+
+    for (int data_col = 0, color_idx = 0; data_col < cols; ++data_col) {
+      for (int ch = 0; ch < colorization.Channels(); ++ch) {
+        prow_dst[color_idx] = static_cast<unsigned char>(
+              prow_data[data_col] * prow_dst[color_idx]);
+        ++color_idx;
+      }
+    }
+  }
+
+  return dst;
 }
 
 

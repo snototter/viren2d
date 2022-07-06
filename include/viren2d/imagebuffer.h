@@ -338,6 +338,12 @@ public:
   /// * 4-channel buffer: output_channels either 3 or 4
   ImageBuffer ToUInt8(int output_channels) const;
 
+  /// Converts this buffer to `float`.
+  /// If the underlying type is integral (`uint8`,
+  /// `int16`, etc.), the values will be **divided by 255**.
+  /// Number of channels remains the same.
+  ImageBuffer ToFloat() const;
+
 
   /// Returns the grayscale image.
   ///

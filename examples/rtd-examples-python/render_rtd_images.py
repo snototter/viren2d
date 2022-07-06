@@ -88,7 +88,11 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     img = demo_colormaps()
     _process_result(
         img, show_images, 'colormaps', save_images, 'colormap-peaks.png')
-
+    
+    img = demo_relief_shading()
+    _process_result(
+        img, show_images, 'relief-shading', save_images, 'relief-shading.png')
+        
 
 def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     """

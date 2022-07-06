@@ -307,6 +307,74 @@ constexpr RGBColor kColorMapDisparity[] = {
 };
 
 
+constexpr RGBColor kColorMapEarth[] = {
+  RGBColor(  0,   0,   0), RGBColor(  0,   0,  43), RGBColor(  1,   0,  56), RGBColor(  1,   0,  67),
+  RGBColor(  2,   0,  78), RGBColor(  3,   0,  88), RGBColor(  3,   0,  99), RGBColor(  4,   0, 110),
+  RGBColor(  5,   2, 115), RGBColor(  5,   4, 116), RGBColor(  6,   6, 116), RGBColor(  7,   9, 116),
+  RGBColor(  7,  11, 116), RGBColor(  8,  13, 116), RGBColor(  9,  16, 117), RGBColor(  9,  18, 117),
+  RGBColor( 10,  20, 117), RGBColor( 11,  22, 117), RGBColor( 11,  25, 117), RGBColor( 12,  27, 117),
+  RGBColor( 13,  29, 118), RGBColor( 13,  32, 118), RGBColor( 14,  34, 118), RGBColor( 15,  36, 118),
+  RGBColor( 15,  39, 118), RGBColor( 16,  41, 119), RGBColor( 17,  43, 119), RGBColor( 17,  45, 119),
+  RGBColor( 18,  48, 119), RGBColor( 19,  50, 119), RGBColor( 19,  52, 119), RGBColor( 20,  54, 120),
+  RGBColor( 21,  56, 120), RGBColor( 21,  58, 120), RGBColor( 22,  60, 120), RGBColor( 23,  62, 120),
+  RGBColor( 23,  64, 121), RGBColor( 24,  66, 121), RGBColor( 25,  69, 121), RGBColor( 25,  71, 121),
+  RGBColor( 26,  73, 121), RGBColor( 27,  75, 121), RGBColor( 27,  77, 122), RGBColor( 28,  79, 122),
+  RGBColor( 29,  81, 122), RGBColor( 29,  83, 122), RGBColor( 30,  84, 122), RGBColor( 31,  86, 123),
+  RGBColor( 31,  88, 123), RGBColor( 32,  90, 123), RGBColor( 33,  92, 123), RGBColor( 33,  94, 123),
+  RGBColor( 34,  96, 123), RGBColor( 35,  97, 124), RGBColor( 35,  99, 124), RGBColor( 36, 101, 124),
+  RGBColor( 37, 102, 124), RGBColor( 37, 104, 124), RGBColor( 38, 105, 125), RGBColor( 39, 107, 125),
+  RGBColor( 39, 109, 125), RGBColor( 40, 110, 125), RGBColor( 41, 112, 125), RGBColor( 41, 113, 125),
+  RGBColor( 42, 115, 126), RGBColor( 43, 116, 126), RGBColor( 43, 118, 126), RGBColor( 44, 120, 126),
+  RGBColor( 45, 121, 126), RGBColor( 45, 123, 127), RGBColor( 46, 124, 127), RGBColor( 47, 126, 127),
+  RGBColor( 47, 127, 127), RGBColor( 48, 128, 126), RGBColor( 48, 129, 125), RGBColor( 49, 129, 123),
+  RGBColor( 49, 130, 122), RGBColor( 50, 130, 121), RGBColor( 50, 131, 120), RGBColor( 51, 132, 119),
+  RGBColor( 51, 132, 117), RGBColor( 52, 133, 116), RGBColor( 52, 133, 115), RGBColor( 53, 134, 114),
+  RGBColor( 53, 134, 112), RGBColor( 54, 135, 111), RGBColor( 54, 136, 110), RGBColor( 55, 136, 109),
+  RGBColor( 55, 137, 108), RGBColor( 56, 137, 106), RGBColor( 56, 138, 105), RGBColor( 56, 138, 104),
+  RGBColor( 57, 139, 103), RGBColor( 57, 140, 101), RGBColor( 58, 140, 100), RGBColor( 58, 141,  99),
+  RGBColor( 59, 141,  98), RGBColor( 59, 142,  97), RGBColor( 60, 142,  95), RGBColor( 60, 143,  94),
+  RGBColor( 61, 144,  93), RGBColor( 61, 144,  92), RGBColor( 62, 145,  90), RGBColor( 62, 145,  89),
+  RGBColor( 63, 146,  88), RGBColor( 63, 147,  87), RGBColor( 64, 147,  85), RGBColor( 64, 148,  84),
+  RGBColor( 64, 148,  83), RGBColor( 65, 149,  82), RGBColor( 65, 149,  81), RGBColor( 66, 150,  79),
+  RGBColor( 66, 151,  78), RGBColor( 67, 151,  77), RGBColor( 67, 152,  76), RGBColor( 68, 152,  74),
+  RGBColor( 68, 153,  73), RGBColor( 69, 153,  72), RGBColor( 71, 154,  71), RGBColor( 73, 155,  70),
+  RGBColor( 75, 155,  70), RGBColor( 78, 156,  71), RGBColor( 80, 156,  71), RGBColor( 82, 157,  72),
+  RGBColor( 84, 157,  72), RGBColor( 87, 158,  73), RGBColor( 89, 159,  74), RGBColor( 91, 159,  74),
+  RGBColor( 93, 160,  75), RGBColor( 95, 160,  75), RGBColor( 98, 161,  76), RGBColor(100, 161,  77),
+  RGBColor(102, 162,  77), RGBColor(104, 163,  78), RGBColor(107, 163,  78), RGBColor(109, 163,  79),
+  RGBColor(111, 164,  79), RGBColor(113, 164,  80), RGBColor(115, 165,  81), RGBColor(118, 165,  81),
+  RGBColor(120, 166,  82), RGBColor(121, 166,  82), RGBColor(123, 167,  82), RGBColor(125, 167,  82),
+  RGBColor(126, 167,  83), RGBColor(128, 168,  83), RGBColor(130, 168,  83), RGBColor(131, 169,  84),
+  RGBColor(133, 169,  84), RGBColor(135, 170,  84), RGBColor(136, 170,  85), RGBColor(138, 171,  85),
+  RGBColor(140, 171,  85), RGBColor(141, 171,  86), RGBColor(143, 172,  86), RGBColor(145, 172,  86),
+  RGBColor(146, 173,  87), RGBColor(148, 173,  87), RGBColor(150, 174,  87), RGBColor(151, 174,  88),
+  RGBColor(153, 174,  88), RGBColor(154, 175,  88), RGBColor(156, 175,  88), RGBColor(158, 176,  89),
+  RGBColor(159, 176,  89), RGBColor(161, 177,  89), RGBColor(163, 177,  90), RGBColor(164, 178,  90),
+  RGBColor(166, 178,  90), RGBColor(168, 178,  91), RGBColor(169, 179,  91), RGBColor(171, 179,  91),
+  RGBColor(173, 180,  92), RGBColor(174, 180,  92), RGBColor(176, 181,  92), RGBColor(178, 181,  93),
+  RGBColor(179, 181,  93), RGBColor(181, 182,  93), RGBColor(182, 182,  94), RGBColor(183, 181,  94),
+  RGBColor(183, 181,  94), RGBColor(184, 180,  95), RGBColor(184, 179,  95), RGBColor(185, 178,  95),
+  RGBColor(185, 177,  95), RGBColor(185, 176,  96), RGBColor(186, 175,  96), RGBColor(186, 175,  96),
+  RGBColor(187, 174,  97), RGBColor(187, 173,  97), RGBColor(188, 172,  97), RGBColor(188, 171,  98),
+  RGBColor(188, 170,  98), RGBColor(189, 169,  98), RGBColor(189, 169,  99), RGBColor(190, 168,  99),
+  RGBColor(190, 167,  99), RGBColor(190, 166, 100), RGBColor(191, 165, 100), RGBColor(191, 164, 100),
+  RGBColor(192, 163, 101), RGBColor(192, 163, 103), RGBColor(193, 163, 105), RGBColor(194, 163, 108),
+  RGBColor(195, 164, 110), RGBColor(197, 164, 113), RGBColor(198, 165, 115), RGBColor(199, 166, 118),
+  RGBColor(200, 166, 120), RGBColor(201, 167, 123), RGBColor(202, 168, 125), RGBColor(203, 169, 127),
+  RGBColor(204, 170, 130), RGBColor(206, 171, 132), RGBColor(207, 172, 135), RGBColor(208, 173, 137),
+  RGBColor(209, 173, 140), RGBColor(210, 174, 142), RGBColor(211, 175, 145), RGBColor(212, 176, 147),
+  RGBColor(213, 177, 150), RGBColor(214, 178, 152), RGBColor(216, 179, 154), RGBColor(217, 181, 157),
+  RGBColor(218, 182, 159), RGBColor(219, 183, 162), RGBColor(220, 185, 164), RGBColor(221, 186, 167),
+  RGBColor(222, 188, 169), RGBColor(223, 189, 172), RGBColor(225, 191, 175), RGBColor(226, 193, 178),
+  RGBColor(227, 195, 181), RGBColor(228, 197, 184), RGBColor(229, 199, 187), RGBColor(230, 201, 190),
+  RGBColor(231, 203, 193), RGBColor(232, 205, 196), RGBColor(233, 207, 199), RGBColor(235, 209, 202),
+  RGBColor(236, 211, 205), RGBColor(237, 213, 208), RGBColor(238, 215, 211), RGBColor(239, 217, 214),
+  RGBColor(240, 220, 217), RGBColor(241, 222, 220), RGBColor(242, 224, 223), RGBColor(244, 227, 226),
+  RGBColor(245, 230, 229), RGBColor(246, 233, 232), RGBColor(247, 236, 235), RGBColor(248, 239, 238),
+  RGBColor(249, 242, 241), RGBColor(250, 245, 244), RGBColor(251, 248, 247), RGBColor(253, 250, 250)
+};
+
+
 constexpr RGBColor kColorMapGlasbeyDark[] = {
   RGBColor(214,   0,   0), RGBColor(140,  59, 255), RGBColor(  1, 135,   0), RGBColor(  0, 172, 198),
   RGBColor(230, 165,   0), RGBColor(255, 126, 209), RGBColor(107,   0,  79), RGBColor( 87,  59,   0),
@@ -851,6 +919,74 @@ constexpr RGBColor kColorMapInferno[] = {
 };
 
 
+constexpr RGBColor kColorMapOcean[] = {
+  RGBColor(  0, 127,   0), RGBColor(  0, 126,   1), RGBColor(  0, 124,   2), RGBColor(  0, 123,   3),
+  RGBColor(  0, 121,   4), RGBColor(  0, 120,   5), RGBColor(  0, 118,   6), RGBColor(  0, 117,   7),
+  RGBColor(  0, 115,   8), RGBColor(  0, 114,   9), RGBColor(  0, 112,  10), RGBColor(  0, 111,  11),
+  RGBColor(  0, 109,  12), RGBColor(  0, 108,  13), RGBColor(  0, 106,  14), RGBColor(  0, 105,  15),
+  RGBColor(  0, 103,  16), RGBColor(  0, 102,  17), RGBColor(  0, 100,  18), RGBColor(  0,  99,  19),
+  RGBColor(  0,  97,  20), RGBColor(  0,  96,  21), RGBColor(  0,  94,  22), RGBColor(  0,  93,  23),
+  RGBColor(  0,  91,  24), RGBColor(  0,  89,  25), RGBColor(  0,  88,  26), RGBColor(  0,  87,  27),
+  RGBColor(  0,  85,  28), RGBColor(  0,  84,  29), RGBColor(  0,  82,  30), RGBColor(  0,  81,  31),
+  RGBColor(  0,  79,  32), RGBColor(  0,  78,  32), RGBColor(  0,  76,  34), RGBColor(  0,  74,  35),
+  RGBColor(  0,  73,  36), RGBColor(  0,  72,  36), RGBColor(  0,  70,  38), RGBColor(  0,  69,  39),
+  RGBColor(  0,  67,  40), RGBColor(  0,  66,  40), RGBColor(  0,  64,  42), RGBColor(  0,  63,  43),
+  RGBColor(  0,  61,  44), RGBColor(  0,  60,  44), RGBColor(  0,  58,  46), RGBColor(  0,  56,  47),
+  RGBColor(  0,  55,  48), RGBColor(  0,  54,  48), RGBColor(  0,  52,  50), RGBColor(  0,  50,  51),
+  RGBColor(  0,  49,  52), RGBColor(  0,  48,  52), RGBColor(  0,  46,  54), RGBColor(  0,  44,  55),
+  RGBColor(  0,  43,  56), RGBColor(  0,  42,  56), RGBColor(  0,  40,  58), RGBColor(  0,  39,  59),
+  RGBColor(  0,  37,  60), RGBColor(  0,  36,  60), RGBColor(  0,  34,  62), RGBColor(  0,  32,  63),
+  RGBColor(  0,  31,  64), RGBColor(  0,  30,  65), RGBColor(  0,  28,  65), RGBColor(  0,  26,  67),
+  RGBColor(  0,  25,  68), RGBColor(  0,  24,  69), RGBColor(  0,  22,  70), RGBColor(  0,  20,  71),
+  RGBColor(  0,  19,  72), RGBColor(  0,  18,  73), RGBColor(  0,  16,  73), RGBColor(  0,  15,  75),
+  RGBColor(  0,  13,  76), RGBColor(  0,  12,  77), RGBColor(  0,  10,  78), RGBColor(  0,   8,  79),
+  RGBColor(  0,   7,  80), RGBColor(  0,   6,  81), RGBColor(  0,   4,  81), RGBColor(  0,   2,  83),
+  RGBColor(  0,   1,  84), RGBColor(  0,   0,  85), RGBColor(  0,   1,  86), RGBColor(  0,   2,  87),
+  RGBColor(  0,   4,  88), RGBColor(  0,   5,  89), RGBColor(  0,   7,  89), RGBColor(  0,   8,  91),
+  RGBColor(  0,  10,  92), RGBColor(  0,  11,  93), RGBColor(  0,  13,  94), RGBColor(  0,  15,  95),
+  RGBColor(  0,  16,  96), RGBColor(  0,  17,  97), RGBColor(  0,  19,  97), RGBColor(  0,  21,  99),
+  RGBColor(  0,  22, 100), RGBColor(  0,  24, 101), RGBColor(  0,  25, 102), RGBColor(  0,  27, 103),
+  RGBColor(  0,  28, 104), RGBColor(  0,  30, 105), RGBColor(  0,  31, 105), RGBColor(  0,  32, 107),
+  RGBColor(  0,  34, 108), RGBColor(  0,  35, 109), RGBColor(  0,  37, 110), RGBColor(  0,  39, 111),
+  RGBColor(  0,  40, 112), RGBColor(  0,  41, 113), RGBColor(  0,  43, 113), RGBColor(  0,  45, 115),
+  RGBColor(  0,  46, 116), RGBColor(  0,  48, 117), RGBColor(  0,  49, 118), RGBColor(  0,  50, 119),
+  RGBColor(  0,  52, 120), RGBColor(  0,  53, 121), RGBColor(  0,  55, 121), RGBColor(  0,  56, 123),
+  RGBColor(  0,  58, 124), RGBColor(  0,  59, 125), RGBColor(  0,  61, 126), RGBColor(  0,  63, 127),
+  RGBColor(  0,  64, 128), RGBColor(  0,  65, 129), RGBColor(  0,  67, 130), RGBColor(  0,  68, 131),
+  RGBColor(  0,  70, 131), RGBColor(  0,  72, 133), RGBColor(  0,  73, 134), RGBColor(  0,  75, 135),
+  RGBColor(  0,  76, 136), RGBColor(  0,  78, 137), RGBColor(  0,  79, 138), RGBColor(  0,  81, 139),
+  RGBColor(  0,  82, 140), RGBColor(  0,  84, 141), RGBColor(  0,  85, 142), RGBColor(  0,  87, 143),
+  RGBColor(  0,  88, 144), RGBColor(  0,  89, 145), RGBColor(  0,  91, 146), RGBColor(  0,  92, 147),
+  RGBColor(  0,  94, 147), RGBColor(  0,  96, 149), RGBColor(  0,  97, 150), RGBColor(  0,  98, 151),
+  RGBColor(  0, 100, 152), RGBColor(  0, 101, 153), RGBColor(  0, 103, 154), RGBColor(  0, 104, 155),
+  RGBColor(  0, 106, 156), RGBColor(  0, 108, 157), RGBColor(  0, 109, 158), RGBColor(  0, 111, 159),
+  RGBColor(  0, 112, 160), RGBColor(  0, 113, 161), RGBColor(  0, 115, 162), RGBColor(  0, 116, 163),
+  RGBColor(  0, 118, 163), RGBColor(  0, 120, 165), RGBColor(  0, 121, 166), RGBColor(  0, 123, 167),
+  RGBColor(  0, 124, 168), RGBColor(  0, 126, 169), RGBColor(  0, 127, 170), RGBColor(  2, 129, 171),
+  RGBColor(  5, 130, 172), RGBColor(  8, 131, 173), RGBColor( 11, 133, 174), RGBColor( 14, 134, 175),
+  RGBColor( 17, 136, 176), RGBColor( 20, 137, 177), RGBColor( 23, 139, 178), RGBColor( 26, 140, 179),
+  RGBColor( 29, 142, 179), RGBColor( 32, 144, 181), RGBColor( 35, 145, 182), RGBColor( 38, 147, 183),
+  RGBColor( 41, 148, 184), RGBColor( 44, 149, 185), RGBColor( 47, 151, 186), RGBColor( 50, 152, 187),
+  RGBColor( 54, 154, 188), RGBColor( 57, 156, 189), RGBColor( 60, 157, 190), RGBColor( 63, 159, 191),
+  RGBColor( 65, 160, 192), RGBColor( 68, 162, 193), RGBColor( 71, 163, 194), RGBColor( 74, 164, 195),
+  RGBColor( 77, 166, 195), RGBColor( 81, 168, 197), RGBColor( 84, 169, 198), RGBColor( 87, 171, 199),
+  RGBColor( 90, 172, 200), RGBColor( 93, 174, 201), RGBColor( 96, 175, 202), RGBColor( 98, 177, 203),
+  RGBColor(102, 178, 204), RGBColor(105, 180, 205), RGBColor(108, 181, 206), RGBColor(111, 183, 207),
+  RGBColor(114, 184, 208), RGBColor(117, 186, 209), RGBColor(120, 187, 210), RGBColor(123, 189, 211),
+  RGBColor(126, 190, 211), RGBColor(129, 192, 213), RGBColor(131, 193, 214), RGBColor(134, 195, 215),
+  RGBColor(137, 196, 216), RGBColor(140, 197, 217), RGBColor(143, 199, 218), RGBColor(146, 200, 219),
+  RGBColor(150, 202, 220), RGBColor(153, 204, 221), RGBColor(156, 205, 222), RGBColor(159, 207, 223),
+  RGBColor(162, 208, 224), RGBColor(164, 210, 225), RGBColor(167, 211, 226), RGBColor(170, 212, 227),
+  RGBColor(173, 214, 227), RGBColor(177, 216, 229), RGBColor(180, 217, 230), RGBColor(183, 219, 231),
+  RGBColor(186, 220, 232), RGBColor(189, 222, 233), RGBColor(192, 223, 234), RGBColor(195, 225, 235),
+  RGBColor(197, 226, 236), RGBColor(200, 227, 237), RGBColor(203, 229, 238), RGBColor(206, 230, 239),
+  RGBColor(209, 232, 240), RGBColor(212, 233, 241), RGBColor(215, 235, 242), RGBColor(218, 236, 243),
+  RGBColor(221, 238, 243), RGBColor(225, 240, 245), RGBColor(227, 241, 246), RGBColor(230, 243, 247),
+  RGBColor(233, 244, 248), RGBColor(236, 245, 249), RGBColor(239, 247, 250), RGBColor(242, 248, 251),
+  RGBColor(246, 250, 252), RGBColor(249, 252, 253), RGBColor(252, 253, 254), RGBColor(255, 255, 255)
+};
+
+
 constexpr RGBColor kColorMapOrientation[] = {
   RGBColor(239,  85, 242), RGBColor(241,  87, 240), RGBColor(242,  90, 239), RGBColor(243,  93, 237),
   RGBColor(245,  95, 235), RGBColor(246,  98, 233), RGBColor(246, 101, 231), RGBColor(247, 104, 229),
@@ -1123,7 +1259,7 @@ constexpr RGBColor kColorMapRelief[] = {
 };
 
 
-constexpr RGBColor kColorMapReliefIsoluminant[] = {
+constexpr RGBColor kColorMapReliefLowContrast[] = {
   RGBColor(112, 209, 255), RGBColor(112, 210, 255), RGBColor(112, 210, 255), RGBColor(112, 210, 255),
   RGBColor(112, 210, 255), RGBColor(112, 210, 254), RGBColor(112, 210, 254), RGBColor(112, 210, 253),
   RGBColor(112, 210, 252), RGBColor(112, 210, 251), RGBColor(112, 210, 250), RGBColor(112, 210, 250),
@@ -1324,6 +1460,74 @@ constexpr RGBColor kColorMapTemperatureDark[] = {
   RGBColor(211,  76,  62), RGBColor(213,  76,  62), RGBColor(215,  77,  63), RGBColor(216,  77,  63),
   RGBColor(218,  77,  63), RGBColor(220,  78,  64), RGBColor(221,  78,  64), RGBColor(223,  78,  64),
   RGBColor(225,  79,  65), RGBColor(227,  79,  65), RGBColor(228,  79,  65), RGBColor(230,  80,  65)
+};
+
+
+constexpr RGBColor kColorMapTerrain[] = {
+  RGBColor( 51,  51, 153), RGBColor( 49,  53, 155), RGBColor( 48,  56, 158), RGBColor( 47,  59, 161),
+  RGBColor( 45,  61, 163), RGBColor( 44,  64, 166), RGBColor( 43,  67, 169), RGBColor( 41,  69, 171),
+  RGBColor( 40,  72, 174), RGBColor( 39,  75, 177), RGBColor( 37,  77, 179), RGBColor( 36,  80, 182),
+  RGBColor( 35,  83, 185), RGBColor( 33,  85, 187), RGBColor( 32,  88, 190), RGBColor( 31,  91, 193),
+  RGBColor( 29,  93, 195), RGBColor( 28,  96, 198), RGBColor( 27,  98, 201), RGBColor( 25, 101, 203),
+  RGBColor( 24, 104, 206), RGBColor( 23, 107, 209), RGBColor( 21, 109, 211), RGBColor( 20, 112, 214),
+  RGBColor( 19, 115, 217), RGBColor( 17, 117, 219), RGBColor( 16, 120, 222), RGBColor( 14, 123, 225),
+  RGBColor( 13, 125, 227), RGBColor( 12, 128, 230), RGBColor( 11, 131, 233), RGBColor(  9, 133, 235),
+  RGBColor(  8, 136, 238), RGBColor(  7, 138, 241), RGBColor(  5, 141, 243), RGBColor(  4, 144, 246),
+  RGBColor(  3, 147, 249), RGBColor(  1, 149, 251), RGBColor(  0, 152, 254), RGBColor(  0, 154, 250),
+  RGBColor(  0, 156, 244), RGBColor(  0, 158, 238), RGBColor(  0, 160, 232), RGBColor(  0, 162, 226),
+  RGBColor(  0, 164, 220), RGBColor(  0, 166, 214), RGBColor(  0, 168, 208), RGBColor(  0, 170, 202),
+  RGBColor(  0, 172, 196), RGBColor(  0, 174, 190), RGBColor(  0, 176, 184), RGBColor(  0, 178, 178),
+  RGBColor(  0, 180, 172), RGBColor(  0, 182, 166), RGBColor(  0, 184, 160), RGBColor(  0, 186, 154),
+  RGBColor(  0, 188, 148), RGBColor(  0, 190, 142), RGBColor(  0, 192, 136), RGBColor(  0, 194, 130),
+  RGBColor(  0, 196, 124), RGBColor(  0, 198, 118), RGBColor(  0, 200, 112), RGBColor(  0, 202, 106),
+  RGBColor(  1, 204, 102), RGBColor(  5, 205, 103), RGBColor(  8, 205, 103), RGBColor( 13, 206, 104),
+  RGBColor( 17, 207, 105), RGBColor( 21, 208, 106), RGBColor( 25, 209, 107), RGBColor( 29, 209, 107),
+  RGBColor( 33, 210, 108), RGBColor( 37, 211, 109), RGBColor( 40, 212, 110), RGBColor( 45, 213, 111),
+  RGBColor( 49, 213, 111), RGBColor( 53, 214, 112), RGBColor( 57, 215, 113), RGBColor( 61, 216, 114),
+  RGBColor( 65, 217, 115), RGBColor( 69, 217, 115), RGBColor( 72, 218, 116), RGBColor( 77, 219, 117),
+  RGBColor( 81, 220, 118), RGBColor( 85, 221, 119), RGBColor( 89, 221, 119), RGBColor( 93, 222, 120),
+  RGBColor( 97, 223, 121), RGBColor(101, 224, 122), RGBColor(104, 225, 122), RGBColor(109, 225, 123),
+  RGBColor(113, 226, 124), RGBColor(117, 227, 125), RGBColor(121, 228, 126), RGBColor(125, 229, 127),
+  RGBColor(129, 229, 127), RGBColor(133, 230, 128), RGBColor(136, 231, 129), RGBColor(141, 232, 130),
+  RGBColor(145, 233, 131), RGBColor(149, 233, 131), RGBColor(153, 234, 132), RGBColor(157, 235, 133),
+  RGBColor(161, 236, 134), RGBColor(165, 237, 135), RGBColor(168, 237, 135), RGBColor(173, 238, 136),
+  RGBColor(177, 239, 137), RGBColor(181, 240, 138), RGBColor(185, 241, 139), RGBColor(189, 241, 139),
+  RGBColor(193, 242, 140), RGBColor(197, 243, 141), RGBColor(200, 244, 142), RGBColor(205, 245, 143),
+  RGBColor(209, 245, 143), RGBColor(213, 246, 144), RGBColor(217, 247, 145), RGBColor(221, 248, 146),
+  RGBColor(225, 249, 147), RGBColor(229, 249, 147), RGBColor(232, 250, 148), RGBColor(237, 251, 149),
+  RGBColor(241, 252, 150), RGBColor(245, 253, 151), RGBColor(249, 253, 151), RGBColor(253, 254, 152),
+  RGBColor(254, 253, 152), RGBColor(252, 251, 151), RGBColor(250, 248, 150), RGBColor(248, 246, 149),
+  RGBColor(246, 243, 148), RGBColor(244, 240, 147), RGBColor(242, 238, 145), RGBColor(240, 235, 144),
+  RGBColor(238, 233, 143), RGBColor(236, 230, 142), RGBColor(234, 228, 141), RGBColor(232, 225, 140),
+  RGBColor(230, 223, 139), RGBColor(228, 220, 138), RGBColor(226, 217, 137), RGBColor(224, 215, 136),
+  RGBColor(222, 212, 135), RGBColor(220, 210, 134), RGBColor(218, 207, 133), RGBColor(216, 205, 131),
+  RGBColor(214, 202, 130), RGBColor(211, 199, 129), RGBColor(210, 197, 128), RGBColor(208, 194, 127),
+  RGBColor(206, 192, 126), RGBColor(204, 189, 125), RGBColor(202, 187, 124), RGBColor(200, 184, 123),
+  RGBColor(198, 182, 122), RGBColor(195, 179, 121), RGBColor(194, 176, 120), RGBColor(192, 174, 118),
+  RGBColor(190, 171, 117), RGBColor(188, 169, 116), RGBColor(186, 166, 115), RGBColor(184, 164, 114),
+  RGBColor(182, 161, 113), RGBColor(179, 159, 112), RGBColor(178, 156, 111), RGBColor(176, 153, 110),
+  RGBColor(174, 151, 109), RGBColor(172, 148, 108), RGBColor(170, 146, 107), RGBColor(168, 143, 106),
+  RGBColor(166, 141, 104), RGBColor(163, 138, 103), RGBColor(162, 135, 102), RGBColor(160, 133, 101),
+  RGBColor(158, 130, 100), RGBColor(156, 128,  99), RGBColor(154, 125,  98), RGBColor(152, 123,  97),
+  RGBColor(150, 120,  96), RGBColor(147, 118,  95), RGBColor(146, 115,  94), RGBColor(144, 112,  93),
+  RGBColor(142, 110,  91), RGBColor(140, 107,  90), RGBColor(138, 105,  89), RGBColor(136, 102,  88),
+  RGBColor(134, 100,  87), RGBColor(131,  97,  86), RGBColor(130,  95,  85), RGBColor(128,  92,  84),
+  RGBColor(129,  93,  86), RGBColor(131,  96,  88), RGBColor(133,  98,  91), RGBColor(135, 101,  94),
+  RGBColor(136, 103,  96), RGBColor(139, 106,  99), RGBColor(141, 109, 102), RGBColor(143, 111, 104),
+  RGBColor(145, 114, 107), RGBColor(147, 116, 110), RGBColor(149, 119, 112), RGBColor(151, 121, 115),
+  RGBColor(153, 124, 118), RGBColor(155, 127, 121), RGBColor(157, 129, 123), RGBColor(159, 132, 126),
+  RGBColor(161, 134, 129), RGBColor(163, 137, 131), RGBColor(165, 139, 134), RGBColor(167, 142, 137),
+  RGBColor(168, 144, 139), RGBColor(171, 147, 142), RGBColor(173, 150, 145), RGBColor(175, 152, 147),
+  RGBColor(177, 155, 150), RGBColor(179, 157, 153), RGBColor(181, 160, 155), RGBColor(183, 162, 158),
+  RGBColor(185, 165, 161), RGBColor(187, 167, 163), RGBColor(189, 170, 166), RGBColor(191, 173, 169),
+  RGBColor(193, 175, 171), RGBColor(195, 178, 174), RGBColor(196, 180, 177), RGBColor(199, 183, 179),
+  RGBColor(200, 185, 182), RGBColor(203, 188, 185), RGBColor(205, 191, 187), RGBColor(207, 193, 190),
+  RGBColor(209, 196, 193), RGBColor(211, 198, 196), RGBColor(212, 201, 198), RGBColor(215, 203, 201),
+  RGBColor(217, 206, 204), RGBColor(219, 208, 206), RGBColor(221, 211, 209), RGBColor(223, 214, 212),
+  RGBColor(225, 216, 214), RGBColor(227, 219, 217), RGBColor(228, 221, 220), RGBColor(231, 224, 222),
+  RGBColor(232, 226, 225), RGBColor(235, 229, 228), RGBColor(237, 231, 230), RGBColor(239, 234, 233),
+  RGBColor(241, 237, 236), RGBColor(243, 239, 238), RGBColor(244, 242, 241), RGBColor(247, 244, 244),
+  RGBColor(249, 247, 246), RGBColor(251, 249, 249), RGBColor(253, 252, 252), RGBColor(255, 255, 255)
 };
 
 
@@ -1677,6 +1881,8 @@ const RGBColor *GetColorMap(ColorMap color_map) {
       return kColorMapColorBlind;
     case ColorMap::Disparity:
       return kColorMapDisparity;
+    case ColorMap::Earth:
+      return kColorMapEarth;
     case ColorMap::GlasbeyDark:
       return kColorMapGlasbeyDark;
     case ColorMap::GlasbeyLight:
@@ -1693,6 +1899,8 @@ const RGBColor *GetColorMap(ColorMap color_map) {
       return kColorMapHSV;
     case ColorMap::Inferno:
       return kColorMapInferno;
+    case ColorMap::Ocean:
+      return kColorMapOcean;
     case ColorMap::Orientation:
       return kColorMapOrientation;
     case ColorMap::OrientationColorBlind:
@@ -1701,12 +1909,14 @@ const RGBColor *GetColorMap(ColorMap color_map) {
       return kColorMapRainbow;
     case ColorMap::Relief:
       return kColorMapRelief;
-    case ColorMap::ReliefIsoluminant:
-      return kColorMapReliefIsoluminant;
+    case ColorMap::ReliefLowContrast:
+      return kColorMapReliefLowContrast;
     case ColorMap::Temperature:
       return kColorMapTemperature;
     case ColorMap::TemperatureDark:
       return kColorMapTemperatureDark;
+    case ColorMap::Terrain:
+      return kColorMapTerrain;
     case ColorMap::Thermal:
       return kColorMapThermal;
     case ColorMap::Turbo:

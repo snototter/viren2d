@@ -66,8 +66,8 @@ API Documentation
    .. autosummary::
       :nosignatures:
 
-      viren2d.ColorMap
       viren2d.Colorizer
+      viren2d.ColorMap
       viren2d.colorize
       viren2d.peaks
 

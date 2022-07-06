@@ -8,7 +8,6 @@
 
 #include <helpers/logging.h>
 
-#include <iostream> //FIXME remove
 namespace viren2d {
 namespace helpers {
 
@@ -518,11 +517,40 @@ ImageBuffer ToUInt8(const ImageBuffer &src, int channels_out, uint8_t scale) {
     }
   }
 
-
-
   return dst;
 }
 
+
+template <typename _Tp>
+ImageBuffer ToFloat(const ImageBuffer &src, float scale) {
+  SPDLOG_DEBUG("Converting {:s} to `float`, scale={}.", src.ToString(), scale);
+
+  if (src.BufferType() == ImageBufferType::Float) {
+    return src.DeepCopy();
+  }
+
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src.Height(), src.Width(), src.Channels(), ImageBufferType::Float);
+
+  int rows = src.Height();
+  int cols = src.Width();
+  // dst was freshly allocated, so it's guaranteed to be contiguous
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      for (int ch = 0; ch < src.Channels(); ++ch) {
+        dst.AtUnchecked<float>(row, col, ch) = static_cast<float>(
+                scale * src.AtUnchecked<_Tp>(row, col, ch));
+      }
+    }
+  }
+
+  return dst;
+}
 } // namespace helpers
 } // namespace viren2d
 

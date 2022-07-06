@@ -490,6 +490,36 @@ ImageBuffer ImageBuffer::ToUInt8(int output_channels) const {
 }
 
 
+ImageBuffer ImageBuffer::ToFloat() const {
+  if (!IsValid()) {
+    throw std::logic_error(
+          "Cannot convert an invalid ImageBuffer to `float`!");
+  }
+
+  switch (buffer_type) {
+    case ImageBufferType::UInt8:
+      return helpers::ToFloat<uint8_t>(*this, 1.0f/255.0f);
+
+    case ImageBufferType::Int16:
+      return helpers::ToFloat<int16_t>(*this, 1.0f/255.0f);
+
+    case ImageBufferType::Int32:
+      return helpers::ToFloat<int32_t>(*this, 1.0f/255.0f);
+
+    case ImageBufferType::Float:
+      return helpers::ToFloat<float>(*this, 1.0f);
+
+    case ImageBufferType::Double:
+      return helpers::ToFloat<double>(*this, 1.0f);
+  }
+
+  std::string s("Type `");
+  s += ImageBufferTypeToString(buffer_type);
+  s += "` not handled in `ToFloat` switch!";
+  throw std::logic_error(s);
+}
+
+
 ImageBuffer ImageBuffer::ToGrayscale(
     int output_channels, bool is_bgr_format) const {
   if (!IsValid()) {

@@ -28,3 +28,5 @@ Color Map Utilities
 .. autofunction:: viren2d.colorize
 
 .. autofunction:: viren2d.peaks   
+
+.. autofunction:: viren2d.relief_shading   
