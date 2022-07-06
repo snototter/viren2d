@@ -16,84 +16,181 @@ void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap",
              "Available color maps.");
   cm.value(
-        "Autumn",
-        ColorMap::Autumn,
-        "Red-yellow color map.")
-      .value(
-        "Bone",
-        ColorMap::Bone,
-        "Black-blue-white color map.")
+        "BlackBody",
+        ColorMap::BlackBody, R"docstr(
+        Black-red-yellow-white, perceptually uniform sequential color map
+        inspired by black-body radiation. This color map definition has
+        been taken from
+        `Kenneth Moreland's website <https://www.kennethmoreland.com/color-advice/>`__.
+        )docstr")
       .value(
         "Cold",
-        ColorMap::Cold,
-        "Black-blue-cyan-white color map.")
+        ColorMap::Cold, R"docstr(
+        Blue shades from dark to light. This is the CET-L06 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "ColorBlind",
+        ColorMap::ColorBlind, R"docstr(
+        Perceptually uniform sequential color map for Protanopic/Deuteranopic
+        viewers. This is the CET-CBL1 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
         "Disparity",
-        ColorMap::Disparity,
-        "High contrast color map with subtle gradient discontinuities, suitable"
-        "for depth/disparity images.")
+        ColorMap::Disparity, R"docstr(
+        High contrast color map for depth & disparity images.
+        Based on `disparity` for MATLAB
+        `by Oliver Woodford <https://github.com/ojwoodford/sc>`__,
+        who released it under the BSD 3-Clause license.
+        )docstr")
       .value(
-        "Earth",
-        ColorMap::Earth,
-        "Black-green-white color map. Has linear grayscale changes when printed "
-        "in black & white.")
+        "GlasbeyDark",
+        ColorMap::GlasbeyDark, R"docstr(
+        Color map for categorical data, best suited for **light backgrounds**,
+        *i.e.* light colors are omitted. This color map is adapted from
+        `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
+        `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+        TODO mention usage with updated color::byid, etc.
+        )docstr")
       .value(
-        "Grayscale",
-        ColorMap::Grayscale,
-        "Standard linear grayscale gradient color map.")
+        "GlasbeyLight",
+        ColorMap::GlasbeyLight, R"docstr(
+        Color map for categorical data, best suited for **dark backgrounds**,
+        *i.e.* dark colors are omitted. This color map is adapted from
+        `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
+        `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+        )docstr")
+      .value(
+        "Gouldian",
+        ColorMap::Gouldian, R"docstr(
+        Black-blue-green-orange-yellow perceptually uniform sequential color
+        map. Similar to MATLAB's `parula`, but with a smoother path and more
+        uniform slope upwards in CIELAB space. This is the CET-L20 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "Gray",
+        ColorMap::Gray,
+        "Standard grayscale from black-to-white.")
+      .value(
+        "Hell",
+        ColorMap::Hell, R"docstr(
+        Black-purple-red-yellow-white, perceptually uniform sequential color
+        map. Similar to `Inferno` but starts from black and ends white.
+        Based on `hell` from `Agama <https://github.com/GalacticDynamics-Oxford/Agama>`__.
+        )docstr")
       .value(
         "Hot",
-        ColorMap::Hot,
-        "Black-red-yellow-white color map.")
+        ColorMap::Hot, R"docstr(
+        Black-red-yellow-white perceptually uniform sequential color map.
+        This is the CET-L03 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
         "HSV",
         ColorMap::HSV,
-        "Red-yellow-green-cyan-blue-magenta-red color map.")
+        "Cyclic color map by varying the hue: Red-yellow-green-cyan-blue-magenta-red.")
       .value(
         "Inferno",
-        ColorMap::Inferno,
-        "Black-purple-red-yellow, perceptually uniform color map with "
-        "monotonically increasing luminance.")
+        ColorMap::Inferno, R"docstr(
+        Bluish-to-reddish, perceptually uniform sequential color map. Proposed by
+        `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__
+        and integrated into `matplotlib >= 1.15 <https://matplotlib.org/>`__.
+        )docstr")
       .value(
-        "Jet",
-        ColorMap::Jet,
-        "Rainbow color map - note that despite their good contrast, "
-        "`these maps should be avoided! <http://jakevdp.github.io/blog/2014/10/16/how-bad-is-your-colormap/>`__!")
+        "Orientation",
+        ColorMap::Orientation, R"docstr(
+        Cyclic magenta-yellow-green-blue color map for four orientations/phase
+        angles to be visualized. This is the CET-C2 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
-        "Magma",
-        ColorMap::Magma,
-        "Perceptually uniform color map, similar to :attr:`~viren2d.ColorMap.Inferno`.")
+        "OrientationColorBlind",
+        ColorMap::OrientationColorBlind, R"docstr(
+        Cyclic blue-white-yellow-black color map for four orientations/phase
+        angles, suitable for Protanopic/Deuteranopic viewers.
+        This is the CET-CBC1 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
-        "Pastel",
-        ColorMap::Pastel,
-        "Black-pastel-white color map. Has linear grayscale changes when printed in black & white.")
+        "Rainbow",
+        ColorMap::Rainbow, R"docstr(
+        The "least worse" rainbow color map, i.e. CET-R2, by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
-        "Plasma",
-        ColorMap::Plasma,
-        "Perceptually uniform color map, similar to :attr:`~viren2d.ColorMap.Inferno`, "
-        "but avoids black.")
+        "Relief",
+        ColorMap::Relief, R"docstr(
+        Green-brownish-bluish perceptually uniform sequential color map for
+        relief shading. This is the CET-L11 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
-        "Sepia",
-        ColorMap::Sepia,
-        "Black-brown-white color map, perceptually uniform.")
+        "ReliefIsoluminant",
+        ColorMap::ReliefIsoluminant, R"docstr(
+        Low contrast, blue-green-orange perceptually uniform sequential color map
+        for relief shading. This is the CET-I2 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
         "Temperature",
-        ColorMap::Temperature,
-        "Blue-pale-dark red color map, for visualizing data related to "
-        "temperature. Has good contrast for colorblind viewers.")
+        ColorMap::Temperature, R"docstr(
+        Diverging blue-white-red color map.
+        This is the CET-D01A color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "TemperatureDark",
+        ColorMap::TemperatureDark, R"docstr(
+        Diverging blue-black-red color map.
+        This is the CET-D04 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
       .value(
         "Thermal",
-        ColorMap::Thermal,
-        "Black-purple-red-yellow-white color map.")
+        ColorMap::Thermal, R"docstr(
+        Black-purple-red-yellow-white sequential color map for
+        thermographic images, also known as *iron* or *ironbow*.
+        )docstr")
       .value(
         "Turbo",
-        ColorMap::Turbo,
-        "An improved rainbow color map, "
-        "`similar to (but smoother than) Jet <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__.")
+        ColorMap::Turbo, R"docstr(
+        A rainbow color map similar to the well-known `jet`, but following a
+        smoother path through the CIELAB color space. Published by
+        `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
+        under the Apache-2.0 license.
+        )docstr")
       .value(
         "Viridis",
-        ColorMap::Viridis,
-        "Perceptually uniform. Default color map of `matplotlib <https://matplotlib.org/>`__.");
+        ColorMap::Viridis, R"docstr(
+        Perceptually uniform sequential color map. Proposed by
+        `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__,
+        now the default color map of `matplotlib <https://matplotlib.org/>`__.
+        )docstr")
+      .value(
+        "Water",
+        ColorMap::Water, R"docstr(
+        Perceptually uniform sequential color map for water depth.
+        This is the CET-L12 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "Yarg",
+        ColorMap::Yarg,
+        "Inverted grayscale from white-to-black.");
 
 
   cm.def(

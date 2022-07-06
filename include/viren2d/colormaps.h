@@ -4,6 +4,7 @@
 #include <string>
 #include <ostream>
 #include <vector>
+#include <array>
 #include <limits>
 
 #include <viren2d/imagebuffer.h>
@@ -14,70 +15,142 @@ namespace viren2d {
 /// Available colormaps.
 enum class ColorMap : unsigned char
 {
-  /// Red-yellow color map, similar to MATLAB's autumn.
-  Autumn = 0,
+  /// Black-red-yellow-white, perceptually uniform sequential color map
+  /// inspired by black-body radiation. This color map definition has
+  /// been taken from
+  /// `Kenneth Moreland's website <https://www.kennethmoreland.com/color-advice/>`__.
+  BlackBody,
 
-  /// Black-blue-white color map, similar to MATLAB's bone.
-  Bone,
-
-  /// Black-blue-cyan-white color map.
+  /// Blue shades from dark to light. This is the CET-L06 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
   Cold,
 
-  /// High contrast color map with subtle gradient discontinuities, suitable
-  /// for depth/disparity images.
+  /// Perceptually uniform sequential color map for Protanopic/Deuteranopic
+  /// viewers. This is the CET-CBL1 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ColorBlind,
+
+  /// High contrast color map for depth & disparity images.
+  /// Based on `disparity` for MATLAB
+  /// `by Oliver Woodford <https://github.com/ojwoodford/sc>`__,
+  /// who released it under the BSD 3-Clause license
   Disparity,
 
-  /// Black-green-white color map.
-  /// Has linear grayscale changes when printed in black & white.
-  Earth,
 
-  /// Convert input to grayscale
-  Grayscale,
+  /// Color map for categorical data, best suited for **light backgrounds**,
+  /// i.e. light colors are omitted. This color map is adapted from
+  /// `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
+  /// `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+  GlasbeyDark,
 
-  /// Black-red-yellow-white color map, similar to MATLAB's hot.
+  /// Color map for categorical data, best suited for **dark backgrounds**,
+  /// i.e. dark colors are omitted. This color map is adapted from
+  /// `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
+  /// `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+  GlasbeyLight,
+
+  /// Black-blue-green-orange-yellow perceptually uniform sequential color
+  /// map. Similar to MATLAB's `parula`, but with a smoother path and more
+  /// uniform slope upwards in CIELAB space. This is the CET-L20 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  Gouldian,
+
+  /// Standard grayscale from black-to-white.
+  Gray,
+
+  /// Black-purple-red-yellow-white, perceptually uniform sequential color
+  /// map. Similar to `Inferno` but starts from black and ends white.
+  /// Based on `hell` from `Agama <https://github.com/GalacticDynamics-Oxford/Agama>`__.
+  Hell,
+
+  /// Black-red-yellow-white perceptually uniform sequential color map.
+  /// This is the CET-L03 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
   Hot,
 
-  /// Red-yellow-green-cyan-blue-magenta-red color map.
+  /// Cyclic color map by varying the hue: Red-yellow-green-cyan-blue-magenta-red.
   HSV,
 
-  /// Perceptually uniform.
+  /// Bluish-to-reddish, perceptually uniform sequential color map. Proposed by
+  /// `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__
+  /// and integrated into matplotlib >= 1.15.
   Inferno,
 
-  /// Rainbow color map. MATLAB's default up until R2015, has high contrast
-  /// but rainbow maps should be avoided. See for example:
-  /// http://jakevdp.github.io/blog/2014/10/16/how-bad-is-your-colormap/
-  Jet,
+  /// Cyclic magenta-yellow-green-blue color map for four orientations/phase
+  /// angles to be visualized. This is the CET-C2 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  Orientation,
 
-  /// Perceptually uniform.
-  Magma,
+  /// Cyclic blue-white-yellow-black color map for four orientations/phase
+  /// angles, suitable for Protanopic/Deuteranopic viewers.
+  /// This is the CET-CBC1 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  OrientationColorBlind,
 
-  /// Black-pastel-white color map.
-  /// Has linear grayscale changes when printed in black & white.
-  Pastel,
+  /// The "least worse" rainbow color map, i.e. CET-R2, by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  Rainbow,
 
-  /// Perceptually uniform.
-  Plasma,
+  /// Green-brownish-bluish perceptually uniform sequential color map for
+  /// relief shading. This is the CET-L11 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  Relief,
 
-  /// Black-brown-white color map, perceptually uniform.
-  Sepia,
+  /// Low contrast, blue-green-orange perceptually uniform sequential color map
+  /// for relief shading. This is the CET-I2 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ReliefIsoluminant,
 
-  /// Blue-pale-dark red color map, for visualizing data related to
-  /// temperature. Has good contrast for colorblind viewers.
+  /// Diverging blue-white-red color map.
+  /// This is the CET-D01A color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
   Temperature,
 
-  /// Black-purple-red-yellow-white color map.
+  /// Diverging blue-black-red color map.
+  /// This is the CET-D04 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  TemperatureDark,
+
+  /// Black-purple-red-yellow-white sequential color map for
+  /// thermographic images, also known as `iron` or `ironbow`.
   Thermal,
 
-  /// An improved rainbow color map, similar to (but smoother than) Jet.
-  /// https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html
+  /// A rainbow color map similar to the well-known `jet`, but following a
+  /// smoother path through the CIELAB color space. Published by
+  /// `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
+  /// under the Apache-2.0 license.
   Turbo,
 
-  /// Perceptually uniform. Default color map of matplotlib.
-  Viridis
+  /// Perceptually uniform sequential color map. Proposed by
+  /// `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__,
+  /// now the default color map of matplotlib.
+  Viridis,
+
+  /// Perceptually uniform sequential color map for water depth.
+  /// This is the CET-L12 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  Water,
+
+  /// Inverted grayscale from white-to-black.
+  Yarg
 
   //TODO(dev): If you add an enum value *after* Viridis, adjust the iterator TODO in ListColorMaps - later on in the test suite, too!
 };
 
+//TODO change color::by_id/category to use glasbey
+//TODO consider adding mpl ocean & terrain
 
 /// Returns the string representation.
 std::string ColorMapToString(ColorMap cm);
@@ -91,6 +164,30 @@ ColorMap ColorMapFromString(const std::string &cm);
 std::ostream &operator<<(std::ostream &os, ColorMap cm);
 
 std::vector<ColorMap> ListColorMaps();
+
+//constexpr std::array<ColorMap, 2> ListColorMapsCategorical() {
+//  return {ColorMap::GlasbeyDark, ColorMap::GlasbeyLight};
+//}
+
+////constexpr std::vector<ColorMap> ListColorMapsSequential() {
+////  return {};
+////}
+//std::vector<ColorMap> ListColorMapsDiverging();
+//constexpr std::array<ColorMap, 2> ListColorMapsRainbow() {
+//  return {ColorMap::Rainbow, ColorMap::Turbo};
+//}
+
+
+//constexpr std::array<ColorMap, 3> ListColorMapsCyclic() {
+//  return {ColorMap::HSV, ColorMap::Orientation, ColorMap::OrientationColorBlind};
+//}
+
+
+//constexpr std::array<ColorMap, 2> ListColorMapsColorBlind() {
+//  return {ColorMap::ColorBlind, ColorMap::OrientationColorBlind};
+//}
+
+
 
 
 class Colorizer {

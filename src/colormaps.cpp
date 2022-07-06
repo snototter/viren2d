@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <exception>
 #include <sstream>
 #include <string>
@@ -16,43 +17,56 @@ namespace wks = werkzeugkiste::strings;
 namespace viren2d {
 std::string ColorMapToString(ColorMap cm) {
   switch (cm) {
-    case ColorMap::Autumn:
-      return "autumn";
-    case ColorMap::Bone:
-      return "bone";
+    case ColorMap::BlackBody:
+      return "black-body";
     case ColorMap::Cold:
       return "cold";
+    case ColorMap::ColorBlind:
+      return "color-blind";
     case ColorMap::Disparity:
       return "disparity";
-    case ColorMap::Earth:
-      return "earth";
-    case ColorMap::Grayscale:
-      return "grayscale";
+    case ColorMap::GlasbeyDark:
+      return "glasbey-dark";
+    case ColorMap::GlasbeyLight:
+      return "glasbey-light";
+    case ColorMap::Gouldian:
+      return "gouldian";
+    case ColorMap::Gray:
+      return "gray";
+    case ColorMap::Hell:
+      return "hell";
     case ColorMap::Hot:
       return "hot";
     case ColorMap::HSV:
       return "hsv";
     case ColorMap::Inferno:
       return "inferno";
-    case ColorMap::Jet:
-      return "jet";
-    case ColorMap::Magma:
-      return "magma";
-    case ColorMap::Pastel:
-      return "pastel";
-    case ColorMap::Plasma:
-      return "plasma";
-    case ColorMap::Sepia:
-      return "sepia";
+    case ColorMap::Orientation:
+      return "orientation";
+    case ColorMap::OrientationColorBlind:
+      return "orientation-color-blind";
+    case ColorMap::Rainbow:
+      return "rainbow";
+    case ColorMap::Relief:
+      return "relief";
+    case ColorMap::ReliefIsoluminant:
+      return "relief-isoluminant";
     case ColorMap::Temperature:
       return "temperature";
+    case ColorMap::TemperatureDark:
+      return "temperature-dark";
     case ColorMap::Thermal:
       return "thermal";
     case ColorMap::Turbo:
       return "turbo";
     case ColorMap::Viridis:
       return "viridis";
+    case ColorMap::Water:
+      return "water";
+    case ColorMap::Yarg:
+      return "yarg";
   }
+
   //TODO(dev) For each new color map, also extend ColorMapFromString!
 
   std::ostringstream s;
@@ -63,44 +77,65 @@ std::string ColorMapToString(ColorMap cm) {
 
 
 ColorMap ColorMapFromString(const std::string &cm) {
-  const std::string lower = wks::Trim(wks::Lower(cm));
-  if (lower.compare("autumn") == 0) {
-    return ColorMap::Autumn;
-  } else if (lower.compare("bone") == 0) {
-    return ColorMap::Bone;
+  std::string lower = wks::Lower(cm);
+  lower.erase(std::remove_if(lower.begin(), lower.end(), [](char ch) -> bool {
+      return ::isspace(ch) || (ch == '-') || (ch == '_');
+    }), lower.end());
+  if (lower.compare("blackbody") == 0) {
+    return ColorMap::BlackBody;
   } else if (lower.compare("cold") == 0) {
     return ColorMap::Cold;
+  } else if (lower.compare("colorblind") == 0) {
+    return ColorMap::ColorBlind;
   } else if (lower.compare("disparity") == 0) {
     return ColorMap::Disparity;
-  } else if (lower.compare("earth") == 0) {
-    return ColorMap::Earth;
-  } else if ((lower.compare("grayscale") == 0)
-             || (lower.compare("greyscale") == 0)) {
-    return ColorMap::Grayscale;
+  } else if (lower.compare("glasbeydark") == 0) {
+    return ColorMap::GlasbeyDark;
+  } else if (lower.compare("glasbeylight") == 0) {
+    return ColorMap::GlasbeyLight;
+  } else if (lower.compare("gouldian") == 0) {
+    return ColorMap::Gouldian;
+  } else if ((lower.compare("gray") == 0)
+             || (lower.compare("grey") == 0)) {
+    return ColorMap::Gray;
+  } else if (lower.compare("hell") == 0) {
+    return ColorMap::Hell;
   } else if (lower.compare("hot") == 0) {
     return ColorMap::Hot;
   } else if (lower.compare("hsv") == 0) {
     return ColorMap::HSV;
   } else if (lower.compare("inferno") == 0) {
     return ColorMap::Inferno;
-  } else if (lower.compare("jet") == 0) {
-    return ColorMap::Jet;
-  } else if (lower.compare("magma") == 0) {
-    return ColorMap::Magma;
-  } else if (lower.compare("pastel") == 0) {
-    return ColorMap::Pastel;
-  } else if (lower.compare("plasma") == 0) {
-    return ColorMap::Plasma;
-  } else if (lower.compare("sepia") == 0) {
-    return ColorMap::Sepia;
+  } else if (lower.compare("orientation") == 0) {
+    return ColorMap::Orientation;
+  } else if (lower.compare("orientationcolorblind") == 0) {
+    return ColorMap::OrientationColorBlind;
+  } else if (lower.compare("rainbow") == 0) {
+    return ColorMap::Rainbow;
+  } else if (lower.compare("relief") == 0) {
+    return ColorMap::Relief;
+  } else if ((lower.compare("reliefisoluminant") == 0)
+             || (lower.compare("relieflowcontrast") == 0)) {
+    return ColorMap::ReliefIsoluminant;
   } else if (lower.compare("temperature") == 0) {
     return ColorMap::Temperature;
+  } else if (lower.compare("temperaturedark") == 0) {
+    return ColorMap::TemperatureDark;
   } else if (lower.compare("thermal") == 0) {
     return ColorMap::Thermal;
   } else if (lower.compare("turbo") == 0) {
     return ColorMap::Turbo;
   } else if (lower.compare("viridis") == 0) {
     return ColorMap::Viridis;
+  } else if (lower.compare("water") == 0) {
+    return ColorMap::Water;
+  } else if ((lower.compare("yarg") == 0)
+             || (lower.compare("yerg") == 0)
+             || (lower.compare("-gray") == 0)
+             || (lower.compare("!gray") == 0)
+             || (lower.compare("-grey") == 0)
+             || (lower.compare("!grey") == 0)) {
+    return ColorMap::Yarg;
   }
 
   std::string s("Could not deduce `ColorMap` from string representation \"");
@@ -119,7 +154,7 @@ std::ostream &operator<<(std::ostream &os, ColorMap cm) {
 std::vector<ColorMap> ListColorMaps() {
   std::vector<ColorMap> lst;
   typedef ContinuousEnumIterator<ColorMap,
-    ColorMap::Autumn, ColorMap::Viridis> ColormapIterator;
+    ColorMap::BlackBody, ColorMap::Yarg> ColormapIterator;
 
   for (ColorMap cm: ColormapIterator()) {
     lst.push_back(cm);
