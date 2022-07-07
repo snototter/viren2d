@@ -121,7 +121,7 @@ void DemoTrajectories() {
   auto painter = CreatePainter();
   painter->SetCanvas(800, 800, Color::White);
 
-  painter->DrawGrid({0, 0}, {0, 0}, 50, 50, {1});
+  painter->DrawGrid({0, 0}, {0, 0}, 50, 50, LineStyle(1, "gray"));
 
   std::vector<Vec2d> trajectory{{500, 100}, {600, 150}, {550, 300}, {500, 150}};
   auto style = LineStyle(5, "midnight-blue", {}, 0.0, LineCap::Round);

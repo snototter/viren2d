@@ -1,9 +1,18 @@
 #include <viren2d/viren2d.h>
 #include <demo_utils/demos.h>
 
+
 namespace viren2d {
 namespace demos {
+//FIXME remove (separate flow demo!)
+void FIXMEOpticalFlow() {
+  ImageBuffer flow = LoadOpticalFlow("../examples/data/color_wheel.flo");
+  ImageBuffer noflow = LoadOpticalFlow("../examples/data/depth.png");
+
+}
+
 void DemoArrows() {
+  FIXMEOpticalFlow();
   PrintDemoHeader("Arrows");
 
   auto painter = viren2d::CreatePainter();
