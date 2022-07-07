@@ -370,6 +370,11 @@ ImageBuffer Colorize(
     throw std::invalid_argument(s.str());
   }
 
+  if (std::isinf(limit_low) || std::isinf(limit_high)
+      || std::isnan(limit_low) ||std::isnan(limit_high)) {
+    data.MinMaxLocation(&limit_low, &limit_high);
+  }
+
   if (limit_high <= limit_low) {
     std::ostringstream s;
     s << "Invalid colorization limits [" << std::fixed
@@ -417,41 +422,40 @@ ImageBuffer Colorize(
 }
 
 
-ImageBuffer ReliefShading(
-    const ImageBuffer &data, const ImageBuffer &colorization) {
-  if (data.Channels() != 1) {
+ImageBuffer ReliefShading(const ImageBuffer &relief, const ImageBuffer &colorized) {
+  if (relief.Channels() != 1) {
     std::string s("Input `data` to `ReliefShading` must be single-channel, but got: ");
-    s += data.ToString();
+    s += relief.ToString();
     s += '!';
     throw std::invalid_argument(s);
   }
 
-  if (colorization.BufferType() != ImageBufferType::UInt8) {
+  if (colorized.BufferType() != ImageBufferType::UInt8) {
     std::string s("Input `colorization` to `ReliefShading` must be `uint8`, but got: ");
-    s += colorization.ToString();
+    s += colorized.ToString();
     s += '!';
     throw std::invalid_argument(s);
   }
 
-  if ((colorization.Width() != data.Width())
-      || (colorization.Height() != data.Height())) {
+  if ((colorized.Width() != relief.Width())
+      || (colorized.Height() != relief.Height())) {
     std::string s("Input resolution to `ReliefShading` does not match, got: ");
-    s += data.ToString();
+    s += relief.ToString();
     s += " vs. ";
-    s += colorization.ToString();
+    s += colorized.ToString();
     s += '!';
     throw std::invalid_argument(s);
   }
 
-  const ImageBuffer &data_float = (data.BufferType() == ImageBufferType::Float)
-      ? data : data.ToFloat();
+  const ImageBuffer &data_float = (relief.BufferType() == ImageBufferType::Float)
+      ? relief : relief.ToFloat();
 
-  ImageBuffer dst = colorization.DeepCopy();
+  ImageBuffer dst = colorized.DeepCopy();
 
-  int rows = data.Height();
-  int cols = data.Width();
+  int rows = data_float.Height();
+  int cols = data_float.Width();
   // The deeply copied dst will always be contiguous.
-  if (data.IsContiguous()) {
+  if (data_float.IsContiguous()) {
     cols *= rows;
     rows = 1;
   }
@@ -463,7 +467,7 @@ ImageBuffer ReliefShading(
     prow_data = data_float.ImmutablePtr<float>(row, 0, 0);
 
     for (int data_col = 0, color_idx = 0; data_col < cols; ++data_col) {
-      for (int ch = 0; ch < colorization.Channels(); ++ch) {
+      for (int ch = 0; ch < colorized.Channels(); ++ch) {
         prow_dst[color_idx] = static_cast<unsigned char>(
               prow_data[data_col] * prow_dst[color_idx]);
         ++color_idx;

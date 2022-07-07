@@ -147,7 +147,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         under the CC-BY 4.0 license.
         )docstr")
       .value(
-        "ReliefIsoluminant",
+        "ReliefLowContrast",
         ColorMap::ReliefLowContrast, R"docstr(
         Low contrast (isoluminant), blue-green-orange perceptually uniform
         sequential color map for relief shading. This is the CET-I2 color map by
@@ -344,8 +344,8 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr",
         py::arg("data"),
         py::arg("colormap") = ColorMap::Viridis,
-        py::arg("low") = 0.0,
-        py::arg("high") = 1.0,
+        py::arg("low") = std::numeric_limits<double>::infinity(),
+        py::arg("high") = std::numeric_limits<double>::infinity(),
         py::arg("output_channels") = 3,
         py::arg("bins") = 256);
 
@@ -356,11 +356,11 @@ void RegisterColormaps(pybind11::module &m) {
         TODO doc multiplicative combination for relief shading.
 
         Args:
-          data: A single channel :class:`~viren2d.ImageBuffer` or
+          relief: A single channel :class:`~viren2d.ImageBuffer` or
             :class:`numpy.ndarray` holding the topographic data.
             TODO doc implicit scaling if integral type!
 
-          colorization: An :class:`~viren2d.ImageBuffer` or
+          colorized: An :class:`~viren2d.ImageBuffer` or
             :class:`numpy.ndarray` of type :class:`numpy.uint8` holding the
             color image to be shaded.
 
@@ -368,10 +368,13 @@ void RegisterColormaps(pybind11::module &m) {
           TODO
 
         Example:
-          >>> #TODO
+          >>> moon = viren2d.load_image_uint8('examples/data/lunar-farside.jpg')
+          >>> vis = viren2d.colorize(
+          >>>     data=moon, colormap='relief-low-contrast', low=0, high=255)
+          >>> shaded = viren2d.relief_shading(relief=moon, colorized=vis)
         )docstr",
-        py::arg("data"),
-        py::arg("colorization"));
+        py::arg("relief"),
+        py::arg("colorized"));
 
   m.def("peaks",
         &Peaks, R"docstr(

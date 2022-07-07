@@ -245,7 +245,7 @@ ImageBuffer Colorize(
 // if int/uint will be scaled by 255.0!
 // output = colorization * data
 ImageBuffer ReliefShading(
-    const ImageBuffer &data, const ImageBuffer &colorization);
+    const ImageBuffer &relief, const ImageBuffer &colorized);
 
 
 /// Computes exemplary data from translated and scaled Gaussian
