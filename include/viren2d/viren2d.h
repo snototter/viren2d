@@ -4,6 +4,7 @@
 #include <viren2d/colors.h>
 #include <viren2d/colormaps.h>
 #include <viren2d/drawing.h>
+#include <viren2d/flow.h>
 #include <viren2d/imagebuffer.h>
 #include <viren2d/primitives.h>
 #include <viren2d/styles.h>
