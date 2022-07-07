@@ -263,10 +263,10 @@ ImageBuffer ColorizationHelper(
 
 
 Colorizer CreateColorizer(
-    ColorMap color_map, const std::string &limits_mode, int bins,
+    ColorMap colormap, const std::string &limits_mode, int bins,
     int output_channels, double low, double high) {
   Colorizer::LimitsMode lm = LimitsModeFromString(limits_mode);
-  return Colorizer(color_map, lm, bins, output_channels, low, high);
+  return Colorizer(colormap, lm, bins, output_channels, low, high);
 }
 
 
@@ -293,7 +293,7 @@ void RegisterColormaps(pybind11::module &m) {
         TODO doc
 
         Args:
-          color_map:
+          colormap:
           mode: TODO as :class:`str`
 
             * ``'continuos'``: Computes the upper and lower limits for
@@ -301,7 +301,7 @@ void RegisterColormaps(pybind11::module &m) {
             * ``'fixed'``: Provide upper and lower limits as ``low`` and ``high`` parameters.
             * ``'once'``: TODO
         )docstr",
-        py::arg("color_map"),
+        py::arg("colormap"),
         py::arg("mode") = "continuous",
         py::arg("bins") = 256,
         py::arg("output_channels") = 3,

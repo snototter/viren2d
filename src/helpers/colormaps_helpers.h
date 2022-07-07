@@ -15,7 +15,7 @@ struct RGBColor {
   {}
 };
 
-const RGBColor *GetColorMap(ColorMap color_map);
+const RGBColor *GetColorMap(ColorMap colormap);
 
 } // namespace helpers
 } // namespace viren2d

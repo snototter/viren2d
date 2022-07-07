@@ -175,33 +175,12 @@ ColorMap ColorMapFromString(const std::string &cm);
 /// Output stream operator to print a ColorMap enum.
 std::ostream &operator<<(std::ostream &os, ColorMap cm);
 
+
+/// Returns a list of all available color maps.
 std::vector<ColorMap> ListColorMaps();
 
-//constexpr std::array<ColorMap, 2> ListColorMapsCategorical() {
-//  return {ColorMap::GlasbeyDark, ColorMap::GlasbeyLight};
-//}
 
-////constexpr std::vector<ColorMap> ListColorMapsSequential() {
-////  return {};
-////}
-//std::vector<ColorMap> ListColorMapsDiverging();
-//constexpr std::array<ColorMap, 2> ListColorMapsRainbow() {
-//  return {ColorMap::Rainbow, ColorMap::Turbo};
-//}
-
-
-//constexpr std::array<ColorMap, 3> ListColorMapsCyclic() {
-//  return {ColorMap::HSV, ColorMap::Orientation, ColorMap::OrientationColorBlind};
-//}
-
-
-//constexpr std::array<ColorMap, 2> ListColorMapsColorBlind() {
-//  return {ColorMap::ColorBlind, ColorMap::OrientationColorBlind};
-//}
-
-
-
-
+//TODO interface abstraction
 class Colorizer {
 public:
   enum class LimitsMode {
@@ -211,7 +190,7 @@ public:
   };
 
   Colorizer(
-      ColorMap cmap,  // TODO gouldian
+      ColorMap cmap,
       LimitsMode mode = LimitsMode::FromDataContinuously,
       int num_bins = 256,
       int channels_out = 3,
@@ -225,7 +204,7 @@ public:
   double LimitHigh() const { return limit_high; }
 
   void SetColorMap(ColorMap cmap);
-  ColorMap GetColorMap() const { return color_map; }
+  ColorMap GetColorMap() const { return colormap; }
 
   void SetBins(int num_bins);
   int Bins() const { return bins; }
@@ -236,7 +215,7 @@ public:
   ImageBuffer operator()(const ImageBuffer &data);
 
 private:
-  ColorMap color_map;
+  ColorMap colormap;
   LimitsMode limits_mode;
   int bins;
   int output_channels;
@@ -257,7 +236,7 @@ Colorizer::LimitsMode LimitsModeFromString(const std::string &lm);
 
 // TODO doc num output channels either 3 or 4
 ImageBuffer Colorize(
-    const ImageBuffer &data, ColorMap color_map,
+    const ImageBuffer &data, ColorMap colormap,
     double limit_low, double limit_high,
     int output_channels = 3, int bins = 256);
 

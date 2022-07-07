@@ -1871,8 +1871,8 @@ constexpr RGBColor kColorMapYarg[] = {
 };
 
 
-const RGBColor *GetColorMap(ColorMap color_map) {
-  switch(color_map) {
+const RGBColor *GetColorMap(ColorMap colormap) {
+  switch(colormap) {
     case ColorMap::BlackBody:
       return kColorMapBlackBody;
     case ColorMap::Cold:
@@ -1930,7 +1930,7 @@ const RGBColor *GetColorMap(ColorMap color_map) {
   }
 
   std::string s("Color map for `");
-  s += ColorMapToString(color_map);
+  s += ColorMapToString(colormap);
   s += "` is not mapped in `GetColorMap`!";
   throw std::logic_error(s);
 }

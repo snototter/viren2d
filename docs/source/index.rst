@@ -26,9 +26,11 @@ both **C++ and Python** environments.
 
 
 **What is it good for?**
-  This library is primarily designed to overlay *detections, trajectories,
-  text, arrows* and more on image data. Additionally, it can be used as a
-  simplistic drawing toolbox, if basic shapes are all you need.
+   This library is designed to overlay *detections, trajectories, hand & body
+   poses* and more on image data. Additionally, it provides interfaces to
+   colorize input useful to inspect or highlight structure in your data.
+   Finally, it can be used as a simplistic drawing toolbox, if basic shapes are
+   all you need.
 
 
 **How to get started?**
@@ -78,7 +80,6 @@ both **C++ and Python** environments.
    * |unchecked| Bounding Boxes (3D)
    * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...   
    * |unchecked| Pose estimation results
-
 
 
 .. toctree::

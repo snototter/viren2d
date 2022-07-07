@@ -228,7 +228,7 @@ ImageBuffer ColorLookup(
 Colorizer::Colorizer(ColorMap cmap,
     LimitsMode mode, int num_bins, int channels_out,
     double low, double high)
-  : color_map(cmap), limits_mode(mode), bins(num_bins),
+  : colormap(cmap), limits_mode(mode), bins(num_bins),
     output_channels(channels_out), limit_low(low), limit_high(high) {
   ValidateConfiguration();
 }
@@ -250,7 +250,7 @@ void Colorizer::SetLimitHigh(double high) {
 
 
 void Colorizer::SetColorMap(ColorMap cmap) {
-  color_map = cmap;
+  colormap = cmap;
 }
 
 
@@ -279,7 +279,7 @@ ImageBuffer Colorizer::operator()(const ImageBuffer &data) {
       limits_mode = LimitsMode::Fixed;
     }
   }
-  return Colorize(data, color_map, limit_low, limit_high, output_channels, bins);
+  return Colorize(data, colormap, limit_low, limit_high, output_channels, bins);
 }
 
 
@@ -350,11 +350,11 @@ Colorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
 
 
 ImageBuffer Colorize(
-    const ImageBuffer &data, ColorMap color_map,
+    const ImageBuffer &data, ColorMap colormap,
     double limit_low, double limit_high, int output_channels, int bins) {
   SPDLOG_DEBUG(
         "Colorize {:s} with {:s}, limits [{:f}, {:f}].",
-        data.ToString(), ColorMapToString(color_map),
+        data.ToString(), ColorMapToString(colormap),
         limit_low, limit_high);
 
   if (data.Channels() != 1) {
@@ -386,7 +386,7 @@ ImageBuffer Colorize(
     throw std::invalid_argument(s.str());
   }
 
-  const helpers::RGBColor *map = helpers::GetColorMap(color_map);
+  const helpers::RGBColor *map = helpers::GetColorMap(colormap);
 
   switch (data.BufferType()) {
     case ImageBufferType::UInt8:

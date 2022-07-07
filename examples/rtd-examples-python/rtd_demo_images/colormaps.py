@@ -84,9 +84,9 @@ def demo_colormaps():
     peaks = viren2d.peaks()
 
     vis1 = viren2d.colorize(
-        data=peaks, colormap='turbo', low=-6.5, high=8, bins=256)
+        data=peaks, colormap='gouldian', low=-6.5, high=8, bins=256)
     vis2 = viren2d.colorize(
-        data=peaks, colormap='turbo', low=-6.5, high=8, bins=8)
+        data=peaks, colormap='gouldian', low=-6.5, high=8, bins=8)
 
     scaling = 0.47 * width / peaks.width
 
