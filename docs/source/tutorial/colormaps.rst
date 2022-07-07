@@ -37,13 +37,13 @@ perception of shape induced by the shading:
 
 .. image:: ../images/relief-shading.png
    :width: 600
-   :alt: Topolographical visualizations
+   :alt: Exemplary relief shading
    :align: center
 
-This visualization uses different color maps suitable for relief shading to
-show the topographical structure of a small part of the lunar farside. The
+This visualization uses relief shading with different color maps to
+show the topographical structure of (a small part of) the lunar farside. The
 underlying topographical data was captured by the *Lunar Reconnaissance
-Orbiter* in 2011, provided by
+Orbiter* in 2011 and published by
 `NASA/GSFC/Arizona State University <https://photojournal.jpl.nasa.gov/catalog/PIA14021>`__.
 Python code for this visualization example:
 

@@ -21,6 +21,11 @@ enum class ColorMap : unsigned char
   /// `Kenneth Moreland's website <https://www.kennethmoreland.com/color-advice/>`__.
   BlackBody,
 
+  //TODO tab10
+  Categories10,
+  //TODO tab20
+  Categories20,
+
   /// Blue shades from dark to light. This is the CET-L06 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
@@ -180,9 +185,12 @@ std::ostream &operator<<(std::ostream &os, ColorMap cm);
 std::vector<ColorMap> ListColorMaps();
 
 
-//TODO interface abstraction
+/// Utility class to simplify colorization of a data stream.
+/// This class takes care of computing/storing the limits,
+/// color map, etc. so your client code doesn't need to.
 class Colorizer {
 public:
+
   enum class LimitsMode {
     FromDataContinuously = 0,
     FromDataOnce,
@@ -234,7 +242,22 @@ std::string LimitsModeToString(Colorizer::LimitsMode lm);
 Colorizer::LimitsMode LimitsModeFromString(const std::string &lm);
 
 
-// TODO doc num output channels either 3 or 4
+/// Colorizes 2D data array using a colormap.
+///
+/// Args:
+///   data: A single channel ImageBuffer holding the data for colorization.
+///   colormap: The ColorMap to be used for colorization.
+///   low: Lower limit of the input values. If either ``low`` or ``high``
+///     are ``inf`` or ``nan``, **both limits** will be computed from the
+///     input ``data``.
+///   high: Upper limit of the input values.
+///   output_channels: Number of output channels. Must be either 3 or 4. The
+///     optional 4th channel will be considered an alpha channel and set to 255.
+///   bins: Number of discretization bins. Must be `>=2`. This parameter will
+///     be ignored if the selected color map has less than ``bins`` colors.
+///
+/// Returns:
+///   The colorization result as UInt8 ImageBuffer.
 ImageBuffer Colorize(
     const ImageBuffer &data, ColorMap colormap,
     double limit_low, double limit_high,

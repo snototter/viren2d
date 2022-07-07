@@ -278,8 +278,8 @@ public:
   ///   width: Number of columns
   ///   channels: Number of elements at each (row, column) location.
   ///   row_stride: Number of bytes between consecutive rows.
+  ///   pixel_stride: Number of bytes between neighboring pixels.
   ///   buffer_type: Element type.
-  /// TODO doc col stride
   void CreateSharedBuffer(
       unsigned char *buffer,
       int height, int width, int channels, int row_stride,
@@ -294,8 +294,8 @@ public:
   ///   width: Number of columns
   ///   channels: Number of elements at each (row, column) location.
   ///   row_stride: Number of bytes between consecutive rows.
+  ///   pixel_stride: Number of bytes between neighboring pixels.
   ///   buffer_type: Element type.
-  /// TODO doc col stride
   void CreateCopiedBuffer(
       unsigned char const *buffer,
       int height, int width, int channels, int row_stride,

@@ -19,7 +19,7 @@ def demo_relief_shading():
         os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'data', 'lunar-farside.jpg'))
     moon = moon_full.roi(left=200, top=200, width=200, height=200)
 
-    cmap_names = ['Relief', 'Relief Low Contrast', 'Terrain']
+    cmap_names = ['Earth', 'Relief', 'Relief Low Contrast']
 
     column_width = (cwidth - (len(cmap_names) * 10)) / len(cmap_names)
     scale = column_width / moon.width
@@ -75,28 +75,44 @@ def demo_relief_shading():
 
 
 def demo_colormaps():
-    width = 400
-    height = 200
-    painter = viren2d.Painter(width=width, height=height, color='white!0')
+    cwidth = 400
 
     peaks = viren2d.peaks()
 
-    vis1 = viren2d.colorize(
-        data=peaks, colormap='gouldian', low=-6.5, high=8, bins=256)
-    vis2 = viren2d.colorize(
-        data=peaks, colormap='gouldian', low=-6.5, high=8, bins=8)
+    cmap_bins = [256, 16, 8]
+    column_width = (cwidth - (len(cmap_bins) * 10)) / len(cmap_bins)
+    scale = column_width / peaks.width
 
-    scaling = 0.47 * width / peaks.width
+    cheight = int(scale * peaks.height + 10.5)
+    painter = viren2d.Painter(width=cwidth, height=cheight, color='white!0')
 
-    line_style = viren2d.LineStyle(width=8, color='navy-blue!80')
+    x = column_width / 2 + 5
+    for bins in cmap_bins:
+        vis = viren2d.colorize(
+            data=peaks, colormap='gouldian', low=-6.5, high=8, bins=bins)
+        
+        painter.draw_image(
+            image=vis, position=(x, cheight / 2), anchor='center',
+            scale_x=scale, scale_y=scale, rotation=0, clip_factor=0.2)
+        
+        x += column_width + 10
 
-    painter.draw_image(
-        image=vis1, position=(6, height / 2), anchor='left',
-        scale_x=scaling, scale_y=scaling, rotation=0, clip_factor=0.1,
-        line_style=line_style)
-    painter.draw_image(
-        image=vis2, position=(width - 6, height / 2), anchor='right',
-        scale_x=scaling, scale_y=scaling, rotation=0, clip_factor=0.1,
-        line_style=line_style)
+    # vis1 = viren2d.colorize(
+    #     data=peaks, colormap='gouldian', low=-6.5, high=8, bins=256)
+    # vis2 = viren2d.colorize(
+    #     data=peaks, colormap='gouldian', low=-6.5, high=8, bins=8)
+
+    # scaling = 0.47 * width / peaks.width
+
+    # line_style = viren2d.LineStyle(width=8, color='navy-blue!80')
+
+    # painter.draw_image(
+    #     image=vis1, position=(6, height / 2), anchor='left',
+    #     scale_x=scaling, scale_y=scaling, rotation=0, clip_factor=0.1,
+    #     line_style=line_style)
+    # painter.draw_image(
+    #     image=vis2, position=(width - 6, height / 2), anchor='right',
+    #     scale_x=scaling, scale_y=scaling, rotation=0, clip_factor=0.1,
+    #     line_style=line_style)
 
     return np.array(painter.canvas, copy=True)

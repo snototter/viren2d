@@ -24,6 +24,18 @@ void RegisterColorMapEnum(pybind11::module &m) {
         `Kenneth Moreland's website <https://www.kennethmoreland.com/color-advice/>`__.
         )docstr")
       .value(
+        "Categories10",
+        ColorMap::Categories10, R"docstr(
+        Color map with 10 distinct colors, suitable for categorical data. Based
+        on `matplotlib's <https://matplotlib.org>`__ *tab10* map.
+        )docstr")
+      .value(
+        "Categories20",
+        ColorMap::Categories20, R"docstr(
+        Color map with 20 distinct colors, suitable for categorical data. Based
+        on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
+        )docstr")
+      .value(
         "Cold",
         ColorMap::Cold, R"docstr(
         Blue shades from dark to light. This is the CET-L06 color map by
@@ -253,6 +265,21 @@ ColorMap ColorMapFromPyObject(const py::object &o) {
 }
 
 
+Colorizer::LimitsMode LimitsModeFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    return LimitsModeFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<Colorizer::LimitsMode>(o)) {
+    return py::cast<Colorizer::LimitsMode>(o);
+  } else {
+    std::string s("Cannot cast type `");
+    s += py::cast<std::string>(
+          o.attr("__class__").attr("__name__"));
+    s += "` to `viren2d.LimitsMode`!";
+    throw std::invalid_argument(s);
+  }
+}
+
+
 ImageBuffer ColorizationHelper(
     const ImageBuffer &data, const py::object &colormap,
     double limit_low, double limit_high, int output_channels,
@@ -263,9 +290,9 @@ ImageBuffer ColorizationHelper(
 
 
 Colorizer CreateColorizer(
-    ColorMap colormap, const std::string &limits_mode, int bins,
+    ColorMap colormap, const py::object &limits_mode, int bins,
     int output_channels, double low, double high) {
-  Colorizer::LimitsMode lm = LimitsModeFromString(limits_mode);
+  Colorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
   return Colorizer(colormap, lm, bins, output_channels, low, high);
 }
 
@@ -274,18 +301,25 @@ void RegisterColormaps(pybind11::module &m) {
   RegisterColorMapEnum(m);
 
   py::enum_<Colorizer::LimitsMode> mode(m, "LimitsMode",
-             "TODO DOC LimitsMode");
+             "Specifies how the colorization limits should be computed.");
 
   //TODO bind mode!
   py::class_<Colorizer> colorizer(m, "Colorizer", R"docstr(
-      TODO
+      Utility class to simplify colorization of a data stream.
 
-      TODO useful in scenarios, where we need to apply the
-      same colorization to similar data. For example, when
-      displaying the live stream of a time-of-flight sensor.
+      This class takes care of computing/storing the limits, color map,
+      *etc.* This becomes handy in scenarios where we need to apply the same
+      colorization over and over again. For example, when displaying the live
+      stream of a time-of-flight sensor.
 
       Example:
         >>> #TODO
+        >>> depth_cam = ...
+        >>> colorizer = viren2d.Colorizer(
+        >>>     colormap=...)
+        >>> while depth_cam.is_available():
+        >>>     depth = depth_cam.next()
+        >>>     vis = colorizer(depth)
       )docstr");
 
   colorizer.def(
@@ -294,9 +328,9 @@ void RegisterColormaps(pybind11::module &m) {
 
         Args:
           colormap:
-          mode: TODO as :class:`str`
+          mode: TODO as :class:`~viren2d.LimitsMode` or :class:`str`
 
-            * ``'continuos'``: Computes the upper and lower limits for
+            * ``'continuous'``: Computes the upper and lower limits for
               visualization **per image**.
             * ``'fixed'``: Provide upper and lower limits as ``low`` and ``high`` parameters.
             * ``'once'``: TODO
@@ -308,11 +342,38 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("low") = std::numeric_limits<double>::infinity(),
         py::arg("high") = std::numeric_limits<double>::infinity())
       .def_property(
-        "limit_low", &Colorizer::LimitLow, &Colorizer::SetLimitLow,
-        ":class:`float`: TODO doc")
+        "limit_low",
+        &Colorizer::LimitLow,
+        &Colorizer::SetLimitLow, R"docstr(
+        :class:`float`: Lower limit of the input data.
+
+          If you intend to set this to *inf*/*nan*, ensure that
+          :attr:`limits_mode` is not set to ``fixed``, or a :class:`ValueError`
+          will be raised.
+        )docstr")
       .def_property(
-        "limit_high", &Colorizer::LimitHigh, &Colorizer::SetLimitHigh,
-        ":class:`float`: TODO doc");
+        "limit_high",
+        &Colorizer::LimitHigh,
+        &Colorizer::SetLimitHigh, R"docstr(
+        :class:`float`: Lower limit of the input data.
+
+          If you intend to set this to *inf*/*nan*, ensure that
+          :attr:`limits_mode` is not set to ``fixed``, or a :class:`ValueError`
+          will be raised.
+        )docstr")
+      .def_property(
+        "output_channels",
+        &Colorizer::OutputChannels,
+        &Colorizer::SetOutputChannels,
+        ":class:`int`: Number of output channels. Must be either 3 or 4.")
+      .def_property(
+        "colormap",
+        &Colorizer::GetColorMap,
+        [](Colorizer &c, const py::object &o) {
+          c.SetColorMap(ColorMapFromPyObject(o));
+        }, R"docstr(
+        :class:`~viren2d.ColorMap`: TODO set via enum or string representation TODO doc
+        )docstr");
 
 
   m.def("colorize",
@@ -325,13 +386,16 @@ void RegisterColormaps(pybind11::module &m) {
           colormap: The :class:`~viren2d.ColorMap` to be used for
             colorization. In addition to the enum value, the corresponding
             string representation can be used for convenience.
-          low: Lower limit of the input values as :class:`float`.
+          low: Lower limit of the input values as :class:`float`. If either
+            ``low`` or ``high`` are ``inf`` or ``nan``, **both limits** will
+            be computed from the input ``data``.
           high: Upper limit of the input values as :class:`float`.
           output_channels: Number of output channels as :class:`int`.
             Must be either 3 or 4. The optional 4th channel will be
             considered an alpha channel and set to 255.
           bins: Number of discretization bins as :class:`int`.
-            Must be :math:`2 \leq bins \leq 256`.
+            Must be :math:`\geq 2`. This parameter will be ignored if the
+            selected color map has less than ``bins`` colors.
 
         Returns:
           A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
@@ -349,7 +413,6 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("output_channels") = 3,
         py::arg("bins") = 256);
 
-//FIXME 0,1 default --> inf,inf ? & compute from data by default!! FIXME FIXME
 
   m.def("relief_shading",
         &ReliefShading, R"docstr(

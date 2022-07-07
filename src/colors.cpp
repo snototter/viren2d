@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <map>
 #include <exception>
+#include <utility>
 #include <functional>  // std::hash
 
 #include <werkzeugkiste/strings/strings.h>
@@ -14,6 +15,7 @@
 
 #include <helpers/enum.h>
 #include <helpers/logging.h>
+#include <helpers/colormaps_helpers.h>
 
 
 namespace wzkc = werkzeugkiste::container;
@@ -35,31 +37,6 @@ double cast_01(double v) {
 double cast_RGB(double v) {
   return saturation_cast<double>(v, 0.0, 255.0);
 }
-
-
-/// List of exemplary colors used by FromID/FromCategory
-/// TODO resources on color palette selection:
-/// http://www.eftools.org/data/colours.html   // up to 36
-/// https://docs.looker.com/exploring-data/visualizing-query-results/color-collections // 12
-/// https://ux.mailchimp.com/patterns/data#palette
-/// https://blog.datawrapper.de/beautifulcolors/
-/// https://blog.datawrapper.de/colors-for-data-vis-style-guides/
-/// FIXME use categorical colormap (glasbey dark or light)!
-const Color kExemplaryColors[] = {
-  RGBa(200,    0,    0), // Red
-  RGBa(  0,  200,    0), // light green(ish)
-  RGBa(  0,    0,  220), // deep blue
-  RGBa(230,  230,    0), // yellow(ish)
-  RGBa(230,    0,  230), // magenta(ish)
-  RGBa(  0,  230,  230), // cyan(ish)
-  RGBa(255,  128,    0), // orange
-  RGBa(255,  128,  128), // skin(ish)
-  RGBa(128,   64,    0), // brown(ish)
-  RGBa(160,  160,  160), // gray(ish)
-  RGBa(  0,  128,  255), // light blue
-  RGBa(153,   77,  204)  // lilac
-};
-const size_t kExemplaryColorsSize = sizeof(kExemplaryColors) / sizeof(kExemplaryColors[0]);
 
 
 /// Mapping COCO category names (+ some widely used aliases)
@@ -755,7 +732,8 @@ Color Color::CoordinateAxisColor(char axis) {
 
 
 Color Color::FromObjectID(std::size_t id) {
-  return helpers::kExemplaryColors[id % helpers::kExemplaryColorsSize];
+  helpers::RGBColor col = helpers::GetCategoryColor(id, ColorMap::GlasbeyDark);
+  return RGBa(col.red, col.green, col.blue);
 }
 
 
@@ -821,8 +799,8 @@ Color RGBa(double R, double G, double B, double alpha) {
 
 
 Color ColorFromHexString(const std::string &webcode, double alpha) {
-  SPDLOG_TRACE("ColorFromHexString(\"{:s}\", alpha={:.2f}).",
-               webcode, alpha);
+  SPDLOG_TRACE(
+        "ColorFromHexString(\"{:s}\", alpha={:.2f}).", webcode, alpha);
 
   const size_t len = webcode.length();
   if (len != 7 && len != 9) {
@@ -838,32 +816,26 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
   unsigned char rgb[3];
   for (size_t idx = 0; idx < 3; ++idx) {
     unsigned char upper = hex[idx * 2 + 1];
-    upper = (upper <= '9') ? (upper - '0')
-                           : (upper - 'a' + 10);
+    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
 
     unsigned char lower = hex[idx * 2 + 2];
-    lower = (lower <= '9') ? (lower - '0')
-                           : (lower - 'a' + 10);
+    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
 
     rgb[idx] = (upper << 4) | lower;
   }
 
-  // Parse alpha code - if provided, it overrules the
-  // optional function parameter
+  // Parse alpha code (overrules the optional function parameter if provided)
   if (len == 9) {
     unsigned char upper = hex[7];
-    upper = (upper <= '9') ? (upper - '0')
-                           : (upper - 'a' + 10);
+    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
 
     unsigned char lower = hex[8];
-    lower = (lower <= '9') ? (lower - '0')
-                           : (lower - 'a' + 10);
+    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
 
     alpha = static_cast<double>((upper << 4) | lower) / 255.0;
   }
 
-  return Color(rgb[0] / 255.0, rgb[1] / 255.0,
-               rgb[2] / 255.0, alpha);
+  return Color(rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0, alpha);
 }
 
 

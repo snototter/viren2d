@@ -19,6 +19,10 @@ std::string ColorMapToString(ColorMap cm) {
   switch (cm) {
     case ColorMap::BlackBody:
       return "black-body";
+    case ColorMap::Categories10:
+      return "categories-10";
+    case ColorMap::Categories20:
+      return "categories-20";
     case ColorMap::Cold:
       return "cold";
     case ColorMap::ColorBlind:
@@ -89,6 +93,12 @@ ColorMap ColorMapFromString(const std::string &cm) {
     }), lower.end());
   if (lower.compare("blackbody") == 0) {
     return ColorMap::BlackBody;
+  } else if ((lower.compare("categories10") == 0)
+             || (lower.compare("cat10") == 0)) {
+    return ColorMap::Categories10;
+  } else if ((lower.compare("categories20") == 0)
+             || (lower.compare("cat20") == 0)) {
+    return ColorMap::Categories20;
   } else if (lower.compare("cold") == 0) {
     return ColorMap::Cold;
   } else if (lower.compare("colorblind") == 0) {
@@ -177,16 +187,15 @@ std::vector<ColorMap> ListColorMaps() {
 
 template <typename _Tp>
 ImageBuffer ColorLookup(
-    const ImageBuffer &data, const helpers::RGBColor *map,
+    const ImageBuffer &data, const helpers::RGBColor *map, int num_colors,
     double limit_low, double limit_high, int output_channels, int bins) {
   // Sanity checks have been performed in `Colorize`
   ImageBuffer dst(
         data.Height(), data.Width(), output_channels, ImageBufferType::UInt8);
 
-  --bins;
-  const double map_idx_factor = 255.0 / bins;
+  const int map_bins = num_colors - 1;
+  const double map_idx_factor = static_cast<double>(map_bins) / (bins - 1);
   const double interval = (limit_high - limit_low) / bins;
-  const double divider = (std::fabs(interval) > 0.0) ? interval : 1.0;
 
   int rows = data.Height();
   int cols = data.Width();
@@ -200,15 +209,15 @@ ImageBuffer ColorLookup(
     const _Tp *data_ptr = data.ImmutablePtr<_Tp>(row, 0, 0);
     unsigned char *dst_ptr = dst.MutablePtr<unsigned char>(row, 0, 0);
     for (int col = 0; col < cols; ++col) {
-      double value = std::max(
+      const double value = std::max(
             limit_low,
             std::min(
               limit_high,
               static_cast<double>(*data_ptr)));
-      int bin = std::max(
+      const int bin = std::max(
             0, std::min(
-              255, static_cast<int>(
-                map_idx_factor * std::floor((value - limit_low) / divider))));
+              map_bins, static_cast<int>(
+                map_idx_factor * std::floor((value - limit_low) / interval))));
 
       *dst_ptr++ = map[bin].red;
       *dst_ptr++ = map[bin].green;
@@ -235,7 +244,6 @@ Colorizer::Colorizer(ColorMap cmap,
 
 
 void Colorizer::SetLimitLow(double low) {
-  // If the limits are set, we switch the mode - TODO add to interface doc!
   limits_mode = LimitsMode::Fixed;
   limit_low = low;
   ValidateConfiguration();
@@ -294,10 +302,12 @@ void Colorizer::ValidateConfiguration() const {
   if ((limits_mode == LimitsMode::Fixed)
       && (std::isinf(limit_low)
           || std::isinf(limit_high)
+          || std::isnan(limit_low)
+          || std::isnan(limit_high)
           || (limit_high <= limit_low))) {
     std::ostringstream s;
-    s << "Invalid colorization limits [" << std::fixed
-      << std::setprecision(2) << limit_low
+    s << "Colorization mode is set to `fixed`, but the limits are invalid: ["
+      << std::fixed << std::setprecision(2) << limit_low
       << ", " << limit_high << "]!";
     throw std::invalid_argument(s.str());
   }
@@ -363,9 +373,9 @@ ImageBuffer Colorize(
     throw std::invalid_argument(s);
   }
 
-  if ((bins < 2) || (bins > 256)) {
+  if (bins < 2) {
     std::ostringstream s;
-    s << "Number of bins in `Colorize` must be >= 2 and <= 256, but got: "
+    s << "Number of bins for `Colorize` must be > 1, but got: "
       << bins << '!';
     throw std::invalid_argument(s.str());
   }
@@ -391,28 +401,29 @@ ImageBuffer Colorize(
     throw std::invalid_argument(s.str());
   }
 
-  const helpers::RGBColor *map = helpers::GetColorMap(colormap);
+  std::pair<const helpers::RGBColor *, std::size_t> map = helpers::GetColorMap(colormap);
+  bins = std::min(bins, static_cast<int>(map.second));
 
   switch (data.BufferType()) {
     case ImageBufferType::UInt8:
       return ColorLookup<uint8_t>(
-            data, map, limit_low, limit_high, output_channels, bins);
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Int16:
       return ColorLookup<int16_t>(
-            data, map, limit_low, limit_high, output_channels, bins);
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Int32:
       return ColorLookup<int32_t>(
-            data, map, limit_low, limit_high, output_channels, bins);
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Float:
       return ColorLookup<float>(
-            data, map, limit_low, limit_high, output_channels, bins);
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Double:
       return ColorLookup<double>(
-            data, map, limit_low, limit_high, output_channels, bins);
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
   }
 
   std::string s("Type `");

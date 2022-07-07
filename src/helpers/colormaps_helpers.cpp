@@ -101,6 +101,25 @@ constexpr RGBColor kColorMapBlackBody[] = {
   RGBColor(253, 249, 210), RGBColor(254, 249, 216), RGBColor(254, 250, 223), RGBColor(254, 251, 229),
   RGBColor(255, 252, 236), RGBColor(255, 253, 242), RGBColor(255, 254, 249), RGBColor(255, 255, 255)
 };
+constexpr std::size_t kBinsBlackBody = sizeof(kColorMapBlackBody) / sizeof(kColorMapBlackBody[0]);
+
+
+constexpr RGBColor kColorMapCategories10[] = {
+  RGBColor( 31, 119, 180), RGBColor(255, 127,  14), RGBColor( 44, 160,  44), RGBColor(214,  39,  40),
+  RGBColor(148, 103, 189), RGBColor(140,  86,  75), RGBColor(227, 119, 194), RGBColor(127, 127, 127),
+  RGBColor(188, 189,  34), RGBColor( 23, 190, 207)
+};
+constexpr std::size_t kBinsCategories10 = sizeof(kColorMapCategories10) / sizeof(kColorMapCategories10[0]);
+
+
+constexpr RGBColor kColorMapCategories20[] = {
+  RGBColor( 31, 119, 180), RGBColor(174, 199, 232), RGBColor(255, 127,  14), RGBColor(255, 187, 120),
+  RGBColor( 44, 160,  44), RGBColor(152, 223, 138), RGBColor(214,  39,  40), RGBColor(255, 152, 150),
+  RGBColor(148, 103, 189), RGBColor(197, 176, 213), RGBColor(140,  86,  75), RGBColor(196, 156, 148),
+  RGBColor(227, 119, 194), RGBColor(247, 182, 210), RGBColor(127, 127, 127), RGBColor(199, 199, 199),
+  RGBColor(188, 189,  34), RGBColor(219, 219, 141), RGBColor( 23, 190, 207), RGBColor(158, 218, 229)
+};
+constexpr std::size_t kBinsCategories20 = sizeof(kColorMapCategories20) / sizeof(kColorMapCategories20[0]);
 
 
 constexpr RGBColor kColorMapCold[] = {
@@ -169,6 +188,7 @@ constexpr RGBColor kColorMapCold[] = {
   RGBColor(157, 249, 246), RGBColor(161, 250, 246), RGBColor(164, 251, 246), RGBColor(167, 252, 246),
   RGBColor(170, 253, 246), RGBColor(173, 253, 246), RGBColor(176, 254, 246), RGBColor(179, 255, 246)
 };
+constexpr std::size_t kBinsCold = sizeof(kColorMapCold) / sizeof(kColorMapCold[0]);
 
 
 constexpr RGBColor kColorMapColorBlind[] = {
@@ -237,6 +257,7 @@ constexpr RGBColor kColorMapColorBlind[] = {
   RGBColor(238, 233, 221), RGBColor(239, 234, 224), RGBColor(239, 235, 227), RGBColor(239, 236, 230),
   RGBColor(240, 237, 232), RGBColor(240, 238, 235), RGBColor(240, 240, 238), RGBColor(241, 241, 241)
 };
+constexpr std::size_t kBinsColorBlind = sizeof(kColorMapColorBlind) / sizeof(kColorMapColorBlind[0]);
 
 
 constexpr RGBColor kColorMapDisparity[] = {
@@ -305,6 +326,7 @@ constexpr RGBColor kColorMapDisparity[] = {
   RGBColor(255, 255, 194), RGBColor(255, 255, 202), RGBColor(255, 255, 211), RGBColor(255, 255, 220),
   RGBColor(255, 255, 229), RGBColor(255, 255, 237), RGBColor(255, 255, 246), RGBColor(255, 255, 255)
 };
+constexpr std::size_t kBinsDisparity = sizeof(kColorMapDisparity) / sizeof(kColorMapDisparity[0]);
 
 
 constexpr RGBColor kColorMapEarth[] = {
@@ -373,6 +395,7 @@ constexpr RGBColor kColorMapEarth[] = {
   RGBColor(245, 230, 229), RGBColor(246, 233, 232), RGBColor(247, 236, 235), RGBColor(248, 239, 238),
   RGBColor(249, 242, 241), RGBColor(250, 245, 244), RGBColor(251, 248, 247), RGBColor(253, 250, 250)
 };
+constexpr std::size_t kBinsEarth = sizeof(kColorMapEarth) / sizeof(kColorMapEarth[0]);
 
 
 constexpr RGBColor kColorMapGlasbeyDark[] = {
@@ -441,6 +464,7 @@ constexpr RGBColor kColorMapGlasbeyDark[] = {
   RGBColor(  0, 100, 163), RGBColor( 75, 144, 119), RGBColor(142,  96, 151), RGBColor(255,  82,  56),
   RGBColor(167,  66,  59), RGBColor(  0, 110, 112), RGBColor(151, 131,  61), RGBColor(219, 175, 200)
 };
+constexpr std::size_t kBinsGlasbeyDark = sizeof(kColorMapGlasbeyDark) / sizeof(kColorMapGlasbeyDark[0]);
 
 
 constexpr RGBColor kColorMapGlasbeyLight[] = {
@@ -509,6 +533,7 @@ constexpr RGBColor kColorMapGlasbeyLight[] = {
   RGBColor(133,  98, 119), RGBColor( 86, 142,  91), RGBColor(158, 175, 196), RGBColor(232,  47, 160),
   RGBColor( 36, 124,  42), RGBColor(130, 103,  35), RGBColor(191, 188,  77), RGBColor(221, 211, 165)
 };
+constexpr std::size_t kBinsGlasbeyLight = sizeof(kColorMapGlasbeyLight) / sizeof(kColorMapGlasbeyLight[0]);
 
 
 constexpr RGBColor kColorMapGouldian[] = {
@@ -577,6 +602,7 @@ constexpr RGBColor kColorMapGouldian[] = {
   RGBColor(252, 240,  13), RGBColor(251, 241,  12), RGBColor(251, 242,  12), RGBColor(250, 244,  12),
   RGBColor(250, 245,  11), RGBColor(250, 246,  11), RGBColor(249, 247,  10), RGBColor(249, 249,  10)
 };
+constexpr std::size_t kBinsGouldian = sizeof(kColorMapGouldian) / sizeof(kColorMapGouldian[0]);
 
 
 constexpr RGBColor kColorMapGray[] = {
@@ -645,6 +671,7 @@ constexpr RGBColor kColorMapGray[] = {
   RGBColor(248, 248, 248), RGBColor(249, 249, 249), RGBColor(250, 250, 250), RGBColor(251, 251, 251),
   RGBColor(252, 252, 252), RGBColor(253, 253, 253), RGBColor(254, 254, 254), RGBColor(255, 255, 255)
 };
+constexpr std::size_t kBinsGray = sizeof(kColorMapGray) / sizeof(kColorMapGray[0]);
 
 
 constexpr RGBColor kColorMapHell[] = {
@@ -713,6 +740,7 @@ constexpr RGBColor kColorMapHell[] = {
   RGBColor(244, 246, 236), RGBColor(246, 247, 239), RGBColor(247, 248, 242), RGBColor(248, 249, 245),
   RGBColor(250, 250, 247), RGBColor(251, 252, 250), RGBColor(253, 253, 252), RGBColor(254, 254, 254)
 };
+constexpr std::size_t kBinsHell = sizeof(kColorMapHell) / sizeof(kColorMapHell[0]);
 
 
 constexpr RGBColor kColorMapHot[] = {
@@ -781,6 +809,7 @@ constexpr RGBColor kColorMapHot[] = {
   RGBColor(255, 253, 132), RGBColor(255, 254, 150), RGBColor(255, 254, 168), RGBColor(255, 254, 187),
   RGBColor(255, 255, 205), RGBColor(255, 255, 222), RGBColor(255, 255, 239), RGBColor(255, 255, 255)
 };
+constexpr std::size_t kBinsHot = sizeof(kColorMapHot) / sizeof(kColorMapHot[0]);
 
 
 constexpr RGBColor kColorMapHSV[] = {
@@ -849,6 +878,7 @@ constexpr RGBColor kColorMapHSV[] = {
   RGBColor(255,   0,  42), RGBColor(255,   0,  36), RGBColor(255,   0,  30), RGBColor(255,   0,  24),
   RGBColor(255,   0,  18), RGBColor(255,   0,  12), RGBColor(255,   0,   6), RGBColor(255,   0,   0)
 };
+constexpr std::size_t kBinsHSV = sizeof(kColorMapHSV) / sizeof(kColorMapHSV[0]);
 
 
 constexpr RGBColor kColorMapInferno[] = {
@@ -917,6 +947,7 @@ constexpr RGBColor kColorMapInferno[] = {
   RGBColor(243, 246, 138), RGBColor(244, 248, 142), RGBColor(245, 249, 146), RGBColor(246, 250, 150),
   RGBColor(248, 251, 154), RGBColor(249, 252, 157), RGBColor(250, 253, 161), RGBColor(252, 255, 164)
 };
+constexpr std::size_t kBinsInferno = sizeof(kColorMapInferno) / sizeof(kColorMapInferno[0]);
 
 
 constexpr RGBColor kColorMapOcean[] = {
@@ -985,6 +1016,7 @@ constexpr RGBColor kColorMapOcean[] = {
   RGBColor(233, 244, 248), RGBColor(236, 245, 249), RGBColor(239, 247, 250), RGBColor(242, 248, 251),
   RGBColor(246, 250, 252), RGBColor(249, 252, 253), RGBColor(252, 253, 254), RGBColor(255, 255, 255)
 };
+constexpr std::size_t kBinsOcean = sizeof(kColorMapOcean) / sizeof(kColorMapOcean[0]);
 
 
 constexpr RGBColor kColorMapOrientation[] = {
@@ -1053,6 +1085,7 @@ constexpr RGBColor kColorMapOrientation[] = {
   RGBColor(221,  72, 249), RGBColor(224,  73, 248), RGBColor(227,  75, 248), RGBColor(229,  76, 247),
   RGBColor(231,  77, 246), RGBColor(233,  79, 245), RGBColor(236,  81, 244), RGBColor(237,  83, 243)
 };
+constexpr std::size_t kBinsOrientation = sizeof(kColorMapOrientation) / sizeof(kColorMapOrientation[0]);
 
 
 constexpr RGBColor kColorMapOrientationColorBlind[] = {
@@ -1121,6 +1154,7 @@ constexpr RGBColor kColorMapOrientationColorBlind[] = {
   RGBColor( 56, 123, 215), RGBColor( 55, 124, 218), RGBColor( 55, 126, 221), RGBColor( 55, 127, 223),
   RGBColor( 56, 129, 226), RGBColor( 57, 130, 228), RGBColor( 58, 132, 230), RGBColor( 60, 133, 232)
 };
+constexpr std::size_t kBinsOrientationColorBlind = sizeof(kColorMapOrientationColorBlind) / sizeof(kColorMapOrientationColorBlind[0]);
 
 
 constexpr RGBColor kColorMapRainbow[] = {
@@ -1189,6 +1223,7 @@ constexpr RGBColor kColorMapRainbow[] = {
   RGBColor(254,  68,   0), RGBColor(253,  65,   0), RGBColor(253,  63,   0), RGBColor(253,  60,   0),
   RGBColor(253,  57,   0), RGBColor(253,  54,   0), RGBColor(253,  51,   0), RGBColor(253,  48,   0)
 };
+constexpr std::size_t kBinsRainbow = sizeof(kColorMapRainbow) / sizeof(kColorMapRainbow[0]);
 
 
 constexpr RGBColor kColorMapRelief[] = {
@@ -1257,6 +1292,7 @@ constexpr RGBColor kColorMapRelief[] = {
   RGBColor(227, 224, 219), RGBColor(227, 224, 220), RGBColor(227, 225, 221), RGBColor(227, 225, 222),
   RGBColor(227, 225, 223), RGBColor(227, 226, 224), RGBColor(226, 226, 225), RGBColor(226, 226, 226)
 };
+constexpr std::size_t kBinsRelief = sizeof(kColorMapRelief) / sizeof(kColorMapRelief[0]);
 
 
 constexpr RGBColor kColorMapReliefLowContrast[] = {
@@ -1325,6 +1361,7 @@ constexpr RGBColor kColorMapReliefLowContrast[] = {
   RGBColor(255, 181, 127), RGBColor(255, 180, 127), RGBColor(255, 180, 127), RGBColor(255, 180, 128),
   RGBColor(255, 179, 128), RGBColor(255, 179, 129), RGBColor(255, 179, 129), RGBColor(255, 178, 129)
 };
+constexpr std::size_t kBinsReliefLowContrast = sizeof(kColorMapReliefLowContrast) / sizeof(kColorMapReliefLowContrast[0]);
 
 
 constexpr RGBColor kColorMapTemperature[] = {
@@ -1393,6 +1430,7 @@ constexpr RGBColor kColorMapTemperature[] = {
   RGBColor(120,   6,   6), RGBColor(117,   6,   5), RGBColor(115,   7,   5), RGBColor(112,   7,   4),
   RGBColor(110,   7,   4), RGBColor(107,   7,   3), RGBColor(105,   7,   3), RGBColor(102,   7,   2)
 };
+constexpr std::size_t kBinsTemperature = sizeof(kColorMapTemperature) / sizeof(kColorMapTemperature[0]);
 
 
 constexpr RGBColor kColorMapTemperatureDark[] = {
@@ -1461,6 +1499,7 @@ constexpr RGBColor kColorMapTemperatureDark[] = {
   RGBColor(218,  77,  63), RGBColor(220,  78,  64), RGBColor(221,  78,  64), RGBColor(223,  78,  64),
   RGBColor(225,  79,  65), RGBColor(227,  79,  65), RGBColor(228,  79,  65), RGBColor(230,  80,  65)
 };
+constexpr std::size_t kBinsTemperatureDark = sizeof(kColorMapTemperatureDark) / sizeof(kColorMapTemperatureDark[0]);
 
 
 constexpr RGBColor kColorMapTerrain[] = {
@@ -1529,6 +1568,7 @@ constexpr RGBColor kColorMapTerrain[] = {
   RGBColor(241, 237, 236), RGBColor(243, 239, 238), RGBColor(244, 242, 241), RGBColor(247, 244, 244),
   RGBColor(249, 247, 246), RGBColor(251, 249, 249), RGBColor(253, 252, 252), RGBColor(255, 255, 255)
 };
+constexpr std::size_t kBinsTerrain = sizeof(kColorMapTerrain) / sizeof(kColorMapTerrain[0]);
 
 
 constexpr RGBColor kColorMapThermal[] = {
@@ -1597,6 +1637,7 @@ constexpr RGBColor kColorMapThermal[] = {
   RGBColor(244, 249, 230), RGBColor(246, 250, 234), RGBColor(247, 251, 237), RGBColor(249, 252, 241),
   RGBColor(250, 253, 244), RGBColor(252, 253, 248), RGBColor(253, 254, 251), RGBColor(255, 255, 255)
 };
+constexpr std::size_t kBinsThermal = sizeof(kColorMapThermal) / sizeof(kColorMapThermal[0]);
 
 
 constexpr RGBColor kColorMapTurbo[] = {
@@ -1665,6 +1706,7 @@ constexpr RGBColor kColorMapTurbo[] = {
   RGBColor(145,  11,   1), RGBColor(142,  10,   1), RGBColor(139,   9,   1), RGBColor(135,   8,   1),
   RGBColor(132,   7,   1), RGBColor(129,   6,   2), RGBColor(125,   5,   2), RGBColor(122,   4,   2)
 };
+constexpr std::size_t kBinsTurbo = sizeof(kColorMapTurbo) / sizeof(kColorMapTurbo[0]);
 
 
 constexpr RGBColor kColorMapViridis[] = {
@@ -1733,6 +1775,7 @@ constexpr RGBColor kColorMapViridis[] = {
   RGBColor(236, 229,  27), RGBColor(239, 229,  28), RGBColor(241, 229,  29), RGBColor(244, 230,  30),
   RGBColor(246, 230,  32), RGBColor(248, 230,  33), RGBColor(251, 231,  35), RGBColor(253, 231,  37)
 };
+constexpr std::size_t kBinsViridis = sizeof(kColorMapViridis) / sizeof(kColorMapViridis[0]);
 
 
 constexpr RGBColor kColorMapWater[] = {
@@ -1801,6 +1844,7 @@ constexpr RGBColor kColorMapWater[] = {
   RGBColor( 66, 126, 179), RGBColor( 65, 126, 179), RGBColor( 64, 126, 179), RGBColor( 63, 125, 179),
   RGBColor( 62, 125, 178), RGBColor( 61, 124, 178), RGBColor( 60, 124, 178), RGBColor( 59, 124, 178)
 };
+constexpr std::size_t kBinsWater = sizeof(kColorMapWater) / sizeof(kColorMapWater[0]);
 
 
 constexpr RGBColor kColorMapYarg[] = {
@@ -1869,64 +1913,71 @@ constexpr RGBColor kColorMapYarg[] = {
   RGBColor(  7,   7,   7), RGBColor(  6,   6,   6), RGBColor(  5,   5,   5), RGBColor(  4,   4,   4),
   RGBColor(  3,   3,   3), RGBColor(  2,   2,   2), RGBColor(  1,   1,   1), RGBColor(  0,   0,   0)
 };
+constexpr std::size_t kBinsYarg = sizeof(kColorMapYarg) / sizeof(kColorMapYarg[0]);
 
 
-const RGBColor *GetColorMap(ColorMap colormap) {
+std::pair<const RGBColor *, std::size_t> GetColorMap(ColorMap colormap) {
   switch(colormap) {
     case ColorMap::BlackBody:
-      return kColorMapBlackBody;
+      return std::make_pair(kColorMapBlackBody, kBinsBlackBody);
+    case ColorMap::Categories10:
+      return std::make_pair(kColorMapCategories10, kBinsCategories10);
+    case ColorMap::Categories20:
+      return std::make_pair(kColorMapCategories20, kBinsCategories20);
     case ColorMap::Cold:
-      return kColorMapCold;
+      return std::make_pair(kColorMapCold, kBinsCold);
     case ColorMap::ColorBlind:
-      return kColorMapColorBlind;
+      return std::make_pair(kColorMapColorBlind, kBinsColorBlind);
     case ColorMap::Disparity:
-      return kColorMapDisparity;
+      return std::make_pair(kColorMapDisparity, kBinsDisparity);
     case ColorMap::Earth:
-      return kColorMapEarth;
+      return std::make_pair(kColorMapEarth, kBinsEarth);
     case ColorMap::GlasbeyDark:
-      return kColorMapGlasbeyDark;
+      return std::make_pair(kColorMapGlasbeyDark, kBinsGlasbeyDark);
     case ColorMap::GlasbeyLight:
-      return kColorMapGlasbeyLight;
+      return std::make_pair(kColorMapGlasbeyLight, kBinsGlasbeyDark);
     case ColorMap::Gouldian:
-      return kColorMapGouldian;
+      return std::make_pair(kColorMapGouldian, kBinsGouldian);
     case ColorMap::Gray:
-      return kColorMapGray;
+      return std::make_pair(kColorMapGray, kBinsGray);
     case ColorMap::Hell:
-      return kColorMapHell;
+      return std::make_pair(kColorMapHell, kBinsHell);
     case ColorMap::Hot:
-      return kColorMapHot;
+      return std::make_pair(kColorMapHot, kBinsHot);
     case ColorMap::HSV:
-      return kColorMapHSV;
+      return std::make_pair(kColorMapHSV, kBinsHSV);
     case ColorMap::Inferno:
-      return kColorMapInferno;
+      return std::make_pair(kColorMapInferno, kBinsInferno);
     case ColorMap::Ocean:
-      return kColorMapOcean;
+      return std::make_pair(kColorMapOcean, kBinsOcean);
     case ColorMap::Orientation:
-      return kColorMapOrientation;
+      return std::make_pair(kColorMapOrientation, kBinsOrientation);
     case ColorMap::OrientationColorBlind:
-      return kColorMapOrientationColorBlind;
+      return std::make_pair(
+            kColorMapOrientationColorBlind, kBinsOrientationColorBlind);
     case ColorMap::Rainbow:
-      return kColorMapRainbow;
+      return std::make_pair(kColorMapRainbow, kBinsRainbow);
     case ColorMap::Relief:
-      return kColorMapRelief;
+      return std::make_pair(kColorMapRelief, kBinsRelief);
     case ColorMap::ReliefLowContrast:
-      return kColorMapReliefLowContrast;
+      return std::make_pair(
+            kColorMapReliefLowContrast, kBinsReliefLowContrast);
     case ColorMap::Temperature:
-      return kColorMapTemperature;
+      return std::make_pair(kColorMapTemperature, kBinsTemperature);
     case ColorMap::TemperatureDark:
-      return kColorMapTemperatureDark;
+      return std::make_pair(kColorMapTemperatureDark, kBinsTemperatureDark);
     case ColorMap::Terrain:
-      return kColorMapTerrain;
+      return std::make_pair(kColorMapTerrain, kBinsTerrain);
     case ColorMap::Thermal:
-      return kColorMapThermal;
+      return std::make_pair(kColorMapThermal, kBinsThermal);
     case ColorMap::Turbo:
-      return kColorMapTurbo;
+      return std::make_pair(kColorMapTurbo, kBinsTurbo);
     case ColorMap::Viridis:
-      return kColorMapViridis;
+      return std::make_pair(kColorMapViridis, kBinsViridis);
     case ColorMap::Water:
-      return kColorMapWater;
+      return std::make_pair(kColorMapWater, kBinsWater);
     case ColorMap::Yarg:
-      return kColorMapYarg;
+      return std::make_pair(kColorMapYarg, kBinsYarg);
   }
 
   std::string s("Color map for `");
@@ -1934,6 +1985,7 @@ const RGBColor *GetColorMap(ColorMap colormap) {
   s += "` is not mapped in `GetColorMap`!";
   throw std::logic_error(s);
 }
+
 
 } // namespace helpers
 } // namespace viren2d
