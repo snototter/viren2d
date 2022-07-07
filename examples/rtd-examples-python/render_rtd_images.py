@@ -9,11 +9,11 @@ from rtd_demo_images import *
 def _process_result(
         img: np.ndarray,
         show_image: bool,
-        title: str,
+        title: str,  # currently ignored
         save_image: bool,
         filename: str) -> None:
     if show_image:
-        imvis.imshow(img, title, wait_ms=-1)#100)
+        imvis.imshow(img, wait_ms=-1)#100) # ignore the title
     if save_image:
         output_folder = Path(__file__).absolute().parents[2] / 'docs' / 'source' / 'images'
         imutils.imsave(output_folder / filename, img)
@@ -102,19 +102,19 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     # LineStyle
     img = cheat_sheet_linestyle()
     _process_result(
-        img, True, 'Line Style Cheat Sheet', True, 'line-style-cheat-sheet.png')
+        img, show_images, 'Line Style Cheat Sheet', save_images, 'line-style-cheat-sheet.png')
 
     # LineStyle
     img = cheat_sheet_arrowstyle()
     _process_result(
-        img, True, 'Arrow Style Cheat Sheet', True, 'arrow-style-cheat-sheet.png')
+        img, show_images, 'Arrow Style Cheat Sheet', save_images, 'arrow-style-cheat-sheet.png')
 
     # Colormaps
     img = cheat_sheet_colormaps()
     _process_result(
-        img, True, 'Colormaps Cheat Sheet', True, 'colormaps-cheat-sheet.png')
+        img, show_images, 'Colormaps Cheat Sheet', save_images, 'colormaps-cheat-sheet.png')
 
 
 if __name__ == '__main__':
-    render_rtd_demos(True, False)
+    render_rtd_demos(True, True)
     render_rtd_cheatsheets(True, False)#FIXME

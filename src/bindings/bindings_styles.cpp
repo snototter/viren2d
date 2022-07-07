@@ -313,11 +313,13 @@ MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
 /// either enum or char/string representation.
 MarkerStyle CreateMarkerStyle(
     const py::object &marker, double size, double thickness, const Color &color,
-    bool fill, const py::object &cap, const py::object &join) {
+    bool fill, double border_thickness, const Color &border_color,
+    const py::object &cap, const py::object &join) {
   Marker m = MarkerFromPyObject(marker);
   LineCap c = LineCapFromPyObject(cap);
   LineJoin j = LineJoinFromPyObject(join);
-  return MarkerStyle(m, size, thickness, color, fill, c, j);
+  return MarkerStyle(
+        m, size, thickness, color, fill, border_thickness, border_color, c, j);
 }
 
 
@@ -350,6 +352,11 @@ void RegisterMarkerStyle(pybind11::module &m) {
           contour or filling.
         filled: If ``True`` (and the shape allwos), the marker
           will be filled.
+        border_thickness: Line with of the optional border as :class:`float`.
+          If a valid ``border_color`` is provided, the marker's contour will be
+          drawn *behind* the actual marker. Can be used to improve the contrast.
+        border_color: The :class:`~viren2d.Color` to improve the contrast,
+          see ``border_thickness``.
         cap: A :class:`~viren2d.LineCap` enum, specifying
           how to render the line endpoints. This parameter
           can also be set via the corresponding string
@@ -366,6 +373,8 @@ void RegisterMarkerStyle(pybind11::module &m) {
             py::arg("thickness") = default_style.thickness,
             py::arg("color") = default_style.color,
             py::arg("filled") = default_style.filled,
+            py::arg("border_thickness") = default_style.border_thickness,
+            py::arg("border_color") = default_style.border_color,
             py::arg("cap") = default_style.cap,
             py::arg("join") = default_style.join);
 
@@ -430,17 +439,36 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "filled (*e.g.* ``'.'``). For these shapes, the value\n"
         "of :attr:`filled` will be ignored.");
 
-  doc = ":class:`~viren2d.LineCap`: "
-        "How to render the endpoints of the marker's contour.\n\n"
-        "In addition to the enum values, you can use\n"
-        "the corresponding string representation to set this member:\n\n"
-        ">>> style.cap = viren2d.LineCap.Round\n"
-        ">>> style.cap = 'round'\n";
-  style.def_property("cap",
+  style.def_readwrite(
+        "border_thickness",
+        &MarkerStyle::border_thickness, R"docstr(
+        :class:`float`: Line with of the optional border. If
+          :attr:`border_color` is a valid color, the marker's contour will be
+          drawn *behind* the actual marker. Can be used to improve the contrast.
+        )docstr");
+
+  style.def_readwrite(
+        "border_color",
+        &MarkerStyle::border_color, R"docstr(
+        :class:`~viren2d.Color`: Can be used to improve the contrast,
+          see :attr:`border_thickness`.
+        )docstr");
+
+  style.def_property(
+        "cap",
         [](MarkerStyle &s) { return s.cap; },
         [](MarkerStyle &s, py::object o) {
             s.cap = LineCapFromPyObject(o);
-        }, doc.c_str());
+        }, R"docstr(
+        :class:`~viren2d.LineCap`: How to render the endpoints of the marker's
+          contour.
+
+          In addition to the enum values, you can use the corresponding string
+          representation to set this member:
+
+          >>> style.cap = viren2d.LineCap.Round
+          >>> style.cap = 'round'
+        )docstr");
 
 
   doc = ":class:`~viren2d.LineJoin`: "

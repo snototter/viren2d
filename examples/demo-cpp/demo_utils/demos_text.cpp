@@ -47,7 +47,7 @@ void DemoText() {
 
       pos.SetY(100.0 + idx_anchor * 50.0);
       //painter->DrawCircle(pos, 5, LineStyle::Invalid, "black!40");
-      painter->DrawMarker(pos, MarkerStyle('9', 30, 1, "crimson!90", false));
+      painter->DrawMarker(pos, MarkerStyle(Marker::Pentagram, 30, 1, "crimson!90", false));
       if (idx_family == 0) {
         // Just draw the text
         painter->DrawText({txt.str()}, pos, AnchorFromString(anchors[idx_anchor]),

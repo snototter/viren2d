@@ -18,8 +18,8 @@ def demo_text_anchors():
         width=1, dash_pattern=[10, 10], color=(0.4, 0.4, 0.4))
 
     marker_style = viren2d.MarkerStyle(
-        viren2d.Marker.Pentagram, size=18, thickness=1,
-        filled=True, color='maroon!80')
+        viren2d.Marker.Pentagram, size=18, thickness=1, filled=True,
+        color='rose-red', border_thickness=1, border_color=viren2d.RGBa(26, 28, 29))
 
     # Draw a grid
     offset_x = 20

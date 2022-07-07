@@ -302,28 +302,27 @@ MarkerStyle::MarkerStyle()
     size(10.0), thickness(3.0),
     color(NamedColor::Azure),
     filled(helpers::AdjustMarkerFill(marker, false)),
+    border_thickness(0),
+    border_color(Color::Invalid),
     cap(LineCap::Butt),
     join(LineJoin::Miter)
 {}
 
 
-MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thickness,
-                         const Color &marker_color, bool fill,
-                         viren2d::LineCap line_cap, viren2d::LineJoin line_join)
+MarkerStyle::MarkerStyle(
+    Marker type, double marker_size, double thickness_marker,
+    const Color &color_marker, bool fill, double thickness_border,
+    const Color &color_border, viren2d::LineCap line_cap,
+    viren2d::LineJoin line_join)
   : marker(type),
     size(marker_size),
-    thickness(marker_thickness),
-    color(marker_color),
+    thickness(thickness_marker),
+    color(color_marker),
     filled(helpers::AdjustMarkerFill(type, fill)),
-    cap(line_cap), join(line_join)
-{}
-
-
-MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
-                         const Color &marker_color, bool fill,
-                         LineCap line_cap, LineJoin line_join)
-  : MarkerStyle(MarkerFromChar(type), marker_size, marker_thickness,
-                marker_color, fill, line_cap, line_join)
+    border_thickness(thickness_border),
+    border_color(color_border),
+    cap(line_cap),
+    join(line_join)
 {}
 
 
@@ -405,20 +404,6 @@ LineStyle::LineStyle()
     join(LineJoin::Miter)
 {}
 
-//FIXME remove!
-LineStyle::LineStyle(std::initializer_list<double> values) {
-  if (values.size() < 2) {
-    *this = LineStyle();
-    if (values.size() > 0) {
-      width = values.begin()[0];
-    }
-  } else {
-    std::ostringstream s;
-    s << "LineStyle c'tor requires 0, or 1 elements in initializer_list, "
-      << "but got " << values.size() << ".";
-    throw std::invalid_argument(s.str());
-  }
-}
 
 LineStyle::LineStyle(
     double width, const Color &col,

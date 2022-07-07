@@ -610,10 +610,11 @@ void DrawMarker(
       }
   }
 
-  //TODO - if bg!
-  if (true) {
-    LineStyle contour_style(10, "red");
-    ApplyLineStyle(context, contour_style);
+  // Optionally draw the contour with a different color in the back to
+  // improve the contrast.
+  if (style.border_color.IsValid()) {
+    ApplyLineStyle(
+          context, LineStyle(style.border_thickness, style.border_color));
     cairo_stroke_preserve(context);
     ApplyMarkerStyle(context, style);
   }

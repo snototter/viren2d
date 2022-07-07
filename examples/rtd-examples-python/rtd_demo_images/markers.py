@@ -1,7 +1,7 @@
 import numpy as np
 import viren2d
 
-
+#TODO switch to painter.canvas; rename (this creates a cheatsheat)
 def demo_markers():
     # Set up empty canvas:
     painter = viren2d.Painter()
@@ -11,7 +11,7 @@ def demo_markers():
     # Style specifications:
     text_style = viren2d.TextStyle(color=viren2d.RGBa(192, 186, 177))
     marker_style = viren2d.MarkerStyle(
-        size=25, thickness=2, color='azure!80')
+        size=25, thickness=2, color='azure!90')
 
     def prepare_display_row(y1, y2, y3):
         text_style.family = 'xkcd'

@@ -126,69 +126,79 @@ std::vector<Marker> ListMarkers();
 
 //TODO separate contour and fill color!
 // tricky part: n-grams are currently drawn as a intersecting lines, not the outer contour
-/** How to render a marker/keypoint. */
+/// How to render a marker/keypoint.
 struct MarkerStyle {
-  Marker marker;       ///< Marker type.
-  double size;         ///< Marker size in pixels.
-  double thickness;    ///< Line width (thickness) in pixels.
-  Color color;         ///< Color of the marker's contour or fill (@see `filled`).
-  bool filled;         ///< If true (and the shape allows), the marker will be filled.
-  LineCap cap;    ///< How to render the endpoints.
-  LineJoin join;  ///< How to render the junction of two lines/segments.
+  /// Marker type
+  Marker marker;
+
+  /// Marker size (height) in pixels.
+  double size;
+
+  /// Contour line width in pixels (will be ignored if the marker is filled).
+  double thickness;
+
+  /// Color of the marker's contour or fill.
+  Color color;
+
+  /// If true (and the shape allows), the marker will be filled.
+  bool filled;
+
+  /// If > `thickness`, the marker's contour will be drawn *behind* the
+  /// actual marker using `border_color`. Can be used to improve the
+  /// contrast of the marker.
+  double border_thickness;
+
+  /// Can be used to improve the contrast, see `border_thickness`.
+  Color border_color;
+
+  /// How to render the endpoints.
+  LineCap cap;
+
+  /// How to render the junction of two lines/segments.
+  LineJoin join;
 
 
-  /** Returns a library-wide pre-set default style. */
+  /// Returns a library-wide pre-set default style.
   MarkerStyle();
 
 
-  /**
-   * Constructs a MarkerStyle.
-   *
-   * For non-fillable (circle, cross, etc.) or always-filled (point, etc.),
-   * the value of ``fill`` will be ignored.
-   */
-  MarkerStyle(Marker type, double marker_size, double marker_thickness,
-              const Color &marker_color, bool fill = false,
-              LineCap line_cap = LineCap::Butt,
-              LineJoin line_join = LineJoin::Miter);
+  /// Constructs a custom MarkerStyle.
+  /// For non-fillable (circle, cross, etc.) or always-filled (point, etc.)
+  /// markers, the value of ``fill`` will be ignored.
+  MarkerStyle(
+      Marker type,
+      double marker_size,
+      double thickness_marker,
+      const Color &color_marker,
+      bool fill = false,
+      double thickness_border = 0.0,
+      const Color &color_border = Color::Invalid,
+      LineCap line_cap = LineCap::Butt,
+      LineJoin line_join = LineJoin::Miter);
 
 
-  /**
-   * Constructs the MarkerStyle from the marker's char representation.
-   *
-   * For non-fillable (circle, cross, etc.) or always-filled (point, etc.),
-   * the value of ``fill`` will be ignored.
-   */
-  MarkerStyle(char type, double marker_size, double marker_thickness,
-              const Color &marker_color, bool fill = false,
-              LineCap line_cap = LineCap::Butt,
-              LineJoin line_join = LineJoin::Miter);
-
-
-  /** Returns true if this and the other specify the same text style. */
+  /// Returns true if this and the other specify the same text style.
   bool Equals(const MarkerStyle &other) const;
 
 
-  /** Returns true if this style leads to a renderable marker. */
+  /// Returns true if this style leads to a renderable marker.
   bool IsValid() const;
 
 
-  /**
-   * Returns true if the underlying marker shape should be filled.
-   * Otherwise, only its contour should be rendered.
-   *
-   * Note that the user can choose for some marker shapes if they
-   * should be filled or not, while for some other shapes, the
-   * fill status is pre-determined (e.g. point, circle, cross, ...)
-   */
+  /// Returns true if the underlying marker shape should be filled.
+  /// Otherwise, only its contour should be rendered.
+  ///
+  /// Note that the user can choose for some marker shapes if they
+  /// should be filled or not, while for some other shapes, the
+  /// fill status is pre-determined (e.g. point, circle, cross, ...)
   bool IsFilled() const;
 
 
-  /** Returns a human-readable string representation. */
+  /// Returns a human-readable string representation.
   std::string ToString() const;
 
 
-  /** Overloaded stream operator. */
+  /// Overloaded stream operator.
   friend std::ostream &operator<<(std::ostream &os, const MarkerStyle &style) {
     os << style.ToString();
     return os;
@@ -243,11 +253,6 @@ struct LineStyle {
 
   /// Creates a library-wide pre-set default style.
   LineStyle();
-
-
-  /// Creates either the default style `{}`, or
-  /// the default style with custom `{width}`.
-  LineStyle(std::initializer_list<double> values);
 
 
   /// Standard constructor.
