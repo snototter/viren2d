@@ -22,9 +22,10 @@ Arrow shapes can easily be customized:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/primitives.py
    :language: python
-   :lines: 68-100
-   :emphasize-lines: 7-10, 15, 21, 24, 28
+   :lines: 71-96
+   :emphasize-lines: 8, 13, 19, 22, 26
    :linenos:
+   :dedent: 4
 
 
 .. _tutorial-draw-ellipses:
@@ -46,7 +47,7 @@ Both ellipses and elliptical arcs are supported:
    :lines: 13-61
    :linenos:
    :dedent: 4
-   :emphasize-lines: 10, 17, 26, 37, 42, 46
+   :emphasize-lines: 13, 20, 30, 40, 44, 49
 
 
 .. _tutorial-draw-rects:
@@ -65,7 +66,7 @@ Rectangles can be drawn in a variety of configurations:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/primitives.py
    :language: python
-   :lines: 112-140
+   :lines: 112-138
    :linenos:
    :dedent: 4
-   :emphasize-lines: 7, 14, 22
+   :emphasize-lines: 7, 10, 15, 18, 24, 27

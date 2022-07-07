@@ -40,8 +40,8 @@ def demo_ellipses():
     ellipse.angle_from = 45
     ellipse.angle_to = 315
     painter.draw_ellipse(ellipse, line_style)
-    text_style.color = 'ivory'
 
+    text_style.color = 'ivory'
     painter.draw_text(
         ['30°'], ellipse.center, 'right', text_style,
         padding=(10, 0), rotation=ellipse.rotation)
@@ -110,9 +110,7 @@ def demo_rectangles():
         width=canvas_width, height=canvas_height, color=viren2d.RGBa(26, 28, 29))
 
     # Style specification:
-    line_style = viren2d.LineStyle(
-        width=5, color='forest-green')
-
+    line_style = viren2d.LineStyle(width=5, color='forest-green')
     fill_color = 'ivory!80'
 
     # Square rectangles (left):
