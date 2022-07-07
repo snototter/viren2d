@@ -610,6 +610,14 @@ void DrawMarker(
       }
   }
 
+  //TODO - if bg!
+  if (true) {
+    LineStyle contour_style(10, "red");
+    ApplyLineStyle(context, contour_style);
+    cairo_stroke_preserve(context);
+    ApplyMarkerStyle(context, style);
+  }
+
   if (style.IsFilled()) {
     cairo_fill(context);
   } else {
