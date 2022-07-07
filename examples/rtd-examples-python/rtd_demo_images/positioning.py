@@ -32,8 +32,8 @@ def demo_text_anchors():
         painter.draw_line((5, y), (canvas_width - 5, y), line_style)
         painter.draw_line((x, 5), (x, canvas_height - 5), line_style)
 
-    y = offset_y
     x = offset_x
+    y = offset_y
     padding = (6, 6)
     for anchor in viren2d.Anchor.list_all():
         pos = (x, y)

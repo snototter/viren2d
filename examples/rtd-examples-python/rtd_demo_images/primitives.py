@@ -77,12 +77,12 @@ def demo_arrows():
 
     painter.draw_arrow((10, 190), (100, 10), arrow_style)
 
-    arrow_style.color = 'crimson'
+    arrow_style.color = 'rose-red'
     arrow_style.tip_closed = True
     arrow_style.tip_angle = 10
     painter.draw_arrow(pt2=(80, 190), pt1=(180, 10), arrow_style=arrow_style)
 
-    arrow_style.color = 'navy-blue'
+    arrow_style.color = 'azure'
     arrow_style.tip_closed = False
     arrow_style.tip_angle = 30
     arrow_style.double_headed = True

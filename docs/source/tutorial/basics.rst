@@ -8,21 +8,22 @@ Know the Basics
    :ref:`Initialize a painter's canvas<tutorial-painter-usage>` and invoke its
    ``draw_...`` methods.
 
+
 **Which "stuff" can be drawn?**
    .. viren2d-drawing-summary::
+
 
 **What about other visualizations?**
    Besides drawing, ``viren2d`` also provides:
 
-   *  Scaled colorization with various colormaps, see :func:`~viren2d.colorize`.
+   *  Scaled colorization with various color maps,
+      see :func:`~viren2d.colorize` and :class:`~viren2d.Colorizer`.
 
    *  Pixelation, *e.g.* to implement anonymization,
       see :meth:`~viren2d.ImageBuffer.pixelate`.
 
 ..
    *  TODO Optical flow visualizations
-   *  TODO refer to Colorizer!
-
    
    
 

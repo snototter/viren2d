@@ -15,9 +15,9 @@ Tracking-by-detection results can be visualized via
 
 This visualization has been created with the following Python code:
 
-   .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/tracking_by_detection.py
-      :language: python
-      :lines: 11-76
-      :emphasize-lines: 7, 17-20, 39-42
-      :linenos:
-      :dedent: 4
+.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/tracking_by_detection.py
+   :language: python
+   :lines: 11-76
+   :emphasize-lines: 7, 17-20, 39-42
+   :linenos:
+   :dedent: 4

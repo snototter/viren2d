@@ -75,16 +75,15 @@ def demo_relief_shading():
 
 
 def demo_colormaps():
-    cwidth = 400
-
     peaks = viren2d.peaks()
-
+    canvas_width = 500
     cmap_bins = [256, 16, 8]
-    column_width = (cwidth - (len(cmap_bins) * 10)) / len(cmap_bins)
+    column_width = (canvas_width - (len(cmap_bins) * 10)) / len(cmap_bins)
     scale = column_width / peaks.width
 
-    cheight = int(scale * peaks.height + 10.5)
-    painter = viren2d.Painter(width=cwidth, height=cheight, color='white!0')
+    canvas_height = int(scale * peaks.height + 10.5)
+    painter = viren2d.Painter(
+        width=canvas_width, height=canvas_height, color='white!0')
 
     x = column_width / 2 + 5
     for bins in cmap_bins:
@@ -92,27 +91,9 @@ def demo_colormaps():
             data=peaks, colormap='gouldian', low=-6.5, high=8, bins=bins)
         
         painter.draw_image(
-            image=vis, position=(x, cheight / 2), anchor='center',
+            image=vis, position=(x, canvas_height / 2), anchor='center',
             scale_x=scale, scale_y=scale, rotation=0, clip_factor=0.2)
         
         x += column_width + 10
-
-    # vis1 = viren2d.colorize(
-    #     data=peaks, colormap='gouldian', low=-6.5, high=8, bins=256)
-    # vis2 = viren2d.colorize(
-    #     data=peaks, colormap='gouldian', low=-6.5, high=8, bins=8)
-
-    # scaling = 0.47 * width / peaks.width
-
-    # line_style = viren2d.LineStyle(width=8, color='navy-blue!80')
-
-    # painter.draw_image(
-    #     image=vis1, position=(6, height / 2), anchor='left',
-    #     scale_x=scaling, scale_y=scaling, rotation=0, clip_factor=0.1,
-    #     line_style=line_style)
-    # painter.draw_image(
-    #     image=vis2, position=(width - 6, height / 2), anchor='right',
-    #     scale_x=scaling, scale_y=scaling, rotation=0, clip_factor=0.1,
-    #     line_style=line_style)
 
     return np.array(painter.canvas, copy=True)

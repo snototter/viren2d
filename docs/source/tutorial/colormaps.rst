@@ -14,18 +14,21 @@ Available Color Maps
 .. warning::
    TODO organize/relayout Color Map Cheat Sheet:
 
-   .. image:: ../images/colormaps-cheat-sheet.png
-      :width: 520
-      :alt: Available color maps
-      :align: center
+.. image:: ../images/colormaps-cheat-sheet.png
+   :width: 520
+   :alt: Available color maps
+   :align: center
 
 
 ~~~~~~~~~~~~~~~~~~~~
 Colorization Example
 ~~~~~~~~~~~~~~~~~~~~
 
-.. warning::
-   TODO add example
+.. image:: ../images/colormap-peaks.png
+   :width: 500
+   :alt: Exemplary colorization
+   :align: center
+
 
 ~~~~~~~~~~~~~~
 Relief Shading
@@ -45,11 +48,13 @@ show the topographical structure of (a small part of) the lunar farside. The
 underlying topographical data was captured by the *Lunar Reconnaissance
 Orbiter* in 2011 and published by
 `NASA/GSFC/Arizona State University <https://photojournal.jpl.nasa.gov/catalog/PIA14021>`__.
+The smaller images below each main visualization show the inputs to
+:func:`~viren2d.relief_shading`, *i.e.* the relief and its colorization.
 Python code for this visualization example:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
    :language: python
-   :emphasize-lines: 24-25, 27
-   :lines: 19-72
+   :emphasize-lines: 23-24, 26
+   :lines: 20-72
    :linenos:
    :dedent: 4

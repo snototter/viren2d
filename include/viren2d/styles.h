@@ -47,7 +47,7 @@ std::ostream &operator<<(std::ostream &os, LineCap cap);
 
 //-------------------------------------------------  Line joins/junctions
 
-/** How to render the junction of two lines/segments. */
+/// How to render the junction of two lines/segments.
 enum class LineJoin : unsigned char {
   Miter = 0,  ///< Sharp/angled corner.
   Round,      ///< Rounded join, where the center of the circle is the joint point.
@@ -55,83 +55,82 @@ enum class LineJoin : unsigned char {
 };
 
 
-/** Returns the string representation. */
+/// Returns the string representation.
 std::string LineJoinToString(LineJoin join);
 
 
-/** Returns a LineJoin from its string representation. */
+/// Returns a LineJoin from its string representation.
 LineJoin LineJoinFromString(const std::string &join);
 
 
-/** Output stream operator to print a LineJoin. */
+/// Output stream operator to print a LineJoin.
 std::ostream &operator<<(std::ostream &os, LineJoin join);
 
 
 //-------------------------------------------------  MarkerStyle
-/** Marker shape enumeration. */
+/// Marker shape enumeration.
 enum class Marker : unsigned char {
   Point = 0,  ///< A point is a filled circle, char representation: '.'.
   Circle,     ///< A circle (not filled), char representation: 'o'.
 
-  Plus,    ///< Plus sign, char representation: '+'.
-  Cross,   ///< Cross marker, char representation: 'x'.
+  Plus,       ///< Plus sign, char representation: '+'.
+  Cross,      ///< Cross marker, char representation: 'x'.
 
-  Square,  ///< Square marker, char representation: 's'.
+  Square,        ///< Square marker, char representation: 's'.
   RotatedSquare, ///< Rotated square marker, char representation: 'r'.
-  Diamond, ///< Diamond marker, char representation: 'd'.
+  Diamond,       ///< Diamond marker, char representation: 'd'.
 
   TriangleUp,    ///< Upward-pointing triangle marker, char representation: '^'.
   TriangleDown,  ///< Downward-pointing triangle marker, char representation: 'v'.
   TriangleLeft,  ///< Left-pointing triangle marker, char representation: '<'.
   TriangleRight, ///< Right-pointing triangle marker, char representation: '>'.
 
-  Star,      ///< Five-pointed star (Asterisk), char representation: '*'.
-  Pentagram, ///< Five-pointed star, char representation: '5'.
-  Pentagon,  ///< Five-sided polygon, char representation: 'p'.
-  Hexagram,  ///< Six-pointed star, char representation: '6'.
-  Hexagon,   ///< Six-sided polygon, char representation: 'h'.
-  Heptagram, ///< Seven-pointed star, char representation: '7'.
-  Heptagon,  ///< Seven-sided polygon, char representation: 'H'.
-  Octagram,  ///< Eight-pointed star, char representation: '8'.
-  Octagon,   ///< Eight-sided polygon, char representation: '0' (zero).
-  Enneagram, ///< Nine-pointed star, char representation: '9'.
-  Enneagon   ///< Nine-sided polygon (Nonagon), char representation: 'n'.
+  Star,       ///< Five-pointed star (Asterisk), char representation: '*'.
+  Pentagram,  ///< Five-pointed star, char representation: '5'.
+  Pentagon,   ///< Five-sided polygon, char representation: 'p'.
+  Hexagram,   ///< Six-pointed star, char representation: '6'.
+  Hexagon,    ///< Six-sided polygon, char representation: 'h'.
+  Heptagram,  ///< Seven-pointed star, char representation: '7'.
+  Heptagon,   ///< Seven-sided polygon, char representation: 'H'.
+  Octagram,   ///< Eight-pointed star, char representation: '8'.
+  Octagon,    ///< Eight-sided polygon, char representation: '0' (zero).
+  Enneagram,  ///< Nine-pointed star, char representation: '9'.
+  Enneagon    ///< Nine-sided polygon (Nonagon), char representation: 'n'.
 
   // If you implement additional markers, you have to consider it within:
   // * MarkerFromChar (there will be NO compilation warnings if you miss it!)
   // * MarkerToChar
   // * MarkerStyle::IsFilled - i.e. AdjustMarkerFill() - and MarkerStyle::IsValid
   // * helpers::DrawMarker
+  //
   // Note that "Point" and "Enneagon" are used throughout the code base to
   // denote the first & last enum entries. If you need to change these,
   // also adjust ListMarkers() and the test suite accordingly!
 };
 
 
-/** Returns the Marker from its character representation. */
+/// Returns the Marker from its character representation.
 Marker MarkerFromChar(char m);
 
 
-/** Returns the character representation for the given marker. */
+/// Returns the character representation for the given marker.
 char MarkerToChar(Marker marker);
 
 
-/** Output stream operator to print a marker. */
+/// Output stream operator to print a marker.
 std::ostream &operator<<(std::ostream &os, Marker marker);
 
 
-/** Returns the char representations of all implemented marker shapes. */
+/// Returns the char representations of all implemented marker shapes.
 std::vector<Marker> ListMarkers();
 
 
-//TODO separate contour and fill color!
-// tricky part: n-grams are currently drawn as a intersecting lines, not the outer contour
 /// How to render a marker/keypoint.
 struct MarkerStyle {
-  /// Marker type
+  /// Specifies which type of marker should be drawn.
   Marker marker;
 
-  /// Marker size (height) in pixels.
+  /// Marker size (i.e. height) in pixels.
   double size;
 
   /// Contour line width in pixels (will be ignored if the marker is filled).
