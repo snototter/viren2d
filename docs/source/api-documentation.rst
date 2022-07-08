@@ -20,31 +20,7 @@ API Documentation
    apidoc/apidoc-drawing
 
 
-**Basic Shapes:**
-
-   .. autosummary::
-      :nosignatures:
-
-      viren2d.Ellipse
-      viren2d.Rect
-      viren2d.ellipse_from_endpoints
-      viren2d.rect_from_cwh
-      viren2d.rect_from_lrtb
-      viren2d.rect_from_ltwh
-
-
-**Handling Image Data:**
-
-   .. autosummary::
-      :nosignatures:
-
-      viren2d.ImageBuffer
-      viren2d.load_image_uint8
-      viren2d.save_image_uint8
-      
-
-
-**Defining Color:**
+**Colors:**
 
    .. autosummary::
       :nosignatures:
@@ -82,6 +58,16 @@ API Documentation
    .. viren2d-drawing-summary::
 
 
+**Image Handling:**
+
+   .. autosummary::
+      :nosignatures:
+
+      viren2d.ImageBuffer
+      viren2d.load_image_uint8
+      viren2d.save_image_uint8
+      
+
 **Optical Flow:**
 
    .. autosummary::
@@ -111,6 +97,19 @@ API Documentation
       viren2d.HorizontalAlignment
       viren2d.LabelPosition
       viren2d.VerticalAlignment
+
+
+**Shapes:**
+
+   .. autosummary::
+      :nosignatures:
+
+      viren2d.Ellipse
+      viren2d.Rect
+      viren2d.ellipse_from_endpoints
+      viren2d.rect_from_cwh
+      viren2d.rect_from_lrtb
+      viren2d.rect_from_ltwh
 
 
 **Style Definitions:**
