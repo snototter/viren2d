@@ -84,15 +84,21 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'image-anchors', save_images, 'image-anchors.png')
     
-    # Colormap demo
+    # Color map demo - Peaks
     img = demo_colormaps()
     _process_result(
         img, show_images, 'colormaps', save_images, 'colormap-peaks.png')
     
+    # Color map demo - Relief shading
     img = demo_relief_shading()
     _process_result(
         img, show_images, 'relief-shading', save_images, 'relief-shading.png')
-        
+    
+    # Optical flow
+    img = demo_optical_flow()
+    _process_result(
+        img, show_images, 'Optical Flow', save_images, 'optical-flow.png')
+
 
 def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     """
@@ -110,11 +116,12 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
         img, show_images, 'Arrow Style Cheat Sheet', save_images, 'arrow-style-cheat-sheet.png')
 
     # Colormaps
-    img = cheat_sheet_colormaps()
-    _process_result(
-        img, show_images, 'Colormaps Cheat Sheet', save_images, 'colormaps-cheat-sheet.png')
+    sheets = cheat_sheet_colormaps()
+    for cat, img in sheets:
+        _process_result(
+            img, show_images, f'Colormaps Cheat Sheet {cat}', save_images, f'colormaps-cheat-sheet-{cat}.png')
 
 
 if __name__ == '__main__':
-    render_rtd_demos(True, True)
+    render_rtd_demos(True, False)
     render_rtd_cheatsheets(True, False)#FIXME

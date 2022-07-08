@@ -124,6 +124,7 @@ void DrawImage(
 
   // Draw the contour if requested:
   if (need_contour && (image_contour != nullptr)) {
+    cairo_reset_clip(context);
     // Adjust the line thickness since the context is currently
     // scaled
     line_style.width /= std::max(scale_x, scale_y);

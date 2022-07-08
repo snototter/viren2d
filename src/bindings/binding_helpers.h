@@ -6,6 +6,7 @@
 #include <pybind11/pybind11.h>
 
 #include <viren2d/colors.h>
+#include <viren2d/colormaps.h>
 #include <viren2d/primitives.h>
 
 
@@ -67,6 +68,10 @@ void RegisterPainter(pybind11::module &m);
 
 //-------------------------------------------------  Colormaps
 void RegisterColormaps(pybind11::module &m);
+ColorMap ColorMapFromPyObject(const pybind11::object &o);
+
+//-------------------------------------------------  Optical Flow
+void RegisterOpticalFlowUtils(pybind11::module &m);
 
 } // namespace bindings
 } // namespace viren2d

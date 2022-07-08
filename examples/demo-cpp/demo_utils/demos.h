@@ -26,6 +26,8 @@ void DemoLines();
 
 void DemoMarkers();
 
+void DemoOpticalFlow();
+
 void DemoPolygons();
 
 void DemoRects();

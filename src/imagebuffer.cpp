@@ -567,6 +567,29 @@ ImageBuffer ImageBuffer::ToGrayscale(
 }
 
 
+ImageBuffer ImageBuffer::Magnitude() const {
+  if (!IsValid()) {
+    throw std::logic_error(
+          "Cannot compute `Magnitude` of an invalid ImageBuffer!");
+  }
+
+  switch (buffer_type) {
+    case ImageBufferType::Float:
+      return helpers::Magnitude<float>(*this);
+
+    case ImageBufferType::Double:
+      return helpers::Magnitude<double>(*this);
+
+    default: {
+        std::ostringstream s;
+        s << "`Magnitude` can only be computed for buffers of type `float` or "
+             "`double`, but got "
+          << ToString() << '!';
+        throw std::logic_error(s.str());
+      }
+  }
+}
+
 void ImageBuffer::Pixelate(
     int block_width, int block_height,
     int roi_left, int roi_top, int roi_width, int roi_height) {

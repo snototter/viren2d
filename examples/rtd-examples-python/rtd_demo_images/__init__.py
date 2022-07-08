@@ -7,3 +7,4 @@ from rtd_demo_images.tracking_by_detection import demo_tracking_by_detection
 from rtd_demo_images.cheat_sheets import cheat_sheet_linestyle, cheat_sheet_arrowstyle, cheat_sheet_colormaps
 from rtd_demo_images.images import demo_image_overlay, demo_image_anchors
 from rtd_demo_images.colormaps import demo_colormaps, demo_relief_shading
+from rtd_demo_images.optical_flow import demo_optical_flow

@@ -255,25 +255,66 @@ def cheat_sheet_arrowstyle():
 
 
 def cheat_sheet_colormaps():
-     # Set up empty canvas:
-    painter = viren2d.Painter()
-    canvas_width = 520
-    canvas_height = 1000
-    painter.set_canvas_rgb(
-        width=canvas_width, height=canvas_height, color='white!0')
+    cmap_categories = {
+        'sequential': [
+            'black-body', 'cold', 'gouldian', 'hell', 'hot', 'inferno',
+            'temperature', 'temperature-dark', 'thermal', 'viridis', 'water',
+            'gray', 'yarg'
+        ],
+        'cyclic': [
+            'hsv', 'optical-flow', 'orientation', 'orientation-color-blind'
+        ],
+        'categorical': [
+            'categories-10', 'categories-20', 'glasbey-dark', 'glasbey-light'
+        ],
+        'color-blind': [
+            'color-blind', 'orientation-color-blind'
+        ],
+        'rainbow': [
+            'rainbow', 'turbo'
+        ],
+        'specialized': [
+            'disparity', 'earth', 'ocean', 'optical-flow', 'relief',
+            'relief-low-contrast', 'terrain'
+        ]
+    }
 
-   # Style specifications:
+    rtd_background_color = viren2d.RGBa(26, 28, 29)
+    rtd_text_color = viren2d.RGBa(192, 186, 177)
+
     text_style = viren2d.TextStyle(
-        family='xkcd', size=21, color=(0.05, 0.05, 0.05))
-    
-    row = np.array([[i] * 2 for i in range(256)]).astype(np.uint8).flatten()
-    data = np.repeat(row.reshape((1,-1)), 25, axis=0)
+        family='xkcd', size=18, color=rtd_text_color, alignment='right')
 
-    y = 15
-    for cmap in viren2d.ColorMap.list_all():
-        vis = viren2d.colorize(data, colormap=cmap, low=0, high=255)
-        pos = (canvas_width / 2, y)
-        painter.draw_image(vis, position=pos, anchor='center', clip_factor=0.3)
-        painter.draw_text([str(cmap)], position=pos, anchor='center', text_style=text_style)
-        y += 35
-    return np.array(painter.canvas, copy=True)
+    painter = viren2d.Painter()
+    canvas_width = 480
+    row_height = 40
+
+    # Gradient image from 0..255
+    row = np.array([i for i in range(256)]).astype(np.uint8).flatten()
+    data = np.repeat(row.reshape((1,-1)), row_height - 5, axis=0)
+
+    sheets = list()
+    for cat in cmap_categories:
+        canvas_height = (row_height + 5) * len(cmap_categories[cat]) + 5
+        painter.set_canvas_rgb(
+            width=canvas_width, height=canvas_height, color="white!0")
+
+        y = 5
+        for cmap in cmap_categories[cat]:
+            vis = viren2d.colorize(data, colormap=cmap, low=0, high=255)
+
+            painter.draw_image(
+                vis, position=(canvas_width-5, y + row_height / 2),
+                anchor='right', clip_factor=0.3)
+
+            x = canvas_width - vis.width - 15
+            painter.draw_text_box(
+                [cmap], position=(x, y), anchor='topright', text_style=text_style,
+                line_style=viren2d.LineStyle.Invalid, fill_color=rtd_background_color,
+                fixed_size=(x - 5, row_height - 5), padding=(10, 5), radius=0.3)
+
+            y += row_height + 5
+
+        sheets.append((cat, np.array(painter.canvas, copy=True)))
+
+    return sheets

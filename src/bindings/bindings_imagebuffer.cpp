@@ -321,6 +321,15 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("num_channels"),
         py::arg("is_bgr") = false)
       .def(
+        "magnitude",
+        &ImageBuffer::Magnitude, R"docstr(
+        Computes the magnitude for dual-channel images.
+
+        Can only be applied to dual-channel images of type
+        :class:`numpy.float32` or :class:`numpy.float64`, *e.g.* optical flow
+        fields or image gradients.
+        )docstr")
+      .def(
         "channel",
         &ImageBuffer::Channel, R"docstr(
         Extracts a single channel.

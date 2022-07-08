@@ -84,6 +84,7 @@ set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
     include/viren2d/colormaps.h
     include/viren2d/drawing.h
+    include/viren2d/opticalflow.h
     include/viren2d/imagebuffer.h
     include/viren2d/primitives.h
     include/viren2d/positioning.h
@@ -107,6 +108,7 @@ set(viren2d_SOURCE_FILES
     src/colors.cpp
     src/colormaps.cpp
     src/drawing.cpp
+    src/opticalflow.cpp
     src/imagebuffer.cpp
     src/positioning.cpp
     src/styles.cpp
@@ -263,6 +265,7 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/bindings_common.cpp
         src/bindings/bindings_colormaps.cpp
         src/bindings/bindings_imagebuffer.cpp
+        src/bindings/bindings_opticalflow.cpp
         src/bindings/bindings_primitives.cpp
         src/bindings/bindings_styles.cpp
         src/bindings/bindings_text.cpp

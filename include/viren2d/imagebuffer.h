@@ -314,7 +314,7 @@ public:
   void SwapChannels(int ch1, int ch2);
 
 
-  /// Returns an ImageBuffer with the given number
+  /// Returns a copy of this ImageBuffer with the given number
   /// of channels. Note that only the following channel
   /// conversions are supported:
   /// * From single-channel to 1-, 3-, or 4-channel output.
@@ -353,6 +353,17 @@ public:
   ///     whereas the 4th channel will always be 255 (*i.e.* alpha, fully opaque).
   ///   is_bgr: Set to ``true`` if the channels of this image are in BGR format.
   ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format=false) const;
+
+
+  //TODO ToHSV()
+  //TODO Gradient (sobel, border handling)
+
+
+  /// Computes the magnitude of a dual-channel image, e.g.
+  /// an optical flow field or an image gradient.
+  /// Additionally, this image buffer *must* be either float
+  /// or double.
+  ImageBuffer Magnitude() const;
 
 
   /// Performs **in-place** pixelation of images with **up to 4**

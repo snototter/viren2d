@@ -1,8 +1,10 @@
 #include <viren2d/viren2d.h>
 #include <demo_utils/demos.h>
 
+
 namespace viren2d {
 namespace demos {
+
 void DemoArrows() {
   PrintDemoHeader("Arrows");
 

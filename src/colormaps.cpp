@@ -49,6 +49,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "inferno";
     case ColorMap::Ocean:
       return "ocean";
+    case ColorMap::OpticalFlow:
+      return "optical-flow";
     case ColorMap::Orientation:
       return "orientation";
     case ColorMap::OrientationColorBlind:
@@ -126,6 +128,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Inferno;
   } else if (lower.compare("ocean") == 0) {
     return ColorMap::Ocean;
+  } else if (lower.compare("opticalflow") == 0) {
+    return ColorMap::OpticalFlow;
   } else if (lower.compare("orientation") == 0) {
     return ColorMap::Orientation;
   } else if (lower.compare("orientationcolorblind") == 0) {

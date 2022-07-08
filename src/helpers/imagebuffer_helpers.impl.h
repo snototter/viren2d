@@ -551,6 +551,40 @@ ImageBuffer ToFloat(const ImageBuffer &src, float scale) {
 
   return dst;
 }
+
+template <typename _Tp>
+ImageBuffer Magnitude(const ImageBuffer &src) {
+  SPDLOG_DEBUG("Computing magnitude of {:s}.", src.ToString());
+
+  if (src.Channels() != 2) {
+    std::string s("Input to `Magnitude` must be a dual-channel image, but got ");
+    s += src.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  ImageBuffer dst(src.Height(), src.Width(), 1, src.BufferType());
+
+  int rows = src.Height();
+  int cols = src.Width();
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    _Tp *dst_ptr = dst.MutablePtr<_Tp>(row, 0, 0);
+    const _Tp *src_ptr = src.ImmutablePtr<_Tp>(row, 0, 0);
+
+    for (int col = 0; col < cols; ++col) {
+      _Tp u = *src_ptr++;
+      _Tp v = *src_ptr++;
+      *dst_ptr++ = std::sqrt(u * u + v * v);
+    }
+  }
+
+  return dst;
+}
 } // namespace helpers
 } // namespace viren2d
 
