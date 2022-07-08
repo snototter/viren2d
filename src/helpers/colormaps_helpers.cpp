@@ -4,9 +4,6 @@
 #include <helpers/colormaps_helpers.h>
 
 
-// TODO(extension) maybe add 'hell' and other cyclic maps from
-// https://github.com/GalacticDynamics-Oxford/Agama/blob/master/py/agamaColormaps.py
-
 /// Python script to convert vito's color maps for
 /// use with viren2d:
 
@@ -24,7 +21,11 @@ def cmap2viren(cname: str, per_row: int = 4):
         idx += 1
         if idx < len(cmap):
             cmap_str += ', '
-    print(f'constexpr RGBColor kColorMap{cname}[] = {{{cmap_str}\n}};')
+
+    print(f"""
+constexpr RGBColor kColorMap{cname}[] = {{{cmap_str}\n}};
+constexpr std::size_t kBins{cname} = sizeof(kColorMap{cname}) / sizeof(kColorMap{cname}[0]);
+    """);
 
 for cname in colormaps.colormap_names:
     cmap2viren(cname)
@@ -1019,6 +1020,25 @@ constexpr RGBColor kColorMapOcean[] = {
 constexpr std::size_t kBinsOcean = sizeof(kColorMapOcean) / sizeof(kColorMapOcean[0]);
 
 
+constexpr RGBColor kColorMapOpticalFlow[] = {
+  RGBColor(255,   0,   0), RGBColor(255,  17,   0), RGBColor(255,  34,   0), RGBColor(255,  51,   0),
+  RGBColor(255,  68,   0), RGBColor(255,  85,   0), RGBColor(255, 102,   0), RGBColor(255, 119,   0),
+  RGBColor(255, 136,   0), RGBColor(255, 153,   0), RGBColor(255, 170,   0), RGBColor(255, 187,   0),
+  RGBColor(255, 204,   0), RGBColor(255, 221,   0), RGBColor(255, 238,   0), RGBColor(255, 255,   0),
+  RGBColor(213, 255,   0), RGBColor(170, 255,   0), RGBColor(128, 255,   0), RGBColor( 85, 255,   0),
+  RGBColor( 43, 255,   0), RGBColor(  0, 255,   0), RGBColor(  0, 255,  63), RGBColor(  0, 255, 127),
+  RGBColor(  0, 255, 191), RGBColor(  0, 255, 255), RGBColor(  0, 232, 255), RGBColor(  0, 209, 255),
+  RGBColor(  0, 186, 255), RGBColor(  0, 163, 255), RGBColor(  0, 140, 255), RGBColor(  0, 116, 255),
+  RGBColor(  0,  93, 255), RGBColor(  0,  70, 255), RGBColor(  0,  47, 255), RGBColor(  0,  24, 255),
+  RGBColor(  0,   0, 255), RGBColor( 19,   0, 255), RGBColor( 39,   0, 255), RGBColor( 58,   0, 255),
+  RGBColor( 78,   0, 255), RGBColor( 98,   0, 255), RGBColor(117,   0, 255), RGBColor(137,   0, 255),
+  RGBColor(156,   0, 255), RGBColor(176,   0, 255), RGBColor(196,   0, 255), RGBColor(215,   0, 255),
+  RGBColor(235,   0, 255), RGBColor(255,   0, 255), RGBColor(255,   0, 213), RGBColor(255,   0, 170),
+  RGBColor(255,   0, 128), RGBColor(255,   0,  85), RGBColor(255,   0,  43)
+};
+constexpr std::size_t kBinsOpticalFlow = sizeof(kColorMapOpticalFlow) / sizeof(kColorMapOpticalFlow[0]);
+
+
 constexpr RGBColor kColorMapOrientation[] = {
   RGBColor(239,  85, 242), RGBColor(241,  87, 240), RGBColor(242,  90, 239), RGBColor(243,  93, 237),
   RGBColor(245,  95, 235), RGBColor(246,  98, 233), RGBColor(246, 101, 231), RGBColor(247, 104, 229),
@@ -1935,7 +1955,7 @@ std::pair<const RGBColor *, std::size_t> GetColorMap(ColorMap colormap) {
     case ColorMap::GlasbeyDark:
       return std::make_pair(kColorMapGlasbeyDark, kBinsGlasbeyDark);
     case ColorMap::GlasbeyLight:
-      return std::make_pair(kColorMapGlasbeyLight, kBinsGlasbeyDark);
+      return std::make_pair(kColorMapGlasbeyLight, kBinsGlasbeyLight);
     case ColorMap::Gouldian:
       return std::make_pair(kColorMapGouldian, kBinsGouldian);
     case ColorMap::Gray:
@@ -1950,6 +1970,8 @@ std::pair<const RGBColor *, std::size_t> GetColorMap(ColorMap colormap) {
       return std::make_pair(kColorMapInferno, kBinsInferno);
     case ColorMap::Ocean:
       return std::make_pair(kColorMapOcean, kBinsOcean);
+    case ColorMap::OpticalFlow:
+      return std::make_pair(kColorMapOpticalFlow, kBinsOpticalFlow);
     case ColorMap::Orientation:
       return std::make_pair(kColorMapOrientation, kBinsOrientation);
     case ColorMap::OrientationColorBlind:

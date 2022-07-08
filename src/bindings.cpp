@@ -69,6 +69,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Visualization - Colormaps
   viren2d::bindings::RegisterColormaps(m);
 
+  //------------------------------------------------- Visualization - Optical Flow
+  viren2d::bindings::RegisterOpticalFlowUtils(m);
+
 //  //TODO(snototter) copy python documentation to cpp
 
 //  //------------------------------------------------- Logging

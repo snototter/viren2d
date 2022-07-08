@@ -21,9 +21,12 @@ enum class ColorMap : unsigned char
   /// `Kenneth Moreland's website <https://www.kennethmoreland.com/color-advice/>`__.
   BlackBody,
 
-  //TODO tab10
+  /// Color map with 10 distinct colors, suitable for categorical data. Based
+  /// on `matplotlib's <https://matplotlib.org>`__ *tab10* map.
   Categories10,
-  //TODO tab20
+
+  /// Color map with 20 distinct colors, suitable for categorical data. Based
+  /// on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
   Categories20,
 
   /// Blue shades from dark to light. This is the CET-L06 color map by
@@ -88,10 +91,14 @@ enum class ColorMap : unsigned char
   /// and integrated into matplotlib >= 1.15.
   Inferno,
 
-
   /// A green-blue color map to visualize water depths. Based on
   /// `matplotlib's <https://matplotlib.org>`__ *ocean* map.
   Ocean,
+
+  /// Cyclic HSV-like color map with reduced colors. Suitable to visualize
+  /// optical flow fields. Based on the color map used by the
+  /// `Middlebury Optical Flow benchmark <https://vision.middlebury.edu/flow/>`__.
+  OpticalFlow,
 
   /// Cyclic magenta-yellow-green-blue color map for four orientations/phase
   /// angles to be visualized. This is the CET-C2 color map by

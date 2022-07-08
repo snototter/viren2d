@@ -14,7 +14,7 @@ namespace viren2d {
 namespace bindings {
 void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap",
-             "Available color maps.");
+             "Enum to select a color map.");
   cm.value(
         "BlackBody",
         ColorMap::BlackBody, R"docstr(
@@ -125,6 +125,13 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Ocean, R"docstr(
         A green-blue color map to visualize water depths. Based on
         `matplotlib's <https://matplotlib.org>`__ *ocean* map.
+        )docstr")
+      .value(
+        "OpticalFlow",
+        ColorMap::OpticalFlow, R"docstr(
+        Cyclic HSV-like color map with reduced colors. Suitable to visualize
+        optical flow fields. Based on the color map used by the
+        `Middlebury Optical Flow benchmark <https://vision.middlebury.edu/flow/>`__.
         )docstr")
       .value(
         "Orientation",

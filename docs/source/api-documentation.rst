@@ -14,6 +14,7 @@ API Documentation
    apidoc/apidoc-imagebuffer
    apidoc/apidoc-styles
    apidoc/apidoc-style-enums
+   apidoc/apidoc-optical-flow
    apidoc/apidoc-positioning
    apidoc/apidoc-vectors
    apidoc/apidoc-drawing
@@ -72,7 +73,27 @@ API Documentation
       viren2d.peaks
 
 
-**Representing Points/Vectors:**
+.. _api-documentation-drawing-summary:
+
+**Drawing Functionality:**
+
+   The :class:`~viren2d.Painter` provides the following drawing functionality:
+
+   .. viren2d-drawing-summary::
+
+
+**Optical Flow:**
+
+   .. autosummary::
+      :nosignatures:
+      
+      viren2d.colorize_optical_flow
+      viren2d.load_optical_flow
+      viren2d.optical_flow_legend
+      viren2d.save_optical_flow
+
+
+**Points/Vectors:**
 
    .. autosummary::
       :nosignatures:
@@ -81,13 +102,15 @@ API Documentation
       viren2d.Vec3d
 
 
-.. _api-documentation-drawing-summary:
+**Positioning:**
 
-**Drawing Functionality:**
+   .. autosummary::
+      :nosignatures:
 
-   The :class:`~viren2d.Painter` provides the following drawing functionality:
-
-   .. viren2d-drawing-summary::
+      viren2d.Anchor
+      viren2d.HorizontalAlignment
+      viren2d.LabelPosition
+      viren2d.VerticalAlignment
 
 
 **Style Definitions:**
@@ -103,14 +126,3 @@ API Documentation
       viren2d.Marker
       viren2d.MarkerStyle
       viren2d.TextStyle
-
-
-**Positioning:**
-
-   .. autosummary::
-      :nosignatures:
-
-      viren2d.Anchor
-      viren2d.HorizontalAlignment
-      viren2d.LabelPosition
-      viren2d.VerticalAlignment

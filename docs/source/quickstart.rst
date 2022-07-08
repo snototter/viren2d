@@ -10,4 +10,5 @@ Quickstart
    tutorial/basics
    tutorial/draw
    tutorial/colormaps
+   tutorial/optical-flow
    tutorial/conversion

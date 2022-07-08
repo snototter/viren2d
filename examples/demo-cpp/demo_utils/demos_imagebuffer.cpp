@@ -1,7 +1,11 @@
+#include <iostream>
+
 #ifdef viren2d_WITH_OPENCV
 #  include <opencv2/opencv.hpp>
 #  include <opencv2/highgui.hpp>
 #endif // viren2d_WITH_OPENCV
+
+#include <werkzeugkiste/files/filesys.h>
 
 #include <viren2d/viren2d.h>
 #include <demo_utils/demos.h>
@@ -11,14 +15,17 @@ namespace demos {
 //TODO split into different demos
 void DemoImageBufferConversionOpenCV() {
   PrintDemoHeader("ImageBuffer - OpenCV Conversion");
+
 #ifdef viren2d_WITH_OPENCV
-#ifdef viren2d_EXAMPLE_IMAGE_FILE
-  const char *image_filename(viren2d_EXAMPLE_IMAGE_FILE);
-#else  // viren2d_EXAMPLE_IMAGE_FILE
-  const char *image_filename("../examples/data/flamingo.jpg");
-  std::cerr << "Filename of example image not given, using default (relative!) path: "
+#  ifdef viren2d_EXAMPLE_DATA_PATH
+  const std::string image_filename = werkzeugkiste::files::FullFile(
+        viren2d_EXAMPLE_DATA_PATH, "flamingo.jpg");
+#  else  // viren2d_EXAMPLE_IMAGE_FILE
+  const std::string image_filename("../examples/data/flamingo.jpg");
+  std::cerr << "Path to example data not given, using default (relative!) path: "
             << image_filename << std::endl;
-#endif  // viren2d_EXAMPLE_IMAGE_FILE
+#  endif  // viren2d_EXAMPLE_IMAGE_FILE
+
   cv::Mat img_cv = cv::imread(image_filename);
 
   // To make this example a bit more interesting,

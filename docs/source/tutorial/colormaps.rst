@@ -12,11 +12,60 @@ Available Color Maps
 ~~~~~~~~~~~~~~~~~~~~
 
 .. warning::
-   TODO organize/relayout Color Map Cheat Sheet:
+   TODO add short note to each category
 
-.. image:: ../images/colormaps-cheat-sheet.png
-   :width: 520
-   :alt: Available color maps
+..........
+Sequential
+..........
+
+.. image:: ../images/colormaps-cheat-sheet-sequential.png
+   :width: 480
+   :alt: Sequential color maps
+   :align: center
+
+...........
+Categorical
+...........
+
+.. image:: ../images/colormaps-cheat-sheet-categorical.png
+   :width: 480
+   :alt: Categorical color maps
+   :align: center
+
+......
+Cyclic
+......
+
+.. image:: ../images/colormaps-cheat-sheet-cyclic.png
+   :width: 480
+   :alt: Cyclic color maps
+   :align: center
+
+...........
+Color-blind
+...........
+
+.. image:: ../images/colormaps-cheat-sheet-color-blind.png
+   :width: 480
+   :alt: Color maps suitable for the color-blind
+   :align: center
+
+...........
+Rainbow
+...........
+
+.. image:: ../images/colormaps-cheat-sheet-rainbow.png
+   :width: 480
+   :alt: Rainbow color maps
+   :align: center
+
+...........
+Specialized
+...........
+
+.. image:: ../images/colormaps-cheat-sheet-specialized.png
+   :width: 480
+   :alt: Specialized color maps
    :align: center
 
 
@@ -29,6 +78,8 @@ Colorization Example
    :alt: Exemplary colorization
    :align: center
 
+.. warning::
+   TODO description + code
 
 ~~~~~~~~~~~~~~
 Relief Shading
