@@ -4,9 +4,6 @@
 Drawing
 -------
 
-.. warning::
-   TODO :math:`I_{x,y,i}^{\text{dst}} = \left( I_{x,y,i}^{\text{src}} - \text{shift}_i^{\text{pre}} \right) * \text{scale}_i + \text{shift1}_i`
-
 The :py:class:`~viren2d.Painter` class allows you to draw either onto an
 existing image or onto an empty canvas. Simply set it up via:
 

@@ -8,6 +8,7 @@
 #include <cstdint>  // For fixed width integer types (stdint.h in C)
 #include <type_traits>
 #include <algorithm> // std::min
+#include <limits> // quiet nan
 #include <initializer_list>
 
 //#include <viren2d/colors.h>
@@ -319,6 +320,48 @@ public:
   }
 
 
+  //TODO doc
+  // TODO (pay attention to the signs!) :math:`I_{x,y,i}^{\text{dst}} = \left( I_{x,y,i}^{\text{src}} - \text{shift}_i^{\text{pre}} \right) * \text{scale}_i + \text{shift}_i^{\text{post}}`
+  template <ImageBufferType output_type, typename _Tp, typename... _Ts> inline
+  ImageBuffer Normalize(
+      _Tp shift_pre, _Tp scale, _Tp shift_post, _Ts... sss_others) const {
+    CheckType<_Tp>();
+
+    const int num_inputs = 3 + sizeof...(sss_others);
+    if (num_inputs != 3 * channels) {
+      std::ostringstream s;
+      s << "`Normalize` expects `shift_pre`, `scale` and `shift_post` per channel, i.e. "
+        << (3 * channels) << " values, but got " << num_inputs << '!';
+      throw std::invalid_argument(s.str());
+    }
+
+    const _Tp sss[num_inputs] = {
+      shift_pre, scale, shift_post, static_cast<_Tp>(sss_others)...};
+    ImageBuffer dst(height, width, channels, output_type);
+    using dst_type = image_buffer_t<output_type>;
+
+    int rows = height;
+    int cols = width;
+
+    if (IsContiguous()) {
+      cols *= rows;
+      rows = 1;
+    }
+
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        for (int ch = 0; ch < channels; ++ch) {
+          const dst_type val = static_cast<dst_type>(
+                ((AtUnchecked<_Tp>(row, col, ch) +  sss[ch * 3]) * sss[(ch * 3) + 1])
+              + sss[(ch * 3) + 2]);
+          dst.AtUnchecked<dst_type>(row, col, ch) = val;
+        }
+      }
+    }
+    return dst;
+  }
+
+
   /// Reuses the given image data, i.e. this ImageBuffer will point
   /// to the given image data - it will NOT take ownership.
   ///
@@ -356,7 +399,7 @@ public:
   ImageBuffer DeepCopy() const;
 
 
-  // TODO shared buffer
+  // TODO doc shared buffer
   ImageBuffer ROI(int left, int top, int roi_width, int roi_height);
 
 
@@ -414,6 +457,10 @@ public:
   /// Additionally, this image buffer *must* be either float
   /// or double.
   ImageBuffer Magnitude() const;
+
+  //TODO doc if x and y equal 0, the output value will be set to the specified `invalid` value.
+  ImageBuffer Orientation(
+      float invalid = std::numeric_limits<float>::quiet_NaN()) const;
 
 
   /// Performs **in-place** pixelation of images with **up to 4**

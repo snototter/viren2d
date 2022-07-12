@@ -616,6 +616,31 @@ ImageBuffer ImageBuffer::Magnitude() const {
   }
 }
 
+
+ImageBuffer ImageBuffer::Orientation(float invalid) const {
+  if (!IsValid()) {
+    throw std::logic_error(
+          "Cannot compute `Orientation` of an invalid ImageBuffer!");
+  }
+
+  switch (buffer_type) {
+    case ImageBufferType::Float:
+      return helpers::Orientation<float>(*this, invalid);
+
+    case ImageBufferType::Double:
+      return helpers::Orientation<double>(*this, invalid);
+
+    default: {
+        std::ostringstream s;
+        s << "`Orientation` can only be computed for buffers of type `float` or "
+             "`double`, but got "
+          << ToString() << '!';
+        throw std::logic_error(s.str());
+      }
+  }
+}
+
+
 void ImageBuffer::Pixelate(
     int block_width, int block_height,
     int roi_left, int roi_top, int roi_width, int roi_height) {

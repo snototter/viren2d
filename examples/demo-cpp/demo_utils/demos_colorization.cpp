@@ -32,6 +32,9 @@ void DemoOpticalFlow() {
   ProcessDemoOutput(mask, "demo-mask.jpg");
   std::cout << "Maximum flow magnitude: " << max_motion
             << ", " << magnitude << std::endl;
+  const ImageBuffer normed = magnitude.Normalize<ImageBufferType::UInt8, float>(0, 255/16, 0);
+  ProcessDemoOutput(normed, "demo-normalized.jpg");
+
 
   // Then, overlay the flow wheel legend:
   std::unique_ptr<Painter> painter = CreatePainter();

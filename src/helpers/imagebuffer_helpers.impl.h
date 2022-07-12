@@ -3,10 +3,15 @@
 
 #include <stdexcept>
 #include <sstream>
+
+#include <werkzeugkiste/geometry/utils.h>
+
 #include <viren2d/colors.h>
 #include <viren2d/styles.h>
 
 #include <helpers/logging.h>
+
+namespace wkg = werkzeugkiste::geometry;
 
 namespace viren2d {
 namespace helpers {
@@ -580,6 +585,45 @@ ImageBuffer Magnitude(const ImageBuffer &src) {
       _Tp u = *src_ptr++;
       _Tp v = *src_ptr++;
       *dst_ptr++ = std::sqrt(u * u + v * v);
+    }
+  }
+
+  return dst;
+}
+
+
+template <typename _Tp>
+ImageBuffer Orientation(const ImageBuffer &src, float invalid) {
+  SPDLOG_DEBUG("Computing orientation of {:s}.", src.ToString());
+
+  if (src.Channels() != 2) {
+    std::string s("Input to `Orientation` must be a dual-channel image, but got ");
+    s += src.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  ImageBuffer dst(src.Height(), src.Width(), 1, src.BufferType());
+
+  int rows = src.Height();
+  int cols = src.Width();
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    _Tp *dst_ptr = dst.MutablePtr<_Tp>(row, 0, 0);
+    const _Tp *src_ptr = src.ImmutablePtr<_Tp>(row, 0, 0);
+
+    for (int col = 0; col < cols; ++col) {
+      _Tp u = *src_ptr++;
+      _Tp v = *src_ptr++;
+      if (wkg::eps_zero(u) && wkg::eps_zero(v)) {
+        *dst_ptr++ = static_cast<_Tp>(invalid);
+      } else {
+        *dst_ptr++ = std::atan2(v, u);
+      }
     }
   }
 
