@@ -4,6 +4,9 @@
 Drawing
 -------
 
+.. warning::
+   TODO :math:`I_{x,y,i}^{\text{dst}} = \left( I_{x,y,i}^{\text{src}} - \text{shift}_i^{\text{pre}} \right) * \text{scale}_i + \text{shift1}_i`
+
 The :py:class:`~viren2d.Painter` class allows you to draw either onto an
 existing image or onto an empty canvas. Simply set it up via:
 
@@ -35,7 +38,7 @@ Once you've set up the painter, you can start drawing:
 
 
 Finally, you simply retrieve the visualization result via 
-:meth:`~viren2d.Painter.get_canvas`. This will yield a
+:meth:`~viren2d.Painter.get_canvas`. This will yield an
 :class:`~viren2d.ImageBuffer`, which can easily be :ref:`used with
 common image processing libraries <tutorial-conversion>`, such as NumPy or
 OpenCV. The following examples show one option to retrieve your first
