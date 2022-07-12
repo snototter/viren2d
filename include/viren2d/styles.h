@@ -45,6 +45,10 @@ LineCap LineCapFromString(const std::string &cap);
 std::ostream &operator<<(std::ostream &os, LineCap cap);
 
 
+/// Computes how much the line cap will extend the line's start/end.
+double LineCapOffset(LineCap cap, double line_width);
+
+
 //-------------------------------------------------  Line joins/junctions
 
 /// How to render the junction of two lines/segments.
@@ -65,6 +69,17 @@ LineJoin LineJoinFromString(const std::string &join);
 
 /// Output stream operator to print a LineJoin.
 std::ostream &operator<<(std::ostream &os, LineJoin join);
+
+
+/// Computes how much a line join will extend the joint.
+///
+/// The interior_angle is the angle between two line segments in degrees.
+/// This requires the miter_limit because Cairo switches from MITER to BEVEL
+/// if the miter_limit is exceeded, see
+/// https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+double LineJoinOffset(
+    LineJoin join, double line_width, double interior_angle,
+    double miter_limit);
 
 
 //-------------------------------------------------  MarkerStyle
@@ -142,13 +157,14 @@ struct MarkerStyle {
   /// If true (and the shape allows), the marker will be filled.
   bool filled;
 
-  /// If > `thickness`, the marker's contour will be drawn *behind* the
-  /// actual marker using `border_color`. Can be used to improve the
-  /// contrast of the marker.
-  double border_thickness;
+  //FIXME adjust doc
+  /// If `background_color` is valid, a circle (or square) will be drawn
+  /// behind the actual marker. Size will be `size` + 2 * background_border.
+  /// Can be used to improve the contrast of the marker.
+  double background_border;
 
   /// Can be used to improve the contrast, see `border_thickness`.
-  Color border_color;
+  Color background_color;
 
   /// How to render the endpoints.
   LineCap cap;
@@ -170,9 +186,9 @@ struct MarkerStyle {
       double thickness_marker,
       const Color &color_marker,
       bool fill = false,
-      double thickness_border = 0.0,
-      const Color &color_border = Color::Invalid,
-      LineCap line_cap = LineCap::Butt,
+      double border_background = 3.0,
+      const Color &color_background = Color::Invalid,
+      LineCap line_cap = LineCap::Round,
       LineJoin line_join = LineJoin::Miter);
 
 
@@ -191,6 +207,23 @@ struct MarkerStyle {
   /// should be filled or not, while for some other shapes, the
   /// fill status is pre-determined (e.g. point, circle, cross, ...)
   bool IsFilled() const;
+
+
+  /// Computes how much a line join will extend the joint.
+  ///
+  /// The interior_angle is the angle between two line segments in degrees.
+  /// This requires the miter_limit because Cairo switches from MITER to BEVEL
+  /// if the miter_limit is exceeded, see
+  /// https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+  inline double JoinOffset(double interior_angle, double miter_limit = 10.0) const {
+    return LineJoinOffset(join, thickness, interior_angle, miter_limit);
+  }
+
+
+  /// Computes how much the line cap will extend the line's start/end.
+  inline double CapOffset() const {
+    return LineCapOffset(cap, thickness);
+  }
 
 
   /// Returns a human-readable string representation.
@@ -288,7 +321,9 @@ struct LineStyle {
 
 
   /// Computes how much the line cap will extend the line's start/end.
-  double CapOffset() const;
+  inline double CapOffset() const {
+    return LineCapOffset(cap, width);
+  }
 
 
   /// Computes how much a line join will extend the joint.
@@ -297,10 +332,9 @@ struct LineStyle {
   /// This requires the miter_limit because Cairo switches from MITER to BEVEL
   /// if the miter_limit is exceeded, see
   /// https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
-  ///
-  /// TODO Add option to query and adjust the miter limit - e.g. via
-  ///   additional member of LineStyle?
-  double JoinOffset(double interior_angle, double miter_limit = 10.0) const;
+  inline double JoinOffset(double interior_angle, double miter_limit = 10.0) const {
+    return LineJoinOffset(join, width, interior_angle, miter_limit);
+  }
 
 
   /// Returns true if this and the other specify the same line.

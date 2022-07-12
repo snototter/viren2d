@@ -19,7 +19,7 @@ def demo_text_anchors():
 
     marker_style = viren2d.MarkerStyle(
         viren2d.Marker.Pentagram, size=18, thickness=1, filled=True,
-        color='rose-red', border_thickness=1, border_color=viren2d.RGBa(26, 28, 29))
+        color='rose-red', bg_border=2, bg_color='ivory!60')
 
     # Draw a grid
     offset_x = 20

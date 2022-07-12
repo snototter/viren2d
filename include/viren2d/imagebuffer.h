@@ -335,6 +335,10 @@ public:
   }
 
 
+  //TODO impl & doc (any input type, eps equal 0, 0 --> mask = 255)
+//  ImageBuffer Invert() const;
+
+
   //TODO doc
   // TODO (pay attention to the signs!) :math:`I_{x,y,i}^{\text{dst}} = \left( I_{x,y,i}^{\text{src}} - \text{shift}_i^{\text{pre}} \right) * \text{scale}_i + \text{shift}_i^{\text{post}}`
   template <ImageBufferType output_type, typename _Tp, typename... _Ts> inline

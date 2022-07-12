@@ -104,6 +104,15 @@ std::ostream &operator<<(std::ostream &os, LineCap cap) {
 }
 
 
+double LineCapOffset(LineCap cap, double line_width) {
+  if (cap == LineCap::Butt) {
+    return 0.0;
+  } else {
+    return line_width / 2.0;
+  }
+}
+
+
 std::string LineJoinToString(LineJoin join) {
   switch (join) {
     case LineJoin::Miter:
@@ -141,6 +150,26 @@ LineJoin LineJoinFromString(const std::string &join) {
 std::ostream &operator<<(std::ostream &os, LineJoin join) {
   os << LineJoinToString(join);
   return os;
+}
+
+
+// TODO Add option to query and adjust the miter limit - e.g. via
+//   additional member of LineStyle?
+// --> currently cap/join offset is only used by drawing helpers; this
+// query/adjustment option is not yet needed
+double LineJoinOffset(
+    LineJoin join, double line_width, double interior_angle,
+    double miter_limit) {
+  // For a diagram of how to compute the miter length, see
+  //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
+  const double miter_length = line_width / std::max(1e-6, std::sin(wkg::deg2rad(interior_angle / 2.0)));
+  if (((miter_length / line_width) > miter_limit)  // Cairo would switch to BEVEL
+      || (join == LineJoin::Round)
+      || (join == LineJoin::Bevel)) {
+    return line_width / 2.0;
+  } else {
+    return miter_length / 2.0;
+  }
 }
 
 
@@ -302,25 +331,24 @@ MarkerStyle::MarkerStyle()
     size(10.0), thickness(3.0),
     color(NamedColor::Azure),
     filled(helpers::AdjustMarkerFill(marker, false)),
-    border_thickness(0),
-    border_color(Color::Invalid),
-    cap(LineCap::Butt),
+    background_border(0),
+    background_color(Color::Invalid),
+    cap(LineCap::Round),
     join(LineJoin::Miter)
 {}
 
 
-MarkerStyle::MarkerStyle(
-    Marker type, double marker_size, double thickness_marker,
-    const Color &color_marker, bool fill, double thickness_border,
-    const Color &color_border, viren2d::LineCap line_cap,
+MarkerStyle::MarkerStyle(Marker type, double marker_size, double thickness_marker,
+    const Color &color_marker, bool fill, double border_background,
+    const Color &color_background, viren2d::LineCap line_cap,
     viren2d::LineJoin line_join)
   : marker(type),
     size(marker_size),
     thickness(thickness_marker),
     color(color_marker),
     filled(helpers::AdjustMarkerFill(type, fill)),
-    border_thickness(thickness_border),
-    border_color(color_border),
+    background_border(border_background),
+    background_color(color_background),
     cap(line_cap),
     join(line_join)
 {}
@@ -331,7 +359,9 @@ bool MarkerStyle::Equals(const MarkerStyle &other) const {
       && wkg::eps_equal(size, other.size)
       && wkg::eps_equal(thickness, other.thickness)
       && (color == other.color)
-      && (filled == other.filled);
+      && (filled == other.filled)
+      && (background_border == other.background_border)
+      && (background_color == other.background_color);
 }
 
 
@@ -437,37 +467,6 @@ bool LineStyle::IsSpecialInvalid() const {
 
 bool LineStyle::IsDashed() const {
   return dash_pattern.size() > 0;
-}
-
-
-double LineStyle::CapOffset() const {
-  switch (cap) {
-    case LineCap::Butt:
-      return 0.0;
-
-    case LineCap::Round:
-    case LineCap::Square:
-      return width / 2.0;
-  }
-
-  std::string s("LineCap::");
-  s += LineCapToString(cap);
-  s += " is not mapped in `CapOffset`!";
-  throw std::runtime_error(s);
-}
-
-
-double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
-  // For a diagram of how to compute the miter length, see
-  //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
-  const double miter_length = width / std::max(1e-6, std::sin(wkg::deg2rad(interior_angle / 2.0)));
-  if (((miter_length / width) > miter_limit)  // Cairo would switch to BEVEL
-      || (join == LineJoin::Round)
-      || (join == LineJoin::Bevel)) {
-    return width / 2.0;
-  } else {
-    return miter_length / 2.0;
-  }
 }
 
 

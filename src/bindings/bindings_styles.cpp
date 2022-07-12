@@ -313,13 +313,14 @@ MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
 /// either enum or char/string representation.
 MarkerStyle CreateMarkerStyle(
     const py::object &marker, double size, double thickness, const Color &color,
-    bool fill, double border_thickness, const Color &border_color,
+    bool fill, double background_border, const Color &background_color,
     const py::object &cap, const py::object &join) {
   Marker m = MarkerFromPyObject(marker);
   LineCap c = LineCapFromPyObject(cap);
   LineJoin j = LineJoinFromPyObject(join);
   return MarkerStyle(
-        m, size, thickness, color, fill, border_thickness, border_color, c, j);
+        m, size, thickness, color, fill, background_border, background_color,
+        c, j);
 }
 
 
@@ -352,10 +353,10 @@ void RegisterMarkerStyle(pybind11::module &m) {
           contour or filling.
         filled: If ``True`` (and the shape allwos), the marker
           will be filled.
-        border_thickness: Line with of the optional border as :class:`float`.
+        bg_border: FIXME adjust doc!!!Line with of the optional border as :class:`float`.
           If a valid ``border_color`` is provided, the marker's contour will be
           drawn *behind* the actual marker. Can be used to improve the contrast.
-        border_color: The :class:`~viren2d.Color` to improve the contrast,
+        bg_color: The :class:`~viren2d.Color` to improve the contrast,
           see ``border_thickness``.
         cap: A :class:`~viren2d.LineCap` enum, specifying
           how to render the line endpoints. This parameter
@@ -373,8 +374,8 @@ void RegisterMarkerStyle(pybind11::module &m) {
             py::arg("thickness") = default_style.thickness,
             py::arg("color") = default_style.color,
             py::arg("filled") = default_style.filled,
-            py::arg("border_thickness") = default_style.border_thickness,
-            py::arg("border_color") = default_style.border_color,
+            py::arg("bg_border") = default_style.background_border,
+            py::arg("bg_color") = default_style.background_color,
             py::arg("cap") = default_style.cap,
             py::arg("join") = default_style.join);
 
@@ -440,18 +441,18 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "of :attr:`filled` will be ignored.");
 
   style.def_readwrite(
-        "border_thickness",
-        &MarkerStyle::border_thickness, R"docstr(
-        :class:`float`: Line with of the optional border. If
+        "bg_border",
+        &MarkerStyle::background_border, R"docstr(
+        :class:`float`: FIXME adjust doc!!!Line with of the optional border. If
           :attr:`border_color` is a valid color, the marker's contour will be
           drawn *behind* the actual marker. Can be used to improve the contrast.
         )docstr");
 
   style.def_readwrite(
-        "border_color",
-        &MarkerStyle::border_color, R"docstr(
+        "bg_color",
+        &MarkerStyle::background_color, R"docstr(
         :class:`~viren2d.Color`: Can be used to improve the contrast,
-          see :attr:`border_thickness`.
+          see :attr:`bg_border`.
         )docstr");
 
   style.def_property(
@@ -628,7 +629,7 @@ void RegisterLineStyle(pybind11::module &m) {
         "line's start/end.")
       .def(
         "join_offset",
-        &LineStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter
+        &LineStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter //FIXME add to markerstyle, too!
         "Computes how much a line join will extend the joint.\n\n"
         "The ``interior_angle`` is the angle between two line segments\n"
         "in degrees.\n"
