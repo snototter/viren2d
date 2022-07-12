@@ -13,6 +13,8 @@
 //#include <viren2d/colors.h>
 #include <viren2d/primitives.h>
 
+#include <iostream> //FIXME remove
+
 namespace viren2d {
 
 /// Data types supported by the ImageBuffer class.
@@ -47,6 +49,8 @@ using image_buffer_t = typename std::conditional<
   >::type
 >::type;
 
+//TODO doc
+const std::type_info &ImageBufferTypeInfo(ImageBufferType t);
 
 /// Returns the string representation.
 std::string ImageBufferTypeToString(ImageBufferType t);
@@ -211,6 +215,7 @@ public:
   /// Returns a reference to modify the specified pixel element.
   template<typename _Tp> inline
   _Tp& AtChecked(int row, int col, int channel=0) {
+    CheckType<_Tp>();
     CheckIndexedAccess(row, col, channel);
     return AtUnchecked<_Tp>(row, col, channel);
   }
@@ -219,6 +224,7 @@ public:
   /// Returns a read-only reference to the specified pixel element.
   template<typename _Tp> inline
   const _Tp& AtChecked(int row, int col, int channel=0) const {
+    CheckType<_Tp>();
     CheckIndexedAccess(row, col, channel);
     return AtUnchecked<_Tp>(row, col, channel);
   }
@@ -227,6 +233,7 @@ public:
   //TODO doc
   template <typename _Tp, typename... _Ts> inline
   void SetToPixel(_Tp element0, _Ts... elements) {
+    CheckType<_Tp>();
     const int num_el = 1 + sizeof...(elements);
     const int num_channels = std::min(channels, num_el);
     const _Tp lst[num_el] = {element0, static_cast<_Tp>(elements)...};
@@ -251,6 +258,7 @@ public:
   //TODO doc
   template <typename _Tp> inline
   void SetToScalar(_Tp element) {
+    CheckType<_Tp>();
     int rows = height;
     int cols = width;
 
@@ -266,6 +274,48 @@ public:
         }
       }
     }
+  }
+
+
+  //TODO doc
+  template <typename _Tp, typename... _Ts> inline
+  ImageBuffer MaskRange(_Tp min0, _Tp max0, _Ts... min_max_others) const {
+    CheckType<_Tp>();
+
+    const int num_inputs = 2 + sizeof...(min_max_others);
+    if (num_inputs != 2 * channels) {
+      std::ostringstream s;
+      s << "`MaskRange` expects min/max per channel, i.e. " << (2 * channels)
+        << " values, but got " << num_inputs << '!';
+      throw std::invalid_argument(s.str());
+    }
+
+    const _Tp min_max[num_inputs] = {
+      min0, max0, static_cast<_Tp>(min_max_others)...};
+    ImageBuffer mask(height, width, 1, ImageBufferType::UInt8);
+
+    int rows = height;
+    int cols = width;
+
+    if (IsContiguous()) {
+      cols *= rows;
+      rows = 1;
+    }
+
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        bool within_range = true;
+        for (int ch = 0; ch < channels; ++ch) {
+          const _Tp val = AtUnchecked<_Tp>(row, col, ch);
+          if ((val < min_max[ch * 2])
+              || (val > min_max[ch * 2 + 1])) {
+            within_range = false;
+          }
+        }
+        mask.AtUnchecked<unsigned char>(row, col, 0) = within_range ? 255 : 0;
+      }
+    }
+    return mask;
   }
 
 
@@ -467,6 +517,19 @@ private:
         << ") is out of range for ImageBuffer of size h="
         << height << ", w=" << width << " a " << channels << " channels!";
       throw std::out_of_range(s.str());
+    }
+  }
+
+
+  template <typename _Tp> inline
+  void CheckType() const {
+    if (typeid(_Tp) != ImageBufferTypeInfo(buffer_type)) {
+      std::string s("Invalid template type with id `");
+      s += typeid(_Tp).name();
+      s += "`, but buffer is of type `";
+      s += ImageBufferTypeToString(buffer_type);
+      s += "`!";
+      throw std::logic_error(s);
     }
   }
 

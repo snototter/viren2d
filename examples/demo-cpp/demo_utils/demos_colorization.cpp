@@ -24,8 +24,14 @@ void DemoOpticalFlow() {
   const ImageBuffer flow = LoadOpticalFlow(flow_filename);
 
   double max_motion;
-  flow.Magnitude().MinMaxLocation(nullptr, &max_motion);
+  const ImageBuffer magnitude = flow.Magnitude();
+  magnitude.MinMaxLocation(nullptr, &max_motion);
   const ImageBuffer flow_vis = ColorizeOpticalFlow(flow, colormap, max_motion);
+
+  const ImageBuffer mask = magnitude.MaskRange<float>(max_motion - 5, max_motion);
+  ProcessDemoOutput(mask, "demo-mask.jpg");
+  std::cout << "Maximum flow magnitude: " << max_motion
+            << ", " << magnitude << std::endl;
 
   // Then, overlay the flow wheel legend:
   std::unique_ptr<Painter> painter = CreatePainter();

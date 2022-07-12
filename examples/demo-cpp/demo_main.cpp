@@ -33,7 +33,9 @@ void ProcessDemoOutput(const ImageBuffer &canvas, const std::string &filename) {
 
 #ifdef viren2d_WITH_OPENCV
   viren2d::ImageBuffer copy(canvas);
-  copy.SwapChannels(0, 2);
+  if (copy.Channels() >= 3) {
+    copy.SwapChannels(0, 2);
+  }
   cv::Mat cv_buffer(copy.Height(), copy.Width(),
                     CV_MAKETYPE(CV_8U, copy.Channels()),
                     copy.MutableData(), copy.RowStride());

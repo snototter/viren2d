@@ -37,6 +37,31 @@
 namespace viren2d {
 
 //---------------------------------------------------- ImageBufferType
+const std::type_info &ImageBufferTypeInfo(ImageBufferType t) {
+  switch (t) {
+    case ImageBufferType::UInt8:
+      return typeid(image_buffer_t<ImageBufferType::UInt8>);
+
+    case ImageBufferType::Int16:
+      return typeid(image_buffer_t<ImageBufferType::Int16>);
+
+    case ImageBufferType::Int32:
+      return typeid(image_buffer_t<ImageBufferType::Int32>);
+
+    case ImageBufferType::Float:
+      return typeid(image_buffer_t<ImageBufferType::Float>);
+
+    case ImageBufferType::Double:
+      return typeid(image_buffer_t<ImageBufferType::Double>);
+  }
+
+  std::string s("Type `");
+  s += ImageBufferTypeToString(t);
+  s += "` not handled in `ImageBufferTypeInfo` switch!";
+  throw std::logic_error(s);
+}
+
+
 std::string ImageBufferTypeToString(ImageBufferType t) {
   switch (t) {
     case ImageBufferType::UInt8:
@@ -54,7 +79,8 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
     case ImageBufferType::Double:
       return "double";
   }
-  //TODO(dev) Include newly added string representation in ImageBufferFromString, too!
+  //TODO(dev) Include newly added string representation also in
+  //  `ImageBufferFromString`!
 
   std::ostringstream s;
   s << "Type `" << static_cast<int>(t)
