@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstring> // memcpy
 #include <algorithm> // std::swap
+#include <utility> // pair
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -35,6 +36,213 @@
 
 
 namespace viren2d {
+namespace helpers {
+template <typename _Tp, typename... _Ts>
+inline std::pair<_Tp, int> MaxValueIndex(_Tp val0, _Ts... rest) {
+  const int num_el = 1 + sizeof...(rest);
+  const _Tp lst[num_el] = {val0, static_cast<_Tp>(rest)...};
+
+  int max_idx = 0;
+  for (int idx = 1; idx < num_el; ++idx) {
+    if (lst[idx] > lst[max_idx]) {
+      max_idx = idx;
+    }
+  }
+  return std::make_pair(lst[max_idx], max_idx);
+}
+
+
+inline void CvtColorRGB2HSV(
+    unsigned char *dst, unsigned char red, unsigned char green,
+    unsigned char blue) {
+  const float r = red / 255.0f;
+  const float g = green / 255.0f;
+  const float b = blue / 255.0f;
+
+  const std::pair<float, int> max_val_idx = MaxValueIndex(r, g, b);
+  const float min_val = std::min(r, std::min(g, b));
+  const float delta = max_val_idx.first - min_val;
+
+  float hue, sat;
+
+  if (wkg::eps_zero(max_val_idx.first)
+      || wkg::eps_zero(delta)) {
+    sat = 0.0f;
+    hue = 0.0f;
+  } else {
+    sat = delta / max_val_idx.first;
+    if (max_val_idx.second == 0) {  // Max is at red
+      hue = 60.0f * ((g - b) / delta);
+    } else if (max_val_idx.second == 1) {  // Max is at green
+      hue = 60.0f * ((b - r) / delta) + 120.0f;
+    } else {  // Max is at blue
+      hue = 60.0f * ((r - g) / delta) + 240.0f;
+    }
+  }
+
+  if (hue < 0.0f) {
+    hue += 360.0f;
+  }
+
+  // Sacrifice angular resolution to fit into uint8:
+  dst[0] = static_cast<unsigned char>(hue / 2.0f);
+  dst[1] = static_cast<unsigned char>(255.0f * sat);
+  dst[2] = static_cast<unsigned char>(255.0f * max_val_idx.first);
+}
+
+
+ImageBuffer RGBx2HSV(
+    const ImageBuffer &src,
+    bool is_bgr_format) {
+  SPDLOG_DEBUG(
+        "ImageBuffer converting {:s} to HSV.",
+        (is_bgr_format ? "BGR(A)" : "RGB(A)"));
+
+  if (!src.IsValid()) {
+    throw std::logic_error("Input ImageBuffer is invalid in `RGBx2HSV`!");
+  }
+
+  if ((src.BufferType() != ImageBufferType::UInt8)
+      || (src.Channels() < 2)
+      || (src.Channels() > 4)) {
+    std::string s("Input to `RGB2HSV` must be 3- or 4-channel buffer of type `uint8`, but got ");
+    s += src.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src.Height(), src.Width(), 3, ImageBufferType::UInt8);
+
+  int rows = src.Height();
+  int cols = src.Width();
+  // dst was freshly allocated, so it's guaranteed to be contiguous
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  const int ch_r = is_bgr_format ? 2 : 0;
+  const int ch_b = is_bgr_format ? 0 : 2;
+
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      CvtColorRGB2HSV(
+            dst.MutablePtr<unsigned char>(row, col, 0),
+            src.AtUnchecked<unsigned char>(row, col, ch_r),
+            src.AtUnchecked<unsigned char>(row, col, 1),
+            src.AtUnchecked<unsigned char>(row, col, ch_b));
+    }
+  }
+
+  return dst;
+}
+
+
+inline void CvtColorHSV2RGB(
+    unsigned char *red, unsigned char *green, unsigned char *blue,
+    unsigned char h, unsigned char s, unsigned char v) {
+
+  const float hue = h * 2.0f;  // Input range [0, 180]
+  const float sat = s / 255.0f;  // Input range [0, 255]
+  const float val = v / 255.0f;  // Input range [0, 255]
+
+  const int hue_bin = static_cast<int>(hue / 60.0f) % 6;
+  const float rem = (hue / 60.0f) - hue_bin;
+  const float p  = val * (1.0f - sat);
+  const float q  = val * (1.0f - sat * rem);
+  const float t  = val * (1.0f - sat * (1.0f - rem));
+
+  float r = 0.0f;
+  float g = 0.0f;
+  float b = 0.0f;
+
+  switch(hue_bin) {
+    case 0:
+      r = val, g = t, b = p;
+      break;
+
+    case 1:
+      r = q, g = val, b = p;
+      break;
+
+    case 2:
+      r = p, g = val, b = t;
+    break;
+
+    case 3:
+      r = p, g = q, b = val;
+      break;
+
+    case 4:
+      r = t, g = p, b = val;
+      break;
+
+    case 5:
+      r = val, g = p, b = q;
+      break;
+  }
+
+  *red = static_cast<unsigned char>(255.0f * r);
+  *green = static_cast<unsigned char>(255.0f * g);
+  *blue = static_cast<unsigned char>(255.0f * b);
+}
+
+
+ImageBuffer HSV2RGBx(
+    const ImageBuffer &src,
+    int output_channels,
+    bool request_bgr_format) {
+  SPDLOG_DEBUG(
+        "ImageBuffer converting HSV to {:s}.",
+        (request_bgr_format ? "BGR(A)" : "RGB(A)"));
+
+  if (!src.IsValid()) {
+    throw std::logic_error("Input ImageBuffer is invalid in `HSV2RGBx`!");
+  }
+
+  if ((src.BufferType() != ImageBufferType::UInt8)
+      || (src.Channels() != 3)) {
+    std::string s("Input to `HSV2RGB` must be 3-channel buffer of type `uint8`, but got ");
+    s += src.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(
+        src.Height(), src.Width(), output_channels, ImageBufferType::UInt8);
+
+  int rows = src.Height();
+  int cols = src.Width();
+  // dst was freshly allocated, so it's guaranteed to be contiguous
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  const int ch_r = request_bgr_format ? 2 : 0;
+  const int ch_b = request_bgr_format ? 0 : 2;
+
+  for (int row = 0; row < rows; ++row) {
+    unsigned char *dst_ptr = dst.MutablePtr<unsigned char>(row, 0, 0);
+    for (int col = 0; col < cols; ++col) {
+      CvtColorHSV2RGB(
+            dst_ptr + ch_r, dst_ptr + 1, dst_ptr + ch_b,
+            src.AtUnchecked<unsigned char>(row, col, 0),
+            src.AtUnchecked<unsigned char>(row, col, 1),
+            src.AtUnchecked<unsigned char>(row, col, 2));
+
+      if (output_channels == 4) {
+        dst_ptr[3] = 255;
+      }
+      dst_ptr += output_channels;
+    }
+  }
+
+  return dst;
+}
+}  // namespace helpers
 
 //---------------------------------------------------- ImageBufferType
 const std::type_info &ImageBufferTypeInfo(ImageBufferType t) {
@@ -912,6 +1120,17 @@ void ImageBuffer::Cleanup() {
   buffer_type = ImageBufferType::UInt8;
   row_stride = 0;
   pixel_stride = 0;
+}
+
+
+ImageBuffer ConvertRGB2HSV(const ImageBuffer &image_rgb, bool is_bgr_format) {
+  return helpers::RGBx2HSV(image_rgb, is_bgr_format);
+}
+
+ImageBuffer ConvertHSV2RGB(
+    const ImageBuffer &image_hsv, int output_channels,
+    bool output_bgr_format) {
+  return helpers::HSV2RGBx(image_hsv, output_channels, output_bgr_format);
 }
 
 
