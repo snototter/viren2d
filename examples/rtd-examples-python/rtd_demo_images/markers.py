@@ -1,8 +1,8 @@
 import numpy as np
 import viren2d
 
-#TODO switch to painter.canvas; rename (this creates a cheatsheat) #TODO markers ">" '7' should be drawn with thickness=1
-def demo_markers():
+
+def cheat_sheet_markers():
     # Set up empty canvas:
     painter = viren2d.Painter()
     painter.set_canvas_rgb(
@@ -10,10 +10,11 @@ def demo_markers():
 
     # Style specifications:
     text_style = viren2d.TextStyle(color=viren2d.RGBa(192, 186, 177))
-    marker_style = viren2d.MarkerStyle(bg_color='ivory', bg_border=2,
-        size=30, thickness=2, cap='round', color='azure')
+    marker_style = viren2d.MarkerStyle(
+        size=27, thickness=2, cap='round', color='azure',
+        bg_color='ivory', bg_border=3)
 
-    def prepare_display_row(y1, y2, y3):
+    def _prepare_display_row(y1, y2, y3):
         text_style.family = 'xkcd'
         text_style.size = 18
 
@@ -32,18 +33,30 @@ def demo_markers():
         painter.draw_line(
             (15, y3 + 30), (585, y3 + 30),
             viren2d.LineStyle(width=1, color=(0.3, 0.3, 0.3, 0.6)))
+    
+    def _thickness(marker):
+        # Due to the fixed marker size, we should adjust the line thickness for
+        # a neater visualization.
+        if marker == viren2d.Marker.Enneagram:
+            return 1
+        elif marker in [viren2d.Marker.Plus, viren2d.Marker.Cross,
+                viren2d.Marker.Star]:
+            return 4
+        else:
+            return 2
 
     # Iterate and visualize the available markers:
     y1, y2, y3 = 25, 75, 125
     left = 145
-    prepare_display_row(y1, y2, y3)
+    _prepare_display_row(y1, y2, y3)
     x = left
     for marker in viren2d.Marker.list_all():
         # Put the marker's char code on top:
         painter.draw_text([str(marker)], (x, y1), 'center', text_style)
-
+        
         # Draw the marker's outline (if it's shape allows):
         marker_style.marker = marker
+        marker_style.thickness = _thickness(marker)
         marker_style.filled = False
         if not marker_style.is_filled():
             painter.draw_marker((x, y2), marker_style)
@@ -59,9 +72,6 @@ def demo_markers():
             y1 += 160
             y2 += 160
             y3 += 160
-            prepare_display_row(y1, y2, y3)
+            _prepare_display_row(y1, y2, y3)
 
-    # Return the visualization as a NumPy buffer (let NumPy take care of
-    # the memory copy):
-    shared_canvas = painter.get_canvas(copy=False)
-    return np.array(shared_canvas, copy=True)
+    return np.array(painter.canvas, copy=True)

@@ -56,7 +56,7 @@ Line Style
 Marker Style
 ~~~~~~~~~~~~
 
-.. figure:: ../images/markers.png
+.. figure:: ../images/marker-cheat-sheet.png
    :width: 600
    :alt: Supported Marker Shapes
    :align: center

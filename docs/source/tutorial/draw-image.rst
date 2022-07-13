@@ -8,9 +8,9 @@ If only a *region of interest* should be overlaid, this can be selected via
 
 
 To position an image, you simply need a **reference position** (*i.e. x* and
-*y* coordinate) and choose a proper :class:`~viren2d.Anchor`. This example
-uses the `"gouldian" color map <https://colorcet.com/>`__ to colorize example
-data computed by the well-known
+*y* coordinate) and choose a proper :class:`~viren2d.Anchor`. The following
+visualization uses the `"gouldian" color map <https://colorcet.com/>`__ to
+colorize example data computed by the well-known
 `peaks function <https://www.mathworks.com/help/matlab/ref/peaks.html>`__:
 
 
