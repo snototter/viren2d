@@ -257,9 +257,9 @@ def cheat_sheet_arrowstyle():
 def cheat_sheet_colormaps():
     cmap_categories = {
         'sequential': [
-            'black-body', 'cold', 'gouldian', 'hell', 'hot', 'inferno',
-            'temperature', 'temperature-dark', 'thermal', 'viridis', 'water',
-            'gray', 'yarg'
+            'black-body', 'cold', 'copper', 'gouldian', 'hell', 'hot',
+            'inferno', 'temperature', 'temperature-dark', 'thermal', 'viridis',
+            'water', 'gray', 'yarg'
         ],
         'cyclic': [
             'hsv', 'optical-flow', 'orientation', 'orientation-color-blind'

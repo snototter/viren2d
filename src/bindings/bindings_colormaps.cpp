@@ -51,6 +51,14 @@ void RegisterColorMapEnum(pybind11::module &m) {
         under the CC-BY 4.0 license.
         )docstr")
       .value(
+        "Copper",
+        ColorMap::Copper, R"docstr(
+        Sequential color map from black to light copper. This color map has
+        kinks in the lightness curve, which can lead to a perceived banding of
+        the data in those value ranges. Based on
+        `matplotlib's <https://matplotlib.org>`__ *copper* map.
+        )docstr")
+      .value(
         "Disparity",
         ColorMap::Disparity, R"docstr(
         High contrast color map for depth & disparity images.
@@ -71,7 +79,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         *i.e.* light colors are omitted. This color map is adapted from
         `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
         `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
-        TODO mention usage with updated color::byid, etc.
+        FIXME mention usage with updated color::byid, etc.
         )docstr")
       .value(
         "GlasbeyLight",
