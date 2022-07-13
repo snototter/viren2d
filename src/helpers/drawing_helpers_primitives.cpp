@@ -611,14 +611,16 @@ void DrawMarker(
     case Marker::Octagram:
     case Marker::Pentagon:
     case Marker::Pentagram: {
-        const auto step = NGonMarkerSteps(style.marker);
+        int steps;
+        double ctx_rotation, interior_angle;
+        std::tie(steps, ctx_rotation, interior_angle) = NGonMarkerSteps(style.marker);
         if (!style.IsFilled()) {
-          half_size -= style.JoinOffset(std::get<2>(step), miter_limit);
+          half_size -= style.JoinOffset(interior_angle, miter_limit);
         }
 
         cairo_move_to(context, 0.0, -half_size);
-        for (int i = 0; i < std::get<0>(step); ++i) {
-          cairo_rotate(context, wgu::deg2rad(std::get<1>(step)));
+        for (int i = 0; i < steps; ++i) {
+          cairo_rotate(context, wgu::deg2rad(ctx_rotation));
           cairo_line_to(context, 0.0, -half_size);
         }
         cairo_close_path(context);
