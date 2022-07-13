@@ -4,6 +4,7 @@
 #include <exception>
 #include <cmath>
 #include <utility>
+#include <tuple>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
@@ -417,39 +418,40 @@ void DrawLine(
 
 
 //---------------------------------------------------- Marker
-/// Returns the number of steps needed to draw the given n-gon.
-inline std::pair<int, double> NGonMarkerSteps(Marker m) {
+/// Returns the number of steps needed to draw the given n-gon, the rotation
+/// angle for the context, and the interior angle.
+inline std::tuple<int, double, double> NGonMarkerSteps(Marker m) {
   switch (m) {
     case Marker::Pentagon:
-      return std::make_pair(4, 72.0);
+      return std::make_tuple(4, 72.0, 108.0);
 
     case Marker::Pentagram:
-      return std::make_pair(4, 144.0);
+      return std::make_tuple(4, 144.0, 36.0);
 
     case Marker::Hexagon:
-      return std::make_pair(5, 60.0);
+      return std::make_tuple(5, 60.0, 120.0);
 
     case Marker::Hexagram:
-      return std::make_pair(5, 120.0);
+      return std::make_tuple(5, 120.0, 60.0);
 
     case Marker::Heptagon:
-      return std::make_pair(6, 360.0 / 7.0);
+      return std::make_tuple(6, 360.0 / 7.0, 128.57);
 
     case Marker::Heptagram:
-      return std::make_pair(6, 720.0 / 7.0);
+      return std::make_tuple(6, 720.0 / 7.0, 77.14);
 
     case Marker::Octagon:
-      return std::make_pair(7, 45.0);
+      return std::make_tuple(7, 45.0, 135.0);
 
     case Marker::Octagram:
-      return std::make_pair(7, 135.0);
+      return std::make_tuple(7, 135.0, 45.0);
 
     case Marker::Enneagon:
-      return std::make_pair(8, 40);
+      return std::make_tuple(8, 40, 140.0);
 
     case Marker::Enneagram:
       // Returns the steps for the {9/4} stellation
-      return std::make_pair(8, 160.0);
+      return std::make_tuple(8, 160.0, 20.0);
 
     default: {
         std::string s("Marker '");
@@ -481,27 +483,48 @@ void DrawMarker(
   }
 
   cairo_save(context);
-  ApplyMarkerStyle(context, style);
 
   // Move to the center of the pixel coordinates, so each
   // marker can be drawn as if it's at the origin:
   pos += 0.5;
   cairo_translate(context, pos.x(), pos.y());
+
+  const double miter_limit = cairo_get_miter_limit(context);
+  double half_size = style.size / 2.0;
+
+  // Optionally draw a bubble (or square) behind the marker to improve contrast
+  if (style.background_color.IsValid()) {
+    ApplyColor(context, style.background_color);
+    if (style.marker == Marker::Square) {
+      cairo_rectangle(
+            context,
+            -half_size - style.background_border,
+            -half_size - style.background_border,
+            style.size + 2 * style.background_border,
+            style.size + 2 * style.background_border);
+    } else {
+      cairo_arc(
+            context, 0.0, 0.0, half_size + style.background_border,
+            0.0, 2 * M_PI);
+    }
+    cairo_fill(context);
+  }
+
+  ApplyMarkerStyle(context, style);
   cairo_new_path(context);
-
-  const double half_size = style.size / 2.0;
-
   switch (style.marker) {
     case Marker::Circle:
     case Marker::Point: {
-        // '.' and 'o'
+        if (!style.IsFilled()) {
+          half_size -= style.thickness / 2.0;
+        }
         cairo_arc(context, 0.0, 0.0, half_size, 0.0, 2 * M_PI);
         break;
       }
 
     case Marker::Cross:
     case Marker::Plus: {
-        // '+' and 'x'
+        half_size -= style.CapOffset();
         if (style.marker == Marker::Cross) {
           cairo_rotate(context, wgu::deg2rad(45.0));
         }
@@ -513,7 +536,9 @@ void DrawMarker(
       }
 
     case Marker::Diamond: {
-        // 'd':
+        if (!style.IsFilled()) {
+          half_size -= style.JoinOffset(45.0, miter_limit);
+        }
         const double half_diamond = 0.5 * half_size;
         cairo_move_to(context, 0.0, -half_size);
         cairo_line_to(context, half_diamond, 0.0);
@@ -523,20 +548,22 @@ void DrawMarker(
         break;
       }
 
-    case Marker::RotatedSquare: {
-        cairo_rotate(context, wgu::deg2rad(45.0));
-        // Adjust side length of the square, so that
-        // the rotated square marker has the same height
-        // as the other markers
-        double side = style.size / std::sqrt(2.0);
-        cairo_rectangle(context, -side / 2.0, -side / 2.0,
-                        side, side);
-        break;
-      }
-
+    case Marker::RotatedSquare:
+      cairo_rotate(context, wgu::deg2rad(45.0));
+      // fall through
     case Marker::Square: {
-        cairo_rectangle(context, -half_size, -half_size,
-                        style.size, style.size);
+        double side = style.size;
+        if (!style.IsFilled()) {
+          side -= 2 * style.JoinOffset(90.0, miter_limit);
+        }
+
+        if (style.marker == Marker::RotatedSquare) {
+          // Adjust side length of the square, so that the rotated square
+          // marker has the same height as all the other markers.
+          side /= std::sqrt(2.0);
+        }
+
+        cairo_rectangle(context, -side / 2.0, -side / 2.0, side, side);
         break;
       }
 
@@ -544,7 +571,6 @@ void DrawMarker(
     case Marker::TriangleDown:
     case Marker::TriangleLeft:
     case Marker::TriangleRight: {
-        // '^', 'v', '<' and '>'
         if (style.marker == Marker::TriangleRight) {
           cairo_rotate(context, wgu::deg2rad(90.0));
         } else if (style.marker == Marker::TriangleDown) {
@@ -552,19 +578,21 @@ void DrawMarker(
         } else if (style.marker == Marker::TriangleLeft) {
           cairo_rotate(context, wgu::deg2rad(270.0));
         }
-        const double height = std::sqrt(3.0) / 2.0 * style.size;
-        const Vec2d top{0.0, -height / 2.0};
-        const auto dir_vec = style.size * wgu::DirectionVecFromAngleDeg(60.0);
-        auto pt = top + dir_vec;
-        cairo_move_to(context, top.x(), top.y());
-        cairo_line_to(context, pt.x(), pt.y());
-        pt = top + Vec2d(-dir_vec.x(), dir_vec.y());
-        cairo_line_to(context, pt.x(), pt.y());
+
+        if (!style.IsFilled()) {
+          half_size -= style.JoinOffset(60.0, miter_limit);
+        }
+        cairo_move_to(context, 0, -half_size);
+        cairo_rotate(context, wgu::deg2rad(120.0));
+        cairo_line_to(context, 0, -half_size);
+        cairo_rotate(context, wgu::deg2rad(120.0));
+        cairo_line_to(context, 0, -half_size);
         cairo_close_path(context);
         break;
       }
 
     case Marker::Star: { // Asterisk
+        half_size -= style.CapOffset();
         cairo_move_to(context, 0.0, -half_size);
         for (int i = 0; i < 5; ++i) {
           cairo_rotate(context, wgu::deg2rad(72.0));
@@ -583,10 +611,16 @@ void DrawMarker(
     case Marker::Octagram:
     case Marker::Pentagon:
     case Marker::Pentagram: {
-        const auto step = NGonMarkerSteps(style.marker);
+        int steps;
+        double ctx_rotation, interior_angle;
+        std::tie(steps, ctx_rotation, interior_angle) = NGonMarkerSteps(style.marker);
+        if (!style.IsFilled()) {
+          half_size -= style.JoinOffset(interior_angle, miter_limit);
+        }
+
         cairo_move_to(context, 0.0, -half_size);
-        for (int i = 0; i < step.first; ++i) {
-          cairo_rotate(context, wgu::deg2rad(step.second));
+        for (int i = 0; i < steps; ++i) {
+          cairo_rotate(context, wgu::deg2rad(ctx_rotation));
           cairo_line_to(context, 0.0, -half_size);
         }
         cairo_close_path(context);
@@ -595,6 +629,9 @@ void DrawMarker(
 
     case Marker::Hexagram: {
         // Hexagram cannot be drawn by a single continuous path
+        if (!style.IsFilled()) {
+          half_size -= style.JoinOffset(60.0, miter_limit);
+        }
         for (int path_idx = 0; path_idx < 2; ++path_idx) {
           if (path_idx == 1) {
             cairo_rotate(context, wgu::deg2rad(60.0));
@@ -608,15 +645,6 @@ void DrawMarker(
         }
         break;
       }
-  }
-
-  // Optionally draw the contour with a different color in the back to
-  // improve the contrast.
-  if (style.border_color.IsValid()) {
-    ApplyLineStyle(
-          context, LineStyle(style.border_thickness, style.border_color));
-    cairo_stroke_preserve(context);
-    ApplyMarkerStyle(context, style);
   }
 
   if (style.IsFilled()) {

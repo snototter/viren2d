@@ -27,6 +27,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "cold";
     case ColorMap::ColorBlind:
       return "color-blind";
+    case ColorMap::Copper:
+      return "copper";
     case ColorMap::Disparity:
       return "disparity";
     case ColorMap::Earth:
@@ -105,6 +107,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Cold;
   } else if (lower.compare("colorblind") == 0) {
     return ColorMap::ColorBlind;
+  } else if (lower.compare("copper") == 0) {
+    return ColorMap::Copper;
   } else if (lower.compare("disparity") == 0) {
     return ColorMap::Disparity;
   } else if (lower.compare("earth") == 0) {

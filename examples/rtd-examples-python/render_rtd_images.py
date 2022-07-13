@@ -44,11 +44,6 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'Line Join', save_images, 'line-join.png')
 
-    # Markers/Keypoints
-    img = demo_markers()
-    _process_result(
-        img, show_images, 'Markers', save_images, 'markers.png')
-
     # Text anchors
     img = demo_text_anchors()
     _process_result(
@@ -120,8 +115,13 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     for cat, img in sheets:
         _process_result(
             img, show_images, f'Colormaps Cheat Sheet {cat}', save_images, f'colormaps-cheat-sheet-{cat}.png')
+    
+    # Markers/Keypoints
+    img = cheat_sheet_markers()
+    _process_result(
+        img, show_images, 'Marker Cheat Sheet', save_images, 'marker-cheat-sheet.png')
 
 
 if __name__ == '__main__':
-    render_rtd_demos(True, False)
-    render_rtd_cheatsheets(True, False)#FIXME
+    render_rtd_demos(True, True)
+    render_rtd_cheatsheets(True, True)#FIXME

@@ -40,6 +40,11 @@ enum class ColorMap : unsigned char
   /// under the CC-BY 4.0 license.
   ColorBlind,
 
+
+  //TODO
+  Copper,
+
+
   /// High contrast color map for depth & disparity images.
   /// Based on `disparity` for MATLAB
   /// `by Oliver Woodford <https://github.com/ojwoodford/sc>`__,

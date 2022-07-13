@@ -4,35 +4,6 @@
 #include <helpers/colormaps_helpers.h>
 
 
-/// Python script to convert vito's color maps for
-/// use with viren2d:
-
-/**************************************************
-from vito import colormaps
-
-def cmap2viren(cname: str, per_row: int = 4):
-    cmap = Colormaps.by_name(cname, return_rgb=True)
-    idx = 0
-    cmap_str = ''
-    for r, g, b in cmap:
-        if idx % per_row == 0:
-            cmap_str += '\n  '
-        cmap_str += f'RGBColor({r:3d}, {g:3d}, {b:3d})'
-        idx += 1
-        if idx < len(cmap):
-            cmap_str += ', '
-
-    print(f"""
-constexpr RGBColor kColorMap{cname}[] = {{{cmap_str}\n}};
-constexpr std::size_t kBins{cname} = sizeof(kColorMap{cname}) / sizeof(kColorMap{cname}[0]);
-    """);
-
-for cname in colormaps.colormap_names:
-    cmap2viren(cname)
-    print()
-    print()
-**************************************************/
-
 namespace viren2d {
 namespace helpers {
 
@@ -259,6 +230,75 @@ constexpr RGBColor kColorMapColorBlind[] = {
   RGBColor(240, 237, 232), RGBColor(240, 238, 235), RGBColor(240, 240, 238), RGBColor(241, 241, 241)
 };
 constexpr std::size_t kBinsColorBlind = sizeof(kColorMapColorBlind) / sizeof(kColorMapColorBlind[0]);
+
+
+constexpr RGBColor kColorMapCopper[] = {
+  RGBColor(  0,   0,   0), RGBColor(  1,   0,   0), RGBColor(  2,   1,   0), RGBColor(  3,   2,   1),
+  RGBColor(  4,   3,   1), RGBColor(  6,   3,   2), RGBColor(  7,   4,   2), RGBColor(  8,   5,   3),
+  RGBColor(  9,   6,   3), RGBColor( 11,   7,   4), RGBColor( 12,   7,   4), RGBColor( 13,   8,   5),
+  RGBColor( 14,   9,   5), RGBColor( 16,  10,   6), RGBColor( 17,  10,   6), RGBColor( 18,  11,   7),
+  RGBColor( 19,  12,   7), RGBColor( 20,  13,   8), RGBColor( 22,  14,   8), RGBColor( 23,  14,   9),
+  RGBColor( 24,  15,   9), RGBColor( 25,  16,  10), RGBColor( 27,  17,  10), RGBColor( 28,  17,  11),
+  RGBColor( 29,  18,  11), RGBColor( 30,  19,  12), RGBColor( 32,  20,  12), RGBColor( 33,  21,  13),
+  RGBColor( 34,  21,  13), RGBColor( 35,  22,  14), RGBColor( 37,  23,  14), RGBColor( 38,  24,  15),
+  RGBColor( 39,  24,  15), RGBColor( 40,  25,  16), RGBColor( 41,  26,  16), RGBColor( 43,  27,  17),
+  RGBColor( 44,  28,  17), RGBColor( 45,  28,  18), RGBColor( 46,  29,  18), RGBColor( 48,  30,  19),
+  RGBColor( 49,  31,  19), RGBColor( 50,  32,  20), RGBColor( 51,  32,  20), RGBColor( 53,  33,  21),
+  RGBColor( 54,  34,  21), RGBColor( 55,  35,  22), RGBColor( 56,  35,  22), RGBColor( 58,  36,  23),
+  RGBColor( 59,  37,  23), RGBColor( 60,  38,  24), RGBColor( 61,  39,  24), RGBColor( 62,  39,  25),
+  RGBColor( 64,  40,  25), RGBColor( 65,  41,  26), RGBColor( 66,  42,  26), RGBColor( 67,  42,  27),
+  RGBColor( 69,  43,  27), RGBColor( 70,  44,  28), RGBColor( 71,  45,  28), RGBColor( 72,  46,  29),
+  RGBColor( 74,  46,  29), RGBColor( 75,  47,  30), RGBColor( 76,  48,  30), RGBColor( 77,  49,  31),
+  RGBColor( 79,  49,  31), RGBColor( 80,  50,  32), RGBColor( 81,  51,  32), RGBColor( 82,  52,  33),
+  RGBColor( 83,  53,  33), RGBColor( 85,  53,  34), RGBColor( 86,  54,  34), RGBColor( 87,  55,  35),
+  RGBColor( 88,  56,  35), RGBColor( 90,  57,  36), RGBColor( 91,  57,  36), RGBColor( 92,  58,  37),
+  RGBColor( 93,  59,  37), RGBColor( 95,  60,  38), RGBColor( 96,  60,  38), RGBColor( 97,  61,  39),
+  RGBColor( 98,  62,  39), RGBColor(100,  63,  40), RGBColor(101,  64,  40), RGBColor(102,  64,  41),
+  RGBColor(103,  65,  41), RGBColor(104,  66,  42), RGBColor(106,  67,  42), RGBColor(107,  67,  43),
+  RGBColor(108,  68,  43), RGBColor(109,  69,  44), RGBColor(111,  70,  44), RGBColor(112,  71,  45),
+  RGBColor(113,  71,  45), RGBColor(114,  72,  46), RGBColor(116,  73,  46), RGBColor(117,  74,  47),
+  RGBColor(118,  74,  47), RGBColor(119,  75,  48), RGBColor(121,  76,  48), RGBColor(122,  77,  49),
+  RGBColor(123,  78,  49), RGBColor(124,  78,  50), RGBColor(125,  79,  50), RGBColor(127,  80,  51),
+  RGBColor(128,  81,  51), RGBColor(129,  82,  52), RGBColor(130,  82,  52), RGBColor(132,  83,  53),
+  RGBColor(133,  84,  53), RGBColor(134,  85,  54), RGBColor(135,  85,  54), RGBColor(137,  86,  55),
+  RGBColor(138,  87,  55), RGBColor(139,  88,  56), RGBColor(140,  89,  56), RGBColor(142,  89,  57),
+  RGBColor(143,  90,  57), RGBColor(144,  91,  58), RGBColor(145,  92,  58), RGBColor(146,  92,  59),
+  RGBColor(148,  93,  59), RGBColor(149,  94,  60), RGBColor(150,  95,  60), RGBColor(151,  96,  61),
+  RGBColor(153,  96,  61), RGBColor(154,  97,  62), RGBColor(155,  98,  62), RGBColor(156,  99,  63),
+  RGBColor(158,  99,  63), RGBColor(159, 100,  64), RGBColor(160, 101,  64), RGBColor(161, 102,  65),
+  RGBColor(163, 103,  65), RGBColor(164, 103,  66), RGBColor(165, 104,  66), RGBColor(166, 105,  67),
+  RGBColor(167, 106,  67), RGBColor(169, 107,  68), RGBColor(170, 107,  68), RGBColor(171, 108,  69),
+  RGBColor(172, 109,  69), RGBColor(174, 110,  70), RGBColor(175, 110,  70), RGBColor(176, 111,  71),
+  RGBColor(177, 112,  71), RGBColor(179, 113,  72), RGBColor(180, 114,  72), RGBColor(181, 114,  73),
+  RGBColor(182, 115,  73), RGBColor(184, 116,  74), RGBColor(185, 117,  74), RGBColor(186, 117,  75),
+  RGBColor(187, 118,  75), RGBColor(188, 119,  76), RGBColor(190, 120,  76), RGBColor(191, 121,  77),
+  RGBColor(192, 121,  77), RGBColor(193, 122,  78), RGBColor(195, 123,  78), RGBColor(196, 124,  79),
+  RGBColor(197, 124,  79), RGBColor(198, 125,  80), RGBColor(200, 126,  80), RGBColor(201, 127,  81),
+  RGBColor(202, 128,  81), RGBColor(203, 128,  82), RGBColor(205, 129,  82), RGBColor(206, 130,  83),
+  RGBColor(207, 131,  83), RGBColor(208, 132,  84), RGBColor(209, 132,  84), RGBColor(211, 133,  85),
+  RGBColor(212, 134,  85), RGBColor(213, 135,  86), RGBColor(214, 135,  86), RGBColor(216, 136,  87),
+  RGBColor(217, 137,  87), RGBColor(218, 138,  88), RGBColor(219, 139,  88), RGBColor(221, 139,  89),
+  RGBColor(222, 140,  89), RGBColor(223, 141,  90), RGBColor(224, 142,  90), RGBColor(226, 142,  91),
+  RGBColor(227, 143,  91), RGBColor(228, 144,  92), RGBColor(229, 145,  92), RGBColor(230, 146,  93),
+  RGBColor(232, 146,  93), RGBColor(233, 147,  94), RGBColor(234, 148,  94), RGBColor(235, 149,  95),
+  RGBColor(237, 149,  95), RGBColor(238, 150,  96), RGBColor(239, 151,  96), RGBColor(240, 152,  97),
+  RGBColor(242, 153,  97), RGBColor(243, 153,  98), RGBColor(244, 154,  98), RGBColor(245, 155,  99),
+  RGBColor(247, 156,  99), RGBColor(248, 157,  99), RGBColor(249, 157, 100), RGBColor(250, 158, 100),
+  RGBColor(251, 159, 101), RGBColor(253, 160, 101), RGBColor(254, 160, 102), RGBColor(255, 161, 102),
+  RGBColor(255, 162, 103), RGBColor(255, 163, 103), RGBColor(255, 164, 104), RGBColor(255, 164, 104),
+  RGBColor(255, 165, 105), RGBColor(255, 166, 105), RGBColor(255, 167, 106), RGBColor(255, 167, 106),
+  RGBColor(255, 168, 107), RGBColor(255, 169, 107), RGBColor(255, 170, 108), RGBColor(255, 171, 108),
+  RGBColor(255, 171, 109), RGBColor(255, 172, 109), RGBColor(255, 173, 110), RGBColor(255, 174, 110),
+  RGBColor(255, 174, 111), RGBColor(255, 175, 111), RGBColor(255, 176, 112), RGBColor(255, 177, 112),
+  RGBColor(255, 178, 113), RGBColor(255, 178, 113), RGBColor(255, 179, 114), RGBColor(255, 180, 114),
+  RGBColor(255, 181, 115), RGBColor(255, 182, 115), RGBColor(255, 182, 116), RGBColor(255, 183, 116),
+  RGBColor(255, 184, 117), RGBColor(255, 185, 117), RGBColor(255, 185, 118), RGBColor(255, 186, 118),
+  RGBColor(255, 187, 119), RGBColor(255, 188, 119), RGBColor(255, 189, 120), RGBColor(255, 189, 120),
+  RGBColor(255, 190, 121), RGBColor(255, 191, 121), RGBColor(255, 192, 122), RGBColor(255, 192, 122),
+  RGBColor(255, 193, 123), RGBColor(255, 194, 123), RGBColor(255, 195, 124), RGBColor(255, 196, 124),
+  RGBColor(255, 196, 125), RGBColor(255, 197, 125), RGBColor(255, 198, 126), RGBColor(255, 199, 126)
+};
+constexpr std::size_t kBinsCopper = sizeof(kColorMapCopper) / sizeof(kColorMapCopper[0]);
 
 
 constexpr RGBColor kColorMapDisparity[] = {
@@ -1948,6 +1988,8 @@ std::pair<const RGBColor *, std::size_t> GetColorMap(ColorMap colormap) {
       return std::make_pair(kColorMapCold, kBinsCold);
     case ColorMap::ColorBlind:
       return std::make_pair(kColorMapColorBlind, kBinsColorBlind);
+    case ColorMap::Copper:
+      return std::make_pair(kColorMapCopper, kBinsCopper);
     case ColorMap::Disparity:
       return std::make_pair(kColorMapDisparity, kBinsDisparity);
     case ColorMap::Earth:

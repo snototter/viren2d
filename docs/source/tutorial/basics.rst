@@ -1,8 +1,8 @@
 .. include:: ../symbols.rst
 
----------------
-Know the Basics
----------------
+-----------------
+Overview & Basics
+-----------------
 
 **How to draw "stuff"?**
    :ref:`Initialize a painter's canvas<tutorial-painter-usage>` and invoke its
@@ -13,17 +13,16 @@ Know the Basics
    .. viren2d-drawing-summary::
 
 
-**What about other visualizations?**
+**What about visualizations besides drawing?**
    Besides drawing, ``viren2d`` also provides:
 
-   *  Scaled colorization with various color maps,
+   *  Falsce coloring (*i.e.* scaled colorization) with various color maps,
       see :func:`~viren2d.colorize` and :class:`~viren2d.Colorizer`.
 
-   *  Pixelation, *e.g.* to implement anonymization,
-      see :meth:`~viren2d.ImageBuffer.pixelate`.
+   *  Optical flow visualization, see :func:`~viren2d.colorize_optical_flow`.
 
-..
-   *  TODO Optical flow visualizations
+   *  Pixelation (*e.g.* to implement anonymization),
+      see :meth:`~viren2d.ImageBuffer.pixelate`.
    
    
 

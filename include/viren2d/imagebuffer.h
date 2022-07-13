@@ -8,10 +8,12 @@
 #include <cstdint>  // For fixed width integer types (stdint.h in C)
 #include <type_traits>
 #include <algorithm> // std::min
+#include <limits> // quiet nan
 #include <initializer_list>
 
 //#include <viren2d/colors.h>
 #include <viren2d/primitives.h>
+
 
 namespace viren2d {
 
@@ -46,6 +48,10 @@ using image_buffer_t = typename std::conditional<
     >::type
   >::type
 >::type;
+
+
+/// Returns the built-in data type's type_info for the corresponding enum value.
+const std::type_info &ImageBufferTypeInfo(ImageBufferType t);
 
 
 /// Returns the string representation.
@@ -211,6 +217,7 @@ public:
   /// Returns a reference to modify the specified pixel element.
   template<typename _Tp> inline
   _Tp& AtChecked(int row, int col, int channel=0) {
+    CheckType<_Tp>();
     CheckIndexedAccess(row, col, channel);
     return AtUnchecked<_Tp>(row, col, channel);
   }
@@ -219,15 +226,27 @@ public:
   /// Returns a read-only reference to the specified pixel element.
   template<typename _Tp> inline
   const _Tp& AtChecked(int row, int col, int channel=0) const {
+    CheckType<_Tp>();
     CheckIndexedAccess(row, col, channel);
     return AtUnchecked<_Tp>(row, col, channel);
   }
 
 
-  //TODO doc
+  /// Sets `I(x,y,i)` to `element_i` for all x, y. The number of arguments
+  /// must be <= number of channels.
   template <typename _Tp, typename... _Ts> inline
   void SetToPixel(_Tp element0, _Ts... elements) {
+    CheckType<_Tp>();
+
     const int num_el = 1 + sizeof...(elements);
+    if (num_el > channels) {
+      std::ostringstream s;
+      s << "Invalid number of template arguments (" << num_el
+        << ") to `SetToPixel` for an ImageBuffer with only " << channels
+        << " channels!";
+      throw std::invalid_argument(s.str());
+    }
+
     const int num_channels = std::min(channels, num_el);
     const _Tp lst[num_el] = {element0, static_cast<_Tp>(elements)...};
 
@@ -248,9 +267,11 @@ public:
     }
   }
 
-  //TODO doc
+
+  /// Sets all components of each pixel to the given scalar value.
   template <typename _Tp> inline
   void SetToScalar(_Tp element) {
+    CheckType<_Tp>();
     int rows = height;
     int cols = width;
 
@@ -266,6 +287,97 @@ public:
         }
       }
     }
+  }
+
+
+  /// Returns a uint8 mask which is set to 255 where the corresponding pixel
+  /// components are within the given range.
+  /// More specifically, for the i-th component (e.g. red = 0, green = 1, ...),
+  /// M(x,y) = 255 iff (min0 <= I(x,y,0) <= max0) && (min1 <= I(x,y,1) <= max1), etc.
+  template <typename _Tp, typename... _Ts> inline
+  ImageBuffer MaskRange(_Tp min0, _Tp max0, _Ts... min_max_others) const {
+    CheckType<_Tp>();
+
+    const int num_inputs = 2 + sizeof...(min_max_others);
+    if (num_inputs != 2 * channels) {
+      std::ostringstream s;
+      s << "`MaskRange` expects min/max per channel, i.e. " << (2 * channels)
+        << " values, but got " << num_inputs << '!';
+      throw std::invalid_argument(s.str());
+    }
+
+    const _Tp min_max[num_inputs] = {
+      min0, max0, static_cast<_Tp>(min_max_others)...};
+    ImageBuffer mask(height, width, 1, ImageBufferType::UInt8);
+
+    int rows = height;
+    int cols = width;
+
+    if (IsContiguous()) {
+      cols *= rows;
+      rows = 1;
+    }
+
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        bool within_range = true;
+        for (int ch = 0; ch < channels; ++ch) {
+          const _Tp val = AtUnchecked<_Tp>(row, col, ch);
+          if ((val < min_max[ch * 2])
+              || (val > min_max[ch * 2 + 1])) {
+            within_range = false;
+          }
+        }
+        mask.AtUnchecked<unsigned char>(row, col, 0) = within_range ? 255 : 0;
+      }
+    }
+    return mask;
+  }
+
+
+  //TODO impl & doc (any input type, eps equal 0, 0 --> mask = 255)
+//  ImageBuffer Invert() const;
+
+
+  //TODO doc
+  // TODO (pay attention to the signs!) :math:`I_{x,y,i}^{\text{dst}} = \left( I_{x,y,i}^{\text{src}} - \text{shift}_i^{\text{pre}} \right) * \text{scale}_i + \text{shift}_i^{\text{post}}`
+  template <ImageBufferType output_type, typename _Tp, typename... _Ts> inline
+  ImageBuffer Normalize(
+      _Tp shift_pre, _Tp scale, _Tp shift_post, _Ts... sss_others) const {
+    CheckType<_Tp>();
+
+    const int num_inputs = 3 + sizeof...(sss_others);
+    if (num_inputs != 3 * channels) {
+      std::ostringstream s;
+      s << "`Normalize` expects `shift_pre`, `scale` and `shift_post` per channel, i.e. "
+        << (3 * channels) << " values, but got " << num_inputs << '!';
+      throw std::invalid_argument(s.str());
+    }
+
+    const _Tp sss[num_inputs] = {
+      shift_pre, scale, shift_post, static_cast<_Tp>(sss_others)...};
+    ImageBuffer dst(height, width, channels, output_type);
+    using dst_type = image_buffer_t<output_type>;
+
+    int rows = height;
+    int cols = width;
+
+    if (IsContiguous()) {
+      cols *= rows;
+      rows = 1;
+    }
+
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        for (int ch = 0; ch < channels; ++ch) {
+          const dst_type val = static_cast<dst_type>(
+                ((AtUnchecked<_Tp>(row, col, ch) +  sss[ch * 3]) * sss[(ch * 3) + 1])
+              + sss[(ch * 3) + 2]);
+          dst.AtUnchecked<dst_type>(row, col, ch) = val;
+        }
+      }
+    }
+    return dst;
   }
 
 
@@ -306,7 +418,8 @@ public:
   ImageBuffer DeepCopy() const;
 
 
-  // TODO shared buffer
+  /// Returns a shared ImageBuffer which points to the specified axis-aligned
+  /// region-of-interest. This buffer will usually NOT be contiguous.
   ImageBuffer ROI(int left, int top, int roi_width, int roi_height);
 
 
@@ -338,6 +451,7 @@ public:
   /// * 4-channel buffer: output_channels either 3 or 4
   ImageBuffer ToUInt8(int output_channels) const;
 
+
   /// Converts this buffer to `float`.
   /// If the underlying type is integral (`uint8`,
   /// `int16`, etc.), the values will be **divided by 255**.
@@ -352,18 +466,25 @@ public:
   ///     The first (up to) 3 channels will contain the repeated luminance,
   ///     whereas the 4th channel will always be 255 (*i.e.* alpha, fully opaque).
   ///   is_bgr: Set to ``true`` if the channels of this image are in BGR format.
-  ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format=false) const;
+  ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format = false) const;
 
 
-  //TODO ToHSV()
   //TODO Gradient (sobel, border handling)
 
 
-  /// Computes the magnitude of a dual-channel image, e.g.
-  /// an optical flow field or an image gradient.
-  /// Additionally, this image buffer *must* be either float
-  /// or double.
+  /// Computes the magnitude of a dual-channel image, e.g. an optical flow
+  /// field or an image gradient. Only implemented for buffers of type float
+  /// or double. Output buffer type will be the same as this buffer's.
   ImageBuffer Magnitude() const;
+
+
+  /// Computes the orientation of a dual-channel image, e.g. an optical flow
+  /// field or an image gradient. Only implemented for buffers of type float
+  /// or double. Output buffer type will be the same as this buffer's.
+  /// If both .At(r,c,0) and .At(r,c,1) are zero, the output value will be set
+  /// to the specified `invalid` value.
+  ImageBuffer Orientation(
+      float invalid = std::numeric_limits<float>::quiet_NaN()) const;
 
 
   /// Performs **in-place** pixelation of images with **up to 4**
@@ -471,11 +592,44 @@ private:
   }
 
 
+  template <typename _Tp> inline
+  void CheckType() const {
+    if (typeid(_Tp) != ImageBufferTypeInfo(buffer_type)) {
+      std::string s("Invalid template type with id `");
+      s += typeid(_Tp).name();
+      s += "`, but buffer is of type `";
+      s += ImageBufferTypeToString(buffer_type);
+      s += "`!";
+      throw std::logic_error(s);
+    }
+  }
+
+
   /// Returns the offset in bytes to the given indices.
   inline int ByteOffset(int row, int col, int channel) const {
     return (row * row_stride) + (col * pixel_stride) + (channel * element_size);
   }
 };
+
+
+/// Converts a RGB(A)/BGR(A) image to HSV. Input image must be of type uint8.
+///
+/// Returns:
+///   A 3-channel uint8 image, where hue in [0, 180], saturation in [0, 255]
+///   and value in [0, 255].
+ImageBuffer ConvertRGB2HSV(const ImageBuffer &image_rgb, bool is_bgr_format = false);
+
+
+/// Converts a HSV image to RGB(A)/BGR(A).
+/// Input image must be of type uint8, where hue in [0, 180], saturation in [0, 255]
+/// and value in [0, 255].
+///
+/// If output_channels is 4, the fourth channel will be set to 255 (i.e. a
+/// fully opaque alpha channel).
+ImageBuffer ConvertHSV2RGB(
+    const ImageBuffer &image_hsv,
+    int output_channels = 3,
+    bool output_bgr_format = false);
 
 
 /// Loads an 8-bit image from disk.
