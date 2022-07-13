@@ -4,35 +4,6 @@
 #include <helpers/colormaps_helpers.h>
 
 
-/// Python script to convert vito's color maps for
-/// use with viren2d:
-
-/**************************************************
-from vito import colormaps
-
-def cmap2viren(cname: str, per_row: int = 4):
-    cmap = Colormaps.by_name(cname, return_rgb=True)
-    idx = 0
-    cmap_str = ''
-    for r, g, b in cmap:
-        if idx % per_row == 0:
-            cmap_str += '\n  '
-        cmap_str += f'RGBColor({r:3d}, {g:3d}, {b:3d})'
-        idx += 1
-        if idx < len(cmap):
-            cmap_str += ', '
-
-    print(f"""
-constexpr RGBColor kColorMap{cname}[] = {{{cmap_str}\n}};
-constexpr std::size_t kBins{cname} = sizeof(kColorMap{cname}) / sizeof(kColorMap{cname}[0]);
-    """);
-
-for cname in colormaps.colormap_names:
-    cmap2viren(cname)
-    print()
-    print()
-**************************************************/
-
 namespace viren2d {
 namespace helpers {
 

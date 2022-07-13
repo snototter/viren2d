@@ -169,4 +169,51 @@ $1 == "Package:" { p = $2 } $1 == "Size:"    { print p, $2, human($2)}'
 ```
 
 
+# Utility Scrips
+## Convert Colormaps
+```python
+from vito import colormaps
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+
+def cmap2viren(cname: str, cmap: list, per_row: int = 4):
+    idx = 0
+    cmap_str = ''
+    for r, g, b in cmap:
+        if idx % per_row == 0:
+            cmap_str += '\n  '
+        cmap_str += f'RGBColor({r:3d}, {g:3d}, {b:3d})'
+        idx += 1
+        if idx < len(cmap):
+            cmap_str += ', '
+    print(f"""
+constexpr RGBColor kColorMap{cname}[] = {{{cmap_str}\n}};
+constexpr std::size_t kBins{cname} = sizeof(kColorMap{cname}) / sizeof(kColorMap{cname}[0]);
+    """);
+    
+
+def mpl2viren(cname: str, per_row: int = 4):
+    mpl_map = plt.get_cmap(cname.lower())
+    cmap = [mpl_map(i) for i in range(256)]
+    cmap = [(int(255*r), int(255*g), int(255*b)) for r,g,b,_ in cmap]
+    cmap2viren(cname, cmap, per_row)
+
+
+# vito2vi
+for cname in colormaps.colormap_names:
+    cmap = Colormaps.by_name(cname, return_rgb=True)
+    cmap2viren(cname, cmap)
+    print()
+    print()
+    
+# mpl2vi
+cnames = ['Spring', 'Summer', 'Autumn', 'Winter', 'Bone', 'Plasma', 'Spectral', 'Purples', 'Blues', 'Oranges', 'Reds']
+cname = 'nipy_Spectral'
+mpl2viren(cname)
+
+
+```
 
