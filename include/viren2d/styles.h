@@ -157,7 +157,6 @@ struct MarkerStyle {
   /// If true (and the shape allows), the marker will be filled.
   bool filled;
 
-  //FIXME adjust doc
   /// If `background_color` is valid, a circle (or square) will be drawn
   /// behind the actual marker. Size will be `size` + 2 * background_border.
   /// Can be used to improve the contrast of the marker.

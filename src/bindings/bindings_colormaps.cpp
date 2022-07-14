@@ -16,6 +16,13 @@ void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap",
              "Enum to select a color map.");
   cm.value(
+        "Autumn",
+        ColorMap::Autumn, R"docstr(
+        Sequential red-to-yellow color map. This color map is not perceptually
+        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *autumn*
+        map.
+        )docstr")
+      .value(
         "BlackBody",
         ColorMap::BlackBody, R"docstr(
         Black-red-yellow-white, perceptually uniform sequential color map
@@ -30,10 +37,23 @@ void RegisterColorMapEnum(pybind11::module &m) {
         on `matplotlib's <https://matplotlib.org>`__ *tab10* map.
         )docstr")
       .value(
+        "Categories12",
+        ColorMap::Categories12, R"docstr(
+        Color map with 12 distinct colors, suitable for categorical data. Based
+        on `ColorBrewer2's <https://colorbrewer2.org>`__ *12-class paired* map.
+        )docstr")
+      .value(
         "Categories20",
         ColorMap::Categories20, R"docstr(
         Color map with 20 distinct colors, suitable for categorical data. Based
         on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
+        )docstr")
+      .value(
+        "Cividis",
+        ColorMap::Cividis, R"docstr(
+        Perceptually uniform sequential color map suitable for viewers with
+        color vision deficiency (CVD). Published by
+        `Nuñez, Anderton and Renslow <https://doi.org/10.1371/journal.pone.0199239>`__.
         )docstr")
       .value(
         "Cold",
@@ -43,10 +63,35 @@ void RegisterColorMapEnum(pybind11::module &m) {
         under the CC-BY 4.0 license.
         )docstr")
       .value(
-        "ColorBlind",
-        ColorMap::ColorBlind, R"docstr(
+        "ColorBlindDiverging",
+        ColorMap::ColorBlindDiverging, R"docstr(
+        Perceptually uniform diverging color map for Protanopic/Deuteranopic
+        viewers. This is the CET-CBD1 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "ColorBlindSequential",
+        ColorMap::ColorBlindSequential, R"docstr(
         Perceptually uniform sequential color map for Protanopic/Deuteranopic
         viewers. This is the CET-CBL1 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "ColorBlindSequentialVivid",
+        ColorMap::ColorBlindSequentialVivid, R"docstr(
+        Perceptually uniform sequential color map with maximal chroma, suitable
+        for Protanopic/Deuteranopic viewers. This is the CET-CBL2 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "ColorBlindOrientation",
+        ColorMap::ColorBlindOrientation, R"docstr(
+        Cyclic blue-white-yellow-black color map for four orientations/phase
+        angles, suitable for Protanopic/Deuteranopic viewers.
+        This is the CET-CBC1 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -79,7 +124,6 @@ void RegisterColorMapEnum(pybind11::module &m) {
         *i.e.* light colors are omitted. This color map is adapted from
         `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
         `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
-        FIXME mention usage with updated color::byid, etc.
         )docstr")
       .value(
         "GlasbeyLight",
@@ -100,8 +144,9 @@ void RegisterColorMapEnum(pybind11::module &m) {
         )docstr")
       .value(
         "Gray",
-        ColorMap::Gray,
-        "Standard grayscale from black-to-white.")
+        ColorMap::Gray, R"docstr(
+        Standard grayscale from black-to-white.
+        )docstr")
       .value(
         "Hell",
         ColorMap::Hell, R"docstr(
@@ -119,14 +164,28 @@ void RegisterColorMapEnum(pybind11::module &m) {
         )docstr")
       .value(
         "HSV",
-        ColorMap::HSV,
-        "Cyclic color map by varying the hue: Red-yellow-green-cyan-blue-magenta-red.")
+        ColorMap::HSV, R"docstr(
+        Cyclic color map obtained by varying the hue. Cycles through
+        red-yellow-green-cyan-blue-magenta-red.
+        )docstr")
       .value(
         "Inferno",
         ColorMap::Inferno, R"docstr(
         Bluish-to-reddish, perceptually uniform sequential color map. Proposed by
         `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__
         and integrated into `matplotlib >= 1.15 <https://matplotlib.org/>`__.
+        )docstr")
+      .value(
+        "Jet",
+        ColorMap::Jet, R"docstr(
+        The classic rainbow color map, based on
+        `MATLAB's <https://www.mathworks.com/help/matlab/ref/peaks.html>`__
+        *jet* map.
+
+        Note that this color map has several limitations (perceptual ordering,
+        lightness gradient reversals). Refer to the excellent article by
+        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
+        about these issues.
         )docstr")
       .value(
         "Ocean",
@@ -142,19 +201,18 @@ void RegisterColorMapEnum(pybind11::module &m) {
         `Middlebury Optical Flow benchmark <https://vision.middlebury.edu/flow/>`__.
         )docstr")
       .value(
-        "Orientation",
-        ColorMap::Orientation, R"docstr(
+        "Orientation4",
+        ColorMap::Orientation4, R"docstr(
         Cyclic magenta-yellow-green-blue color map for four orientations/phase
         angles to be visualized. This is the CET-C2 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
       .value(
-        "OrientationColorBlind",
-        ColorMap::OrientationColorBlind, R"docstr(
-        Cyclic blue-white-yellow-black color map for four orientations/phase
-        angles, suitable for Protanopic/Deuteranopic viewers.
-        This is the CET-CBC1 color map by
+        "Orientation6",
+        ColorMap::Orientation6, R"docstr(
+        Six-color cyclic map with primaries and secondaries matched in
+        lightness. This is the CET-C6 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -180,6 +238,38 @@ void RegisterColorMapEnum(pybind11::module &m) {
         sequential color map for relief shading. This is the CET-I2 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "Seismic",
+        ColorMap::Seismic, R"docstr(
+        Diverging blue-white-red map with vivid colors. Based on
+        `matplotlib's <https://matplotlib.org>`__ *seismic* map.
+        )docstr")
+      .value(
+        "Spectral",
+        ColorMap::Spectral, R"docstr(
+        Color map covering the spectral colors from ultra-violett to infrared.
+        Based on `matplotlib's <https://matplotlib.org>`__ *NIPY Spectral* map.
+        )docstr")
+      .value(
+        "SpectralDiverging",
+        ColorMap::SpectralDiverging, R"docstr(
+        Diverging redish-yellow-bluish map. Based on
+        `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
+        )docstr")
+      .value(
+        "Spring",
+        ColorMap::Spring, R"docstr(
+        Sequential pink-to-yellow color map. This color map is not perceptually
+        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *spring*
+        map.
+        )docstr")
+      .value(
+        "Summer",
+        ColorMap::Summer, R"docstr(
+        Sequential green-to-yellow color map. This color map is not perceptually
+        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *summer*
+        map.
         )docstr")
       .value(
         "Temperature",
@@ -215,7 +305,21 @@ void RegisterColorMapEnum(pybind11::module &m) {
         A rainbow color map similar to the well-known MATLAB `jet`, but following
         a smoother path through the CIELAB color space. Published by
         `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
-        under the Apache-2.0 license.
+        under the Apache-2.0 license. Often used for depth and disparity values.
+        )docstr")
+      .value(
+        "Twilight",
+        ColorMap::Twilight, R"docstr(
+        Cyclic white-blue-black-red-white map with perceptually uniform lightness
+        and color contrast over the whole range. Based on
+        `matplotlib's <https://matplotlib.org>`__ *twilight* map.
+        )docstr")
+      .value(
+        "TwilightShifted",
+        ColorMap::TwilightShifted, R"docstr(
+        Cyclic black-blue-white-red-black map with perceptually uniform lightness
+        and color contrast over the whole range. Based on
+        `matplotlib's <https://matplotlib.org>`__ *twilight_shifted* map.
         )docstr")
       .value(
         "Viridis",
@@ -233,9 +337,17 @@ void RegisterColorMapEnum(pybind11::module &m) {
         under the CC-BY 4.0 license.
         )docstr")
       .value(
+        "Winter",
+        ColorMap::Winter, R"docstr(
+        Sequential blue-to-light-green color map. This color map is not
+        perceptually uniform. Based on
+        `matplotlib's <https://matplotlib.org>`__ *winter* map.
+        )docstr")
+      .value(
         "Yarg",
-        ColorMap::Yarg,
-        "Inverted grayscale from white-to-black.");
+        ColorMap::Yarg, R"docstr(
+        Inverted grayscale from white-to-black.
+        )docstr");
 
 
   cm.def(
@@ -243,10 +355,11 @@ void RegisterColorMapEnum(pybind11::module &m) {
             return py::str(ColorMapToString(c));
         }, py::name("__str__"), py::is_method(m));
 
+
   cm.def(
         "__repr__", [](ColorMap c) -> py::str {
             std::ostringstream s;
-            s << "<Colormap." << ColorMapToString(c) << '>';
+            s << "<ColorMap \"" << ColorMapToString(c) << "\">";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
 
@@ -305,20 +418,54 @@ ImageBuffer ColorizationHelper(
 
 
 Colorizer CreateColorizer(
-    ColorMap colormap, const py::object &limits_mode, int bins,
+    const py::object &colormap, const py::object &limits_mode, int bins,
     int output_channels, double low, double high) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
   Colorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
-  return Colorizer(colormap, lm, bins, output_channels, low, high);
+  return Colorizer(cm, lm, bins, output_channels, low, high);
 }
 
 
 void RegisterColormaps(pybind11::module &m) {
-  RegisterColorMapEnum(m);
-
   py::enum_<Colorizer::LimitsMode> mode(m, "LimitsMode",
              "Specifies how the colorization limits should be computed.");
+  mode.value(
+        "Continuous",
+        Colorizer::LimitsMode::FromDataContinuously, R"docstr(
+        Compute limits for each incoming sample separately.
 
-  //TODO bind mode!
+        Corresponding string representation: ``'continuous'``.
+        )docstr")
+      .value(
+        "Fixed",
+        Colorizer::LimitsMode::Fixed, R"docstr(
+        Use fixed, user-defined limits.
+
+        Corresponding string representation: ``'fixed'``.
+        )docstr")
+      .value(
+        "Once",
+        Colorizer::LimitsMode::FromDataOnce, R"docstr(
+        Compute limits from the first incoming sample, then apply these to all
+        further samples.
+
+        Corresponding string representation: ``'continuous'``.
+        )docstr");
+
+  mode.def(
+        "__str__", [](Colorizer::LimitsMode lm) -> py::str {
+            return py::str(LimitsModeToString(lm));
+        }, py::name("__str__"), py::is_method(m));
+
+  mode.def(
+        "__repr__", [](Colorizer::LimitsMode lm) -> py::str {
+            std::ostringstream s;
+            s << "<LimitsMode." << LimitsModeToString(lm) << '>';
+            return py::str(s.str());
+        }, py::name("__repr__"), py::is_method(m));
+
+
+
   py::class_<Colorizer> colorizer(m, "Colorizer", R"docstr(
       Utility class to simplify colorization of a data stream.
 
@@ -328,8 +475,7 @@ void RegisterColormaps(pybind11::module &m) {
       stream of a time-of-flight sensor.
 
       Example:
-        >>> #TODO
-        >>> depth_cam = ...
+        >>> depth_cam = ...  # Open camera stream
         >>> colorizer = viren2d.Colorizer(
         >>>     colormap=...)
         >>> while depth_cam.is_available():
@@ -337,18 +483,31 @@ void RegisterColormaps(pybind11::module &m) {
         >>>     vis = colorizer(depth)
       )docstr");
 
+
   colorizer.def(
         py::init<>(&CreateColorizer), R"docstr(
-        TODO doc
+        Creates a customized colorizer.
 
         Args:
-          colormap:
-          mode: TODO as :class:`~viren2d.LimitsMode` or :class:`str`
+          colormap: The :class:`~viren2d.ColorMap` to be used for
+            colorization. In addition to the enum value, the corresponding
+            string representation can be used for convenience.
+          mode: The :class:`~viren2d.LimitsMode` specifying how the data limits
+            should be computed. Can be provided as enum value or its
+            corresponding string representation.
 
-            * ``'continuous'``: Computes the upper and lower limits for
-              visualization **per image**.
-            * ``'fixed'``: Provide upper and lower limits as ``low`` and ``high`` parameters.
-            * ``'once'``: TODO
+            If set to :attr:`~viren2d.LimitsMode.Fixed`, then the parameters
+            ``low`` and ``high`` *must* be set to valid numbers.
+          bins: Number of discretization bins as :class:`int`.
+            Must be :math:`\geq 2`. This parameter will be ignored if the
+            selected color map has less than ``bins`` colors.
+          output_channels: Number of output channels as :class:`int`.
+            Must be either 3 or 4. The optional 4th channel will be
+            considered an alpha channel and set to 255.
+          low: Lower limit of the input data. Will be considered only if
+            ``mode`` is :attr:`~viren2d.LimitsMode.Fixed`.
+          high: Upper limit of the input data. Will be considered only if
+            ``mode`` is :attr:`~viren2d.LimitsMode.Fixed`.
         )docstr",
         py::arg("colormap"),
         py::arg("mode") = "continuous",
@@ -377,17 +536,46 @@ void RegisterColormaps(pybind11::module &m) {
           will be raised.
         )docstr")
       .def_property(
+        "limits_mode",
+        &Colorizer::GetLimitsMode,
+        [](Colorizer &c, py::object lm) {
+            c.SetLimitsMode(LimitsModeFromPyObject(lm));
+        }, R"docstr(
+        :class:`~viren2d.LimitsMode`: Specifies how the data limits
+          should be computed. Can be set via the enum value or its
+          corresponding string representation.
+
+          Note that :attr:`limit_low` and :attr:`limit_high` must be set to
+          valid numbers **before** the mode is changed to ``fixed``.
+        )docstr")
+      .def_property(
         "output_channels",
         &Colorizer::OutputChannels,
-        &Colorizer::SetOutputChannels,
-        ":class:`int`: Number of output channels. Must be either 3 or 4.")
+        &Colorizer::SetOutputChannels, R"docstr(
+        :class:`int`: Number of output channels.
+
+          Must be either 3 or 4. The optional 4th channel will be considered an
+          alpha channel and set to 255.
+        )docstr")
+      .def_property(
+        "bins",
+        &Colorizer::Bins,
+        &Colorizer::SetBins, R"docstr(
+        :class:`int`: Number of discretization bins.
+
+            Must be :math:`\geq 2`. This parameter will be ignored if the
+            selected :attr:`colormap` has less than ``bins`` colors.
+        )docstr")
       .def_property(
         "colormap",
         &Colorizer::GetColorMap,
         [](Colorizer &c, const py::object &o) {
           c.SetColorMap(ColorMapFromPyObject(o));
         }, R"docstr(
-        :class:`~viren2d.ColorMap`: TODO set via enum or string representation TODO doc
+        :class:`~viren2d.ColorMap`: The selected color map.
+
+          In addition to the enum value, the corresponding string
+          representation can be used to set this property.
         )docstr");
 
 
@@ -431,7 +619,17 @@ void RegisterColormaps(pybind11::module &m) {
 
   m.def("relief_shading",
         &ReliefShading, R"docstr(
-        TODO doc multiplicative combination for relief shading.
+        Multiplicative relief shading.
+
+        Combines a false color representation with the relief data via
+        element-wise multiplication. This can enhance the shape perception
+        significantly due to the shading.
+
+        Note that the :class:`~viren2d.ColorMap` should be selected with care
+        to avoid interfering with the perception of features induced by the
+        shading. Particularly well suited color maps have only low (or even no)
+        variation in lightness values, *e.g.* :attr:`ColorMap.Relief` or
+        :attr:`ColorMap.ReliefLowContrast`.
 
         Args:
           relief: A single channel :class:`~viren2d.ImageBuffer` or

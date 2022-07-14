@@ -245,8 +245,8 @@ void RegisterImageBuffer(py::module &m) {
         )docstr")
       .def(
         "__repr__",
-        [](const ImageBuffer &)
-        { return "<viren2d.ImageBuffer>"; })
+        [](const ImageBuffer &buf)
+        { return "<" + buf.ToString() + ">"; })
       .def("__str__", &ImageBuffer::ToString)
       .def(
         "pixelate",

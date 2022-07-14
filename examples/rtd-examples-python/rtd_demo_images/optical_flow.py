@@ -4,8 +4,10 @@ import os
 
 
 def demo_optical_flow():
-    flow = viren2d.load_optical_flow(
-        os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'data', 'sintel-alley2.flo'))
+    filename = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        '..', '..', 'data', 'sintel-alley2.flo')
+    flow = viren2d.load_optical_flow(filename)
     (_, max_motion, _, _) = flow.magnitude().min_max(0)
     
     painter = viren2d.Painter(height=230, width=600, color='white!0')
@@ -13,7 +15,7 @@ def demo_optical_flow():
 
     scale = (painter.width / 2 - 15) / flow.width
 
-    for cmap, x in [('optical-flow', 5), ('orientation', 310)]:
+    for cmap, x in [('optical-flow', 5), ('orientation-6', 310)]:
         flow_vis = viren2d.colorize_optical_flow(
             flow=flow, colormap=cmap, motion_normalizer=max_motion)
 

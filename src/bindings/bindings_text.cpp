@@ -70,16 +70,19 @@ void RegisterAnchors(py::module &m) {
              "Options for horizontal alignment.");
   halign.value(
         "Left",
-        HorizontalAlignment::Left,
-        "Horizontally left-aligned.")
+        HorizontalAlignment::Left, R"docstr(
+        Horizontally left-aligned.
+        )docstr")
       .value(
         "Center",
-        HorizontalAlignment::Center,
-        "Horizontally centered.")
+        HorizontalAlignment::Center, R"docstr(
+        Horizontally centered.
+        )docstr")
       .value(
         "Right",
-        HorizontalAlignment::Right,
-        "Horizontally right-aligned.");
+        HorizontalAlignment::Right, R"docstr(
+        Horizontally right-aligned.
+        )docstr");
 
   halign.def(
         "__str__", [](HorizontalAlignment a) -> py::str {
@@ -98,16 +101,19 @@ void RegisterAnchors(py::module &m) {
              "Options for vertical alignment.");
   valign.value(
         "Top",
-        VerticalAlignment::Top,
-        "Vertically top-aligned.")
+        VerticalAlignment::Top, R"docstr(
+        Vertically top-aligned.
+        )docstr")
       .value(
         "Center",
-        VerticalAlignment::Center,
-        "Vertically centered.")
+        VerticalAlignment::Center, R"docstr(
+        Vertically centered.
+        )docstr")
       .value(
         "Bottom",
-        VerticalAlignment::Bottom,
-        "Vertically bottom-aligned.");
+        VerticalAlignment::Bottom, R"docstr(
+        Vertically bottom-aligned.
+        )docstr");
 
   valign.def(
         "__str__", [](VerticalAlignment a) -> py::str {
@@ -126,48 +132,57 @@ void RegisterAnchors(py::module &m) {
              "Placement options with respect to a reference point.");
   anchor.value(
         "Center",
-        Anchor::Center,
-        "Horizontally & vertically centered.")
+        Anchor::Center, R"docstr(
+        Horizontally & vertically centered.
+        )docstr")
       .value(
         "Left",
-        Anchor::Left,
-        "Horizontally **left-aligned** & vertically **centered**. "
-        "Alias string representation: ``west``.")
+        Anchor::Left, R"docstr(
+        Horizontally **left-aligned** & vertically **centered**.
+        Alias string representation: ``west``.
+        )docstr")
       .value(
         "Right",
-        Anchor::Right,
-        "Horizontally **right-aligned** & vertically **centered**. "
-        "Alias string representation: ``east``.")
+        Anchor::Right, R"docstr(
+        Horizontally **right-aligned** & vertically **centered**.
+        Alias string representation: ``east``.
+        )docstr")
       .value(
         "Top",
-        Anchor::Top,
-        "Horizontally **centered** & vertically **top-aligned**. "
-        "Alias string representation: ``north``.")
+        Anchor::Top, R"docstr(
+        Horizontally **centered** & vertically **top-aligned**.
+        Alias string representation: ``north``.
+        )docstr")
       .value(
         "Bottom",
-        Anchor::Bottom,
-        "Horizontally **centered** & vertically **bottom-aligned**. "
-        "Alias string representation: ``south``.")
+        Anchor::Bottom, R"docstr(
+        Horizontally **centered** & vertically **bottom-aligned**.
+        Alias string representation: ``south``.
+        )docstr")
       .value(
         "TopLeft",
-        Anchor::TopLeft,
-        "Horizontally **left-** & vertically **top-aligned**. "
-        "Alias string representation: ``north-west``.")
+        Anchor::TopLeft, R"docstr(
+        Horizontally **left-** & vertically **top-aligned**.
+        Alias string representation: ``north-west``.
+        )docstr")
       .value(
         "TopRight",
-        Anchor::TopRight,
-        "Horizontally **right-** & vertically **top-aligned**. "
-        "Alias string representation: ``north-east``.")
+        Anchor::TopRight, R"docstr(
+        Horizontally **right-** & vertically **top-aligned**.
+        Alias string representation: ``north-east``.
+        )docstr")
       .value(
         "BottomLeft",
-        Anchor::BottomLeft,
-        "Horizontally **left-** & vertically **bottom-aligned**. "
-        "Alias string representation: ``south-west``.")
+        Anchor::BottomLeft, R"docstr(
+        Horizontally **left-** & vertically **bottom-aligned**.
+        Alias string representation: ``south-west``.
+        )docstr")
       .value(
         "BottomRight",
-        Anchor::BottomRight,
-        "Horizontally **right-** & vertically **bottom-aligned**. "
-        "Alias string representation: ``south-east``.");
+        Anchor::BottomRight, R"docstr(
+        Horizontally **right-** & vertically **bottom-aligned**.
+        Alias string representation: ``south-east``.
+        )docstr");
 
   anchor.def(
         "__str__", [](Anchor a) -> py::str {
@@ -194,36 +209,43 @@ void RegisterAnchors(py::module &m) {
 
 
   py::enum_<LabelPosition> bblp(
-        m, "LabelPosition",
-        "Placement options for labels.");
+        m, "LabelPosition", R"docstr(
+        Placement options for labels.
+        )docstr");
   bblp.value(
         "Top",
-        LabelPosition::Top,
-        "At the **top** of the bounding box.")
+        LabelPosition::Top, R"docstr(
+        At the **top** of the bounding box.
+        )docstr")
       .value(
         "Bottom",
-        LabelPosition::Bottom,
-        "At the **bottom** of the bounding box.")
+        LabelPosition::Bottom, R"docstr(
+        At the **bottom** of the bounding box.
+        )docstr")
       .value(
         "Left",
-        LabelPosition::Left,
-        "Along the **left edge** of the bounding box, **from bottom "
-        "to top**. Alias string representation: ``left-b2t``.")
+        LabelPosition::Left, R"docstr(
+        Along the **left edge** of the bounding box, **from bottom
+        to top**. Alias string representation: ``left-b2t``.
+        )docstr")
       .value(
         "LeftT2B",
-        LabelPosition::LeftT2B,
-        "Along the **left edge** of the bounding box, from **top "
-        "to bottom**.")
+        LabelPosition::LeftT2B, R"docstr(
+        Along the **left edge** of the bounding box, from **top
+        to bottom**.
+        )docstr")
       .value(
         "Right",
-        LabelPosition::Right,
-        "Along the **right edge** of the bounding box, from **top "
-        "to bottom**. Alias string representation: ``right-t2b``.")
+        LabelPosition::Right, R"docstr(
+        Along the **right edge** of the bounding box, from **top
+        to bottom**. Alias string representation: ``right-t2b``.
+        )docstr")
       .value(
         "RightB2T",
-        LabelPosition::RightB2T,
-        "Along the **right edge** of the bounding box, from **bottom "
-        "to top**.");
+        LabelPosition::RightB2T, R"docstr(
+        Along the **right edge** of the bounding box, from **bottom
+        to top**.
+        )docstr");
 
   bblp.def(
       "__str__", [](LabelPosition lp) -> py::str {
@@ -320,8 +342,9 @@ void RegisterTextStyle(py::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const TextStyle &)
-        { return FullyQualifiedType("TextStyle", true); })
+        [](const TextStyle &st) {
+          return "<TextStyle" + st.ToString() + ">";
+        })
       .def(
         "__str__",
         &TextStyle::ToString)

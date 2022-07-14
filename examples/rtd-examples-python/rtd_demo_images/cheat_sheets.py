@@ -257,25 +257,35 @@ def cheat_sheet_arrowstyle():
 def cheat_sheet_colormaps():
     cmap_categories = {
         'sequential': [
-            'black-body', 'cold', 'copper', 'gouldian', 'hell', 'hot',
-            'inferno', 'temperature', 'temperature-dark', 'thermal', 'viridis',
-            'water', 'gray', 'yarg'
+            'cividis', 'cvd-sequential', 'cvd-sequential-vivid', 'gouldian',
+            'viridis', 'inferno', 'hell', 'thermal', 'black-body', 'hot',
+            'cold', 'water', 'copper', 'spring', 'summer', 'autumn', 'winter',
+            'gray', 'yarg'
         ],
         'cyclic': [
-            'hsv', 'optical-flow', 'orientation', 'orientation-color-blind'
+            'cvd-orientation', 'orientation-4', 'orientation-6', 'hsv',
+            'optical-flow', 'twilight', 'twilight-shifted'
         ],
         'categorical': [
-            'categories-10', 'categories-20', 'glasbey-dark', 'glasbey-light'
+            'categories-10', 'categories-12', 'categories-20', 'glasbey-dark',
+            'glasbey-light'
         ],
         'color-blind': [
-            'color-blind', 'orientation-color-blind'
+            'cividis', 'cvd-sequential', 'cvd-sequential-vivid',
+            'cvd-diverging', 'cvd-orientation'
+        ],
+        'diverging': [
+            'cvd-diverging', 'seismic', 'temperature',
+            'temperature-dark', 'spectral-diverging',
+            
         ],
         'rainbow': [
-            'rainbow', 'turbo'
+            'jet', 'rainbow', 'turbo'
         ],
         'specialized': [
-            'disparity', 'earth', 'ocean', 'optical-flow', 'relief',
-            'relief-low-contrast', 'terrain'
+            'ocean', 'water',  'earth', 'terrain', 'relief',
+            'relief-low-contrast', 'thermal', 'spectral', 'disparity',
+            'optical-flow'
         ]
     }
 

@@ -492,7 +492,7 @@ std::string LineStyle::ToDetailedString() const {
 
   std::ostringstream s;
   s << "LineStyle(" << std::fixed << std::setprecision(1)
-    << width << "px, " << color.ToRGBaString() << ", ";
+    << width << "px, " << color.ToHexString() << ", ";
 
   s << "[" << std::fixed << std::setprecision(1);
   for (std::size_t idx = 0; idx < dash_pattern.size(); ++idx) {

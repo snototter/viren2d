@@ -16,6 +16,7 @@
 #include <helpers/enum.h>
 #include <helpers/logging.h>
 #include <helpers/colormaps_helpers.h>
+#include <helpers/color_conversion.h>
 
 
 namespace wzkc = werkzeugkiste::container;
@@ -501,9 +502,7 @@ Color Color::Inverse() const {
 
 
 Color Color::Grayscale() const {
-  // Standard conversion ratio:
-  // L = 0.2989 R + 0.5870 G + 0.1141 B
-  const double luminance = (0.2989 * red) + (0.5870 * green) + (0.1141 * blue);
+  const double luminance = helpers::CvtHelperRGB2Gray(red, green, blue);
   return Color(luminance, luminance, luminance, alpha);
 }
 
@@ -575,12 +574,39 @@ std::string Color::ToString() const {
 }
 
 
+std::string Color::ToUInt8String() const {
+  std::ostringstream s;
+  s << '(';
+
+  if (IsSpecialSame()) {
+    s << "Same, a=" << std::fixed
+      << std::setprecision(2) << alpha;
+  } else {
+    if (!IsValid()) {
+      s << "Invalid: ";
+    }
+
+    s << std::setw(3)
+      << static_cast<int>(255 * red) << ", "
+      << static_cast<int>(255 * green) << ", "
+      << static_cast<int>(255 * blue) << ", "
+      << static_cast<int>(100 * alpha) << ')';
+  }
+  return s.str();
+}
+
+
 std::tuple<unsigned char, unsigned char, unsigned char, double>
 Color::ToRGBa() const {
   return std::make_tuple(static_cast<unsigned char>(red * 255),
         static_cast<unsigned char>(green * 255),
         static_cast<unsigned char>(blue * 255),
         alpha);
+}
+
+
+std::tuple<float, float, float> Color::ToHSV() const {
+  return helpers::CvtHelperRGB2HSV(red, green, blue);
 }
 
 
@@ -631,24 +657,6 @@ std::string Color::ToHexString() const {
   webcode[8] = hex2char[rem];
 
   return webcode;
-}
-
-
-std::string Color::ToRGBaString() const {
-  const auto rgb = ToRGBa();
-  std::ostringstream s;
-  s << "RGBa(";
-
-  if (!IsValid()) {
-    s << "invalid: ";
-  }
-
-  s << static_cast<int>(std::get<0>(rgb))
-    << ", " << static_cast<int>(std::get<1>(rgb))
-    << ", " << static_cast<int>(std::get<2>(rgb))
-    << ", " << std::fixed << std::setprecision(2)
-    << alpha << ")";
-  return s.str();
 }
 
 
@@ -731,21 +739,21 @@ Color Color::CoordinateAxisColor(char axis) {
 }
 
 
-Color Color::FromObjectID(std::size_t id) {
-  helpers::RGBColor col = helpers::GetCategoryColor(id, ColorMap::GlasbeyDark);
+Color Color::FromObjectID(std::size_t id, ColorMap colormap) {
+  helpers::RGBColor col = helpers::GetCategoryColor(id, colormap);
   return RGBa(col.red, col.green, col.blue);
 }
 
 
-Color Color::FromObjectCategory(const std::string &category) {
+Color Color::FromObjectCategory(const std::string &category, ColorMap colormap) {
   std::string slug = wzks::Replace(wzks::Lower(category), ' ', '-');
   const auto it = helpers::kCategoryIDMapping.find(slug);
 
   if (it != helpers::kCategoryIDMapping.end()) {
-    return FromObjectID(it->second);
+    return FromObjectID(it->second, colormap);
   } else {
     std::hash<std::string> string_hash;
-    return FromObjectID(string_hash(slug));
+    return FromObjectID(string_hash(slug), colormap);
   }
 }
 

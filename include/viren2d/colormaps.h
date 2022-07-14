@@ -15,6 +15,11 @@ namespace viren2d {
 /// Available colormaps.
 enum class ColorMap : unsigned char
 {
+  /// Sequential red-to-yellow color map. This color map is not perceptually
+  /// uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *autumn* map.
+  Autumn,
+
   /// Black-red-yellow-white, perceptually uniform sequential color map
   /// inspired by black-body radiation. This color map definition has
   /// been taken from
@@ -25,25 +30,54 @@ enum class ColorMap : unsigned char
   /// on `matplotlib's <https://matplotlib.org>`__ *tab10* map.
   Categories10,
 
+  /// Color map with 12 distinct colors, suitable for categorical data. Based
+  /// on `ColorBrewer2's <https://colorbrewer2.org>`__ *12-class paired* map.
+  Categories12,
+
   /// Color map with 20 distinct colors, suitable for categorical data. Based
   /// on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
   Categories20,
+
+  /// Perceptually uniform sequential color map suitable for viewers with
+  /// color vision deficiency (CVD). Published by
+  /// `Nuñez, Anderton and Renslow <https://doi.org/10.1371/journal.pone.0199239>`__.
+  Cividis,
 
   /// Blue shades from dark to light. This is the CET-L06 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
   Cold,
 
-  /// Perceptually uniform sequential color map for Protanopic/Deuteranopic
-  /// viewers. This is the CET-CBL1 color map by
+  /// Perceptually uniform diverging color map for Protanopic/Deuteranopic
+  /// viewers. This is the CET-CBD1 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
-  ColorBlind,
+  ColorBlindDiverging,
 
+  /// Cyclic blue-white-yellow-black color map for four orientations/phase
+  /// angles, suitable for Protanopic/Deuteranopic viewers.
+  /// This is the CET-CBC1 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ColorBlindOrientation,
 
-  //TODO
+  /// Perceptually uniform sequential color map, suitable for
+  /// Protanopic/Deuteranopic viewers. This is the CET-CBL1 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ColorBlindSequential,
+
+  /// Perceptually uniform sequential color map with maximal chroma, suitable
+  /// for Protanopic/Deuteranopic viewers. This is the CET-CBL2 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ColorBlindSequentialVivid,
+
+  /// Sequential color map from black to light copper. This color map has
+  /// kinks in the lightness curve, which can lead to a perceived banding of
+  /// the data in those value ranges. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *copper* map.
   Copper,
-
 
   /// High contrast color map for depth & disparity images.
   /// Based on `disparity` for MATLAB
@@ -96,6 +130,15 @@ enum class ColorMap : unsigned char
   /// and integrated into matplotlib >= 1.15.
   Inferno,
 
+  /// The classic rainbow color map, based on
+  /// `MATLAB's <https://www.mathworks.com/help/matlab/ref/peaks.html>`__
+  /// *jet* map.
+  /// Note that this color map has several limitations (perceptual ordering,
+  /// lightness gradient reversals). Refer to the excellent article by
+  /// `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
+  /// about these issues.
+  Jet,
+
   /// A green-blue color map to visualize water depths. Based on
   /// `matplotlib's <https://matplotlib.org>`__ *ocean* map.
   Ocean,
@@ -109,14 +152,13 @@ enum class ColorMap : unsigned char
   /// angles to be visualized. This is the CET-C2 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
-  Orientation,
+  Orientation4,
 
-  /// Cyclic blue-white-yellow-black color map for four orientations/phase
-  /// angles, suitable for Protanopic/Deuteranopic viewers.
-  /// This is the CET-CBC1 color map by
+  /// Six-color cyclic map with primaries and secondaries matched in
+  /// lightness. This is the CET-C6 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
-  OrientationColorBlind,
+  Orientation6,
 
   /// The "least worse" rainbow color map, i.e. CET-R2, by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
@@ -134,6 +176,28 @@ enum class ColorMap : unsigned char
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
   ReliefLowContrast,
+
+  /// Diverging blue-white-red map with vivid colors. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *seismic* map.
+  Seismic,
+
+  /// Color map covering the spectral colors from ultra-violett to infrared.
+  /// Based on `matplotlib's <https://matplotlib.org>`__ *NIPY Spectral* map.
+  Spectral,
+
+  /// Diverging redish-yellow-bluish map. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
+  SpectralDiverging,
+
+  /// Sequential pink-to-yellow color map. This color map is not perceptually
+  /// uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *spring* map.
+  Spring,
+
+  /// Sequential green-to-yellow color map. This color map is not perceptually
+  /// uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *summer* map.
+  Summer,
 
   /// Diverging blue-white-red color map.
   /// This is the CET-D01A color map by
@@ -158,8 +222,18 @@ enum class ColorMap : unsigned char
   /// A rainbow color map similar to the well-known MATLAB `jet`, but following
   /// a smoother path through the CIELAB color space. Published by
   /// `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
-  /// under the Apache-2.0 license.
+  /// under the Apache-2.0 license. Often used for depth and disparity values.
   Turbo,
+
+  /// Cyclic white-blue-black-red-white map with perceptually uniform lightness
+  /// and color contrast over the whole range. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *twilight* map.
+  Twilight,
+
+  /// Cyclic black-blue-white-red-black map with perceptually uniform lightness
+  /// and color contrast over the whole range. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *twilight_shifted* map.
+  TwilightShifted,
 
   /// Perceptually uniform sequential color map. Proposed by
   /// `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__,
@@ -172,14 +246,20 @@ enum class ColorMap : unsigned char
   /// under the CC-BY 4.0 license.
   Water,
 
+  /// Sequential blue-to-light green color map. This color map is not
+  /// perceptually uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *winter* map.
+  Winter,
+
   /// Inverted grayscale from white-to-black.
   Yarg
 
-  //TODO(dev): If you add an enum value *after* Viridis, adjust the iterator TODO in ListColorMaps - later on in the test suite, too!
+  //TODO(dev): If you add an enum value *after* Viridis, adjust the
+  // iterators, too. See `ListColorMaps` and the corresponding test suite!
 };
 
 //TODO change color::by_id/category to use glasbey
-//TODO consider adding mpl ocean & terrain
+
 
 /// Returns the string representation.
 std::string ColorMapToString(ColorMap cm);
@@ -206,6 +286,8 @@ public:
   enum class LimitsMode {
     FromDataContinuously = 0,
     FromDataOnce,
+
+    /// Use fixed, user-defined limits.
     Fixed
   };
 
@@ -222,6 +304,9 @@ public:
 
   void SetLimitHigh(double high);
   double LimitHigh() const { return limit_high; }
+
+  void SetLimitsMode(LimitsMode m);
+  LimitsMode GetLimitsMode() const { return limits_mode; }
 
   void SetColorMap(ColorMap cmap);
   ColorMap GetColorMap() const { return colormap; }

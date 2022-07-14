@@ -68,6 +68,7 @@ void RegisterPainter(pybind11::module &m);
 
 //-------------------------------------------------  Colormaps
 void RegisterColormaps(pybind11::module &m);
+void RegisterColorMapEnum(pybind11::module &m);
 ColorMap ColorMapFromPyObject(const pybind11::object &o);
 
 //-------------------------------------------------  Optical Flow
