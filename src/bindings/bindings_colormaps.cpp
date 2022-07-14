@@ -43,10 +43,27 @@ void RegisterColorMapEnum(pybind11::module &m) {
         under the CC-BY 4.0 license.
         )docstr")
       .value(
-        "ColorBlind",
-        ColorMap::ColorBlind, R"docstr(
+        "ColorBlindDiverging",
+        ColorMap::ColorBlindDiverging, R"docstr(
+        Perceptually uniform diverging color map for Protanopic/Deuteranopic
+        viewers. This is the CET-CBD1 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "ColorBlindSequential",
+        ColorMap::ColorBlindSequential, R"docstr(
         Perceptually uniform sequential color map for Protanopic/Deuteranopic
         viewers. This is the CET-CBL1 color map by
+        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "ColorBlindOrientation",
+        ColorMap::ColorBlindOrientation, R"docstr(
+        Cyclic blue-white-yellow-black color map for four orientations/phase
+        angles, suitable for Protanopic/Deuteranopic viewers.
+        This is the CET-CBC1 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -129,6 +146,18 @@ void RegisterColorMapEnum(pybind11::module &m) {
         and integrated into `matplotlib >= 1.15 <https://matplotlib.org/>`__.
         )docstr")
       .value(
+        "Jet",
+        ColorMap::Jet, R"docstr(
+        The classic rainbow color map, based on
+        `MATLAB's <https://www.mathworks.com/help/matlab/ref/peaks.html>`__
+        *jet* map.
+
+        Note that this color map has several limitations (perceptual ordering,
+        lightness gradient reversals). Refer to the excellent article by
+        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
+        about these issues.
+        )docstr")
+      .value(
         "Ocean",
         ColorMap::Ocean, R"docstr(
         A green-blue color map to visualize water depths. Based on
@@ -142,19 +171,18 @@ void RegisterColorMapEnum(pybind11::module &m) {
         `Middlebury Optical Flow benchmark <https://vision.middlebury.edu/flow/>`__.
         )docstr")
       .value(
-        "Orientation",
-        ColorMap::Orientation, R"docstr(
+        "Orientation4",
+        ColorMap::Orientation4, R"docstr(
         Cyclic magenta-yellow-green-blue color map for four orientations/phase
         angles to be visualized. This is the CET-C2 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
       .value(
-        "OrientationColorBlind",
-        ColorMap::OrientationColorBlind, R"docstr(
-        Cyclic blue-white-yellow-black color map for four orientations/phase
-        angles, suitable for Protanopic/Deuteranopic viewers.
-        This is the CET-CBC1 color map by
+        "Orientation6",
+        ColorMap::Orientation6, R"docstr(
+        Six-color cyclic map with primaries and secondaries matched in
+        lightness. This is the CET-C6 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -180,6 +208,24 @@ void RegisterColorMapEnum(pybind11::module &m) {
         sequential color map for relief shading. This is the CET-I2 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "Seismic",
+        ColorMap::Seismic, R"docstr(
+        Diverging blue-white-red map with vivid colors. Based on
+        `matplotlib's <https://matplotlib.org>`__ *seismic* map.
+        )docstr")
+      .value(
+        "Spectral",
+        ColorMap::Spectral, R"docstr(
+        Color map covering the spectral colors from ultra-violett to infrared.
+        Based on `matplotlib's <https://matplotlib.org>`__ *NIPY Spectral* map.
+        )docstr")
+      .value(
+        "SpectralDiverging",
+        ColorMap::SpectralDiverging, R"docstr(
+        Diverging red-yellow-green-blue map. Based on
+        `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
         )docstr")
       .value(
         "Temperature",
@@ -215,7 +261,14 @@ void RegisterColorMapEnum(pybind11::module &m) {
         A rainbow color map similar to the well-known MATLAB `jet`, but following
         a smoother path through the CIELAB color space. Published by
         `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
-        under the Apache-2.0 license.
+        under the Apache-2.0 license. Often used for depth and disparity values.
+        )docstr")
+      .value(
+        "Twilight",
+        ColorMap::Twilight, R"docstr(
+        Cyclic white-blue-black-red-white map with perceptually uniform lightness
+        and color contrast over the whole range. Based on
+        `matplotlib's <https://matplotlib.org>`__ *twilight* map.
         )docstr")
       .value(
         "Viridis",

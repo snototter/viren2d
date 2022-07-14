@@ -29,21 +29,40 @@ enum class ColorMap : unsigned char
   /// on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
   Categories20,
 
+
+  //TODO
+  Cividis,
+
+
   /// Blue shades from dark to light. This is the CET-L06 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
   Cold,
 
+  /// Perceptually uniform diverging color map for Protanopic/Deuteranopic
+  /// viewers. This is the CET-CBD1 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ColorBlindDiverging,
+
+  /// Cyclic blue-white-yellow-black color map for four orientations/phase
+  /// angles, suitable for Protanopic/Deuteranopic viewers.
+  /// This is the CET-CBC1 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ColorBlindOrientation,
+
   /// Perceptually uniform sequential color map for Protanopic/Deuteranopic
   /// viewers. This is the CET-CBL1 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
-  ColorBlind,
+  ColorBlindSequential,
 
-
-  //TODO
+  /// Sequential color map from black to light copper. This color map has
+  /// kinks in the lightness curve, which can lead to a perceived banding of
+  /// the data in those value ranges. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *copper* map.
   Copper,
-
 
   /// High contrast color map for depth & disparity images.
   /// Based on `disparity` for MATLAB
@@ -96,6 +115,15 @@ enum class ColorMap : unsigned char
   /// and integrated into matplotlib >= 1.15.
   Inferno,
 
+  /// The classic rainbow color map, based on
+  /// `MATLAB's <https://www.mathworks.com/help/matlab/ref/peaks.html>`__
+  /// *jet* map.
+  /// Note that this color map has several limitations (perceptual ordering,
+  /// lightness gradient reversals). Refer to the excellent article by
+  /// `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
+  /// about these issues.
+  Jet,
+
   /// A green-blue color map to visualize water depths. Based on
   /// `matplotlib's <https://matplotlib.org>`__ *ocean* map.
   Ocean,
@@ -109,14 +137,13 @@ enum class ColorMap : unsigned char
   /// angles to be visualized. This is the CET-C2 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
-  Orientation,
+  Orientation4,
 
-  /// Cyclic blue-white-yellow-black color map for four orientations/phase
-  /// angles, suitable for Protanopic/Deuteranopic viewers.
-  /// This is the CET-CBC1 color map by
+  /// Six-color cyclic map with primaries and secondaries matched in
+  /// lightness. This is the CET-C6 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
-  OrientationColorBlind,
+  Orientation6,
 
   /// The "least worse" rainbow color map, i.e. CET-R2, by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
@@ -134,6 +161,18 @@ enum class ColorMap : unsigned char
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
   ReliefLowContrast,
+
+  /// Diverging blue-white-red map with vivid colors. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *seismic* map.
+  Seismic,
+
+  /// Color map covering the spectral colors from ultra-violett to infrared.
+  /// Based on `matplotlib's <https://matplotlib.org>`__ *NIPY Spectral* map.
+  Spectral,
+
+  /// Diverging red-yellow-green-blue map. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
+  SpectralDiverging,
 
   /// Diverging blue-white-red color map.
   /// This is the CET-D01A color map by
@@ -158,8 +197,13 @@ enum class ColorMap : unsigned char
   /// A rainbow color map similar to the well-known MATLAB `jet`, but following
   /// a smoother path through the CIELAB color space. Published by
   /// `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
-  /// under the Apache-2.0 license.
+  /// under the Apache-2.0 license. Often used for depth and disparity values.
   Turbo,
+
+  /// Cyclic white-blue-black-red-white map with perceptually uniform lightness
+  /// and color contrast over the whole range. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *twilight* map.
+  Twilight,
 
   /// Perceptually uniform sequential color map. Proposed by
   /// `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__,

@@ -196,8 +196,12 @@ constexpr std::size_t kBins{cname} = sizeof(kColorMap{cname}) / sizeof(kColorMap
     
 
 def mpl2viren(cname: str, per_row: int = 4):
-    mpl_map = plt.get_cmap(cname.lower())
-    cmap = [mpl_map(i) for i in range(256)]
+    try:
+        mpl_map = plt.get_cmap(cname.lower())
+    except:
+        mpl_map = plt.get_cmap(cname)
+    to_sample = np.linspace(1, mpl_map.N, num=256, endpoint=True) - 1
+    cmap = [mpl_map(i) for i in to_sample.astype(np.int32)]
     cmap = [(int(255*r), int(255*g), int(255*b)) for r,g,b,_ in cmap]
     cmap2viren(cname, cmap, per_row)
 

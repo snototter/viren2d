@@ -14,6 +14,7 @@ Available Color Maps
 .. warning::
    TODO add short note to each category
 
+
 ..........
 Sequential
 ..........
@@ -22,6 +23,7 @@ Sequential
    :width: 480
    :alt: Sequential color maps
    :align: center
+
 
 ...........
 Categorical
@@ -32,6 +34,7 @@ Categorical
    :alt: Categorical color maps
    :align: center
 
+
 ......
 Cyclic
 ......
@@ -40,6 +43,7 @@ Cyclic
    :width: 480
    :alt: Cyclic color maps
    :align: center
+
 
 ...........
 Color-blind
@@ -50,18 +54,34 @@ Color-blind
    :alt: Color maps suitable for the color-blind
    :align: center
 
+
+.........
+Diverging
+.........
+
+.. image:: ../images/colormaps-cheat-sheet-diverging.png
+   :width: 480
+   :alt: Categorical color maps
+   :align: center
+
+
 ...........
 Rainbow
 ...........
+
+.. warning::
+   TODO note jet's banding, introducing the perception of structure in the data
+   that is not there!
 
 .. image:: ../images/colormaps-cheat-sheet-rainbow.png
    :width: 480
    :alt: Rainbow color maps
    :align: center
 
-...........
-Specialized
-...........
+
+...............
+Special Purpose
+...............
 
 .. image:: ../images/colormaps-cheat-sheet-specialized.png
    :width: 480

@@ -58,9 +58,8 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
         &OpticalFlowColorizationHelper, R"docstr(
         TODO doc
 
-        The default color map is the cyclic color map CET-C2 proposed by
-        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__, suitable for
-        visualizing four major orientations.
+        The default color map is the cyclic six-color map CET-C6 proposed by
+        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__.
 
         Args:
           flow: TODO
@@ -75,7 +74,7 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
           type :class:`numpy.uint8`.
         )docstr",
         py::arg("flow"),
-        py::arg("colormap") = ColorMap::Orientation,
+        py::arg("colormap") = ColorMap::Orientation6,
         py::arg("motion_normalizer") = 1.0,
         py::arg("output_channels") = 3);
 
@@ -100,7 +99,7 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
           type :class:`numpy.uint8`.
         )docstr",
         py::arg("size"),
-        py::arg("colormap") = ColorMap::Orientation,
+        py::arg("colormap") = ColorMap::Orientation6,
         py::arg("line_style") = LineStyle::Invalid,
         py::arg("draw_circle") = false,
         py::arg("clip_circle") = false,

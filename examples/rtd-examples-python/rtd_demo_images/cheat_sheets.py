@@ -257,25 +257,33 @@ def cheat_sheet_arrowstyle():
 def cheat_sheet_colormaps():
     cmap_categories = {
         'sequential': [
-            'black-body', 'cold', 'copper', 'gouldian', 'hell', 'hot',
-            'inferno', 'temperature', 'temperature-dark', 'thermal', 'viridis',
-            'water', 'gray', 'yarg'
+            'cividis', 'color-blind-sequential', 'gouldian', 'viridis',
+            'inferno', 'hell', 'thermal', 'black-body', 'hot', 'cold',
+            'water', 'copper', 'gray', 'yarg'
         ],
         'cyclic': [
-            'hsv', 'optical-flow', 'orientation', 'orientation-color-blind'
+            'color-blind-orientation', 'orientation-4', 'orientation-6', 'hsv',
+            'optical-flow', 'twilight'
         ],
         'categorical': [
             'categories-10', 'categories-20', 'glasbey-dark', 'glasbey-light'
         ],
         'color-blind': [
-            'color-blind', 'orientation-color-blind'
+            'cividis', 'color-blind-sequential', 'color-blind-diverging',
+            'color-blind-orientation'
+        ],
+        'diverging': [
+            'color-blind-diverging', 'seismic', 'temperature',
+            'temperature-dark', 'spectral-diverging',
+            
         ],
         'rainbow': [
-            'rainbow', 'turbo'
+            'rainbow', 'turbo', 'jet'
         ],
         'specialized': [
-            'disparity', 'earth', 'ocean', 'optical-flow', 'relief',
-            'relief-low-contrast', 'terrain'
+            'ocean', 'water',  'earth', 'terrain', 'relief',
+            'relief-low-contrast', 'thermal', 'spectral', 'disparity',
+            'optical-flow'
         ]
     }
 

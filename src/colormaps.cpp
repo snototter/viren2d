@@ -23,10 +23,16 @@ std::string ColorMapToString(ColorMap cm) {
       return "categories-10";
     case ColorMap::Categories20:
       return "categories-20";
+    case ColorMap::Cividis:
+      return "cividis";
     case ColorMap::Cold:
       return "cold";
-    case ColorMap::ColorBlind:
-      return "color-blind";
+    case ColorMap::ColorBlindDiverging:
+      return "color-blind-diverging";
+    case ColorMap::ColorBlindOrientation:
+      return "color-blind-orientation";
+    case ColorMap::ColorBlindSequential:
+      return "color-blind-sequential";
     case ColorMap::Copper:
       return "copper";
     case ColorMap::Disparity:
@@ -49,20 +55,28 @@ std::string ColorMapToString(ColorMap cm) {
       return "hsv";
     case ColorMap::Inferno:
       return "inferno";
+    case ColorMap::Jet:
+      return "jet";
     case ColorMap::Ocean:
       return "ocean";
     case ColorMap::OpticalFlow:
       return "optical-flow";
-    case ColorMap::Orientation:
-      return "orientation";
-    case ColorMap::OrientationColorBlind:
-      return "orientation-color-blind";
+    case ColorMap::Orientation4:
+      return "orientation4";
+    case ColorMap::Orientation6:
+      return "orientation6";
     case ColorMap::Rainbow:
       return "rainbow";
     case ColorMap::Relief:
       return "relief";
     case ColorMap::ReliefLowContrast:
       return "relief-low-contrast";
+    case ColorMap::Seismic:
+      return "seismic";
+    case ColorMap::Spectral:
+      return "spectral";
+    case ColorMap::SpectralDiverging:
+      return "spectral-diverging";
     case ColorMap::Temperature:
       return "temperature";
     case ColorMap::TemperatureDark:
@@ -73,6 +87,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "thermal";
     case ColorMap::Turbo:
       return "turbo";
+    case ColorMap::Twilight:
+      return "twilight";
     case ColorMap::Viridis:
       return "viridis";
     case ColorMap::Water:
@@ -103,10 +119,16 @@ ColorMap ColorMapFromString(const std::string &cm) {
   } else if ((lower.compare("categories20") == 0)
              || (lower.compare("cat20") == 0)) {
     return ColorMap::Categories20;
+  } else if (lower.compare("cividis") == 0) {
+    return ColorMap::Cividis;
   } else if (lower.compare("cold") == 0) {
     return ColorMap::Cold;
-  } else if (lower.compare("colorblind") == 0) {
-    return ColorMap::ColorBlind;
+  } else if (lower.compare("colorblinddiverging") == 0) {
+    return ColorMap::ColorBlindDiverging;
+  } else if (lower.compare("colorblindorientation") == 0) {
+    return ColorMap::ColorBlindOrientation;
+  } else if (lower.compare("colorblindsequential") == 0) {
+    return ColorMap::ColorBlindSequential;
   } else if (lower.compare("copper") == 0) {
     return ColorMap::Copper;
   } else if (lower.compare("disparity") == 0) {
@@ -130,14 +152,18 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::HSV;
   } else if (lower.compare("inferno") == 0) {
     return ColorMap::Inferno;
+  } else if (lower.compare("jet") == 0) {
+    return ColorMap::Jet;
   } else if (lower.compare("ocean") == 0) {
     return ColorMap::Ocean;
   } else if (lower.compare("opticalflow") == 0) {
     return ColorMap::OpticalFlow;
-  } else if (lower.compare("orientation") == 0) {
-    return ColorMap::Orientation;
-  } else if (lower.compare("orientationcolorblind") == 0) {
-    return ColorMap::OrientationColorBlind;
+  } else if ((lower.compare("orientation4") == 0)
+             || (lower.compare("orientationfour") == 0)) {
+    return ColorMap::Orientation4;
+  } else if ((lower.compare("orientation6") == 0)
+             || (lower.compare("orientationsix") == 0)) {
+    return ColorMap::Orientation6;
   } else if (lower.compare("rainbow") == 0) {
     return ColorMap::Rainbow;
   } else if (lower.compare("relief") == 0) {
@@ -145,6 +171,12 @@ ColorMap ColorMapFromString(const std::string &cm) {
   } else if ((lower.compare("reliefisoluminant") == 0)
              || (lower.compare("relieflowcontrast") == 0)) {
     return ColorMap::ReliefLowContrast;
+  } else if (lower.compare("seismic") == 0) {
+    return ColorMap::Seismic;
+  } else if (lower.compare("spectral") == 0) {
+    return ColorMap::Spectral;
+  } else if (lower.compare("spectraldiverging") == 0) {
+    return ColorMap::SpectralDiverging;
   } else if (lower.compare("temperature") == 0) {
     return ColorMap::Temperature;
   } else if (lower.compare("temperaturedark") == 0) {
@@ -155,6 +187,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Thermal;
   } else if (lower.compare("turbo") == 0) {
     return ColorMap::Turbo;
+  } else if (lower.compare("twilight") == 0) {
+    return ColorMap::Twilight;
   } else if (lower.compare("viridis") == 0) {
     return ColorMap::Viridis;
   } else if (lower.compare("water") == 0) {

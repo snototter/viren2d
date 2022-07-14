@@ -13,7 +13,7 @@ def demo_optical_flow():
 
     scale = (painter.width / 2 - 15) / flow.width
 
-    for cmap, x in [('optical-flow', 5), ('orientation', 310)]:
+    for cmap, x in [('optical-flow', 5), ('orientation-6', 310)]:
         flow_vis = viren2d.colorize_optical_flow(
             flow=flow, colormap=cmap, motion_normalizer=max_motion)
 
