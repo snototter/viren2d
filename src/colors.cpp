@@ -16,6 +16,7 @@
 #include <helpers/enum.h>
 #include <helpers/logging.h>
 #include <helpers/colormaps_helpers.h>
+#include <helpers/color_conversion.h>
 
 
 namespace wzkc = werkzeugkiste::container;
@@ -501,9 +502,7 @@ Color Color::Inverse() const {
 
 
 Color Color::Grayscale() const {
-  // Standard conversion ratio:
-  // L = 0.2989 R + 0.5870 G + 0.1141 B
-  const double luminance = (0.2989 * red) + (0.5870 * green) + (0.1141 * blue);
+  const double luminance = helpers::CvtHelperRGB2Gray(red, green, blue);
   return Color(luminance, luminance, luminance, alpha);
 }
 
@@ -574,20 +573,25 @@ std::string Color::ToString() const {
   return s.str();
 }
 
+
 std::string Color::ToUInt8String() const {
   std::ostringstream s;
   s << '(';
 
-  if (!IsValid()) {
-    s << "Invalid: ";
+  if (IsSpecialSame()) {
+    s << "Same, a=" << std::fixed
+      << std::setprecision(2) << alpha;
+  } else {
+    if (!IsValid()) {
+      s << "Invalid: ";
+    }
+
+    s << std::setw(3)
+      << static_cast<int>(255 * red) << ", "
+      << static_cast<int>(255 * green) << ", "
+      << static_cast<int>(255 * blue) << ", "
+      << static_cast<int>(100 * alpha) << ')';
   }
-
-  s << std::setw(3)
-    << static_cast<int>(255 * red) << ", "
-    << static_cast<int>(255 * green) << ", "
-    << static_cast<int>(255 * blue) << ", "
-    << static_cast<int>(100 * alpha) << ')';
-
   return s.str();
 }
 
@@ -598,6 +602,11 @@ Color::ToRGBa() const {
         static_cast<unsigned char>(green * 255),
         static_cast<unsigned char>(blue * 255),
         alpha);
+}
+
+
+std::tuple<float, float, float> Color::ToHSV() const {
+  return helpers::CvtHelperRGB2HSV(red, green, blue);
 }
 
 

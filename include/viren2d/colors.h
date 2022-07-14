@@ -245,6 +245,11 @@ class Color {
   ToRGBa() const;
 
 
+  /// Returns the corresponding (H, S, V) tuple, where H in [0, 360] and
+  /// S & V are in [0, 1].
+  std::tuple<float, float, float> ToHSV() const;
+
+
   /// Returns the web color code, e.g. "#dcdce4ff".
   /// If the color is invalid, the hex digits will be replaced by question marks.
   std::string ToHexString() const;
@@ -295,7 +300,7 @@ class Color {
 
 
   /// Returns a color for the given category/object class.
-  /// Usefull to consistently use the same color for the same object class,
+  /// Useful to consistently use the same color for the same object class,
   /// *e.g.* ``car`` or ``person``.
   /// See `ListCategories` for a list of category names which are
   /// explicitly defined. For any other category name, a string

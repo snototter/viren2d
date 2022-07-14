@@ -95,6 +95,7 @@ set(viren2d_PUBLIC_HEADER_FILES
 
 set(viren2d_PRIVATE_HEADER_FILES
     src/helpers/logging.h
+    src/helpers/color_conversion.h
     src/helpers/colormaps_helpers.h
     src/helpers/drawing_helpers.h
     src/helpers/imagebuffer_helpers.impl.h
@@ -262,7 +263,7 @@ if(viren2d_BUILD_PYTHON)
 
     pybind11_add_module(${viren2d_TARGET_PYTHON_LIB}
         src/bindings/binding_helpers.h
-        src/bindings/bindings_common.cpp
+        src/bindings/bindings_colors.cpp
         src/bindings/bindings_colormaps.cpp
         src/bindings/bindings_imagebuffer.cpp
         src/bindings/bindings_opticalflow.cpp

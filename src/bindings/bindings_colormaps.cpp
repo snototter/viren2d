@@ -359,7 +359,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
   cm.def(
         "__repr__", [](ColorMap c) -> py::str {
             std::ostringstream s;
-            s << "<ColorMap " << ColorMapToString(c) << '>';
+            s << "<ColorMap \"" << ColorMapToString(c) << "\">";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
 

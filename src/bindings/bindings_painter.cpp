@@ -923,7 +923,7 @@ void RegisterPainter(py::module &m) {
         fill_color: If you provide a valid :class:`~viren2d.Color`,
           the box will be filled.
         radius: Corner radius of the box. Refer to
-          :attr:`viren2d.Rect.radius` for details on valid
+          :attr:`~viren2d.Rect.radius` for details on valid
           value ranges.
         fixed_size: TODO
 

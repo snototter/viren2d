@@ -342,8 +342,9 @@ void RegisterTextStyle(py::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const TextStyle &)
-        { return FullyQualifiedType("TextStyle", true); })
+        [](const TextStyle &st) {
+          return "<TextStyle" + st.ToString() + ">";
+        })
       .def(
         "__str__",
         &TextStyle::ToString)

@@ -10,6 +10,7 @@
 #include <viren2d/styles.h>
 
 #include <helpers/logging.h>
+#include <helpers/color_conversion.h>
 
 namespace wkg = werkzeugkiste::geometry;
 
@@ -253,23 +254,23 @@ ImageBuffer RGBx2Gray(
   _Tp luminance;
 
   for (int row = 0; row < rows; ++row) {
+    _Tp *dst_ptr = dst.MutablePtr<_Tp>(row, 0, 0);
     for (int col = 0; col < cols; ++col) {
-      // L = 0.2989 R + 0.5870 G + 0.1141 B
-      luminance = static_cast<_Tp>(
-            (0.2989 * src.AtUnchecked<_Tp>(row, col, ch_r))
-            + (0.5870 * src.AtUnchecked<_Tp>(row, col, 1))
-            + (0.1141 * src.AtUnchecked<_Tp>(row, col, ch_b)));
+      luminance = CvtHelperRGB2Gray(
+            src.AtUnchecked<_Tp>(row, col, ch_r),
+            src.AtUnchecked<_Tp>(row, col, 1),
+            src.AtUnchecked<_Tp>(row, col, ch_b));
 
-      dst.AtUnchecked<_Tp>(row, col, 0) = luminance;
+      *dst_ptr++ = luminance;
       if (channels_out > 1) {
-        dst.AtUnchecked<_Tp>(row, col, 1) = luminance;
+        *dst_ptr++ = luminance;
         if (channels_out > 2) {
-          dst.AtUnchecked<_Tp>(row, col, 2) = luminance;
+          *dst_ptr++ = luminance;
           if (channels_out == 4) {
             if (src.Channels() == 4) {
-              dst.AtUnchecked<_Tp>(row, col, 3) = src.AtUnchecked<_Tp>(row, col, 3);
+              *dst_ptr++ = src.AtUnchecked<_Tp>(row, col, 3);
             } else {
-              dst.AtUnchecked<_Tp>(row, col, 3) = 255;
+              *dst_ptr++ = static_cast<_Tp>(255);
             }
           }
         }
@@ -629,6 +630,10 @@ ImageBuffer Orientation(const ImageBuffer &src, float invalid) {
 
   return dst;
 }
+
+
+
+
 } // namespace helpers
 } // namespace viren2d
 

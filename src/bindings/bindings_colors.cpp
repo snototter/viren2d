@@ -108,18 +108,18 @@ void RegisterColor(py::module &m) {
         A color in rgba format, *i.e.* :math:`r,g,b,a \in [0,1]`.
 
         Important:
-           If you initialize a color from a ``tuple(r,g,b,a)``, you **must
-           ensure that the r,g,b values are within** ``[0, 1]``.
+           If you initialize a color from a ``(r,g,b,a)`` :class:`tuple`, you
+           must ensure that :math:`r,g,b,a \in [0, 1]`.
 
            This is due to the *saturation cast* performed by
-           :class:`~viren2d.Color`. For example, the following ``tuple``
+           :class:`~viren2d.Color`. For example, the following :class:`tuple`
            will be converted to ``(1, 1, 1)``, *i.e.* the polygon would
            be actually filled with *white*!
 
            >>> # Mistakenly specifying a color as `RGB` tuple instead of `rgb`:
            >>> painter.draw_polygon(..., fill_color=(20, 20, 75))
 
-           To specify a color as *RGB*, use :func:`viren2d.RGBa` instead:
+           To specify a color as *RGB*, use :func:`~viren2d.RGBa` instead:
 
            >>> # Correctly specifying a color as `RGB`:
            >>> painter.draw_polygon(..., fill_color=viren2d.RGBa(20, 20, 75))
@@ -160,7 +160,7 @@ void RegisterColor(py::module &m) {
            >>> painter.draw_rect(..., fill_color = '#a0b0c0f0')
 
         **Color name:**
-           See :py:meth:`viren2d.color_names()` for a list of
+           See :py:meth:`~viren2d.color_names()` for a list of
            available color names.
 
            >>> painter.draw_rect(..., fill_color = 'black')
@@ -283,14 +283,23 @@ void RegisterColor(py::module &m) {
         )docstr", py::arg("rhs"));
 
   // Converting to different representations
-  color.def("as_RGBa", &Color::ToRGBa,
-        "Returns the corresponding ``(R, G, B, a)`` tuple,\n"
-        "where R, G, B in ``[0, 255]`` and ``alpha`` in ``[0, 1]``.")
+  color.def(
+        "as_RGBa",
+        &Color::ToRGBa, R"docstr(
+        Returns the corresponding ``(R, G, B, a)`` tuple.
+
+        R, G, B will be :math:`\in [0, 255]` and alpha :math:`a \in [0, 1]`.
+        )docstr")
       .def(
         "as_rgba",
-        [](Color& c) { return py::make_tuple(c.red, c.green, c.blue, c.alpha); },
-        "Returns the corresponding ``(r, g, b, a)`` tuple,\n"
-           "where all components are in ``[0, 1]``.")
+        [](const Color& c) {
+          return py::make_tuple(c.red, c.green, c.blue, c.alpha);
+        }, R"docstr(
+        Returns the corresponding ``(r, g, b, a)`` tuple.
+
+        Each tuple element will be of type :class:`float`, with
+        :math:`r,g,b,a \in [0, 1]`.
+        )docstr")
       .def(
         "as_hex",
         &Color::ToHexString, R"docstr(
@@ -300,6 +309,14 @@ void RegisterColor(py::module &m) {
         *i.e.* it includes the alpha value. To compute the hexadecimal
         representation, each component (*rgba*) is first scaled to
         ``[0, 255]``.
+        )docstr")
+      .def(
+        "as_hsv",
+        &Color::ToHSV, R"docstr(
+        Returns the corresponding ``(h, s, v)`` tuple.
+
+        Each tuple element will be of type :class:`float`, with
+        :math:`h \in [0, 360]`, :math:`s \in [0, 1]` and :math:`v \in [0, 1]`.
         )docstr")
       .def(
         "grayscale",
@@ -312,8 +329,9 @@ void RegisterColor(py::module &m) {
         )docstr")
       .def(
         "with_alpha",
-        &Color::WithAlpha,
-        "Returns a color with the same *rgb* components, but the given ``alpha``.",
+        &Color::WithAlpha, R"docstr(
+        Returns a color with the same *r,g,b* components, but the given ``alpha``.
+        )docstr",
         py::arg("alpha"))
       .def(
         "inverse",
@@ -321,10 +339,8 @@ void RegisterColor(py::module &m) {
         Returns the inverse/complementary color.
 
         Except for shades of gray, this returns
-        :math:`(1 - red, 1 - green, 1 - blue, alpha)`, *i.e.* the
-        rgb inverse.
-        For gray values, it will either return black or white.
-        In both cases, the returned alpha value will always stay
+        :math:`(1 - R, 1 - G, 1 - B, A)`. For gray values, it will either
+        return black or white. In any case, the returned alpha value will stay
         the same.
 
         Why special handling of gray?
@@ -336,17 +352,18 @@ void RegisterColor(py::module &m) {
   // Member variables
   color.def_readwrite(
         "red", &Color::red,
-        "float: Red component within ``[0, 1]``.")
+        "float: Red component :math:`\\in [0, 1]`.")
       .def_readwrite(
         "green", &Color::green,
-        "float: Green component within ``[0, 1]``.")
+        "float: Green component :math:`\\in [0, 1]`.")
       .def_readwrite(
         "blue", &Color::blue,
-        "float: Blue component within ``[0, 1]``.")
+        "float: Blue component :math:`\\in [0, 1]`.")
       .def_readwrite(
-        "alpha", &Color::alpha,
-        "float: Opacity within ``[0, 1]``, where ``0`` is fully transparent\n"
-        "and ``1`` is fully opaque.");
+        "alpha", &Color::alpha, R"docstr(
+        float: Opacity :math:`\in [0, 1]`, where 0 is fully transparent
+          and 1 is fully opaque.
+        )docstr");
 
   // TODO(pybind11 bug) documentation of static members is missing in python, see:
   //   https://github.com/pybind/pybind11/issues/3815
@@ -383,12 +400,14 @@ void RegisterColor(py::module &m) {
         "color for filling as the object's contour).")
       .def(
         "is_valid",
-        &Color::IsValid,
-        "Returns ``True`` if this is a valid rgba color, where all\n"
-        "components are within ``[0, 1]``.")
+        &Color::IsValid, R"docstr(
+        Returns ``True`` if this is a valid rgba color, where all
+        components are :math:`\in [0, 1]`.
+        )docstr")
       .def(
-        "is_shade_of_gray", &Color::IsShadeOfGray,
-        "Checks if the r,g,b values are almost the same (+/- the given epsilon).",
+        "is_shade_of_gray", &Color::IsShadeOfGray, R"docstr(
+        Checks if the *r,g,b* values are almost equal, *i.e.* :math:`\pm \epsilon`.
+        )docstr",
         py::arg("eps") = 0.02);
 
   // A Color can be initialized from a given tuple.
@@ -402,12 +421,12 @@ void RegisterColor(py::module &m) {
   doc = R"docstr(
         Returns a color for the (numeric) object ID.
 
-        Usefull to consistently use the same color for the
+        Useful to consistently use the same color for the
         same object or object class.
 
         Args:
-          id: The object id as :class:`int`. Note that it must be ``>=0``, or
-            a :class:`TypeError` will be raised.
+          id: The object id as :class:`int`. Note that it must be
+            :math:`\geq 0`, or a :class:`TypeError` will be raised.
           colormap: Optionally, select a different categorical
             :class:`~viren2d.ColorMap`. This parameter can be specified both
             via the enum value and the color map's string representation.
@@ -423,7 +442,7 @@ void RegisterColor(py::module &m) {
   doc = R"docstr(
         Returns a color for the given category name.
 
-        Usefull to consistently use the same :class:`~viren2d.Color`
+        Useful to consistently use the same :class:`~viren2d.Color`
         for the same object class, *e.g.* ``car`` or ``person``.
 
         Args:
@@ -463,21 +482,21 @@ void RegisterColor(py::module &m) {
   // Also aliases for typing convenience
   m.def("color_from_object_id",
         &FromObjectIDHelper,
-        "Alias of :meth:`viren2d.Color.from_object_id`.",
+        "Alias of :meth:`~viren2d.Color.from_object_id`.",
         py::arg("id"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("color_from_object_category",
         &FromObjectCategoryHelper,
-        "Alias of :meth:`viren2d.Color.from_object_category`.",
+        "Alias of :meth:`~viren2d.Color.from_object_category`.",
         py::arg("category"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("object_category_names",
         &Color::ListObjectCategories,
-        "Alias of :meth:`viren2d.Color.object_category_names`.");
+        "Alias of :meth:`~viren2d.Color.object_category_names`.");
 
 
   m.def("axis_color",
