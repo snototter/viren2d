@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cmath>
 #include <utility>
+#include <cstdlib>
 
 // public viren2d headers
 #include <viren2d/opticalflow.h>

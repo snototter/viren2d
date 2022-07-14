@@ -4,10 +4,9 @@
 #include <utility>
 #include <stdexcept>
 #include <sstream>
+#include <cstdlib>
 
 #include <viren2d/colormaps.h>
-
-//TODO documentation
 
 
 namespace viren2d {

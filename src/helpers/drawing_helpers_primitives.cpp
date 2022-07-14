@@ -5,6 +5,7 @@
 #include <cmath>
 #include <utility>
 #include <tuple>
+#include <cstdlib>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>

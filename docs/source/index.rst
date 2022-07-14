@@ -63,13 +63,13 @@ both **C++ and Python** environments.
    * |checked| Arrows
    * |unchecked| Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
    * |checked| Circles
-   * |unchecked| Color maps/False colors - WIP
+   * |checked| Color maps
    * |checked| Ellipses
-   * |unchecked| Image overlay - WIP
+   * |unchecked| Image overlay - WIP (implemented, but not fully tested/documented)
    * |checked| Lines
    * |checked| Markers
-   * |unchecked| Optical flow visualization - WIP
-   * |unchecked| Pixelation - WIP
+   * |unchecked| Optical flow visualization - WIP (implemented, but not fully tested/documented)
+   * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
    * |unchecked| Polygons - WIP (implemented, but not fully tested/documented)
    * |checked| Rectangles
    * |unchecked| Text (single-/multi-line) - WIP (implemented, but not fully tested/documented)
