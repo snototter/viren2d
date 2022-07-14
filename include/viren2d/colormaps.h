@@ -15,6 +15,11 @@ namespace viren2d {
 /// Available colormaps.
 enum class ColorMap : unsigned char
 {
+  /// Sequential red-to-yellow color map. This color map is not perceptually
+  /// uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *autumn* map.
+  Autumn,
+
   /// Black-red-yellow-white, perceptually uniform sequential color map
   /// inspired by black-body radiation. This color map definition has
   /// been taken from
@@ -29,10 +34,10 @@ enum class ColorMap : unsigned char
   /// on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
   Categories20,
 
-
-  //TODO
+  /// Perceptually uniform sequential color map suitable for viewers with
+  /// color vision deficiency (CVD). Published by
+  /// `Nuñez, Anderton and Renslow <https://doi.org/10.1371/journal.pone.0199239>`__.
   Cividis,
-
 
   /// Blue shades from dark to light. This is the CET-L06 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
@@ -170,9 +175,19 @@ enum class ColorMap : unsigned char
   /// Based on `matplotlib's <https://matplotlib.org>`__ *NIPY Spectral* map.
   Spectral,
 
-  /// Diverging red-yellow-green-blue map. Based on
+  /// Diverging redish-yellow-bluish map. Based on
   /// `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
   SpectralDiverging,
+
+  /// Sequential pink-to-yellow color map. This color map is not perceptually
+  /// uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *spring* map.
+  Spring,
+
+  /// Sequential green-to-yellow color map. This color map is not perceptually
+  /// uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *summer* map.
+  Summer,
 
   /// Diverging blue-white-red color map.
   /// This is the CET-D01A color map by
@@ -216,14 +231,20 @@ enum class ColorMap : unsigned char
   /// under the CC-BY 4.0 license.
   Water,
 
+  /// Sequential blue-to-light green color map. This color map is not
+  /// perceptually uniform. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *winter* map.
+  Winter,
+
   /// Inverted grayscale from white-to-black.
   Yarg
 
-  //TODO(dev): If you add an enum value *after* Viridis, adjust the iterator TODO in ListColorMaps - later on in the test suite, too!
+  //TODO(dev): If you add an enum value *after* Viridis, adjust the
+  // iterators, too. See `ListColorMaps` and the corresponding test suite!
 };
 
 //TODO change color::by_id/category to use glasbey
-//TODO consider adding mpl ocean & terrain
+
 
 /// Returns the string representation.
 std::string ColorMapToString(ColorMap cm);

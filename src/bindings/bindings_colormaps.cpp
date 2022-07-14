@@ -16,6 +16,13 @@ void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap",
              "Enum to select a color map.");
   cm.value(
+        "Autumn",
+        ColorMap::Autumn, R"docstr(
+        Sequential red-to-yellow color map. This color map is not perceptually
+        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *autumn*
+        map.
+        )docstr")
+      .value(
         "BlackBody",
         ColorMap::BlackBody, R"docstr(
         Black-red-yellow-white, perceptually uniform sequential color map
@@ -34,6 +41,13 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Categories20, R"docstr(
         Color map with 20 distinct colors, suitable for categorical data. Based
         on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
+        )docstr")
+      .value(
+        "Cividis",
+        ColorMap::Cividis, R"docstr(
+        Perceptually uniform sequential color map suitable for viewers with
+        color vision deficiency (CVD). Published by
+        `Nuñez, Anderton and Renslow <https://doi.org/10.1371/journal.pone.0199239>`__.
         )docstr")
       .value(
         "Cold",
@@ -224,8 +238,22 @@ void RegisterColorMapEnum(pybind11::module &m) {
       .value(
         "SpectralDiverging",
         ColorMap::SpectralDiverging, R"docstr(
-        Diverging red-yellow-green-blue map. Based on
+        Diverging redish-yellow-bluish map. Based on
         `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
+        )docstr")
+      .value(
+        "Spring",
+        ColorMap::Spring, R"docstr(
+        Sequential pink-to-yellow color map. This color map is not perceptually
+        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *spring*
+        map.
+        )docstr")
+      .value(
+        "Summer",
+        ColorMap::Summer, R"docstr(
+        Sequential green-to-yellow color map. This color map is not perceptually
+        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *summer*
+        map.
         )docstr")
       .value(
         "Temperature",
@@ -284,6 +312,13 @@ void RegisterColorMapEnum(pybind11::module &m) {
         This is the CET-L12 color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
+        )docstr")
+      .value(
+        "Winter",
+        ColorMap::Winter, R"docstr(
+        Sequential blue-to-light-green color map. This color map is not
+        perceptually uniform. Based on
+        `matplotlib's <https://matplotlib.org>`__ *winter* map.
         )docstr")
       .value(
         "Yarg",
@@ -440,7 +475,10 @@ void RegisterColormaps(pybind11::module &m) {
         [](Colorizer &c, const py::object &o) {
           c.SetColorMap(ColorMapFromPyObject(o));
         }, R"docstr(
-        :class:`~viren2d.ColorMap`: TODO set via enum or string representation TODO doc
+        :class:`~viren2d.ColorMap`: The selected color map.
+
+          In addition to the enum value, the corresponding string
+          representation can be used to set this property.
         )docstr");
 
 

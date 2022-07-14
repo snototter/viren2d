@@ -259,7 +259,8 @@ def cheat_sheet_colormaps():
         'sequential': [
             'cividis', 'color-blind-sequential', 'gouldian', 'viridis',
             'inferno', 'hell', 'thermal', 'black-body', 'hot', 'cold',
-            'water', 'copper', 'gray', 'yarg'
+            'water', 'copper', 'spring', 'summer', 'autumn', 'winter',
+            'gray', 'yarg'
         ],
         'cyclic': [
             'color-blind-orientation', 'orientation-4', 'orientation-6', 'hsv',

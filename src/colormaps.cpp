@@ -17,6 +17,8 @@ namespace wks = werkzeugkiste::strings;
 namespace viren2d {
 std::string ColorMapToString(ColorMap cm) {
   switch (cm) {
+    case ColorMap::Autumn:
+      return "autumn";
     case ColorMap::BlackBody:
       return "black-body";
     case ColorMap::Categories10:
@@ -77,6 +79,10 @@ std::string ColorMapToString(ColorMap cm) {
       return "spectral";
     case ColorMap::SpectralDiverging:
       return "spectral-diverging";
+    case ColorMap::Spring:
+      return "spring";
+    case ColorMap::Summer:
+      return "summer";
     case ColorMap::Temperature:
       return "temperature";
     case ColorMap::TemperatureDark:
@@ -93,6 +99,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "viridis";
     case ColorMap::Water:
       return "water";
+    case ColorMap::Winter:
+      return "winter";
     case ColorMap::Yarg:
       return "yarg";
   }
@@ -111,7 +119,9 @@ ColorMap ColorMapFromString(const std::string &cm) {
   lower.erase(std::remove_if(lower.begin(), lower.end(), [](char ch) -> bool {
       return ::isspace(ch) || (ch == '-') || (ch == '_');
     }), lower.end());
-  if (lower.compare("blackbody") == 0) {
+  if (lower.compare("autumn") == 0) {
+    return ColorMap::Autumn;
+  } else if (lower.compare("blackbody") == 0) {
     return ColorMap::BlackBody;
   } else if ((lower.compare("categories10") == 0)
              || (lower.compare("cat10") == 0)) {
@@ -177,6 +187,10 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Spectral;
   } else if (lower.compare("spectraldiverging") == 0) {
     return ColorMap::SpectralDiverging;
+  } else if (lower.compare("spring") == 0) {
+    return ColorMap::Spring;
+  } else if (lower.compare("summer") == 0) {
+    return ColorMap::Summer;
   } else if (lower.compare("temperature") == 0) {
     return ColorMap::Temperature;
   } else if (lower.compare("temperaturedark") == 0) {
@@ -193,6 +207,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Viridis;
   } else if (lower.compare("water") == 0) {
     return ColorMap::Water;
+  } else if (lower.compare("winter") == 0) {
+    return ColorMap::Winter;
   } else if ((lower.compare("yarg") == 0)
              || (lower.compare("yerg") == 0)
              || (lower.compare("-gray") == 0)
@@ -218,7 +234,7 @@ std::ostream &operator<<(std::ostream &os, ColorMap cm) {
 std::vector<ColorMap> ListColorMaps() {
   std::vector<ColorMap> lst;
   typedef ContinuousEnumIterator<ColorMap,
-    ColorMap::BlackBody, ColorMap::Yarg> ColormapIterator;
+    ColorMap::Autumn, ColorMap::Yarg> ColormapIterator;
 
   for (ColorMap cm: ColormapIterator()) {
     lst.push_back(cm);
