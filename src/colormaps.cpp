@@ -23,6 +23,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "black-body";
     case ColorMap::Categories10:
       return "categories-10";
+    case ColorMap::Categories12:
+      return "categories-12";
     case ColorMap::Categories20:
       return "categories-20";
     case ColorMap::Cividis:
@@ -30,11 +32,13 @@ std::string ColorMapToString(ColorMap cm) {
     case ColorMap::Cold:
       return "cold";
     case ColorMap::ColorBlindDiverging:
-      return "color-blind-diverging";
+      return "cvd-diverging";
     case ColorMap::ColorBlindOrientation:
-      return "color-blind-orientation";
+      return "cvd-orientation";
     case ColorMap::ColorBlindSequential:
-      return "color-blind-sequential";
+      return "cvd-sequential";
+    case ColorMap::ColorBlindSequentialVivid:
+      return "cvd-sequential-vivid";
     case ColorMap::Copper:
       return "copper";
     case ColorMap::Disparity:
@@ -95,6 +99,8 @@ std::string ColorMapToString(ColorMap cm) {
       return "turbo";
     case ColorMap::Twilight:
       return "twilight";
+    case ColorMap::TwilightShifted:
+      return "twilight-shifted";
     case ColorMap::Viridis:
       return "viridis";
     case ColorMap::Water:
@@ -126,6 +132,9 @@ ColorMap ColorMapFromString(const std::string &cm) {
   } else if ((lower.compare("categories10") == 0)
              || (lower.compare("cat10") == 0)) {
     return ColorMap::Categories10;
+  } else if ((lower.compare("categories12") == 0)
+             || (lower.compare("cat12") == 0)) {
+    return ColorMap::Categories12;
   } else if ((lower.compare("categories20") == 0)
              || (lower.compare("cat20") == 0)) {
     return ColorMap::Categories20;
@@ -133,12 +142,18 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Cividis;
   } else if (lower.compare("cold") == 0) {
     return ColorMap::Cold;
-  } else if (lower.compare("colorblinddiverging") == 0) {
+  } else if ((lower.compare("cvddiverging") == 0)
+             || (lower.compare("colorblinddiverging") == 0)) {
     return ColorMap::ColorBlindDiverging;
-  } else if (lower.compare("colorblindorientation") == 0) {
+  } else if ((lower.compare("cvdorientation") == 0)
+             || (lower.compare("colorblindorientation") == 0)) {
     return ColorMap::ColorBlindOrientation;
-  } else if (lower.compare("colorblindsequential") == 0) {
+  } else if ((lower.compare("cvdsequential") == 0)
+             || (lower.compare("colorblindsequential") == 0)) {
     return ColorMap::ColorBlindSequential;
+  } else if ((lower.compare("cvdsequentialvivid") == 0)
+             || (lower.compare("colorblindsequentialvivid") == 0)) {
+    return ColorMap::ColorBlindSequentialVivid;
   } else if (lower.compare("copper") == 0) {
     return ColorMap::Copper;
   } else if (lower.compare("disparity") == 0) {
@@ -203,6 +218,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::Turbo;
   } else if (lower.compare("twilight") == 0) {
     return ColorMap::Twilight;
+  } else if (lower.compare("twilightshifted") == 0) {
+    return ColorMap::TwilightShifted;
   } else if (lower.compare("viridis") == 0) {
     return ColorMap::Viridis;
   } else if (lower.compare("water") == 0) {
@@ -311,6 +328,12 @@ void Colorizer::SetLimitLow(double low) {
 void Colorizer::SetLimitHigh(double high) {
   limits_mode = LimitsMode::Fixed;
   limit_high = high;
+  ValidateConfiguration();
+}
+
+
+void Colorizer::SetLimitsMode(LimitsMode m) {
+  limits_mode = m;
   ValidateConfiguration();
 }
 

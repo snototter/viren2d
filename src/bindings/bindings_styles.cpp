@@ -73,16 +73,19 @@ void RegisterLineCap(pybind11::module &m) {
              "Enum specifying how to render the endpoints of a line/dash stroke.");
   cap.value(
         "Butt",
-        LineCap::Butt,
-        "Start/stop the line exactly at the start/end point.")
+        LineCap::Butt, R"docstr(
+        Start/stop the line exactly at the start/end point.
+        )docstr")
       .value(
         "Round",
-        LineCap::Round,
-        "Round ending, center of the circle is the end point.")
+        LineCap::Round, R"docstr(
+        Round ending, center of the circle is the end point.
+        )docstr")
       .value(
         "Square",
-        LineCap::Square,
-        "Square ending, center of the square is the end point.");
+        LineCap::Square, R"docstr(
+        Square ending, center of the square is the end point.
+        )docstr");
 
   // .export_values() should be skipped for strongly typed enums
 
@@ -122,16 +125,19 @@ void RegisterLineJoin(pybind11::module &m) {
 
   join.value(
         "Miter",
-        LineJoin::Miter,
-        "Sharp (angled) corner.")
+        LineJoin::Miter, R"docstr(
+        Sharp (angled) corner.
+        )docstr")
       .value(
         "Bevel",
-        LineJoin::Bevel,
-        "The join is cut off at half the line width from the joint point.")
+        LineJoin::Bevel, R"docstr(
+        The join is cut off at half the line width from the joint point.
+        )docstr")
       .value(
         "Round",
-        LineJoin::Round,
-        "Rounded join, where the center of the circle is the joint point.");
+        LineJoin::Round, R"docstr(
+        Rounded join, where the center of the circle is the joint point.
+        )docstr");
 
   join.def(
         "__str__", [](LineJoin j) -> py::str {
@@ -167,50 +173,116 @@ void RegisterMarker(pybind11::module &m) {
   py::enum_<Marker> marker(
         m, "Marker", "Enum specifying the marker shape.");
 
-  marker.value("Point", Marker::Point,
-             "Point, *i.e.* a filled circle, char representation: ``'.'``.")
-      .value("Circle", Marker::Circle,
-             "A circle (not filled), char representation: ``'o'``.")
-      .value("Plus", Marker::Plus,
-             "Plus sign, char representation: ``'+'``.")
-      .value("Cross", Marker::Cross,
-             "Cross marker, char representation: ``'x'``.")
-      .value("Square", Marker::Square,
-             "Square marker, char representation: ``'s'``.")
-      .value("RotatedSquare", Marker::RotatedSquare,
-             "Rotated square (a thick diamond), char representation: ``'r'``.")
-      .value("Diamond", Marker::Diamond,
-             "Diamond marker, char representation: ``'d'``.")
-      .value("Star", Marker::Star,
-             "Five-pointed star (Asterisk), char representation: ``'*'``.")
-      .value("Pentagon", Marker::Pentagon,
-             "Five-sided polygon, char representation: ``'p'``.")
-      .value("Pentagram", Marker::Pentagram,
-             "Five-pointed star, char representation: ``'5'``.")
-      .value("Hexagon", Marker::Hexagon,
-             "Six-sided polygon, char representation: ``'h'``.")
-      .value("Hexagram", Marker::Hexagram,
-             "Six-pointed star, char representation: ``'6'``.")
-      .value("Heptagon", Marker::Heptagon,
-             "Seven-sided polygon, char representation: ``'H'``.")
-      .value("Heptagram", Marker::Heptagram,
-             "Seven-pointed star, char representation: ``'7'``.")
-      .value("Octagon", Marker::Octagon,
-             "Eight-sided polygon, char representation: ``'0'`` (*i.e.* zero).")
-      .value("Octagram", Marker::Octagram,
-             "Eight-pointed star, char representation: ``'8'``.")
-      .value("Enneagon", Marker::Enneagon,
-             "Nine-sided polygon (Nonagon), char representation: ``'n'``.")
-      .value("Enneagram", Marker::Enneagram,
-             "Nine-pointed star, char representation: ``'9'``.")
-      .value("TriangleUp", Marker::TriangleUp,
-             "Upward-pointing triangle marker, char representation: ``'^'``.")
-      .value("TriangleDown", Marker::TriangleDown,
-             "Downward-pointing triangle marker, char representation: ``'v'``.")
-      .value("TriangleLeft", Marker::TriangleLeft,
-             "Left-pointing triangle marker, char representation: ``'<'``.")
-      .value("TriangleRight", Marker::TriangleRight,
-             "Right-pointing triangle marker, char representation: ``'>'``.");
+  marker.value(
+        "Point",
+        Marker::Point, R"docstr(
+        Point, *i.e.* a filled circle, char representation: ``'.'``.
+        )docstr")
+      .value(
+        "Circle",
+        Marker::Circle, R"docstr(
+        A circle (not filled), char representation: ``'o'``.
+        )docstr")
+      .value(
+        "Plus",
+        Marker::Plus, R"docstr(
+        Plus sign, char representation: ``'+'``.
+        )docstr")
+      .value(
+        "Cross",
+        Marker::Cross, R"docstr(
+        Cross marker, char representation: ``'x'``.
+        )docstr")
+      .value(
+        "Square",
+        Marker::Square, R"docstr(
+        Square marker, char representation: ``'s'``.
+        )docstr")
+      .value(
+        "RotatedSquare",
+        Marker::RotatedSquare, R"docstr(
+        Rotated square (a thick diamond), char representation: ``'r'``.
+        )docstr")
+      .value(
+        "Diamond",
+        Marker::Diamond, R"docstr(
+        Diamond marker, char representation: ``'d'``.
+        )docstr")
+      .value(
+        "Star",
+        Marker::Star, R"docstr(
+        Five-pointed star (Asterisk), char representation: ``'*'``.
+        )docstr")
+      .value(
+        "Pentagon",
+        Marker::Pentagon, R"docstr(
+        Five-sided polygon, char representation: ``'p'``.
+        )docstr")
+      .value(
+        "Pentagram",
+        Marker::Pentagram, R"docstr(
+        Five-pointed star, char representation: ``'5'``.
+        )docstr")
+      .value(
+        "Hexagon",
+        Marker::Hexagon, R"docstr(
+        Six-sided polygon, char representation: ``'h'``.
+        )docstr")
+      .value(
+        "Hexagram",
+        Marker::Hexagram, R"docstr(
+        Six-pointed star, char representation: ``'6'``.
+        )docstr")
+      .value(
+        "Heptagon",
+        Marker::Heptagon, R"docstr(
+        Seven-sided polygon, char representation: ``'H'``.
+        )docstr")
+      .value(
+        "Heptagram",
+        Marker::Heptagram, R"docstr(
+        Seven-pointed star, char representation: ``'7'``.
+        )docstr")
+      .value(
+        "Octagon",
+        Marker::Octagon, R"docstr(
+        Eight-sided polygon, char representation: ``'0'`` (*i.e.* zero).
+        )docstr")
+      .value(
+        "Octagram",
+        Marker::Octagram, R"docstr(
+        Eight-pointed star, char representation: ``'8'``.
+        )docstr")
+      .value(
+        "Enneagon",
+        Marker::Enneagon, R"docstr(
+        Nine-sided polygon (Nonagon), char representation: ``'n'``.
+        )docstr")
+      .value(
+        "Enneagram",
+        Marker::Enneagram, R"docstr(
+        Nine-pointed star, char representation: ``'9'``.
+        )docstr")
+      .value(
+        "TriangleUp",
+        Marker::TriangleUp, R"docstr(
+        Upward-pointing triangle marker, char representation: ``'^'``.
+        )docstr")
+      .value(
+        "TriangleDown",
+        Marker::TriangleDown, R"docstr(
+        Downward-pointing triangle marker, char representation: ``'v'``.
+        )docstr")
+      .value(
+        "TriangleLeft",
+        Marker::TriangleLeft, R"docstr(
+        Left-pointing triangle marker, char representation: ``'<'``.
+        )docstr")
+      .value(
+        "TriangleRight",
+        Marker::TriangleRight, R"docstr(
+        Right-pointing triangle marker, char representation: ``'>'``.
+        )docstr");
 
   marker.def(
         "__str__", [](Marker m) -> py::str {
@@ -353,11 +425,12 @@ void RegisterMarkerStyle(pybind11::module &m) {
           contour or filling.
         filled: If ``True`` (and the shape allwos), the marker
           will be filled.
-        bg_border: FIXME adjust doc!!!Line with of the optional border as :class:`float`.
-          If a valid ``border_color`` is provided, the marker's contour will be
-          drawn *behind* the actual marker. Can be used to improve the contrast.
+        bg_border: Can be used to improve the contrast of the marker.
+          If ``bg_color`` is valid, a circle (or square for ``'s'``) will be
+          drawn behind the actual marker. Size of this circle will be
+          ``size + 2 * bg_border``.
         bg_color: The :class:`~viren2d.Color` to improve the contrast,
-          see ``border_thickness``.
+          see ``bg_thickness``.
         cap: A :class:`~viren2d.LineCap` enum, specifying
           how to render the line endpoints. This parameter
           can also be set via the corresponding string
@@ -432,20 +505,25 @@ void RegisterMarkerStyle(pybind11::module &m) {
   style.def_readwrite("size", &MarkerStyle::size,
         "float: Marker size in pixels.");
 
-  style.def_readwrite("filled", &MarkerStyle::filled,
-        "bool: If ``True``, the marker should be filled with\n"
-        ":attr:`color`.\n\n"
-        "Note that some marker shapes *cannot* be filled (*e.g*\n"
-        "``'+'`` or ``'o'``), whereas some shapes *must* be"
-        "filled (*e.g.* ``'.'``). For these shapes, the value\n"
-        "of :attr:`filled` will be ignored.");
+  style.def_readwrite(
+        "filled",
+        &MarkerStyle::filled, R"docstr(
+        bool: If ``True``, the marker should be filled with
+          :attr:`color`.
+
+          Note that some marker shapes *cannot* be filled (*e.g*
+          ``'+'`` or ``'o'``), whereas some shapes *must* be
+          filled (*e.g.* ``'.'``). For such shapes, the value
+          of :attr:`filled` will be ignored.
+        )docstr");
 
   style.def_readwrite(
         "bg_border",
         &MarkerStyle::background_border, R"docstr(
-        :class:`float`: FIXME adjust doc!!!Line with of the optional border. If
-          :attr:`border_color` is a valid color, the marker's contour will be
-          drawn *behind* the actual marker. Can be used to improve the contrast.
+        :class:`float`: Can be used to improve the contrast of the marker.
+          If :attr:`bg_color` is valid, a circle (or
+          square for ``'s'``) will be drawn behind the actual marker.
+          Size of this circle will be :attr:`size` + 2 * :attr:`bg_border`.
         )docstr");
 
   style.def_readwrite(
@@ -601,7 +679,7 @@ void RegisterLineStyle(pybind11::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const LineStyle &) { return "<viren2d.LineStyle>";})
+        [](const LineStyle &) { return "<LineStyle>";}) //FIXME add style summary
       .def(
         "__str__",
         &LineStyle::ToString)
@@ -872,7 +950,7 @@ void RegisterArrowStyle(pybind11::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const ArrowStyle &) { return "<viren2d.ArrowStyle>"; })
+        [](const ArrowStyle &) { return "<ArrowStyle>"; }) //FIXME add style summary
       .def(
         "__str__",
         &ArrowStyle::ToString)
@@ -1059,7 +1137,7 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       .def(
         "__repr__",
         [](const BoundingBox2DStyle &)
-        { return "<viren2d.BoundingBox2DStyle>"; })
+        { return "<BoundingBox2DStyle>"; }) //FIXME add summary
       .def(
         "__str__",
         &BoundingBox2DStyle::ToString)

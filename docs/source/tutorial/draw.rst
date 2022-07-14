@@ -72,7 +72,7 @@ visualization from the :class:`~viren2d.Painter`:
 
    Thus, the rest of this tutorial omits the (mostly redundant) C++ examples.
    You will definitely be able to deduce the corresponding C++ functionality
-   from the Python examples alone - I put my trust in you!
+   from the Python examples alone - you got this!
 
    In cases where the **C++ counterpart is not easily deducible**, it is
    explicitly mentioned in the Python :ref:`API documentation<api-documentation>`.

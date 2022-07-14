@@ -17,21 +17,44 @@ ImageBuffer LoadOpticalFlow(const std::string &filename);
 void SaveOpticalFlow(const std::string &filename, const ImageBuffer &flow);
 
 
-//TODO colorize flow, output 3 or 4 channels, flow as either float or double
-// orientation defines the bin, magnitude the saturation
-// use with hsv (standard flow visualization, or the perceptually uniform Orientation/colorblind maps)
-// returns uint8
-// motion_normalizer used to divide the motion magnitude - set to max motion to avoid dimming
+/// Colorizes a two-band optical flow field.
+/// Given a cyclic color map, this returns the false color representation,
+/// where the flow orientation defines the color map bin and the magnitude
+/// defines the corresponding color's saturation. Output will always be
+/// an ImageBuffer of type uint8.
+///
+/// This assumes that flow is normalized such that the maximum magnitude
+/// is 1. Larger motion will be indicated by a desaturated color. To avoid
+/// this, you can adjust the `motion_normalizer` parameter which is used
+/// to divide the flow magnitude.
+///
+/// The default color map is the cyclic six-color map CET-C6 proposed by
+/// `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__.
+///
+/// Args:
+///   flow: The optical flow field as 2-channel ImageBuffer of type float
+///     or double.
+///   colormap: Ideally, a cyclic color map.
+///   motion_normalizer: Used to divide the flow magnitude. Set to the
+///     maximum motion magnitude to avoid desaturation in regions where the
+///     flow magnitude would be > 1.
+///   output_channels: Number of output channels. Must be either 3 or 4.
+///     If a fourth channel is requested, it is considered an alpha
+///     channel and set to 255.
 ImageBuffer ColorizeOpticalFlow(const ImageBuffer &flow,
-    ColorMap colormap = ColorMap::Orientation4, //FIXME 4 or 6 --> update docstrings (py text mentions default)
+    ColorMap colormap = ColorMap::Orientation6,
     double motion_normalizer = 1.0,
     int output_channels = 3);
 
 
-// returns uint8
-ImageBuffer OpticalFlowLegend(int size, ColorMap colormap = ColorMap::Orientation4, //FIXME 4 or 6?
-    LineStyle line_style = LineStyle::Invalid, bool draw_circle = false,
-    bool clip_circle = false, int output_channels = 3);
+// TODO returns uint8
+ImageBuffer OpticalFlowLegend(
+    int size,
+    ColorMap colormap = ColorMap::Orientation6,
+    LineStyle line_style = LineStyle::Invalid,
+    bool draw_circle = false,
+    bool clip_circle = false,
+    int output_channels = 3);
 
 } // namespace viren2d
 

@@ -574,6 +574,23 @@ std::string Color::ToString() const {
   return s.str();
 }
 
+std::string Color::ToUInt8String() const {
+  std::ostringstream s;
+  s << '(';
+
+  if (!IsValid()) {
+    s << "Invalid: ";
+  }
+
+  s << std::setw(3)
+    << static_cast<int>(255 * red) << ", "
+    << static_cast<int>(255 * green) << ", "
+    << static_cast<int>(255 * blue) << ", "
+    << static_cast<int>(100 * alpha) << ')';
+
+  return s.str();
+}
+
 
 std::tuple<unsigned char, unsigned char, unsigned char, double>
 Color::ToRGBa() const {
@@ -631,24 +648,6 @@ std::string Color::ToHexString() const {
   webcode[8] = hex2char[rem];
 
   return webcode;
-}
-
-
-std::string Color::ToRGBaString() const {
-  const auto rgb = ToRGBa();
-  std::ostringstream s;
-  s << "RGBa(";
-
-  if (!IsValid()) {
-    s << "invalid: ";
-  }
-
-  s << static_cast<int>(std::get<0>(rgb))
-    << ", " << static_cast<int>(std::get<1>(rgb))
-    << ", " << static_cast<int>(std::get<2>(rgb))
-    << ", " << std::fixed << std::setprecision(2)
-    << alpha << ")";
-  return s.str();
 }
 
 
@@ -731,21 +730,21 @@ Color Color::CoordinateAxisColor(char axis) {
 }
 
 
-Color Color::FromObjectID(std::size_t id) {
-  helpers::RGBColor col = helpers::GetCategoryColor(id, ColorMap::GlasbeyDark);
+Color Color::FromObjectID(std::size_t id, ColorMap colormap) {
+  helpers::RGBColor col = helpers::GetCategoryColor(id, colormap);
   return RGBa(col.red, col.green, col.blue);
 }
 
 
-Color Color::FromObjectCategory(const std::string &category) {
+Color Color::FromObjectCategory(const std::string &category, ColorMap colormap) {
   std::string slug = wzks::Replace(wzks::Lower(category), ' ', '-');
   const auto it = helpers::kCategoryIDMapping.find(slug);
 
   if (it != helpers::kCategoryIDMapping.end()) {
-    return FromObjectID(it->second);
+    return FromObjectID(it->second, colormap);
   } else {
     std::hash<std::string> string_hash;
-    return FromObjectID(string_hash(slug));
+    return FromObjectID(string_hash(slug), colormap);
   }
 }
 

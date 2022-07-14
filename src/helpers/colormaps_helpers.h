@@ -2,6 +2,8 @@
 #define __VIREN2D_COLORMAPS_HELPERS_H__
 
 #include <utility>
+#include <stdexcept>
+#include <sstream>
 
 #include <viren2d/colormaps.h>
 
@@ -10,6 +12,11 @@
 
 namespace viren2d {
 namespace helpers {
+
+/// Color maps are predominantly used to false color inputs, i.e. they will
+/// be used to create uint8 images. Thus, we define the color maps as RGB
+/// colors with R,G,B in [0, 255] to avoid the unnecessary double --> uint8
+/// conversion.
 struct RGBColor {
   unsigned char red;
   unsigned char green;
@@ -27,16 +34,20 @@ struct RGBColor {
     } else if (i == 2) {
       return blue;
     } else {
-      //FIXME throw out of range
-      return 0;
+      std::ostringstream s;
+      s << "Index (" << i << ") is out of range for `RGBColor`.";
+      throw std::range_error(s.str());
     }
   }
 };
 
 
+/// Returns the list of colors (along with number of colors) for the
+/// specified color map.
 std::pair<const RGBColor *, std::size_t> GetColorMap(ColorMap colormap);
 
 
+/// Returns the color for the given category/object id.
 inline RGBColor GetCategoryColor(int category_id, ColorMap colormap) {
   std::pair<const RGBColor*, std::size_t> map = GetColorMap(colormap);
   return map.first[static_cast<std::size_t>(category_id) % map.second];

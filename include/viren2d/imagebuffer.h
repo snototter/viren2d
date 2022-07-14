@@ -11,7 +11,6 @@
 #include <limits> // quiet nan
 #include <initializer_list>
 
-//#include <viren2d/colors.h>
 #include <viren2d/primitives.h>
 
 

@@ -77,6 +77,19 @@ Color CoordinateAxisColorFromPyObject(const py::object &o) {
 }
 
 
+Color FromObjectIDHelper(std::size_t id, const py::object &colormap) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
+  return Color::FromObjectID(id, cm);
+}
+
+
+Color FromObjectCategoryHelper(
+    const std::string &category, const py::object &colormap) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
+  return Color::FromObjectCategory(category, cm);
+}
+
+
 void RegisterColor(py::module &m) {
   std::string doc = R"docstr(
         Returns a list of the predefined color names.
@@ -170,10 +183,10 @@ void RegisterColor(py::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const Color &c) { return "<viren2d.Color(" + c.ToString() + ")>"; })
+        [](const Color &c) { return "<Color" + c.ToUInt8String() + '>'; })
       .def(
         "__str__",
-        &Color::ToHexString)
+        &Color::ToUInt8String)
       .def(
         py::pickle(&ColorToTuple, &ColorFromTuple),
         ":class:`~viren2d.Color` instances can be pickled.");
@@ -391,14 +404,20 @@ void RegisterColor(py::module &m) {
 
         Usefull to consistently use the same color for the
         same object or object class.
-        Note that ``id`` must be ``>=0``, or a :class:`TypeError`
-        will be raised.
+
+        Args:
+          id: The object id as :class:`int`. Note that it must be ``>=0``, or
+            a :class:`TypeError` will be raised.
+          colormap: Optionally, select a different categorical
+            :class:`~viren2d.ColorMap`. This parameter can be specified both
+            via the enum value and the color map's string representation.
         )docstr";
   color.def_static(
         "from_object_id",
-        &Color::FromObjectID,
+        &FromObjectIDHelper,
         doc.c_str(),
-        py::arg("id"));
+        py::arg("id"),
+        py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   doc = R"docstr(
@@ -406,16 +425,23 @@ void RegisterColor(py::module &m) {
 
         Usefull to consistently use the same :class:`~viren2d.Color`
         for the same object class, *e.g.* ``car`` or ``person``.
-        See :meth:`~viren2d.Color.object_category_names` for a list of
-        category names which are explicitly defined. For any other
-        category name, a string hash will be computed, which is
-        then used to lookup a corresponding color.
+
+        Args:
+          category: The category name as :class:`str`. See
+            :meth:`~viren2d.Color.object_category_names` for a list of
+            category names which are explicitly defined. For any other
+            category name, a string hash will be computed, which is
+            then used to lookup a corresponding color.
+          colormap: Optionally, select a different categorical
+            :class:`~viren2d.ColorMap`. This parameter can be specified both
+            via the enum value and the color map's string representation.
         )docstr";
   color.def_static(
         "from_object_category",
-        &Color::FromObjectCategory,
+        &FromObjectCategoryHelper,
         doc.c_str(),
-        py::arg("category"));
+        py::arg("category"),
+        py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   color.def_static(
@@ -426,7 +452,7 @@ void RegisterColor(py::module &m) {
 
         Currently, this list contains all
         `COCO <https://cocodataset.org>`__ classes (80+1, *i.e.*
-        ``background``), plus additional aliases, *e.g.*
+        ``background``), plus some additional aliases, *e.g.*
         ``human``\ :math:`\leftrightarrow`\ ``person``, or
         ``vehicle``\ :math:`\leftrightarrow`\ ``car``.
 
@@ -436,20 +462,23 @@ void RegisterColor(py::module &m) {
 
   // Also aliases for typing convenience
   m.def("color_from_object_id",
-        &Color::FromObjectID,
+        &FromObjectIDHelper,
         "Alias of :meth:`viren2d.Color.from_object_id`.",
-        py::arg("id"));
+        py::arg("id"),
+        py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("color_from_object_category",
-        &Color::FromObjectCategory,
+        &FromObjectCategoryHelper,
         "Alias of :meth:`viren2d.Color.from_object_category`.",
-        py::arg("category"));
+        py::arg("category"),
+        py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("object_category_names",
         &Color::ListObjectCategories,
         "Alias of :meth:`viren2d.Color.object_category_names`.");
+
 
   m.def("axis_color",
         &CoordinateAxisColorFromPyObject, R"docstr(

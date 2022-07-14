@@ -30,6 +30,10 @@ enum class ColorMap : unsigned char
   /// on `matplotlib's <https://matplotlib.org>`__ *tab10* map.
   Categories10,
 
+  /// Color map with 12 distinct colors, suitable for categorical data. Based
+  /// on `ColorBrewer2's <https://colorbrewer2.org>`__ *12-class paired* map.
+  Categories12,
+
   /// Color map with 20 distinct colors, suitable for categorical data. Based
   /// on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
   Categories20,
@@ -57,11 +61,17 @@ enum class ColorMap : unsigned char
   /// under the CC-BY 4.0 license.
   ColorBlindOrientation,
 
-  /// Perceptually uniform sequential color map for Protanopic/Deuteranopic
-  /// viewers. This is the CET-CBL1 color map by
+  /// Perceptually uniform sequential color map, suitable for
+  /// Protanopic/Deuteranopic viewers. This is the CET-CBL1 color map by
   /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
   /// under the CC-BY 4.0 license.
   ColorBlindSequential,
+
+  /// Perceptually uniform sequential color map with maximal chroma, suitable
+  /// for Protanopic/Deuteranopic viewers. This is the CET-CBL2 color map by
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// under the CC-BY 4.0 license.
+  ColorBlindSequentialVivid,
 
   /// Sequential color map from black to light copper. This color map has
   /// kinks in the lightness curve, which can lead to a perceived banding of
@@ -220,6 +230,11 @@ enum class ColorMap : unsigned char
   /// `matplotlib's <https://matplotlib.org>`__ *twilight* map.
   Twilight,
 
+  /// Cyclic black-blue-white-red-black map with perceptually uniform lightness
+  /// and color contrast over the whole range. Based on
+  /// `matplotlib's <https://matplotlib.org>`__ *twilight_shifted* map.
+  TwilightShifted,
+
   /// Perceptually uniform sequential color map. Proposed by
   /// `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__,
   /// now the default color map of matplotlib.
@@ -271,6 +286,8 @@ public:
   enum class LimitsMode {
     FromDataContinuously = 0,
     FromDataOnce,
+
+    /// Use fixed, user-defined limits.
     Fixed
   };
 
@@ -287,6 +304,9 @@ public:
 
   void SetLimitHigh(double high);
   double LimitHigh() const { return limit_high; }
+
+  void SetLimitsMode(LimitsMode m);
+  LimitsMode GetLimitsMode() const { return limits_mode; }
 
   void SetColorMap(ColorMap cmap);
   ColorMap GetColorMap() const { return colormap; }

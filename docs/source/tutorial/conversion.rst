@@ -17,9 +17,10 @@ following examples show how to pass image data between these libraries.
 viren2d |right-arrow| NumPy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :class:`~viren2d.ImageBuffer` exposes a buffer view (following the
-`Python buffer protocol <https://docs.python.org/3/c-api/buffer.html>`_) and
-thus, provides fast direct access to its raw internal data representation:
+The :class:`~viren2d.ImageBuffer` exposes a buffer view following the
+`Python buffer protocol <https://docs.python.org/3/c-api/buffer.html>`_, and
+thus, provides fast direct access to its raw internal data representation.
+This means that conversion to a :class:`numpy.ndarray` is as simple as:
 
 .. code-block:: python
    :linenos:
@@ -31,25 +32,11 @@ thus, provides fast direct access to its raw internal data representation:
    painter = viren2d.Painter(height=600, width=800, color='azure')
    img_buf = painter.get_canvas()
    
-   # Create a shared NumPy array (no memory allocation)
+   # Create a NumPy array which shares the allocated memory with `img_buf`:
    img_np = np.array(img_buf, copy=False)
 
-   # Create the NumPy array as a copy of the ImageBuffer
+   # Create a NumPy array as a copy of the ImageBuffer's memory:
    img_np = np.array(img_buf, copy=True)
-
-
-.. note::
-   For the conversion example above, note that the :class:`~viren2d.Painter`
-   provides an option to access its internal memory - refer to the documentation
-   of its :meth:`~viren2d.Painter.get_canvas`.
-   Thus, you can easily get a :class:`numpy.ndarray` which *shares* the memory
-   with the painter's *canvas* - and you should be careful if you then either
-   modify the array values or keep on drawing...
-
-   **TL;DR:** You should be aware of variable scopes & garbage collection when using
-   shared memory views, **and** it's always a good idea to read the docs of any
-   API you're using.
-
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

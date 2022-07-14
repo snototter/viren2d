@@ -1,3 +1,5 @@
+.. _tutorial-optical-flow:
+
 ------------
 Optical Flow
 ------------
@@ -12,6 +14,13 @@ the color wheel as in the following example:
    :alt: Exemplary optical flow visualization
    :align: center
 
-..
-   TODO example shows part of sintel alley2 with different color maps
-   TODO add code snippet
+This visualization shows a crop of the *alley2* sequence from the
+`MPI SINTEL optical flow dataset <http://sintel.is.tue.mpg.de/>`__ colorized
+with different cyclic color maps. Corresponding Python code:
+
+.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/optical_flow.py
+   :language: python
+   :emphasize-lines: 2, 10-11, 17-18
+   :lines: 10-35
+   :linenos:
+   :dedent: 4

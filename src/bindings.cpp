@@ -38,6 +38,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   // are registered first.
 
   //------------------------------------------------- Color
+  // Color maps are needed by color, thus we need to register the
+  // enum before to avoid `ImportError` upon loading the module:
+  viren2d::bindings::RegisterColorMapEnum(m);
   viren2d::bindings::RegisterColor(m);
 
   //------------------------------------------------- Primitives

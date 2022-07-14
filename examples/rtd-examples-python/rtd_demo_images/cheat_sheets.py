@@ -257,29 +257,30 @@ def cheat_sheet_arrowstyle():
 def cheat_sheet_colormaps():
     cmap_categories = {
         'sequential': [
-            'cividis', 'color-blind-sequential', 'gouldian', 'viridis',
-            'inferno', 'hell', 'thermal', 'black-body', 'hot', 'cold',
-            'water', 'copper', 'spring', 'summer', 'autumn', 'winter',
+            'cividis', 'cvd-sequential', 'cvd-sequential-vivid', 'gouldian',
+            'viridis', 'inferno', 'hell', 'thermal', 'black-body', 'hot',
+            'cold', 'water', 'copper', 'spring', 'summer', 'autumn', 'winter',
             'gray', 'yarg'
         ],
         'cyclic': [
-            'color-blind-orientation', 'orientation-4', 'orientation-6', 'hsv',
-            'optical-flow', 'twilight'
+            'cvd-orientation', 'orientation-4', 'orientation-6', 'hsv',
+            'optical-flow', 'twilight', 'twilight-shifted'
         ],
         'categorical': [
-            'categories-10', 'categories-20', 'glasbey-dark', 'glasbey-light'
+            'categories-10', 'categories-12', 'categories-20', 'glasbey-dark',
+            'glasbey-light'
         ],
         'color-blind': [
-            'cividis', 'color-blind-sequential', 'color-blind-diverging',
-            'color-blind-orientation'
+            'cividis', 'cvd-sequential', 'cvd-sequential-vivid',
+            'cvd-diverging', 'cvd-orientation'
         ],
         'diverging': [
-            'color-blind-diverging', 'seismic', 'temperature',
+            'cvd-diverging', 'seismic', 'temperature',
             'temperature-dark', 'spectral-diverging',
             
         ],
         'rainbow': [
-            'rainbow', 'turbo', 'jet'
+            'jet', 'rainbow', 'turbo'
         ],
         'specialized': [
             'ocean', 'water',  'earth', 'terrain', 'relief',

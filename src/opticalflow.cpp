@@ -319,41 +319,6 @@ ImageBuffer OpticalFlowLegend(
   } else {
     return dst;
   }
-
-  //FIXME add param draw_circle
-  // clip_circle &= chan==4
-  // if clip_circle, draw painter
-//  if (line_style.IsValid()) {
-//    std::unique_ptr<Painter> painter = CreatePainter();
-//    const double sz_half = size / 2.0;
-
-//    if (clip_circle) {
-//      painter->SetCanvas(size, size, Color::White.WithAlpha(0.0));
-//      painter->DrawImage(
-//            dst, {sz_half, sz_half}, Anchor::Center, 1.0, 1.0, 1.0, 0.0, 1.0);
-//    } else {
-//      painter->SetCanvas(dst);
-//    }
-
-//    const double lw_half = line_style.width / 2.0;
-//    if (clip_circle) {
-//      painter->DrawCircle(
-//            {sz_half, sz_half}, sz_half - lw_half, line_style);
-//    }
-//    const double offset = clip_circle ? line_style.width : 0.0;
-//    painter->DrawLine(
-//          {sz_half, offset}, {sz_half, size - offset}, line_style);
-//    painter->DrawLine(
-//          {offset, sz_half}, {size - offset, sz_half}, line_style);
-
-//    if (output_channels == 4) {
-//      return painter->GetCanvas(true);
-//    } else {
-//      return painter->GetCanvas(false).ToChannels(output_channels);
-//    }
-//  } else {
-//    return dst;
-//  }
 }
 
 } // namespace viren2d

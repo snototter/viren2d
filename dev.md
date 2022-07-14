@@ -214,10 +214,8 @@ for cname in colormaps.colormap_names:
     print()
     
 # mpl2vi
-cnames = ['Spring', 'Summer', 'Autumn', 'Winter', 'Bone', 'Plasma', 'Spectral', 'Purples', 'Blues', 'Oranges', 'Reds']
-cname = 'nipy_Spectral'
+cnames = ['Bone', 'Plasma', 'Purples', 'Blues', 'Oranges', 'Reds']
 mpl2viren(cname)
-
 
 ```
 
