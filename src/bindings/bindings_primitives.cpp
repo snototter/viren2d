@@ -1,5 +1,6 @@
 #include <sstream>
 #include <stdexcept>
+#include <cstdlib>
 
 #include <pybind11/operators.h>
 

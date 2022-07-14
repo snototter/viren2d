@@ -2,6 +2,7 @@
 #include <string>
 #include <exception>
 #include <cmath>
+#include <cstdlib>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>

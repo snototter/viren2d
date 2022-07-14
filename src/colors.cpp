@@ -6,6 +6,7 @@
 #include <exception>
 #include <utility>
 #include <functional>  // std::hash
+#include <cstdlib>
 
 #include <werkzeugkiste/strings/strings.h>
 #include <werkzeugkiste/geometry/utils.h>

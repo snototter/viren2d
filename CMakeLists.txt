@@ -313,6 +313,7 @@ if(viren2d_BUILD_TESTS)
     add_executable(${viren2d_TARGET_CPP_TEST}
         src/helpers/enum.h
         tests/color_test.cpp
+        tests/colormaps_test.cpp
         tests/primitives_test.cpp
         tests/imagebuffer_test.cpp
         tests/utils_test.cpp
@@ -325,6 +326,7 @@ if(viren2d_BUILD_TESTS)
         PRIVATE
         gtest_main
         werkzeugkiste::strings
+        werkzeugkiste::container
         ${viren2d_TARGET_CPP_LIB}::${viren2d_TARGET_CPP_LIB})
 
     target_compile_definitions(${viren2d_TARGET_CPP_TEST} PRIVATE
