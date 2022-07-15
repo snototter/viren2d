@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <ostream>
-#include <initializer_list>
 
 #include <viren2d/colors.h>
 #include <viren2d/primitives.h>
