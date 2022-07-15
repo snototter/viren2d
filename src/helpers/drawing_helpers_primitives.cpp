@@ -10,7 +10,8 @@
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
 #include <werkzeugkiste/geometry/vector.h>
-namespace wgu = werkzeugkiste::geometry;
+#include <werkzeugkiste/geometry/primitives.h>
+namespace wkg = werkzeugkiste::geometry;
 
 // Custom
 #include <helpers/drawing_helpers.h>
@@ -29,16 +30,16 @@ void PathHelperRoundedRect(cairo_t *context, Rect rect) {
   cairo_move_to(context, -rect.half_width(), -half_height);
   cairo_arc(
         context, -half_width, -half_height, rect.radius,
-        wgu::deg2rad(180), wgu::deg2rad(270));
+        wkg::deg2rad(180), wkg::deg2rad(270));
   cairo_arc(
         context,  half_width, -half_height, rect.radius,
-        wgu::deg2rad(-90), 0);
+        wkg::deg2rad(-90), 0);
   cairo_arc(
         context,  half_width,  half_height, rect.radius,
-        0, wgu::deg2rad(90));
+        0, wkg::deg2rad(90));
   cairo_arc(
         context, -half_width,  half_height, rect.radius,
-        wgu::deg2rad(90), wgu::deg2rad(180));
+        wkg::deg2rad(90), wkg::deg2rad(180));
   cairo_close_path(context);
 }
 
@@ -63,7 +64,7 @@ void DrawArc(
 
   cairo_save(context);
   cairo_arc(context, center.x(), center.y(), radius,
-            wgu::deg2rad(angle1), wgu::deg2rad(angle2));
+            wkg::deg2rad(angle1), wkg::deg2rad(angle2));
 
   if (include_center) {
     cairo_line_to(context, center.x(), center.y());
@@ -99,11 +100,10 @@ void HelperDrawSolidHead(
 Vec2d HelperClosedHead(
     cairo_t *context, const Vec2d &pointy_end,
     const Vec2d &tip_a, const Vec2d &tip_b,
-    const Vec2d &line_from, const Vec2d &line_to) {
-  // Compute the intersection between the shaft and
-  // the connection line between the tip endpoints
-  Vec2d shaft_point = ProjectPointOntoLine(
-        tip_a, line_from, line_to);
+    const wkg::Line2d shaft) {
+  // Compute the point where the arrow shaft intersects the connection
+  // line between the tip's endpoints
+  Vec2d shaft_point = shaft.ClosestPointOnSegment(tip_a);
 
   // Draw the path such that a) we can reuse this function
   // at both ends of the arrow and b) the "pointy end" is
@@ -153,7 +153,7 @@ void DrawArrow(
   // Compute the offset/direction vectors from the line's
   // endpoints to the endpoints of each tip:
   const double tip_length = arrow_style.TipLengthForShaft(from, to);
-  const double tip_angle_rad = wgu::deg2rad(arrow_style.tip_angle);
+  const double tip_angle_rad = wkg::deg2rad(arrow_style.tip_angle);
   auto tip_dir_1st_a = tip_length * Vec2d(
         std::cos(shaft_angle_rad + tip_angle_rad),
         std::sin(shaft_angle_rad + tip_angle_rad));
@@ -182,17 +182,17 @@ void DrawArrow(
 
     // Create path for the optional 2nd head (at the line start)
     Vec2d shaft_from = from;
+
+    const wkg::Line2d line(from, to);
     if (arrow_style.double_headed) {
       cairo_new_path(context);
-      shaft_from = HelperClosedHead(
-            context, from, tip_2nd_a, tip_2nd_b, from, to);
+      shaft_from = HelperClosedHead(context, from, tip_2nd_a, tip_2nd_b, line);
       cairo_fill_preserve(context);
       cairo_stroke(context);  // Stroke is currently solid
     }
 
     // Draw head Add shaft & head (at the line end)
-    Vec2d shaft_to = HelperClosedHead(
-          context, to, tip_1st_a, tip_1st_b, from, to);
+    Vec2d shaft_to = HelperClosedHead(context, to, tip_1st_a, tip_1st_b, line);
     cairo_fill_preserve(context);
     cairo_stroke(context);
 
@@ -242,7 +242,7 @@ double AdjustEllipseAngle(
     double deg, double scale_x, double scale_y) {
   // Compute the direction vector corresponding to
   // the desired angle.
-  auto dir = wgu::DirectionVecFromAngleDeg(deg);
+  auto dir = wkg::DirectionVecFromAngleDeg(deg);
 
   // Apply the inverse transformation (scaling).
   dir.SetX(dir.x() / scale_x);
@@ -251,7 +251,7 @@ double AdjustEllipseAngle(
   // Compute the angle (w.r.t. to the positive X axis)
   // which should be used to draw the path in cairo_arc
   // after the context is transformed.
-  return wgu::AngleDegFromDirectionVec(dir);
+  return wkg::AngleDegFromDirectionVec(dir);
 }
 
 
@@ -282,12 +282,12 @@ void DrawEllipse(
   // Cairo context. Otherwise, the angles would be
   // quite different from what the user expected.
   bool is_partially_drawn = false;
-  if (!wgu::eps_zero(ellipse.angle_from)) {
+  if (!wkg::eps_zero(ellipse.angle_from)) {
     ellipse.angle_from = AdjustEllipseAngle(
           ellipse.angle_from, scale_x, scale_y);
     is_partially_drawn = true;
   }
-  if (!wgu::eps_equal(ellipse.angle_to, 360.0)) {
+  if (!wkg::eps_equal(ellipse.angle_to, 360.0)) {
     ellipse.angle_to = AdjustEllipseAngle(
           ellipse.angle_to, scale_x, scale_y);
     is_partially_drawn = true;
@@ -299,13 +299,13 @@ void DrawEllipse(
   cairo_save(context);
   cairo_save(context);
   cairo_translate(context, ellipse.cx, ellipse.cy);
-  cairo_rotate(context, wgu::deg2rad(ellipse.rotation));
+  cairo_rotate(context, wkg::deg2rad(ellipse.rotation));
   cairo_scale(context, scale_x, scale_y);
 
   cairo_arc(
         context, 0, 0, 1,
-        wgu::deg2rad(ellipse.angle_from),
-        wgu::deg2rad(ellipse.angle_to));
+        wkg::deg2rad(ellipse.angle_from),
+        wkg::deg2rad(ellipse.angle_to));
 
   // If we shouldn't draw a full circle in the scaled context,
   // the user can decide whether to include the center point
@@ -527,7 +527,7 @@ void DrawMarker(
     case Marker::Plus: {
         half_size -= style.CapOffset();
         if (style.marker == Marker::Cross) {
-          cairo_rotate(context, wgu::deg2rad(45.0));
+          cairo_rotate(context, wkg::deg2rad(45.0));
         }
         cairo_move_to(context, -half_size, 0.0);
         cairo_line_to(context, half_size, 0.0);
@@ -550,7 +550,7 @@ void DrawMarker(
       }
 
     case Marker::RotatedSquare:
-      cairo_rotate(context, wgu::deg2rad(45.0));
+      cairo_rotate(context, wkg::deg2rad(45.0));
       // fall through
     case Marker::Square: {
         double side = style.size;
@@ -573,20 +573,20 @@ void DrawMarker(
     case Marker::TriangleLeft:
     case Marker::TriangleRight: {
         if (style.marker == Marker::TriangleRight) {
-          cairo_rotate(context, wgu::deg2rad(90.0));
+          cairo_rotate(context, wkg::deg2rad(90.0));
         } else if (style.marker == Marker::TriangleDown) {
-          cairo_rotate(context, wgu::deg2rad(180.0));
+          cairo_rotate(context, wkg::deg2rad(180.0));
         } else if (style.marker == Marker::TriangleLeft) {
-          cairo_rotate(context, wgu::deg2rad(270.0));
+          cairo_rotate(context, wkg::deg2rad(270.0));
         }
 
         if (!style.IsFilled()) {
           half_size -= style.JoinOffset(60.0, miter_limit);
         }
         cairo_move_to(context, 0, -half_size);
-        cairo_rotate(context, wgu::deg2rad(120.0));
+        cairo_rotate(context, wkg::deg2rad(120.0));
         cairo_line_to(context, 0, -half_size);
-        cairo_rotate(context, wgu::deg2rad(120.0));
+        cairo_rotate(context, wkg::deg2rad(120.0));
         cairo_line_to(context, 0, -half_size);
         cairo_close_path(context);
         break;
@@ -596,7 +596,7 @@ void DrawMarker(
         half_size -= style.CapOffset();
         cairo_move_to(context, 0.0, -half_size);
         for (int i = 0; i < 5; ++i) {
-          cairo_rotate(context, wgu::deg2rad(72.0));
+          cairo_rotate(context, wkg::deg2rad(72.0));
           cairo_move_to(context, 0.0, 0.0);
           cairo_line_to(context, 0.0, -half_size);
         }
@@ -621,7 +621,7 @@ void DrawMarker(
 
         cairo_move_to(context, 0.0, -half_size);
         for (int i = 0; i < steps; ++i) {
-          cairo_rotate(context, wgu::deg2rad(ctx_rotation));
+          cairo_rotate(context, wkg::deg2rad(ctx_rotation));
           cairo_line_to(context, 0.0, -half_size);
         }
         cairo_close_path(context);
@@ -635,11 +635,11 @@ void DrawMarker(
         }
         for (int path_idx = 0; path_idx < 2; ++path_idx) {
           if (path_idx == 1) {
-            cairo_rotate(context, wgu::deg2rad(60.0));
+            cairo_rotate(context, wkg::deg2rad(60.0));
           }
           cairo_move_to(context, 0.0, -half_size);
           for (int corner_idx = 0; corner_idx < 2; ++corner_idx) {
-            cairo_rotate(context, wgu::deg2rad(120.0));
+            cairo_rotate(context, wkg::deg2rad(120.0));
             cairo_line_to(context, 0.0, -half_size);
           }
           cairo_close_path(context);
@@ -711,7 +711,7 @@ void DrawRect(
 
   cairo_save(context);
   cairo_translate(context, rect.cx, rect.cy);
-  cairo_rotate(context, wgu::deg2rad(rect.rotation));
+  cairo_rotate(context, wkg::deg2rad(rect.rotation));
 
   // Draw a standard (box) rect or rounded rectangle:
   if (rect.radius > 0.0) {
