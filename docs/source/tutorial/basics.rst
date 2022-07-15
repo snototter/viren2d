@@ -6,7 +6,7 @@ Overview & Basics
 
 **How to draw "stuff"?**
    Simply :ref:`initialize a painter's canvas<tutorial-painter-usage>` and use
-   it's ``draw_...`` methods.
+   its ``draw_...`` methods.
 
 
 **Which "stuff" can be drawn?**

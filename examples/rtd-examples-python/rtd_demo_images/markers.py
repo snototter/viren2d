@@ -56,14 +56,14 @@ def cheat_sheet_markers():
         # Put the marker's char code on top:
         painter.draw_text([str(marker)], (x, y1), 'center', text_style)
         
-        # Draw the marker's outline (if it's shape allows):
+        # Draw the marker's outline (if its shape allows):
         marker_style.marker = marker
         marker_style.thickness = _thickness(marker)
         marker_style.filled = False
         if not marker_style.is_filled():
             painter.draw_marker((x, y2), marker_style)
 
-        # Draw the filled marker (if it's shape allows):
+        # Draw the filled marker (if its shape allows):
         marker_style.filled = True
         if marker_style.is_filled():
             painter.draw_marker((x, y3), marker_style)
