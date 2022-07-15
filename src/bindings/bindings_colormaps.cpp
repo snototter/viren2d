@@ -121,17 +121,19 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "GlasbeyDark",
         ColorMap::GlasbeyDark, R"docstr(
         Color map for categorical data, best suited for **light backgrounds**,
-        *i.e.* light colors are omitted. This color map is adapted from
-        `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
-        `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+        *i.e.* light colors are omitted. This color map is adapted from the
+        `colorcet Python package <https://github.com/holoviz/colorcet>`__
+        and was initially created using
+        `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
         )docstr")
       .value(
         "GlasbeyLight",
         ColorMap::GlasbeyLight, R"docstr(
         Color map for categorical data, best suited for **dark backgrounds**,
-        *i.e.* dark colors are omitted. This color map is adapted from
-        `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
-        `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+        *i.e.* dark colors are omitted. This color map is adapted from the
+        `colorcet Python package <https://github.com/holoviz/colorcet>`__
+        and was initially created using
+        `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
         )docstr")
       .value(
         "Gouldian",
@@ -179,11 +181,12 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Jet",
         ColorMap::Jet, R"docstr(
         The classic rainbow color map, based on
-        `MATLAB's <https://www.mathworks.com/help/matlab/ref/peaks.html>`__
+        `MATLAB's <https://www.mathworks.com/help/matlab/ref/jet.html>`__
         *jet* map.
 
-        Note that this color map has several limitations (perceptual ordering,
-        lightness gradient reversals). Refer to the excellent article by
+        Note that this color map has several known limitations (*e.g.* reversed
+        lightness gradients at yellow and red affect the viewer's perceptual
+        ordering). Refer to the excellent article by
         `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
         about these issues.
         )docstr")
@@ -469,10 +472,10 @@ void RegisterColormaps(pybind11::module &m) {
   py::class_<Colorizer> colorizer(m, "Colorizer", R"docstr(
       Utility class to simplify colorization of a data stream.
 
-      This class takes care of computing/storing the limits, color map,
-      *etc.* This becomes handy in scenarios where we need to apply the same
-      colorization over and over again. For example, when displaying the live
-      stream of a time-of-flight sensor.
+      This class takes care of computing/storing the input data limits, the
+      selected color map, *etc.* This comes in handy whenever we need to apply
+      the same colorization over and over again. For example, think of
+      displaying the live stream of a time-of-flight sensor.
 
       Example:
         >>> depth_cam = ...  # Open camera stream
@@ -633,15 +636,17 @@ void RegisterColormaps(pybind11::module &m) {
 
         Args:
           relief: A single channel :class:`~viren2d.ImageBuffer` or
-            :class:`numpy.ndarray` holding the topographic data.
-            TODO doc implicit scaling if integral type!
+            :class:`numpy.ndarray` holding the topographic data. If the data
+            is an integer type, it will be divided by 255 and converted
+            to single precision floating point before multiplication.
 
           colorized: An :class:`~viren2d.ImageBuffer` or
             :class:`numpy.ndarray` of type :class:`numpy.uint8` holding the
             color image to be shaded.
 
         Returns:
-          TODO
+          An :class:`~viren2d.ImageBuffer` of type :class:`numpy.uint8` which
+          has the same number of channels as ``colorized``.
 
         Example:
           >>> moon = viren2d.load_image_uint8('examples/data/lunar-farside.jpg')

@@ -41,8 +41,8 @@ Requirements
 ------------
 
 Most internal dependencies are automatically set up by the library's
-CMake-based build pipeline. Nevertheless, the basic build environment and Cairo
-must be set up manually:
+CMake-based build pipeline. Nevertheless, the basic build environment, Cairo
+and Eigen3 must be set up manually:
 
 * A C++ compiler supporting at least ``C++14``.
 * `CMake \>= 3.15 <https://cmake.org/>`__ and a
@@ -71,6 +71,16 @@ must be set up manually:
 
      # On Fedora & openSUSE distributions, the package name
      # is `cairo-devel`.
+
+* The header-only `Eigen linear algebra library <https://eigen.tuxfamily.org/>`__.
+  
+  .. code-block:: console
+
+     # Debian & derivatives
+     sudo apt install libeigen3-dev
+
+     # On Fedora & openSUSE distributions, the package name
+     # is `eigen3-devel`.
 
 * Additional requirements to build the optional Python bindings:
 

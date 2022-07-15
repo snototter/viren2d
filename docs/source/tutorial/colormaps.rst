@@ -28,9 +28,9 @@ Available Color Maps
 Sequential
 ..........
 
-Color maps where the lightness and/or saturation increases/decreases linearly
-over the color map range. Useful to represent data which has an intrinsic
-ordering.
+Sequential (*aka* linear) color maps linearly increase/decrease the lightness
+and/or saturation over the color map range. They are the most generic color
+maps and shoulde be used to represent data which has an intrinsic ordering.
 
 .. image:: ../images/colormaps-cheat-sheet-sequential.png
    :width: 480
@@ -42,7 +42,8 @@ ordering.
 Categorical
 ...........
 
-Color palettes with distinct colors suitable to visualize categorical data.
+Categorical or quantitative maps are color palettes with distinct colors,
+suitable to visualize categorical data.
 
 .. image:: ../images/colormaps-cheat-sheet-categorical.png
    :width: 480
@@ -63,13 +64,14 @@ data that wraps around, *e.g.* phase angles or orientation values.
    :align: center
 
 
-.............................
-Color Vision Deficiency (CVD)
-.............................
+.......................
+Color Vision Deficiency
+.......................
 
-Color maps suitable for viewers with color vision deficiency. These are
-designed such that people who are color blind should share a common perceptual
-interpretation of data with people who have normal color vision.
+These color maps are suitable for viewers with color vision deficiency (CVD).
+The colors are chosen such that people who are color blind should share a
+common perceptual interpretation of data with people who have normal color
+vision.
 
 .. image:: ../images/colormaps-cheat-sheet-color-blind.png
    :width: 480
@@ -81,9 +83,9 @@ interpretation of data with people who have normal color vision.
 Diverging
 .........
 
-Color maps suitable to represent values above or below a defined
-reference value. Note that diverging color maps usually have a small
-perceptual flat spot at the center.
+Diverging color maps are suitable to represent values above or below a defined
+reference value. Note that these maps usually have a small perceptual flat spot
+at the center.
 
 .. image:: ../images/colormaps-cheat-sheet-diverging.png
    :width: 480
@@ -95,10 +97,10 @@ perceptual flat spot at the center.
 Rainbow
 .......
 
-Rainbow color maps are widely used but too often misused. They require special
-care as they can **easily lead to perception of features that are not present**
-in the data and also suffer from **blind spots** (where the viewer cannot
-distinguish actually present features).
+Rainbow color maps are widely used but also too often misused. They require
+special care as they can **easily lead to perception of features that are not
+present** in the data and also suffer from **blind spots** (where the viewer
+cannot distinguish actually present features).
 
 These issues can be seen for example at the *jet* color gradient below, which
 shows banding effects. For further details, refer to the summary
@@ -114,7 +116,7 @@ provided on `Peter Kovesi's website <https://colorcet.com/>`__.
 Special Purpose
 ...............
 
-Miscellaneous color maps, often designed for a particular purpose, such as
+These color maps are often designed for a particular purpose, such as
 representing thermographic (``thermal``), topographic (``earth``, ``ocean``,
 *etc.*), or multi-spectral (``spectral``) data.
 

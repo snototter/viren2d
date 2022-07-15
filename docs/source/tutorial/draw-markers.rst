@@ -18,7 +18,7 @@ This visualization has been created with the following Python code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/markers.py
    :language: python
-   :emphasize-lines: 2-4, 51, 56
-   :lines: 12-75
+   :emphasize-lines: 2-4, 53, 58
+   :lines: 12-77
    :linenos:
    :dedent: 4
