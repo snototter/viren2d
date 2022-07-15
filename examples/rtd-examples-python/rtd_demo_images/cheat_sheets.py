@@ -305,7 +305,7 @@ def cheat_sheet_colormaps():
 
     sheets = list()
     for cat in cmap_categories:
-        canvas_height = (row_height + 5) * len(cmap_categories[cat]) + 5
+        canvas_height = (row_height + 5) * len(cmap_categories[cat]) + 15
         painter.set_canvas_rgb(
             width=canvas_width, height=canvas_height, color="white!0")
 

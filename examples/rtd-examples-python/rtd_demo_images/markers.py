@@ -37,11 +37,13 @@ def cheat_sheet_markers():
     def _thickness(marker):
         # Due to the fixed marker size, we should adjust the line thickness for
         # a neater visualization.
-        if marker == viren2d.Marker.Enneagram:
+        mc = str(marker)[1]
+        if mc == '9':
             return 1
-        elif marker in [viren2d.Marker.Plus, viren2d.Marker.Cross,
-                viren2d.Marker.Star]:
-            return 4
+        elif mc in ['+', 'x', '*']:
+            return 5
+        elif mc in ['o', 's', 'r', 'd', '^', 'v', '<', '>']:
+            return 3
         else:
             return 2
 

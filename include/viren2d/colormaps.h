@@ -90,15 +90,17 @@ enum class ColorMap : unsigned char
   Earth,
 
   /// Color map for categorical data, best suited for **light backgrounds**,
-  /// i.e. light colors are omitted. This color map is adapted from
-  /// `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
-  /// `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+  /// i.e. light colors are omitted. This color map is adapted from the
+  /// `colorcet Python package <https://github.com/holoviz/colorcet>`__
+  /// and was created using
+  /// `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
   GlasbeyDark,
 
   /// Color map for categorical data, best suited for **dark backgrounds**,
-  /// i.e. dark colors are omitted. This color map is adapted from
-  /// `colorcet <https://github.com/holoviz/colorcet>`__ and was created using
-  /// `Glasbey's method <https://strathprints.strath.ac.uk/30312/1/colorpaper_2006.pdf>`.
+  /// i.e. dark colors are omitted. This color map is adapted from the
+  /// `colorcet Python package <https://github.com/holoviz/colorcet>`__
+  /// and was created using
+  /// `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
   GlasbeyLight,
 
   /// Black-blue-green-orange-yellow perceptually uniform sequential color
@@ -258,8 +260,6 @@ enum class ColorMap : unsigned char
   // iterators, too. See `ListColorMaps` and the corresponding test suite!
 };
 
-//TODO change color::by_id/category to use glasbey
-
 
 /// Returns the string representation.
 std::string ColorMapToString(ColorMap cm);
@@ -284,12 +284,17 @@ class Colorizer {
 public:
 
   enum class LimitsMode {
+    /// Compute limits for each incoming sample separately.
     FromDataContinuously = 0,
+
+    /// Compute limits from the first incoming sample, then apply these to all
+    /// further samples.
     FromDataOnce,
 
     /// Use fixed, user-defined limits.
     Fixed
   };
+
 
   Colorizer(
       ColorMap cmap,

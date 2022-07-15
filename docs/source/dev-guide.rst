@@ -324,7 +324,7 @@ In case you need to familiarize yourself with Cairo, I can recommend:
 Other Functionality
 ...................
 
-TODO design decisions for pseudocolor, etc.
+TODO design decisions for pseudocolor (256 bins, RGB), etc.
 
 
 ~~~~~~~~~~~~
@@ -332,8 +332,6 @@ Nice-to-Have
 ~~~~~~~~~~~~
 
 Some **functional features**, that I'd like to see at some time in the future:
-
-*  Support loading/saving/visualizing optical flow files, *i.e.* ``.flo`` format.
   
 *  Creating a collage (auto-padding, maybe aspect-aware resizing).
    Best option might be to reuse *image overlay*, *i.e.* initialize

@@ -27,8 +27,9 @@ both **C++ and Python** environments.
 
 **What is it good for?**
    This library is designed to overlay *detections, trajectories, hand & body
-   poses* and more on image data. Additionally, it provides interfaces to
-   colorize input useful to inspect or highlight structure in your data.
+   poses* and more on image data. Additionally, it provides several
+   colorization options to represent data by false colors, useful to inspect
+   or highlight structure and features in your data more easily.
    Finally, it can be used as a simplistic drawing toolbox, if basic shapes are
    all you need.
 

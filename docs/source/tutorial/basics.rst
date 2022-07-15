@@ -5,8 +5,8 @@ Overview & Basics
 -----------------
 
 **How to draw "stuff"?**
-   :ref:`Initialize a painter's canvas<tutorial-painter-usage>` and invoke its
-   ``draw_...`` methods.
+   Simply :ref:`initialize a painter's canvas<tutorial-painter-usage>` and use
+   it's ``draw_...`` methods.
 
 
 **Which "stuff" can be drawn?**
@@ -14,17 +14,24 @@ Overview & Basics
 
 
 **What about visualizations besides drawing?**
-   Besides drawing, ``viren2d`` also provides:
+   Besides drawing, ``viren2d`` also provides various color maps for *scaled
+   colorization* to inspect and represent data, see :func:`~viren2d.colorize`
+   and :class:`~viren2d.Colorizer`.
 
-   *  Falsce coloring (*i.e.* scaled colorization) with various color maps,
-      see :func:`~viren2d.colorize` and :class:`~viren2d.Colorizer`.
+   Suitable color maps can also be used to visualize *optical flow*
+   via :func:`~viren2d.colorize_optical_flow`.
 
-   *  Optical flow visualization, see :func:`~viren2d.colorize_optical_flow`.
+   The :class:`~viren2d.ImageBuffer` provides some basic image processing
+   functionalities, suitable to :meth:`~viren2d.ImageBuffer.blend` images,
+   :meth:`~viren2d.ImageBuffer.pixelate` some :meth:`~viren2d.ImageBuffer.roi`,
+   *etc.* Note, however, that these functionalities are mostly provided for
+   user convenience and are not optimized towards high-speed, *i.e.*
+   ``viren2d`` does not use `OpenMP <https://www.openmp.org/>`__,
+   `oneTBB <https://github.com/oneapi-src/oneTBB>`__,
+   `AVX <https://en.wikipedia.org/wiki/Advanced_Vector_Extensions>`__,
+   `Neon <https://developer.arm.com/Architectures/Neon>`__
+   or any other multi-threading/multi-processing extensions.
 
-   *  Pixelation (*e.g.* to implement anonymization),
-      see :meth:`~viren2d.ImageBuffer.pixelate`.
-   
-   
 
 **Which coordinate system is used?**
    All coordinates assume an image coordinate system, where the origin
