@@ -6,7 +6,7 @@ import numpy as np
 
 def test_viren2d_version():
     here = pathlib.Path(__file__).parent.parent.resolve()
-    expected_version = (here / "VERSION").read_text().strip()
+    expected_version = (here / 'VERSION').read_text().strip()
     assert expected_version == viren2d.__version__
    
 

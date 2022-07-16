@@ -406,6 +406,20 @@ void PainterImpl::SetCanvas(int height, int width, const Color &color) {
         "SetCanvas: width={:d}, height={:d}, color={:s}).",
         width, height, color);
 
+  //FIXME reuse doesn't work if we want to switch to a transparent canvas!
+  // Should be investigated (neither paint/paint_with_alpha + mark dirty did change anything)
+  // Maybe check with pre-flushing the surface?
+
+  // Simplest solution is to create a new surface.
+  if (context_) {
+    cairo_destroy(context_);
+    context_ = nullptr;
+  }
+  if (surface_) {
+    cairo_surface_destroy(surface_);
+    surface_ = nullptr;
+  }
+  /*
   // Check if we can reuse the current image surface to
   // save ourselves the memory allocation:
   if (surface_) {
@@ -424,9 +438,8 @@ void PainterImpl::SetCanvas(int height, int width, const Color &color) {
       surface_ = nullptr;
     }
   }
+  */
 
-  // If we couldn't reuse the surface (or we didn't have one
-  // to start with), we have to create the canvas:
   if (!surface_) {
     SPDLOG_TRACE(
           "SetCanvas: Creating Cairo image surface for w={:d}, h={:d} canvas.",

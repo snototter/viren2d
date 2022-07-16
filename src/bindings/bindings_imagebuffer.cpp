@@ -314,9 +314,10 @@ void RegisterImageBuffer(py::module &m) {
         Returns the grayscale image.
 
         Args:
-          num_channels: Number of output channels as :class:`int`, must be `<=4`.
-            The first (up to) 3 channels will contain the repeated luminance,
-            whereas the 4th channel will always be 255 (*i.e.* alpha, fully opaque).
+          num_channels: Number of output channels as :class:`int`. Must be
+            :math:`\leq 4`. The first three channels will contain the repeated
+            luminance, whereas the 4th channel will always be 255 (*i.e.*
+            alpha, fully opaque).
           is_bgr: Set to ``True`` if the channels of this image are in BGR format.
         )docstr",
         py::arg("num_channels"),
@@ -357,7 +358,8 @@ void RegisterImageBuffer(py::module &m) {
           where ``min_val`` & ``max_val`` are the extremal values of the selected
           channel as :class:`float` and ``min_loc`` & ``max_loc`` are the
           *x* & *y* positions as :class:`~viren2d.Vec2i`.
-        )docstr")
+        )docstr",
+        py::arg("channel"))
       .def(
         "blend",
         &ImageBuffer::Blend, R"docstr(
