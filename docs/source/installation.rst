@@ -125,7 +125,7 @@ example. Note that this additionally requires `Pillow <https://pillow.readthedoc
      :linenos:
      :caption: ``viren2d`` Hello World Example in Python.
 
-  .. figure:: ./images/hello_world.jpg
+  .. figure:: ./images/hello-world.jpg
      :width: 400
      :alt: Hello world example
      :align: center

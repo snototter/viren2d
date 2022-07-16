@@ -11,20 +11,21 @@
 int main(int /*argc*/, char **/*argv*/) {
   auto painter = viren2d::CreatePainter();
   
-  painter->SetCanvas(50, 400, viren2d::Color::White);
+  painter->SetCanvas(50, 400, "#1a1c1d");
 
   // Draw "Hello World"
-  viren2d::TextStyle text_style(35.0, "sans-serif", "crimson", true, false);
+  viren2d::TextStyle text_style(35.0, "sans-serif", "#c0bab1", true, false);
 
   viren2d::Rect bbox = painter->DrawText(
       {"Hello World!"}, {200.0, 25.0}, viren2d::Anchor::Center, text_style);
 
   // Draw markers to the left & right:
   viren2d::MarkerStyle marker_style(
-        viren2d::Marker::Pentagram, 40.0, 1.0, "midnight-blue", true);
+        viren2d::Marker::Pentagram, 30.0, 1.0, "midnight-blue", true,
+        2.0, "ivory");
 
-  painter->DrawMarker({bbox.left() - 30.0, 25.0}, marker_style);
-  painter->DrawMarker({bbox.right() + 30.0, 25.0}, marker_style);
+  painter->DrawMarker({bbox.left() - 35.0, 25.0}, marker_style);
+  painter->DrawMarker({bbox.right() + 35.0, 25.0}, marker_style);
 
 #ifdef WITH_OPENCV
   // Request a copy of the canvas, because an ImageBuffer swaps
