@@ -318,7 +318,11 @@ ImageBuffer OpticalFlowLegend(
           dst, {sz_half, sz_half}, Anchor::Center, 1.0, 1.0, 1.0, 0.0, 1.0);
     return painter->GetCanvas(true);
   } else {
-    return dst;
+    if (dst.Channels() != output_channels) {
+      return dst.ToChannels(output_channels);
+    } else {
+      return dst;
+    }
   }
 }
 

@@ -102,7 +102,7 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
 
   m.def("optical_flow_legend",
         &OpticalFlowLegendHelper, R"docstr(
-        TODO
+        Returns the color wheel visualization.
 
         Args:
           size: The output image will be ``size`` by ``size`` pixels.
@@ -110,10 +110,16 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
             colorization. In addition to the enum value, the corresponding
             string representation can be used for convenience.
           line_style: A :class:`~viren2d.LineStyle` specifying how to draw the
-            grid overlay on the legend.
-          draw_circle: :class:`bool` TODO
-          clip_circle: TODO - if channels == 4 --> clip, otherwise no effect
+            grid overlay on the legend. Disable grid overlay by passing
+            :attr:`LineStyle.Invalid`.
+          draw_circle: If the grid is overlaid (see ``line_style``), you can
+            overlay a circle by setting this flag to ``True``).
+          clip_circle: If ``output_channels`` is 4 and this flag is ``True``,
+            the color wheel legend will be clipped by a circle within the alpha
+            channel.
           output_channels: Number of output channels, must be either 3 or 4.
+            If a fourth channel is requested, it is considered an alpha
+            channel. Alpha values depend on the value of ``clip_circle``.
 
         Returns:
           A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
