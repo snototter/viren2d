@@ -12,6 +12,8 @@ def demo_optical_flow():
     
     painter = viren2d.Painter(height=230, width=600, color='white!0')
     grid_style = viren2d.LineStyle(2, "black!60")
+    text_style = viren2d.TextStyle(
+        family='xkcd', size=18)
 
     scale = (painter.width / 2 - 15) / flow.width
 
@@ -24,7 +26,7 @@ def demo_optical_flow():
             scale_x=scale, scale_y=scale)
 
         legend = viren2d.optical_flow_legend(
-            size=120, colormap=cmap, line_style=grid_style)
+            size=100, colormap=cmap, line_style=grid_style)
 
         painter.draw_image(
             legend,
@@ -33,5 +35,11 @@ def demo_optical_flow():
                 5 + (flow_vis.height - 10) * scale),
             anchor='bottom-right', line_style=grid_style, clip_factor=1,
             scale_x=scale, scale_y=scale)
+        
+        painter.draw_text(
+            [cmap], position=(
+                x + flow_vis.width * scale / 2,
+                5 + (flow_vis.height - 10) * scale),
+            anchor='bottom', text_style=text_style)
 
     return np.array(painter.canvas, copy=True)
