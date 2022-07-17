@@ -472,7 +472,8 @@ struct TextStyle {
   /// for more details.
   std::string family;
 
-  //TODO doc
+
+  /// Color of the glyphs.
   Color color;
 
 

@@ -853,7 +853,7 @@ void RegisterPainter(py::module &m) {
   painter.def(
         "draw_text",
         &PainterWrapper::DrawText, R"docstr(
-        Renders text onto the canvas.
+        Draws single- or multi-line text.
 
         Args:
           text: A :class:`list` of :class:`str` to be drawn.
@@ -902,7 +902,7 @@ void RegisterPainter(py::module &m) {
   painter.def(
         "draw_text_box",
         &PainterWrapper::DrawTextBox, R"docstr(
-        Draws a text box.
+        Draws a single- or multi-line text box.
 
         Args:
           text: A :class:`list` of :class:`str` to be drawn.

@@ -1,3 +1,13 @@
+"""
+These tests should ensure that we identify breaking API changes.
+
+Goal is to detect typos, missing bindings, etc.
+
+Instead of using a fixture to set up the canvas, each test_draw_xxx should try
+to draw on an invalid canvas first. This is to ensure that calling draw_xxx
+before setting up the canvas will raise a RuntimeError
+"""
+
 import pytest
 import viren2d
 import pathlib
@@ -51,22 +61,6 @@ def test_painter_basics():
     assert p.is_valid()
     assert p.width == 700
     assert p.height == 800
-
-
-
-#TODO test init filename
-#TODO test init image
-
-
-# test_draw_xxx should ensure that we identify
-# breaking API changes (e.g. missed bindings; forgot
-# to update parametrization, ...)
-#
-# Instead of using a fixture to set up the canvas,
-# each test_draw_xxx should try to draw on an invalid
-# canvas first. This is to ensure that calling 
-# draw_xxx before setting up the canvas will raise
-# a RuntimeError
 
 
 def is_valid_line(line_style):
@@ -150,7 +144,6 @@ def test_draw_arrow():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_arrow((0, 0), (50, 50))
     # Prepare canvas
@@ -186,7 +179,6 @@ def test_draw_circles():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_circle((10, 10), 5)
     # Prepare canvas
@@ -220,7 +212,6 @@ def test_draw_ellipse():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)))
     # Prepare canvas
@@ -243,17 +234,11 @@ def test_draw_ellipse():
             rotation=90, angle_from=45, angle_to=-45,
             include_center=False))
 
-    
-#TODO    ### Sweep valid and invalid configurations
-    # Collect ellipses
-    # Try to draw with different style variations
-
 
 def test_draw_grid():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_grid(20, 20, viren2d.LineStyle())
     # Prepare canvas
@@ -300,7 +285,6 @@ def test_draw_line():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_line((0, 0), (50, 50), viren2d.LineStyle())
     # Prepare canvas
@@ -337,7 +321,6 @@ def test_draw_marker():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_marker((0, 0))
     # Prepare canvas
@@ -385,7 +368,6 @@ def test_draw_rect():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_rect(((0, 0), (30, 50)))
     # Prepare canvas
@@ -448,11 +430,77 @@ def test_draw_rect():
                         p.draw_rect(rect, style, fill_color)
 
 
+def test_draw_text():
+    # Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    with pytest.raises(RuntimeError):
+        p.draw_text(['test'], (10, 10))
+    # Prepare canvas
+    p.set_canvas_rgb(height=300, width=400)
+    assert p.is_valid()
+
+    p.draw_text(['test'], (10, 10))
+    p.draw_text(text=['test'], position=(10, 10))
+
+    text_style = viren2d.TextStyle()
+    text_style.size = -3
+    with pytest.raises(ValueError):
+        p.draw_text(
+            text=['test'], position=(50, 100), anchor='north-west',
+            text_style=text_style, padding=(77, 3), rotation=13)
+
+    # With/without parameter names    
+    text_style.size = 10
+    p.draw_text(
+        text=['test'], position=(50, 100), anchor='north-west',
+        text_style=text_style, padding=(77, 3), rotation=13)
+
+    p.draw_text(
+            ['test'], (50, 100), 'south', text_style, (77, 3), 13)
+
+
+def test_draw_text_box():
+    # Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    with pytest.raises(RuntimeError):
+        p.draw_text_box(['test'], (10, 10))
+    # Prepare canvas
+    p.set_canvas_rgb(height=300, width=400)
+    assert p.is_valid()
+
+    p.draw_text_box(['test'], (10, 10))
+    p.draw_text_box(text=['test'], position=(10, 10))
+
+    for border_style in [viren2d.LineStyle.Invalid, viren2d.LineStyle()]:
+        for box_size in [(-1, -1), (20, 10), (200, 70)]:
+            text_style = viren2d.TextStyle()
+            text_style.size = -3
+            with pytest.raises(ValueError):
+                p.draw_text_box(
+                    text=['test'], position=(50, 100), anchor='north-west',
+                    text_style=text_style, padding=(77, 3), rotation=90,
+                    line_style=border_style, fill_color='blue', radius=0.1,
+                    fixed_size=box_size)
+
+            # With/without parameter names    
+            text_style.size = 15
+            p.draw_text_box(
+                    text=['test'], position=(50, 100), anchor='north-west',
+                    text_style=text_style, padding=(77, 3), rotation=90,
+                    line_style=border_style, fill_color='blue', radius=0.1,
+                    fixed_size=box_size)
+
+            p.draw_text_box(
+                    ['test'], (50, 100), 'north-west', text_style, (77, 3),
+                    90, border_style, 'blue', 0.1, box_size)
+
+
 def test_draw_trajectory():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    # Try drawing on invalid painter
     with pytest.raises(RuntimeError):
         p.draw_trajectory([(0, 0), (50, 50)])
     # Prepare canvas
@@ -515,5 +563,3 @@ def test_draw_trajectory():
                     trajectory=pts, line_style=line_style)
             # Painter should always be kept in a valid state
             assert p.is_valid()
-
-#TODO add tests for other draw_xxx functions    

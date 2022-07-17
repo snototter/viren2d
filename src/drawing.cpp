@@ -317,7 +317,7 @@ protected:
       } else if (p.second.IsSpecialSame()) {
         s.color = style.color.WithAlpha(p.second.alpha);
       } else {
-        s.color = p.second;
+        s.color = style.color;
       }
 
       helpers::DrawTrajectory(
