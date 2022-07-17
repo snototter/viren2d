@@ -73,8 +73,8 @@ both **C++ and Python** environments.
    * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
    * |unchecked| Polygons - WIP (implemented, but not fully tested/documented)
    * |checked| Rectangles
-   * |unchecked| Text (single-/multi-line) - WIP (implemented, but not fully tested/documented)
-   * |unchecked| Text Boxes (single-/multi-line) - WIP (implemented, but not fully tested/documented)
+   * |checked| Text (single- and multi-line)
+   * |checked| Text Boxes (single- and multi-line)
    * |checked| Trajectories
 
 **Which features will be added in the future?**

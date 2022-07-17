@@ -6,7 +6,6 @@
 #include <cassert>
 #include <cstring> // memcpy
 #include <algorithm> // std::swap
-#include <iostream> // TODO remove
 
 #include <werkzeugkiste/strings/strings.h>
 #include <werkzeugkiste/geometry/utils.h>

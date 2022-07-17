@@ -13,6 +13,10 @@ namespace wgu = werkzeugkiste::geometry;
 #include <helpers/drawing_helpers.h>
 #include <helpers/enum.h>
 
+// Flag to enable debugging the text extent (will render an additional box
+// around the text and also highlight the given reference position)
+//#define VIREN2D_DEBUG_TEXT_EXTENT
+
 
 namespace viren2d {
 namespace helpers {
@@ -252,7 +256,6 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
   MultiLineText mlt(text, text_style, context);
   mlt.Align(transformed_anchor_position, anchor, padding, fixed_box_size);
 
-//#define VIREN2D_DEBUG_TEXT_EXTENT // TODO(snototter) document this debug flag
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   // Draw a box showing the text extent
   DrawRect(surface, context, mlt.BoundingBox(),
