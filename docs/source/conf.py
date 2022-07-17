@@ -21,6 +21,7 @@ project = 'viren2d'
 copyright = '2022, snototter'
 author = 'snototter'
 
+from multiprocessing import dummy
 import viren2d
 version = viren2d.__version__
 release = version
@@ -37,6 +38,7 @@ extensions = [
   'sphinx.ext.napoleon',  # Parse Google and NumPy docstrings
   'sphinx.ext.mathjax',
   'sphinx.ext.intersphinx',
+  'sphinx_copybutton',  # Copy button for code examples
   'autodocsumm', # adds TOC for autosummary: https://autodocsumm.readthedocs.io/en/latest/index.html
 ]
 
@@ -74,6 +76,7 @@ exclude_patterns = []
 #html_theme = 'alabaster'
 
 html_theme = "sphinx_rtd_theme"
+#html_theme = "furo"
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -89,12 +92,13 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
-#html_static_path = ['_static']
+#html_static_path = []
+html_static_path = ['_static']
 
 
-#https://stackoverflow.com/a/5599712/400948
-def skip(app, what, name, obj, would_skip, options):
+# Include operators in autodoc
+# Taken from https://stackoverflow.com/a/5599712/400948
+def autodoc_skip_member(app, what, name, obj, would_skip, options):
     if name == "__init__":
         return False
     # Include overloaded operators:
@@ -104,24 +108,74 @@ def skip(app, what, name, obj, would_skip, options):
         return False
     return would_skip
 
+
+# Provides a summary table with links to the most important
+# interface functionality, i.e. Painter.draw_xxx methods.
+from docutils import nodes
+from docutils.parsers.rst import Directive, directives
+from docutils.statemachine import StringList
+from sphinx.util.nodes import nested_parse_with_titles
+from inspect import currentframe
+
+def get_linenumber():
+    cf = currentframe()
+    return cf.f_back.f_lineno
+
+class Viren2dDrawingSummary(Directive):
+    has_content = True
+
+    def run(self):
+        tdraw = self._create_table_drawing_methods()
+        return tdraw
+
+    
+    def _create_table_drawing_methods(self):
+        """
+        Creates a rst-formatted StringList, which is
+        then parsed and returned as a `nodes.table` instance
+        I didn't find an easier way to resolve the code doc links.
+        """
+        draw_fxs = sorted(
+            [f for f in dir(viren2d.Painter)
+             if callable(getattr(viren2d.Painter, f))
+             and f.startswith('draw_')])
+        max_fname_len = max([len(f) for f in draw_fxs])
+
+        docstr = []
+        for f in draw_fxs:
+            m = getattr(viren2d.Painter, f)
+            # Find the first non-empty line after the method's signature
+            lines = list(
+                filter(len, [l.strip() for l in m.__doc__.split('\n')[1:10]]))
+            if len(lines) > 0:
+                docstr.append(lines[0])
+            else:
+                docstr.append('')
+        max_summary_len = max([len(d) for d in docstr])
+        # We add 25 chars in col 0 for the markup :meth:`~viren2d.Painter.`
+        max_fname_len += 25
+        row_fmt_str = f'{{name:{max_fname_len}s}}  {{summary:s}}'
+        ruler = max_fname_len * '=' + '  ' + max_summary_len * '='
+
+        lines = [ruler]
+        for idx in range(len(draw_fxs)):
+            frst = f':meth:`~viren2d.Painter.{draw_fxs[idx]}`'
+            srst = docstr[idx]
+            lines.append(row_fmt_str.format(name=frst, summary=srst))
+        lines.append(ruler)
+
+        self.content = StringList(lines)
+        txt = '\n'.join(self.content)
+        node = nodes.table(txt)
+        self.add_name(node)
+        self.state.nested_parse(self.content, self.content_offset, node)
+        return node.children
+
+
 def setup(app):
-    app.connect("autodoc-skip-member", skip)
+    # I want to include overloaded operators in autodoc
+    app.connect("autodoc-skip-member", autodoc_skip_member)
+    app.add_css_file("dark.css")
 
-#autodoc_default_flags = ['members', 'private-members', 'special-members',
-#                         #'undoc-members',
-#                         'show-inheritance']
-
-#def autodoc_skip_member(app, what, name, obj, skip, options):
-#    # Ref: https://stackoverflow.com/a/21449475/
-#    exclusions = ('__weakref__',  # special-members
-#                  '__doc__', '__module__', '__dict__',  # undoc-members
-#                  )
-#    exclude = name in exclusions
-#    print(f'what {what}::: name {name}::: obj {obj}::: skip {skip}')
-#    # return True if (skip or exclude) else None  # Can interfere with subsequent skip functions.
-#    return True if exclude else None
- 
-#def setup(app):
-#    app.connect('autodoc-skip-member', autodoc_skip_member)
-
-
+    # Custom directives
+    app.add_directive("viren2d-drawing-summary", Viren2dDrawingSummary)

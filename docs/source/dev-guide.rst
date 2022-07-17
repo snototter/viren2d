@@ -4,9 +4,11 @@ Development Guide
 
 .. _dev-guide:
 
-If you plan on extending ``viren2d``, please consider the following style
-guide, design decisions and recommendations. This ensures that your new feature
-can be swiftly integrated into the library.
+Contributions to ``viren2d`` are highly welcome via
+`pull request <https://github.com/snototter/viren2d/pulls>`__.
+If you plan on adding features, please consider the following style
+guide, design decisions and recommendations. This ensures that your new
+feature can be swiftly integrated into the library.
 
 
 ~~~~~~~~~~~~
@@ -18,12 +20,14 @@ The implementation should (mostly) follow the Google coding style guides
 `for Python <https://google.github.io/styleguide/pyguide.html>`__.
 
 General design decision: The Python bindings should use **snake case**
-(except for class/type names), whereas the C++ interface should use **camel case**.
+(except for class & type names), whereas the C++ interface should use
+**camel case**.
 
 Since the documentation is build using `sphinx <https://www.sphinx-doc.org/>`__,
-the *reStructuredText* (reST) markup should be used. Check the 
+the *reStructuredText* (reST) markup should be used to document the Python
+interface. Refer to the
 `reStructuredText Primer <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_
-if you need a refresher on reST syntax.
+if you need a refresher on the reST syntax.
 
 
 ~~~~~~~~~~~~~
@@ -35,14 +39,14 @@ its :ref:`API documentation<api-documentation>` here on
 `RTD <https://readthedocs.org/>`_. So the most important advice for documenting
 new features is: **Be consistent!**
 
-The interface documentation should focus on **clarity** and **readability**.
+Following the coding style, the interface documentation should focus on
+**clarity** and **readability**. There's of course a tradeoff due to using
+reST markup for the RTD documentation.
 
-Don't forget to update the :ref:`API documentation<api-documentation>`
-once the new feature is finished.
+New features must be included in the :ref:`API documentation<api-documentation>`.
 
 Additionally, it might be useful to include a short example in the
 :ref:`quickstart tutorial<quickstart>`.
-
 
 
 ~~~~~~~~~~~~~~
@@ -57,6 +61,9 @@ Please also familiarize yourself with the
 ...........
 C++ Library
 ...........
+
+.. warning::
+   TODO order this list
 
 *  For each custom type (where applicable), add a c'tor using 
    ``std::initializer_list`` for less cluttered & more convenient use.
@@ -107,7 +114,8 @@ C++ Library
 Python Library
 ..............
 
-TODO order these points:
+.. warning::
+   TODO order this list
 
 *  When extending the :class:`~viren2d.Painter`, keep the alphabetic order of
    its ``draw_xxx`` bindings to aid maintainability.
@@ -316,7 +324,7 @@ In case you need to familiarize yourself with Cairo, I can recommend:
 Other Functionality
 ...................
 
-TODO design decisions for pseudocolor, etc.
+TODO design decisions for pseudocolor (256 bins, RGB), etc.
 
 
 ~~~~~~~~~~~~
@@ -324,38 +332,24 @@ Nice-to-Have
 ~~~~~~~~~~~~
 
 Some **functional features**, that I'd like to see at some time in the future:
-
-*  Pseudocoloring (for any/most common input data types - not only uint8)
-
-*  Image overlay (uint8 only, via the :class:`~viren2d.Painter`)
-  
-*  Pixelization via the :class:`~viren2d.ImageBuffer` (can be realized via
-   proper indexing)
-
-*  Support loading optical flow files, *i.e.* ``.flo`` format
   
 *  Creating a collage (auto-padding, maybe aspect-aware resizing).
    Best option might be to reuse *image overlay*, *i.e.* initialize
    the canvas and simply layout the images.
 
 *  Support switching between the image surface and cairo's SVG surface.
+   Summary of preliminary trials:
 
-   Note: I did some preliminary tests on this but didn't follow this route
-   for now. Even with the basic SVG examples I wasn't able to correctly
-   render image data (always ended up with empty SVGs). This will need some
-   deeper digging...
+   * SVG version must be set explicitly to 1.2
+   * Only RGB images seem to be included properly in the SVG file (empty
+     outputs with other formats; didn't investigate further so far)
+   * Backend must be configurable via the Painter interface
+   * Need to decide how the units should be best handled (SVG surface
+     uses points, all other functionality assumes pixels).
 
 *  Creating stereoglyphs
-
-*  Smoothing of trajectories.
   
-   Although this should be implemented in werkzeugkiste, maybe along with sketch
-   filtering, like xkcd, *e.g.* 
-   `via 1D interpolation <https://github.com/slayton/matlab-xkcdify>`__ ,
-   or `as in mpl <https://github.com/JohannesBuchner/matplotlib-xkcdify>`__ - 
-   though this will be quite some work due to spline fitting (*e.g.* via
-   `ALGLIB <http://www.alglib.net/interpolation/spline3.php#header7>`__ or
-   `NCAR/EOL bspline <https://github.com/NCAR/bspline>`__)
+*  Extend ImageBuffer to support the more "exotic" data types.
 
 
 Some **workflow-related extensions**, I'd fancy:
@@ -369,5 +363,3 @@ Some **workflow-related extensions**, I'd fancy:
    push, but before the RTD workflow starts building the docs)
 
 *  Prepare github templates for PRs, issue reports, *etc.*
-
-

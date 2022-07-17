@@ -5,6 +5,8 @@
 #include <viren2d/styles.h>
 #include <viren2d/drawing.h>
 
+#include <helpers/enum.h>
+
 
 TEST(StyleTest, LineStyleBasics) {
   // Default initialization should yield a valid/sane style
@@ -184,6 +186,40 @@ TEST(StyleTest, MarkerStyleTest) {
   style1.size = -1;
   EXPECT_FALSE(style1.IsValid());
 
-  // TODO test initializations from char representations
-  // TODO test isvalid checks
+  style1.marker = viren2d::Marker::Heptagram;
+  EXPECT_FALSE(style1.IsValid());
+  style1.size = 10;
+  style1.filled = false;
+  style1.thickness = -1;
+  EXPECT_FALSE(style1.IsValid());
+  style1.filled = true;
+  EXPECT_TRUE(style1.IsValid());
+  style1.filled = false;
+  style1.thickness = 1;
+  EXPECT_TRUE(style1.IsValid());
+
+  style1 = style2;
+  EXPECT_EQ(style1, style2);
+  style1.marker = viren2d::MarkerFromChar('5');
+  style2.marker = viren2d::Marker::Pentagon;
+  EXPECT_NE(style1, style2);
+  style2.marker = viren2d::Marker::Pentagram;
+  EXPECT_EQ(style1, style2);
+
+
+  // Ensure that the char to marker mapping is correctly
+  // implemented for all markers
+  // Ensure that all NamedColors are properly mapped (bothm from & to string)
+  typedef viren2d::ContinuousEnumIterator<viren2d::Marker,
+              viren2d::Marker::Point,
+              viren2d::Marker::Enneagon> MarkerIterator;
+  style1 = style2;
+  EXPECT_EQ(style1, style2);
+  for (viren2d::Marker marker: MarkerIterator()) {
+    style1.marker = marker;
+    char m_code = viren2d::MarkerToChar(marker);
+    style2.marker = viren2d::MarkerFromChar(m_code);
+    EXPECT_EQ(style1, style2) << "Mismatch between marker enum & char construction: "
+                              << style1 << " vs " << style2;
+  }
 }

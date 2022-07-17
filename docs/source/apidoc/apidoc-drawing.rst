@@ -13,4 +13,3 @@ Painter
    :autosummary:
    :autosummary-nosignatures:
    :members:
-

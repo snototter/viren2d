@@ -12,6 +12,7 @@ build:
   - cmake
   - libcairo2-dev
   - libspdlog-dev
+  - libeigen3-dev
   tools:
     python: "3.8"
   jobs:

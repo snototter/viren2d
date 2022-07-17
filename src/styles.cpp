@@ -15,16 +15,15 @@
 
 //TODO logging
 
-namespace wgu = werkzeugkiste::geometry;
-namespace wgs = werkzeugkiste::strings;
+namespace wkg = werkzeugkiste::geometry;
+namespace wks = werkzeugkiste::strings;
 
 namespace viren2d {
 namespace helpers {
-/**
- * Returns desired_fill if the given marker is fillable.
- * Otherwise, returns true if the marker is fillable and
- * false if it's not.
- */
+
+/// Returns desired_fill if the given marker is fillable.
+/// Otherwise, returns true if the marker is fillable and
+/// false if it's not.
 bool AdjustMarkerFill(Marker marker, bool desired_fill) {
   switch (marker) {
     case Marker::Circle:
@@ -56,10 +55,10 @@ bool AdjustMarkerFill(Marker marker, bool desired_fill) {
       return desired_fill;
   }
 
-  std::ostringstream s;
-  s << "Marker '" << marker
-    << "' has not been mapped to `AdjustMarkerFill`!";
-  throw std::invalid_argument(s.str());
+  std::string s("Marker '");
+  s += MarkerToChar(marker);
+  s += "' is not mapped in `AdjustMarkerFill`!";
+  throw std::logic_error(s);
 }
 } // namespace helpers
 
@@ -77,13 +76,13 @@ std::string LineCapToString(LineCap cap) {
 
   std::ostringstream s;
   s << "LineCap (" << static_cast<int>(cap)
-    << ") is not yet supported in LineCapToString()!";
-  throw std::runtime_error(s.str());
+    << ") is not mapped in `LineCapToString`!";
+  throw std::logic_error(s.str());
 }
 
 
 LineCap LineCapFromString(const std::string &cap) {
-  const auto lower = wgs::Lower(cap);
+  const auto lower = wks::Trim(wks::Lower(cap));
   if (lower.compare("butt") == 0) {
     return LineCap::Butt;
   } else if (lower.compare("square") == 0) {
@@ -92,16 +91,25 @@ LineCap LineCapFromString(const std::string &cap) {
     return LineCap::Round;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce LineCap from string representation \""
-    << cap << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce `LineCap` from string representation \"");
+  s += cap;
+  s += "\"!";
+  throw std::logic_error(s);
 }
 
 
 std::ostream &operator<<(std::ostream &os, LineCap cap) {
   os << LineCapToString(cap);
   return os;
+}
+
+
+double LineCapOffset(LineCap cap, double line_width) {
+  if (cap == LineCap::Butt) {
+    return 0.0;
+  } else {
+    return line_width / 2.0;
+  }
 }
 
 
@@ -117,13 +125,13 @@ std::string LineJoinToString(LineJoin join) {
 
   std::ostringstream s;
   s << "LineJoin (" << static_cast<int>(join)
-    << ") is not yet supported in LineJoinToString()!";
-  throw std::runtime_error(s.str());
+    << ") is not mapped in `LineJoinToString`!";
+  throw std::logic_error(s.str());
 }
 
 
 LineJoin LineJoinFromString(const std::string &join) {
-  const auto lower = wgs::Lower(join);
+  const auto lower = wks::Lower(join);
   if (lower.compare("miter") == 0) {
     return LineJoin::Miter;
   } else if (lower.compare("bevel") == 0) {
@@ -132,16 +140,36 @@ LineJoin LineJoinFromString(const std::string &join) {
     return LineJoin::Round;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce LineJoin from string representation \""
-    << join << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce `LineJoin` from string representation \"");
+  s += join;
+  s += "\"!";
+  throw std::logic_error(s);
 }
 
 
 std::ostream &operator<<(std::ostream &os, LineJoin join) {
   os << LineJoinToString(join);
   return os;
+}
+
+
+// TODO Add option to query and adjust the miter limit - e.g. via
+//   additional member of LineStyle?
+// --> currently cap/join offset is only used by drawing helpers; this
+// query/adjustment option is not yet needed
+double LineJoinOffset(
+    LineJoin join, double line_width, double interior_angle,
+    double miter_limit) {
+  // For a diagram of how to compute the miter length, see
+  //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
+  const double miter_length = line_width / std::max(1e-6, std::sin(wkg::deg2rad(interior_angle / 2.0)));
+  if (((miter_length / line_width) > miter_limit)  // Cairo would switch to BEVEL
+      || (join == LineJoin::Round)
+      || (join == LineJoin::Bevel)) {
+    return line_width / 2.0;
+  } else {
+    return miter_length / 2.0;
+  }
 }
 
 
@@ -193,10 +221,10 @@ Marker MarkerFromChar(char m) {
     return Marker::Enneagon;
   }
 
-  std::ostringstream s;
-  s << "Could not deduce Marker from char '"
-    << m << "'.";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not deduce Marker from char '");
+  s += m;
+  s += "'!";
+  throw std::logic_error(s);
 }
 
 
@@ -272,8 +300,9 @@ char MarkerToChar(Marker marker) {
   std::ostringstream s;
   s << "Marker value ("
     << static_cast<int>(marker)
-    << ") has not been mapped to char representation!";
-  throw std::invalid_argument(s.str());
+    << ") has not been mapped to char representation "
+       "in `MarkerToChar`!";
+  throw std::logic_error(s.str());
 }
 
 
@@ -283,14 +312,14 @@ std::ostream &operator<<(std::ostream &os, Marker marker) {
 }
 
 
-std::vector<char> ListMarkers() {
+std::vector<Marker> ListMarkers() {
   SPDLOG_TRACE("ListMarkers().");
-  std::vector<char> lst;
+  std::vector<Marker> lst;
   typedef ContinuousEnumIterator<Marker,
     Marker::Point, Marker::Enneagon> MarkerIterator;
 
   for (Marker m: MarkerIterator()) {
-    lst.push_back(MarkerToChar(m));
+    lst.push_back(m);
   }
 
   return lst;
@@ -302,37 +331,37 @@ MarkerStyle::MarkerStyle()
     size(10.0), thickness(3.0),
     color(NamedColor::Azure),
     filled(helpers::AdjustMarkerFill(marker, false)),
-    cap(LineCap::Butt),
+    background_border(0),
+    background_color(Color::Invalid),
+    cap(LineCap::Round),
     join(LineJoin::Miter)
 {}
 
 
-MarkerStyle::MarkerStyle(Marker type, double marker_size, double marker_thickness,
-                         const Color &marker_color, bool fill,
-                         viren2d::LineCap line_cap, viren2d::LineJoin line_join)
+MarkerStyle::MarkerStyle(Marker type, double marker_size, double thickness_marker,
+    const Color &color_marker, bool fill, double border_background,
+    const Color &color_background, viren2d::LineCap line_cap,
+    viren2d::LineJoin line_join)
   : marker(type),
     size(marker_size),
-    thickness(marker_thickness),
-    color(marker_color),
+    thickness(thickness_marker),
+    color(color_marker),
     filled(helpers::AdjustMarkerFill(type, fill)),
-    cap(line_cap), join(line_join)
-{}
-
-
-MarkerStyle::MarkerStyle(char type, double marker_size, double marker_thickness,
-                         const Color &marker_color, bool fill,
-                         LineCap line_cap, LineJoin line_join)
-  : MarkerStyle(MarkerFromChar(type), marker_size, marker_thickness,
-                marker_color, fill, line_cap, line_join)
+    background_border(border_background),
+    background_color(color_background),
+    cap(line_cap),
+    join(line_join)
 {}
 
 
 bool MarkerStyle::Equals(const MarkerStyle &other) const {
   return (marker == other.marker)
-      && wgu::eps_equal(size, other.size)
-      && wgu::eps_equal(thickness, other.thickness)
+      && wkg::eps_equal(size, other.size)
+      && wkg::eps_equal(thickness, other.thickness)
       && (color == other.color)
-      && (filled == other.filled);
+      && (filled == other.filled)
+      && (background_border == other.background_border)
+      && (background_color == other.background_color);
 }
 
 
@@ -357,10 +386,12 @@ bool MarkerStyle::IsFilled() const {
 
 
 std::string MarkerStyle::ToString() const {
+  //TODO maybe change most "measurement" types of viren2d::XYStyles to int?
+  //  who wants to use 1.5px line width anyhow... --> on the
+  //  other hand, we might need the higher precision, once
+  //  we switch to svg output (need to think about it!).
+
   std::ostringstream s;
-  //FIXME maybe change "most" measurement types to int?
-  // who wants to use 1.5px line width anyhow... --> on the
-  // other hand, we might need it once we switch to svg output (need to think about it!)
   s << "MarkerStyle('" << MarkerToChar(marker)
     << std::fixed << std::setprecision(1)
     << "', sz=" << size
@@ -398,34 +429,33 @@ LineStyle::LineStyle()
   : width(2),
     color(Color(NamedColor::Azure)),
     dash_pattern({}),
+    dash_offset(0.0),
     cap(LineCap::Butt),
     join(LineJoin::Miter)
 {}
 
 
-LineStyle::LineStyle(std::initializer_list<double> values) {
-  if (values.size() < 2) {
-    *this = LineStyle();
-    if (values.size() > 0) {
-      width = values.begin()[0];
-    }
-  } else {
-    std::ostringstream s;
-    s << "LineStyle c'tor requires 0, or 1 elements in initializer_list, "
-      << "but got " << values.size() << ".";
-    throw std::invalid_argument(s.str());
-  }
-}
-
-LineStyle::LineStyle(double width, const Color &col,
-                     const std::vector<double> &dash,
-                     LineCap cap, LineJoin join)
+LineStyle::LineStyle(
+    double width, const Color &col,
+    const std::vector<double> &dash,
+    double offset, LineCap cap, LineJoin join)
   : width(width), color(col), dash_pattern(dash),
-    cap(cap), join(join)
+    dash_offset(offset), cap(cap), join(join)
 {}
 
 
 bool LineStyle::IsValid() const {
+  // Dash strokes must be positive. Otherwise, it would put the
+  // drawing context into an error state, see also:
+  // https://cairographics.org/manual/cairo-cairo-t.html#cairo-set-dash
+  // The following check is slightly stricter, because we don't
+  // allow *any* 0-length strokes (I don't see an actual benefit
+  // of having a dash pattern where "some" strokes can be 0)
+  for (double d : dash_pattern) {
+    if (d <= 0.0) {
+      return false;
+    }
+  }
   return (width > 0.0) && color.IsValid();
 }
 
@@ -437,37 +467,6 @@ bool LineStyle::IsSpecialInvalid() const {
 
 bool LineStyle::IsDashed() const {
   return dash_pattern.size() > 0;
-}
-
-
-double LineStyle::CapOffset() const {
-  switch (cap) {
-    case LineCap::Butt:
-      return 0.0;
-
-    case LineCap::Round:
-    case LineCap::Square:
-      return width / 2.0;
-  }
-
-  std::ostringstream s;
-  s << "LineCap::" << LineCapToString(cap)
-    << " is not yet supported in CapOffset()!";
-  throw std::runtime_error(s.str());
-}
-
-
-double LineStyle::JoinOffset(double interior_angle, double miter_limit) const {
-  // For a diagram of how to compute the miter length, see
-  //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
-  const double miter_length = width / std::max(1e-6, std::sin(wgu::deg2rad(interior_angle / 2.0)));
-  if (((miter_length / width) > miter_limit)  // Cairo would switch to BEVEL
-      || (join == LineJoin::Round)
-      || (join == LineJoin::Bevel)) {
-    return width / 2.0;
-  } else {
-    return miter_length / 2.0;
-  }
 }
 
 
@@ -493,7 +492,7 @@ std::string LineStyle::ToDetailedString() const {
 
   std::ostringstream s;
   s << "LineStyle(" << std::fixed << std::setprecision(1)
-    << width << "px, " << color.ToRGBaString() << ", ";
+    << width << "px, " << color.ToHexString() << ", ";
 
   s << "[" << std::fixed << std::setprecision(1);
   for (std::size_t idx = 0; idx < dash_pattern.size(); ++idx) {
@@ -504,6 +503,14 @@ std::string LineStyle::ToDetailedString() const {
   }
   s << ']';
 
+  if (dash_pattern.size() > 0) {
+    s << "+(" << std::fixed << std::setprecision(2)
+      << dash_offset << ')';
+  }
+
+  s << ", cap=" << LineCapToString(cap)
+    << ", join=" << LineJoinToString(join);
+
   if (!IsValid())
     s << ", invalid";
   s << ")";
@@ -513,24 +520,35 @@ std::string LineStyle::ToDetailedString() const {
 
 
 bool LineStyle::Equals(const LineStyle &other) const {
-  if (!wgu::eps_equal(width, other.width))
+  if (!wkg::eps_equal(width, other.width)) {
     return false;
+  }
 
-  if (color != other.color)
+  if (color != other.color) {
     return false;
+  }
 
-  if (dash_pattern.size() != other.dash_pattern.size())
+  if (dash_pattern.size() != other.dash_pattern.size()) {
     return false;
+  }
 
-  for (size_t i = 0; i < other.dash_pattern.size(); ++i)
-    if (!wgu::eps_equal(dash_pattern[i], other.dash_pattern[i]))
+  for (size_t i = 0; i < other.dash_pattern.size(); ++i) {
+    if (!wkg::eps_equal(dash_pattern[i], other.dash_pattern[i])) {
       return false;
+    }
+  }
 
-  if (cap != other.cap)
+  if (!wkg::eps_equal(dash_offset, other.dash_offset)) {
     return false;
+  }
 
-  if (join != other.join)
+  if (cap != other.cap) {
     return false;
+  }
+
+  if (join != other.join) {
+    return false;
+  }
 
   return true;
 }
@@ -552,17 +570,27 @@ ArrowStyle::ArrowStyle()
   : LineStyle(),
     tip_length(0.2), tip_angle(20),
     tip_closed(false), double_headed(false) {
-  // Change default cap, looks nicer:
+  // Change default cap, round looks nicer:
   cap = LineCap::Round;
 }
 
 
-ArrowStyle::ArrowStyle(double width, const Color &col,
-                       double tip_len, double angle,
-                       bool fill, bool two_heads,
-                       const std::vector<double> &dash,
-                       LineCap cap, LineJoin join)
-  : LineStyle(width, col, dash, cap, join),
+ArrowStyle::ArrowStyle(
+    double width, const Color &col,
+    double tip_len, double angle,
+    bool fill, bool two_heads,
+    const std::vector<double> &dash,
+    double offset, LineCap cap, LineJoin join)
+  : LineStyle(width, col, dash, offset, cap, join),
+    tip_length(tip_len), tip_angle(angle),
+    tip_closed(fill), double_headed(two_heads)
+{}
+
+
+ArrowStyle::ArrowStyle(
+    const LineStyle &line_style, double tip_len,
+    double angle, bool fill, bool two_heads)
+  : LineStyle(line_style),
     tip_length(tip_len), tip_angle(angle),
     tip_closed(fill), double_headed(two_heads)
 {}
@@ -634,10 +662,10 @@ double ArrowStyle::TipOffset(double miter_limit) const {
 
 
 bool ArrowStyle::Equals(const ArrowStyle &other) const {
-  if (!wgu::eps_equal(tip_length, other.tip_length))
+  if (!wkg::eps_equal(tip_length, other.tip_length))
     return false;
 
-  if (!wgu::eps_equal(tip_angle, other.tip_angle))
+  if (!wkg::eps_equal(tip_angle, other.tip_angle))
     return false;
 
   if (tip_closed != other.tip_closed)
@@ -697,7 +725,7 @@ bool TextStyle::Equals(const TextStyle &other) const {
       && (color == other.color)
       && (bold == other.bold)
       && (italic == other.italic)
-      && wgu::eps_equal(line_spacing, other.line_spacing);
+      && wkg::eps_equal(line_spacing, other.line_spacing);
 }
 
 
@@ -798,7 +826,7 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
       && (clip_label == other.clip_label);
 }
 
-
+//TODO add "to detailed string"
 std::string BoundingBox2DStyle::ToString() const {
   std::ostringstream s;
   s << "BoundingBox2DStyle("

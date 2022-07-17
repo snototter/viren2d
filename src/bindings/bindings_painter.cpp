@@ -1,4 +1,5 @@
 #include <memory>
+#include <tuple>
 #include <sstream>
 #include <stdexcept>
 
@@ -8,46 +9,54 @@
 #include <pybind11/functional.h>
 
 #include <bindings/binding_helpers.h>
-//TODO clean up doc painter;
-// implement runtime tests examples/demo_runtime (10, 50, 100, ...) subsequent calls
+
 
 namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
-TextAnchor TextAnchorFromPyObject(py::object &o) {
+Anchor AnchorFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
-    return TextAnchorFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<TextAnchor>(o)) {
-    return py::cast<TextAnchor>(o);
+    return AnchorFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<Anchor>(o)) {
+    return py::cast<Anchor>(o);
   } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("TextAnchor") << "`!";
-    throw std::invalid_argument(str.str());
+    std::string s("Cannot cast type `");
+    s += py::cast<std::string>(
+          o.attr("__class__").attr("__name__"));
+    s += "` to `viren2d.Anchor`!";
+    throw std::invalid_argument(s);
   }
 }
 
 
-/**
- * @brief A wrapper for the abstract `Painter`
- *
- * This is necessary because I don't want to expose
- * the `ImagePainter` - I like the current factory method
- * layout because the public headers are quite clean.
- * Thus, I cannot (read "don't want to") use pybind11's
- * trampoline mechanism.
- */
+/// A wrapper for the abstract `Painter`
+///
+/// This is necessary because I don't want to expose
+/// the `ImagePainter` - I like the current factory method
+/// layout because the public headers are quite clean.
+/// Thus, I cannot (read "don't want to") use pybind11's
+/// trampoline mechanism.
 class PainterWrapper {
 public:
   PainterWrapper() : painter_(CreatePainter())
   {}
 
 
-  void SetCanvasColor(int width, int height, const Color &color) {
-    painter_->SetCanvas(width, height, color);
+  PainterWrapper(const ImageBuffer &image)
+    : painter_(CreatePainter()) {
+    SetCanvasImage(image);
+  }
+
+
+  PainterWrapper(int height, int width, const Color &color)
+    : painter_(CreatePainter()) {
+    SetCanvasColor(height, width, color);
+  }
+
+
+  void SetCanvasColor(int height, int width, const Color &color) {
+    painter_->SetCanvas(height, width, color);
   }
 
 
@@ -124,6 +133,17 @@ public:
   }
 
 
+  void DrawImage(
+      ImageBuffer &image, const Vec2d &position,
+      const py::object &anchor, double alpha, double scale_x, double scale_y,
+      double rotation, double clip_factor, const LineStyle &line_style) {
+    Anchor a = AnchorFromPyObject(anchor);
+    painter_->DrawImage(
+          image, position, a, alpha,
+          scale_x, scale_y, rotation, clip_factor, line_style);
+  }
+
+
   void DrawLine(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) {
@@ -157,45 +177,56 @@ public:
   }
 
 
-  void DrawText(
+  Rect DrawText(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, py::object &pyanchor,
+      const Vec2d &position, const py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) {
-    TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
-    painter_->DrawText(
-          text, anchor_position, anchor,
+    Anchor anchor = AnchorFromPyObject(pyanchor);
+    return painter_->DrawText(
+          text, position, anchor,
           text_style, padding, rotation);
   }
 
 
-  void DrawTextBox(
+  Rect DrawTextBox(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position, py::object &pyanchor,
+      const Vec2d &position, const py::object &pyanchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,
       const Vec2d &fixed_box_size) {
-    TextAnchor anchor = TextAnchorFromPyObject(pyanchor);
-    painter_->DrawTextBox(
-          text, anchor_position, anchor, text_style,
+    Anchor anchor = AnchorFromPyObject(pyanchor);
+    return painter_->DrawTextBox(
+          text, position, anchor, text_style,
           padding, rotation, box_line_style, box_fill_color,
           box_corner_radius, fixed_box_size);
   }
 
 
   void DrawTrajectory(
-      const std::vector<Vec2d> &points, const LineStyle &style,
+      const std::vector<Vec2d> &trajectory, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
       int smoothing_window,
       const std::function<double(double)> &fading_factor) {
     painter_->DrawTrajectory(
-          points, style, color_fade_out, oldest_position_first,
+          trajectory, style, color_fade_out, oldest_position_first,
           smoothing_window, fading_factor);
   }
 
 
-  /** String representation used to bind __str__ and __repr__. */
+  void DrawTrajectories(
+      const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
+      const LineStyle &style, const Color &color_fade_out,
+      bool oldest_position_first, int smoothing_window,
+      const std::function<double(double)> &fading_factor) {
+    painter_->DrawTrajectories(
+          trajectories, style, color_fade_out, oldest_position_first,
+          smoothing_window, fading_factor);
+  }
+
+
+  /// String representation used to bind __str__ and __repr__.
   std::string StringRepresentation(bool tag) const {
     std::ostringstream s;
     if (tag) {
@@ -227,23 +258,34 @@ private:
 
 void RegisterPainter(py::module &m) {
   py::class_<PainterWrapper> painter(m, "Painter", R"docstr(
-      A :class:`~viren2d.Painter` lets you draw on a canvas.
+      A *Painter* lets you draw on its canvas.
 
-      Typical usage workflow:
+      Typical workflow:
 
-      1. Create a :class:`~viren2d.Painter`:
+      1. Create a painter with an empty canvas:
 
          >>> import viren2d
          >>> painter = viren2d.Painter()
 
       2. Initialize its canvas:
 
-        * Paint an empty canvas with a given color
-          via :meth:`set_canvas_rgb`
-        * Set up the canvas from image data
-          via :meth:`set_canvas_image`
-        * Set up the canvas by loading an image from disk
-          via :meth:`set_canvas_filename`
+         * Paint an empty canvas with a given color
+           via :meth:`set_canvas_rgb`
+         * Set up the canvas from image data
+           via :meth:`set_canvas_image`
+         * Set up the canvas by loading an image from disk
+           via :meth:`set_canvas_filename`
+
+         Note that the overloaded *Painter* constructors allow
+         combining these two steps:
+
+         >>> # Set up from image data, e.g. `numpy.ndarray`:
+         >>> image = np.zeros((600, 800, 3), dtype=np.uint8)
+         >>> painter = viren2d.Painter(image)
+         >>>
+         >>> # Or create a custom, blue canvas:
+         >>> painter = viren2d.Painter(
+         >>>     width=1920, height=1080, color=(0.0, 0.0, 0.8))
 
       3. Draw onto the canvas via the painter's ``draw_xxx(...)``
          methods, for example:
@@ -259,14 +301,45 @@ void RegisterPainter(py::module &m) {
          >>> canvas = painter.get_canvas(copy=True)
          >>> img_np = np.array(canvas, copy=False)
 
-      5. Either continue drawing (step 3) or set
-         a new canvas (step 2, the same painter
-         instance can be reused).
+         Alternatively, if access via properties is preferred,
+         a *shared memory* image buffer can also be via its
+         :attr:`~viren2d.Painter.canvas` attribute. To obtain
+         a deeply copied image as before, we can leverage the
+         :class:`numpy.ndarray` constructor:
+
+         >>> img_np = np.array(painter.canvas, copy=True)
+
+      5. Either continue drawing (step 3) or set up a new
+         canvas (step 2), *i.e.* it is safe to reuse the
+         same painter instance.
       )docstr");
 
   painter.def(
-        py::init<>(),
-        "Default constructor.")
+        py::init<>(), R"docstr(
+        Default constructor.
+
+        Initializes an empty canvas, *i.e.* :meth:`~viren2d.Painter.is_valid`
+        will return ``False`` until the canvas has been properly set up
+        via :meth:`~viren2d.Painter.set_canvas_image`, *etc.*
+        )docstr")
+      .def(
+        py::init<const ImageBuffer&>(), R"docstr(
+        Creates a painter and initializes its canvas from an image.
+
+        Initializes the painter's canvas with the given image.
+        See :meth:`~viren2d.Painter.set_canvas_image` for supported
+        image formats and parameter types.
+        )docstr",
+        py::arg("image"))
+      .def(
+        py::init<int, int, Color>(), R"docstr(
+        Creates a painter with a customized canvas.
+
+        Initializes the painter's canvas and fills it
+        with the given :class:`~viren2d.Color`.
+        )docstr",
+        py::arg("height"), py::arg("width"),
+        py::arg("color") = Color::White)
       .def(
         "__repr__",
         [](const PainterWrapper &p) { return p.StringRepresentation(true); })
@@ -288,14 +361,14 @@ void RegisterPainter(py::module &m) {
 
       Examples:
         >>> painter = viren2d.Painter()
-        >>> painter.set_canvas_rgb(800, 600)
-        >>> painter.set_canvas_rgb(800, 600, 'crimson')
-        >>> painter.set_canvas_rgb(800, 600, (0.5, 0.3, 0.9))
+        >>> painter.set_canvas_rgb(height=600, width=800)
+        >>> painter.set_canvas_rgb(width=800, height=600, color='crimson')
+        >>> painter.set_canvas_rgb(width=800, height=600, color=(0.5, 0.3, 0.9))
       )docstr";
   painter.def(
         "set_canvas_rgb",
         &PainterWrapper::SetCanvasColor, doc.c_str(),
-        py::arg("width"), py::arg("height"),
+        py::arg("height"), py::arg("width"),
         py::arg("color") = Color::White);
 
   painter.def(
@@ -340,6 +413,29 @@ void RegisterPainter(py::module &m) {
         The canvas width & height as the :class:`tuple` ``(W, H)``,
         where ``W`` and ``H`` denote pixels (type :class:`int`).
       )docstr");
+
+  painter.def_property_readonly(
+        "width",
+        [](PainterWrapper &pw) -> py::int_ { return pw.GetCanvasSize()[0]; },
+        "int: Width in pixels of the painter's canvas (read-only).");
+
+  painter.def_property_readonly(
+        "height",
+        [](PainterWrapper &pw) -> py::int_ { return pw.GetCanvasSize()[1]; },
+        "int: Height in pixels of the painter's canvas (read-only).");
+
+  painter.def_property_readonly(
+        "canvas",
+        [](PainterWrapper &pw) -> ImageBuffer { return pw.GetCanvas(false); }, R"docstr(
+        :class:`~viren2d.ImageBuffer`: Provides a **shared memory** view
+          on the painter's canvas for convenience.
+
+          See :meth:`~viren2d.Painter.get_canvas` for details about the
+          image format of the canvas. Can be used to convert the current
+          visualization into a :class:`numpy.ndarray` via:
+
+          >>> img_np = np.array(painter.canvas)
+        )docstr");
 
 
   //----------------------------------------------------------------------
@@ -408,16 +504,24 @@ void RegisterPainter(py::module &m) {
         angle_to: See ``angle_from``
         line_style: A :class:`~viren2d.LineStyle` specifying how
           to draw the arc's outline.
-          If you pass :attr:`viren2d.LineStyle.Invalid`, the contour
-          will not be drawn (then, you must provide a valid
-          ``fill_color``).
+
+          If you pass :attr:`~viren2d.LineStyle.Invalid`, the
+          contour will not be drawn - then, you must provide a
+          valid ``fill_color``.
         include_center:  If ``True`` (default), the center point
           will be included when drawing the outline and filling.
         fill_color: If you provide a valid :class:`~viren2d.Color`,
           the arc will be filled.
 
       Example:
-        >>> #TODO
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=5, color='maroon',
+        >>>     dash_pattern=[], dash_offset=0.0,
+        >>>     cap='round', join='miter')
+        >>> painter.draw_arc(
+        >>>     center=(50, 50), radius=20, angle_from=30, angle_to=330,
+        >>>     line_style=line_style, include_center=True,
+        >>>     fill_color='same!30')
       )docstr";
   painter.def(
         "draw_arc",
@@ -441,7 +545,14 @@ void RegisterPainter(py::module &m) {
           how to draw the arrow.
 
       Example:
-        >>> #TODO
+        >>> arrow_style = viren2d.ArrowStyle(
+        >>>     width=3, color='black',
+        >>>     tip_length=0.3, tip_angle=20,
+        >>>     tip_closed=True, double_headed=False,
+        >>>     dash_pattern=[], dash_offset=0.0,
+        >>>     cap='round', join='miter')
+        >>> painter.draw_arrow(
+        >>>     pt1=(10, 10), pt2=(42, 42), arrow_style=arrow_style)
 
       Note:
         Arrows should always be drawn **fully opaque**. Otherwise,
@@ -457,7 +568,7 @@ void RegisterPainter(py::module &m) {
 
   //----------------------------------------------------------------------
   doc = R"docstr(
-      Draws a 2D bounding box.
+      Draws a single 2D bounding box.
 
       Args:
         rect: The box geometry as :class:`~viren2d.Rect`.
@@ -474,6 +585,8 @@ void RegisterPainter(py::module &m) {
         &PainterWrapper::DrawBoundingBox2D, doc.c_str(),
         py::arg("rect"), py::arg("label"),
         py::arg("box_style") = BoundingBox2DStyle());
+
+  //TODO multiple 2d bounding boxes
 
 
   //----------------------------------------------------------------------
@@ -520,7 +633,15 @@ void RegisterPainter(py::module &m) {
           the ellipse will be filled."
 
       Example:
-        >>> #TODO
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=3, color='forest-green')
+        >>> ellipse = viren2d.Ellipse(
+        >>>     center=(100, 60), axes=(180, 50), rotation=60)
+        >>> painter.draw_ellipse(ellipse, line_style, 'same!20')
+        >>> # Or via named arguments:
+        >>> painter.draw_ellipse(
+        >>>     ellipse=ellipse, line_style=line_style,
+        >>>     fill_color='same!20')
       )docstr";
   painter.def(
         "draw_ellipse",
@@ -530,22 +651,70 @@ void RegisterPainter(py::module &m) {
         py::arg("fill_color") = Color::Invalid);
 
 
-        //TODO coding style//----------------------------------------------------------------------
-  doc = "Draws a grid.\n\n:spacing_x:  (float)\n:spacing_y:  (float)\n"
-        "    Width & height of each grid cell.\n\n"
-        "    The grid will only be drawn within the defined region.\n"
-        "    If not provided, the grid will span the whole canvas.\n\n"
-        ":line_style:  (" + FullyQualifiedType("LineStyle") + ")\n"
-        "    How to draw the grid lines.\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Default") + ", the\n"
-        "    painter's default line style will be used.\n\n"
-        ":top_left:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n"
-        ":bottom_right:  (" + FullyQualifiedType(Vec2d::TypeName()) + ")\n";
+  //----------------------------------------------------------------------
+  doc = R"docstr(
+      Draws a grid.
+
+      Args:
+        spacing_x: Width of each grid cell as :class:`float`.
+        spacing_y: Height of each grid cell as :class:`float`.
+        line_style: A :class:`~viren2d.LineStyle` specifying how
+          to render the grid lines.
+        top_left: Top-left corner as :class:`~viren2d.Vec2d`. If
+          provided and ``top_left != `bottom_right``, the grid will
+          only be drawn within this rectangular region. Otherwise,
+          the grid will span the whole canvas.
+        bottom_right: Bottom-right corner as :class:`~viren2d.Vec2d`.
+          See ``top_left``.
+
+      Example:
+        >>> line_style = viren2d.LineStyle(width=1, color='light-gray!80')
+        >>> painter.draw_grid(
+        >>>     spacing_x=50, spacing_y=50, line_style=line_style,
+        >>>     top_left=(50, 50), bottom_right=(150, 150))
+      )docstr";
   painter.def("draw_grid", &PainterWrapper::DrawGrid, doc.c_str(),
         py::arg("spacing_x"), py::arg("spacing_y"),
         py::arg("line_style") = LineStyle(),
         py::arg("top_left") = Vec2d(),
         py::arg("bottom_right") = Vec2d());
+
+
+  //----------------------------------------------------------------------
+  doc = R"docstr(
+      Overlays an image.
+
+      Args:
+        image: The image as :class:`~viren2d.ImageBuffer` or :class:`numpy.ndarray`.
+        anchor: How to orient the text with respect to ``position``.
+          Valid inputs are :class:`~viren2d.Anchor` enum values
+          and their string representations. For details, refer to the
+          ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
+        alpha: Opacity as :class:`float` :math:`\in [0,1]`, where ``1`` is fully
+          opaque and ``0`` is fully transparent.
+        scale_x: Horizontal scaling factor as :class:`float`.
+        scale_y: Vertical scaling factor as :class:`float`.
+        rotation: Clockwise rotation in degrees as :class:`float`.
+        clip_factor: TODO 0 < c <= 0.5 --> corner radius (see rounded rect), > 0.5 ellipse; <= 0 no clip
+        line_style: A :class:`~viren2d.LineStyle` specifying how to draw the
+          contour. If :attr:`viren2d.LineStyle.Invalid` is passed, this step
+          will be skipped.
+
+      Example:
+        >>> #TODO
+      )docstr";
+  painter.def(
+        "draw_image", &PainterWrapper::DrawImage, doc.c_str(),
+        py::arg("image"),
+        py::arg("position"),
+        py::arg("anchor") = Anchor::TopLeft,
+        py::arg("alpha") = 1.0,
+        py::arg("scale_x") = 1.0,
+        py::arg("scale_y") = 1.0,
+        py::arg("rotation") = 0.0,
+        py::arg("clip_factor") = 0.0,
+        py::arg("line_style") = LineStyle::Invalid);
+
 
   //----------------------------------------------------------------------
   doc = R"docstr(
@@ -558,9 +727,10 @@ void RegisterPainter(py::module &m) {
           how to draw the line.
 
       Example:
-        >>> line_style = viren2d.LineStyle(width=3, color='azure')
-        >>> painter.draw_line((42, 42), (86, 86), line_style)
-        >>> # Same call via named arguments:
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=7, color='crimson!80',
+        >>>     dash_pattern=[20, 10], dash_offset=0.0,
+        >>>     cap='round', join='miter')
         >>> painter.draw_line(
         >>>     pt1=(42, 42), pt2=(86, 86), line_style=line_style)
       )docstr";
@@ -581,15 +751,16 @@ void RegisterPainter(py::module &m) {
           how to draw the marker.
 
       Example:
-        >>> marker_style = viren2d.MarkerStyle()
-        >>> marker_style.marker = '7'
-        >>> marker_style.size = 30
-        >>> painter.draw_marker((42, 70), marker_style)
+        >>> marker_style = viren2d.MarkerStyle(
+        >>>     marker='7', size=20, color='navy-blue!80',
+        >>>     thickness=1, filled=True,
+        >>>     cap='round', join='miter')
+        >>> painter.draw_marker(pt=(42, 70), marker_style=marker_style)
       )docstr";
   painter.def(
         "draw_marker",
         &PainterWrapper::DrawMarker, doc.c_str(),
-        py::arg("pos"), py::arg("marker_style") = MarkerStyle());
+        py::arg("pt"), py::arg("marker_style") = MarkerStyle());
 
 
   doc = R"docstr(
@@ -623,77 +794,148 @@ void RegisterPainter(py::module &m) {
         py::arg("marker_style") = MarkerStyle());
 
 
-  //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "Draws a polygon.\n\n"
-        "Args:\n"
-        "  polygon: Points of the polygon as :class:`list` of :class:`~"
-        + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
-        "    to draw the circle's outline.\n"
-        "    If you pass " + FullyQualifiedType("LineStyle.Invalid") + ", the\n"
-        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
-        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
-        "    the circle will be filled.";
+  //----------------------------------------------------------------------
+  doc = R"docstr(
+      Draws a polygon.
+
+      Args:
+        polygon: Points of the polygon as :class:`list` of
+          :class:`~Vec2d`.
+        line_style: A :class:`~viren2d.LineStyle` specifying how
+          to draw the circle's outline.
+
+          If you pass :attr:`~viren2d.LineStyle.Invalid`, the
+          contour will not be drawn - then, you must provide a
+          valid ``fill_color``.
+        fill_color: If you provide a valid :class:`~viren2d.Color`,
+          the polygon will be filled.
+
+      Example:
+        >>> points = [(0, 0), (10, 20), (42, 30), ...]
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=5, color='forest-green',
+        >>>     cap=viren2d.LineCap.Round,
+        >>>     join=viren2d.LineJoin.Round)
+        >>> painter.draw_polygon(
+        >>>     polygon=points, line_style=line_style,
+        >>>     fill_color='same!40')
+      )docstr";
   painter.def("draw_polygon", &PainterWrapper::DrawPolygon, doc.c_str(),
               py::arg("polygon"), py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
-  //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "Draws a rectangle (axis-aligned/rotated, solid/dashed, etc.)\n\n"
-        "Args:\n  rect: The :class:`~" + FullyQualifiedType("Rect") + "`\n"
-        "    object which should be drawn.\n"
-        "  line_style: A :class:`~" + FullyQualifiedType("LineStyle") + "` specifying how\n"
-        "    to draw the rectangle's outline.\n"
-        "    If you pass :attr:`" + FullyQualifiedType("LineStyle.Invalid") + "`, the\n"
-        "    contour will not be drawn (then you must provide a valid ``fill_color``).\n"
-        "  fill_color: If you provide a valid :class:`~" + FullyQualifiedType("Color") + "`,\n"
-        "    the rectangle will be filled.";
+
+  //TODO example //----------------------------------------------------------------------
+  doc = R"docstr(
+      Draws a rectangle.
+
+      Args:
+        rect: The :class:`~viren2d.Rect` which should be drawn.
+        line_style: A :class:`~viren2d.LineStyle` specifying how
+          to draw the rectangle's outline.
+
+          If you pass :attr:`viren2d.LineStyle.Invalid`, the
+          contour will not be drawn - then, you must provide
+          a valid ``fill_color``.
+        fill_color: If you provide a valid :class:`~viren2d.Color`,
+          the rectangle will be filled.
+
+      Example:
+        >>> line_style = viren2d.LineStyle()
+        >>> painter.draw_rect(rect=rect, line_style=line_style, fill_color='same!20')
+      )docstr";
   painter.def("draw_rect", &PainterWrapper::DrawRect, doc.c_str(),
               py::arg("rect"),
               py::arg("line_style") = LineStyle(),
               py::arg("fill_color") = Color::Invalid);
 
   //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "Places the given text on the canvas.\n\n"
-      "Args:\n"
-      "  text: A list of strings to be drawn.\n"
-      "  position: Position of the reference point as :class:`~"
-      + FullyQualifiedType(Vec2d::TypeName()) + "`.\n"
-      "  anchor: How to orient the text w.r.t. the reference point.\n"
-      "    Valid inputs are :class:`~" + FullyQualifiedType("TextAnchor")
-      + "` enum values and\n"
-      "    string representations. A string must correspond to either a\n"
-      "    *position specification* (*i.e.* ``center``, ``top``, ``top-right``,\n"
-      "    ``right``, ``bottom-right``, ``bottom``, ``bottom-left``,\n"
-      "    ``left``, ``top-left``) or one of the 8 *compass directions* (*i.e.*\n"
-      "    ``north``, ``north-east``, ``east``, ``south-east``, ``south``,\n"
-      "    ``south-west``, ``west``, ``north-west``).\n\n"
-      "    Before parsing, the input will be converted to lowercase and any\n"
-      "    whitespaces, dashes & underscores will be removed.\n"
-      "  text_style: A :class:`~" + FullyQualifiedType("TextStyle") +"`,\n"
-      "    specifying how to render the text.\n"
-      "  padding: Optional distance between the closest glyph and the\n"
-      "    reference point. Specified in pixels as :class:`~"
-      + FullyQualifiedType("Vec2d") + "`.\n"
-      "  rotation: Rotation angle in degrees as ``float``.";
-  painter.def("draw_text", &PainterWrapper::DrawText, doc.c_str(),
-      py::arg("text"), py::arg("position"),
-      py::arg("anchor") = TextAnchor::BottomLeft,
-      py::arg("text_style") = TextStyle(),
-      py::arg("padding") = Vec2d(0.0, 0.0),
-      py::arg("rotation") = 0.0);
+  doc = R"docstr(
+      Renders text onto the canvas.
 
+      Args:
+        text: A :class:`list` of :class:`str` to be drawn.
+          For a single line, simply pass a :class:`list` which
+          holds a single :class:`str`.
+        position: Position of the reference point where
+          to anchor the text as :class:`~viren2d.Vec2d`.
+        anchor: How to orient the text w.r.t. the ``position``.
+          Valid inputs are :class:`~viren2d.Anchor` enum values
+          and their string representations.
 
+          A string must correspond either to a *position
+          specification* - *i.e.* ``center``, ``top``, ``top-right``,
+          ``right``, ``bottom-right``, ``bottom``, ``bottom-left``,
+          ``left``, or ``top-left`` - or one of the 8 *compass
+          directions* - *i.e.* ``north``, ``north-east``, ``east``,
+          ``south-east``, ``south``, ``south-west``, ``west``,
+          or ``north-west``.
 
-  //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = "TODO doc"
-      "  anchor: Either enum or string representation";
+          Before parsing, the input string will be converted to
+          lowercase and any whitespaces, dashes & underscores will
+          be removed.
+        text_style: A :class:`~viren2d.TextStyle`, specifying
+          how to render the text.
+        padding: Optional distance between the closest glyph and the
+          ``position``. Specified in pixels as :class:`~viren2d.Vec2d`.
+        rotation: Rotation angle (clockwise around ``position``) in
+          degrees as :class:`float`.
+
+      Returns:
+        The bounding box of the drawn text as :class:`~viren2d.Rect`.
+
+      Example:
+        >>> #TODO
+      )docstr";
   painter.def(
-        "draw_textbox",
+        "draw_text", &PainterWrapper::DrawText, doc.c_str(),
+        py::arg("text"),
+        py::arg("position"),
+        py::arg("anchor") = Anchor::BottomLeft,
+        py::arg("text_style") = TextStyle(),
+        py::arg("padding") = Vec2d(0.0, 0.0),
+        py::arg("rotation") = 0.0);
+
+
+
+  //TODO doc + example //----------------------------------------------------------------------
+  doc = R"docstr(
+      Draws a text box.
+
+      Args:
+        text: A :class:`list` of :class:`str` to be drawn.
+          For a single line, simply pass a :class:`list` which
+          holds a single :class:`str`.
+        position: Position of the reference point where
+          to anchor the text as :class:`~viren2d.Vec2d`.
+        anchor: How to orient the text with respect to ``position``.
+          Valid inputs are :class:`~viren2d.Anchor` enum values
+          and string representations. For details, refer to the
+          ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
+        text_style: A :class:`~viren2d.TextStyle`, specifying
+          how to render the text.
+        padding: Optional padding between text and the edges
+          of the box. Specified in pixels as :class:`~viren2d.Vec2d`.
+        rotation: Rotation angle (clockwise around ``position``) in
+          degrees as :class:`float`.
+        line_style: A :class:`~viren2d.LineStyle`, specifying
+          how to render the border of the text box.
+        fill_color: If you provide a valid :class:`~viren2d.Color`,
+          the box will be filled.
+        radius: Corner radius of the box. Refer to
+          :attr:`~viren2d.Rect.radius` for details on valid
+          value ranges.
+        fixed_size: TODO
+
+      Returns:
+        The bounding box of the drawn text as :class:`~viren2d.Rect`.
+      )docstr";
+  painter.def(
+        "draw_text_box",
         &PainterWrapper::DrawTextBox, doc.c_str(),
         py::arg("text"),
         py::arg("position"),
-        py::arg("anchor") = TextAnchor::BottomLeft,
+        py::arg("anchor") = Anchor::BottomLeft,
         py::arg("text_style") = TextStyle(),
         py::arg("padding") = Vec2d::All(6.0),
         py::arg("rotation") = 0.0,
@@ -704,8 +946,15 @@ void RegisterPainter(py::module &m) {
 
 
   //----------------------------------------------------------------------
+  LineStyle default_trajectory_style;
+  default_trajectory_style.width = 5;
+  default_trajectory_style.cap = LineCap::Round;
+  default_trajectory_style.join = LineJoin::Round;
+
+  const Color default_trajectory_fade_out_color(NamedColor::LightGray, 0.6);
+
   doc = R"docstr(
-      Draws a trajectory.
+      Draws a single trajectory.
 
       Can be used to either draw **a single-color path** (if
       ``fade_out_color`` is invalid), or **a path which gradually
@@ -714,8 +963,8 @@ void RegisterPainter(py::module &m) {
       by ``fading_factor``.
 
       Args:
-        points: A :class:`list` of the trajectory's coordinates
-          as :class:`~viren2d.Vec2d`.
+        trajectory: A :class:`list` of :class:`~viren2d.Vec2d` which
+          specifies the trajectory's coordinates.
         line_style: A :class:`~viren2d.LineStyle` specifying how
           to draw the trajectory (except for the color gradient).
         fade_out_color: If this is a valid :class:`~viren2d.Color`,
@@ -741,7 +990,7 @@ void RegisterPainter(py::module &m) {
           and tail, we simply use the identity function.
           For convenience, ``viren2d`` already provides :func:`~viren2d.fade_out_linear`,
           :func:`~viren2d.fade_out_quadratic`, and :func:`~viren2d.fade_out_logarithmic`.
-          Default is :func:`~viren2d.fade_out_quadratic`.
+          The default ``fading_factor`` function is :func:`~viren2d.fade_out_quadratic`.
 
       Example:
         >>> points = [(0, 0), (10, 20), (42, 30), ...]
@@ -749,40 +998,80 @@ void RegisterPainter(py::module &m) {
         >>>     width=5, color='navy-blue',
         >>>     cap=viren2d.LineCap.Round,
         >>>     join=viren2d.LineJoin.Round)
+        >>>
         >>> painter.draw_trajectory(
-        >>>     points, line_style,
-        >>>     smoothing_window=5,
+        >>>     trajectory=points, line_style=line_style,
+        >>>     fade_out_color=(0.8, 0.8, 0.8, 0.4),
+        >>>     smoothing_window=5, tail_first=True,
         >>>     fading_factor=viren2d.fade_out_linear)
 
       Note:
-        For fading colors, the trajectory has to be drawn via
-        separate line segments. This means that the
+        If a valid ``fade_out_color`` is provided, the trajectory
+        has to be drawn via separate line segments. This means that the
         :attr:`~viren2d.LineStyle.join` setting of ``line_style``
-        parameter will be ignored. Additionally, if transparent
-        colors are used, the segment endpoints will be visible.
+        parameter will have no effect. Additionally, if transparent
+        colors are used, the individual segment endpoints will be visible.
 
         To avoid this behavior, the trajectory needs to be drawn with
         a single color, *i.e.* pass :attr:`viren2d.Color.Invalid` as
         ``fade_out_color``.
       )docstr";
+
   painter.def(
-      "draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
-      py::arg("points"),
-      py::arg("line_style") = LineStyle(),
-      py::arg("fade_out_color") = Color(NamedColor::LightGray, 0.6),
-      py::arg("tail_first") = true,
-      py::arg("smoothing_window") = 0,
-      py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
-  // TODO Adjust the docstring if we change anything. It includes
+        "draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
+        py::arg("trajectory"),
+        py::arg("line_style") = default_trajectory_style,
+        py::arg("fade_out_color") = default_trajectory_fade_out_color,
+        py::arg("tail_first") = true,
+        py::arg("smoothing_window") = 0,
+        py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
+  // TODO Double-check the docstring if we change anything, because it includes
   // the current default color mix/fading factor function(!)
 
 
+  //TODO test example
+  doc = R"docstr(
+      Draws multiple trajectories.
 
-  //TODO(snototter) add draw_xxx methods
+      Allows rendering multiple trajectories with a common
+      :class:`~viren2d.LineStyle`.
 
-  //TODO(snototter) add convenience functions handling multiple
-  //    inputs (plural draw_xxxS), e.g. via the PainterWrapper:
-  //    "for (element in list) : painter_->DrawElement();"
+      Args:
+        trajectories: A :class:`list` of :class:`tuple`,
+          where each :class:`tuple` holds ``(trajectory, color)``:
+
+          * ``trajectory`` is a :class:`list` of :class:`~viren2d.Vec`,
+            *i.e.* the coordinates.
+          * ``color`` is the corresponding :class:`~viren2d.Color`.
+            If invalid, the color of the ``line_style`` parameter
+            will be used instead.
+        others: For details on all other parameters, refer to the
+          documentation of :meth:`~viren2d.Painter.draw_trajectory`.
+
+      Example:
+        >>> points1 = [(20,  0), (10, 20), (42, 30), ...]
+        >>> points2 = [(70, 70), (50, 20), (23, 30), ...]
+        >>> trajs = [(points1, 'maroon'), (points2, 'invalid')]
+        >>>
+        >>> line_style = viren2d.LineStyle(
+        >>>     width=5, color='navy-blue',
+        >>>     cap=viren2d.LineCap.Round,
+        >>>     join=viren2d.LineJoin.Round)
+        >>>
+        >>> painter.draw_trajectories(
+        >>>     trajectories=trajs, line_style=line_style,
+        >>>     fade_out_color=(0.8, 0.8, 0.8, 0.4),
+        >>>     smoothing_window=5, tail_first=True,
+        >>>     fading_factor=viren2d.fade_out_linear)
+      )docstr";
+  painter.def(
+        "draw_trajectories", &PainterWrapper::DrawTrajectories, doc.c_str(),
+        py::arg("trajectories"),
+        py::arg("line_style") = default_trajectory_style,
+        py::arg("fade_out_color") = default_trajectory_fade_out_color,
+        py::arg("tail_first") = true,
+        py::arg("smoothing_window") = 0,
+        py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
 }
 
 } // namespace bindings

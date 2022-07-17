@@ -1,30 +1,45 @@
 .. include:: ../symbols.rst
 
----------------
-Know the Basics
----------------
+-----------------
+Overview & Basics
+-----------------
 
-**How do I draw "stuff"?**
-   You need to :ref:`use a painter<tutorial-painter-usage>` and invoke its
-   ``draw_...`` methods.
+**How to draw "stuff"?**
+   Simply :ref:`initialize a painter's canvas<tutorial-painter-usage>` and use
+   its ``draw_...`` methods.
 
 
-**What about the Coordinate System?**
+**Which "stuff" can be drawn?**
+   .. viren2d-drawing-summary::
+
+
+**What about visualizations besides drawing?**
+   Besides drawing, ``viren2d`` also provides various color maps for *scaled
+   colorization* to inspect and represent data, see :func:`~viren2d.colorize`
+   and :class:`~viren2d.Colorizer`.
+
+   Suitable color maps can also be used to visualize *optical flow*
+   via :func:`~viren2d.colorize_optical_flow`.
+
+   The :class:`~viren2d.ImageBuffer` provides some basic image processing
+   functionalities, suitable to :meth:`~viren2d.ImageBuffer.blend` images,
+   :meth:`~viren2d.ImageBuffer.pixelate` some :meth:`~viren2d.ImageBuffer.roi`,
+   *etc.* Note, however, that these functionalities are mostly provided for
+   user convenience and are not optimized towards high-speed, *i.e.*
+   ``viren2d`` does not use `OpenMP <https://www.openmp.org/>`__,
+   `oneTBB <https://github.com/oneapi-src/oneTBB>`__,
+   `AVX <https://en.wikipedia.org/wiki/Advanced_Vector_Extensions>`__,
+   `Neon <https://developer.arm.com/Architectures/Neon>`__
+   or any other multi-threading/multi-processing extensions.
+
+
+**Which coordinate system is used?**
    All coordinates assume an image coordinate system, where the origin
    ``(0, 0)`` is at the *top left* corner, the positive *x*-axis is
    pointing right and the positive *y*-axis is pointing down.
 
 
-**How do I specify angles?**
+**How to specify angles?**
    All angle measurements should be provided in *degrees*. The rotation
    direction for positive angles is from the positive *x*-axis towards the
    positive *y*-axis.
-
-
-.. warning::
-   TODO This overview page should be extended with info on pseudocolorization;
-   anonymization (once ImageBuffer supports pixelization)
-
-   |right-arrow| add "What about other visualizations?"
-      Then, refer to pseudocoloring (label2img, segmentation results, etc.)
-

@@ -21,9 +21,7 @@ py::tuple TextStyleToTuple(const TextStyle &obj) {
 }
 
 
-TextStyle TextStyleFromTuple(py::tuple tpl) {
-  // FIXME(snototter) update once we text style properties are decided
-
+TextStyle TextStyleFromTuple(const py::tuple &tpl) {
   // Convert empty tuple to pre-defined default style
   if(tpl.empty()) {
     return TextStyle();
@@ -31,8 +29,7 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
 
   if (tpl.size() > 7) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType("TextStyle")
-      << " from tuple with "
+    s << "Cannot create `viren2d.TextStyle` from tuple with "
       << tpl.size() << " entries!";
     throw std::invalid_argument(s.str());
   }
@@ -70,10 +67,22 @@ TextStyle TextStyleFromTuple(py::tuple tpl) {
 
 void RegisterAnchors(py::module &m) {
   py::enum_<HorizontalAlignment> halign(m, "HorizontalAlignment",
-             "Enum specifying the horizontal alignment.");
-  halign.value("Left", HorizontalAlignment::Left, "Horizontally left-aligned.")
-      .value("Center", HorizontalAlignment::Center, "Horizontally centered.")
-      .value("Right", HorizontalAlignment::Right, "Horizontally right-aligned.");
+             "Options for horizontal alignment.");
+  halign.value(
+        "Left",
+        HorizontalAlignment::Left, R"docstr(
+        Horizontally left-aligned.
+        )docstr")
+      .value(
+        "Center",
+        HorizontalAlignment::Center, R"docstr(
+        Horizontally centered.
+        )docstr")
+      .value(
+        "Right",
+        HorizontalAlignment::Right, R"docstr(
+        Horizontally right-aligned.
+        )docstr");
 
   halign.def(
         "__str__", [](HorizontalAlignment a) -> py::str {
@@ -89,10 +98,22 @@ void RegisterAnchors(py::module &m) {
 
 
   py::enum_<VerticalAlignment> valign(m, "VerticalAlignment",
-             "Enum specifying the vertical alignment.");
-  valign.value("Top", VerticalAlignment::Top, "Vertically top-aligned.")
-      .value("Center", VerticalAlignment::Center, "Vertically centered.")
-      .value("Bottom", VerticalAlignment::Bottom, "Vertically bottom-aligned.");
+             "Options for vertical alignment.");
+  valign.value(
+        "Top",
+        VerticalAlignment::Top, R"docstr(
+        Vertically top-aligned.
+        )docstr")
+      .value(
+        "Center",
+        VerticalAlignment::Center, R"docstr(
+        Vertically centered.
+        )docstr")
+      .value(
+        "Bottom",
+        VerticalAlignment::Bottom, R"docstr(
+        Vertically bottom-aligned.
+        )docstr");
 
   valign.def(
         "__str__", [](VerticalAlignment a) -> py::str {
@@ -107,74 +128,124 @@ void RegisterAnchors(py::module &m) {
         }, py::name("__repr__"), py::is_method(m));
 
 
-  py::enum_<TextAnchor> anchor(m, "TextAnchor",
-             "Enum specifying the location of the text anchor.");
-  anchor.value("Center", TextAnchor::Center,
-             "Aligns text **both** horizontally & vertically **centered**.")
-      .value("Left", TextAnchor::Left,
-             "Aligns text **horizontally left-aligned** & **vertically centered**.")
-      .value("Right", TextAnchor::Right,
-             "Aligns text **horizontally right-aligned** & **vertically centered**.")
-      .value("Top", TextAnchor::Top,
-             "Aligns text **horizontally centered** & **vertically top-aligned**.")
-      .value("Bottom", TextAnchor::Bottom,
-             "Aligns text **horizontally centered** & **vertically bottom-aligned**.")
-      .value("TopLeft", TextAnchor::TopLeft,
-             "Aligns text **horizontally left-** & **vertically top-aligned**.")
-      .value("TopRight", TextAnchor::TopRight,
-             "Aligns text **horizontally right-** & **vertically top-aligned**.")
-      .value("BottomLeft", TextAnchor::BottomLeft,
-             "Aligns text **horizontally left-** & **vertically bottom-aligned**.")
-      .value("BottomRight", TextAnchor::BottomRight,
-             "Aligns text **horizontally right-** & **vertically bottom-aligned**.");
+  py::enum_<Anchor> anchor(m, "Anchor",
+             "Placement options with respect to a reference point.");
+  anchor.value(
+        "Center",
+        Anchor::Center, R"docstr(
+        Horizontally & vertically centered.
+        )docstr")
+      .value(
+        "Left",
+        Anchor::Left, R"docstr(
+        Horizontally **left-aligned** & vertically **centered**.
+        Alias string representation: ``west``.
+        )docstr")
+      .value(
+        "Right",
+        Anchor::Right, R"docstr(
+        Horizontally **right-aligned** & vertically **centered**.
+        Alias string representation: ``east``.
+        )docstr")
+      .value(
+        "Top",
+        Anchor::Top, R"docstr(
+        Horizontally **centered** & vertically **top-aligned**.
+        Alias string representation: ``north``.
+        )docstr")
+      .value(
+        "Bottom",
+        Anchor::Bottom, R"docstr(
+        Horizontally **centered** & vertically **bottom-aligned**.
+        Alias string representation: ``south``.
+        )docstr")
+      .value(
+        "TopLeft",
+        Anchor::TopLeft, R"docstr(
+        Horizontally **left-** & vertically **top-aligned**.
+        Alias string representation: ``north-west``.
+        )docstr")
+      .value(
+        "TopRight",
+        Anchor::TopRight, R"docstr(
+        Horizontally **right-** & vertically **top-aligned**.
+        Alias string representation: ``north-east``.
+        )docstr")
+      .value(
+        "BottomLeft",
+        Anchor::BottomLeft, R"docstr(
+        Horizontally **left-** & vertically **bottom-aligned**.
+        Alias string representation: ``south-west``.
+        )docstr")
+      .value(
+        "BottomRight",
+        Anchor::BottomRight, R"docstr(
+        Horizontally **right-** & vertically **bottom-aligned**.
+        Alias string representation: ``south-east``.
+        )docstr");
 
   anchor.def(
-        "__str__", [](TextAnchor a) -> py::str {
-            return py::str(TextAnchorToString(a));
+        "__str__", [](Anchor a) -> py::str {
+            return py::str(AnchorToString(a));
         }, py::name("__str__"), py::is_method(m));
 
   anchor.def(
-        "__repr__", [](TextAnchor a) -> py::str {
+        "__repr__", [](Anchor a) -> py::str {
             std::ostringstream s;
-            s << "'" << TextAnchorToString(a) << "'";
+            s << "'" << AnchorToString(a) << "'";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
 
-  std::string doc = "Returns all :class:`~"
-      + FullyQualifiedType("TextAnchor") + "` values.\n\n"
-      "Added to the Python class because due to our bindings,\n"
-      "we cannot easily provide an iterator to list all\n"
-      "values.\n\n"
-      "**Corresponding C++ API:** ``viren2d::ListTextAnchors``.";
-  anchor.def_static("list_all", &ListTextAnchors, doc.c_str());
+
+  std::string doc = R"docstr(
+      Returns all :class:`~viren2d.Anchor` values.
+
+      Convenience utility to easily iterate all enumeration
+      values.
+
+      **Corresponding C++ API:** ``viren2d::ListAnchors``.
+      )docstr";
+  anchor.def_static("list_all", &ListAnchors, doc.c_str());
 
 
-  py::enum_<LabelPosition> bblp(m, "LabelPosition",
-             "Enum specifying where to place a bounding box label.");
+  py::enum_<LabelPosition> bblp(
+        m, "LabelPosition", R"docstr(
+        Placement options for labels.
+        )docstr");
   bblp.value(
         "Top",
-        LabelPosition::Top,
-        "At the **top** of the bounding box.")
+        LabelPosition::Top, R"docstr(
+        At the **top** of the bounding box.
+        )docstr")
       .value(
         "Bottom",
-        LabelPosition::Bottom,
-        "At the **bottom** of the bounding box.")
+        LabelPosition::Bottom, R"docstr(
+        At the **bottom** of the bounding box.
+        )docstr")
       .value(
         "Left",
-        LabelPosition::Left,
-        "Along the **left edge** of the bounding box, **from bottom to top**.")
+        LabelPosition::Left, R"docstr(
+        Along the **left edge** of the bounding box, **from bottom
+        to top**. Alias string representation: ``left-b2t``.
+        )docstr")
       .value(
         "LeftT2B",
-        LabelPosition::LeftT2B,
-        "Along the **left edge** of the bounding box, from **top to bottom**.")
+        LabelPosition::LeftT2B, R"docstr(
+        Along the **left edge** of the bounding box, from **top
+        to bottom**.
+        )docstr")
       .value(
         "Right",
-        LabelPosition::Right,
-        "Along the **right edge** of the bounding box, from **top to bottom**.")
+        LabelPosition::Right, R"docstr(
+        Along the **right edge** of the bounding box, from **top
+        to bottom**. Alias string representation: ``right-t2b``.
+        )docstr")
       .value(
         "RightB2T",
-        LabelPosition::RightB2T,
-        "Along the **right edge** of the bounding box, from **bottom to top**.");
+        LabelPosition::RightB2T, R"docstr(
+        Along the **right edge** of the bounding box, from **bottom
+        to top**.
+        )docstr");
 
   bblp.def(
       "__str__", [](LabelPosition lp) -> py::str {
@@ -191,7 +262,7 @@ void RegisterAnchors(py::module &m) {
 }
 
 
-HorizontalAlignment HorizontalAlignmentFromPyObject(py::object &o) {
+HorizontalAlignment HorizontalAlignmentFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     const auto str = py::cast<std::string>(o);
     return HorizontalAlignmentFromString(str);
@@ -201,10 +272,24 @@ HorizontalAlignment HorizontalAlignmentFromPyObject(py::object &o) {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `"
-        << FullyQualifiedType("HorizontalAlignment") << "`!";
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.HorizontalAlignment`!";
     throw std::invalid_argument(str.str());
   }
+}
+
+
+/// Convenience construction of a text style,
+/// which accepts alignment definition as
+/// either enum or string representation.
+TextStyle CreateTextStyle(
+    unsigned int font_size, const std::string &font_family,
+    const Color &font_color, bool font_bold, bool font_italic,
+    double spacing, const py::object &align) {
+  HorizontalAlignment halign = HorizontalAlignmentFromPyObject(align);
+  return TextStyle(
+        font_size, font_family, font_color,
+        font_bold, font_italic, spacing, halign);
 }
 
 
@@ -212,23 +297,12 @@ void RegisterTextStyle(py::module &m) {
   std::string doc = R"docstr(
       How text should be rendered.
 
-      **Example:**
-
-      >>> # Initialize the default style and adjust what you need:
-      >>> style = viren2d.TextStyle()
-      >>> style.family = 'monospace'
-      >>> style.size = 10
-      >>> style.color = 'navy-blue!80'
-      >>> style.bold = True
-      >>> style.alignment = 'left'
-      >>> style.line_spacing = 1.1
-
-      >>> # Alternatively, you would get the same style via:
-      >>> style = viren2d.TextStyle(
-      >>>     family='monospace', size=10,
-      >>>     color='navy-blue!80', bold=True
-      >>>     alignment=viren2d.HorizontalAlignment.Left,
-      >>>     line_spacing=1.1)
+      Example:
+        >>> text_style = viren2d.TextStyle(
+        >>>     family='monospace', size=18,
+        >>>     color='navy-blue', bold=True,
+        >>>     italic=False, line_spacing=1.1,
+        >>>     alignment='left')
       )docstr";
   py::class_<TextStyle>text_style(m, "TextStyle", doc.c_str());
 
@@ -246,20 +320,21 @@ void RegisterTextStyle(py::module &m) {
         line_spacing: Scaling factor of the vertical distance between
           consecutive lines of text.
         alignment: Horizontal alignment of multi-line text
-          as :class:`~viren2d.HorizontalAlignment` enum.
+          as :class:`~viren2d.HorizontalAlignment` enum. This parameter
+          also accepts the corresponding string representation.
       )docstr";
+
   TextStyle default_style;
-  text_style.def(py::init<unsigned int, const std::string &,
-                          const Color &, bool, bool, double,
-                          HorizontalAlignment>(),
-                 doc.c_str(),
-         py::arg("size") = default_style.size,
-         py::arg("family") = default_style.family,
-         py::arg("color") = default_style.color,
-         py::arg("bold") = default_style.bold,
-         py::arg("italic") = default_style.italic,
-         py::arg("line_spacing") = default_style.line_spacing,
-         py::arg("alignment") = default_style.alignment);
+  text_style.def(
+        py::init<>(&CreateTextStyle),
+        doc.c_str(),
+        py::arg("size") = default_style.size,
+        py::arg("family") = default_style.family,
+        py::arg("color") = default_style.color,
+        py::arg("bold") = default_style.bold,
+        py::arg("italic") = default_style.italic,
+        py::arg("line_spacing") = default_style.line_spacing,
+        py::arg("alignment") = default_style.alignment);
 
   text_style.def(
         "copy",
@@ -267,8 +342,9 @@ void RegisterTextStyle(py::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const TextStyle &)
-        { return FullyQualifiedType("TextStyle", true); })
+        [](const TextStyle &st) {
+          return "<TextStyle" + st.ToString() + ">";
+        })
       .def(
         "__str__",
         &TextStyle::ToString)
@@ -325,7 +401,7 @@ void RegisterTextStyle(py::module &m) {
 
         In addition to the enum values, you can use
         the string representations (``left|west``,
-        ``center``, ``right|east``) to set this member:
+        ``center|middle``, ``right|east``) to set this member:
 
         >>> style.alignment = viren2d.HorizontalAlignment.Center
         >>> style.alignment = 'center'

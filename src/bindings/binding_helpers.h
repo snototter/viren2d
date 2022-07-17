@@ -6,6 +6,7 @@
 #include <pybind11/pybind11.h>
 
 #include <viren2d/colors.h>
+#include <viren2d/colormaps.h>
 #include <viren2d/primitives.h>
 
 
@@ -14,7 +15,7 @@
 
 
 namespace viren2d {
-/** @brief Utilities to simplify module definition. */
+/// Utilities to simplify the module definition.
 namespace bindings {
 //-------------------------------------------------  Common (Binding utils)
 
@@ -27,7 +28,7 @@ std::string FullyQualifiedType(const std::string &name, bool with_tags = false);
 
 //-------------------------------------------------  Common (Color definition)
 void RegisterColor(pybind11::module &m);
-Color ColorFromTuple(pybind11::tuple tpl);
+Color ColorFromTuple(const pybind11::tuple &tpl);
 pybind11::tuple ColorToTuple(const Color &obj);
 
 
@@ -64,6 +65,14 @@ void RegisterVectors(pybind11::module &m);
 //-------------------------------------------------  Painter
 void RegisterImageBuffer(pybind11::module &m);
 void RegisterPainter(pybind11::module &m);
+
+//-------------------------------------------------  Colormaps
+void RegisterColormaps(pybind11::module &m);
+void RegisterColorMapEnum(pybind11::module &m);
+ColorMap ColorMapFromPyObject(const pybind11::object &o);
+
+//-------------------------------------------------  Optical Flow
+void RegisterOpticalFlowUtils(pybind11::module &m);
 
 } // namespace bindings
 } // namespace viren2d

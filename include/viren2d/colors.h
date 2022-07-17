@@ -9,6 +9,8 @@
 #include <ostream>
 #include <initializer_list>
 
+#include <viren2d/colormaps.h>
+
 
 namespace viren2d {
 
@@ -24,9 +26,7 @@ enum class NamedColor : unsigned short {
   Black = 0,  ///< "Black" must be the first enum value.
   White,
   Gray,
-  Grey = Gray,  // alias
   LightGray,
-  LightGrey = LightGray, // alias
 
   Red,
   Green,
@@ -234,18 +234,25 @@ class Color {
   std::string ToString() const;
 
 
-  /// Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255] and alpha in [0, 1].
+  /// Returns the RGBA string representation `(R, G, B, A)`, where R, G, B
+  /// in [0, 255] and A in [0, 100].
+  std::string ToUInt8String() const;
+
+
+  /// Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255]
+  /// and alpha in [0, 1].
   std::tuple<unsigned char, unsigned char, unsigned char, double>
   ToRGBa() const;
+
+
+  /// Returns the corresponding (H, S, V) tuple, where H in [0, 360] and
+  /// S & V are in [0, 1].
+  std::tuple<float, float, float> ToHSV() const;
 
 
   /// Returns the web color code, e.g. "#dcdce4ff".
   /// If the color is invalid, the hex digits will be replaced by question marks.
   std::string ToHexString() const;
-
-
-  /// Returns the string representation "RGBa(R, G, B, a)".
-  std::string ToRGBaString() const;
 
 
   /// Returns a color with the same r,g,b components, but the given alpha.
@@ -281,23 +288,31 @@ class Color {
     return os;
   }
 
+
+  /// Returns a color for the 'x', 'y', or 'z' axis.
+  /// Also accepts 0, 1, or 2 to select the axis.
+  static Color CoordinateAxisColor(char axis);
+
+
   /// Returns a color for the given ID (e.g. an object/class identifier).
-  static Color FromID(std::size_t id);
+  static Color FromObjectID(
+      std::size_t id, ColorMap colormap = ColorMap::GlasbeyDark);
 
 
   /// Returns a color for the given category/object class.
-  /// Usefull to consistently use the same color for the same object class,
+  /// Useful to consistently use the same color for the same object class,
   /// *e.g.* ``car`` or ``person``.
   /// See `ListCategories` for a list of category names which are
   /// explicitly defined. For any other category name, a string
   /// hash will be computed, which is then used to lookup a
   /// corresponding color.
-  static Color FromCategory(const std::string &category);
+  static Color FromObjectCategory(
+      const std::string &category, ColorMap colormap = ColorMap::GlasbeyDark);
 
 
   /// Returns a list of category names which are explicitly
   /// defined in the Color::FromCategory utility.
-  static std::vector<std::string> ListCategories();
+  static std::vector<std::string> ListObjectCategories();
 };
 
 

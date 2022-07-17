@@ -29,13 +29,13 @@ Vertical Alignment
 Text Anchor
 ~~~~~~~~~~~
 
-.. autoclass:: viren2d.TextAnchor
+.. autoclass:: viren2d.Anchor
 
 **Exemplary positioning of text boxes:**
 
 The following figure shows text boxes -- see
 :meth:`~viren2d.Painter.draw_textbox` --, along with the corresponding
-:class:`~viren2d.TextAnchor`  and reference positions, which are highlighted
+:class:`~viren2d.Anchor`  and reference positions, which are highlighted
 via :meth:`~viren2d.Painter.draw_marker`:
 
 .. image:: ../images/text-anchors.png

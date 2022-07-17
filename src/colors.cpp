@@ -4,6 +4,9 @@
 #include <iomanip>
 #include <map>
 #include <exception>
+#include <utility>
+#include <functional>  // std::hash
+#include <cstdlib>
 
 #include <werkzeugkiste/strings/strings.h>
 #include <werkzeugkiste/geometry/utils.h>
@@ -13,6 +16,8 @@
 
 #include <helpers/enum.h>
 #include <helpers/logging.h>
+#include <helpers/colormaps_helpers.h>
+#include <helpers/color_conversion.h>
 
 
 namespace wzkc = werkzeugkiste::container;
@@ -34,24 +39,6 @@ double cast_01(double v) {
 double cast_RGB(double v) {
   return saturation_cast<double>(v, 0.0, 255.0);
 }
-
-
-/// List of exemplary colors used by FromID/FromCategory
-const Color kExemplaryColors[] = {
-  RGBa(200,    0,    0), // Red
-  RGBa(  0,  200,    0), // light green(ish)
-  RGBa(  0,    0,  220), // deep blue
-  RGBa(230,  230,    0), // yellow(ish)
-  RGBa(230,    0,  230), // magenta(ish)
-  RGBa(  0,  230,  230), // cyan(ish)
-  RGBa(255,  128,    0), // orange
-  RGBa(255,  128,  128), // skin(ish)
-  RGBa(128,   64,    0), // brown(ish)
-  RGBa(160,  160,  160), // gray(ish)
-  RGBa(  0,  128,  255), // light blue
-  RGBa(153,   77,  204)  // lilac
-};
-const size_t kExemplaryColorsSize = sizeof(kExemplaryColors) / sizeof(kExemplaryColors[0]);
 
 
 /// Mapping COCO category names (+ some widely used aliases)
@@ -198,14 +185,14 @@ NamedColor NamedColorFromString(const std::string &name) {
   } else if (cname.compare("same") == 0) {
     return NamedColor::Same;
   } else if ((cname.compare("invalid") == 0)
-             || (cname.compare("none") == 0)) { //FIXME test "none"
+             || (cname.compare("none") == 0)) {
     return NamedColor::Invalid;
   }
 
-  std::ostringstream s;
-  s << "Could not look up NamedColor corresponding to \""
-    << name << "\".";
-  throw std::invalid_argument(s.str());
+  std::string s("Could not look up NamedColor corresponding to \"");
+  s += name;
+  s += "\"!";
+  throw std::invalid_argument(s);
 }
 
 
@@ -285,12 +272,10 @@ const Color Color::Invalid = Color(NamedColor::Invalid);
 
 Color::Color(const NamedColor color, double alpha) {
   this->alpha = alpha;
-  std::ostringstream s;
 
   // For the following color component assignments,
   // I prefer multiple assignments (e.g. x = y = 1)
-  // as I think it's easier to read than the standard
-  // single assignments.
+  // for readability.
   switch (color) {
     case NamedColor::Black:
       red = green = blue = 0.0; break;
@@ -298,10 +283,10 @@ Color::Color(const NamedColor color, double alpha) {
     case NamedColor::White:
       red = green = blue = 1.0; break;
 
-    case NamedColor::Gray:  // "Grey" is just an alias
+    case NamedColor::Gray:
       red = green = blue = 0.5; break;
 
-    case NamedColor::LightGray:  // "LightGrey" is just an alias
+    case NamedColor::LightGray:
       red = green = blue = 0.78; break;
 
     case NamedColor::Red:
@@ -418,10 +403,12 @@ Color::Color(const NamedColor color, double alpha) {
       this->alpha = -1.0;  // For the special "invalid" color, we also set alpha
       break;
 
-    default:
-      s << "No color code available for named color \""
-        << NamedColorToString(color) << "\".";
-      throw std::runtime_error(s.str());
+    default: {
+        std::string s("No color code available for named color \"");
+        s += NamedColorToString(color);
+        s += "\"!";
+        throw std::runtime_error(s);
+      }
   }
 }
 
@@ -451,20 +438,20 @@ Color::Color(const std::string &colorspec, double alpha) {
       // std::stoi will throw an invalid_argument if the input can't be parsed...
       this->alpha = std::stoi(aspec_) / 100.0;
       if (this->alpha < 0.0 || this->alpha > 1.0) {
-        std::ostringstream s;
-        s << "Alpha in \"" << colorspec
-          << "\" must be an integer within [0, 100].";
-        throw std::invalid_argument(s.str());
+        std::string s("Alpha in \"");
+        s += colorspec;
+        s += "\" must be an integer within [0, 100].";
+        throw std::invalid_argument(s);
       }
 
       // ... However, std::stoi will silently accept floating point
       // representations (simply return the part before the comma). We
       // explicitly require alpha in the string to be an integer:
       if (!std::all_of(aspec_.begin(), aspec_.end(), ::isdigit)) {
-        std::ostringstream s;
-        s << "Alpha in \"" << colorspec
-          << "\" must be an integer, but it contains non-digits.";
-        throw std::invalid_argument(s.str());
+        std::string s("Alpha in \"");
+        s += colorspec;
+        s += "\" must be an integer, but it contains non-digits.";
+        throw std::invalid_argument(s);
       }
     }
   }
@@ -516,9 +503,7 @@ Color Color::Inverse() const {
 
 
 Color Color::Grayscale() const {
-  // Standard conversion ratio:
-  // L = 0.2989 R + 0.5870 G + 0.1141 B
-  const double luminance = (0.2989 * red) + (0.5870 * green) + (0.1141 * blue);
+  const double luminance = helpers::CvtHelperRGB2Gray(red, green, blue);
   return Color(luminance, luminance, luminance, alpha);
 }
 
@@ -590,12 +575,39 @@ std::string Color::ToString() const {
 }
 
 
+std::string Color::ToUInt8String() const {
+  std::ostringstream s;
+  s << '(';
+
+  if (IsSpecialSame()) {
+    s << "Same, a=" << std::fixed
+      << std::setprecision(2) << alpha;
+  } else {
+    if (!IsValid()) {
+      s << "Invalid: ";
+    }
+
+    s << std::setw(3)
+      << static_cast<int>(255 * red) << ", "
+      << static_cast<int>(255 * green) << ", "
+      << static_cast<int>(255 * blue) << ", "
+      << static_cast<int>(100 * alpha) << ')';
+  }
+  return s.str();
+}
+
+
 std::tuple<unsigned char, unsigned char, unsigned char, double>
 Color::ToRGBa() const {
   return std::make_tuple(static_cast<unsigned char>(red * 255),
         static_cast<unsigned char>(green * 255),
         static_cast<unsigned char>(blue * 255),
         alpha);
+}
+
+
+std::tuple<float, float, float> Color::ToHSV() const {
+  return helpers::CvtHelperRGB2HSV(red, green, blue);
 }
 
 
@@ -649,31 +661,14 @@ std::string Color::ToHexString() const {
 }
 
 
-std::string Color::ToRGBaString() const {
-  const auto rgb = ToRGBa();
-  std::ostringstream s;
-  s << "RGBa(";
-
-  if (!IsValid()) {
-    s << "invalid: ";
-  }
-
-  s << static_cast<int>(std::get<0>(rgb))
-    << ", " << static_cast<int>(std::get<1>(rgb))
-    << ", " << static_cast<int>(std::get<2>(rgb))
-    << ", " << std::fixed << std::setprecision(2)
-    << alpha << ")";
-  return s.str();
-}
-
-
 Color Color::WithAlpha(double alpha) const {
   // Explicitly use the copy c'tor, because we
   // want to avoid the saturation cast of the
-  // default c'tor (so we can use the special
-  // "Same" color, but with a different alpha):
+  // default c'tor. This way we can use the special
+  // "Same" color, but with a different alpha,
+  // i.e. Color::Same.WithAlpha(0.3):
   Color copy(*this);
-  copy.alpha = alpha;
+  copy.alpha = helpers::cast_01(alpha);
   return copy;
 }
 
@@ -722,28 +717,53 @@ Color &Color::operator-=(const Color &rhs) {
 }
 
 
-Color Color::FromID(std::size_t id) {
-  return helpers::kExemplaryColors[id % helpers::kExemplaryColorsSize];
-  // TODO axis colors: const Color kAxisColorsRGB[3] = { RGBa(255, 80, 0), RGBa(0, 200, 0), RGBa(0, 0, 255) };
+Color Color::CoordinateAxisColor(char axis) {
+  switch (axis) {
+    case 0:
+    case 'x':
+    case 'X':
+      return Color(0.94, 0.13, 0.15, 1.0);
+
+    case 1:
+    case 'y':
+    case 'Y':
+      return Color(0.19, 0.80, 0.66, 1.0);
+
+    case 2:
+    case 'z':
+    case 'Z':
+      return Color(0.09, 0.44, 0.72, 1.0);
+
+    default:
+      return Color::Magenta;
+  }
 }
 
 
-Color Color::FromCategory(const std::string &category) {
+Color Color::FromObjectID(std::size_t id, ColorMap colormap) {
+  helpers::RGBColor col = helpers::GetCategoryColor(id, colormap);
+  return RGBa(col.red, col.green, col.blue);
+}
+
+
+Color Color::FromObjectCategory(const std::string &category, ColorMap colormap) {
   std::string slug = wzks::Replace(wzks::Lower(category), ' ', '-');
   const auto it = helpers::kCategoryIDMapping.find(slug);
 
   if (it != helpers::kCategoryIDMapping.end()) {
-    return FromID(it->second);
+    return FromObjectID(it->second, colormap);
+  } else {
+    std::hash<std::string> string_hash;
+    return FromObjectID(string_hash(slug), colormap);
   }
-  SPDLOG_CRITICAL("Need to convert category '{:s}' (slug '{:s}') to index/hash/id", category, slug);
-  // TODO implement a simple string hash, e.g.
-  // https://cp-algorithms.com/string/string-hashing.html
-  throw std::logic_error("TODO Color::FromCategory is not yet implemented!");
 }
 
 
-std::vector<std::string> Color::ListCategories() {
-  return wzkc::GetMapKeys(helpers::kCategoryIDMapping);
+std::vector<std::string> Color::ListObjectCategories() {
+  std::vector<std::string> categories = wzkc::GetMapKeys(helpers::kCategoryIDMapping);
+  // The default comparator results in ascending order:
+  std::sort(categories.begin(), categories.end());
+  return categories;
 }
 
 
@@ -788,47 +808,43 @@ Color RGBa(double R, double G, double B, double alpha) {
 
 
 Color ColorFromHexString(const std::string &webcode, double alpha) {
-  SPDLOG_TRACE("ColorFromHexString(\"{:s}\", alpha={:.2f}).",
-               webcode, alpha);
+  SPDLOG_TRACE(
+        "ColorFromHexString(\"{:s}\", alpha={:.2f}).", webcode, alpha);
 
   const size_t len = webcode.length();
   if (len != 7 && len != 9) {
-    std::ostringstream s;
-    s << "Input must have a leading '#' and either 6 or 8 hex digits, "
-      << "but was: \"" << webcode << "\".";
-    throw std::invalid_argument(s.str());
+    std::string s(
+          "Input must have a leading '#' and either "
+          "6 or 8 hex digits, but was: \"");
+    s += webcode;
+    s += "\"!";
+    throw std::invalid_argument(s);
   }
 
   const std::string hex = wzks::Lower(webcode);
   unsigned char rgb[3];
   for (size_t idx = 0; idx < 3; ++idx) {
     unsigned char upper = hex[idx * 2 + 1];
-    upper = (upper <= '9') ? (upper - '0')
-                           : (upper - 'a' + 10);
+    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
 
     unsigned char lower = hex[idx * 2 + 2];
-    lower = (lower <= '9') ? (lower - '0')
-                           : (lower - 'a' + 10);
+    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
 
     rgb[idx] = (upper << 4) | lower;
   }
 
-  // Parse alpha code - if provided, it overrules the
-  // optional function parameter
+  // Parse alpha code (overrules the optional function parameter if provided)
   if (len == 9) {
     unsigned char upper = hex[7];
-    upper = (upper <= '9') ? (upper - '0')
-                           : (upper - 'a' + 10);
+    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
 
     unsigned char lower = hex[8];
-    lower = (lower <= '9') ? (lower - '0')
-                           : (lower - 'a' + 10);
+    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
 
     alpha = static_cast<double>((upper << 4) | lower) / 255.0;
   }
 
-  return Color(rgb[0] / 255.0, rgb[1] / 255.0,
-               rgb[2] / 255.0, alpha);
+  return Color(rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0, alpha);
 }
 
 

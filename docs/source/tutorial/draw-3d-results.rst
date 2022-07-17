@@ -1,6 +1,6 @@
-~~~~~~~~~~~~~~~~~~
-Various 3D Results
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
+What about 3D?
+~~~~~~~~~~~~~~
 
 .. warning::
    TODO doc

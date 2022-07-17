@@ -1,29 +1,27 @@
 #ifndef __VIREN2D_DRAWING_H__
 #define __VIREN2D_DRAWING_H__
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <utility>
 #include <functional>
+#include <memory>
+#include <string>
+//#include <tuple>
+#include <utility>
+#include <vector>
 
 
 #include <viren2d/primitives.h>
+#include <viren2d/imagebuffer.h>
 #include <viren2d/colors.h>
 #include <viren2d/styles.h>
 
 
 namespace viren2d {
 
-/**
- * @brief The Painter supports drawing on a canvas.
- *
- *TODO replace all docstrings by the python interface doc
- */
+/// The Painter provides functionality to draw on a canvas.
 class Painter {
 public:
+  // The basic interface is trivially con-/destructable, assignable & movable.
   virtual ~Painter() {}
-
   Painter() = default;
   Painter(const Painter &other) = default;
   Painter& operator=(const Painter &other) = default;
@@ -31,21 +29,18 @@ public:
   Painter& operator=(Painter &&) = default;
 
 
-  /** @brief Returns true if the painter's canvas is valid.
-   *
-   * You have to set up the painter's canvas before drawing
-   * or retrieving, @see SetCanvas
-   */
+  /// Returns true if the painter's canvas is valid.
+  ///
+  /// You have to set up the painter's canvas before drawing
+  ///  or retrieving, see the overloaded `SetCanvas` methods.
   virtual bool IsValid() const = 0;
 
 
-  /**
-   * @brief Initializes the canvas with the given color.
-   *
-   * This or any overloaded SetCanvas() must be called before
-   * any other DrawXXX calls can be performed.
-   */
-  virtual void SetCanvas(int width, int height, const Color &color) = 0;
+  /// Initializes the canvas with the given color.
+  ///
+  /// This or any overloaded SetCanvas() must be called before
+  /// any other DrawXXX calls can be performed.
+  virtual void SetCanvas(int height, int width, const Color &color) = 0;
 
 
   /**
@@ -124,17 +119,11 @@ public:
   }
 
 
-  /**
-   * @brief Draws a 2D bounding box.
-   */
+  /// Draws a 2D bounding box.
   void DrawBoundingBox2D(
       const Rect &box, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    std::vector<const char*> lines; //FIXME const char vs string!
-    for (const auto &line : label) {
-      lines.push_back(line.c_str());
-    }
-    DrawBoundingBox2DImpl(box, lines, style);
+    DrawBoundingBox2DImpl(box, label, style);
   }
 
 
@@ -197,6 +186,21 @@ public:
   }
 
 
+  //TODO doc
+  void DrawImage(
+      const ImageBuffer &image,
+      const Vec2d &position,
+      Anchor anchor = Anchor::TopLeft,
+      double alpha = 1.0,
+      double scale_x = 1.0, double scale_y = 1.0,
+      double rotation = 0.0, double clip_factor = 0.0,
+      const LineStyle &line_style = LineStyle::Invalid) {
+    DrawImageImpl(
+          image, position, anchor, alpha,
+          scale_x, scale_y, rotation, clip_factor, line_style);
+  }
+
+
   /**
    * @brief Draws a line.
    */
@@ -229,17 +233,18 @@ public:
   }
 
 
-  /**
-   * @brief Draws a rectangle in various different shapes.
-   *
-   * @param rect:   Defines the rectangle (incl. optional
-   *                rotation & corner radius)
-   * @param line_style: How to draw the outline. To skip drawing
-   *                the contour, pass LineStyle::Invalid (then
-   *                you must specify a valid 'fill_color').
-   * @param fill_color: Provide a valid color to fill
-   *                the rectangle.
-   */
+  /// Draws a rectangle.
+  ///
+  /// Args:
+  ///   rect: The :class:`~viren2d.Rect` which should be drawn.
+  ///   line_style: A :class:`~viren2d.LineStyle` specifying how
+  ///       to draw the rectangle's outline.
+  ///
+  ///       If you pass :attr:`viren2d.LineStyle.Invalid`, the
+  ///       contour will not be drawn - then, you must provide
+  ///       a valid ``fill_color``.
+  ///   fill_color: If you provide a valid :class:`~viren2d.Color`,
+  ///       the rectangle will be filled.
   void DrawRect(
       const Rect &rect,
       const LineStyle &line_style = LineStyle(),
@@ -249,27 +254,24 @@ public:
 
 
   //TODO doc, test, bind
-  void DrawText(
+  Rect DrawText(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position,
-      TextAnchor anchor = TextAnchor::BottomLeft,
+      const Vec2d &position,
+      Anchor anchor = Anchor::BottomLeft,
       const TextStyle &text_style = TextStyle(),
       const Vec2d &padding = {0.0, 0.0},
       double rotation = 0.0) {
-    std::vector<const char*> lines;//FIXME revert to string
-    for (const auto &line : text) {
-      lines.push_back(line.c_str());
-    }
-    DrawTextImpl(lines, anchor_position, anchor,
-                 text_style, padding, rotation);
+    return DrawTextImpl(
+          text, position, anchor,
+          text_style, padding, rotation);
   }
 
 
   //TODO doc, test, bind
-  void DrawTextBox(
+  Rect DrawTextBox(
       const std::vector<std::string> &text,
-      const Vec2d &anchor_position,
-      TextAnchor anchor = TextAnchor::BottomLeft,
+      const Vec2d &position,
+      Anchor anchor = Anchor::BottomLeft,
       const TextStyle &text_style = TextStyle(),
       const Vec2d &padding = {6.0, 6.0},
       double rotation = 0.0,
@@ -277,12 +279,8 @@ public:
       const Color &box_fill_color = Color::White.WithAlpha(0.6),
       double box_corner_radius = 0.2,
       const Vec2d &fixed_box_size = {-1.0, -1.0}) {
-    std::vector<const char*> lines;//FIXME revert to string
-    for (const auto &line : text) {
-      lines.push_back(line.c_str());
-    }
-    DrawTextBoxImpl(
-          lines, anchor_position, anchor, text_style,
+    return DrawTextBoxImpl(
+          text, position, anchor, text_style,
           padding, rotation, box_line_style,
           box_fill_color, box_corner_radius, fixed_box_size);
   }
@@ -290,13 +288,28 @@ public:
 
   //TODO doc, test, bind
   void DrawTrajectory(
-      const std::vector<Vec2d> &points, const LineStyle &style,
+      const std::vector<Vec2d> &points,
+      const LineStyle &style = LineStyle(),
       const Color &color_fade_out = Color::White.WithAlpha(0.4),
       bool oldest_position_first = false,
       int smoothing_window = 0,
       const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
-    DrawTrajectoryImpl(points, style, color_fade_out,
-                       oldest_position_first, smoothing_window, mix_factor);
+    DrawTrajectoryImpl(
+          points, style, color_fade_out, oldest_position_first,
+          smoothing_window, mix_factor);
+  }
+
+
+  void DrawTrajectories(
+      const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
+      const LineStyle &style = LineStyle(),
+      const Color &color_fade_out = Color::White.WithAlpha(0.4),
+      bool oldest_position_first = false,
+      int smoothing_window = 0,
+      const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
+    DrawTrajectoriesImpl(
+          trajectories, style, color_fade_out, oldest_position_first,
+          smoothing_window, mix_factor);
   }
 
   //TODO DrawPoints - how to handle alternating colors???
@@ -304,7 +317,7 @@ public:
   //            Scaling via cairo context!
 
 protected:
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawArcImpl(
       const Vec2d &center, double radius,
       double angle1, double angle2,
@@ -312,92 +325,108 @@ protected:
       bool include_center, const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawArrowImpl(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawBoundingBox2DImpl(
       const Rect &box,
-      const std::vector<const char*> &label,
+      const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawCircleImpl(
       const Vec2d &center, double radius,
       const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawEllipseImpl(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
+  virtual void DrawImageImpl(
+      const ImageBuffer &image,
+      const Vec2d &position, Anchor anchor,
+      double alpha, double scale_x, double scale_y,
+      double rotation, double clip_factor, const LineStyle &line_style) = 0;
+
+
+  /// Internal helper to enable default values in public interface.
   virtual void DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawPolygonImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to enable default values in public interface. */
+  /// Internal helper to enable default values in public interface.
   virtual void DrawRectImpl(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
-  /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextImpl(
-      const std::vector<const char*> &text,
-      const Vec2d &position, TextAnchor text_anchor,
+  /// Internal helper to allow default values in public interface.
+  virtual Rect DrawTextImpl(
+      const std::vector<std::string> &text,
+      const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style,
       const Vec2d &padding, double rotation) = 0;
 
 
-  /** Internal helper to allow default values in public interface. */
-  virtual void DrawTextBoxImpl(
-      const std::vector<const char*> &text,
-      const Vec2d &position, TextAnchor text_anchor,
+  /// Internal helper to allow default values in public interface.
+  virtual Rect DrawTextBoxImpl(
+      const std::vector<std::string> &text,
+      const Vec2d &position, Anchor text_anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,
       const Vec2d &fixed_box_size) = 0;
 
 
-  /** Internal helper to allow default values in public interface. */
+  /// Internal helper to allow default values in public interface.
   virtual void DrawTrajectoryImpl(
       const std::vector<Vec2d> &points, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
       int smoothing_window,
+      const std::function<double(double)> &mix_factor) = 0;
+
+
+  /// Internal helper to allow default values in public interface.
+  virtual void DrawTrajectoriesImpl(
+      const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
+      const LineStyle &style, const Color &color_fade_out,
+      bool oldest_position_first, int smoothing_window,
       const std::function<double(double)> &mix_factor) = 0;
 };
 

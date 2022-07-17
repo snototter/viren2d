@@ -38,6 +38,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   // are registered first.
 
   //------------------------------------------------- Color
+  // Color maps are needed by color, thus we need to register the
+  // enum before to avoid `ImportError` upon loading the module:
+  viren2d::bindings::RegisterColorMapEnum(m);
   viren2d::bindings::RegisterColor(m);
 
   //------------------------------------------------- Primitives
@@ -66,12 +69,19 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Drawing - Painter
   viren2d::bindings::RegisterPainter(m);
 
+  //------------------------------------------------- Visualization - Colormaps
+  viren2d::bindings::RegisterColormaps(m);
+
+  //------------------------------------------------- Visualization - Optical Flow
+  viren2d::bindings::RegisterOpticalFlowUtils(m);
+
 //  //TODO(snototter) copy python documentation to cpp
 
 //  //------------------------------------------------- Logging
   //TODO **Corresponding C++ API:** ``SetLogLevel``; explain usage (compile with flag & setloglevel in code!!
   //TODO remove library init when switching to spdlog v2?
-//  m.def("set_log_level", static_cast<bool (*)(const std::string &)>(&viren2d::SetLogLevel), "TODO", py::arg(""));
+//  m.def("set_log_level", static_cast<bool (*)(const std::string &)>(&viren2d::SetLogLevel),
+//        "TODO", pybind11::arg("level"));
 //  viren2d::SetLogLevel(viren2d::LogLevel::Trace);
 
 #ifdef viren2d_VERSION_INFO

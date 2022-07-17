@@ -2,29 +2,16 @@
 Defining Styles
 ---------------
 
-~~~~~~~~~~~~
-Marker Style
-~~~~~~~~~~~~
-
-.. autoclass:: viren2d.MarkerStyle
-   :autosummary:
-   :autosummary-nosignatures:
-   :members:
-  
-
-~~~~~~~~~~
-Line Style
-~~~~~~~~~~
-
-.. autoclass:: viren2d.LineStyle
-   :autosummary:
-   :autosummary-nosignatures:
-   :members:
-
-
 ~~~~~~~~~~~
 Arrow Style
 ~~~~~~~~~~~
+
+.. figure:: ../images/arrow-style-cheat-sheet.png
+   :width: 600
+   :alt: Style cheat sheet for arrows
+   :align: center
+
+   Cheat Sheet: :class:`~viren2d.ArrowStyle`
 
 .. autoclass:: viren2d.ArrowStyle
    :autosummary:
@@ -34,44 +21,67 @@ Arrow Style
    :show-inheritance:
    :exclude-members: cap_offset, join_offset, Invalid
 
-**Exemplary potpourri of supported arrow styles:**
 
-.. image:: ../images/arrows.png
+~~~~~~~~~~~~~~~~~~
+Bounding Box Style
+~~~~~~~~~~~~~~~~~~
+
+.. warning::
+   TODO documentation + cheat sheet
+
+.. autoclass:: viren2d.BoundingBox2DStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+
+
+~~~~~~~~~~
+Line Style
+~~~~~~~~~~
+
+.. figure:: ../images/line-style-cheat-sheet.png
    :width: 400
-   :alt: Arrows
+   :alt: Style cheat sheet for lines
    :align: center
 
-The code listing to create this visualization is shown in the
-:ref:`tutorial section on arrows<tutorial-draw-arrows>`.
+   Cheat Sheet: :class:`~viren2d.LineStyle`
 
+.. autoclass:: viren2d.LineStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+
+
+~~~~~~~~~~~~
+Marker Style
+~~~~~~~~~~~~
+
+.. figure:: ../images/marker-cheat-sheet.png
+   :width: 600
+   :alt: Supported Marker Shapes
+   :align: center
+
+   Cheat Sheet: :class:`~viren2d.Marker`
+
+
+.. autoclass:: viren2d.MarkerStyle
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+  
 
 ~~~~~~~~~~
 Text Style
 ~~~~~~~~~~
 
-.. autoclass:: viren2d.TextStyle
-   :autosummary:
-   :autosummary-nosignatures:
-   :members:
-
-**Exemplary positioning of text boxes:**
-
-.. image:: ../images/text-anchors.png
+.. figure:: ../images/text-anchors.png
    :width: 440
    :alt: Text positioning
    :align: center
 
-The code listing to create this visualization is shown in the
-:ref:`tutorial section on text<tutorial-text>`.
+   Cheat Sheet: :class:`~viren2d.Anchor`
 
-~~~~~~~~~~~~~~~~~~~~~
-2D Bounding Box Style
-~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-   TODO doc
-
-.. autoclass:: viren2d.BoundingBox2DStyle
+.. autoclass:: viren2d.TextStyle
    :autosummary:
    :autosummary-nosignatures:
    :members:

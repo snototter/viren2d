@@ -1,5 +1,6 @@
 #include <sstream>
 #include <stdexcept>
+#include <cstdlib>
 
 #include <pybind11/operators.h>
 
@@ -20,7 +21,7 @@ py::tuple EllipseToTuple(const Ellipse &obj) {
 }
 
 
-Ellipse EllipseFromTupleOrList(py::object object) {
+Ellipse EllipseFromTupleOrList(const py::object &object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
@@ -31,7 +32,7 @@ Ellipse EllipseFromTupleOrList(py::object object) {
   }
 
   // A list can safely be cast into a tuple:
-  py::tuple tpl = object.cast<py::tuple>();
+  const py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 8) {
     std::ostringstream s;
     s << "Cannot create an Ellipse from tuple/list with "
@@ -40,7 +41,7 @@ Ellipse EllipseFromTupleOrList(py::object object) {
   }
 
   Ellipse obj;
-  size_t consumed_elements = 0;
+  std::size_t consumed_elements = 0;
   try {
     // Try initialization from viren2d types first
     auto center = tpl[0].cast<Vec2d>();
@@ -57,10 +58,11 @@ Ellipse EllipseFromTupleOrList(py::object object) {
         << tpl.size() << " entries!";
       throw std::invalid_argument(s.str());
     }
-    obj = Ellipse(tpl[0].cast<double>(),
-                           tpl[1].cast<double>(),
-                           tpl[2].cast<double>(),
-                           tpl[3].cast<double>());
+    obj = Ellipse(
+        tpl[0].cast<double>(),
+        tpl[1].cast<double>(),
+        tpl[2].cast<double>(),
+        tpl[3].cast<double>());
     consumed_elements = 4;
   }
 
@@ -88,7 +90,7 @@ Ellipse EllipseFromTupleOrList(py::object object) {
 }
 
 
-Ellipse EllipseFromTuple(py::tuple tpl) {
+Ellipse EllipseFromTuple(const py::tuple &tpl) {
   return EllipseFromTupleOrList(tpl);
 }
 
@@ -248,7 +250,7 @@ void RegisterEllipse(pybind11::module &m) {
   // Add alias for typing convenience
   m.def("ellipse_from_endpoints",
         &Ellipse::FromEndpoints,
-        "Alias of :meth:`viren2d.Ellipse.from_endpoints`.",
+        "Alias of :meth:`~viren2d.Ellipse.from_endpoints`.",
         py::arg("pt1"), py::arg("pt2"), py::arg("width"),
         py::arg("angle_from") = 0.0,
         py::arg("angle_to") = 360.0,
@@ -267,7 +269,7 @@ py::tuple RectToTuple(const Rect &obj) {
 }
 
 
-Rect RectFromTupleOrList(py::object object) {
+Rect RectFromTupleOrList(const py::object &object) {
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
 
   if (type.compare("tuple") != 0 && type.compare("list") != 0) {
@@ -277,7 +279,7 @@ Rect RectFromTupleOrList(py::object object) {
     throw std::invalid_argument(s.str());
   }
 
-  py::tuple tpl = object.cast<py::tuple>();
+  const py::tuple tpl = object.cast<py::tuple>();
   if (tpl.size() < 2 || tpl.size() > 6) {
     std::ostringstream s;
     s << "Cannot create a viren2d.Rect from tuple/list with "
@@ -322,7 +324,7 @@ Rect RectFromTupleOrList(py::object object) {
 }
 
 
-Rect RectFromTuple(py::tuple tpl) {
+Rect RectFromTuple(const py::tuple &tpl) {
   return RectFromTupleOrList(tpl);
 }
 
@@ -422,7 +424,7 @@ void RegisterRectangle(py::module &m) {
           float: Corner radius.
 
             If :math:`0 \leq radius \leq 0.5`, the actural corner radius
-            will be computed as :math:`radius * min(width, height)`.
+            will be computed as :math:`radius * \min(width, height)`.
 
             If :math:`radius > 1`, it denotes the absolute
             corner radius in pixels.
@@ -477,7 +479,7 @@ void RegisterRectangle(py::module &m) {
   // Add aliases of the static initialization methods (for typing convenience)
   m.def("rect_from_cwh",
         &Rect::FromCWH,
-        "Alias of :meth:`viren2d.Rect.from_cwh`.",
+        "Alias of :meth:`~viren2d.Rect.from_cwh`.",
         py::arg("cx"), py::arg("cy"),
         py::arg("width"), py::arg("height"),
         py::arg("rotation") = 0.0,
@@ -485,14 +487,14 @@ void RegisterRectangle(py::module &m) {
 
   m.def("rect_from_lrtb",
         &Rect::FromLRTB,
-        "Alias of :meth:`viren2d.Rect.from_lrtb`.",
+        "Alias of :meth:`~viren2d.Rect.from_lrtb`.",
         py::arg("left"), py::arg("right"),
         py::arg("top"), py::arg("bottom"),
         py::arg("radius") = 0.0);
 
   m.def("rect_from_ltwh",
         &Rect::FromLTWH,
-        "Alias of :meth:`viren2d.Rect.from_ltwh`.",
+        "Alias of :meth:`~viren2d.Rect.from_ltwh`.",
         py::arg("left"), py::arg("top"),
         py::arg("width"), py::arg("height"),
         py::arg("radius") = 0.0);

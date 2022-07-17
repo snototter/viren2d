@@ -1,34 +1,37 @@
 // STL
 #include <cmath>
 #include <string>
+#include <cstdlib>
+
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
 namespace wgu = werkzeugkiste::geometry;
+
 
 // Custom
 #include <helpers/drawing_helpers.h>
 #include <helpers/enum.h>
 
 
-
 namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- Text metrics
-TextLine::TextLine(const char *line, cairo_t *context,
-                   cairo_font_extents_t *font_metrics)
+SingleLineText::SingleLineText(
+    const char *line, cairo_t *context,
+    cairo_font_extents_t *font_metrics)
   : text(line),
     reference_point(0.0, 0.0) {
   Init(context, font_metrics);
 }
 
 
-void TextLine::Align(Vec2d anchor_position,
-                     TextAnchor anchor) {
+void SingleLineText::Align(
+    Vec2d anchor_position, Anchor anchor) {
   // Default Cairo text `position` is bottom-left,
   // indicating the "reference point".
 
-  // Check these useful resources:
+  // Useful resources on text/layout in Cairo:
   // https://www.cairographics.org/tutorial/#L1understandingtext
   // https://www.cairographics.org/tutorial/textextents.c
   // https://www.cairographics.org/samples/text_align_center/
@@ -57,7 +60,7 @@ void TextLine::Align(Vec2d anchor_position,
 }
 
 
-void TextLine::PlaceText(cairo_t *context) const {
+void SingleLineText::PlaceText(cairo_t *context) const {
   // Shift to the pixel center, and move to the origin of the
   // first glyph. Then, let Cairo render the text:
   auto position = reference_point + 0.5;
@@ -66,8 +69,12 @@ void TextLine::PlaceText(cairo_t *context) const {
 }
 
 
-void TextLine::Init(cairo_t *context,
-                    cairo_font_extents_t *font_metrics) {
+void SingleLineText::Init(
+    cairo_t *context, cairo_font_extents_t *font_metrics) {
+  // Compute extent:
+  //   width: always the actual width
+  //   height: either actual height or
+  //     font height.
   cairo_text_extents_t text_extent;
   cairo_text_extents(context, text, &text_extent);
 
@@ -84,15 +91,17 @@ void TextLine::Init(cairo_t *context,
 }
 
 
-MultilineText::MultilineText(const std::vector<const char *> &text,
-                             const TextStyle &text_style, cairo_t *context)
+MultiLineText::MultiLineText(
+    const std::vector<std::string> &text,
+    const TextStyle &text_style, cairo_t *context)
   : top_left(0.0, 0.0), padding(0.0, 0.0), fixed_size(0.0, 0.0),
     width(0.0), height(0.0), style(text_style) {
   cairo_font_extents_t font_extent;
   cairo_font_extents(context, &font_extent);
 
   for (std::size_t idx = 0; idx < text.size(); ++idx) {
-    lines.push_back(TextLine(text[idx], context, &font_extent));
+    lines.push_back(
+          SingleLineText(text[idx].c_str(), context, &font_extent));
     width = std::max(width, lines[idx].Width());
 
     height += (lines[idx].Height() * ((idx > 0) ? text_style.line_spacing : 1.0));
@@ -100,8 +109,9 @@ MultilineText::MultilineText(const std::vector<const char *> &text,
 }
 
 
-void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
-                          Vec2d padding, Vec2d fixed_size) {
+void MultiLineText::Align(
+    Vec2d anchor_point, Anchor anchor,
+    Vec2d padding, Vec2d fixed_size) {
   // Store padding & fixed size as we need it for the
   // subsequent PlaceText() call.
   this->fixed_size = fixed_size;
@@ -143,49 +153,42 @@ void MultilineText::Align(Vec2d anchor_point, TextAnchor anchor,
       break;
   }
 
-  // Align each TextLine:
+  // Align each SingleLineText:
   double y = top_left.y() + padding.y();
   for (std::size_t idx = 0; idx < lines.size(); ++idx) {
     y += (lines[idx].Height() * ((idx == 0) ? 1.0 : style.line_spacing));
-    lines[idx].Align(Vec2d(x, y),
-                     VerticalAlignment::Bottom | style.alignment);
+    lines[idx].Align(
+          Vec2d(x, y),
+          VerticalAlignment::Bottom | style.alignment);
   }
 }
 
 
-Rect MultilineText::BoundingBox(double corner_radius) const {
+Rect MultiLineText::BoundingBox(double corner_radius) const {
   double w = Width();
   double h = Height();
-  return Rect(top_left.x() + w / 2.0,
-              top_left.y() + h / 2.0,
-              w, h, 0.0, corner_radius);
+  return Rect(
+        top_left.x() + w / 2.0,
+        top_left.y() + h / 2.0,
+        w, h, 0.0, corner_radius);
 }
 
 
-void MultilineText::PlaceText(cairo_t *context) const {
-#ifdef VIREN2D_DEBUG_TEXT_EXTENT
-  cairo_save(context);
-  ApplyLineStyle(context, LineStyle(1, Color::Black));
-  auto bb = BoundingBox();
-  cairo_rectangle(context, bb.left(), bb.top(), bb.width, bb.height);
-  cairo_stroke(context);
-  cairo_restore(context);
-#endif  // VIREN2D_DEBUG_TEXT_EXTENT
-
+void MultiLineText::PlaceText(cairo_t *context) const {
   for (const auto &line : lines) {
     line.PlaceText(context);
   }
 }
 
 
-double MultilineText::Width() const {
+double MultiLineText::Width() const {
   return (fixed_size.width() > 0.0)
       ? fixed_size.width()
       : (width + 2 * padding.x());
 }
 
 
-double MultilineText::Height() const {
+double MultiLineText::Height() const {
   return (fixed_size.height() > 0.0)
       ? fixed_size.height()
       : (height + 2 * padding.y());
@@ -193,25 +196,24 @@ double MultilineText::Height() const {
 
 
 //---------------------------------------------------- Text (plain & boxed)
-void DrawText(cairo_surface_t *surface, cairo_t *context,
-              const std::vector<const char*> &text,
-              Vec2d anchor_position, TextAnchor anchor,
-              const TextStyle &text_style, const Vec2d &padding,
-              double rotation, const LineStyle &box_line_style,
-              const Color &box_fill_color, double box_corner_radius,
-              const Vec2d &fixed_box_size) {
+Rect DrawText(cairo_surface_t *surface, cairo_t *context,
+    const std::vector<std::string> &text,
+    const Vec2d &anchor_position, Anchor anchor,
+    const TextStyle &text_style, const Vec2d &padding,
+    double rotation, const LineStyle &box_line_style,
+    const Color &box_fill_color, double box_corner_radius,
+    const Vec2d &fixed_box_size) {
   CheckCanvas(surface, context);
 
   if (text.empty()) {
-    SPDLOG_WARN("Cannot draw an empty text!");
-    return;
+    return Rect();
   }
 
   if (!text_style.IsValid()) {
-    std::ostringstream s;
-    s << "Cannot draw text with invalid style: "
-      << text_style;
-    throw std::invalid_argument(s.str());
+    std::string s("Cannot draw text with invalid style: ");
+    s += text_style.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
   }
 
   // Push the current context. Now, we just apply styles
@@ -222,13 +224,13 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // and rotate.
   cairo_translate(context, anchor_position.x(), anchor_position.y());
   cairo_rotate(context, wgu::deg2rad(rotation));
-  anchor_position = {0, 0};
+  const Vec2d transformed_anchor_position{0, 0};
 
   // Query the rendered text extents and use them to adjust
-  // the position according to the desired text anchor.
+  // the position according to the desired anchor.
   ApplyTextStyle(context, text_style, false);
-  MultilineText mlt(text, text_style, context);
-  mlt.Align(anchor_position, anchor, padding, fixed_box_size);
+  MultiLineText mlt(text, text_style, context);
+  mlt.Align(transformed_anchor_position, anchor, padding, fixed_box_size);
 
 //#define VIREN2D_DEBUG_TEXT_EXTENT // TODO(snototter) document this debug flag
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
@@ -240,25 +242,28 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // size of the padded region
   ApplyLineStyle(context, LineStyle(1, Color::Black));
   if (padding.LengthSquared() > 0) {
-    cairo_rectangle(context,
-                    anchor_position.x() - padding.x() + 0.5,
-                    anchor_position.y() - padding.y() + 0.5,
-                    2 * padding.x(), 2 * padding.y());
+    cairo_rectangle(
+          context,
+          transformed_anchor_position.x() - padding.x() + 0.5,
+          transformed_anchor_position.y() - padding.y() + 0.5,
+          2 * padding.x(), 2 * padding.y());
   } else {
     // If the text is not padded, draw a small circle instead:
-    cairo_arc(context,
-              anchor_position.x() + 0.5,
-              anchor_position.y() + 0.5,
-              4, 0, 2 * M_PI);
+    cairo_arc(
+          context,
+          transformed_anchor_position.x() + 0.5,
+          transformed_anchor_position.y() + 0.5,
+          4, 0, 2 * M_PI);
   }
   cairo_stroke(context);
 #endif  // VIREN2D_DEBUG_TEXT_EXTENT
 
   // Reuse DrawRect() if we need to draw a text box:
   if (box_fill_color.IsValid() || box_line_style.IsValid()) {
-    DrawRect(surface, context,
-             mlt.BoundingBox(box_corner_radius),
-             box_line_style, box_fill_color);
+    DrawRect(
+          surface, context,
+          mlt.BoundingBox(box_corner_radius),
+          box_line_style, box_fill_color);
   }
 
   // Now that the optional text box has been drawn, we
@@ -270,6 +275,13 @@ void DrawText(cairo_surface_t *surface, cairo_t *context,
   // Pop the original context.
   cairo_new_path(context);
   cairo_restore(context);
+  // Since the text was drawn at a transformed
+  // context, we need to adjust its bounding box:
+  Rect bounding_box = mlt.BoundingBox();
+  bounding_box.rotation = rotation;
+  bounding_box.cx = anchor_position.x();
+  bounding_box.cy = anchor_position.y();
+  return bounding_box;
 }
 } // namespace helpers
 } // namespace viren2d

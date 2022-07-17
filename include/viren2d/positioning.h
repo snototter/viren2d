@@ -50,7 +50,7 @@ std::ostream &operator<<(std::ostream &os, VerticalAlignment align);
 // only for draw_text
 // TODO doc & test
 // public use: prefer Center, Left, ... over combining Horz & Vert
-enum class TextAnchor : unsigned char {
+enum class Anchor : unsigned char {
   Center = __ALIGNMENT(HorizontalAlignment::Center,
                        VerticalAlignment::Center),
 
@@ -73,15 +73,15 @@ enum class TextAnchor : unsigned char {
                             VerticalAlignment::Bottom)
 };
 
-TextAnchor operator|(HorizontalAlignment lhs, VerticalAlignment rhs);
-TextAnchor operator|(VerticalAlignment lhs, HorizontalAlignment rhs);
+Anchor operator|(HorizontalAlignment lhs, VerticalAlignment rhs);
+Anchor operator|(VerticalAlignment lhs, HorizontalAlignment rhs);
 
 //TODO doc, test, etc
 //TODO bindings!!!!
-TextAnchor TextAnchorFromString(const std::string &anchor);
-std::string TextAnchorToString(TextAnchor anchor);
-std::ostream &operator<<(std::ostream &os, TextAnchor anchor);
-std::vector<TextAnchor> ListTextAnchors();
+Anchor AnchorFromString(const std::string &anchor);
+std::string AnchorToString(Anchor anchor);
+std::ostream &operator<<(std::ostream &os, Anchor anchor);
+std::vector<Anchor> ListAnchors();
 
 
 enum class LabelPosition : unsigned char {

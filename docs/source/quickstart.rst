@@ -9,6 +9,6 @@ Quickstart
 
    tutorial/basics
    tutorial/draw
-   tutorial/pseudocolor
+   tutorial/colormaps
+   tutorial/optical-flow
    tutorial/conversion
-

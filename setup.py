@@ -55,12 +55,12 @@ class CMakeBuild(build_ext):
         # from Python.
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
-            f"-DPYTHON_EXECUTABLE={sys.executable}",
+            #f"-DPYTHON_EXECUTABLE={sys.executable}",  # Not needed by viren2d (adding it would cause an unnecessary CMake warning)
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
             f"-Dviren2d_VERSION={load_version()}",
-            "-Dviren2d_WITH_PYTHON=ON",  # We obviously need the python bindings
-            "-Dviren2d_WITH_DEMO=OFF",   # ... but don't need the demo applications
-            "-Dviren2d_WITH_TESTS=OFF"   # ... and also don't need to run the tests
+            "-Dviren2d_BUILD_PYTHON=ON",  # We obviously need the python bindings
+            "-Dviren2d_BUILD_DEMO=OFF",   # ... but don't need the demo applications
+            "-Dviren2d_BUILD_TESTS=OFF"   # ... and also don't need to run the tests
         ]
         build_args = []
         # Adding CMake arguments set as environment variable

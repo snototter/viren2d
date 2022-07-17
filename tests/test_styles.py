@@ -86,14 +86,20 @@ def test_line_style():
     assert not style.is_valid()
 
     # Comparison
-    style = viren2d.LineStyle(2.0, viren2d.Color("magenta"), [],
+    style = viren2d.LineStyle(2.0, viren2d.Color("magenta"), [], 0,
                               viren2d.LineCap.Round, viren2d.LineJoin.Bevel)
     
-    style2 = viren2d.LineStyle(2.0, "magenta", [],
+    style2 = viren2d.LineStyle(2.0, "magenta", [], 0,
                               viren2d.LineCap.Round, viren2d.LineJoin.Bevel)
     assert style == style2
     style2.cap = viren2d.LineCap.Butt
     assert style != style2
+    style2.cap = style.cap
+    assert style == style2
+
+    style2.dash_offset = 3
+    assert style2 != style
+
 
 
 def test_arrow_style():
@@ -276,5 +282,5 @@ def test_pickling():
         restored = pickle.loads(data)
         assert ms == restored
     
-    #TODO implement marker tests in test_styles.py
-    
+# TODO test text style
+# TODO test bounding box 2d style

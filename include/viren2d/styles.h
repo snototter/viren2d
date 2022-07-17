@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <ostream>
-#include <initializer_list>
 
 #include <viren2d/colors.h>
 #include <viren2d/primitives.h>
@@ -21,10 +20,11 @@
 
 
 //FIXME: should implement a ToDetailedString() for all styles (to be called whenever tests fail)
+//FIXME switch to coding/documentation style
 
 namespace viren2d {
 //-------------------------------------------------  Line endpoints
-/** How to render the endpoints of a line. */
+/// How to render the endpoints of a line.
 enum class LineCap : unsigned char {
   Butt = 0,  ///< Start/stop the line exactly at the start/end point.
   Round,     ///< Rounded end, where the center of the circle is the line's start/end point.
@@ -32,21 +32,25 @@ enum class LineCap : unsigned char {
 };
 
 
-/** Returns the string representation. */
+/// Returns the string representation.
 std::string LineCapToString(LineCap cap);
 
 
-/** Returns a LineCap from its string representation. */
+/// Returns a LineCap from its string representation.
 LineCap LineCapFromString(const std::string &cap);
 
 
-/** Output stream operator to print a LineCap. */
+/// Output stream operator to print a LineCap.
 std::ostream &operator<<(std::ostream &os, LineCap cap);
+
+
+/// Computes how much the line cap will extend the line's start/end.
+double LineCapOffset(LineCap cap, double line_width);
 
 
 //-------------------------------------------------  Line joins/junctions
 
-/** How to render the junction of two lines/segments. */
+/// How to render the junction of two lines/segments.
 enum class LineJoin : unsigned char {
   Miter = 0,  ///< Sharp/angled corner.
   Round,      ///< Rounded join, where the center of the circle is the joint point.
@@ -54,136 +58,177 @@ enum class LineJoin : unsigned char {
 };
 
 
-/** Returns the string representation. */
+/// Returns the string representation.
 std::string LineJoinToString(LineJoin join);
 
 
-/** Returns a LineJoin from its string representation. */
+/// Returns a LineJoin from its string representation.
 LineJoin LineJoinFromString(const std::string &join);
 
 
-/** Output stream operator to print a LineJoin. */
+/// Output stream operator to print a LineJoin.
 std::ostream &operator<<(std::ostream &os, LineJoin join);
 
 
+/// Computes how much a line join will extend the joint.
+///
+/// The interior_angle is the angle between two line segments in degrees.
+/// This requires the miter_limit because Cairo switches from MITER to BEVEL
+/// if the miter_limit is exceeded, see
+/// https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+double LineJoinOffset(
+    LineJoin join, double line_width, double interior_angle,
+    double miter_limit);
+
+
 //-------------------------------------------------  MarkerStyle
-/** Marker shape enumeration. */
+/// Marker shape enumeration.
 enum class Marker : unsigned char {
   Point = 0,  ///< A point is a filled circle, char representation: '.'.
   Circle,     ///< A circle (not filled), char representation: 'o'.
 
-  Plus,    ///< Plus sign, char representation: '+'.
-  Cross,   ///< Cross marker, char representation: 'x'.
+  Plus,       ///< Plus sign, char representation: '+'.
+  Cross,      ///< Cross marker, char representation: 'x'.
 
-  Square,  ///< Square marker, char representation: 's'.
+  Square,        ///< Square marker, char representation: 's'.
   RotatedSquare, ///< Rotated square marker, char representation: 'r'.
-  Diamond, ///< Diamond marker, char representation: 'd'.
+  Diamond,       ///< Diamond marker, char representation: 'd'.
 
   TriangleUp,    ///< Upward-pointing triangle marker, char representation: '^'.
   TriangleDown,  ///< Downward-pointing triangle marker, char representation: 'v'.
   TriangleLeft,  ///< Left-pointing triangle marker, char representation: '<'.
   TriangleRight, ///< Right-pointing triangle marker, char representation: '>'.
 
-  Star,      ///< Five-pointed star (Asterisk), char representation: '*'.
-  Pentagram, ///< Five-pointed star, char representation: '5'.
-  Pentagon,  ///< Five-sided polygon, char representation: 'p'.
-  Hexagram,  ///< Six-pointed star, char representation: '6'.
-  Hexagon,   ///< Six-sided polygon, char representation: 'h'.
-  Heptagram, ///< Seven-pointed star, char representation: '7'.
-  Heptagon,  ///< Seven-sided polygon, char representation: 'H'.
-  Octagram,  ///< Eight-pointed star, char representation: '8'.
-  Octagon,   ///< Eight-sided polygon, char representation: '0' (zero).
-  Enneagram, ///< Nine-pointed star, char representation: '9'.
-  Enneagon   ///< Nine-sided polygon (Nonagon), char representation: 'n'.
+  Star,       ///< Five-pointed star (Asterisk), char representation: '*'.
+  Pentagram,  ///< Five-pointed star, char representation: '5'.
+  Pentagon,   ///< Five-sided polygon, char representation: 'p'.
+  Hexagram,   ///< Six-pointed star, char representation: '6'.
+  Hexagon,    ///< Six-sided polygon, char representation: 'h'.
+  Heptagram,  ///< Seven-pointed star, char representation: '7'.
+  Heptagon,   ///< Seven-sided polygon, char representation: 'H'.
+  Octagram,   ///< Eight-pointed star, char representation: '8'.
+  Octagon,    ///< Eight-sided polygon, char representation: '0' (zero).
+  Enneagram,  ///< Nine-pointed star, char representation: '9'.
+  Enneagon    ///< Nine-sided polygon (Nonagon), char representation: 'n'.
 
   // If you implement additional markers, you have to consider it within:
   // * MarkerFromChar (there will be NO compilation warnings if you miss it!)
   // * MarkerToChar
   // * MarkerStyle::IsFilled - i.e. AdjustMarkerFill() - and MarkerStyle::IsValid
   // * helpers::DrawMarker
-  // If you add a marker BELOW TriangleRight, you must change ListMarkers() too!
+  //
+  // Note that "Point" and "Enneagon" are used throughout the code base to
+  // denote the first & last enum entries. If you need to change these,
+  // also adjust ListMarkers() and the test suite accordingly!
 };
 
 
-/** Returns the Marker from its character representation. */
+/// Returns the Marker from its character representation.
 Marker MarkerFromChar(char m);
 
 
-/** Returns the character representation for the given marker. */
+/// Returns the character representation for the given marker.
 char MarkerToChar(Marker marker);
 
 
-/** Output stream operator to print a marker. */
+/// Output stream operator to print a marker.
 std::ostream &operator<<(std::ostream &os, Marker marker);
 
 
-/** Returns the char representations of all implemented marker shapes. */
-std::vector<char> ListMarkers();
+/// Returns the char representations of all implemented marker shapes.
+std::vector<Marker> ListMarkers();
 
 
-/** How to render a marker/keypoint. */
+/// How to render a marker/keypoint.
 struct MarkerStyle {
-  Marker marker;       ///< Marker type.
-  double size;         ///< Marker size in pixels.
-  double thickness;    ///< Line width (thickness) in pixels.
-  Color color;         ///< Color of the marker's contour or fill (@see `filled`).
-  bool filled;         ///< If true (and the shape allows), the marker will be filled.
-  LineCap cap;    ///< How to render the endpoints.
-  LineJoin join;  ///< How to render the junction of two lines/segments.
+  /// Specifies which type of marker should be drawn.
+  Marker marker;
+
+  /// Marker size (i.e. height) in pixels.
+  double size;
+
+  /// Contour line width in pixels (will be ignored if the marker is filled).
+  double thickness;
+
+  /// Color of the marker's contour or fill.
+  Color color;
+
+  /// If true (and the shape allows), the marker will be filled.
+  bool filled;
+
+  /// If `background_color` is valid, a circle (or square) will be drawn
+  /// behind the actual marker. Size will be `size` + 2 * background_border.
+  /// Can be used to improve the contrast of the marker.
+  double background_border;
+
+  /// Can be used to improve the contrast, see `border_thickness`.
+  Color background_color;
+
+  /// How to render the endpoints.
+  LineCap cap;
+
+  /// How to render the junction of two lines/segments.
+  LineJoin join;
 
 
-  /** Returns a library-wide pre-set default style. */
+  /// Returns a library-wide pre-set default style.
   MarkerStyle();
 
 
-  /**
-   * Constructs a MarkerStyle.
-   *
-   * For non-fillable (circle, cross, etc.) or always-filled (point, etc.),
-   * the value of ``fill`` will be ignored.
-   */
-  MarkerStyle(Marker type, double marker_size, double marker_thickness,
-              const Color &marker_color, bool fill = false,
-              LineCap line_cap = LineCap::Butt,
-              LineJoin line_join = LineJoin::Miter);
+  /// Constructs a custom MarkerStyle.
+  /// For non-fillable (circle, cross, etc.) or always-filled (point, etc.)
+  /// markers, the value of ``fill`` will be ignored.
+  MarkerStyle(
+      Marker type,
+      double marker_size,
+      double thickness_marker,
+      const Color &color_marker,
+      bool fill = false,
+      double border_background = 3.0,
+      const Color &color_background = Color::Invalid,
+      LineCap line_cap = LineCap::Round,
+      LineJoin line_join = LineJoin::Miter);
 
 
-  /**
-   * Constructs the MarkerStyle from the marker's char representation.
-   *
-   * For non-fillable (circle, cross, etc.) or always-filled (point, etc.),
-   * the value of ``fill`` will be ignored.
-   */
-  MarkerStyle(char type, double marker_size, double marker_thickness,
-              const Color &marker_color, bool fill = false,
-              LineCap line_cap = LineCap::Butt,
-              LineJoin line_join = LineJoin::Miter);
-
-
-  /** Returns true if this and the other specify the same text style. */
+  /// Returns true if this and the other specify the same text style.
   bool Equals(const MarkerStyle &other) const;
 
 
-  /** Returns true if this style leads to a renderable marker. */
+  /// Returns true if this style leads to a renderable marker.
   bool IsValid() const;
 
 
-  /**
-   * Returns true if the underlying marker shape should be filled.
-   * Otherwise, only its contour should be rendered.
-   *
-   * Note that the user can choose for some marker shapes if they
-   * should be filled or not, while for some other shapes, the
-   * fill status is pre-determined (e.g. point, circle, cross, ...)
-   */
+  /// Returns true if the underlying marker shape should be filled.
+  /// Otherwise, only its contour should be rendered.
+  ///
+  /// Note that the user can choose for some marker shapes if they
+  /// should be filled or not, while for some other shapes, the
+  /// fill status is pre-determined (e.g. point, circle, cross, ...)
   bool IsFilled() const;
 
 
-  /** Returns a human-readable string representation. */
+  /// Computes how much a line join will extend the joint.
+  ///
+  /// The interior_angle is the angle between two line segments in degrees.
+  /// This requires the miter_limit because Cairo switches from MITER to BEVEL
+  /// if the miter_limit is exceeded, see
+  /// https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+  inline double JoinOffset(double interior_angle, double miter_limit = 10.0) const {
+    return LineJoinOffset(join, thickness, interior_angle, miter_limit);
+  }
+
+
+  /// Computes how much the line cap will extend the line's start/end.
+  inline double CapOffset() const {
+    return LineCapOffset(cap, thickness);
+  }
+
+
+  /// Returns a human-readable string representation.
   std::string ToString() const;
 
 
-  /** Overloaded stream operator. */
+  /// Overloaded stream operator.
   friend std::ostream &operator<<(std::ostream &os, const MarkerStyle &style) {
     os << style.ToString();
     return os;
@@ -197,7 +242,7 @@ bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs);
 
 
 //-------------------------------------------------  LineStyle
-/**
+/** TODO change docstyle
  * How to draw lines & contours.
  *
  * Note: depending on the chosen line cap (or line join),
@@ -217,97 +262,104 @@ bool operator!=(const MarkerStyle &lhs, const MarkerStyle &rhs);
    \endcode
  */
 struct LineStyle {
-  double width;   /**< Line width (thickness) in pixels. */
-  Color color;         /**< Color (rgb & alpha). */
-  std::vector<double> dash_pattern; /**< Dash pattern defined as series of on-off segments (lengths in pixels). Line is solid if empty. */
-  LineCap cap;    /**< How to render the endpoints. */
-  LineJoin join;  /**< How to render the junction of two lines/segments. */
+  ///< Line width (thickness) in pixels.
+  double width;
+
+  /// Color (rgb & alpha).
+  Color color;
+
+  /// Dash pattern defined as series of on-off segments (lengths in pixels). Line is solid if empty.
+  std::vector<double> dash_pattern;
+
+  /// Offset into the pattern at which the stroke begins.
+  double dash_offset;
+
+  /// How to render the line/dash stroke endpoints
+  LineCap cap;
+
+  /// How to render the junction of two lines/segments.
+  LineJoin join;
 
 
-  /** Returns a library-wide pre-set default style.
-   *  To use the painter's default style, you should use LineStyle::Default !!! TODO doc FIXME "special" default, "special " invalid or "some initialized" ??? */
+  /// Creates a library-wide pre-set default style.
   LineStyle();
 
-//TODO test
-  LineStyle(std::initializer_list<double> values);
+
+  /// Standard constructor.
+  LineStyle(
+      double width, const Color &col,
+      const std::vector<double> &dash = std::vector<double>(),
+      double offset = 0.0,
+      LineCap cap = LineCap::Butt,
+      LineJoin join = LineJoin::Miter);
 
 
-  LineStyle(double width, const Color &col,
-            const std::vector<double> &dash = std::vector<double>(),
-            LineCap cap = LineCap::Butt, LineJoin join = LineJoin::Miter);
-
-
-  // Nothing special about the LineStyle class, so we can have
-  // the default copy/assignment/move c'tors/operators:
+  /// Nothing special about the LineStyle class, so we can have
+  /// the default copy/assignment/move c'tors/operators:
   LineStyle(const LineStyle &other) = default;
   LineStyle& operator=(const LineStyle &other) = default;
   LineStyle(LineStyle&&) = default;
   LineStyle& operator=(LineStyle &&) = default;
 
+
+  /// Explicit destructor needed (`ArrowStyle` derives from `LineStyle`).
   virtual ~LineStyle() {}
 
 
-  /** Checks if this line style would lead to a renderable line. */
+  /// Returns true if this line style leads to a renderable line.
   virtual bool IsValid() const;
 
-  //TODO doc & test
+
+  /// Returns true if this style equals the special `Invalid` member.
   virtual bool IsSpecialInvalid() const;
-//  virtual bool IsSpecialDefault() const;
 
 
-
-  /** Returns true if this style contains a dash stroke pattern. */
+  /// Returns true if this style contains a dash stroke pattern.
   bool IsDashed() const;
 
 
-  /** Computes how much the line cap will extend the line's start/end. */
-  double CapOffset() const;
+  /// Computes how much the line cap will extend the line's start/end.
+  inline double CapOffset() const {
+    return LineCapOffset(cap, width);
+  }
 
 
-  /**
-   * Computes how much a line join will extend the joint.
-   *
-   * The interior_angle is the angle between two line segments in degrees.
-   * This requires the miter_limit because Cairo switches from MITER to BEVEL
-   * if the miter_limit is exceeded, see
-   *   https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
-   */
-  double JoinOffset(double interior_angle, double miter_limit = 10.0) const;
+  /// Computes how much a line join will extend the joint.
+  ///
+  /// The interior_angle is the angle between two line segments in degrees.
+  /// This requires the miter_limit because Cairo switches from MITER to BEVEL
+  /// if the miter_limit is exceeded, see
+  /// https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit
+  inline double JoinOffset(double interior_angle, double miter_limit = 10.0) const {
+    return LineJoinOffset(join, width, interior_angle, miter_limit);
+  }
 
 
-  /** Returns true if this and the other specify the same line. */
+  /// Returns true if this and the other specify the same line.
   bool Equals(const LineStyle &other) const;
 
 
-  /** Returns a human-readable string representation. */
+  /// Returns a human-readable string representation.
   virtual std::string ToString() const;
 
   //TODO doc
   virtual std::string ToDetailedString() const;
 
-  /** Overloaded stream operator. */
+  /// Overloaded stream operator.
   friend std::ostream &operator<<(std::ostream &os, const LineStyle &style) {
     os << style.ToString();
     return os;
   }
 
 
-  //TODO [x] add documentation
-  //TODO [ ] add C++ test (tests/xxx_test.cpp)
-  //TODO [ ] add Python bindings
-  //TODO [ ] add Python test (tests/test_xxx.py)
-  //TODO [ ] add C++ demo
-  //TODO [ ] add Python demo
-  /**
-   * In several painter methods, LineStyle::Invalid
-   * is used to skip drawing the outline/contour (and
-   * only fill the corresponding shape instead).
-   */
+  /// In several painter methods, LineStyle::Invalid
+  /// is used to skip drawing the outline/contour (and
+  /// only fill the corresponding shape instead).
   static const LineStyle Invalid;
 };
 
 
-// Comparison operators for LineStyle objects
+/// Comparison operators for LineStyle objects
 bool operator==(const LineStyle &lhs, const LineStyle &rhs);
 bool operator!=(const LineStyle &lhs, const LineStyle &rhs);
 
@@ -325,22 +377,25 @@ struct ArrowStyle : public LineStyle {
   ArrowStyle();
 
 
-  ArrowStyle(double width, const Color &col,
-             double tip_len = 0.1, double angle = 20.0,
-             bool fill = false, bool two_heads = false,
-             const std::vector<double> &dash = std::vector<double>(),
-             LineCap cap = LineCap::Round, LineJoin join = LineJoin::Miter);
+  ArrowStyle(
+      double width,
+      const Color &col,
+      double tip_len = 0.1,
+      double angle = 20.0,
+      bool fill = false,
+      bool two_heads = false,
+      const std::vector<double> &dash = std::vector<double>(),
+      double offset = 0.0,
+      LineCap cap = LineCap::Round,
+      LineJoin join = LineJoin::Miter);
 
 
-  ArrowStyle(const LineStyle &line_style,
-             double tip_len = 0.1,
-             double angle = 20.0,
-             bool fill = false,
-             bool two_heads = false)
-    : LineStyle(line_style),
-      tip_length(tip_len), tip_angle(angle),
-      tip_closed(fill), double_headed(two_heads)
-  {}
+  ArrowStyle(
+      const LineStyle &line_style,
+      double tip_len = 0.1,
+      double angle = 20.0,
+      bool fill = false,
+      bool two_heads = false);
 
 
   // Nothing special about the LineStyle class, so we can have
@@ -416,12 +471,14 @@ struct TextStyle {
   TextStyle();
 
 
-  TextStyle(unsigned int font_size,
-            const std::string &font_family,
-            const Color &font_color = Color::Black,
-            bool font_bold = false, bool font_italic = false,
-            double spacing = 1.2,
-            HorizontalAlignment align = HorizontalAlignment::Left);
+  TextStyle(
+      unsigned int font_size,
+      const std::string &font_family,
+      const Color &font_color = Color::Black,
+      bool font_bold = false,
+      bool font_italic = false,
+      double spacing = 1.2,
+      HorizontalAlignment align = HorizontalAlignment::Left);
 
 
   // Nothing special about the TextStyle class, so we can have
@@ -458,19 +515,16 @@ bool operator!=(const TextStyle &lhs, const TextStyle &rhs);
 
 
 //-------------------------------------------------  BoundingBox2DStyle
-/** How to draw a 2D bounding box. */
+/// How to draw a 2D bounding box.
 struct BoundingBox2DStyle {
   LineStyle line_style; //TODO documentation
   TextStyle text_style;
 
-  /**
-   * Optional fill color of the bounding box.
-   *
-   * This is a public member for user convenience. Drawing
-   * methods, however, should use @see BoxFillColor() which
-   * takes care of "special" color choices (like "use the same
-   * color as the contour but with a different alpha").
-   */
+  /// Optional fill color of the bounding box.
+  /// This is a public member for user convenience. Drawing
+  /// methods, however, should use @see BoxFillColor() which
+  /// takes care of "special" color choices (like "use the same
+  /// color as the contour but with a different alpha").
   Color box_fill_color;
   Color text_fill_color;
   LabelPosition label_position;
@@ -479,12 +533,14 @@ struct BoundingBox2DStyle {
 
   BoundingBox2DStyle();
 
-  BoundingBox2DStyle(const LineStyle &contour,
-                     const TextStyle &label_style,
-                     const Color &bounding_box_fill_color,
-                     const Color &label_box_color,
-                     LabelPosition label_pos,
-                     const Vec2d &text_padding, bool clip_lbl);
+  BoundingBox2DStyle(
+      const LineStyle &contour,
+      const TextStyle &label_style,
+      const Color &bounding_box_fill_color,
+      const Color &label_box_color,
+      LabelPosition label_pos,
+      const Vec2d &text_padding,
+      bool clip_lbl);
 
   // Nothing special about the BoundingBoxStyle class, so we can have
   // the default copy/assignment/move c'tors/operators:
