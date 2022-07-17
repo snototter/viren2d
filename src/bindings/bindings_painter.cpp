@@ -1045,8 +1045,8 @@ void RegisterPainter(py::module &m) {
           * ``trajectory`` is a :class:`list` of :class:`~viren2d.Vec`,
             *i.e.* the coordinates.
           * ``color`` is the corresponding :class:`~viren2d.Color`.
-            If invalid, the color of the ``line_style`` parameter
-            will be used instead.
+            If :attr:`Color.Invalid` or :attr:`Color.Same`, the color of the
+            ``line_style`` parameter will be used instead.
         others: For details on all other parameters, refer to the
           documentation of :meth:`~viren2d.Painter.draw_trajectory`.
 

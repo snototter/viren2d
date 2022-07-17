@@ -507,6 +507,8 @@ def test_draw_trajectory():
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
+    p.draw_trajectory([(0, 0), (50, 50)])
+
     # Create dummy trajectory (which may partially be
     # outside the image boundaries)
     num_points = 100
@@ -563,3 +565,52 @@ def test_draw_trajectory():
                     trajectory=pts, line_style=line_style)
             # Painter should always be kept in a valid state
             assert p.is_valid()
+
+
+def test_draw_trajectories():
+    num_points = 50
+    trajectories = list()
+    for color in ['blue', 'same', 'same!40', 'invalid']:
+        x = 600 * np.random.rand(num_points, 1)
+        y = 500 * np.random.rand(num_points, 1)
+        pts = [(x[i], y[i]) for i in range(num_points)]
+        trajectories.append((pts, color))
+
+    # Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    with pytest.raises(RuntimeError):
+        p.draw_trajectories(trajectories)
+    # Prepare canvas
+    p.set_canvas_rgb(height=300, width=400)
+    assert p.is_valid()
+
+    p.draw_trajectories(trajectories)
+    p.draw_trajectories(trajectories=trajectories)
+
+    line_style = viren2d.LineStyle(width=10)
+
+    line_style.color = 'invalid'
+    with pytest.raises(ValueError):
+        p.draw_trajectories(trajectories, line_style=line_style)
+
+    line_style.color = 'azure'
+    # Include all parameters (not fading):
+    p.draw_trajectories(
+        trajectories=trajectories, line_style=line_style,
+        fade_out_color=viren2d.Color.Invalid,
+        tail_first=False, smoothing_window=17,
+        fading_factor=viren2d.fade_out_quadratic)
+
+    # Fading out (draws multiple line segments)
+    p.draw_trajectories(
+        trajectories, line_style, viren2d.Color.White)
+    p.draw_trajectories(
+        trajectories=trajectories, line_style=line_style,
+        fade_out_color=viren2d.Color.Red)
+    # Include all parameters:
+    p.draw_trajectories(
+        trajectories=trajectories, line_style=line_style,
+        fade_out_color=viren2d.Color.Blue,
+        tail_first=False, smoothing_window=17,
+        fading_factor=viren2d.fade_out_quadratic)
