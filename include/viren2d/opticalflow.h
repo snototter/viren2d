@@ -9,11 +9,11 @@
 
 namespace viren2d {
 
-/// Loads a `.flo` optical flow file into a two-band image.
+/// Loads a `.flo` optical flow file into a two-band image buffer.
 ImageBuffer LoadOpticalFlow(const std::string &filename);
 
 
-/// Saves a two-band optical flow image as `.flo` format.
+/// Saves a two-band optical flow image as `.flo` file.
 void SaveOpticalFlow(const std::string &filename, const ImageBuffer &flow);
 
 

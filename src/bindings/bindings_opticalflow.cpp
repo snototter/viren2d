@@ -32,7 +32,7 @@ ImageBuffer OpticalFlowLegendHelper(
 void RegisterOpticalFlowUtils(pybind11::module &m) {
   m.def("save_optical_flow",
         &SaveOpticalFlow, R"docstr(
-        Saves a two-band optical flow field as ``.flo`` format.
+        Saves a two-band optical flow field as ``.flo`` file.
 
         Args:
           filename: The output filename as :class:`str`. The
