@@ -69,7 +69,7 @@ both **C++ and Python** environments.
    * |unchecked| Image overlay - WIP (implemented, but not fully tested/documented)
    * |checked| Lines
    * |checked| Markers
-   * |unchecked| Optical flow visualization - WIP (implemented, but not fully tested/documented)
+   * |checked| Optical flow visualization
    * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
    * |unchecked| Polygons - WIP (implemented, but not fully tested/documented)
    * |checked| Rectangles

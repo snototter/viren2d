@@ -11,7 +11,7 @@ def demo_tracking_by_detection():
     line_style = viren2d.LineStyle(width=4, color='navy-blue!80')
     
     text_style = viren2d.TextStyle(
-        family='xkcd', alignment=viren2d.HorizontalAlignment.Center)
+        family='xkcd', halign=viren2d.HorizontalAlignment.Center)
     
     # Customize the style
     bbox_style = viren2d.BoundingBox2DStyle()

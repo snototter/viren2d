@@ -166,7 +166,7 @@ def cheat_sheet_arrowstyle():
    # Style specifications:
     text_style = viren2d.TextStyle(
         family='xkcd', size=18, color=(0.3, 0.3, 0.3),
-        alignment=viren2d.HorizontalAlignment.Center,
+        halign=viren2d.HorizontalAlignment.Center,
         line_spacing=1.1)
     y_txt = 110  # Same vertical anchor for all text
 
@@ -293,7 +293,7 @@ def cheat_sheet_colormaps():
     rtd_text_color = viren2d.RGBa(192, 186, 177)
 
     text_style = viren2d.TextStyle(
-        family='xkcd', size=18, color=rtd_text_color, alignment='right')
+        family='xkcd', size=18, color=rtd_text_color, halign='right')
 
     painter = viren2d.Painter()
     canvas_width = 480

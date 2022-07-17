@@ -23,6 +23,6 @@ colorize example data computed by the well-known
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/images.py
    :language: python
    :linenos:
-   :lines: 52-75
+   :lines: 33-54
    :emphasize-lines: 14-17
    :dedent: 4

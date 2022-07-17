@@ -695,7 +695,8 @@ TextStyle::TextStyle()
     bold(false),
     italic(false),
     line_spacing(1.2),
-    alignment(HorizontalAlignment::Left)
+    halign(HorizontalAlignment::Left),
+    valign(VerticalAlignment::Top)
 {}
 
 
@@ -704,12 +705,13 @@ TextStyle::TextStyle(unsigned int font_size,
                      const Color &font_color,
                      bool font_bold, bool font_italic,
                      double spacing,
-                     HorizontalAlignment align)
+                     HorizontalAlignment horz_alignment, VerticalAlignment vert_alignment)
   : size(font_size), family(font_family),
     color(font_color), bold(font_bold),
     italic(font_italic),
     line_spacing(spacing),
-    alignment(align)
+    halign(horz_alignment),
+    valign(vert_alignment)
 {}
 
 
@@ -743,7 +745,7 @@ std::string TextStyle::ToString() const {
   }
 
   s << ", ls=" << std::setprecision(2) << line_spacing
-    << ", " << alignment
+    << ", " << halign << ", " << valign
     << ", " << color;
 
   if (!IsValid()) {

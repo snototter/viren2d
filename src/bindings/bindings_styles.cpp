@@ -585,10 +585,9 @@ void RegisterLineStyle(pybind11::module &m) {
       anti-aliasing effects.
 
       Note that several ``draw_xxx`` methods of the
-      :class:`~viren2d.Painter` also accept the special
-      member :attr:`~viren2d.LineStyle.Invalid`, which
-      indicates that a shape should only be filled,
-      but it's contour should not be drawn.
+      :class:`~viren2d.Painter` also accept the special member
+      :attr:`LineStyle.Invalid`, which indicates that a shape should
+      only be filled, but it's contour should not be drawn.
 
       Example:
         >>> style = viren2d.LineStyle(

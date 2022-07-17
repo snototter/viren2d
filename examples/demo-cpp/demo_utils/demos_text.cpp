@@ -24,7 +24,7 @@ void DemoText() {
     text_style.size = 16;
     text_style.family = families[idx_family];
     text_style.line_spacing = 1.0;
-    text_style.alignment = HorizontalAlignment::Center;
+    text_style.halign = HorizontalAlignment::Center;
 
     auto padding = Vec2d::All(idx_family * 3);
 

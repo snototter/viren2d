@@ -159,7 +159,7 @@ void DrawBoundingBox2D(
         ? label_box.top()
         : label_box.bottom()};
 
-  switch (style.text_style.alignment) {
+  switch (style.text_style.halign) {
     case HorizontalAlignment::Left:
       text_anchor.SetX(label_box.left());
       break;
@@ -181,7 +181,7 @@ void DrawBoundingBox2D(
   MultiLineText mlt(label, style.text_style, context);
   mlt.Align(
         text_anchor,
-        valign | style.text_style.alignment,
+        valign | style.text_style.halign,
         padding, {-1, -1});
   if (valign == VerticalAlignment::Top) {
     label_box = Rect::FromLTWH(

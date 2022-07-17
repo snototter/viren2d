@@ -26,7 +26,7 @@ which are highlighted via :func:`~viren2d.Painter.draw_marker`:
 
 This visualization has been created with the following Python code:
 
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/positioning.py
+.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/text.py
    :language: python
    :linenos:
    :lines: 35-51
@@ -40,8 +40,8 @@ This visualization has been created with the following Python code:
 Multi-Line Text
 ...............
 
-The following figure shows the different (horizontal) alignment options of
-multi-line text boxes. The displayed text lines are an excerpt from
+The following figure shows the different alignment options of multi-line text
+boxes. The displayed text lines are an excerpt from
 `Revelation, a Visual Poem <https://vimeo.com/57370112>`__.
 
 .. image:: ../images/text-multi-line.png
@@ -51,9 +51,9 @@ multi-line text boxes. The displayed text lines are an excerpt from
 
 This visualization has been created with the following Python code:
 
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/positioning.py
+.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/text.py
    :language: python
-   :lines: 67-97
+   :lines: 64-98
    :linenos:
-   :emphasize-lines: 15, 21, 27
+   :emphasize-lines: 15-17, 23-24, 30-31
    :dedent: 4

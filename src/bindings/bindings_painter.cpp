@@ -505,7 +505,7 @@ void RegisterPainter(py::module &m) {
         line_style: A :class:`~viren2d.LineStyle` specifying how
           to draw the arc's outline.
 
-          If you pass :attr:`~viren2d.LineStyle.Invalid`, the
+          If you pass :attr:`LineStyle.Invalid`, the
           contour will not be drawn - then, you must provide a
           valid ``fill_color``.
         include_center:  If ``True`` (default), the center point
@@ -599,7 +599,7 @@ void RegisterPainter(py::module &m) {
         line_style: A :class:`~viren2d.LineStyle` specifying how
           to draw the circle's outline.
 
-          If you pass :attr:`~viren2d.LineStyle.Invalid`, the
+          If you pass :attr:`LineStyle.Invalid`, the
           contour will not be drawn - then, you must provide a
           valid ``fill_color``.
         fill_color: If you provide a valid :class:`~viren2d.Color`,
@@ -626,7 +626,7 @@ void RegisterPainter(py::module &m) {
         line_style: A :class:`~viren2d.LineStyle` specifying
           how to draw the ellipse's outline.
 
-          If you pass :attr:`~viren2d.LineStyle.Invalid`, the
+          If you pass :attr:`LineStyle.Invalid`, the
           contour will not be drawn - then, you must provide a
           valid ``fill_color``.
         fill_color: If you provide a valid :class:`~viren2d.Color`,
@@ -697,8 +697,8 @@ void RegisterPainter(py::module &m) {
         rotation: Clockwise rotation in degrees as :class:`float`.
         clip_factor: TODO 0 < c <= 0.5 --> corner radius (see rounded rect), > 0.5 ellipse; <= 0 no clip
         line_style: A :class:`~viren2d.LineStyle` specifying how to draw the
-          contour. If :attr:`viren2d.LineStyle.Invalid` is passed, this step
-          will be skipped.
+          contour. If set to :attr:`LineStyle.Invalid`, the contour will not
+          be drawn.
 
       Example:
         >>> #TODO
@@ -850,45 +850,45 @@ void RegisterPainter(py::module &m) {
               py::arg("fill_color") = Color::Invalid);
 
   //TODO raw string doc + example //----------------------------------------------------------------------
-  doc = R"docstr(
-      Renders text onto the canvas.
-
-      Args:
-        text: A :class:`list` of :class:`str` to be drawn.
-          For a single line, simply pass a :class:`list` which
-          holds a single :class:`str`.
-        position: Position of the reference point where
-          to anchor the text as :class:`~viren2d.Vec2d`.
-        anchor: How to orient the text w.r.t. the ``position``.
-          Valid inputs are :class:`~viren2d.Anchor` enum values
-          and their string representations.
-
-          A string must correspond either to a *position
-          specification* - *i.e.* ``center``, ``top``, ``top-right``,
-          ``right``, ``bottom-right``, ``bottom``, ``bottom-left``,
-          ``left``, or ``top-left`` - or one of the 8 *compass
-          directions* - *i.e.* ``north``, ``north-east``, ``east``,
-          ``south-east``, ``south``, ``south-west``, ``west``,
-          or ``north-west``.
-
-          Before parsing, the input string will be converted to
-          lowercase and any whitespaces, dashes & underscores will
-          be removed.
-        text_style: A :class:`~viren2d.TextStyle`, specifying
-          how to render the text.
-        padding: Optional distance between the closest glyph and the
-          ``position``. Specified in pixels as :class:`~viren2d.Vec2d`.
-        rotation: Rotation angle (clockwise around ``position``) in
-          degrees as :class:`float`.
-
-      Returns:
-        The bounding box of the drawn text as :class:`~viren2d.Rect`.
-
-      Example:
-        >>> #TODO
-      )docstr";
   painter.def(
-        "draw_text", &PainterWrapper::DrawText, doc.c_str(),
+        "draw_text",
+        &PainterWrapper::DrawText, R"docstr(
+        Renders text onto the canvas.
+
+        Args:
+          text: A :class:`list` of :class:`str` to be drawn.
+            For a single line, simply pass a :class:`list` which
+            holds only a single :class:`str`.
+          position: Position of the reference point where
+            to anchor the text as :class:`~viren2d.Vec2d`.
+          anchor: How to orient the text with respect to the ``position``.
+            Valid inputs are :class:`~viren2d.Anchor` enum values
+            and their string representations.
+
+            A string must correspond either to a *position
+            specification* - *i.e.* ``center``, ``top``, ``top-right``,
+            ``right``, ``bottom-right``, ``bottom``, ``bottom-left``,
+            ``left``, or ``top-left`` - or one of the 8 *compass
+            directions* - *i.e.* ``north``, ``north-east``, ``east``,
+            ``south-east``, ``south``, ``south-west``, ``west``,
+            or ``north-west``.
+
+            Before parsing, the input string will be converted to
+            lowercase and any whitespaces, dashes & underscores will
+            be removed.
+          text_style: A :class:`~viren2d.TextStyle`, specifying
+            how to render the text.
+          padding: Optional distance between the closest glyph and the
+            ``position``. Specified in pixels as :class:`~viren2d.Vec2d`.
+          rotation: Rotation angle (clockwise around ``position``) in
+            degrees as :class:`float`.
+
+        Returns:
+          The bounding box of the drawn text as :class:`~viren2d.Rect`.
+
+        Example:
+          >>> #TODO
+        )docstr",
         py::arg("text"),
         py::arg("position"),
         py::arg("anchor") = Anchor::BottomLeft,
@@ -899,40 +899,41 @@ void RegisterPainter(py::module &m) {
 
 
   //TODO doc + example //----------------------------------------------------------------------
-  doc = R"docstr(
-      Draws a text box.
-
-      Args:
-        text: A :class:`list` of :class:`str` to be drawn.
-          For a single line, simply pass a :class:`list` which
-          holds a single :class:`str`.
-        position: Position of the reference point where
-          to anchor the text as :class:`~viren2d.Vec2d`.
-        anchor: How to orient the text with respect to ``position``.
-          Valid inputs are :class:`~viren2d.Anchor` enum values
-          and string representations. For details, refer to the
-          ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
-        text_style: A :class:`~viren2d.TextStyle`, specifying
-          how to render the text.
-        padding: Optional padding between text and the edges
-          of the box. Specified in pixels as :class:`~viren2d.Vec2d`.
-        rotation: Rotation angle (clockwise around ``position``) in
-          degrees as :class:`float`.
-        line_style: A :class:`~viren2d.LineStyle`, specifying
-          how to render the border of the text box.
-        fill_color: If you provide a valid :class:`~viren2d.Color`,
-          the box will be filled.
-        radius: Corner radius of the box. Refer to
-          :attr:`~viren2d.Rect.radius` for details on valid
-          value ranges.
-        fixed_size: TODO
-
-      Returns:
-        The bounding box of the drawn text as :class:`~viren2d.Rect`.
-      )docstr";
   painter.def(
         "draw_text_box",
-        &PainterWrapper::DrawTextBox, doc.c_str(),
+        &PainterWrapper::DrawTextBox, R"docstr(
+        Draws a text box.
+
+        Args:
+          text: A :class:`list` of :class:`str` to be drawn.
+            For a single line, simply pass a :class:`list` which
+            holds a single :class:`str`.
+          position: Position of the reference point where
+            to anchor the text as :class:`~viren2d.Vec2d`.
+          anchor: How to orient the text with respect to ``position``.
+            Valid inputs are :class:`~viren2d.Anchor` enum values
+            and string representations. For details, refer to the
+            ``anchor`` parameter of :meth:`~viren2d.Painter.draw_text`.
+          text_style: A :class:`~viren2d.TextStyle`, specifying
+            how to render the text.
+          padding: Optional padding between text and the edges
+            of the box. Specified in pixels as :class:`~viren2d.Vec2d`.
+          rotation: Rotation angle (clockwise around ``position``) in
+            degrees as :class:`float`.
+          line_style: A :class:`~viren2d.LineStyle`, specifying
+            how to render the border of the text box.
+          fill_color: If you provide a valid :class:`~viren2d.Color`,
+            the box will be filled.
+          radius: Corner radius of the box. Refer to
+            :attr:`~viren2d.Rect.radius` for details on valid
+            value ranges.
+          fixed_size: Forces the box to be of the specified size as
+            :class:`~viren2d.Vec2d`. If the size is smaller than the text
+            extent, the text will overflow the box.
+
+        Returns:
+          The bounding box of the drawn text as :class:`~viren2d.Rect`.
+        )docstr",
         py::arg("text"),
         py::arg("position"),
         py::arg("anchor") = Anchor::BottomLeft,

@@ -42,7 +42,7 @@ void DemoBoundingBoxes2D() {
   style.text_style = TextStyle(10, "monospace");
 
 //  style.label_position = label_positions[randmod(label_positions.size())];
-  style.text_style.alignment = HorizontalAlignment::Left;
+  style.text_style.halign = HorizontalAlignment::Left;
 
   painter->DrawBoundingBox2D(
         Rect::FromLTWH(50, 50, 100, 80, 0.2),
@@ -90,13 +90,13 @@ void DemoBoundingBoxes2D() {
   style.text_style = TextStyle(14, "Arial", "black", true);
 //  style.label_position = label_positions[randmod(label_positions.size())];
 
-  style.text_style.alignment = HorizontalAlignment::Center;
+  style.text_style.halign = HorizontalAlignment::Center;
   painter->DrawBoundingBox2D(
         Rect::FromLTWH(200, 50, 100, 250, 0.4),
         {"Centered", "label"}, style);
 
 
-  style.text_style.alignment = HorizontalAlignment::Left;
+  style.text_style.halign = HorizontalAlignment::Left;
   style.text_fill_color = Color::Same.WithAlpha(0.3);
 //  style.label_position = label_positions[randmod(label_positions.size())];
   painter->DrawBoundingBox2D(
@@ -106,7 +106,7 @@ void DemoBoundingBoxes2D() {
   style.clip_label = true;
   style.box_fill_color = Color::Invalid;
   style.text_fill_color = Color::Same.WithAlpha(0.5);
-  style.text_style.alignment = HorizontalAlignment::Right;
+  style.text_style.halign = HorizontalAlignment::Right;
 //  style.label_position = label_positions[randmod(label_positions.size())];
   painter->DrawBoundingBox2D(
         Rect::FromLTWH(475, 50, 100, 250),

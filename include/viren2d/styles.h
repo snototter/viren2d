@@ -457,20 +457,45 @@ bool operator!=(const ArrowStyle &lhs, const ArrowStyle &rhs);
 
 
 //-------------------------------------------------  TextStyle
-/** How to render text. */
+/// Specifies how to render text.
 struct TextStyle {
-  int size; //TODO documentation
-  std::string family;
-  Color color;
-  bool bold;
-  bool italic;
-  double line_spacing;
-  HorizontalAlignment alignment;
+  /// Font size (height) in pixels. Note that this can differ from the actual
+  /// height of a glyph, i.e. the actual height is font-specific.
+  int size;
 
-  /**FIXME see linestyle doc*/
+
+  /// Name of the font family.
+  /// Most available fonts on the system should be supported.
+  /// If you experience issues, try the generic CSS2 family names
+  /// first, *e.g.* ``serif``, ``sans-serif``, or ``monospace``. Refer to the
+  /// `Cairo documentation <https://www.cairographics.org/manual/cairo-text.html#cairo_select_font_face>`__
+  /// for more details.
+  std::string family;
+
+  //TODO doc
+  Color color;
+
+
+  /// Flag to switch between normal and bold font weight.
+  bool bold;
+
+
+  /// Flag to switch between normal and italic slant.
+  bool italic;
+
+
+  /// Scaling factor of the vertical distance between consecutive lines of text
+  double line_spacing;
+
+
+  HorizontalAlignment halign;
+  VerticalAlignment valign;
+
+  /// Creates a library-wide default style.
   TextStyle();
 
 
+  /// Creates a customized style.
   TextStyle(
       unsigned int font_size,
       const std::string &font_family,
@@ -478,7 +503,8 @@ struct TextStyle {
       bool font_bold = false,
       bool font_italic = false,
       double spacing = 1.2,
-      HorizontalAlignment align = HorizontalAlignment::Left);
+      HorizontalAlignment horz_alignment = HorizontalAlignment::Left,
+      VerticalAlignment vert_alignment = VerticalAlignment::Top);
 
 
   // Nothing special about the TextStyle class, so we can have
@@ -489,19 +515,19 @@ struct TextStyle {
   TextStyle& operator=(TextStyle &&) = default;
 
 
-  /** Checks if this line style would lead to a renderable line. */
+  /// Checks if this style would lead to renderable text.
   bool IsValid() const;
 
 
-  /** Returns true if this and the other specify the same text style. */
+  /// Returns true if this and the other specify the same text style.
   bool Equals(const TextStyle &other) const;
 
 
-  /** Returns a human-readable string representation. */
+  /// Returns a human-readable string representation.
   std::string ToString() const;
 
 
-  /** Overloaded stream operator. */
+  /// Overloaded stream operator.
   friend std::ostream &operator<<(std::ostream &os, const TextStyle &style) {
     os << style.ToString();
     return os;

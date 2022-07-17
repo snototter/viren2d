@@ -49,7 +49,7 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'Text anchors', save_images, 'text-anchors.png')
 
-    # Multi-line text, horizontal alignment
+    # Multi-line text, horizontal & vertical alignment
     img = demo_multiline_text()
     _process_result(
         img, show_images, 'Multi-line Text', save_images, 'text-multi-line.png')
@@ -124,4 +124,4 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 
 if __name__ == '__main__':
     render_rtd_demos(True, True)
-    render_rtd_cheatsheets(True, True)
+    # render_rtd_cheatsheets(True, True)

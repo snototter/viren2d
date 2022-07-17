@@ -12,7 +12,7 @@ def demo_ellipses():
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=23, line_spacing=0.8, alignment='center')
+        family='xkcd', size=23, line_spacing=0.8, halign='center')
 
     line_style = viren2d.LineStyle(
         width=5, color='forest-green')
