@@ -60,28 +60,30 @@ both **C++ and Python** environments.
    marked by |checked|. See also the up-to-date
    :ref:`list of implemented drawing functions<api-documentation>`.
    
-   * |checked| Arcs
-   * |checked| Arrows
-   * |unchecked| Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
-   * |checked| Circles
-   * |checked| Color maps
-   * |checked| Ellipses
-   * |unchecked| Image overlay - WIP (implemented, but not fully tested/documented)
-   * |checked| Lines
-   * |checked| Markers
-   * |checked| Optical flow visualization
+   * |checked| Drawing Arcs
+   * |checked| Drawing Arrows
+   * |checked| Drawing Circles
+   * |checked| Drawing Ellipses
+   * |checked| Drawing Lines
+   * |checked| Drawing Markers
+   * |unchecked| Drawing Polygons - WIP (implemented, but not fully tested/documented)
+   * |checked| Drawing Rectangles
+   * |checked| Drawing Text (single-/multi-line)
+   * |checked| Drawing Text Boxes (single-/multi-line)
+   * |checked| Drawing Trajectories
+   * |unchecked| Image Overlay - WIP (implemented, but not fully tested/documented)
+   * |unchecked| Label Image Colorization - WIP
+   * |checked| Optical Flow Colorization
    * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
-   * |unchecked| Polygons - WIP (implemented, but not fully tested/documented)
-   * |checked| Rectangles
-   * |checked| Text (single- and multi-line)
-   * |checked| Text Boxes (single- and multi-line)
-   * |checked| Trajectories
+   * |unchecked| Relief Shading - WIP (implemented, but not fully tested/documented)
+   * |checked| Scaled Colorization (False Colors)
+   * |unchecked| Visualizing Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
 
 **Which features will be added in the future?**
 
-   * |unchecked| Bounding Boxes (3D)
+   * |unchecked| Visualizing Bounding Boxes (3D)
    * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...   
-   * |unchecked| Pose estimation results
+   * |unchecked| Visualize Body/Hand Pose
 
 
 .. toctree::

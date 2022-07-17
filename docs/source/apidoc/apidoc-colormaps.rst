@@ -19,6 +19,7 @@ Colorization
 
 .. autofunction:: viren2d.colorize
 
+.. autofunction:: viren2d.colorize_labels
 
 .. autoclass:: viren2d.Colorizer
    :autosummary:

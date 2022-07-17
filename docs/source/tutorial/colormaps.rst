@@ -126,9 +126,9 @@ representing thermographic (``thermal``), topographic (``earth``, ``ocean``,
    :align: center
 
 
-~~~~~~~~~~~~~~~~~~~~
-Colorization Example
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+Scaled Colorization
+~~~~~~~~~~~~~~~~~~~
 
 The following example uses the `"gouldian" color map <https://colorcet.com/>`__
 to colorize example data computed by the well-known
@@ -150,6 +150,17 @@ Corresponding Python code:
    :lines: 78-97
    :linenos:
    :dedent: 4
+
+
+~~~~~~~~~~~~~~~~~~
+Label Colorization
+~~~~~~~~~~~~~~~~~~
+
+Label images, *e.g.* semantic/panoptic/instance segementation results can be
+visualized via :func:`~viren2d.colorize_labels`:
+
+.. warning:: 
+   FIXME add example visualization
 
 
 ~~~~~~~~~~~~~~

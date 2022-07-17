@@ -19,7 +19,8 @@ Overview & Basics
    and :class:`~viren2d.Colorizer`.
 
    Suitable color maps can also be used to visualize *optical flow*
-   via :func:`~viren2d.colorize_optical_flow`.
+   via :func:`~viren2d.colorize_optical_flow` or discrete label images, *e.g.*
+   segmentation results, via :func:`~viren2d.colorize_labels`.
 
    The :class:`~viren2d.ImageBuffer` provides some basic image processing
    functionalities, suitable to :meth:`~viren2d.ImageBuffer.blend` images,

@@ -46,6 +46,7 @@ API Documentation
       viren2d.Colorizer
       viren2d.ColorMap
       viren2d.colorize
+      viren2d.colorize_labels
       viren2d.peaks
 
 
