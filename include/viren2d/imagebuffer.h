@@ -611,6 +611,11 @@ private:
 };
 
 
+// TODO(interface) - other color conversions (i.e. rgb2gray,
+// gray2rgb) should be added here, too
+// Then, add "ImageBuffer utils" doc section on RTD
+
+
 /// Converts a RGB(A)/BGR(A) image to HSV. Input image must be of type uint8.
 ///
 /// Returns:

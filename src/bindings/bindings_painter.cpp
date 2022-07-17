@@ -1021,6 +1021,7 @@ void RegisterPainter(py::module &m) {
   painter.def(
         "draw_trajectory", &PainterWrapper::DrawTrajectory, doc.c_str(),
         py::arg("trajectory"),
+
         py::arg("line_style") = default_trajectory_style,
         py::arg("fade_out_color") = default_trajectory_fade_out_color,
         py::arg("tail_first") = true,
