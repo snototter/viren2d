@@ -72,11 +72,11 @@ both **C++ and Python** environments.
    * |checked| Drawing Text Boxes (single-/multi-line)
    * |checked| Drawing Trajectories
    * |unchecked| Image Overlay - WIP (implemented, but not fully tested/documented)
-   * |unchecked| Label Image Colorization - WIP
+   * |checked| Label Image Colorization
    * |checked| Optical Flow Colorization
    * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
    * |unchecked| Relief Shading - WIP (implemented, but not fully tested/documented)
-   * |checked| Scaled Colorization (False Colors)
+   * |checked| Scaled Colorization (Pseudo/False Colors)
    * |unchecked| Visualizing Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
 
 **Which features will be added in the future?**

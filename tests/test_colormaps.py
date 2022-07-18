@@ -45,3 +45,44 @@ def test_colormap_usage():
         assert img.height == 600
         assert img.dtype == np.uint8
         assert img.channels == 4
+
+
+def test_label_colorization():
+    data = np.array(
+        [[       -10,        -1,     0,   1,  10],
+         [2**31 - 10, 2**31 - 1, 2**31, 257, 266],
+         [135, 1234567 % 256, 1234567, 391, 25479]], dtype=np.int32)
+    # Use a colormap with 256 bins:
+    vis = viren2d.colorize_labels(
+        labels=data, colormap='glasbey-dark', output_channels=4)
+    assert vis.dtype == np.uint8
+    assert vis.channels == 4
+    assert vis.width == data.shape[1]
+    assert vis.height == data.shape[0]
+
+    vis_np = np.array(vis, copy=False)
+    for c in range(vis.width):
+        assert np.array_equal(vis_np[0, c, :], vis_np[1, c, :])
+        if c > 0:
+            assert np.array_equal(vis_np[2, c - 1, :], vis_np[2, c, :])
+        assert vis_np[0, c, 3] == 255
+    
+    # Default should be 3 channels:
+    vis = viren2d.colorize_labels(
+        labels=data, colormap='glasbey-dark', output_channels=3)
+    assert vis.channels == 3
+
+    with pytest.raises(ValueError):
+        vis = viren2d.colorize_labels(
+            labels=data, colormap='glasbey-dark', output_channels=5)
+    
+    # Try different integral types:
+    for dt in [np.uint8, np.int16, np.int32]:
+        data = (np.random.randn(3,4) * 30e3).astype(dt)
+        viren2d.colorize_labels(labels=data)
+
+    # Labels must be integral:
+    for dt in [np.float32, np.float64]:
+        with pytest.raises(ValueError):
+            data = np.random.randn(3,4).astype(dt)
+            viren2d.colorize_labels(labels=data)
