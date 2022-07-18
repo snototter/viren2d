@@ -366,6 +366,14 @@ ImageBuffer Colorize(
     int output_channels = 3, int bins = 256);
 
 
+/// Colorizes a label image using the given color map. The input buffer must
+/// be of integral type and have a single channel.
+/// Output will be a 3- or 4-channel image buffer. If a fourth channel is
+/// requested, it will be interpreted as alpha channel and set to 255.
+ImageBuffer ColorizeLabels(
+    const ImageBuffer &labels, ColorMap colormap, int output_channels = 3);
+
+
 // data: single-channel --> will be converted to float/double
 // if int/uint will be scaled by 255.0!
 // output = colorization * data

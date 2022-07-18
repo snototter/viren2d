@@ -12,6 +12,8 @@ def _process_result(
         title: str,  # currently ignored
         save_image: bool,
         filename: str) -> None:
+    if img is None:
+        return
     if show_image:
         imvis.imshow(img, wait_ms=-1)#100) # ignore the title
     if save_image:
@@ -84,6 +86,11 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'colormaps', save_images, 'colormap-peaks.png')
     
+     # Color map demo - label visualizations
+    img = demo_colorize_labels()
+    _process_result(
+        img, show_images, 'colorize-labels', save_images, 'colorize-labels.png')
+
     # Color map demo - Relief shading
     img = demo_relief_shading()
     _process_result(

@@ -420,6 +420,14 @@ ImageBuffer ColorizationHelper(
 }
 
 
+ImageBuffer ColorizationLabelsHelper(
+    const ImageBuffer &labels, const py::object &colormap,
+    int output_channels) {
+  ColorMap cmap = ColorMapFromPyObject(colormap);
+  return ColorizeLabels(labels, cmap, output_channels);
+}
+
+
 Colorizer CreateColorizer(
     const py::object &colormap, const py::object &limits_mode, int bins,
     int output_channels, double low, double high) {
@@ -610,14 +618,46 @@ void RegisterColormaps(pybind11::module &m) {
         Example:
           >>> data = viren2d.peaks(400, 400)
           >>> vis = viren2d.colorize(
-          >>>     data, colormap='viridis', low=-8, high=8, bins=256, output_channels=3)
+          >>>     data, colormap='gouldian', low=-8, high=8,
+          >>>     bins=256, output_channels=3)
         )docstr",
         py::arg("data"),
-        py::arg("colormap") = ColorMap::Viridis,
+        py::arg("colormap") = ColorMap::Gouldian,
         py::arg("low") = std::numeric_limits<double>::infinity(),
         py::arg("high") = std::numeric_limits<double>::infinity(),
         py::arg("output_channels") = 3,
         py::arg("bins") = 256);
+
+
+  m.def("colorize_labels",
+        &ColorizationLabelsHelper, R"docstr(
+        Colorizes a label image.
+
+        Args:
+          labels: A single channel :class:`~viren2d.ImageBuffer` or
+            :class:`numpy.ndarray` holding the labels as integral data type.
+          colormap: The :class:`~viren2d.ColorMap` to be used for
+            colorization. In addition to the enum value, the corresponding
+            string representation can be used for convenience.
+          output_channels: Number of output channels as :class:`int`.
+            Must be either 3 or 4. The optional 4th channel will be
+            considered an alpha channel and set to 255.
+
+        Returns:
+          A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
+          type :class:`numpy.uint8`.
+
+        Example:
+          >>> import numpy as np
+          >>> labels = np.array(
+          >>>     [[1, 2, 3], [4, 5, 6], [20000, 20001, 20003]],
+          >>>     dtype=np.int32)
+          >>> vis = viren2d.colorize_labels(
+          >>>     labels, colormap='category-20', output_channels=3)
+        )docstr",
+        py::arg("labels"),
+        py::arg("colormap") = ColorMap::GlasbeyDark,
+        py::arg("output_channels") = 3);
 
 
   m.def("relief_shading",

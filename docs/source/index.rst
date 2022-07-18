@@ -58,30 +58,32 @@ both **C++ and Python** environments.
 **Which features are available?**
    Already implemented, documented & tested features in the following list are
    marked by |checked|. See also the up-to-date
-   :ref:`list of implemented drawing functions<api-documentation>`.
+   :ref:`list of drawing functions<api-documentation-drawing-summary>`.
    
-   * |checked| Arcs
-   * |checked| Arrows
-   * |unchecked| Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
-   * |checked| Circles
-   * |checked| Color maps
-   * |checked| Ellipses
-   * |unchecked| Image overlay - WIP (implemented, but not fully tested/documented)
-   * |checked| Lines
-   * |checked| Markers
-   * |checked| Optical flow visualization
+   * |checked| Drawing Arcs
+   * |checked| Drawing Arrows
+   * |unchecked| Drawing Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
+   * |checked| Drawing Circles
+   * |checked| Drawing Ellipses
+   * |checked| Drawing Lines
+   * |checked| Drawing Markers
+   * |checked| Drawing Polygons
+   * |checked| Drawing Rectangles
+   * |checked| Drawing Text (single-/multi-line)
+   * |checked| Drawing Text Boxes (single-/multi-line)
+   * |checked| Drawing Trajectories
+   * |unchecked| Image Overlay - WIP (implemented, but not fully tested/documented)
+   * |checked| Label Image Colorization
+   * |checked| Optical Flow Colorization
    * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
-   * |unchecked| Polygons - WIP (implemented, but not fully tested/documented)
-   * |checked| Rectangles
-   * |checked| Text (single- and multi-line)
-   * |checked| Text Boxes (single- and multi-line)
-   * |checked| Trajectories
+   * |unchecked| Relief Shading - WIP (implemented, but not fully tested/documented)
+   * |checked| Scaled Colorization (Pseudo/False Colors)
 
 **Which features will be added in the future?**
 
-   * |unchecked| Bounding Boxes (3D)
+   * |unchecked| Visualizing Bounding Boxes (3D)
    * |unchecked| Camera calibration-related: Ground plane, horizon, axes, ...   
-   * |unchecked| Pose estimation results
+   * |unchecked| Visualize Body/Hand Pose
 
 
 .. toctree::

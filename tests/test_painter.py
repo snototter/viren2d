@@ -362,7 +362,36 @@ def test_draw_marker():
     p.draw_markers(markers=markers)
     p.draw_markers(markers=markers, marker_style=style)
     p.draw_markers(marker_style=style, markers=markers)
-  
+
+
+def test_draw_polygon():
+    # Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    with pytest.raises(RuntimeError):
+        p.draw_polygon([(0, 0), (50, 50), (30, 20)])
+    # Prepare canvas
+    p.set_canvas_rgb(height=300, width=400)
+    assert p.is_valid()
+
+    p.draw_polygon([(0, 0), (50, 50), (30, 20)])
+
+    # A polygon needs at least 3 points
+    with pytest.raises(ValueError):
+        p.draw_polygon([(0, 0), (50, 50)])
+
+    for line_style in line_style_configurations():
+        for fill_color in color_configurations():
+            if is_valid_line_or_fill(line_style, fill_color):
+                p.draw_polygon(
+                    polygon=[(0, 0), (50, 50), (30, 20)],
+                    line_style=line_style, fill_color=fill_color)
+            else:
+                with pytest.raises(ValueError):
+                    p.draw_polygon(
+                        polygon=[(0, 0), (50, 50), (30, 20)],
+                        line_style=line_style, fill_color=fill_color)
+
 
 def test_draw_rect():
     ### Try drawing on uninitialized canvas
