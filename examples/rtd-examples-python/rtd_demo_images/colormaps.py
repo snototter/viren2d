@@ -84,6 +84,8 @@ def demo_colormaps():
     canvas_height = int(scale * peaks.height + 10.5)
     painter = viren2d.Painter(
         width=canvas_width, height=canvas_height, color='white!0')
+    
+    text_style = viren2d.TextStyle(family='xkcd', size=18, color='black')
 
     x = column_width / 2 + 5
     for bins in cmap_bins:
@@ -93,7 +95,63 @@ def demo_colormaps():
         painter.draw_image(
             image=vis, position=(x, canvas_height / 2), anchor='center',
             scale_x=scale, scale_y=scale, rotation=0, clip_factor=0.2)
+
+        painter.draw_text(
+            text=[f'{bins} Bins'], anchor='bottom-left', rotation=-90, 
+            position=(x + column_width / 2 - 5, canvas_height * 0.85),
+            text_style=text_style)
         
         x += column_width + 10
 
     return np.array(painter.canvas, copy=True)
+
+
+def demo_colorize_labels():
+    try:
+        from PIL import Image
+        data_path = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), '..', '..', 'data')
+
+        class_labels = viren2d.load_image_uint8(
+            os.path.join(data_path, 'semseg-classes.png'))
+        # Instance labels are stored as 16-bit png, requires Pillow or any
+        # other external library to load properly:
+        instance_labels = np.array(
+            Image.open(os.path.join(data_path, 'semseg-instances.png')))
+        
+        text_style = viren2d.TextStyle(
+            family='xkcd', size=21, color='#c0bab1')
+
+        painter = viren2d.Painter(height=215, width=600, color='white!0')
+        
+        vis_cls = viren2d.colorize_labels(
+            labels=class_labels, colormap='glasbey-light')
+        
+        scale = (painter.canvas.width / 2 - 10) / vis_cls.width
+
+        painter.draw_image(
+            vis_cls, position=(5, 5), anchor='top-left', scale_x=scale,
+            scale_y=scale, clip_factor=0.15)
+
+        painter.draw_text(
+            text=['Class Labels'],
+            position=(0.25 * painter.canvas.width, painter.canvas.height - 15),
+            anchor='bottom', text_style=text_style)
+        
+        vis_ids = viren2d.colorize_labels(
+            labels=instance_labels, colormap='glasbey-light')
+        
+        painter.draw_image(
+            image=vis_ids, position=(painter.canvas.width - 5, 5),
+            anchor='top-right', scale_x=scale, scale_y=scale, clip_factor=0.15)
+
+        painter.draw_text(
+            text=['Instance IDs'],
+            position=(0.75 * painter.canvas.width, painter.canvas.height - 15),
+            anchor='bottom', text_style=text_style)
+        
+        return np.array(painter.canvas, copy=True)
+
+    except ModuleNotFoundError:
+        print('Optional depency PIL is not installed - skipping label colorization demo.')
+        return None
