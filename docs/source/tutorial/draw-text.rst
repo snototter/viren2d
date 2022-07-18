@@ -16,15 +16,15 @@ Text Positioning
 
 To neatly position text, you simply need a **reference position** (*i.e. x* and
 *y* coordinate) and a :class:`~viren2d.Anchor`. The following figure shows
-text boxes, along with the corresponding anchor and reference positions,
-which are highlighted via :func:`~viren2d.Painter.draw_marker`:
+text boxes along with the corresponding anchor and reference positions.
+These positions are highlighted via :func:`~viren2d.Painter.draw_marker`:
 
 .. image:: ../images/text-anchors.png
    :width: 440
    :alt: Text anchors
    :align: center
 
-This visualization has been created with the following Python code:
+Corresponding example code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/text.py
    :language: python
@@ -40,8 +40,8 @@ This visualization has been created with the following Python code:
 Multi-Line Text
 ...............
 
-The following figure shows the different alignment options of multi-line text
-boxes. The displayed text lines are an excerpt from
+The following example shows the different alignment options of multi-line text
+boxes. These lines are an excerpt from
 `Revelation, a Visual Poem <https://vimeo.com/57370112>`__.
 
 .. image:: ../images/text-multi-line.png

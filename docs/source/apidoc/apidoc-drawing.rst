@@ -1,13 +1,9 @@
--------
-Drawing
--------
-
-
 .. _api-painter:
 
-~~~~~~~
-Painter
-~~~~~~~
+------------------------
+Drawing with the Painter
+------------------------
+
 
 .. autoclass:: viren2d.Painter
    :autosummary:

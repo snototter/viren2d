@@ -58,7 +58,7 @@ both **C++ and Python** environments.
 **Which features are available?**
    Already implemented, documented & tested features in the following list are
    marked by |checked|. See also the up-to-date
-   :ref:`list of implemented drawing functions<api-documentation>`.
+   :ref:`list of drawing functions<api-documentation-drawing-summary>`.
    
    * |checked| Drawing Arcs
    * |checked| Drawing Arrows
