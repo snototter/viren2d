@@ -62,11 +62,12 @@ both **C++ and Python** environments.
    
    * |checked| Drawing Arcs
    * |checked| Drawing Arrows
+   * |unchecked| Drawing Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
    * |checked| Drawing Circles
    * |checked| Drawing Ellipses
    * |checked| Drawing Lines
    * |checked| Drawing Markers
-   * |unchecked| Drawing Polygons - WIP (implemented, but not fully tested/documented)
+   * |checked| Drawing Polygons
    * |checked| Drawing Rectangles
    * |checked| Drawing Text (single-/multi-line)
    * |checked| Drawing Text Boxes (single-/multi-line)
@@ -77,7 +78,6 @@ both **C++ and Python** environments.
    * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
    * |unchecked| Relief Shading - WIP (implemented, but not fully tested/documented)
    * |checked| Scaled Colorization (Pseudo/False Colors)
-   * |unchecked| Visualizing Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
 
 **Which features will be added in the future?**
 
