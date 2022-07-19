@@ -43,10 +43,10 @@ API Documentation
    .. autosummary::
       :nosignatures:
 
-      viren2d.Colorizer
       viren2d.ColorMap
-      viren2d.colorize
       viren2d.colorize_labels
+      viren2d.colorize_scaled
+      viren2d.StreamColorizer
       viren2d.peaks
 
 

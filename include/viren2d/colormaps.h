@@ -280,7 +280,7 @@ std::vector<ColorMap> ListColorMaps();
 /// Utility class to simplify colorization of a data stream.
 /// This class takes care of computing/storing the limits,
 /// color map, etc. so your client code doesn't need to.
-class Colorizer {
+class StreamColorizer {
 public:
 
   enum class LimitsMode {
@@ -296,7 +296,7 @@ public:
   };
 
 
-  Colorizer(
+  StreamColorizer(
       ColorMap cmap,
       LimitsMode mode = LimitsMode::FromDataContinuously,
       int num_bins = 256,
@@ -337,11 +337,11 @@ private:
 
 
 /// Returns the string representation.
-std::string LimitsModeToString(Colorizer::LimitsMode lm);
+std::string LimitsModeToString(StreamColorizer::LimitsMode lm);
 
 
 /// Returns the LimitsMode enum from its string representation.
-Colorizer::LimitsMode LimitsModeFromString(const std::string &lm);
+StreamColorizer::LimitsMode LimitsModeFromString(const std::string &lm);
 
 
 /// Colorizes 2D data array using a colormap.
@@ -360,7 +360,7 @@ Colorizer::LimitsMode LimitsModeFromString(const std::string &lm);
 ///
 /// Returns:
 ///   The colorization result as UInt8 ImageBuffer.
-ImageBuffer Colorize(
+ImageBuffer ColorizeScaled(
     const ImageBuffer &data, ColorMap colormap,
     double limit_low, double limit_high,
     int output_channels = 3, int bins = 256);

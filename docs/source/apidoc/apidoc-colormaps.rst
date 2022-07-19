@@ -17,11 +17,14 @@ Supported Color Maps
 Colorization
 ~~~~~~~~~~~~
 
-.. autofunction:: viren2d.colorize
 
 .. autofunction:: viren2d.colorize_labels
 
-.. autoclass:: viren2d.Colorizer
+
+.. autofunction:: viren2d.colorize_scaled
+
+
+.. autoclass:: viren2d.StreamColorizer
    :autosummary:
    :autosummary-nosignatures:
    :members:

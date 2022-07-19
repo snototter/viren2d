@@ -1,17 +1,30 @@
 .. _tutorial-colormaps:
 
-----------
+------------
+Colorization
+------------
+
+To represent data with pseudo/false colors, select a suitable
+:class:`~viren2d.ColorMap` and use the corresponding colorization technique:
+
+*  *Scaled colorization* divides the input data range into a discrete number
+   of bins and looks up the corresponding color from the color map.
+   This is implemented via :func:`~viren2d.colorize_scaled`, or via the
+   :class:`~viren2d.StreamColorizer`, which is suitable to repeatedly
+   colorize inputs with similar characteristics, *e.g.* when displaying a ToF
+   camera stream.
+*  *Label or category colorization* is useful to visualize data which
+   represents distinct classes or instances, such as segmentation results.
+   This is implemented via :func:`~viren2d.colorize_labels`.
+*  *Optical flow* can also be visualized using suitable color maps. Refer to
+   the :ref:`separate tutorial page on flow visualization<tutorial-optical-flow>`.
+*  *Relief shading* enhances the perception of shape, useful to represent
+   topographic data. This is implemented via :func:`~viren2d.relief_shading`.
+  
+
+~~~~~~~~~~
 Color Maps
-----------
-
-Choose any supported :class:`~viren2d.ColorMap` to colorize 2D input data via
-:meth:`~viren2d.colorize` or the :class:`~viren2d.Colorizer` (for repeatedly
-colorizing inputs with similar characteristics, *e.g.* when displaying a ToF
-camera stream).
-
-~~~~~~~~~~~~~~~~~~~~
-Available Color Maps
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 .. important::
    Note that **not every color map is perceptually uniform**. Always check the
@@ -157,9 +170,9 @@ Corresponding Python code:
 Label Colorization
 ~~~~~~~~~~~~~~~~~~
 
-Label images, *e.g.* semantic/panoptic/instance segementation results, should
+Label images, such as the results of semantic, panoptic or instance segementation, should
 not be colorized by dividing the input data range into a discrete number of
-bins. Thus, use :func:`~viren2d.colorize_labels` for such data, which will
+bins. Instead, use :func:`~viren2d.colorize_labels` which will properly
 alternate between the colors:
 
 
@@ -197,8 +210,8 @@ perception of shape induced by the shading:
 
 
 This visualization uses relief shading with different color maps to
-show the topographical structure of (a small part of) the lunar farside. The
-underlying topographical data was captured by the *Lunar Reconnaissance
+show the topographic structure of (a small part of) the lunar farside. The
+underlying topographic data was captured by the *Lunar Reconnaissance
 Orbiter* in 2011 and published by
 `NASA/GSFC/Arizona State University <https://photojournal.jpl.nasa.gov/catalog/PIA14021>`__.
 The smaller images below each main visualization show the inputs to

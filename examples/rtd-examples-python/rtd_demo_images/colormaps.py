@@ -27,7 +27,7 @@ def demo_relief_shading():
     x = column_width / 2 + 5
     for cmap_name in cmap_names:
         # Show the color bar on top of the shaded relief:
-        colorbar = viren2d.colorize(
+        colorbar = viren2d.colorize_scaled(
             data=colorbar_data, colormap=cmap_name, low=0, high=255)
 
         painter.draw_image(
@@ -39,7 +39,7 @@ def demo_relief_shading():
             text_style=text_style)
 
         # Colorize & shade the relief of the farside of the moon:
-        vis = viren2d.colorize(
+        vis = viren2d.colorize_scaled(
             data=moon, colormap=cmap_name)
 
         relief = viren2d.relief_shading(relief=moon, colorized=vis)
@@ -89,7 +89,7 @@ def demo_colormaps():
 
     x = column_width / 2 + 5
     for bins in cmap_bins:
-        vis = viren2d.colorize(
+        vis = viren2d.colorize_scaled(
             data=peaks, colormap='gouldian', low=-6.5, high=8, bins=bins)
         
         painter.draw_image(
