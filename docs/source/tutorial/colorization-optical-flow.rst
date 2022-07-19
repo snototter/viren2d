@@ -1,8 +1,8 @@
 .. _tutorial-optical-flow:
 
-------------
-Optical Flow
-------------
+-------------------------
+Optical Flow Colorization
+-------------------------
 
 Optical flow fields can be visualized via
 :func:`~viren2d.colorize_optical_flow`. There is also an option to illustrate
