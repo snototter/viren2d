@@ -32,7 +32,7 @@ def demo_image_anchors():
     
     # Prepare the image to be overlaid
     peaks = viren2d.peaks()
-    vis = viren2d.colorize(
+    vis = viren2d.colorize_scaled(
         data=peaks, colormap='gouldian', low=-6.5, high=8, bins=8)
     scaling = 100 / peaks.width
 

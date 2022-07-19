@@ -1,17 +1,8 @@
 .. _tutorial-colormaps:
 
-----------
+~~~~~~~~~~
 Color Maps
-----------
-
-Choose any supported :class:`~viren2d.ColorMap` to colorize 2D input data via
-:meth:`~viren2d.colorize` or the :class:`~viren2d.Colorizer` (for repeatedly
-colorizing inputs with similar characteristics, *e.g.* when displaying a ToF
-camera stream).
-
-~~~~~~~~~~~~~~~~~~~~
-Available Color Maps
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 .. important::
    Note that **not every color map is perceptually uniform**. Always check the
@@ -125,91 +116,3 @@ representing thermographic (``thermal``), topographic (``earth``, ``ocean``,
    :alt: Specialized color maps
    :align: center
 
-
-~~~~~~~~~~~~~~~~~~~
-Scaled Colorization
-~~~~~~~~~~~~~~~~~~~
-
-Scaled colorization divides the data range into a discrete number of evenly
-spaced bins which are then used to look up the corresponding color from a
-color map. The following example uses the
-`Gouldian color map <https://colorcet.com/>`__ to colorize the 
-`peaks example data <https://www.mathworks.com/help/matlab/ref/peaks.html>`__:
-
-
-.. image:: ../images/colormap-peaks.png
-   :width: 500
-   :alt: Exemplary colorization
-   :align: center
-
-
-Corresponding Python code:
-
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
-   :language: python
-   :emphasize-lines: 1, 13-14
-   :lines: 78-104
-   :linenos:
-   :dedent: 4
-
-
-~~~~~~~~~~~~~~~~~~
-Label Colorization
-~~~~~~~~~~~~~~~~~~
-
-Label images, *e.g.* semantic/panoptic/instance segementation results, should
-not be colorized by dividing the input data range into a discrete number of
-bins. Thus, use :func:`~viren2d.colorize_labels` for such data, which will
-alternate between the colors:
-
-
-.. image:: ../images/colorize-labels.png
-   :width: 500
-   :alt: Exemplary label colorization
-   :align: center
-
-
-This visualization shows class- and instance-level annotations from
-a crop of the `Cityscapes training dataset <https://www.cityscapes-dataset.com/>`__.
-Corresponding colorization code:
-
-
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
-   :language: python
-   :emphasize-lines: 13-14, 27-28
-   :lines: 115-151
-   :linenos:
-   :dedent: 8
-
-
-~~~~~~~~~~~~~~
-Relief Shading
-~~~~~~~~~~~~~~
-
-*Multiplicative relief shading* can be performed via
-:func:`~viren2d.relief_shading`. This technique can notably enhance the
-perception of shape induced by the shading:
-
-.. image:: ../images/relief-shading.png
-   :width: 600
-   :alt: Exemplary relief shading
-   :align: center
-
-
-This visualization uses relief shading with different color maps to
-show the topographical structure of (a small part of) the lunar farside. The
-underlying topographical data was captured by the *Lunar Reconnaissance
-Orbiter* in 2011 and published by
-`NASA/GSFC/Arizona State University <https://photojournal.jpl.nasa.gov/catalog/PIA14021>`__.
-The smaller images below each main visualization show the inputs to
-:func:`~viren2d.relief_shading`, *i.e.* the relief and its colorization.
-Note how the two isoluminant relief color maps are not useful on their own, but
-induce a proper shape perception after shading.
-Python code for this visualization example:
-
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
-   :language: python
-   :emphasize-lines: 23-24, 26
-   :lines: 20-72
-   :linenos:
-   :dedent: 4

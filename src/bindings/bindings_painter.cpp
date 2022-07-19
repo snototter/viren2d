@@ -682,7 +682,7 @@ void RegisterPainter(py::module &m) {
 
   //----------------------------------------------------------------------
   doc = R"docstr(
-      Overlays an image.
+      Draws an image onto the canvas.
 
       Args:
         image: The image as :class:`~viren2d.ImageBuffer` or :class:`numpy.ndarray`.

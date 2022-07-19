@@ -19,10 +19,10 @@ namespace wks = werkzeugkiste::strings;
 namespace viren2d {
 namespace helpers {
 template <typename _Tp>
-ImageBuffer ColorLookup(
+ImageBuffer ColorLookupScaled(
     const ImageBuffer &data, const helpers::RGBColor *map, int num_colors,
     double limit_low, double limit_high, int output_channels, int bins) {
-  // Sanity checks have been performed in `Colorize`
+  // Sanity checks have been performed in `ColorizeScaled`
   ImageBuffer dst(
         data.Height(), data.Width(), output_channels, ImageBufferType::UInt8);
 
@@ -352,7 +352,7 @@ std::vector<ColorMap> ListColorMaps() {
 }
 
 
-Colorizer::Colorizer(ColorMap cmap,
+StreamColorizer::StreamColorizer(ColorMap cmap,
     LimitsMode mode, int num_bins, int channels_out,
     double low, double high)
   : colormap(cmap), limits_mode(mode), bins(num_bins),
@@ -361,44 +361,44 @@ Colorizer::Colorizer(ColorMap cmap,
 }
 
 
-void Colorizer::SetLimitLow(double low) {
+void StreamColorizer::SetLimitLow(double low) {
   limits_mode = LimitsMode::Fixed;
   limit_low = low;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetLimitHigh(double high) {
+void StreamColorizer::SetLimitHigh(double high) {
   limits_mode = LimitsMode::Fixed;
   limit_high = high;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetLimitsMode(LimitsMode m) {
+void StreamColorizer::SetLimitsMode(LimitsMode m) {
   limits_mode = m;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetColorMap(ColorMap cmap) {
+void StreamColorizer::SetColorMap(ColorMap cmap) {
   colormap = cmap;
 }
 
 
-void Colorizer::SetBins(int num_bins) {
+void StreamColorizer::SetBins(int num_bins) {
   bins = num_bins;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetOutputChannels(int channels_out) {
+void StreamColorizer::SetOutputChannels(int channels_out) {
   output_channels = channels_out;
   ValidateConfiguration();
 }
 
 
-ImageBuffer Colorizer::operator()(const ImageBuffer &data) {
+ImageBuffer StreamColorizer::operator()(const ImageBuffer &data) {
   if ((limits_mode == LimitsMode::FromDataContinuously)
       || (limits_mode == LimitsMode::FromDataOnce)) {
     // Sanity checks are performed by a) MinMaxLocation (if buffer was invalid)
@@ -411,11 +411,12 @@ ImageBuffer Colorizer::operator()(const ImageBuffer &data) {
       limits_mode = LimitsMode::Fixed;
     }
   }
-  return Colorize(data, colormap, limit_low, limit_high, output_channels, bins);
+  return ColorizeScaled(
+        data, colormap, limit_low, limit_high, output_channels, bins);
 }
 
 
-void Colorizer::ValidateConfiguration() const {
+void StreamColorizer::ValidateConfiguration() const {
   if ((bins < 2) || (bins > 256)) {
     std::ostringstream s;
     s << "Number of bins in `Colorizer` must be >= 2 and <= 256, but got: "
@@ -446,15 +447,15 @@ void Colorizer::ValidateConfiguration() const {
 }
 
 
-std::string LimitsModeToString(Colorizer::LimitsMode lm) {
+std::string LimitsModeToString(StreamColorizer::LimitsMode lm) {
   switch (lm) {
-    case Colorizer::LimitsMode::Fixed:
+    case StreamColorizer::LimitsMode::Fixed:
       return "fixed";
 
-    case Colorizer::LimitsMode::FromDataContinuously:
+    case StreamColorizer::LimitsMode::FromDataContinuously:
       return "continuous";
 
-    case Colorizer::LimitsMode::FromDataOnce:
+    case StreamColorizer::LimitsMode::FromDataOnce:
       return "once";
   }
 
@@ -465,15 +466,15 @@ std::string LimitsModeToString(Colorizer::LimitsMode lm) {
 }
 
 
-Colorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
+StreamColorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
   const std::string lower = wks::Trim(wks::Lower(lm));
 
   if (wks::StartsWith(lower, "fix")) {
-    return Colorizer::LimitsMode::Fixed;
+    return StreamColorizer::LimitsMode::Fixed;
   } else if (wks::StartsWith(lower, "cont")) {
-    return Colorizer::LimitsMode::FromDataContinuously;
+    return StreamColorizer::LimitsMode::FromDataContinuously;
   } else if (lower.compare("once") == 0) {
-    return Colorizer::LimitsMode::FromDataOnce;
+    return StreamColorizer::LimitsMode::FromDataOnce;
   }
 
   std::string s("Could not deduce `LimitsMode` from string representation \"");
@@ -483,7 +484,7 @@ Colorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
 }
 
 
-ImageBuffer Colorize(
+ImageBuffer ColorizeScaled(
     const ImageBuffer &data, ColorMap colormap,
     double limit_low, double limit_high, int output_channels, int bins) {
   SPDLOG_DEBUG(
@@ -492,14 +493,15 @@ ImageBuffer Colorize(
         limit_low, limit_high);
 
   if (data.Channels() != 1) {
-    std::string s("`Colorize` requires a single-channel data buffer, not ");
+    std::string s(
+          "`ColorizeScaled` requires a single-channel data buffer, not ");
     s += data.ToString();
     throw std::invalid_argument(s);
   }
 
   if (bins < 2) {
     std::ostringstream s;
-    s << "Number of bins for `Colorize` must be > 1, but got: "
+    s << "Number of bins for `ColorizeScaled` must be > 1, but got: "
       << bins << '!';
     throw std::invalid_argument(s.str());
   }
@@ -520,7 +522,7 @@ ImageBuffer Colorize(
   if ((output_channels < 3)
       || (output_channels > 4)) {
     std::ostringstream s;
-    s << "Parameter `output_channels` in `Colorize` must be "
+    s << "Parameter `output_channels` in `ColorizeScaled` must be "
          "either 3 or 4, but got: " << output_channels << '!';
     throw std::invalid_argument(s.str());
   }
@@ -530,29 +532,29 @@ ImageBuffer Colorize(
 
   switch (data.BufferType()) {
     case ImageBufferType::UInt8:
-      return helpers::ColorLookup<uint8_t>(
+      return helpers::ColorLookupScaled<uint8_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Int16:
-      return helpers::ColorLookup<int16_t>(
+      return helpers::ColorLookupScaled<int16_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Int32:
-      return helpers::ColorLookup<int32_t>(
+      return helpers::ColorLookupScaled<int32_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Float:
-      return helpers::ColorLookup<float>(
+      return helpers::ColorLookupScaled<float>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Double:
-      return helpers::ColorLookup<double>(
+      return helpers::ColorLookupScaled<double>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
   }
 
   std::string s("Type `");
   s += ImageBufferTypeToString(data.BufferType());
-  s += "` not handled in `Colorize` switch!";
+  s += "` not handled in `ColorizeScaled` switch!";
   throw std::logic_error(s);
 }
 
@@ -601,7 +603,7 @@ ImageBuffer ColorizeLabels(
 
   std::string s("Type `");
   s += ImageBufferTypeToString(labels.BufferType());
-  s += "` not handled in `Colorize` switch!";
+  s += "` not handled in `ColorizeScaled` switch!";
   throw std::logic_error(s);
 }
 

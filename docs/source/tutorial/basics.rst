@@ -14,20 +14,18 @@ Overview & Basics
 
 
 **What about visualizations besides drawing?**
-   Besides drawing, ``viren2d`` also provides various color maps for *scaled
-   colorization* to inspect and represent data, see :func:`~viren2d.colorize`
-   and :class:`~viren2d.Colorizer`.
+   Besides drawing, ``viren2d`` also provides various
+   :ref:`color maps and colorization techniques<tutorial-colormaps>`
+   to inspect and represent data, such as depth measurements, topographic
+   data, gradient or flow fields, *etc.*
 
-   Suitable color maps can also be used to visualize *optical flow*
-   via :func:`~viren2d.colorize_optical_flow` or discrete label images, *e.g.*
-   segmentation results, via :func:`~viren2d.colorize_labels`.
-
-   The :class:`~viren2d.ImageBuffer` provides some basic image processing
-   functionalities, suitable to :meth:`~viren2d.ImageBuffer.blend` images,
-   :meth:`~viren2d.ImageBuffer.pixelate` some :meth:`~viren2d.ImageBuffer.roi`,
-   *etc.* Note, however, that these functionalities are mostly provided for
-   user convenience and are not optimized towards high-speed, *i.e.*
-   ``viren2d`` does not use `OpenMP <https://www.openmp.org/>`__,
+   The :class:`~viren2d.ImageBuffer` additionaly provides some basic image
+   processing functionalities, *e.g.* to :meth:`~viren2d.ImageBuffer.blend`
+   images, :meth:`~viren2d.ImageBuffer.pixelate` regions, or perform
+   some general color space conversions. Note, however, that these
+   functionalities are only provided for user convenience and are not optimized
+   towards high-speed, *i.e.* ``viren2d`` does not use
+   `OpenMP <https://www.openmp.org/>`__,
    `oneTBB <https://github.com/oneapi-src/oneTBB>`__,
    `AVX <https://en.wikipedia.org/wiki/Advanced_Vector_Extensions>`__,
    `Neon <https://developer.arm.com/Architectures/Neon>`__

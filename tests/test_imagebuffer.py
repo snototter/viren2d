@@ -212,3 +212,9 @@ def test_pixelation():
     assert np.all(img_np[:3, :, 1] == 42)
     assert np.all(img_np[:, :2, 1] == 42)
     assert np.all(img_np[3:, 2:, 1] == 33)
+
+#FIXME test color conversions:
+# convert_gray2rgb
+# convert_rgb2gray
+# convert_hsv2rgb
+# convert_rgb2hsv

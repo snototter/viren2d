@@ -13,7 +13,7 @@ def test_colormap_usage():
     for bins in [500, 256, 8]:
         for cm in viren2d.ColorMap.list_all():
             for fx in [param_fx1, param_fx2]:
-                img = viren2d.colorize(
+                img = viren2d.colorize_scaled(
                     data=data, colormap=fx(cm),
                     low=-6, high=6, bins=bins)
                 assert img.width == 600
@@ -23,11 +23,11 @@ def test_colormap_usage():
 
     # Invalid inputs:
     with pytest.raises(ValueError):
-        viren2d.colorize(
+        viren2d.colorize_scaled(
             data=data, colormap='gouldian', low=-6, high=6, bins=1)
     
     with pytest.raises(ValueError):
-        viren2d.colorize(
+        viren2d.colorize_scaled(
             data=data, colormap='gouldian', low=-6, high=6, bins=1,
             output_channels=5)
 
@@ -36,7 +36,7 @@ def test_colormap_usage():
     for dt in [np.uint8, np.int32, np.float32]:
         data_np = np.array(data, copy=False).astype(dt)
 
-        img = viren2d.colorize(
+        img = viren2d.colorize_scaled(
             data=data_np,
             colormap='cividis', low=-10, high=20, bins=8,
             output_channels=4)

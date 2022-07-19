@@ -471,7 +471,7 @@ TEST(ImageBufferTest, GrayscaleDouble) {
   EXPECT_DOUBLE_EQ(maxval, 100.0);
 
   // Back to grayscale conversion
-  viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
+  viren2d::ImageBuffer gray = viren2d::ConvertRGB2Gray(buf, 4, false);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
   EXPECT_EQ(gray.Channels(), 4);
@@ -489,7 +489,7 @@ TEST(ImageBufferTest, GrayscaleDouble) {
 
 
   // Repeat with BGR format
-  gray = buf.ToGrayscale(3, true);
+  gray = viren2d::ConvertRGB2Gray(buf, 3, true);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
   EXPECT_EQ(gray.Channels(), 3);
@@ -510,7 +510,7 @@ TEST(ImageBufferTest, GrayscaleDouble) {
 
 
   // Check that single-channel output yields the same conversion results
-  viren2d::ImageBuffer gray2 = buf.ToGrayscale(1, true);
+  viren2d::ImageBuffer gray2 = viren2d::ConvertRGB2Gray(buf, 1, true);
   EXPECT_EQ(gray2.Width(), buf.Width());
   EXPECT_EQ(gray2.Height(), buf.Height());
   EXPECT_EQ(gray2.Channels(), 1);
@@ -550,7 +550,7 @@ TEST(ImageBufferTest, GrayscaleUInt8) {
   buf.AtChecked<uint8_t>(0, 4, 2) = 255;
   buf.AtChecked<uint8_t>(0, 4, 3) = 5;
 
-  viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
+  viren2d::ImageBuffer gray = viren2d::ConvertRGB2Gray(buf, 4, false);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
   EXPECT_EQ(gray.Channels(), 4);
@@ -582,7 +582,7 @@ TEST(ImageBufferTest, GrayscaleUInt8) {
   EXPECT_EQ(gray.AtChecked<uint8_t>(0, 4, 3), 5);
 
   // Check that single-channel output yields the same conversion results
-  viren2d::ImageBuffer gray2 = buf.ToGrayscale(1, false);
+  viren2d::ImageBuffer gray2 = viren2d::ConvertRGB2Gray(buf, 1, false);
   EXPECT_EQ(gray2.Width(), buf.Width());
   EXPECT_EQ(gray2.Height(), buf.Height());
   EXPECT_EQ(gray2.Channels(), 1);

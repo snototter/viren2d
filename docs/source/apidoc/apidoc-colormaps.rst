@@ -1,27 +1,30 @@
-----------
+------------
+Colorization
+------------
+
+~~~~~~~~~~
 Color Maps
-----------
+~~~~~~~~~~
 
 Refer to the :ref:`color map tutorial<tutorial-colormaps>`
 for additional notes, exemplary code and visualizations of all implemented
 color maps.
 
-~~~~~~~~~~~~~~~~~~~~
-Supported Color Maps
-~~~~~~~~~~~~~~~~~~~~
-
 .. autoclass:: viren2d.ColorMap
 
 
-~~~~~~~~~~~~
-Colorization
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+Colorization Techniques
+~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: viren2d.colorize
 
 .. autofunction:: viren2d.colorize_labels
 
-.. autoclass:: viren2d.Colorizer
+
+.. autofunction:: viren2d.colorize_scaled
+
+
+.. autoclass:: viren2d.StreamColorizer
    :autosummary:
    :autosummary-nosignatures:
    :members:

@@ -396,11 +396,11 @@ ColorMap ColorMapFromPyObject(const py::object &o) {
 }
 
 
-Colorizer::LimitsMode LimitsModeFromPyObject(const py::object &o) {
+StreamColorizer::LimitsMode LimitsModeFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     return LimitsModeFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<Colorizer::LimitsMode>(o)) {
-    return py::cast<Colorizer::LimitsMode>(o);
+  } else if (py::isinstance<StreamColorizer::LimitsMode>(o)) {
+    return py::cast<StreamColorizer::LimitsMode>(o);
   } else {
     std::string s("Cannot cast type `");
     s += py::cast<std::string>(
@@ -411,12 +411,12 @@ Colorizer::LimitsMode LimitsModeFromPyObject(const py::object &o) {
 }
 
 
-ImageBuffer ColorizationHelper(
+ImageBuffer ColorizationScaledHelper(
     const ImageBuffer &data, const py::object &colormap,
     double limit_low, double limit_high, int output_channels,
     int bins) {
   ColorMap cmap = ColorMapFromPyObject(colormap);
-  return Colorize(data, cmap, limit_low, limit_high, output_channels, bins);
+  return ColorizeScaled(data, cmap, limit_low, limit_high, output_channels, bins);
 }
 
 
@@ -428,35 +428,35 @@ ImageBuffer ColorizationLabelsHelper(
 }
 
 
-Colorizer CreateColorizer(
+StreamColorizer CreateStreamColorizer(
     const py::object &colormap, const py::object &limits_mode, int bins,
     int output_channels, double low, double high) {
   ColorMap cm = ColorMapFromPyObject(colormap);
-  Colorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
-  return Colorizer(cm, lm, bins, output_channels, low, high);
+  StreamColorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
+  return StreamColorizer(cm, lm, bins, output_channels, low, high);
 }
 
 
 void RegisterColormaps(pybind11::module &m) {
-  py::enum_<Colorizer::LimitsMode> mode(m, "LimitsMode",
+  py::enum_<StreamColorizer::LimitsMode> mode(m, "LimitsMode",
              "Specifies how the colorization limits should be computed.");
   mode.value(
         "Continuous",
-        Colorizer::LimitsMode::FromDataContinuously, R"docstr(
+        StreamColorizer::LimitsMode::FromDataContinuously, R"docstr(
         Compute limits for each incoming sample separately.
 
         Corresponding string representation: ``'continuous'``.
         )docstr")
       .value(
         "Fixed",
-        Colorizer::LimitsMode::Fixed, R"docstr(
+        StreamColorizer::LimitsMode::Fixed, R"docstr(
         Use fixed, user-defined limits.
 
         Corresponding string representation: ``'fixed'``.
         )docstr")
       .value(
         "Once",
-        Colorizer::LimitsMode::FromDataOnce, R"docstr(
+        StreamColorizer::LimitsMode::FromDataOnce, R"docstr(
         Compute limits from the first incoming sample, then apply these to all
         further samples.
 
@@ -464,12 +464,12 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr");
 
   mode.def(
-        "__str__", [](Colorizer::LimitsMode lm) -> py::str {
+        "__str__", [](StreamColorizer::LimitsMode lm) -> py::str {
             return py::str(LimitsModeToString(lm));
         }, py::name("__str__"), py::is_method(m));
 
   mode.def(
-        "__repr__", [](Colorizer::LimitsMode lm) -> py::str {
+        "__repr__", [](StreamColorizer::LimitsMode lm) -> py::str {
             std::ostringstream s;
             s << "<LimitsMode." << LimitsModeToString(lm) << '>';
             return py::str(s.str());
@@ -477,7 +477,7 @@ void RegisterColormaps(pybind11::module &m) {
 
 
 
-  py::class_<Colorizer> colorizer(m, "Colorizer", R"docstr(
+  py::class_<StreamColorizer> colorizer(m, "StreamColorizer", R"docstr(
       Utility class to simplify colorization of a data stream.
 
       This class takes care of computing/storing the input data limits, the
@@ -487,7 +487,7 @@ void RegisterColormaps(pybind11::module &m) {
 
       Example:
         >>> depth_cam = ...  # Open camera stream
-        >>> colorizer = viren2d.Colorizer(
+        >>> colorizer = viren2d.StreamColorizer(
         >>>     colormap=...)
         >>> while depth_cam.is_available():
         >>>     depth = depth_cam.next()
@@ -496,8 +496,8 @@ void RegisterColormaps(pybind11::module &m) {
 
 
   colorizer.def(
-        py::init<>(&CreateColorizer), R"docstr(
-        Creates a customized colorizer.
+        py::init<>(&CreateStreamColorizer), R"docstr(
+        Creates a customized stream colorizer.
 
         Args:
           colormap: The :class:`~viren2d.ColorMap` to be used for
@@ -528,8 +528,8 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("high") = std::numeric_limits<double>::infinity())
       .def_property(
         "limit_low",
-        &Colorizer::LimitLow,
-        &Colorizer::SetLimitLow, R"docstr(
+        &StreamColorizer::LimitLow,
+        &StreamColorizer::SetLimitLow, R"docstr(
         :class:`float`: Lower limit of the input data.
 
           If you intend to set this to *inf*/*nan*, ensure that
@@ -538,8 +538,8 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr")
       .def_property(
         "limit_high",
-        &Colorizer::LimitHigh,
-        &Colorizer::SetLimitHigh, R"docstr(
+        &StreamColorizer::LimitHigh,
+        &StreamColorizer::SetLimitHigh, R"docstr(
         :class:`float`: Lower limit of the input data.
 
           If you intend to set this to *inf*/*nan*, ensure that
@@ -548,8 +548,8 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr")
       .def_property(
         "limits_mode",
-        &Colorizer::GetLimitsMode,
-        [](Colorizer &c, py::object lm) {
+        &StreamColorizer::GetLimitsMode,
+        [](StreamColorizer &c, py::object lm) {
             c.SetLimitsMode(LimitsModeFromPyObject(lm));
         }, R"docstr(
         :class:`~viren2d.LimitsMode`: Specifies how the data limits
@@ -561,8 +561,8 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr")
       .def_property(
         "output_channels",
-        &Colorizer::OutputChannels,
-        &Colorizer::SetOutputChannels, R"docstr(
+        &StreamColorizer::OutputChannels,
+        &StreamColorizer::SetOutputChannels, R"docstr(
         :class:`int`: Number of output channels.
 
           Must be either 3 or 4. The optional 4th channel will be considered an
@@ -570,8 +570,8 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr")
       .def_property(
         "bins",
-        &Colorizer::Bins,
-        &Colorizer::SetBins, R"docstr(
+        &StreamColorizer::Bins,
+        &StreamColorizer::SetBins, R"docstr(
         :class:`int`: Number of discretization bins.
 
             Must be :math:`\geq 2`. This parameter will be ignored if the
@@ -579,8 +579,8 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr")
       .def_property(
         "colormap",
-        &Colorizer::GetColorMap,
-        [](Colorizer &c, const py::object &o) {
+        &StreamColorizer::GetColorMap,
+        [](StreamColorizer &c, const py::object &o) {
           c.SetColorMap(ColorMapFromPyObject(o));
         }, R"docstr(
         :class:`~viren2d.ColorMap`: The selected color map.
@@ -590,8 +590,8 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr");
 
 
-  m.def("colorize",
-        &ColorizationHelper, R"docstr(
+  m.def("colorize_scaled",
+        &ColorizationScaledHelper, R"docstr(
         Colorizes 2D data array using a colormap.
 
         Args:
@@ -617,7 +617,7 @@ void RegisterColormaps(pybind11::module &m) {
 
         Example:
           >>> data = viren2d.peaks(400, 400)
-          >>> vis = viren2d.colorize(
+          >>> vis = viren2d.colorize_scaled(
           >>>     data, colormap='gouldian', low=-8, high=8,
           >>>     bins=256, output_channels=3)
         )docstr",
@@ -690,7 +690,7 @@ void RegisterColormaps(pybind11::module &m) {
 
         Example:
           >>> moon = viren2d.load_image_uint8('examples/data/lunar-farside.jpg')
-          >>> vis = viren2d.colorize(
+          >>> vis = viren2d.colorize_scaled(
           >>>     data=moon, colormap='relief-low-contrast', low=0, high=255)
           >>> shaded = viren2d.relief_shading(relief=moon, colorized=vis)
         )docstr",

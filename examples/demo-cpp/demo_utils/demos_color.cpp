@@ -15,10 +15,10 @@ void DemoColorMaps() {
   ImageBuffer peaks = Peaks(500, 500);
 
   // For colorizing only a single/few image(s), you should use
-  // `Colorize` instead of the `Colorizer`.
+  // `ColorizeScaled` instead of the `StreamColorizer`.
   // This class is useful, if you have to apply the same colorization
   // over and over again (e.g. when streaming from a ToF sensor).
-  Colorizer pseudocolor(ColorMap::Inferno);
+  StreamColorizer pseudocolor(ColorMap::Inferno);
 
   ImageBuffer vis = pseudocolor(peaks);
   painter->DrawImage(vis, {10, 10}, Anchor::TopLeft, 1.0, 1.0, 1.0, 0.0, 0.2, line_style);
