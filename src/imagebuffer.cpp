@@ -664,52 +664,6 @@ ImageBuffer ImageBuffer::ToFloat() const {
 }
 
 
-ImageBuffer ImageBuffer::ToGrayscale(
-    int output_channels, bool is_bgr_format) const {
-  if (!IsValid()) {
-    throw std::logic_error(
-          "Cannot convert an invalid ImageBuffer to grayscale!");
-  }
-
-  if (channels == 1) {
-    return ToChannels(output_channels);
-  } else if ((channels == 3)
-             || (channels == 4)) {
-    switch (buffer_type) {
-      case ImageBufferType::UInt8:
-        return helpers::RGBx2Gray<uint8_t>(
-              *this, output_channels, is_bgr_format);
-
-      case ImageBufferType::Int16:
-        return helpers::RGBx2Gray<int16_t>(
-              *this, output_channels, is_bgr_format);
-
-      case ImageBufferType::Int32:
-        return helpers::RGBx2Gray<int32_t>(
-              *this, output_channels, is_bgr_format);
-
-      case ImageBufferType::Float:
-        return helpers::RGBx2Gray<float>(
-              *this, output_channels, is_bgr_format);
-
-      case ImageBufferType::Double:
-        return helpers::RGBx2Gray<double>(
-              *this, output_channels, is_bgr_format);
-    }
-
-    std::string s("Type `");
-    s += ImageBufferTypeToString(buffer_type);
-    s += "` not handled in `ToGrayscale` switch!";
-    throw std::logic_error(s);
-  } else {
-    std::ostringstream s;
-    s << "`ToGrayscale` conversion is only supported for "
-         "1-, 3-, and 4-channel buffers. This one has "
-      << channels << '!';
-    throw std::logic_error(s.str());
-  }
-}
-
 
 ImageBuffer ImageBuffer::Magnitude() const {
   if (!IsValid()) {
@@ -1037,6 +991,54 @@ ImageBuffer ConvertRGB2HSV(const ImageBuffer &image_rgb, bool is_bgr_format) {
   return helpers::RGBx2HSV(image_rgb, is_bgr_format);
 }
 
+
+ImageBuffer ConvertRGB2Gray(
+    const ImageBuffer &color, int output_channels, bool is_bgr_format) {
+  if (!color.IsValid()) {
+    throw std::logic_error(
+          "Cannot convert an invalid ImageBuffer to grayscale!");
+  }
+
+  if (color.Channels() == 1) {
+    return color.ToChannels(output_channels);
+  } else if ((color.Channels() == 3)
+             || (color.Channels() == 4)) {
+    switch (color.BufferType()) {
+      case ImageBufferType::UInt8:
+        return helpers::RGBx2Gray<uint8_t>(
+              color, output_channels, is_bgr_format);
+
+      case ImageBufferType::Int16:
+        return helpers::RGBx2Gray<int16_t>(
+              color, output_channels, is_bgr_format);
+
+      case ImageBufferType::Int32:
+        return helpers::RGBx2Gray<int32_t>(
+              color, output_channels, is_bgr_format);
+
+      case ImageBufferType::Float:
+        return helpers::RGBx2Gray<float>(
+              color, output_channels, is_bgr_format);
+
+      case ImageBufferType::Double:
+        return helpers::RGBx2Gray<double>(
+              color, output_channels, is_bgr_format);
+    }
+
+    std::string s("Type `");
+    s += ImageBufferTypeToString(color.BufferType());
+    s += "` not handled in `ConvertRGB2Gray` switch!";
+    throw std::logic_error(s);
+  } else {
+    std::ostringstream s;
+    s << "`ConvertRGB2Gray` conversion is only supported for "
+         "1-, 3-, and 4-channel buffers. This one has "
+      << color.Channels() << '!';
+    throw std::logic_error(s.str());
+  }
+}
+
+
 ImageBuffer ConvertHSV2RGB(
     const ImageBuffer &image_hsv, int output_channels,
     bool output_bgr_format) {
@@ -1071,7 +1073,8 @@ ImageBuffer LoadImageUInt8(
   ImageBuffer buffer;
   buffer.CreateSharedBuffer(
         data, height, width, num_channels,
-        width * num_channels, num_channels, ImageBufferType::UInt8);
+        width * num_channels, num_channels,
+        ImageBufferType::UInt8);
   // Then, transfer ownership
   buffer.TakeOwnership();
   // Alternatively, we could:

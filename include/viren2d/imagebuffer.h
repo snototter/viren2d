@@ -125,13 +125,13 @@ public:
 
   /// Number of bytes per subsequent rows in memory.
   /// On a freshly allocated buffer, this
-  /// equals `width * num_channels * item_size`.
+  /// equals `width * channels * item_size`.
   inline int RowStride() const { return row_stride; }
 
 
   /// Number of bytes between subsequent pixels.
   /// On a freshly allocated buffer, this
-  /// equals `num_channels * item_size`.
+  /// equals `channels * item_size`.
   inline int PixelStride() const { return pixel_stride; }
 
 
@@ -458,16 +458,6 @@ public:
   ImageBuffer ToFloat() const;
 
 
-  /// Returns the grayscale image.
-  ///
-  /// Args:
-  ///   num_channels: Number of output channels as :class:`int`, must be ``<=4``.
-  ///     The first (up to) 3 channels will contain the repeated luminance,
-  ///     whereas the 4th channel will always be 255 (*i.e.* alpha, fully opaque).
-  ///   is_bgr: Set to ``true`` if the channels of this image are in BGR format.
-  ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format = false) const;
-
-
   //TODO Gradient (sobel, border handling)
 
 
@@ -477,9 +467,10 @@ public:
   ImageBuffer Magnitude() const;
 
 
-  /// Computes the orientation of a dual-channel image, e.g. an optical flow
-  /// field or an image gradient. Only implemented for buffers of type float
-  /// or double. Output buffer type will be the same as this buffer's.
+  /// Computes the orientation in radians of a dual-channel image, e.g. an
+  /// optical flow field or an image gradient. Only implemented for buffers of
+  /// type float or double. Output buffer type will be the same as this
+  /// buffer's.
   /// If both .At(r,c,0) and .At(r,c,1) are zero, the output value will be set
   /// to the specified `invalid` value.
   ImageBuffer Orientation(
@@ -616,12 +607,28 @@ private:
 // Then, add "ImageBuffer utils" doc section on RTD
 
 
+/// Returns the grayscale image.
+///
+/// Args:
+///   output_channels: Number of output channels as :class:`int`, must
+///     be ``<=4``. The first (up to) 3 channels will contain the repeated
+///     luminance, whereas the 4th channel will always be 255 (*i.e.* alpha,
+///     fully opaque).
+///   is_bgr: Set to ``true`` if the channels of the color image are in BGR format.
+ImageBuffer ConvertRGB2Gray(
+    const ImageBuffer &color,
+    int output_channels = 1,
+    bool is_bgr_format = false);
+
+
 /// Converts a RGB(A)/BGR(A) image to HSV. Input image must be of type uint8.
 ///
 /// Returns:
 ///   A 3-channel uint8 image, where hue in [0, 180], saturation in [0, 255]
 ///   and value in [0, 255].
-ImageBuffer ConvertRGB2HSV(const ImageBuffer &image_rgb, bool is_bgr_format = false);
+ImageBuffer ConvertRGB2HSV(
+    const ImageBuffer &image_rgb,
+    bool is_bgr_format = false);
 
 
 /// Converts a HSV image to RGB(A)/BGR(A).
