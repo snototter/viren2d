@@ -91,7 +91,7 @@ Color FromObjectCategoryHelper(
 
 
 void RegisterColor(py::module &m) {
-  std::string doc = R"docstr(
+  m.def("color_names", &ListNamedColors, R"docstr(
         Returns a list of the predefined color names.
 
         Each of these names can be used to initialize a
@@ -101,11 +101,13 @@ void RegisterColor(py::module &m) {
         >>> line_style.color = 'forest-green!40'  # alpha = 0.4
 
         **Corresponding C++ API:** ``viren2d::ListNamedColors``.
-        )docstr";
-  m.def("color_names", &ListNamedColors, doc.c_str());
+        )docstr");
+
 
   py::class_<Color> color(m, "Color", R"docstr(
         A color in rgba format, *i.e.* :math:`r,g,b,a \in [0,1]`.
+
+        **Corresponding C++ API:** ``viren2d::Color``.
 
         Important:
            If you initialize a color from a ``(r,g,b,a)`` :class:`tuple`, you
@@ -125,14 +127,16 @@ void RegisterColor(py::module &m) {
            >>> painter.draw_polygon(..., fill_color=viren2d.RGBa(20, 20, 75))
         )docstr");
 
-  color.def(py::init<>(), R"docstr(
+  color.def(
+        py::init<>(), R"docstr(
         Initializes an **invalid color**.
 
         An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
         :class:`~viren2d.Painter` methods to mark *special* color
         handling, *e.g.* to skip filling.
         )docstr")
-      .def(py::init<>(&ColorFromTuple), R"docstr(
+      .def(
+        py::init<>(&ColorFromTuple), R"docstr(
         Initializes the color from a *rgb* or *rgba* ``tuple``.
 
         Each value must be a floating point number within ``[0, 1]``.
@@ -142,13 +146,18 @@ void RegisterColor(py::module &m) {
           >>> painter.draw_polygon(..., fill_color = (red, green, blue))
           >>> painter.draw_polygon(..., fill_color = (red, green, blue, alpha)
         )docstr", py::arg("tpl"))
-      .def(py::init<double, double, double, double>(), R"docstr(
+      .def(
+        py::init<double, double, double, double>(), R"docstr(
         Initializes the color from the given rgba components.
 
         All values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("red"), py::arg("green"),
-        py::arg("blue"), py::arg("alpha") = 1.0)
-      .def(py::init<const std::string &, double>(),R"docstr(
+        )docstr",
+        py::arg("red"),
+        py::arg("green"),
+        py::arg("blue"),
+        py::arg("alpha") = 1.0)
+      .def(
+        py::init<const std::string &, double>(),R"docstr(
         Initializes the color from a string representation (hexcode
         or color name).
 
@@ -177,9 +186,11 @@ void RegisterColor(py::module &m) {
 
            >>> painter.draw_rect(..., fill_color = '!blue!30)
         )docstr",
-        py::arg("colorspec"), py::arg("alpha")=1.0)
+        py::arg("colorspec"),
+        py::arg("alpha") = 1.0)
       .def(
-        "copy", [](const Color &c) { return Color(c); },
+        "copy",
+        [](const Color &c) { return Color(c); },
         "Returns a deep copy.")
       .def(
         "__repr__",
@@ -193,12 +204,18 @@ void RegisterColor(py::module &m) {
 
   // Operators
   color.def(
-        py::self == py::self,
-        "Checks for equality.\n\nReturns ``True`` if **all** components are equal.",
+        py::self == py::self, R"docstr(
+        Checks for equality.
+
+        Returns ``True`` if **all** components are equal.
+        )docstr",
         py::arg("other"))
       .def(
-        py::self != py::self,
-        "Checks for inequality.\n\nReturns ``True`` if **any** components differ.",
+        py::self != py::self, R"docstr(
+        Checks for inequality.
+
+        Returns ``True`` if **any** components differ.
+        )docstr",
         py::arg("other"))
       .def(
         py::self += py::self, R"docstr(
@@ -216,71 +233,86 @@ void RegisterColor(py::module &m) {
         instances (``lhs`` and ``rhs``) and performs a saturating
         cast, *i.e.* the resulting rgba values **will be clamped**
         to ``[0, 1]``.
-        )docstr", py::arg("rhs"));
+        )docstr",
+        py::arg("rhs"));
 
 #ifdef __clang__
 // Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wself-assign-overloaded"
 #endif  // __clang__
-  color.def(py::self -= py::self, R"docstr(
+  color.def(
+        py::self -= py::self, R"docstr(
         Operator ``-=``.
 
         Subtracts the other :class:`~viren2d.Color` rgba values
         and performs a saturating cast, *i.e.* the resulting
         rgba values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("other"));
+        )docstr",
+        py::arg("other"));
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif  // __clang__
 
-  color.def(py::self - py::self, R"docstr(
+  color.def(
+        py::self - py::self, R"docstr(
         Operator ``lhs - rhs``.
 
         Subtracts the rgba values of the :class:`~viren2d.Color`
         instance ``rhs`` from ``lhs`` and performs a saturating
         cast, *i.e.* the resulting rgba values **will be clamped**
         to ``[0, 1]``.
-        )docstr", py::arg("rhs"))
-      .def(py::self *= float(), R"docstr(
+        )docstr",
+        py::arg("rhs"))
+      .def(
+        py::self *= float(), R"docstr(
         Operator ``*= float``.
 
         Scales **all** components by the given scalar factor and
         performs a saturating cast, *i.e.* the resulting rgba
         values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("scale"))
-      .def(float() * py::self, R"docstr(
+        )docstr",
+        py::arg("scale"))
+      .def(
+        float() * py::self, R"docstr(
         Operator ``float * Color``.
 
         Scales **all** components of the right-hand side
         :class:`~viren2d.Color` by the left-hand side scalar
         factor and performs a saturating cast, *i.e.* the
         resulting rgba values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("lhs"))
-      .def(py::self * float(), R"docstr(
+        )docstr",
+        py::arg("lhs"))
+      .def(
+        py::self * float(), R"docstr(
         Operator ``Color * float``.
 
         Scales **all** components of the left-hand side
         :class:`~viren2d.Color` by the right-hand side scalar
         factor and performs a saturating cast, *i.e.* the
         resulting rgba values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("rhs"))
-      .def(py::self /= float(), R"docstr(
+        )docstr",
+        py::arg("rhs"))
+      .def(
+        py::self /= float(), R"docstr(
         Operator ``/= float``.
 
         Divides **all** components of this :class:`~viren2d.Color`
         by the right-hand side scalar factor and performs a
         saturating cast, *i.e.* the resulting rgba values **will
         be clamped** to ``[0, 1]``.
-        )docstr", py::arg("rhs"))
-      .def(py::self / float(), R"docstr(
+        )docstr",
+        py::arg("rhs"))
+      .def(
+        py::self / float(), R"docstr(
         Operator ``Color / float``.
 
         Divides **all** components of the lef-hand side
         :class:`~viren2d.Color` by the right-hand side scalar
         factor and performs a saturating cast, *i.e.* the
         resulting rgba values **will be clamped** to ``[0, 1]``.
-        )docstr", py::arg("rhs"));
+        )docstr",
+        py::arg("rhs"));
 
   // Converting to different representations
   color.def(
@@ -289,6 +321,8 @@ void RegisterColor(py::module &m) {
         Returns the corresponding ``(R, G, B, a)`` tuple.
 
         R, G, B will be :math:`\in [0, 255]` and alpha :math:`a \in [0, 1]`.
+
+        **Corresponding C++ API:** ``viren2d::Color::ToRGBa``.
         )docstr")
       .def(
         "as_rgba",
@@ -299,6 +333,9 @@ void RegisterColor(py::module &m) {
 
         Each tuple element will be of type :class:`float`, with
         :math:`r,g,b,a \in [0, 1]`.
+
+        **No corresponding C++ API**, access red, green, blue and alpha
+        separately.
         )docstr")
       .def(
         "as_hex",
@@ -309,6 +346,8 @@ void RegisterColor(py::module &m) {
         *i.e.* it includes the alpha value. To compute the hexadecimal
         representation, each component (*rgba*) is first scaled to
         ``[0, 255]``.
+
+        **Corresponding C++ API:** ``viren2d::Color::ToHexString``.
         )docstr")
       .def(
         "as_hsv",
@@ -317,20 +356,26 @@ void RegisterColor(py::module &m) {
 
         Each tuple element will be of type :class:`float`, with
         :math:`h \in [0, 360]`, :math:`s \in [0, 1]` and :math:`v \in [0, 1]`.
+
+        **Corresponding C++ API:** ``viren2d::Color::ToHSV``.
         )docstr")
       .def(
-        "grayscale",
-        &Color::Grayscale, R"docstr(
+        "to_gray",
+        &Color::ToGray, R"docstr(
         Returns the grayscale representation of this color.
 
         The r,g,b components of the returned color will be set
         to the luminance, :math:`L = 0.2989*R + 0.5870*G + 0.1141*B`.
         Alpha will stay the same.
+
+        **Corresponding C++ API:** ``viren2d::Color::ToGray``.
         )docstr")
       .def(
         "with_alpha",
         &Color::WithAlpha, R"docstr(
         Returns a color with the same *r,g,b* components, but the given ``alpha``.
+
+        **Corresponding C++ API:** ``viren2d::Color::WithAlpha``.
         )docstr",
         py::arg("alpha"))
       .def(
@@ -347,103 +392,171 @@ void RegisterColor(py::module &m) {
            Complementary colors should be used to provide good
            contrast/highlights. For colors close to medium gray (where
            r,g,b are close to 0.5), the rgb inverse would not be too useful.
+
+        **Corresponding C++ API:** ``viren2d::Color::Inverse``.
         )docstr");
 
   // Member variables
   color.def_readwrite(
-        "red", &Color::red,
-        "float: Red component :math:`\\in [0, 1]`.")
+        "red",
+        &Color::red, R"docstr(
+        float: Red component :math:`\in [0, 1]`.
+
+          **Corresponding C++ API:** ``viren2d::Color::red``.
+        )docstr")
       .def_readwrite(
-        "green", &Color::green,
-        "float: Green component :math:`\\in [0, 1]`.")
+        "green",
+        &Color::green, R"docstr(
+        float: Green component :math:`\in [0, 1]`.
+
+          **Corresponding C++ API:** ``viren2d::Color::green``.
+        )docstr")
       .def_readwrite(
-        "blue", &Color::blue,
-        "float: Blue component :math:`\\in [0, 1]`.")
+        "blue",
+        &Color::blue, R"docstr(
+        float: Blue component :math:`\in [0, 1]`.
+
+          **Corresponding C++ API:** ``viren2d::Color::blue``.
+        )docstr")
       .def_readwrite(
-        "alpha", &Color::alpha, R"docstr(
+        "alpha",
+        &Color::alpha, R"docstr(
         float: Opacity :math:`\in [0, 1]`, where 0 is fully transparent
           and 1 is fully opaque.
+
+          **Corresponding C++ API:** ``viren2d::Color::alpha``.
         )docstr");
 
   // TODO(pybind11 bug) documentation of static members is missing in python, see:
   //   https://github.com/pybind/pybind11/issues/3815
   color.def_readonly_static(
-        "White", &Color::White,
-        "Read-only white color instantiation.")
+        "White",
+        &Color::White, R"docstr(
+        Read-only white color instantiation.
+
+        **Corresponding C++ API:** ``viren2d::Color::White``.
+        )docstr")
       .def_readonly_static(
-        "Black", &Color::Black,
-        "Read-only black color instantiation.")
+        "Black",
+        &Color::Black, R"docstr(
+        "Read-only black color instantiation."
+
+        **Corresponding C++ API:** ``viren2d::Color::Black``.
+        )docstr")
       .def_readonly_static(
-        "Red", &Color::Red,
-        "Read-only red color instantiation.")
+        "Red",
+        &Color::Red, R"docstr(
+        Read-only red color instantiation.
+
+        **Corresponding C++ API:** ``viren2d::Color::Red``.
+        )docstr")
       .def_readonly_static(
-        "Green", &Color::Green,
-        "Read-only green color instantiation.")
+        "Green",
+        &Color::Green, R"docstr(
+        Read-only green color instantiation.
+
+        **Corresponding C++ API:** ``viren2d::Color::Green``.
+        )docstr")
       .def_readonly_static(
-        "Blue", &Color::Blue,
-        "Read-only blue color instantiation.")
+        "Blue",
+        &Color::Blue, R"docstr(
+        Read-only blue color instantiation.
+
+        **Corresponding C++ API:** ``viren2d::Color::Blue``.
+        )docstr")
       .def_readonly_static(
-        "Cyan", &Color::Cyan,
-        "Read-only cyan color instantiation.")
+        "Cyan",
+        &Color::Cyan, R"docstr(
+        Read-only cyan color instantiation.
+
+        **Corresponding C++ API:** ``viren2d::Color::Cyan``.
+        )docstr")
       .def_readonly_static(
-        "Magenta", &Color::Magenta,
-        "Read-only magenta color instantiation.")
+        "Magenta",
+        &Color::Magenta, R"docstr(
+        Read-only magenta color instantiation.
+
+        **Corresponding C++ API:** ``viren2d::Color::Magenta``.
+        )docstr")
       .def_readonly_static(
-        "Yellow", &Color::Yellow,
-        "Read-only yellow color instantiation.")
+        "Yellow",
+        &Color::Yellow, R"docstr(
+        Read-only yellow color instantiation.
+
+        **Corresponding C++ API:** ``viren2d::Color::Yellow``.
+        )docstr")
       .def_readonly_static(
-        "Invalid", &Color::Invalid,
-        "Read-only special color ``Invalid`` (*e.g.* to skip filling).")
+        "Invalid",
+        &Color::Invalid, R"docstr(
+        Read-only special color ``Invalid`` (*e.g.* to skip filling).
+
+        **Corresponding C++ API:** ``viren2d::Color::Invalid``.
+        )docstr")
       .def_readonly_static(
-        "Same", &Color::Same,
-        "Read-only special color ``Same`` (*e.g.* to use the same\n"
-        "color for filling as the object's contour).")
+        "Same",
+        &Color::Same, R"docstr(
+        Read-only special color ``Same`` (*e.g.* to use the same
+        color for filling as the object's contour).
+
+        **Corresponding C++ API:** ``viren2d::Color::Same``.
+        )docstr")
       .def(
         "is_valid",
         &Color::IsValid, R"docstr(
         Returns ``True`` if this is a valid rgba color, where all
         components are :math:`\in [0, 1]`.
+
+        **Corresponding C++ API:** ``viren2d::Color::IsValid``.
         )docstr")
       .def(
         "is_shade_of_gray", &Color::IsShadeOfGray, R"docstr(
         Checks if the *r,g,b* values are almost equal, *i.e.* :math:`\pm \epsilon`.
+
+        **Corresponding C++ API:** ``viren2d::Color::IsShadeOfGray``.
         )docstr",
         py::arg("eps") = 0.02);
 
+
   // A Color can be initialized from a given tuple.
   py::implicitly_convertible<py::tuple, Color>();
+
 
   // A Color can be initialized from a string representation directly.
   py::implicitly_convertible<py::str, Color>();
 
 
   // Static initialization methods
-  doc = R"docstr(
+  color.def_static(
+        "from_object_id",
+        &FromObjectIDHelper, R"docstr(
         Returns a color for the (numeric) object ID.
 
         Useful to consistently use the same color for the
         same object or object class.
+
+        **Corresponding C++ API:** ``viren2d::Color::FromObjectId``.
 
         Args:
           id: The object id as :class:`int`. Note that it must be
             :math:`\geq 0`, or a :class:`TypeError` will be raised.
           colormap: Optionally, select a different categorical
             :class:`~viren2d.ColorMap`. This parameter can be specified both
-            via the enum value and the color map's string representation.
-        )docstr";
-  color.def_static(
-        "from_object_id",
-        &FromObjectIDHelper,
-        doc.c_str(),
+            via the enumeration value and the color map's string
+            representation.
+        )docstr",
         py::arg("id"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
-  doc = R"docstr(
+  color.def_static(
+        "from_object_category",
+        &FromObjectCategoryHelper, R"docstr(
         Returns a color for the given category name.
 
         Useful to consistently use the same :class:`~viren2d.Color`
         for the same object class, *e.g.* ``car`` or ``person``.
+
+        **Corresponding C++ API:** ``viren2d::Color::FromObjectCategory``.
 
         Args:
           category: The category name as :class:`str`. See
@@ -453,12 +566,9 @@ void RegisterColor(py::module &m) {
             then used to lookup a corresponding color.
           colormap: Optionally, select a different categorical
             :class:`~viren2d.ColorMap`. This parameter can be specified both
-            via the enum value and the color map's string representation.
-        )docstr";
-  color.def_static(
-        "from_object_category",
-        &FromObjectCategoryHelper,
-        doc.c_str(),
+            via the enumeration value and the color map's string
+            representation.
+        )docstr",
         py::arg("category"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
@@ -507,27 +617,37 @@ void RegisterColor(py::module &m) {
         of the world coordinate system via differently colored
         arrows.
 
+        **Corresponding C++ API:** ``viren2d::Color::CoordinateAxisColor``.
+
         Args:
           axis: Either the character code of the axis (``'x'``, ``'y'``,
             or ``'z'``), or its zero-based index as :class:`int`.
         )docstr", py::arg("axis"));
 
 
-  doc = "Creates a :class:`~viren2d.Color` from\n"
-        ":math:`r,g,b,a \\in [0,1]`.\n\n"
-        "**Corresponding C++ API:** ``viren2d::rgba``.";
-  m.def("rgba", &rgba, doc.c_str(),
-        py::arg("red"), py::arg("green"), py::arg("blue"),
-        py::arg("alpha")=1.0);
+  m.def("rgba",
+        &rgba, R"docstr(
+        Creates a :class:`~viren2d.Color` from :math:`r,g,b,a \in [0,1]`.
+
+        **Corresponding C++ API:** ``viren2d::rgba``.
+        )docstr",
+        py::arg("red"),
+        py::arg("green"),
+        py::arg("blue"),
+        py::arg("alpha") = 1.0);
 
 
-  doc = "Creates a :class:`~viren2d.Color` from\n"
-        ":math:`R,G,B \\in [0, 255]` and alpha :math:`a \\in [0, 1]`.\n\n"
-        "**Corresponding C++ API:** ``viren2d::RGBa``.";
-  m.def("RGBa", &RGBa,
-        doc.c_str(),
-        py::arg("red"), py::arg("green"), py::arg("blue"),
-        py::arg("alpha")=1.0);
+  m.def("RGBa",
+        &RGBa, R"docstr(
+        Creates a :class:`~viren2d.Color` from :math:`R,G,B \in [0, 255]` and
+        alpha :math:`a \in [0, 1]`.
+
+        **Corresponding C++ API:** ``viren2d::RGBa``.
+        )docstr",
+        py::arg("red"),
+        py::arg("green"),
+        py::arg("blue"),
+        py::arg("alpha") = 1.0);
 
 
   m.def("fade_out_linear",
@@ -537,9 +657,12 @@ void RegisterColor(py::module &m) {
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
 
+        **Corresponding C++ API:** ``viren2d::ColorFadeOutLinear``.
+
         Returns:
           The input value, *i.e.* :math:`y=value`.
-        )docstr", py::arg("value"));
+        )docstr",
+        py::arg("value"));
 
 
   m.def("fade_out_quadratic",
@@ -548,6 +671,8 @@ void RegisterColor(py::module &m) {
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
+
+        **Corresponding C++ API:** ``viren2d::ColorFadeOutQuadratic``.
 
         Returns:
           The quadratic factor :math:`y=value*value`.
@@ -560,6 +685,8 @@ void RegisterColor(py::module &m) {
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
+
+        **Corresponding C++ API:** ``viren2d::ColorFadeOutLogarithmic``.
 
         Returns:
           The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * value + 1)`.

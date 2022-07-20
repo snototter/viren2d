@@ -451,45 +451,74 @@ void RegisterImageBuffer(py::module &m) {
         )docstr", py::arg("other"), py::arg("alpha"))
       .def_property_readonly(
         "width",
-        &ImageBuffer::Width,
-        "int: Image width in pixels (read-only).")
+        &ImageBuffer::Width, R"docstr(
+        int: Image width in pixels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Width``.
+        )docstr")
       .def_property_readonly(
         "height",
-        &ImageBuffer::Height,
-        "int: Image height in pixels (read-only).")
+        &ImageBuffer::Height, R"docstr(
+        int: Image height in pixels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Height``.
+        )docstr")
       .def_property_readonly(
         "channels",
-        &ImageBuffer::Channels,
-        "int: Number of channels (read-only).")
+        &ImageBuffer::Channels, R"docstr(
+        int: Number of channels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Channels``.
+        )docstr")
       .def_property_readonly(
         "row_stride",
-        &ImageBuffer::RowStride,
-        "int: Stride in bytes per row (read-only).")
+        &ImageBuffer::RowStride, R"docstr(
+        int: Stride in bytes per row (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::RowStride``.
+        )docstr")
       .def_property_readonly(
         "pixel_stride",
-        &ImageBuffer::PixelStride,
-        "int: Stride in bytes per pixel (read-only).")
+        &ImageBuffer::PixelStride, R"docstr(
+        int: Stride in bytes per pixel (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::PixelStride``.
+        )docstr")
       .def_property_readonly(
         "owns_data",
-        &ImageBuffer::OwnsData,
-        "bool: Read-only flag indicating whether this\n"
-        ":class:`~viren2d.ImageBuffer` owns the\n"
-        "image data (and is responsible for cleaning up).")
+        &ImageBuffer::OwnsData, R"docstr(
+        bool: Read-only flag indicating whether this
+          :class:`~viren2d.ImageBuffer` owns the image data and is thus
+          responsible for cleaning up.
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::OwnsData``.
+        )docstr")
       .def_property_readonly(
         "shape",
         [](const ImageBuffer &buf) {
           return py::make_tuple(buf.Height(), buf.Width(), buf.Channels());
-        }, "tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).")
+        }, R"docstr(
+        tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).
+
+          **No corresponding C++ API**, retrieve height, width and channels
+          separately.
+        )docstr")
       .def_property_readonly(
         "itemsize",
-        &ImageBuffer::ElementSize,
-        "int: Number of bytes a single buffer element occupies (read-only).")
+        &ImageBuffer::ElementSize, R"docstr(
+        int: Number of bytes a single buffer element occupies (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::ElementSize``.
+        )docstr")
       .def_property_readonly(
         "dtype",
         [](const ImageBuffer &buf) {
           return py::dtype(FormatDescriptor(buf.BufferType()));
-        },
-        "numpy.dtype: Underlying data type (read-only).");
+        }, R"docstr(
+        numpy.dtype: Underlying data type (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::BufferType``.
+        )docstr");
 
 
   // An ImageBuffer can be initialized from a numpy array
@@ -534,7 +563,7 @@ void RegisterImageBuffer(py::module &m) {
           filename: The path to the image file as :class:`str`.
           force_channels: An :class:`int` which is used to
             force the number of loaded channels, *e.g.* to
-            load a JPEG as RGBA format with ``force_channels = 4``.
+            load a JPEG into RGBA format with ``force_channels = 4``.
 
             Valid parameter settings are:
 

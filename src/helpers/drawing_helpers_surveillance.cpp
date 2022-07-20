@@ -61,7 +61,7 @@ void DrawBoundingBox2D(
     PathHelperRoundedRect(context, rect);
   } else {
     cairo_rectangle(
-          context, -rect.half_width(), -rect.half_height(),
+          context, -rect.HalfWidth(), -rect.HalfHeight(),
           rect.width, rect.height);
   }
   // Create a copy of this path to be reused for the
@@ -93,14 +93,14 @@ void DrawBoundingBox2D(
   switch (style.label_position) {
     case LabelPosition::Top:
       label_box = Rect::FromLTWH(
-            -rect.half_width(), -rect.half_height(),
+            -rect.HalfWidth(), -rect.HalfHeight(),
             rect.width, rect.height);
       valign = VerticalAlignment::Top;
       break;
 
     case LabelPosition::Bottom:
       label_box = Rect::FromLTWH(
-            -rect.half_width(), -rect.half_height(),
+            -rect.HalfWidth(), -rect.HalfHeight(),
             rect.width, rect.height);
       valign = VerticalAlignment::Bottom;
       break;
@@ -108,7 +108,7 @@ void DrawBoundingBox2D(
     case LabelPosition::LeftB2T:
       rotation = wgu::deg2rad(-90.0);
       label_box = Rect::FromLTWH(
-            -rect.half_height(), -rect.half_width(),
+            -rect.HalfHeight(), -rect.HalfWidth(),
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Top;
@@ -119,7 +119,7 @@ void DrawBoundingBox2D(
     case LabelPosition::LeftT2B://TODO double-check: t2b now seems to work!
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(
-            -rect.half_height(), -rect.half_width(),
+            -rect.HalfHeight(), -rect.HalfWidth(),
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Bottom;
@@ -130,7 +130,7 @@ void DrawBoundingBox2D(
     case LabelPosition::RightB2T:
       rotation = wgu::deg2rad(-90.0);
       label_box = Rect::FromLTWH(
-            -rect.half_height(), -rect.half_width(),
+            -rect.HalfHeight(), -rect.HalfWidth(),
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Bottom;
@@ -141,7 +141,7 @@ void DrawBoundingBox2D(
     case LabelPosition::RightT2B:
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(
-            -rect.half_height(), -rect.half_width(),
+            -rect.HalfHeight(), -rect.HalfWidth(),
             rect.height, rect.width);
       oriented_size = Vec2d(rect.height, rect.width);
       valign = VerticalAlignment::Top;

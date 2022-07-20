@@ -239,14 +239,14 @@ struct Rect {
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Returns half the width. */
-  inline double half_width() const {
+  inline double HalfWidth() const {
     return width / 2.0;
   }
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Returns half the height. */
-  inline double half_height() const {
+  inline double HalfHeight() const {
     return height / 2.0;
   }
 

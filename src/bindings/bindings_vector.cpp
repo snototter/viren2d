@@ -18,18 +18,19 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(const py::object &obje
   const std::string type = py::cast<std::string>(object.attr("__class__").attr("__name__"));
   using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
 
-  if ((type.compare("tuple") != 0) && (type.compare("list") != 0)) {
+  if ((type.compare("tuple") != 0)
+      && (type.compare("list") != 0)) {
     std::ostringstream s;
-    s << "Cannot cast " << type << " to " << FullyQualifiedType(VC::TypeName())
-      << ", we only support casting from tuples and lists.";
+    s << "Cannot cast `" << type << "` to `viren2d." << VC::TypeName()
+      << "`, we only support casting from tuples and lists.";
     throw std::invalid_argument(s.str());
   }
 
   const py::tuple tpl = object.cast<py::tuple>();
   if (!tpl.empty() && tpl.size() != dim) {
     std::ostringstream s;
-    s << "Cannot create " << FullyQualifiedType(VC::TypeName())
-      << " from " << tpl.size() << " values, expected "
+    s << "Cannot create `viren2d." << VC::TypeName()
+      << "` from " << tpl.size() << " values, expected "
       << dim << "!";
     throw std::invalid_argument(s.str());
   }
@@ -91,7 +92,7 @@ void RegisterVec(py::module &m) {
   using VC = werkzeugkiste::geometry::Vec<_Tp, dim>;
   std::ostringstream doc;
   doc << "A " << dim
-      << "D vector of " << PyTypeName<_Tp>(true) << ".";
+      << "D vector of " << PyTypeName<_Tp>(true) << " coordinates.";
   py::class_<VC> vec_cls(m, VC::TypeName().c_str(), doc.str().c_str());
 
   vec_cls.def(py::init<>(), "Initializes all values to 0.");
@@ -101,43 +102,89 @@ void RegisterVec(py::module &m) {
   vec_cls.def(py::init<>(&VecFromTupleOrList<_Tp, dim>), doc.str().c_str());
 
 
-  vec_cls.def("__repr__",
-           [](const VC &) { return FullyQualifiedType(VC::TypeName(), true); })
-      .def("__str__", &VC::ToString);
+  vec_cls.def(
+        "__repr__",
+        [](const VC &v) {
+          return "<"  + VC::TypeName() + v.ToString() + ">";
+        });
+
+  vec_cls.def("__str__", &VC::ToString);
 
 
   std::ostringstream().swap(doc);
-  doc << PyTypeName<_Tp>(false) << " Read-write access to the first dimension, *i.e.* same as ``vec[0]``.";
-  vec_cls.def_property("x", static_cast<const _Tp &(VC::*)() const>(&VC::x),
-                       &VC::SetX, doc.str().c_str());
+  doc << PyTypeName<_Tp>(false)
+      << " Read-write access to the first dimension, *i.e.* same as ``vec[0]``.";
+  vec_cls.def_property(
+        "x",
+        static_cast<const _Tp &(VC::*)() const>(&VC::x),
+        &VC::SetX,
+        doc.str().c_str());
 
 
   std::ostringstream().swap(doc);
-  doc << PyTypeName<_Tp>(false) << " Read-write access to the second dimension, *i.e.* same as ``vec[1]``.";
-  vec_cls.def_property("y", static_cast<const _Tp &(VC::*)() const>(&VC::y),
-                       &VC::SetY, doc.str().c_str());
+  doc << PyTypeName<_Tp>(false)
+      << " Read-write access to the second dimension, *i.e.* same as ``vec[1]``.";
+  vec_cls.def_property(
+        "y",
+        static_cast<const _Tp &(VC::*)() const>(&VC::y),
+        &VC::SetY,
+        doc.str().c_str());
 
 
   std::ostringstream().swap(doc);
   doc << "int: Number of dimensions (read-only), *i.e.* " << dim << ".";
-  vec_cls.def_property_readonly("ndim", [](const VC&) { return dim; },
-                                doc.str().c_str())
-      .def("__setitem__",
-           [](VC &self, int index, _Tp v) { self[index] = v; },
-           "Allows accessing this vector's values via ``vec[idx]``.")
-      .def("__getitem__",
-           [](const VC &self, int index) -> _Tp { return self[index]; },
-           "Allows accessing this vector's values via ``vec[i]``.")
-      .def("copy", [](const VC &self) { return VC(self); },
-           "Returns a deep copy.");
+  vec_cls.def_property_readonly(
+        "ndim",
+        [](const VC&) { return dim; },
+        doc.str().c_str())
+      .def(
+        "__setitem__",
+        [](VC &self, int index, _Tp v) { self[index] = v; },
+        "Allows accessing this vector's values via ``vec[idx]``.")
+      .def(
+        "__getitem__",
+        [](const VC &self, int index) -> _Tp { return self[index]; },
+        "Allows accessing this vector's values via ``vec[i]``.")
+      .def(
+        "copy",
+        [](const VC &self) { return VC(self); },
+        "Returns a deep copy.");
 
 
-  vec_cls.def("max_value", &VC::MaxValue, "Returns :math:`\\max(v_i)`.")
-      .def("min_value", &VC::MinValue, "Returns :math:`\\min(v_i)`.")
-      .def("max_index", &VC::MaxIndex, "Returns :math:`i = \\arg_i \\max(v_i)`.")
-      .def("min_index", &VC::MinIndex, "Returns :math:`i = \\arg_i \\min(v_i)`.")
-      .def("length", &VC::Length, "Returns this vector's length.")
-      .def("length_squared", &VC::LengthSquared, "Returns this vector's squared length.");
+  std::ostringstream().swap(doc);
+  doc << "Returns :math:`\\max(v_i)`.\n\n**Corresponding C++ API:** ``viren2d::"
+      << VC::TypeName() << "::MaxValue``.";
+  vec_cls.def("max_value", &VC::MaxValue, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns :math:`\\min(v_i)`.\n\n**Corresponding C++ API:** ``viren2d::"
+      << VC::TypeName() << "::MinValue``.";
+  vec_cls.def("min_value", &VC::MinValue, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns :math:`i = \\arg_i \\max(v_i)`.\n\n**Corresponding C++ API:** ``viren2d::"
+      << VC::TypeName() << "::MaxIndex``.";
+  vec_cls.def("max_index", &VC::MaxIndex, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns :math:`i = \\arg_i \\min(v_i)`.\n\n**Corresponding C++ API:** ``viren2d::"
+      << VC::TypeName() << "::MinIndex``.";
+  vec_cls.def("min_index", &VC::MinIndex, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns the length of this vector.\n\n**Corresponding C++ API:** ``viren2d::"
+      << VC::TypeName() << "::Length``.";
+  vec_cls.def("length", &VC::Length, doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  doc << "Returns the squared length of this vector.\n\n**Corresponding C++ API:** ``viren2d::"
+      << VC::TypeName() << "::LengthSquared``.";
+  vec_cls.def("length_squared", &VC::LengthSquared, "Returns this vector's squared length.");
 
 
   std::ostringstream().swap(doc);
@@ -161,15 +208,15 @@ void RegisterVec(py::module &m) {
 
 
   std::ostringstream().swap(doc);
-  doc << "Returns the corresponding :class:`~" << FullyQualifiedType(VC::TypeName())
-      << "` unit vector.";
+  doc << "Returns the corresponding :class:`~"
+      << FullyQualifiedType(VC::TypeName()) << "` unit vector.";
   vec_cls.def("unit_vector", &VC::UnitVector, doc.str().c_str());
 
 
   std::ostringstream().swap(doc);
   doc << ":class:`~" << FullyQualifiedType(VC::TypeName())
       << "` instances can be pickled.";
-    vec_cls.def(py::pickle(&VecToList<_Tp, dim>, &VecFromList<_Tp, dim>),
+  vec_cls.def(py::pickle(&VecToList<_Tp, dim>, &VecFromList<_Tp, dim>),
                 doc.str().c_str());
 
 
@@ -272,33 +319,46 @@ void RegisterVec(py::module &m) {
 
   // Specific for 3-dim vectors
   if (dim == 3) {
-    vec_cls.def(py::init<_Tp, _Tp, _Tp>(),
-        py::arg("x"), py::arg("y"), py::arg("z"), doc.str().c_str());
+    vec_cls.def(
+          py::init<_Tp, _Tp, _Tp>(),
+          doc.str().c_str(),
+          py::arg("x"), py::arg("y"), py::arg("z"));
 
-    vec_cls.def("cross", &VC::Cross,
-        "Computes the cross product.", py::arg("other"));
+    vec_cls.def(
+          "cross", &VC::Cross,
+          "Computes the cross product.",
+          py::arg("other"));
   }
 
 
   if (dim > 2) {
     std::ostringstream().swap(doc);
-    doc << PyTypeName<_Tp>(false) << " Read-write access to the third dimension, *i.e.* same as ``vec[2]``.";
-    vec_cls.def_property("z", static_cast<const _Tp &(VC::*)() const>(&VC::z),
-                         &VC::SetZ, doc.str().c_str());
+    doc << PyTypeName<_Tp>(false)
+        << " Read-write access to the third dimension, *i.e.* same as ``vec[2]``.";
+    vec_cls.def_property(
+          "z",
+          static_cast<const _Tp &(VC::*)() const>(&VC::z),
+          &VC::SetZ,
+          doc.str().c_str());
   }
 
 
   // Specific for >=4-dim vectors
   if (dim == 4) {
-    vec_cls.def(py::init<_Tp, _Tp, _Tp, _Tp>(),
-                py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"));
+    vec_cls.def(
+          py::init<_Tp, _Tp, _Tp, _Tp>(),
+          py::arg("x"), py::arg("y"), py::arg("z"), py::arg("w"));
   }
 
   if (dim > 3) {
     std::ostringstream().swap(doc);
-    doc << PyTypeName<_Tp>(false) << " Read-write access to the fourth dimension, *i.e.*  same as ``vec[3]``.";
-    vec_cls.def_property("w", static_cast<const _Tp &(VC::*)() const>(&VC::w),
-                         &VC::SetW, doc.str().c_str());
+    doc << PyTypeName<_Tp>(false)
+        << " Read-write access to the fourth dimension, *i.e.*  same as ``vec[3]``.";
+    vec_cls.def_property(
+          "w",
+          static_cast<const _Tp &(VC::*)() const>(&VC::w),
+          &VC::SetW,
+          doc.str().c_str());
   }
 
   py::implicitly_convertible<py::tuple, VC>();
@@ -310,8 +370,8 @@ void RegisterVectors(pybind11::module &m) {
   RegisterVec<double, 2>(m);
   RegisterVec<double, 3>(m);
 
-  RegisterVec<int, 2>(m);
-  RegisterVec<int, 3>(m);
+//  RegisterVec<int, 2>(m);
+//  RegisterVec<int, 3>(m);
 }
 
 } // namespace bindings

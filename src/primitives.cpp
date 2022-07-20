@@ -230,22 +230,22 @@ Vec2d Rect::Size() const {
 
 
 double Rect::left() const {
-  return cx - half_width();
+  return cx - HalfWidth();
 }
 
 
 double Rect::right() const {
-  return cx + half_width();
+  return cx + HalfWidth();
 }
 
 
 double Rect::top() const {
-  return cy - half_height();
+  return cy - HalfHeight();
 }
 
 
 double Rect::bottom() const {
-  return cy + half_height();
+  return cy + HalfHeight();
 }
 
 
@@ -274,7 +274,7 @@ bool Rect::IsValid() const {
     return false;
   }
   return (width > 0.0) && (height > 0.0)
-      && (radius <= std::min(half_height(), half_width()))
+      && (radius <= std::min(HalfHeight(), HalfWidth()))
       && (radius >= 0.0);
 }
 

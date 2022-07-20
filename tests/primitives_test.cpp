@@ -37,8 +37,8 @@ TEST(PrimitivesTest, Rectangle) {
           viren2d::Rect rect(cx, cy, width, height);
           EXPECT_EQ(rect.IsValid(), (width > 0) && (height > 0));
 
-          EXPECT_DOUBLE_EQ(rect.half_width(), width / 2.0);
-          EXPECT_DOUBLE_EQ(rect.half_height(), height / 2.0);
+          EXPECT_DOUBLE_EQ(rect.HalfWidth(), width / 2.0);
+          EXPECT_DOUBLE_EQ(rect.HalfHeight(), height / 2.0);
 
           EXPECT_TRUE(wgu::eps_zero(rect.rotation));
           EXPECT_TRUE(wgu::eps_zero(rect.radius));

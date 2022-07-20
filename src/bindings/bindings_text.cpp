@@ -8,6 +8,8 @@
 
 #include <bindings/binding_helpers.h>
 
+//TODO(doc) add corresponding c++ api to docstr
+
 namespace py = pybind11;
 
 namespace viren2d {
@@ -440,7 +442,7 @@ void RegisterTextStyle(py::module &m) {
         :class:`~viren2d.HorizontalAlignment`:  Horizontal alignment of
           multi-line text.
 
-          In addition to the enum values, you can use
+          In addition to the enumeration values, you can use
           the string representations (``left|west``,
           ``center|middle``, ``right|east``) to set this member:
 
@@ -459,7 +461,7 @@ void RegisterTextStyle(py::module &m) {
           multi-line text. Will only affect the output of **fixed-size**
           text boxes, see :meth:`~viren2d.Painter.draw_text_box`.
 
-          In addition to the enum values, you can use
+          In addition to the enumeration values, you can use
           the string representations (``top|north``,
           ``center|middle``, ``bottom|south``) to set this member:
 

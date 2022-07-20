@@ -11,13 +11,13 @@ API Documentation
    apidoc/apidoc-basic-shapes
    apidoc/apidoc-color
    apidoc/apidoc-colormaps
+   apidoc/apidoc-drawing
    apidoc/apidoc-imagebuffer
-   apidoc/apidoc-styles
-   apidoc/apidoc-style-enums
    apidoc/apidoc-optical-flow
    apidoc/apidoc-positioning
+   apidoc/apidoc-styles
+   apidoc/apidoc-style-enums
    apidoc/apidoc-vectors
-   apidoc/apidoc-drawing
 
 
 **Colors:**

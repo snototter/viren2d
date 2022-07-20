@@ -305,10 +305,10 @@ public:
       double high = std::numeric_limits<double>::infinity());
 
   void SetLimitLow(double low);
-  double LimitLow() const { return limit_low; }
+  double GetLimitLow() const { return limit_low; }
 
   void SetLimitHigh(double high);
-  double LimitHigh() const { return limit_high; }
+  double GetLimitHigh() const { return limit_high; }
 
   void SetLimitsMode(LimitsMode m);
   LimitsMode GetLimitsMode() const { return limits_mode; }
@@ -317,12 +317,16 @@ public:
   ColorMap GetColorMap() const { return colormap; }
 
   void SetBins(int num_bins);
-  int Bins() const { return bins; }
+  int GetBins() const { return bins; }
 
   void SetOutputChannels(int channels_out);
-  int OutputChannels() const { return output_channels; }
+  int GetOutputChannels() const { return output_channels; }
 
-  ImageBuffer operator()(const ImageBuffer &data);
+  ImageBuffer Apply(const ImageBuffer &data);
+
+  inline ImageBuffer operator()(const ImageBuffer &data) {
+    return Apply(data);
+  }
 
 private:
   ColorMap colormap;
