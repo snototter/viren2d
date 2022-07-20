@@ -20,7 +20,11 @@ namespace viren2d {
 enum class ImageBufferType : int {
   UInt8 = 0,
   Int16,
+  UInt16,
   Int32,
+  UInt32,
+  Int64,
+  UInt64,
   Float,
   Double
 };
@@ -37,12 +41,28 @@ using image_buffer_t = typename std::conditional<
     T == ImageBufferType::Int16,
     int16_t,
     typename std::conditional<
-      T == ImageBufferType::Int32,
-      int32_t,
+      T == ImageBufferType::UInt16,
+      uint16_t,
       typename std::conditional<
-        T == ImageBufferType::Float,
-        float,
-        double
+        T == ImageBufferType::Int32,
+        int32_t,
+        typename std::conditional<
+          T == ImageBufferType::UInt32,
+          uint32_t,
+          typename std::conditional<
+            T == ImageBufferType::Int64,
+            int64_t,
+            typename std::conditional<
+              T == ImageBufferType::UInt64,
+              uint64_t,
+              typename std::conditional<
+                T == ImageBufferType::Float,
+                float,
+                double
+              >::type
+            >::type
+          >::type
+        >::type
       >::type
     >::type
   >::type

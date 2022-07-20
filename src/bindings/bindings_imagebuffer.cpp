@@ -20,8 +20,16 @@ inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
     return ImageBufferType::UInt8;
   } else if (dt.is(py::dtype::of<int16_t>())) {
     return ImageBufferType::Int16;
+  } else if (dt.is(py::dtype::of<uint16_t>())) {
+    return ImageBufferType::UInt16;
   } else if (dt.is(py::dtype::of<int32_t>())) {
     return ImageBufferType::Int32;
+  } else if (dt.is(py::dtype::of<uint32_t>())) {
+    return ImageBufferType::UInt32;
+  } else if (dt.is(py::dtype::of<int64_t>())) {
+    return ImageBufferType::Int64;
+  } else if (dt.is(py::dtype::of<uint64_t>())) {
+    return ImageBufferType::UInt64;
   } else if (dt.is(py::dtype::of<float>())) {
     return ImageBufferType::Float;
   } else if (dt.is(py::dtype::of<double>())) {
@@ -56,13 +64,17 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   pybind11::dtype buf_dtype = buf.dtype();
   if (!buf_dtype.is(py::dtype::of<uint8_t>())
       && !buf_dtype.is(py::dtype::of<int16_t>())
+      && !buf_dtype.is(py::dtype::of<uint16_t>())
       && !buf_dtype.is(py::dtype::of<int32_t>())
+      && !buf_dtype.is(py::dtype::of<uint32_t>())
+      && !buf_dtype.is(py::dtype::of<int64_t>())
+      && !buf_dtype.is(py::dtype::of<uint64_t>())
       && !buf_dtype.is(py::dtype::of<float>())
       && !buf_dtype.is(py::dtype::of<double>())) {
     std::string s("Incompatible `dtype`: ");
     s += py::cast<std::string>(buf_dtype.attr("name"));
     s += ". ImageBuffer can only be constructed from: "
-         "uint8, int16, int32, float32, or float64!";
+         "uint8, (u)int16, (u)int32, (u)int64, float32, or float64!";
     // TODO(dev): Update error message with newly supported types, and
     //   extend type handling in `ImageBufferTypeFromDType`!
     //   Also update the docstring of `ImageBuffer`!
@@ -107,8 +119,20 @@ inline std::string FormatDescriptor(ImageBufferType t) {
     case ImageBufferType::Int16:
       return py::format_descriptor<int16_t>::format();
 
+    case ImageBufferType::UInt16:
+      return py::format_descriptor<uint16_t>::format();
+
     case ImageBufferType::Int32:
       return py::format_descriptor<int32_t>::format();
+
+    case ImageBufferType::UInt32:
+      return py::format_descriptor<uint32_t>::format();
+
+    case ImageBufferType::Int64:
+      return py::format_descriptor<int64_t>::format();
+
+    case ImageBufferType::UInt64:
+      return py::format_descriptor<uint64_t>::format();
 
     case ImageBufferType::Float:
       return py::format_descriptor<float>::format();
@@ -146,8 +170,9 @@ void RegisterImageBuffer(py::module &m) {
 
         This class is primarily used to pass images between the client
         application and ``viren2d``. Supported data types are:
-        :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.int32`,
-        :class:`numpy.float32`, and :class:`numpy.float64`.
+        :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.uint16`,
+        :class:`numpy.int32`, :class:`numpy.uint32`, :class:`numpy.int64`,
+        :class:`numpy.uint64`, :class:`numpy.float32`, and :class:`numpy.float64`.
         Additionally, it provides several basic image manipulation methods
         to adjust an image quickly for visualization.
 
@@ -356,11 +381,15 @@ void RegisterImageBuffer(py::module &m) {
       .def(
         "orientation",
         &ImageBuffer::Orientation, R"docstr(
-        Computes the orientation **in radians** for dual-channel floating point images.
+        Computes the orientation **in radians** as
+        :math:`\operatorname{atan2}\left(I(r, c, 1), I(r, c, 0)\right)`.
 
         Can only be applied to dual-channel images of type
         :class:`numpy.float32` or :class:`numpy.float64`, *e.g.* optical flow
         fields or image gradients.
+        Note that the output is in radians and that the quadrant orientation
+        is different from the one used in the drawing API. For more details,
+        `refer to the atan2 documentation <https://en.cppreference.com/w/cpp/numeric/math/atan2>`__.
 
         **Corresponding C++ API:** ``viren2d::ImageBuffer::Orientation``.
 

@@ -13,7 +13,8 @@ def test_buffer_conversion():
     # Although ImageBuffer is only used for 1-, 3-,
     # and 4-channel image data so far, we can still
     # test its creation with an arbitrary number of channels:
-    for dt in [np.uint8, np.int16, np.int32, np.float32, np.float64]:
+    for dt in [np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+               np.int64, np.uint64, np.float32, np.float64]:
         for channels in [1, 2, 3, 4, 5, 10]:
             data = (255 * np.random.rand(5, 15, channels)).astype(dt)
             # Ensure that our later constant will not cause a broken test
@@ -169,7 +170,8 @@ def test_buffer_side_effects():
 
 def test_dtypes():
     for channels in [1, 2, 3]:
-        for tp in [np.uint8, np.int16, np.int32, np.float32, np.float64]:
+        for tp in [np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+                   np.int64, np.uint64, np.float32, np.float64]:
             buf_np = np.ones((3, 5, channels), dtype=tp)
             buf_vi = viren2d.ImageBuffer(buf_np, copy=False)
             assert buf_vi.width == 5
@@ -180,7 +182,7 @@ def test_dtypes():
             # check format, shape, dtype
             # check values for equality
 
-    for tp in [np.int8, np.uint16, np.uint32, np.uint64, np.int64, np.float16]:
+    for tp in [np.int8, np.float16]:
         buf_np = np.ones((3, 5), dtype=tp)
         with pytest.raises(ValueError):
             viren2d.ImageBuffer(buf_np)

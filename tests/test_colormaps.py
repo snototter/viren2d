@@ -77,7 +77,8 @@ def test_label_colorization():
             labels=data, colormap='glasbey-dark', output_channels=5)
     
     # Try different integral types:
-    for dt in [np.uint8, np.int16, np.int32]:
+    for dt in [np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+               np.int64, np.uint64]:
         data = (np.random.randn(3,4) * 30e3).astype(dt)
         viren2d.colorize_labels(labels=data)
 
