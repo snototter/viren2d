@@ -5,8 +5,8 @@ Overview & Basics
 -----------------
 
 **How to draw "stuff"?**
-   Simply :ref:`initialize a painter's canvas<tutorial-painter-usage>` and use
-   its ``draw_...`` methods.
+   Simply :ref:`initialize a canvas<tutorial-painter-usage>` and use
+   the ``draw_...`` methods provided by the :class:`~viren2d.Painter`.
 
 
 **Which "stuff" can be drawn?**

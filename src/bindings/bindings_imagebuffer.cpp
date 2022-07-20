@@ -387,9 +387,6 @@ void RegisterImageBuffer(py::module &m) {
         Can only be applied to dual-channel images of type
         :class:`numpy.float32` or :class:`numpy.float64`, *e.g.* optical flow
         fields or image gradients.
-        Note that the output is in radians and that the quadrant orientation
-        is different from the one used in the drawing API. For more details,
-        `refer to the atan2 documentation <https://en.cppreference.com/w/cpp/numeric/math/atan2>`__.
 
         **Corresponding C++ API:** ``viren2d::ImageBuffer::Orientation``.
 
