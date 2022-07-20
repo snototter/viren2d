@@ -8,6 +8,7 @@
 #include <bindings/binding_helpers.h>
 namespace py = pybind11;
 
+//TODO(doc) add corresponding c++ api to docstr
 
 namespace viren2d {
 namespace bindings {
@@ -70,7 +71,7 @@ LineStyle LineStyleFromTuple(const py::tuple &tpl) {
 
 void RegisterLineCap(pybind11::module &m) {
   py::enum_<LineCap> cap(m, "LineCap",
-             "Enum specifying how to render the endpoints of a line/dash stroke.");
+             "Enumeration specifying how to render the endpoints of a line/dash stroke.");
   cap.value(
         "Butt",
         LineCap::Butt, R"docstr(
@@ -121,7 +122,7 @@ LineCap LineCapFromPyObject(const py::object &o) {
 
 void RegisterLineJoin(pybind11::module &m) {
   py::enum_<LineJoin> join(m, "LineJoin",
-             "Enum specifying how to render the junction of two lines/segments.");
+             "Enumeration specifying how to render the junction of two lines/segments.");
 
   join.value(
         "Miter",
@@ -171,7 +172,7 @@ LineJoin LineJoinFromPyObject(const py::object &o) {
 
 void RegisterMarker(pybind11::module &m) {
   py::enum_<Marker> marker(
-        m, "Marker", "Enum specifying the marker shape.");
+        m, "Marker", "Enumeration specifying the marker shape.");
 
   marker.value(
         "Point",
@@ -416,7 +417,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
       Creates a customized marker style.
 
       Args:
-        marker: Shape as :class:`~viren2d.Marker` enum value
+        marker: Shape as :class:`~viren2d.Marker` enumeration value
           or its character representation.
         size: Marker size in pixels as :class:`float`.
         thickness: Width/thickness of the contour in pixels
@@ -485,7 +486,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
   doc = R"docstr(
       :class:`~viren2d.Marker`: Marker shape.
 
-        In addition to the enum values, you can use
+        In addition to the enumeration values, you can use
         the character codes to set this member:
 
         >>> style.marker = viren2d.Marker.Cross
@@ -542,7 +543,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
         :class:`~viren2d.LineCap`: How to render the endpoints of the marker's
           contour.
 
-          In addition to the enum values, you can use the corresponding string
+          In addition to the enumeration values, you can use the corresponding string
           representation to set this member:
 
           >>> style.cap = viren2d.LineCap.Round
@@ -552,7 +553,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
   doc = ":class:`~viren2d.LineJoin`: "
         "How to render the junctions of the marker's contour.\n\n"
-        "In addition to the enum values, you can use\n"
+        "In addition to the enumeration values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
         ">>> style.join = viren2d.LineJoin.Miter\n"
         ">>> style.join = 'miter'\n";
@@ -759,7 +760,7 @@ void RegisterLineStyle(pybind11::module &m) {
       :class:`~viren2d.LineCap`: How to render the endpoints"
         of the line (or dash strokes).
 
-        In addition to the enum values, you can use
+        In addition to the enumeration values, you can use
         the corresponding string representation to set this member:
 
         >>> style.cap = viren2d.LineCap.Round
@@ -776,7 +777,7 @@ void RegisterLineStyle(pybind11::module &m) {
       :class:`~viren2d.LineJoin`: How to render the junctions
         of the line segments.
 
-        In addition to the enum values, you can use
+        In addition to the enumeration values, you can use
         the corresponding string representation to set this member:
 
         >>> style.join = viren2d.LineJoin.Miter
@@ -1110,7 +1111,7 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         text_fill_color: Optional :class:`~viren2d.Color` to
           fill the background of the label.
         label_position: A :class:`~viren2d.LabelPosition` specifying
-          where to place the label. In addition to the enum value,
+          where to place the label. In addition to the enumeration value,
           this parameter can be set using its string representation.
         label_padding: Padding between the nearest bounding box
           edges and the label as :class:`~viren2d.Vec`.
@@ -1196,7 +1197,7 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       :class:`~viren2d.LabelPosition`: Where to place
       the label within the box.
 
-      In addition to the enum values, you can use
+      In addition to the enumeration values, you can use
       the string representation to set this member:
 
       >>> style.label_position = viren2d.LabelPosition.Left

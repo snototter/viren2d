@@ -20,8 +20,16 @@ inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
     return ImageBufferType::UInt8;
   } else if (dt.is(py::dtype::of<int16_t>())) {
     return ImageBufferType::Int16;
+  } else if (dt.is(py::dtype::of<uint16_t>())) {
+    return ImageBufferType::UInt16;
   } else if (dt.is(py::dtype::of<int32_t>())) {
     return ImageBufferType::Int32;
+  } else if (dt.is(py::dtype::of<uint32_t>())) {
+    return ImageBufferType::UInt32;
+  } else if (dt.is(py::dtype::of<int64_t>())) {
+    return ImageBufferType::Int64;
+  } else if (dt.is(py::dtype::of<uint64_t>())) {
+    return ImageBufferType::UInt64;
   } else if (dt.is(py::dtype::of<float>())) {
     return ImageBufferType::Float;
   } else if (dt.is(py::dtype::of<double>())) {
@@ -56,13 +64,17 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   pybind11::dtype buf_dtype = buf.dtype();
   if (!buf_dtype.is(py::dtype::of<uint8_t>())
       && !buf_dtype.is(py::dtype::of<int16_t>())
+      && !buf_dtype.is(py::dtype::of<uint16_t>())
       && !buf_dtype.is(py::dtype::of<int32_t>())
+      && !buf_dtype.is(py::dtype::of<uint32_t>())
+      && !buf_dtype.is(py::dtype::of<int64_t>())
+      && !buf_dtype.is(py::dtype::of<uint64_t>())
       && !buf_dtype.is(py::dtype::of<float>())
       && !buf_dtype.is(py::dtype::of<double>())) {
     std::string s("Incompatible `dtype`: ");
     s += py::cast<std::string>(buf_dtype.attr("name"));
     s += ". ImageBuffer can only be constructed from: "
-         "uint8, int16, int32, float32, or float64!";
+         "uint8, (u)int16, (u)int32, (u)int64, float32, or float64!";
     // TODO(dev): Update error message with newly supported types, and
     //   extend type handling in `ImageBufferTypeFromDType`!
     //   Also update the docstring of `ImageBuffer`!
@@ -107,8 +119,20 @@ inline std::string FormatDescriptor(ImageBufferType t) {
     case ImageBufferType::Int16:
       return py::format_descriptor<int16_t>::format();
 
+    case ImageBufferType::UInt16:
+      return py::format_descriptor<uint16_t>::format();
+
     case ImageBufferType::Int32:
       return py::format_descriptor<int32_t>::format();
+
+    case ImageBufferType::UInt32:
+      return py::format_descriptor<uint32_t>::format();
+
+    case ImageBufferType::Int64:
+      return py::format_descriptor<int64_t>::format();
+
+    case ImageBufferType::UInt64:
+      return py::format_descriptor<uint64_t>::format();
 
     case ImageBufferType::Float:
       return py::format_descriptor<float>::format();
@@ -146,8 +170,9 @@ void RegisterImageBuffer(py::module &m) {
 
         This class is primarily used to pass images between the client
         application and ``viren2d``. Supported data types are:
-        :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.int32`,
-        :class:`numpy.float32`, and :class:`numpy.float64`.
+        :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.uint16`,
+        :class:`numpy.int32`, :class:`numpy.uint32`, :class:`numpy.int64`,
+        :class:`numpy.uint64`, :class:`numpy.float32`, and :class:`numpy.float64`.
         Additionally, it provides several basic image manipulation methods
         to adjust an image quickly for visualization.
 
@@ -356,11 +381,15 @@ void RegisterImageBuffer(py::module &m) {
       .def(
         "orientation",
         &ImageBuffer::Orientation, R"docstr(
-        Computes the orientation **in radians** for dual-channel floating point images.
+        Computes the orientation **in radians** as
+        :math:`\operatorname{atan2}\left(I(r, c, 1), I(r, c, 0)\right)`.
 
         Can only be applied to dual-channel images of type
         :class:`numpy.float32` or :class:`numpy.float64`, *e.g.* optical flow
         fields or image gradients.
+        Note that the output is in radians and that the quadrant orientation
+        is different from the one used in the drawing API. For more details,
+        `refer to the atan2 documentation <https://en.cppreference.com/w/cpp/numeric/math/atan2>`__.
 
         **Corresponding C++ API:** ``viren2d::ImageBuffer::Orientation``.
 
@@ -422,45 +451,74 @@ void RegisterImageBuffer(py::module &m) {
         )docstr", py::arg("other"), py::arg("alpha"))
       .def_property_readonly(
         "width",
-        &ImageBuffer::Width,
-        "int: Image width in pixels (read-only).")
+        &ImageBuffer::Width, R"docstr(
+        int: Image width in pixels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Width``.
+        )docstr")
       .def_property_readonly(
         "height",
-        &ImageBuffer::Height,
-        "int: Image height in pixels (read-only).")
+        &ImageBuffer::Height, R"docstr(
+        int: Image height in pixels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Height``.
+        )docstr")
       .def_property_readonly(
         "channels",
-        &ImageBuffer::Channels,
-        "int: Number of channels (read-only).")
+        &ImageBuffer::Channels, R"docstr(
+        int: Number of channels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Channels``.
+        )docstr")
       .def_property_readonly(
         "row_stride",
-        &ImageBuffer::RowStride,
-        "int: Stride in bytes per row (read-only).")
+        &ImageBuffer::RowStride, R"docstr(
+        int: Stride in bytes per row (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::RowStride``.
+        )docstr")
       .def_property_readonly(
         "pixel_stride",
-        &ImageBuffer::PixelStride,
-        "int: Stride in bytes per pixel (read-only).")
+        &ImageBuffer::PixelStride, R"docstr(
+        int: Stride in bytes per pixel (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::PixelStride``.
+        )docstr")
       .def_property_readonly(
         "owns_data",
-        &ImageBuffer::OwnsData,
-        "bool: Read-only flag indicating whether this\n"
-        ":class:`~viren2d.ImageBuffer` owns the\n"
-        "image data (and is responsible for cleaning up).")
+        &ImageBuffer::OwnsData, R"docstr(
+        bool: Read-only flag indicating whether this
+          :class:`~viren2d.ImageBuffer` owns the image data and is thus
+          responsible for cleaning up.
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::OwnsData``.
+        )docstr")
       .def_property_readonly(
         "shape",
         [](const ImageBuffer &buf) {
           return py::make_tuple(buf.Height(), buf.Width(), buf.Channels());
-        }, "tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).")
+        }, R"docstr(
+        tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).
+
+          **No corresponding C++ API**, retrieve height, width and channels
+          separately.
+        )docstr")
       .def_property_readonly(
         "itemsize",
-        &ImageBuffer::ElementSize,
-        "int: Number of bytes a single buffer element occupies (read-only).")
+        &ImageBuffer::ElementSize, R"docstr(
+        int: Number of bytes a single buffer element occupies (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::ElementSize``.
+        )docstr")
       .def_property_readonly(
         "dtype",
         [](const ImageBuffer &buf) {
           return py::dtype(FormatDescriptor(buf.BufferType()));
-        },
-        "numpy.dtype: Underlying data type (read-only).");
+        }, R"docstr(
+        numpy.dtype: Underlying data type (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::BufferType``.
+        )docstr");
 
 
   // An ImageBuffer can be initialized from a numpy array
@@ -505,7 +563,7 @@ void RegisterImageBuffer(py::module &m) {
           filename: The path to the image file as :class:`str`.
           force_channels: An :class:`int` which is used to
             force the number of loaded channels, *e.g.* to
-            load a JPEG as RGBA format with ``force_channels = 4``.
+            load a JPEG into RGBA format with ``force_channels = 4``.
 
             Valid parameter settings are:
 

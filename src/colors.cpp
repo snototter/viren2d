@@ -502,7 +502,7 @@ Color Color::Inverse() const {
 }
 
 
-Color Color::Grayscale() const {
+Color Color::ToGray() const {
   const double luminance = helpers::CvtHelperRGB2Gray(red, green, blue);
   return Color(luminance, luminance, luminance, alpha);
 }

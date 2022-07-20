@@ -207,7 +207,7 @@ class Color {
 
 
   /// Computes the grayscale representation (i.e. luminance) of this color.
-  Color Grayscale() const;
+  Color ToGray() const;
 
 
   /// Returns a mixture of `(percentage_other) * other + (1-percentage_other) * this`.

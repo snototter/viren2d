@@ -47,9 +47,25 @@ template <typename _Tp>
       return CheckChannelConstantHelper<int16_t>(
             buf, channel, static_cast<int16_t>(value));
 
+    case viren2d::ImageBufferType::UInt16:
+      return CheckChannelConstantHelper<uint16_t>(
+            buf, channel, static_cast<uint16_t>(value));
+
     case viren2d::ImageBufferType::Int32:
       return CheckChannelConstantHelper<int32_t>(
             buf, channel, static_cast<int32_t>(value));
+
+    case viren2d::ImageBufferType::UInt32:
+      return CheckChannelConstantHelper<uint32_t>(
+            buf, channel, static_cast<uint32_t>(value));
+
+    case viren2d::ImageBufferType::Int64:
+      return CheckChannelConstantHelper<int64_t>(
+            buf, channel, static_cast<int64_t>(value));
+
+    case viren2d::ImageBufferType::UInt64:
+      return CheckChannelConstantHelper<uint64_t>(
+            buf, channel, static_cast<uint64_t>(value));
 
     case viren2d::ImageBufferType::Float:
       return CheckChannelConstantHelper<float>(
@@ -125,8 +141,20 @@ template<typename _Tp>
     case viren2d::ImageBufferType::Int16:
       return CheckChannelEqualsHelper<int16_t>(buf1, ch1, buf2, ch2);
 
+    case viren2d::ImageBufferType::UInt16:
+      return CheckChannelEqualsHelper<uint16_t>(buf1, ch1, buf2, ch2);
+
     case viren2d::ImageBufferType::Int32:
       return CheckChannelEqualsHelper<int32_t>(buf1, ch1, buf2, ch2);
+
+    case viren2d::ImageBufferType::UInt32:
+      return CheckChannelEqualsHelper<uint32_t>(buf1, ch1, buf2, ch2);
+
+    case viren2d::ImageBufferType::Int64:
+      return CheckChannelEqualsHelper<int64_t>(buf1, ch1, buf2, ch2);
+
+    case viren2d::ImageBufferType::UInt64:
+      return CheckChannelEqualsHelper<uint64_t>(buf1, ch1, buf2, ch2);
 
     case viren2d::ImageBufferType::Float:
       return CheckChannelEqualsHelper<float>(buf1, ch1, buf2, ch2);

@@ -1,3 +1,5 @@
+.. _tutorial-colorization:
+
 ------------
 Colorization
 ------------
@@ -11,6 +13,7 @@ More details and code examples can be found on the following pages:
       :maxdepth: 1
 
       colorization-colormaps
-      colorization-colorize
+      colorization-scaled-colorization
+      colorization-label-colorization
       colorization-optical-flow
       colorization-relief-shading

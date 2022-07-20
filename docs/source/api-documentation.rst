@@ -11,13 +11,13 @@ API Documentation
    apidoc/apidoc-basic-shapes
    apidoc/apidoc-color
    apidoc/apidoc-colormaps
+   apidoc/apidoc-drawing
    apidoc/apidoc-imagebuffer
-   apidoc/apidoc-styles
-   apidoc/apidoc-style-enums
    apidoc/apidoc-optical-flow
    apidoc/apidoc-positioning
+   apidoc/apidoc-styles
+   apidoc/apidoc-style-enums
    apidoc/apidoc-vectors
-   apidoc/apidoc-drawing
 
 
 **Colors:**
@@ -65,6 +65,10 @@ API Documentation
       :nosignatures:
 
       viren2d.ImageBuffer
+      viren2d.convert_gray2rgb
+      viren2d.convert_hsv2rgb
+      viren2d.convert_rgb2gray
+      viren2d.convert_rgb2hsv
       viren2d.load_image_uint8
       viren2d.save_image_uint8
       

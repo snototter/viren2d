@@ -398,7 +398,7 @@ void StreamColorizer::SetOutputChannels(int channels_out) {
 }
 
 
-ImageBuffer StreamColorizer::operator()(const ImageBuffer &data) {
+ImageBuffer StreamColorizer::Apply(const ImageBuffer &data) {
   if ((limits_mode == LimitsMode::FromDataContinuously)
       || (limits_mode == LimitsMode::FromDataOnce)) {
     // Sanity checks are performed by a) MinMaxLocation (if buffer was invalid)
@@ -539,8 +539,24 @@ ImageBuffer ColorizeScaled(
       return helpers::ColorLookupScaled<int16_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
+    case ImageBufferType::UInt16:
+      return helpers::ColorLookupScaled<uint16_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
     case ImageBufferType::Int32:
       return helpers::ColorLookupScaled<int32_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
+    case ImageBufferType::UInt32:
+      return helpers::ColorLookupScaled<uint32_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
+    case ImageBufferType::Int64:
+      return helpers::ColorLookupScaled<int64_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
+    case ImageBufferType::UInt64:
+      return helpers::ColorLookupScaled<uint64_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Float:
@@ -591,8 +607,24 @@ ImageBuffer ColorizeLabels(
       return helpers::Label2Image<int16_t>(
             labels, map.first, map.second, output_channels);
 
+    case ImageBufferType::UInt16:
+      return helpers::Label2Image<uint16_t>(
+            labels, map.first, map.second, output_channels);
+
     case ImageBufferType::Int32:
       return helpers::Label2Image<int32_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::UInt32:
+      return helpers::Label2Image<uint32_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::Int64:
+      return helpers::Label2Image<int64_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::UInt64:
+      return helpers::Label2Image<uint64_t>(
             labels, map.first, map.second, output_channels);
 
     case ImageBufferType::Float:

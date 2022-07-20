@@ -25,9 +25,9 @@ void PathHelperRoundedRect(cairo_t *context, Rect rect) {
   if (rect.radius <= 0.5) {
     rect.radius *= std::min(rect.width, rect.height);
   }
-  const double half_width = rect.half_width() - rect.radius;
-  const double half_height = rect.half_height() - rect.radius;
-  cairo_move_to(context, -rect.half_width(), -half_height);
+  const double half_width = rect.HalfWidth() - rect.radius;
+  const double half_height = rect.HalfHeight() - rect.radius;
+  cairo_move_to(context, -rect.HalfWidth(), -half_height);
   cairo_arc(
         context, -half_width, -half_height, rect.radius,
         wkg::deg2rad(180), wkg::deg2rad(270));
@@ -718,7 +718,7 @@ void DrawRect(
     PathHelperRoundedRect(context, rect);
   } else {
     cairo_rectangle(
-          context, -rect.half_width(), -rect.half_height(),
+          context, -rect.HalfWidth(), -rect.HalfHeight(),
           rect.width, rect.height);
   }
 

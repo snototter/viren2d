@@ -163,8 +163,20 @@ const std::type_info &ImageBufferTypeInfo(ImageBufferType t) {
     case ImageBufferType::Int16:
       return typeid(image_buffer_t<ImageBufferType::Int16>);
 
+    case ImageBufferType::UInt16:
+      return typeid(image_buffer_t<ImageBufferType::UInt16>);
+
     case ImageBufferType::Int32:
       return typeid(image_buffer_t<ImageBufferType::Int32>);
+
+    case ImageBufferType::UInt32:
+      return typeid(image_buffer_t<ImageBufferType::UInt32>);
+
+    case ImageBufferType::Int64:
+      return typeid(image_buffer_t<ImageBufferType::Int64>);
+
+    case ImageBufferType::UInt64:
+      return typeid(image_buffer_t<ImageBufferType::UInt64>);
 
     case ImageBufferType::Float:
       return typeid(image_buffer_t<ImageBufferType::Float>);
@@ -188,8 +200,20 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
     case ImageBufferType::Int16:
       return "int16";
 
+    case ImageBufferType::UInt16:
+      return "uint16";
+
     case ImageBufferType::Int32:
       return "int32";
+
+    case ImageBufferType::UInt32:
+      return "uint32";
+
+    case ImageBufferType::Int64:
+      return "int64";
+
+    case ImageBufferType::UInt64:
+      return "uint64";
 
     case ImageBufferType::Float:
       return "float";
@@ -214,9 +238,17 @@ ImageBufferType ImageBufferTypeFromString(const std::string &s) {
   } else if ((srep.compare("int16") == 0)
              || (srep.compare("short") == 0)) {
     return ImageBufferType::Int16;
+  } else if (srep.compare("uint16") == 0) {
+    return ImageBufferType::UInt16;
   } else if ((srep.compare("int") == 0)
              || (srep.compare("int32") == 0)) {
     return ImageBufferType::Int32;
+  } else if (srep.compare("uint32") == 0) {
+    return ImageBufferType::UInt32;
+  } else if (srep.compare("int64") == 0) {
+    return ImageBufferType::Int64;
+  } else if (srep.compare("uint64") == 0) {
+    return ImageBufferType::UInt64;
   } else if ((srep.compare("float") == 0)
              || (srep.compare("float32") == 0)) {
     return ImageBufferType::Float;
@@ -240,8 +272,20 @@ int ElementSizeFromImageBufferType(ImageBufferType t) {
     case ImageBufferType::Int16:
       return static_cast<int>(sizeof(int16_t));
 
+    case ImageBufferType::UInt16:
+      return static_cast<int>(sizeof(uint16_t));
+
     case ImageBufferType::Int32:
       return static_cast<int>(sizeof(int32_t));
+
+    case ImageBufferType::UInt32:
+      return static_cast<int>(sizeof(uint32_t));
+
+    case ImageBufferType::Int64:
+      return static_cast<int>(sizeof(int64_t));
+
+    case ImageBufferType::UInt64:
+      return static_cast<int>(sizeof(uint64_t));
 
     case ImageBufferType::Float:
       return static_cast<int>(sizeof(float));
@@ -520,8 +564,24 @@ void ImageBuffer::SwapChannels(int ch1, int ch2) {
       helpers::SwapChannels<int16_t>(*this, ch1, ch2);
       return;
 
+    case ImageBufferType::UInt16:
+      helpers::SwapChannels<uint16_t>(*this, ch1, ch2);
+      return;
+
     case ImageBufferType::Int32:
       helpers::SwapChannels<int32_t>(*this, ch1, ch2);
+      return;
+
+    case ImageBufferType::UInt32:
+      helpers::SwapChannels<uint32_t>(*this, ch1, ch2);
+      return;
+
+    case ImageBufferType::Int64:
+      helpers::SwapChannels<int64_t>(*this, ch1, ch2);
+      return;
+
+    case ImageBufferType::UInt64:
+      helpers::SwapChannels<uint64_t>(*this, ch1, ch2);
       return;
 
     case ImageBufferType::Float:
@@ -617,8 +677,20 @@ ImageBuffer ImageBuffer::ToUInt8(int output_channels) const {
     case ImageBufferType::Int16:
       return helpers::ToUInt8<int16_t>(*this, output_channels, 1);
 
+    case ImageBufferType::UInt16:
+      return helpers::ToUInt8<uint16_t>(*this, output_channels, 1);
+
     case ImageBufferType::Int32:
       return helpers::ToUInt8<int32_t>(*this, output_channels, 1);
+
+    case ImageBufferType::UInt32:
+      return helpers::ToUInt8<uint32_t>(*this, output_channels, 1);
+
+    case ImageBufferType::Int64:
+      return helpers::ToUInt8<int64_t>(*this, output_channels, 1);
+
+    case ImageBufferType::UInt64:
+      return helpers::ToUInt8<uint64_t>(*this, output_channels, 1);
 
     case ImageBufferType::Float:
       return helpers::ToUInt8<float>(*this, output_channels, 255);
@@ -647,8 +719,20 @@ ImageBuffer ImageBuffer::ToFloat() const {
     case ImageBufferType::Int16:
       return helpers::ToFloat<int16_t>(*this, 1.0f/255.0f);
 
+    case ImageBufferType::UInt16:
+      return helpers::ToFloat<uint16_t>(*this, 1.0f/255.0f);
+
     case ImageBufferType::Int32:
       return helpers::ToFloat<int32_t>(*this, 1.0f/255.0f);
+
+    case ImageBufferType::UInt32:
+      return helpers::ToFloat<uint32_t>(*this, 1.0f/255.0f);
+
+    case ImageBufferType::Int64:
+      return helpers::ToFloat<int64_t>(*this, 1.0f/255.0f);
+
+    case ImageBufferType::UInt64:
+      return helpers::ToFloat<uint64_t>(*this, 1.0f/255.0f);
 
     case ImageBufferType::Float:
       return helpers::ToFloat<float>(*this, 1.0f);
@@ -772,6 +856,25 @@ void ImageBuffer::Pixelate(
         return;
       }
 
+    case ImageBufferType::UInt16: {
+        if (channels == 1) {
+          helpers::Pixelate<uint16_t, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<uint16_t, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<uint16_t, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<uint16_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelation is only supported for up to 4-channel "
+               "images, but this `uint16_t` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
     case ImageBufferType::Int32: {
         if (channels == 1) {
           helpers::Pixelate<int32_t, 1>(roi, block_width, block_height);
@@ -785,6 +888,63 @@ void ImageBuffer::Pixelate(
           std::ostringstream s;
           s << "Pixelation is only supported for up to 4-channel "
                "images, but this `int32_t` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::UInt32: {
+        if (channels == 1) {
+          helpers::Pixelate<uint32_t, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<uint32_t, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<uint32_t, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<uint32_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelation is only supported for up to 4-channel "
+               "images, but this `uint32_t` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::Int64: {
+        if (channels == 1) {
+          helpers::Pixelate<int64_t, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<int64_t, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<int64_t, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<int64_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelation is only supported for up to 4-channel "
+               "images, but this `int64_t` ImageBuffer has "
+            << channels << '!';
+          throw std::logic_error(s.str());
+        }
+        return;
+      }
+
+    case ImageBufferType::UInt64: {
+        if (channels == 1) {
+          helpers::Pixelate<uint64_t, 1>(roi, block_width, block_height);
+        } else if (channels == 2) {
+          helpers::Pixelate<uint64_t, 2>(roi, block_width, block_height);
+        } else if (channels == 3) {
+          helpers::Pixelate<uint64_t, 3>(roi, block_width, block_height);
+        } else if (channels == 4) {
+          helpers::Pixelate<uint64_t, 4>(roi, block_width, block_height);
+        } else {
+          std::ostringstream s;
+          s << "Pixelation is only supported for up to 4-channel "
+               "images, but this `uint64_t` ImageBuffer has "
             << channels << '!';
           throw std::logic_error(s.str());
         }
@@ -850,8 +1010,20 @@ ImageBuffer ImageBuffer::Blend(const ImageBuffer &other, double alpha_other) con
     case ImageBufferType::Int16:
       return helpers::Blend<int16_t>(*this, other, alpha_other);
 
+    case ImageBufferType::UInt16:
+      return helpers::Blend<uint16_t>(*this, other, alpha_other);
+
     case ImageBufferType::Int32:
       return helpers::Blend<int32_t>(*this, other, alpha_other);
+
+    case ImageBufferType::UInt32:
+      return helpers::Blend<uint32_t>(*this, other, alpha_other);
+
+    case ImageBufferType::Int64:
+      return helpers::Blend<int64_t>(*this, other, alpha_other);
+
+    case ImageBufferType::UInt64:
+      return helpers::Blend<uint64_t>(*this, other, alpha_other);
 
     case ImageBufferType::Float:
       return helpers::Blend<float>(*this, other, alpha_other);
@@ -886,8 +1058,20 @@ ImageBuffer ImageBuffer::Channel(int channel) const {
     case ImageBufferType::Int16:
       return helpers::ExtractChannel<int16_t>(*this, channel);
 
+    case ImageBufferType::UInt16:
+      return helpers::ExtractChannel<uint16_t>(*this, channel);
+
     case ImageBufferType::Int32:
       return helpers::ExtractChannel<int32_t>(*this, channel);
+
+    case ImageBufferType::UInt32:
+      return helpers::ExtractChannel<uint32_t>(*this, channel);
+
+    case ImageBufferType::Int64:
+      return helpers::ExtractChannel<int64_t>(*this, channel);
+
+    case ImageBufferType::UInt64:
+      return helpers::ExtractChannel<uint64_t>(*this, channel);
 
     case ImageBufferType::Float:
       return helpers::ExtractChannel<float>(*this, channel);
@@ -923,8 +1107,28 @@ void ImageBuffer::MinMaxLocation(
             *this, channel, min_val, max_val, min_loc, max_loc);
       return;
 
+    case ImageBufferType::UInt16:
+      helpers::MinMaxLocation<uint16_t>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
     case ImageBufferType::Int32:
       helpers::MinMaxLocation<int32_t>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
+    case ImageBufferType::UInt32:
+      helpers::MinMaxLocation<uint32_t>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
+    case ImageBufferType::Int64:
+      helpers::MinMaxLocation<int64_t>(
+            *this, channel, min_val, max_val, min_loc, max_loc);
+      return;
+
+    case ImageBufferType::UInt64:
+      helpers::MinMaxLocation<uint64_t>(
             *this, channel, min_val, max_val, min_loc, max_loc);
       return;
 
@@ -1012,8 +1216,24 @@ ImageBuffer ConvertRGB2Gray(
         return helpers::RGBx2Gray<int16_t>(
               color, output_channels, is_bgr_format);
 
+      case ImageBufferType::UInt16:
+        return helpers::RGBx2Gray<uint16_t>(
+              color, output_channels, is_bgr_format);
+
       case ImageBufferType::Int32:
         return helpers::RGBx2Gray<int32_t>(
+              color, output_channels, is_bgr_format);
+
+      case ImageBufferType::UInt32:
+        return helpers::RGBx2Gray<uint32_t>(
+              color, output_channels, is_bgr_format);
+
+      case ImageBufferType::Int64:
+        return helpers::RGBx2Gray<int64_t>(
+              color, output_channels, is_bgr_format);
+
+      case ImageBufferType::UInt64:
+        return helpers::RGBx2Gray<uint64_t>(
               color, output_channels, is_bgr_format);
 
       case ImageBufferType::Float:
