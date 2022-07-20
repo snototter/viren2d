@@ -349,8 +349,6 @@ Some **functional features**, that I'd like to see at some time in the future:
 
 *  Creating stereoglyphs
   
-*  Extend ImageBuffer to support the more "exotic" data types.
-
 
 Some **workflow-related extensions**, I'd fancy:
 

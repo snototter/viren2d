@@ -13,13 +13,16 @@ color maps.
 .. autoclass:: viren2d.ColorMap
 
 
-~~~~~~~~~~~~~~~~~~~~~~~
-Colorization Techniques
-~~~~~~~~~~~~~~~~~~~~~~~
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Label/Category Colorization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: viren2d.colorize_labels
 
+
+~~~~~~~~~~~~~~~~~~~
+Scaled Colorization
+~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: viren2d.colorize_scaled
 

@@ -12,17 +12,17 @@ Visualize Computer Vision Results Neatly in 2D
 .. warning::
    ``viren2d`` has not yet reached a stable `v1.0` release.
    
-   An initial, stable/feature-complete version might be released in
-   late autumn 2022 (this is only a hobby/leisure time project).
+   A stable, mostly feature-complete version might be released in
+   late autumn 2022 (this is only a hobby project).
    I **do not recommend** using this toolbox before ``v1.0``.
    Until then, the API may and will change anytime, many features
-   are still not properly tested, python bindings are
-   incomplete, the documentation is a mess, *etc.*
+   are still not properly tested, python bindings & documentation
+   might be incomplete, *etc.*
 
 
-``viren2d`` is my *Swiss Army knife* to visualize the results of common
-computer vision tasks in 2D. It is designed to be swiftly integrated into
-both **C++ and Python** environments.
+`viren2d <https://github.com/snototter/viren2d>`__ is my *Swiss Army knife*
+to visualize the results of common computer vision tasks in 2D. It is designed
+to be swiftly integrated into both **C++ and Python** environments.
 
 
 **What is it good for?**

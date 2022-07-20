@@ -15,11 +15,11 @@ Overview & Basics
 
 **What about visualizations besides drawing?**
    Besides drawing, ``viren2d`` also provides various
-   :ref:`color maps and colorization techniques<tutorial-colormaps>`
+   :ref:`color maps and colorization techniques<tutorial-colorization>`
    to inspect and represent data, such as depth measurements, topographic
    data, gradient or flow fields, *etc.*
 
-   The :class:`~viren2d.ImageBuffer` additionaly provides some basic image
+   Additionally, the :class:`~viren2d.ImageBuffer` provides some basic image
    processing functionalities, *e.g.* to :meth:`~viren2d.ImageBuffer.blend`
    images, :meth:`~viren2d.ImageBuffer.pixelate` regions, or perform
    some general color space conversions. Note, however, that these
