@@ -185,30 +185,79 @@ void RegisterEllipse(pybind11::module &m) {
               ":class:`~viren2d.Ellipse` instances can be pickled.")
       .def(py::self == py::self, "Checks for equality.")
       .def(py::self != py::self, "Checks for inequality.")
-      .def_readwrite("cx", &Ellipse::cx,
-           "float: Horizontal center coordinate.")
-      .def_readwrite("cy", &Ellipse::cy,
-           "float: Vertical center coordinate.")
-      .def_readwrite("major_axis", &Ellipse::major_axis,
-           "float: Length of the major axis.")
-      .def_readwrite("minor_axis", &Ellipse::minor_axis,
-           "float: Length of the minor axis.")
-      .def_readwrite("rotation", &Ellipse::rotation,
-           "float: Rotation angle (clockwise) in degrees.")
-      .def_readwrite("angle_from", &Ellipse::angle_from,
-           "float: Drawing the contour/filling starts at :attr:`angle_from` (clockwise in degrees).")
-      .def_readwrite("angle_to", &Ellipse::angle_to,
-           "float: Drawing the contour/filling stops at :attr:`angle_to` (clockwise in degrees).")
-      .def_readwrite("include_center", &Ellipse::include_center,
-           "bool: If you explicitly change :attr:`angle_from`/:attr:`angle_to`, you *very likely*\n"
-           "also want to include the center point in the rendered path. Otherwise,\n"
-           "filling can easily lead to *irritating* results.")
-      .def("is_valid", &Ellipse::IsValid,
-           "Returns ``True`` if the ellipse can be drawn.");
+      .def_readwrite(
+        "cx",
+        &Ellipse::cx, R"docstr(
+        float: Horizontal center coordinate.
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::cx``.
+        )docstr")
+      .def_readwrite(
+        "cy",
+        &Ellipse::cy, R"docstr(
+        float: Vertical center coordinate.
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::cy``.
+        )docstr")
+      .def_readwrite(
+        "major_axis",
+        &Ellipse::major_axis, R"docstr(
+        float: Length of the major axis.
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::major_axis``.
+        )docstr")
+      .def_readwrite(
+        "minor_axis",
+        &Ellipse::minor_axis, R"docstr(
+        float: Length of the minor axis.
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::minor_axis``.
+        )docstr")
+      .def_readwrite(
+        "rotation",
+        &Ellipse::rotation, R"docstr(
+        float: Rotation angle (clockwise) in degrees.
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::rotation``.
+        )docstr")
+      .def_readwrite(
+        "angle_from",
+        &Ellipse::angle_from, R"docstr(
+        float: Drawing the contour/filling starts at this angle (clockwise
+          in degrees).
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::angle_from``.
+        )docstr")
+      .def_readwrite(
+        "angle_to",
+        &Ellipse::angle_to, R"docstr(
+        float: Drawing the contour/filling stops at this angle (clockwise
+          in degrees).
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::angle_to``.
+        )docstr")
+      .def_readwrite(
+        "include_center",
+        &Ellipse::include_center, R"docstr(
+        bool: If you explicitly change :attr:`angle_from` or :attr:`angle_to`,
+          you *very likely* also want to include the center point in the
+          rendered path. Otherwise, filling can easily lead to *irritating*
+          results.
+
+          **Corresponding C++ API:** ``viren2d::Ellipse::include_center``.
+        )docstr")
+      .def(
+        "is_valid",
+        &Ellipse::IsValid, R"docstr(
+        Returns ``True`` if the ellipse can be drawn.
+
+        **Corresponding C++ API:** ``viren2d::Ellipse::IsValid``.
+        )docstr");
+
 
   doc = ":class:`~viren2d.Vec2d`: Provides convenience access to\n"
-      "the center position (*i.e.* :attr:`cx` and :attr:`cy`) as\n"
-      "2D vector.";
+      "  the center position (*i.e.* :attr:`cx` and :attr:`cy`) as\n"
+      "  2D vector.\n\n  **Corresponding C++ API:** ``viren2d::Ellipse::Center``.";
   ellipse.def_property(
         "center", &Ellipse::Center,
         [](Ellipse &e, const Vec2d &c) {
@@ -216,9 +265,11 @@ void RegisterEllipse(pybind11::module &m) {
             e.cy = c.y();
         }, doc.c_str());
 
+
   doc = ":class:`~viren2d.Vec2d`: Provides convenience access to\n"
-      "the axes (*i.e.* :attr:`major_axis` and :attr:`minor_axis`) as\n"
-      "2D vector, *i.e.* ``(major, minor)``.";
+      "  the axes (*i.e.* :attr:`major_axis` and :attr:`minor_axis`) as\n"
+      "  2D vector, *i.e.* ``(major, minor)``.\n\n"
+      "  **Corresponding C++ API:** ``viren2d::Ellipse::Axes``.";
   ellipse.def_property(
         "axes", &Ellipse::Axes,
         [](Ellipse &e, const Vec2d &c) {
@@ -227,28 +278,36 @@ void RegisterEllipse(pybind11::module &m) {
         }, doc.c_str());
 
 
-  ellipse.def_static("from_endpoints", &Ellipse::FromEndpoints, R"docstr(
-      Returns an ellipse defined by the endpoints of its major axis.
+  ellipse.def_static(
+        "from_endpoints",
+        &Ellipse::FromEndpoints, R"docstr(
+        Returns an ellipse defined by the endpoints of its major axis.
 
-      Assumes that the given coordinates specify the endpoints of the
-      major axis.
+        Assumes that the given coordinates specify the endpoints of the
+        major axis.
 
-      Args:
-        pt1: First endpoint of the major axis as :class:`~viren2d.Vec2d`.
-        pt2: Second endpoint of the major axis as :class:`~viren2d.Vec2d`.
-        width: Length of the minor axis as :class:`float`.
-        angle_from: Starting angle in degrees
-          as :class:`float`.
-        angle_to: Ending angle in degrees
-          as :class:`float`.
-        include_center: If ``True`` and ``angle_from``
-          or ``angle_to`` differ from their defaults, the
-          center point will be included in the drawn/filled
-          ellipse path (type :class:`bool`).
-      )docstr", py::arg("pt1"), py::arg("pt2"), py::arg("width"),
-      py::arg("angle_from") = 0.0,
-      py::arg("angle_to") = 360.0,
-      py::arg("include_center") = true);
+        **Corresponding C++ API:** ``viren2d::Ellipse::FromEndpoints``.
+
+        Args:
+          pt1: First endpoint of the major axis as :class:`~viren2d.Vec2d`.
+          pt2: Second endpoint of the major axis as :class:`~viren2d.Vec2d`.
+          width: Length of the minor axis as :class:`float`.
+          angle_from: Starting angle in degrees
+            as :class:`float`.
+          angle_to: Ending angle in degrees
+            as :class:`float`.
+          include_center: If ``True`` and ``angle_from``
+            or ``angle_to`` differ from their defaults, the
+            center point will be included in the drawn/filled
+            ellipse path (type :class:`bool`).
+        )docstr",
+        py::arg("pt1"),
+        py::arg("pt2"),
+        py::arg("width"),
+        py::arg("angle_from") = 0.0,
+        py::arg("angle_to") = 360.0,
+        py::arg("include_center") = true);
+
 
   // Add alias for typing convenience
   m.def("ellipse_from_endpoints",
@@ -258,6 +317,7 @@ void RegisterEllipse(pybind11::module &m) {
         py::arg("angle_from") = 0.0,
         py::arg("angle_to") = 360.0,
         py::arg("include_center") = true);
+
 
   // An ellipse can be initialized from a given tuple/list
   py::implicitly_convertible<py::tuple, Ellipse>();

@@ -53,15 +53,7 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     throw std::invalid_argument(s.str());
   }
 
-  // Buffer layout must be row-major (C-style)
-  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
-    throw std::invalid_argument(
-          "An ImageBuffer can only be constructed from C-style buffers! "
-          "Check `image_np.flags` and explicitly copy the NumPy array via "
-          "`image_np.copy()` before passing it into the ImageBuffer constructor.");
-  }
-
-  pybind11::dtype buf_dtype = buf.dtype();
+  const pybind11::dtype buf_dtype = buf.dtype();
   if (!buf_dtype.is(py::dtype::of<uint8_t>())
       && !buf_dtype.is(py::dtype::of<int16_t>())
       && !buf_dtype.is(py::dtype::of<uint16_t>())
@@ -76,9 +68,17 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     s += ". ImageBuffer can only be constructed from: "
          "uint8, (u)int16, (u)int32, (u)int64, float32, or float64!";
     // TODO(dev): Update error message with newly supported types, and
-    //   extend type handling in `ImageBufferTypeFromDType`!
-    //   Also update the docstring of `ImageBuffer`!
+    //   extend type handling in `ImageBufferTypeFromDType`.
+    //   Also update the docstring of the `ImageBuffer` class.
     throw std::invalid_argument(s);
+  }
+
+  // Buffer layout must be row-major (C-style)
+  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
+    throw std::invalid_argument(
+          "An ImageBuffer can only be constructed from C-style buffers! "
+          "Check `image_np.flags` and explicitly copy the NumPy array via "
+          "`image_np.copy()` before passing it into the ImageBuffer constructor.");
   }
 
   const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
