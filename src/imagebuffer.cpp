@@ -1,4 +1,4 @@
-#include <sstream>
+#include <ostream>
 #include <iomanip>
 #include <type_traits>
 #include <stdexcept>
@@ -8,6 +8,7 @@
 #include <algorithm> // std::swap
 #include <utility> // pair
 #include <tuple>
+#include <functional> // std::function
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -1193,6 +1194,71 @@ void ImageBuffer::Cleanup() {
 
 ImageBuffer ConvertRGB2HSV(const ImageBuffer &image_rgb, bool is_bgr_format) {
   return helpers::RGBx2HSV(image_rgb, is_bgr_format);
+}
+
+
+ImageBuffer MaskHSVRange(const ImageBuffer &hsv,
+    const std::pair<float, float> &hue_range, const std::pair<float, float> &saturation_range,
+    const std::pair<float, float> &value_range) {
+  if ((hsv.Channels() != 3) || (hsv.BufferType() != ImageBufferType::UInt8)) {
+    std::string s(
+          "Invalid input to `MaskHSVRange`. Expected 3-channel HSV of type uint8, but got: ");
+    s += hsv.ToString();
+    s += '!';
+    throw std::invalid_argument(s);
+  }
+
+  std::function<unsigned char(float)> cvt_hue = [](float h) {
+    return static_cast<unsigned char>(h / 2.0f);
+  };
+
+  std::function<unsigned char(float)> cvt_sv = [](float v) {
+    return static_cast<unsigned char>(255.0f * v);
+  };
+
+  return hsv.MaskRange(
+        cvt_hue(hue_range.first), cvt_hue(hue_range.second),
+        cvt_sv(saturation_range.first), cvt_sv(saturation_range.second),
+        cvt_sv(value_range.first), cvt_sv(value_range.second));
+}
+
+
+ImageBuffer ColorPop(
+    const ImageBuffer &rgb,
+    const std::pair<float, float> &hue_range,
+    const std::pair<float, float> &saturation_range,
+    const std::pair<float, float> &value_range,
+    bool is_bgr) {
+  if (!rgb.IsValid()) {
+    throw std::logic_error(
+          "Cannot apply `ColorPop` on invalid ImageBuffer!");
+  }
+
+  if ((rgb.Channels() < 2) || (rgb.Channels() > 4)
+      || (rgb.BufferType() != ImageBufferType::UInt8)) {
+    std::ostringstream s;
+    s << "`ColorPop` can only be applied on RGB(A)/BGR(A) inputs buffers of "
+         "type `uint8`, but got: " << rgb.ToString() << '!';
+    throw std::invalid_argument(s.str());
+  }
+
+  const ImageBuffer hsv = ConvertRGB2HSV(rgb, is_bgr);
+  const ImageBuffer mask = MaskHSVRange(
+        hsv, hue_range, saturation_range, value_range);
+  const ImageBuffer gray = viren2d::ConvertRGB2Gray(rgb, 1);
+
+  ImageBuffer pop = rgb.DeepCopy();
+  //TODO implement loop more efficiently
+  for (int row = 0; row < rgb.Height(); ++row) {
+    for (int col = 0; col < rgb.Width(); ++col) {
+      if (mask.AtUnchecked<unsigned char>(row, col) == 0) {
+        pop.AtUnchecked<unsigned char>(row, col, 0) = gray.AtUnchecked<unsigned char>(row, col);
+        pop.AtUnchecked<unsigned char>(row, col, 1) = gray.AtUnchecked<unsigned char>(row, col);
+        pop.AtUnchecked<unsigned char>(row, col, 2) = gray.AtUnchecked<unsigned char>(row, col);
+      }
+    }
+  }
+  return pop;
 }
 
 

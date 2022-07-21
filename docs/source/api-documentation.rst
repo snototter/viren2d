@@ -69,6 +69,7 @@ API Documentation
       viren2d.convert_hsv2rgb
       viren2d.convert_rgb2gray
       viren2d.convert_rgb2hsv
+      viren2d.color_pop
       viren2d.load_image_uint8
       viren2d.save_image_uint8
       

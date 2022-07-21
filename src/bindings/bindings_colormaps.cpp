@@ -512,7 +512,7 @@ void RegisterColormaps(pybind11::module &m) {
             should be computed. Can be provided as enumeration value or its
             corresponding string representation.
 
-            If set to :attr:`~viren2d.LimitsMode.Fixed`, then the parameters
+            If set to :attr:`LimitsMode.Fixed`, then the parameters
             ``low`` and ``high`` *must* be set to valid numbers.
           bins: Number of discretization bins as :class:`int`.
             Must be :math:`\geq 2`. This parameter will be ignored if the
@@ -521,9 +521,9 @@ void RegisterColormaps(pybind11::module &m) {
             Must be either 3 or 4. The optional 4th channel will be
             considered an alpha channel and set to 255.
           low: Lower limit of the input data. Will be considered only if
-            ``mode`` is :attr:`~viren2d.LimitsMode.Fixed`.
+            ``mode`` is :attr:`LimitsMode.Fixed`.
           high: Upper limit of the input data. Will be considered only if
-            ``mode`` is :attr:`~viren2d.LimitsMode.Fixed`.
+            ``mode`` is :attr:`LimitsMode.Fixed`.
         )docstr",
         py::arg("colormap"),
         py::arg("mode") = "continuous",

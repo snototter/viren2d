@@ -185,6 +185,14 @@ void RegisterImageBuffer(py::module &m) {
 
         >>> # Create a numpy.ndarray from an ImageBuffer
         >>> img_np = np.array(img_buf, copy=False)
+
+        Moreover, a :class:`numpy.ndarray` can be implicitly converted to
+        an :class:`~viren2d.ImageBuffer`. Thus, there is no need for explicit
+        conversion when calling a ``viren2d`` function which expects an
+        :class:`~viren2d.ImageBuffer`.
+        The only caveat is that the :class:`numpy.ndarray` must be C-style, *i.e.*
+        row-major, and contiguous. If you need to pass the result of a slicing
+        operation, you'll need to call :meth:`numpy.ndarray.copy` first.
         )docstr");
 
   imgbuf.def(
@@ -349,24 +357,6 @@ void RegisterImageBuffer(py::module &m) {
 
         **Corresponding C++ API:** ``viren2d::ImageBuffer::ToFloat``.
         )docstr")
-      .def(
-        "to_grayscale",
-        [] (const ImageBuffer &c, int output_channels, bool is_bgr) {
-          return ConvertRGB2Gray(c, output_channels, is_bgr);
-        }, R"docstr(
-        Returns the grayscale converted image.
-
-        **Corresponding C++ API:** ``viren2d::ConvertRGB2Gray``.
-
-        Args:
-          output_channels: Number of output channels as :class:`int`. Must be
-            1, 3, or 4. The first three channels will contain the repeated
-            luminance, whereas the 4th channel will be the alpha channel and
-            either fully opaque or a copy of this image's alpha channel.
-          is_bgr: Set to ``True`` if the color image is in BGR format.
-        )docstr",
-        py::arg("output_channels") = 1,
-        py::arg("is_bgr") = false)
       .def(
         "magnitude",
         &ImageBuffer::Magnitude, R"docstr(
@@ -653,8 +643,44 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("output_channels") = 3,
         py::arg("output_bgr") = false);
 
-  //TODO add corresponding cpp fx to each docstr
-  // **Corresponding C++ API:** ``viren2d::ImageBuffer::Blend``.
+
+  m.def("color_pop",
+        &ColorPop, R"docstr(
+        Returns an image where the specified color range is highlighted.
+
+        Implements a *color pop* effect, *i.e.* colors within the given HSV
+        range remain as-is, whereas all other colors are converted to
+        grayscale.
+
+        **Corresponding C++ API:** ``viren2d::ColorPop``.
+
+        Args:
+          rgb: Color image in RGB(A)/BGR(A) format as
+            :class:`~viren2d.ImageBuffer`.
+          hue_range: Hue range as :class:`tuple` ``(min_hue, max_hue)``, where
+            hue values are of type :class:`float` and :math:`\in [0, 360]`.
+          saturation_range: Saturation range as :class:`tuple`
+            ``(min_saturation, max_saturation)``, where saturation values are
+            of type :class:`float` and :math:`\in [0, 1]`.
+          value_range: Value range as :class:`tuple`
+            ``(min_value, max_value)``, where each value is of type
+            :class:`float` and :math:`\in [0, 1]`.
+          is_bgr: Set to ``True`` if the color image is provided in BGR(A)
+            format.
+
+        Returns:
+          An :class:`~viren2d.ImageBuffer` of type :class:`numpy.uint8`, which
+          has the same format and number of channels as the input ``rgb``.
+
+        Example:
+          >>> red_pop = viren2d.color_pop(img, (320, 360), (0.4, 1), (0.2, 1))
+        )docstr",
+        py::arg("rgb"),
+        py::arg("hue_range"),
+        py::arg("saturation_range") = std::make_pair<float, float>(0.0f, 1.0f),
+        py::arg("value_range") = std::make_pair<float, float>(0.0f, 1.0f),
+        py::arg("is_bgr") = false);
+
 }
 } // namespace bindings
 } // namespace viren2d

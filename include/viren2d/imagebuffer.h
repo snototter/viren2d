@@ -10,6 +10,7 @@
 #include <algorithm> // std::min
 #include <limits> // quiet nan
 #include <initializer_list>
+#include <utility> // pair
 
 #include <viren2d/primitives.h>
 
@@ -605,7 +606,7 @@ private:
   template <typename _Tp> inline
   void CheckType() const {
     if (typeid(_Tp) != ImageBufferTypeInfo(buffer_type)) {
-      std::string s("Invalid template type with id `");
+      std::string s("Invalid template type with typeid `");
       s += typeid(_Tp).name();
       s += "`, but buffer is of type `";
       s += ImageBufferTypeToString(buffer_type);
@@ -625,6 +626,42 @@ private:
 // TODO(interface) - other color conversions (i.e. rgb2gray,
 // gray2rgb) should be added here, too
 // Then, add "ImageBuffer utils" doc section on RTD
+
+
+/// Returns a uint8 single channel mask where a pixel is set to 255 iff
+/// the corresponding hsv pixel is within the given range.
+/// Args:
+///   hsv: Color image in HSV format (uint8), see `ConvertRGB2HSV`.
+///   hue_range: Hue range as ``(min_hue, max_hue)``, where
+///     hue values are in `[0, 360]`.
+///   saturation_range: Saturation range as
+///     ``(min_saturation, max_saturation)``, where saturation
+///     values are in `[0, 1]`.
+///   value_range: Similar to saturation range, *i.e.* values in `[0, 1]`.
+ImageBuffer MaskHSVRange(
+    const ImageBuffer &hsv,
+    const std::pair<float, float> &hue_range,
+    const std::pair<float, float> &saturation_range,
+    const std::pair<float, float> &value_range);
+
+
+/// Implements a *color pop* effect, *i.e.* colors within the given HSV
+/// range remain as-is, whereas all other colors are converted to
+/// grayscale.
+/// Args:
+///   rgb: Color image in RGB(A)/BGR(A) format.
+///   hue_range: Hue range as ``(min_hue, max_hue)``, where
+///     hue values are in `[0, 360]`.
+///   saturation_range: Saturation range as
+///     ``(min_saturation, max_saturation)``, where saturation
+///     values are in `[0, 1]`.
+///   value_range: Similar to saturation range, *i.e.* values in `[0, 1]`.
+///   is_bgr: Set to ``true`` if the color image is provided in BGR(A) format.
+ImageBuffer ColorPop(const ImageBuffer &rgb,
+    const std::pair<float, float> &hue_range,
+    const std::pair<float, float> &saturation_range,
+    const std::pair<float, float> &value_range,
+    bool is_bgr = false);
 
 
 /// Returns the grayscale image.

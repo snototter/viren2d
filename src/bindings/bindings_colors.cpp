@@ -316,7 +316,7 @@ void RegisterColor(py::module &m) {
 
   // Converting to different representations
   color.def(
-        "as_RGBa",
+        "to_RGBa",
         &Color::ToRGBa, R"docstr(
         Returns the corresponding ``(R, G, B, a)`` tuple.
 
@@ -325,7 +325,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Color::ToRGBa``.
         )docstr")
       .def(
-        "as_rgba",
+        "to_rgba",
         [](const Color& c) {
           return py::make_tuple(c.red, c.green, c.blue, c.alpha);
         }, R"docstr(
@@ -338,7 +338,7 @@ void RegisterColor(py::module &m) {
         separately.
         )docstr")
       .def(
-        "as_hex",
+        "to_hex",
         &Color::ToHexString, R"docstr(
         Returns the hex code representation.
 
@@ -350,7 +350,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Color::ToHexString``.
         )docstr")
       .def(
-        "as_hsv",
+        "to_hsv",
         &Color::ToHSV, R"docstr(
         Returns the corresponding ``(h, s, v)`` tuple.
 

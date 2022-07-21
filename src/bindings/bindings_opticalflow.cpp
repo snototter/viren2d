@@ -37,13 +37,11 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
         **Corresponding C++ API:** ``viren2d::SaveOpticalFlow``.
 
         Args:
-          filename: The output filename as :class:`str`. The
-            calling code must ensure that the directory
-            hierarchy exists.
+          filename: The output filename as :class:`str`. The calling code must
+            ensure that the directory hierarchy exists.
           flow: The optical flow data as 2-channel
-            :class:`~viren2d.ImageBuffer` or :class:`numpy.ndarray` which
-            should be written to disk. Must be of type :class:`numpy.float32`
-            or :class:`numpy.float64`.
+            :class:`~viren2d.ImageBuffer` which should be written to disk.
+            Must be of type :class:`numpy.float32` or :class:`numpy.float64`.
         )docstr",
         py::arg("filename"), py::arg("flow"));
 
@@ -81,10 +79,10 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorizeOpticalFlow``.
 
         Args:
-          flow: The optical flow field as 2-channel :class:`~viren2d.ImageBuffer`
-            or :class:`numpy.ndarray`, where the first and second channels hold
-            the motion in *x* and *y* direction, respectively. Must be of type
-            :class:`numpy.float32` or :class:`numpy.float64`.
+          flow: The optical flow field as 2-channel :class:`~viren2d.ImageBuffer`,
+            where the first and second channels hold the motion in *x* and *y*
+            direction, respectively. Must be of type :class:`numpy.float32`
+            or :class:`numpy.float64`.
           colormap: The :class:`~viren2d.ColorMap` to be used for
             colorization. In addition to the enumeration value, the corresponding
             string representation can be used for convenience.

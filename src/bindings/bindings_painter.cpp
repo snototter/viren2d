@@ -651,7 +651,13 @@ void RegisterPainter(py::module &m) {
             the circle will be filled.
 
         Example:
-          >>> #TODO
+          >>> line_style = viren2d.LineStyle(
+          >>>   width=5, color='maroon',
+          >>>   dash_pattern=[], dash_offset=0.0,
+          >>>   cap='round', join='miter')
+          >>> painter.draw_circle(
+          >>>   center=(50, 50), radius=30,
+          >>>   line_style=line_style, fill_color='same!30')
         )docstr",
         py::arg("center"),
         py::arg("radius"),
@@ -681,7 +687,9 @@ void RegisterPainter(py::module &m) {
 
         Example:
           >>> line_style = viren2d.LineStyle(
-          >>>     width=3, color='forest-green')
+          >>>   width=3, color='forest-green',
+          >>>   dash_pattern=[], dash_offset=0.0,
+          >>>   cap='round', join='miter')
           >>> ellipse = viren2d.Ellipse(
           >>>     center=(100, 60), axes=(180, 50), rotation=60)
           >>> painter.draw_ellipse(ellipse, line_style, 'same!20')
@@ -737,7 +745,10 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawImage``.
 
         Args:
-          image: The image as :class:`~viren2d.ImageBuffer` or :class:`numpy.ndarray`.
+          image: The image as :class:`~viren2d.ImageBuffer`. Note that a
+            :class:`numpy.ndarray` will be implicitly converted if it is
+            C-contiguous - which can be verified via its
+            :attr:`numpy.ndarray.flags`).
           anchor: How to orient the text with respect to ``position``.
             Valid inputs are :class:`~viren2d.Anchor` values
             and their string representations. For details, refer to the
@@ -747,13 +758,21 @@ void RegisterPainter(py::module &m) {
           scale_x: Horizontal scaling factor as :class:`float`.
           scale_y: Vertical scaling factor as :class:`float`.
           rotation: Clockwise rotation in degrees as :class:`float`.
-          clip_factor: TODO 0 < c <= 0.5 --> corner radius (see rounded rect), > 0.5 ellipse; <= 0 no clip
+          clip_factor: If greater than 0, the corners will be clipped. In
+            particular, :math:`0 < \text{clip} \leq 0.5` will result in a
+            rounded rectangle, where the corner radius will be ``clip_factor``
+            times :math:`\min(\text{width}, \text{height})`.
+            If :math:`\text{clip} > 0.5`, the clip region will be an ellipse,
+            where major/minor axis length equal the width/height of the image.
           line_style: A :class:`~viren2d.LineStyle` specifying how to draw the
             contour. If set to :attr:`LineStyle.Invalid`, the contour will not
             be drawn.
 
         Example:
-          >>> #TODO
+          >>> painter.draw_image(
+          >>>   image=img, position=(10, 20), anchor='top-left',
+          >>>   alpha=0.8, scale_x=1.0, scale_y=1.0, rotation=0,
+          >>>   clip_factor=0.3, line_style=viren2d.LineStyle.Invalid)
         )docstr",
         py::arg("image"),
         py::arg("position"),
@@ -872,12 +891,12 @@ void RegisterPainter(py::module &m) {
         Example:
           >>> points = [(0, 0), (10, 20), (42, 30), ...]
           >>> line_style = viren2d.LineStyle(
-          >>>     width=5, color='forest-green',
-          >>>     cap=viren2d.LineCap.Round,
-          >>>     join=viren2d.LineJoin.Round)
+          >>>   width=5, color='forest-green',
+          >>>   dash_pattern=[], dash_offset=0.0,
+          >>>   cap='round', join='round')
           >>> painter.draw_polygon(
-          >>>     polygon=points, line_style=line_style,
-          >>>     fill_color='same!40')
+          >>>   polygon=points, line_style=line_style,
+          >>>   fill_color='same!40')
         )docstr",
         py::arg("polygon"),
         py::arg("line_style") = LineStyle(),
@@ -905,11 +924,13 @@ void RegisterPainter(py::module &m) {
 
         Example:
           >>> line_style = viren2d.LineStyle()
-          >>> painter.draw_rect(rect=rect, line_style=line_style, fill_color='same!20')
+          >>> painter.draw_rect(
+          >>>   rect=rect, line_style=line_style, fill_color='same!20')
         )docstr",
         py::arg("rect"),
         py::arg("line_style") = LineStyle(),
         py::arg("fill_color") = Color::Invalid);
+
 
   //----------------------------------------------------------------------
   painter.def(
@@ -951,7 +972,11 @@ void RegisterPainter(py::module &m) {
           The bounding box of the drawn text as :class:`~viren2d.Rect`.
 
         Example:
-          >>> #TODO
+          >>> text_style = viren2d.TextStyle(
+          >>>   family='sans-serif', size=15, color='#1a1c1d', bold=True)
+          >>> bbox = painter.draw_text(
+          >>>   text=['Hello World!'], position=(200, 50), anchor='center',
+          >>>   text_style=text_style, padding=(5, 5), rotation=0)
         )docstr",
         py::arg("text"),
         py::arg("position"),
@@ -1001,7 +1026,14 @@ void RegisterPainter(py::module &m) {
           The bounding box of the drawn text as :class:`~viren2d.Rect`.
 
         Example:
-          >>> #TODO
+          >>> text_style = viren2d.TextStyle(
+          >>>   family='sans-serif', size=15, color='#1a1c1d', bold=True)
+          >>> line_style = viren2d.LineStyle(
+          >>>   width=3, color='#1a1c1d')
+          >>> bbox = painter.draw_text_box(
+          >>>   text=['Hello World!'], position=(200, 50), anchor='center',
+          >>>   text_style=text_style, padding=(5, 5), rotation=0,
+          >>>   line_style=line_style, fill_color='#c0bab1', radius=0.2)
         )docstr",
         py::arg("text"),
         py::arg("position"),

@@ -30,6 +30,8 @@ Color Space Conversions
 
 .. autofunction:: viren2d.convert_rgb2hsv
 
+.. autofunction:: viren2d.color_pop
+
 
 ~~~~~~~~~
 Image I/O
