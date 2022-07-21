@@ -35,7 +35,7 @@ to be swiftly integrated into both **C++ and Python** environments.
 
 
 **How to get started?**
-   * Check the requirements and :ref:`install the library<installation>`.
+   * Check the :ref:`requirements and install the library<installation>`.
    * Learn how to use the library by the examples in the :ref:`quickstart tutorial<quickstart>`.
    * Look up the :ref:`API documentation<api-documentation>`.
    * If you want to contribute, check the :ref:`development guide<dev-guide>`.
@@ -45,8 +45,10 @@ to be swiftly integrated into both **C++ and Python** environments.
    The heavy lifting to ensure proper rendering of the visualizations is done
    via the `Cairo 2D graphics library <https://www.cairographics.org/>`_.
 
-   Python bindings for the C++ library are realized via 
-   `pybind11 <https://pybind11.readthedocs.io/>`__.
+   Linear algebra needed to support 3D|right-arrow|2D projections is handled
+   via `Eigen <https://eigen.tuxfamily.org/>`__.
+
+   Python bindings are realized via `pybind11 <https://pybind11.readthedocs.io/>`__.
 
 
 **How to pronounce viren2d?**
