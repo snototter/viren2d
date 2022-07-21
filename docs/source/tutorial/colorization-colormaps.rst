@@ -21,7 +21,7 @@ Sequential
 
 Sequential (*aka* linear) color maps linearly increase/decrease the lightness
 and/or saturation over the color map range. They are the most generic color
-maps and shoulde be used to represent data which has an intrinsic ordering.
+maps and should be used to represent data which has an intrinsic ordering.
 
 .. image:: ../images/colormaps-cheat-sheet-sequential.png
    :width: 480
