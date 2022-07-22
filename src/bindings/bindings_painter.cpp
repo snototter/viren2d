@@ -226,6 +226,16 @@ public:
   }
 
 
+  bool DrawXYZAxes(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const Vec3d &origin, const Vec3d &axes_lengths,
+      const ArrowStyle &style, const Color &color_x,
+      const Color &color_y, const Color &color_z) {
+    return painter_->DrawXYZAxes(
+          K, R, t, origin, axes_lengths, style, color_x, color_y, color_z);
+  }
+
+
   /// String representation used to bind __str__ and __repr__.
   std::string StringRepresentation(bool tag) const {
     std::ostringstream s;
@@ -571,6 +581,7 @@ void RegisterPainter(py::module &m) {
 
 
   //----------------------------------------------------------------------
+  ArrowStyle default_arrow_style;
   painter.def(
         "draw_arrow",
         &PainterWrapper::DrawArrow, R"docstr(
@@ -602,7 +613,7 @@ void RegisterPainter(py::module &m) {
         )docstr",
         py::arg("pt1"),
         py::arg("pt2"),
-        py::arg("arrow_style") = ArrowStyle());
+        py::arg("arrow_style") = default_arrow_style);
 
 
   //----------------------------------------------------------------------
@@ -1178,6 +1189,71 @@ void RegisterPainter(py::module &m) {
         py::arg("tail_first") = true,
         py::arg("smoothing_window") = 0,
         py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
+
+
+  painter.def(
+        "draw_xyz_axes",
+        &PainterWrapper::DrawXYZAxes, R"docstr(
+        Draws the coordinate system axes for the given pinhole camera
+        calibration.
+
+        **Corresponding C++ API:** ``viren2d::Painter::DrawXYZAxes``.
+
+        Args:
+          K: The :math:`3 \times 3` camera matrix as :class:`numpy.ndarray` of
+            type :class:`numpy.float64`, which holds the intrinsic parameters.
+          R: The :math:`3 \times 3` extrinsic rotation matrix, again as
+            :class:`numpy.ndarray` of type :class:`numpy.float64`.
+          t: The 3d extrinsic translation vector as :class:`~viren2d.Vec3d`.
+          origin: Center of the world coordinate system as
+            :class:`~viren2d.Vec3d`.
+          lengths: A :class:`~viren2d.Vec3d` specifying how far to shift the
+            arrow tips from the origin. Each axis tip will be computed as
+            :math:`\text{tip}_{\text{axis}} = \text{origin} + \mathbf{e}_{\text{axis}} * \text{lengths}[axis]`,
+            where :math:`\mathbf{e}_{\text{axis}}` is the unit vector for the
+            corresponding axis.
+            The default value assumes that the calibration is given in
+            millimeters and will result in 1 meter long arrows.
+          arrow_style: The :class:`~viren2d.ArrowStyle` specifying how the
+            the axis arrows should be drawn. Note that it's color attribute
+            will be ignored.
+          color_x: :class:`~viren2d.Color` of the *x*-axis arrow. Default reddish.
+          color_y: :class:`~viren2d.Color` of the *y*-axis arrow. Default greenish.
+          color_z: :class:`~viren2d.Color` of the *z*-axis arrow. Default bluish.
+
+        Returns:
+          ``True`` if at least one point (axis arrow tip or the origin) is
+          visible within the camera's field-of-view.
+
+        Example:
+          >>> K = np.array(
+          >>>     [[523.2, 0.0, 341.0],
+          >>>      [0.0, 523.2, 256.0],
+          >>>      [0.0, 0.0, 1.0]], dtype=np.float64)
+          >>> R = np.array(
+          >>>     [[ 0.99013141,  0.14006482, -0.00465153],
+          >>>      [ 0.05439048, -0.41465762, -0.90835056],
+          >>>      [-0.12915675,  0.89913342, -0.41818372]], dtype=np.float64)
+          >>> t = np.array([-51.8, 17.3, 82.5], dtype=np.float64)
+          >>> arrow_style = viren2d.ArrowStyle(
+          >>>     width=3, tip_length=0.3, tip_angle=20,
+          >>>     tip_closed=True, double_headed=False,
+          >>>     dash_pattern=[], dash_offset=0.0,
+          >>>     cap='round', join='miter')
+          >>> painter.draw_xyz_axes(
+          >>>     K=K, R=R, t=t, origin=(0, 0, 0),
+          >>>     lengths=(1e3, 1e3, 1e3), arrow_style=arrow_style,
+          >>>     color_x='red', color_y='green', color_z='blue')
+        )docstr",
+        py::arg("K"),
+        py::arg("R"),
+        py::arg("t"),
+        py::arg("origin") = Vec3d::All(0.0),
+        py::arg("lengths") = Vec2d::All(1e3),
+        py::arg("arrow_style") = default_arrow_style,
+        py::arg("color_x") = Color::CoordinateAxisColor('x'),
+        py::arg("color_y") = Color::CoordinateAxisColor('y'),
+        py::arg("color_z") = Color::CoordinateAxisColor('z'));
 }
 
 } // namespace bindings
