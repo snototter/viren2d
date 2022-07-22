@@ -277,7 +277,7 @@ void RegisterPainter(py::module &m) {
              via :meth:`set_canvas_filename`
 
            Note that the overloaded *Painter* constructors allow
-           combining these two steps:
+           combining these steps:
 
            >>> # Set up from image data, e.g. `numpy.ndarray`:
            >>> image = np.zeros((600, 800, 3), dtype=np.uint8)
