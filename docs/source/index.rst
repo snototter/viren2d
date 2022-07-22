@@ -45,7 +45,7 @@ to be swiftly integrated into both **C++ and Python** environments.
    The heavy lifting to ensure proper rendering of the visualizations is done
    via the `Cairo 2D graphics library <https://www.cairographics.org/>`_.
 
-   Linear algebra needed to support 3D|right-arrow|2D projections is handled
+   Linear algebra needed to support 3D |right-arrow| 2D projections is handled
    via `Eigen <https://eigen.tuxfamily.org/>`__.
 
    Python bindings are realized via `pybind11 <https://pybind11.readthedocs.io/>`__.
