@@ -1092,9 +1092,9 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         >>> line_style = viren2d.LineStyle()
         >>> text_style = viren2d.TextStyle()
         >>> box_style = viren2d.BoundingBox2DStyle(
-        >>>   line_style=line_style, text_style=text_style,
-        >>>   box_fill_color='same!20', text_fill_color='white!60',
-        >>>   label_position='top', clip_label=True)
+        >>>     line_style=line_style, text_style=text_style,
+        >>>     box_fill_color='same!20', text_fill_color='white!60',
+        >>>     label_position='top', clip_label=True)
       )docstr";
   py::class_<BoundingBox2DStyle> bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 

@@ -652,12 +652,12 @@ void RegisterPainter(py::module &m) {
 
         Example:
           >>> line_style = viren2d.LineStyle(
-          >>>   width=5, color='maroon',
-          >>>   dash_pattern=[], dash_offset=0.0,
-          >>>   cap='round', join='miter')
+          >>>     width=5, color='maroon',
+          >>>     dash_pattern=[], dash_offset=0.0,
+          >>>     cap='round', join='miter')
           >>> painter.draw_circle(
-          >>>   center=(50, 50), radius=30,
-          >>>   line_style=line_style, fill_color='same!30')
+          >>>     center=(50, 50), radius=30,
+          >>>     line_style=line_style, fill_color='same!30')
         )docstr",
         py::arg("center"),
         py::arg("radius"),
@@ -687,9 +687,9 @@ void RegisterPainter(py::module &m) {
 
         Example:
           >>> line_style = viren2d.LineStyle(
-          >>>   width=3, color='forest-green',
-          >>>   dash_pattern=[], dash_offset=0.0,
-          >>>   cap='round', join='miter')
+          >>>     width=3, color='forest-green',
+          >>>     dash_pattern=[], dash_offset=0.0,
+          >>>     cap='round', join='miter')
           >>> ellipse = viren2d.Ellipse(
           >>>     center=(100, 60), axes=(180, 50), rotation=60)
           >>> painter.draw_ellipse(ellipse, line_style, 'same!20')
@@ -770,9 +770,9 @@ void RegisterPainter(py::module &m) {
 
         Example:
           >>> painter.draw_image(
-          >>>   image=img, position=(10, 20), anchor='top-left',
-          >>>   alpha=0.8, scale_x=1.0, scale_y=1.0, rotation=0,
-          >>>   clip_factor=0.3, line_style=viren2d.LineStyle.Invalid)
+          >>>     image=img, position=(10, 20), anchor='top-left',
+          >>>     alpha=0.8, scale_x=1.0, scale_y=1.0, rotation=0,
+          >>>     clip_factor=0.3, line_style=viren2d.LineStyle.Invalid)
         )docstr",
         py::arg("image"),
         py::arg("position"),
@@ -891,12 +891,12 @@ void RegisterPainter(py::module &m) {
         Example:
           >>> points = [(0, 0), (10, 20), (42, 30), ...]
           >>> line_style = viren2d.LineStyle(
-          >>>   width=5, color='forest-green',
-          >>>   dash_pattern=[], dash_offset=0.0,
-          >>>   cap='round', join='round')
+          >>>     width=5, color='forest-green',
+          >>>     dash_pattern=[], dash_offset=0.0,
+          >>>     cap='round', join='round')
           >>> painter.draw_polygon(
-          >>>   polygon=points, line_style=line_style,
-          >>>   fill_color='same!40')
+          >>>     polygon=points, line_style=line_style,
+          >>>     fill_color='same!40')
         )docstr",
         py::arg("polygon"),
         py::arg("line_style") = LineStyle(),
@@ -973,10 +973,10 @@ void RegisterPainter(py::module &m) {
 
         Example:
           >>> text_style = viren2d.TextStyle(
-          >>>   family='sans-serif', size=15, color='#1a1c1d', bold=True)
+          >>>     family='sans-serif', size=15, color='#1a1c1d', bold=True)
           >>> bbox = painter.draw_text(
-          >>>   text=['Hello World!'], position=(200, 50), anchor='center',
-          >>>   text_style=text_style, padding=(5, 5), rotation=0)
+          >>>     text=['Hello World!'], position=(200, 50), anchor='center',
+          >>>     text_style=text_style, padding=(5, 5), rotation=0)
         )docstr",
         py::arg("text"),
         py::arg("position"),
@@ -1027,13 +1027,13 @@ void RegisterPainter(py::module &m) {
 
         Example:
           >>> text_style = viren2d.TextStyle(
-          >>>   family='sans-serif', size=15, color='#1a1c1d', bold=True)
+          >>>     family='sans-serif', size=15, color='#1a1c1d', bold=True)
           >>> line_style = viren2d.LineStyle(
-          >>>   width=3, color='#1a1c1d')
+          >>>     width=3, color='#1a1c1d')
           >>> bbox = painter.draw_text_box(
-          >>>   text=['Hello World!'], position=(200, 50), anchor='center',
-          >>>   text_style=text_style, padding=(5, 5), rotation=0,
-          >>>   line_style=line_style, fill_color='#c0bab1', radius=0.2)
+          >>>     text=['Hello World!'], position=(200, 50), anchor='center',
+          >>>     text_style=text_style, padding=(5, 5), rotation=0,
+          >>>     line_style=line_style, fill_color='#c0bab1', radius=0.2)
         )docstr",
         py::arg("text"),
         py::arg("position"),

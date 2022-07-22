@@ -673,7 +673,9 @@ void RegisterImageBuffer(py::module &m) {
           has the same format and number of channels as the input ``rgb``.
 
         Example:
-          >>> red_pop = viren2d.color_pop(img, (320, 360), (0.4, 1), (0.2, 1))
+          >>> red_pop = viren2d.color_pop(
+          >>>     rgb=img, hue_range=(320, 360), saturation_range=(0.4, 1),
+          >>>     value_range=(0.2, 1), is_bgr=False)
         )docstr",
         py::arg("rgb"),
         py::arg("hue_range"),
