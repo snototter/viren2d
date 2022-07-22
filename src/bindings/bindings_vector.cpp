@@ -227,6 +227,18 @@ void RegisterVec(py::module &m) {
 
   vec_cls.def(py::init<>(), "Initializes all values to 0.");
 
+
+  std::ostringstream().swap(doc);
+  doc << "Creates a vector where each coordinate is set to the given scalar."
+         "\n\n**Corresponding C++ API:** ``viren2d::"
+      << VC::TypeName() << "::All``.";
+  vec_cls.def_static(
+        "all",
+        &VC::All,
+        doc.str().c_str(),
+        py::arg("value"));
+
+
   std::ostringstream().swap(doc);
   doc << "Creates a vector from a " << dim << "-element :class:`tuple`.";
   vec_cls.def(

@@ -28,6 +28,8 @@ void DemoMarkers();
 
 void DemoOpticalFlow();
 
+void DemoPinhole();
+
 void DemoPolygons();
 
 void DemoRects();

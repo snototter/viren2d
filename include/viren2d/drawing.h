@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include <Eigen/Core>
+
 
 #include <viren2d/primitives.h>
 #include <viren2d/imagebuffer.h>
@@ -16,6 +18,10 @@
 
 
 namespace viren2d {
+
+using Matrix3x3d = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>;
+using Matrix3x4d = Eigen::Matrix<double, 3, 4, Eigen::RowMajor>;
+
 
 /// The Painter provides functionality to draw on a canvas.
 class Painter {
@@ -313,8 +319,20 @@ public:
   }
 
   //TODO DrawPoints - how to handle alternating colors???
-  //TODO OverlayImage <-- same size vs different, maybe clip to a circle; maybe add a border, etc
-  //            Scaling via cairo context!
+
+  //TODO returns true if any point (origin or tip of an axis) is within the field of view
+  bool DrawXYZAxes(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const Vec3d &origin = Vec3d::All(0.0),
+      const Vec3d &axes_lengths = Vec3d::All(1e3),
+      const ArrowStyle &style = ArrowStyle(),
+      const Color &color_x = Color::CoordinateAxisColor('x'),
+      const Color &color_y = Color::CoordinateAxisColor('y'),
+      const Color &color_z = Color::CoordinateAxisColor('z')) {
+    return DrawXYZAxesImpl(
+          K, R, t, origin, axes_lengths, style, color_x, color_y, color_z);
+  }
+
 
 protected:
   /// Internal helper to enable default values in public interface.
@@ -428,6 +446,13 @@ protected:
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,
       const std::function<double(double)> &mix_factor) = 0;
+
+
+  /// Internal helper to allow default values in public interface.
+  virtual bool DrawXYZAxesImpl(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const Vec3d &origin, const Vec3d &axes_lengths, const ArrowStyle &style,
+      const Color &color_x, const Color &color_y, const Color &color_z) = 0;
 };
 
 

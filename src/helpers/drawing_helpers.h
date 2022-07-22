@@ -467,6 +467,14 @@ void DrawTrajectory(
     const std::function<double(double)> &mix_factor);
 
 
+bool DrawXYZAxes(
+    cairo_surface_t *surface, cairo_t *context,
+    const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+    const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
+    const Color &color_x, const Color &color_y, const Color &color_z,
+    const Vec2i &img_size);
+
+
 /// Creates a path for a rectangle with rounded corners.
 /// Assumes that the viewport is already translated (and optionally
 /// rotated)!

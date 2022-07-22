@@ -24,6 +24,7 @@ add_executable(${viren2d_TARGET_CPP_DEMO}
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_colorization.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_imagebuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_lines.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_pinhole.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_shapes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_text.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/demo_utils/demos_tracking_by_detection.cpp)

@@ -327,6 +327,22 @@ protected:
   }
 
 
+  bool DrawXYZAxesImpl(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
+      const Color &color_x, const Color &color_y,
+      const Color &color_z) override {
+    SPDLOG_DEBUG(
+          "DrawXYZAxes: Axis lengths {:s}.", lengths);
+//    SPDLOG_TRACE(
+//          "FIXME\nK={:s}, R={:s}, t={:s}",
+//          K, R, t);
+    return helpers::DrawXYZAxes(
+          surface_, context_, K, R, t, origin, lengths, style,
+          color_x, color_y, color_z, GetCanvasSize());
+  }
+
+
 private:
   cairo_surface_t *surface_;
   cairo_t *context_;
