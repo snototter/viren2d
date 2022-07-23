@@ -660,7 +660,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutLinear``.
 
         Returns:
-          The input value, *i.e.* :math:`y=value`.
+          The input value, *i.e.* :math:`y = \text{value}`.
         )docstr",
         py::arg("value"));
 
@@ -675,7 +675,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutQuadratic``.
 
         Returns:
-          The quadratic factor :math:`y=value*value`.
+          The quadratic factor :math:`y = \text{value}^2`.
         )docstr", py::arg("value"));
 
 
@@ -689,7 +689,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutLogarithmic``.
 
         Returns:
-          The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * value + 1)`.
+          The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * \text{value} + 1)`.
         )docstr", py::arg("value"));
 }
 

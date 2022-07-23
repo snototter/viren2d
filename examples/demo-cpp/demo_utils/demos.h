@@ -34,6 +34,8 @@ void DemoPolygons();
 
 void DemoRects();
 
+void DemoTangents();
+
 void DemoText();
 
 void DemoTrajectories();

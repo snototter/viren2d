@@ -59,6 +59,7 @@ void Showcase() {
   DemoPinhole();
 //  DemoPolygons();
 //  DemoRects();
+  DemoTangents();
 //  DemoText();
 //  DemoTrajectories();
 }

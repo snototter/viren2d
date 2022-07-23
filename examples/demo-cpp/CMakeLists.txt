@@ -41,6 +41,7 @@ target_include_directories(${viren2d_TARGET_CPP_DEMO}
 target_link_libraries(${viren2d_TARGET_CPP_DEMO}
     PRIVATE
       viren2d++::viren2d++
+      werkzeugkiste::geometry
       werkzeugkiste::files)
 
 
