@@ -734,7 +734,7 @@ Color Color::CoordinateAxisColor(char axis) {
     case 1:
     case 'y':
     case 'Y':
-      return Color(0.19, 0.80, 0.66, 1.0);
+      return Color(0.19, 0.63, 0.30, 1.0);
 
     case 2:
     case 'z':
