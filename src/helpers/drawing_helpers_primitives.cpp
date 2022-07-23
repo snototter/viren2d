@@ -549,6 +549,26 @@ void DrawMarker(
         break;
       }
 
+    case Marker::Reticle:
+    case Marker::RotatedReticle: {
+        half_size -= style.CapOffset();
+        if (style.marker == Marker::RotatedReticle) {
+          cairo_rotate(context, wkg::deg2rad(45.0));
+        }
+        const double hole = std::max(style.thickness / 2.0, 2.0)
+            + style.CapOffset();
+        cairo_move_to(context, -half_size, 0.0);
+        cairo_line_to(context, -hole, 0.0);
+        cairo_move_to(context, hole, 0.0);
+        cairo_line_to(context, half_size, 0.0);
+
+        cairo_move_to(context, 0.0, -half_size);
+        cairo_line_to(context, 0.0, -hole);
+        cairo_move_to(context, 0.0, hole);
+        cairo_line_to(context, 0.0, half_size);
+        break;
+      }
+
     case Marker::RotatedSquare:
       cairo_rotate(context, wkg::deg2rad(45.0));
       // fall through

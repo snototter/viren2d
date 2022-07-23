@@ -18,8 +18,8 @@ def demo_text_anchors():
         width=1, dash_pattern=[10, 10], color=(0.4, 0.4, 0.4))
 
     marker_style = viren2d.MarkerStyle(
-        viren2d.Marker.Cross, size=14, thickness=3, filled=True,
-        color='rose-red', bg_border=2, bg_color='ivory!90')
+        viren2d.Marker.RotatedReticle, size=14, thickness=3, filled=True,
+        color='rose-red!90', bg_border=2, bg_color='ivory!80')
 
     # Draw a grid
     offset_x = 20

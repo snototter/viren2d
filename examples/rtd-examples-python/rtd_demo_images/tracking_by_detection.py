@@ -1,3 +1,4 @@
+from turtle import bgcolor
 import numpy as np
 import viren2d
 from pathlib import Path
@@ -51,15 +52,11 @@ def demo_tracking_by_detection():
         fade_out_color="white!100", tail_first=False,
         smoothing_window=3)
 
-    # Mark the tip of the Katana - Create a border effect
-    # by drawing 2 differently sized markers:
-    marker_style = viren2d.MarkerStyle()
-    marker_style.marker = '5'
-    marker_style.filled = True
-    for size, color in [(35, 'white!80'), (25, line_style.color)]:
-        marker_style.color = color
-        marker_style.size = size
-        painter.draw_marker(traj_sword[0], marker_style)
+    # Mark the tip of the sword:
+    marker_style = viren2d.MarkerStyle(
+        marker='5', size=30, filled=True, color=line_style.color,
+        bg_border=3, bg_color='ivory!70')
+    painter.draw_marker(traj_sword[0], marker_style)
 
     # Arrow
     arrow_style = viren2d.ArrowStyle(width=4, color='crimson', tip_length=0.3)
@@ -75,5 +72,4 @@ def demo_tracking_by_detection():
         text_style=text_style, padding=(10, 5),
         fill_color="white!80", line_style=line_style)
 
-    shared_canvas = painter.get_canvas(copy=False)
-    return np.array(shared_canvas, copy=True)
+    return np.array(painter.canvas, copy=True)

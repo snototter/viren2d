@@ -1,6 +1,6 @@
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Label/Category Colorization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
+Label Colorization
+~~~~~~~~~~~~~~~~~~
 
 Label images, such as the results of semantic, panoptic or instance
 segmentation, should not be *scale colorized* as this would result

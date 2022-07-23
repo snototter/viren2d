@@ -49,55 +49,53 @@ public:
   virtual void SetCanvas(int height, int width, const Color &color) = 0;
 
 
-  /**
-   * @brief Initializes the canvas with the given image file.
-   *
-   * Uses the stb/stb_image library for loading, which supports
-   * the most common formats.
-   * This or any overloaded SetCanvas() must be called before
-   * any other DrawXXX calls can be performed.
-   */
+  /// Initializes the canvas from the given image file.
+  /// This functionality uses the
+  /// `stb library <https://github.com/nothings/stb/blob/master/stb_image.h>`__
+  /// to load the image file. Supported formats are:
+  ///    JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
+  ///
+  /// This or any overloaded SetCanvas() must be called before
+  /// any other DrawXXX calls can be performed.
   virtual void SetCanvas(const std::string &image_filename) = 0;
 
-  //TODO doc - memory will be copied; can be
-  // grayscale, RGB or RGBA
-  // * rgb --> assumes alpha 255
-  // * grayscale --> gray,gray,gray, alpha
+
+  /// Initializes the canvas from the given image.
+  /// The image can be grayscale (1-channel), RGB or RGBA.
+  /// The painter will always create a copy - thus, the image
+  /// buffer can be safely destroyed afterwards.
   virtual void SetCanvas(const ImageBuffer &image_buffer) = 0;
 
-  /** @brief Returns the size of the canvas. */
+
+  /// Returns the size of the canvas.
   virtual Vec2i GetCanvasSize() const = 0;
 
 
-  /**
-   * @brief Returns the current visualization state (canvas) as ImageBuffer
-   *
-   * If "copy" is true, the canvas memory is copied into the ImageBuffer (i.e.
-   * you can modify the buffer however you like). Otherwise, the ImageBuffer
-   * shares the Painter's memory (and thus your subsequent memory modifications
-   * will directly affect the canvas).
-   */
+  /// Returns the current visualization state (canvas) as ImageBuffer
+  ///
+  /// If `copy` is true, the canvas memory is copied into the ImageBuffer (i.e.
+  /// you can modify the buffer however you like). Otherwise, the ImageBuffer
+  /// shares the Painter's memory (and thus your subsequent memory modifications
+  /// will directly affect the canvas).
   virtual ImageBuffer GetCanvas(bool copy) const = 0;
 
 
-  /**
-   * @brief Draws a circular arc.
-   *
-   * @param center:  Center of the arc
-   * @param radius:  Radius of the arc in pixels.
-   * @param angle1 & angle2:
-   *            The arc will be drawn from angle1 to angle2 in clockwise
-   *            direction. Both angles are specified in degrees, where 0 degrees
-   *            points in the direction of increasing X coordinates.
-   * @param line_style:
-   *            How to draw the arc's outline. To skip drawing the contour,
-   *            pass LineStyle::Invalid (then you must specify a valid 'fill_color').
-   * @param include_center:
-   *            If True (default), the center of the circle will be included
-   *            when drawing the outline and filling the arc.
-   * @param fill_color: Provide a valid color to fill
-   *            the arc.
-   */
+  ///  Draws a circular arc.
+  ///
+  /// Args:
+  ///   center: Center position.
+  ///   radius: Radius of the arc in pixels.
+  ///   angle_from: The arc will be drawn from ``angle_from``
+  ///     to ``angle_to`` in clockwise direction. Both angles
+  ///     are specified in degrees, where 0 degrees points in the
+  ///    direction of increasing *x* coordinates.
+  ///    angle_to: See ``angle_from``.
+  ///    line_style: How to draw the arc's outline.
+  ///       If you pass `LineStyle::Invalid`, the contour will not be
+  ///       drawn - then, you must provide a valid ``fill_color``.
+  ///    include_center:  If ``true`` (default), the center point
+  ///       will be included when drawing the outline and filling.
+  ///    fill_color: If you provide a valid color, the arc will be filled.
   void DrawArc(
       const Vec2d &center, double radius,
       double angle1, double angle2,
@@ -110,14 +108,12 @@ public:
   }
 
 
-  /**
-   * @brief Draws an arrow.
-   *
-   * @param from: Start point of the arrow shaft.
-   * @param to:   End point of the arrow shaft.
-   * @param arrow_style: How to draw the arrow (specifies
-   *              both line and head/tip style).
-   */
+  /// Draws an arrow.
+  ///
+  /// Args:
+  ///   pt1: Start of the arrow shaft.
+  ///   pt2: End of the arrow shaft (the *pointy* end).
+  ///   arrow_style: How to draw the arrow.
   void DrawArrow(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style = ArrowStyle()) {
@@ -125,7 +121,12 @@ public:
   }
 
 
-  /// Draws a 2D bounding box.
+  /// Draws a single 2D bounding box.
+  ///
+  /// Args:
+  ///   rect: The box geometry.
+  ///   label: The (potentially multi-line) label.
+  ///   box_style: How to draw this bounding box.
   void DrawBoundingBox2D(
       const Rect &box, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
@@ -133,17 +134,13 @@ public:
   }
 
 
-  /**
-   * @brief Draws a circle.
-   *
-   * @param center: Center point of the circle.
-   * @param radius: Radius in pixels.
-   * @param line_style: How to draw the outline. To skip drawing the contour,
-   *                pass LineStyle::Invalid (then you must specify a
-   *                valid 'fill_color').
-   * @param fill_color: Provide a valid color to fill
-   *                the circle.
-   */
+  /// Draws a circle.
+  ///
+  /// Args:
+  ///   center: Center position.
+  ///   radius: Radius of the circle in pixels.
+  ///   line_style: How to draw the circle's outline.
+  ///   fill_color: If provided, the circle will be filled.
   void DrawCircle(
       const Vec2d &center, double radius,
       const LineStyle &line_style = LineStyle(),
@@ -152,16 +149,12 @@ public:
   }
 
 
-  /**
-   * @brief Draws an ellipse.
-   *
-   * @param ellipse:    The ellipse to be drawn.
-   * @param line_style: How to draw the outline. To skip drawing
-   *                    the contour, pass LineStyle::Invalid (then
-   *                    you must specify a valid 'fill_color').
-   * @param fill_color: Provide a valid color to fill
-   *                    the ellipse.
-   */
+  /// Draws an ellipse.
+  ///
+  /// Args:
+  ///   ellipse: The ellipse to be drawn.
+  ///   line_style: How to draw the ellipse's outline.
+  ///   fill_color: If provided, the ellipse will be filled.
   void DrawEllipse(
       const Ellipse &ellipse,
       const LineStyle &line_style = LineStyle(),
@@ -170,17 +163,8 @@ public:
   }
 
 
-  /**
-   * @brief Draws a grid between top_left and bottom_right.
-   *
-   * @param top_left & bottom_right:
-   *            If these are not the same, they define
-   *            the canvas region which will be spanned
-   *            by the grid.
-   * @param spacing_x: Horizontal cell size in pixels.
-   * @param spacing_y: Vertical cell size in pixels.
-   * @param line_style: How to draw the grid lines.
-   */
+  /// Draws a grid between top_left and bottom_right.
+  /// If both points are the same, the grid will span the whole canvas.
   void DrawGrid(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
@@ -192,7 +176,24 @@ public:
   }
 
 
-  //TODO doc
+  /// Draws an image.
+  ///
+  /// Args:
+  ///   image: The image.
+  ///   anchor: How to orient the text with respect to ``position``.
+  ///   position: Reference point where to anchor the image.
+  ///   alpha: Opacity as :class:`float` :math:`\in [0,1]`, where ``1`` is
+  ///     fully opaque and ``0`` is fully transparent.
+  ///   scale_x: Horizontal scaling factor.
+  ///   scale_y: Vertical scaling factor.
+  ///   rotation: Clockwise rotation in degrees.
+  ///   clip_factor: If greater than 0, the corners will be clipped. In
+  ///     particular, :math:`0 < \text{clip} \leq 0.5` will result in a
+  ///     rounded rectangle, where the corner radius will be ``clip_factor``
+  ///     times :math:`\min(\text{width}, \text{height})`.
+  ///     If :math:`\text{clip} > 0.5`, the clip region will be an ellipse,
+  ///     where major/minor axis length equal the width/height of the image.
+  ///   line_style: If provided, the contour/border of the image will be drawn.
   void DrawImage(
       const ImageBuffer &image,
       const Vec2d &position,
@@ -207,9 +208,12 @@ public:
   }
 
 
-  /**
-   * @brief Draws a line.
-   */
+  /// Draws a line (segment).
+  ///
+  /// Args:
+  ///   from: Start position.
+  ///   to: End position.
+  ///     line_style: How to draw the line.
   void DrawLine(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style = LineStyle()) {
@@ -217,6 +221,11 @@ public:
   }
 
 
+  /// Draws a single marker/keypoint.
+  ///
+  /// Args:
+  ///   pos: Position of the marker.
+  ///   marker_style: How to draw the marker.
   void DrawMarker(
       const Vec2d &position,
       const MarkerStyle &style = MarkerStyle()) {
@@ -224,6 +233,13 @@ public:
   }
 
 
+  /// Draws multiple (similarly styled) markers/keypoints.
+  ///
+  /// Args:
+  ///   markers: Holds the position and color of each marker.
+  ///     If a marker's color is invalid, it will be drawn using
+  ///     ``style``'s color specification instead.
+  ///   marker_style: How to draw the markers (except for the color).
   void DrawMarkers(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style = MarkerStyle()) {
@@ -231,6 +247,14 @@ public:
   }
 
 
+  /// Draws a polygon.
+  ///
+  /// Args:
+  ///   polygon: Points of the polygon.
+  ///   line_style: How to draw the polygon's outline.
+  ///     If you pass `LineStyle::Invalid`, the contour will not be
+  ///     drawn - then, you must provide a valid ``fill_color``.
+  ///   fill_color: If you provide a valid color, the polygon will be filled.
   void DrawPolygon(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style = LineStyle(),
@@ -244,13 +268,13 @@ public:
   /// Args:
   ///   rect: The :class:`~viren2d.Rect` which should be drawn.
   ///   line_style: A :class:`~viren2d.LineStyle` specifying how
-  ///       to draw the rectangle's outline.
+  ///     to draw the rectangle's outline.
   ///
-  ///       If you pass :attr:`viren2d.LineStyle.Invalid`, the
-  ///       contour will not be drawn - then, you must provide
-  ///       a valid ``fill_color``.
+  ///     If you pass :attr:`viren2d.LineStyle.Invalid`, the
+  ///     contour will not be drawn - then, you must provide
+  ///     a valid ``fill_color``.
   ///   fill_color: If you provide a valid :class:`~viren2d.Color`,
-  ///       the rectangle will be filled.
+  ///     the rectangle will be filled.
   void DrawRect(
       const Rect &rect,
       const LineStyle &line_style = LineStyle(),
@@ -259,7 +283,8 @@ public:
   }
 
 
-  //TODO doc, test, bind
+  /// Draws single- or multi-line text.
+  /// See documentation of `DrawTextBox` for details on the parameters.
   Rect DrawText(
       const std::vector<std::string> &text,
       const Vec2d &position,
@@ -273,7 +298,27 @@ public:
   }
 
 
-  //TODO doc, test, bind
+  /// Draws a single- or multi-line text box.
+  ///
+  /// Args:
+  ///   text: The text lines to be drawn.
+  ///   position: Position of the reference point where
+  ///     to anchor the text.
+  ///   anchor: How to orient the text with respect to ``position``.
+  ///   text_style: How to render the text.
+  ///   padding: Optional padding between text and the edges
+  ///     of the box. Specified in pixels.
+  ///   rotation: Rotation angle (clockwise around ``position``) in
+  ///     degrees.
+  ///   line_style: How to render the border of the text box.
+  ///   fill_color: If you provide a valid color, the box will be filled.
+  ///   radius: Corner radius of the box. Refer to Rect::radius for
+  ///     details on valid value ranges.
+  ///   fixed_size: Forces the box to be of the specified size. If the
+  ///     size is smaller than the text extent, the text will overflow.
+  ///
+  /// Returns:
+  ///   The bounding box of the drawn text.
   Rect DrawTextBox(
       const std::vector<std::string> &text,
       const Vec2d &position,
@@ -292,7 +337,21 @@ public:
   }
 
 
-  //TODO doc, test, bind
+  /// Draws a single trajectory.
+  /// Can be used to either draw **a fixed-color path** (if
+  /// ``color_fade_out`` is invalid), or **a path which gradually
+  /// changes its color** from ``line_style.color`` to ``color_fade_out``.
+  /// In the latter case, the color transition can be controlled
+  /// by ``mix_factor``.
+  ///
+  /// Note:
+  ///   If a valid ``color_fade_out`` is provided, the trajectory
+  ///   has to be drawn via separate line segments. This means that the
+  ///   `style.join` setting will have no effect. Additionally, if transparent
+  ///   colors are used, the individual segment endpoints will be visible.
+  ///
+  ///   To avoid this behavior, the trajectory needs to be drawn with
+  ///   a single color, *i.e.* pass `Color::Invalid` as ``color_fade_out``.
   void DrawTrajectory(
       const std::vector<Vec2d> &points,
       const LineStyle &style = LineStyle(),
@@ -306,6 +365,9 @@ public:
   }
 
 
+  /// Draws multiple (similarly styled) trajectories.
+  /// If a trajectory's color is Color::Invalid or Color::Same, the
+  /// style's color will be used instead.
   void DrawTrajectories(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style = LineStyle(),
@@ -318,9 +380,31 @@ public:
           smoothing_window, mix_factor);
   }
 
-  //TODO DrawPoints - how to handle alternating colors???
 
-  //TODO returns true if any point (origin or tip of an axis) is within the field of view
+  /// Draws the coordinate system axes for the pinhole camera calibration.
+  ///
+  /// Args:
+  ///   K: The `3 x 3` camera matrix of type double, which holds the intrinsic
+  ///     parameters.
+  ///   R: The `3 x 3` extrinsic rotation matrix, again of double precision.
+  ///   t: The 3d extrinsic translation vector.
+  ///   origin: Center of the world coordinate system.
+  ///   lengths: Specifies how far to shift the arrow tips from the origin.
+  ///     Each axis tip will be computed as
+  ///     :math:`\text{tip}_{\text{axis}} = \text{origin} + \mathbf{e}_{\text{axis}} * \text{lengths}[axis]`,
+  ///     where :math:`\mathbf{e}_{\text{axis}}` is the unit vector for the
+  ///     corresponding axis.
+  ///     The default value assumes that the calibration is given in
+  ///     millimeters and will result in 1 meter long arrows.
+  ///   arrow_style: How the axis arrows should be drawn. Note that it's color
+  ///     attribute will be ignored.
+  ///   color_x: Color of the *x*-axis arrow. Default reddish.
+  ///   color_y: Color of the *y*-axis arrow. Default greenish.
+  ///   color_z: Color of the *z*-axis arrow. Default bluish.
+  ///
+  /// Returns:
+  ///   True if at least one point (axis arrow tip or the origin) is
+  ///   visible within the camera's field-of-view
   bool DrawXYZAxes(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin = Vec3d::All(0.0),

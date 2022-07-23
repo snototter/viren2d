@@ -120,7 +120,7 @@ def demo_colorize_labels():
             Image.open(os.path.join(data_path, 'semseg-instances.png')))
         
         text_style = viren2d.TextStyle(
-            family='xkcd', size=21, color='#c0bab1')
+            family='xkcd', size=21, color='white')
 
         painter = viren2d.Painter(height=215, width=600, color='white!0')
         

@@ -24,7 +24,7 @@ def demo_color_names():
     # Iterate and visualize the available color names:
     for color_name in viren2d.color_names():
         color = viren2d.Color(color_name)
-        text_style.color = color.grayscale().inverse()
+        text_style.color = color.to_gray().inverse()
 
         painter.draw_text_box(
             [color_name], (x, y), anchor=viren2d.Anchor.Top,

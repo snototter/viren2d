@@ -17,7 +17,8 @@ def cheat_sheet_linestyle():
 
    # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=22, color=(0.3, 0.3, 0.3))
+        family='xkcd', size=22, color='#c0bab1')
+    highlight_style = viren2d.LineStyle(width=3, color='salmon!80')
 
     # Draw titles:
     painter.draw_text(
@@ -35,7 +36,7 @@ def cheat_sheet_linestyle():
 
     ### Different LineCap settings
     line_style = viren2d.LineStyle(
-        width=29, color='navy-blue!80')
+        width=29, color='azure!80')
 
     y = 60
     line_style.cap = 'butt'
@@ -64,6 +65,12 @@ def cheat_sheet_linestyle():
     painter.draw_text(
         [str(line_style.cap)], (canvas_width / 4, y),
         'center', text_style)
+
+    # Highlight start/end
+    painter.draw_line((40, 40), (40, 160), highlight_style)
+    painter.draw_line(
+        (canvas_width / 2 - 40, 40), (canvas_width / 2 - 40, 160),
+        highlight_style)
 
     ### Different LineJoin settings
     line_style.cap = 'round'
@@ -108,7 +115,7 @@ def cheat_sheet_linestyle():
         'left', text_style)
 
     ### Dash patterns
-    text_style.color = (0.3, 0.3, 0.3)
+    text_style.color = '#c0bab1'
     line_style.width = 5
     
     y = 230
@@ -165,13 +172,13 @@ def cheat_sheet_arrowstyle():
 
    # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=18, color=(0.3, 0.3, 0.3),
+        family='xkcd', size=18, color='#c0bab1',
         halign=viren2d.HorizontalAlignment.Center,
         line_spacing=1.1)
     y_txt = 110  # Same vertical anchor for all text
 
     arrow_style = viren2d.ArrowStyle(
-        width=5, color='navy-blue')
+        width=5, color='azure')
 
     # 1st pair of arrows (leftmost)
     offset_x = 60  # Distance between the 2 arrows of each "pair"
@@ -192,7 +199,7 @@ def cheat_sheet_arrowstyle():
     
     # 2nd pair of arrows
     x1 = 195
-    arrow_style.color = 'tealgreen'
+    arrow_style.color = '#2ba748'
     arrow_style.tip_length = 0.4
     arrow_style.tip_closed = True
     arrow_style.tip_angle = 10
@@ -210,7 +217,7 @@ def cheat_sheet_arrowstyle():
 
     # 3rd pair of arrows
     x1 = 345
-    arrow_style.color = 'maroon'
+    arrow_style.color = '#c8030c'
     arrow_style.tip_closed = False
     arrow_style.join = 'round'
     arrow_style.tip_length = 0.8
@@ -228,7 +235,7 @@ def cheat_sheet_arrowstyle():
 
     # 4th pair of arrows
     x1 = 495
-    arrow_style.color = 'indigo'
+    arrow_style.color = '#bc05d2'
     arrow_style.dash_pattern = [20, 15]
     txt_dash = _dash2str(arrow_style.dash_pattern)
     arrow_style.tip_closed = False
@@ -311,7 +318,7 @@ def cheat_sheet_colormaps():
 
         y = 5
         for cmap in cmap_categories[cat]:
-            vis = viren2d.colorize(data, colormap=cmap, low=0, high=255)
+            vis = viren2d.colorize_scaled(data, colormap=cmap, low=0, high=255)
 
             painter.draw_image(
                 vis, position=(canvas_width-5, y + row_height / 2),
