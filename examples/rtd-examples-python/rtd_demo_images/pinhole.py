@@ -34,15 +34,19 @@ def _overlay_axes(painter, K, R, t):
 def _overlay_horizon(painter, K, R, t):
     """Draws the approximated line of horizon."""
     line_style = viren2d.LineStyle(
-        width=7, color=viren2d.axis_color('z'), dash_pattern=[20, 30],
+        width=7, color=viren2d.axis_color('z'), dash_pattern=[40, 50],
         cap='round')
     horizon_from, horizon_to = painter.draw_horizon_line(
         K=K, R=R, t=t, line_style=line_style)
     # Add a label
-    text_style = viren2d.TextStyle(family='xkcd', size=21, color='#1a1c1d')
+    text_style = viren2d.TextStyle(family='xkcd', size=29, color='#1a1c1d')
+    line_style.width = 3
+    line_style.dash_pattern = []
     painter.draw_text_box(
-        ['Line of Horizon'], position=(horizon_from + horizon_to) / 2,
-        text_style=text_style, fill_color='ivory!90')
+        ['Line of Horizon'],
+        position=(horizon_from + horizon_to) * 0.8 + (0, 8),
+        anchor='top', text_style=text_style, padding=(10, 6),
+        line_style=line_style, fill_color='#c0bab1c0')
 
 
 def demo_pinhole():
