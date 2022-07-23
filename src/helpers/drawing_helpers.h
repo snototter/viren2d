@@ -423,6 +423,12 @@ void DrawGrid(
     const LineStyle &line_style);
 
 
+Line2d DrawHorizonLineImpl(
+    cairo_surface_t *surface, cairo_t *context,
+    const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+    const LineStyle &line_style, const Vec2i &img_size);
+
+
 void DrawImage(cairo_surface_t *surface, cairo_t *context,
     const ImageBuffer &image, const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,

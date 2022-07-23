@@ -139,6 +139,17 @@ protected:
   }
 
 
+  Line2d DrawHorizonLineImpl(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const LineStyle &line_style) override {
+    SPDLOG_DEBUG(
+          "DrawHorizonLineImpl: style={:s}.", line_style);
+    return helpers::DrawHorizonLineImpl(
+          surface_, context_, K, R, t, line_style, GetCanvasSize());
+  }
+
+
+
   void DrawImageImpl(
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,

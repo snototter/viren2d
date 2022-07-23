@@ -176,6 +176,17 @@ public:
   }
 
 
+  //TODO doc
+  // returns the projected line of horizon - check its IsValid!
+  //TODO if defaults change here, also change them in bindings_painter!
+  Line2d DrawHorizonLine(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const LineStyle &line_style = LineStyle(
+        5, Color::CoordinateAxisColor('z'), {20, 30}, 0.0, LineCap::Round)) {
+    return DrawHorizonLineImpl(K, R, t, line_style);
+  }
+
+
   /// Draws an image.
   ///
   /// Args:
@@ -457,6 +468,12 @@ protected:
   virtual void DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
+      const LineStyle &line_style) = 0;
+
+
+  /// Internal helper to enable default values in public interface.
+  virtual Line2d DrawHorizonLineImpl(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const LineStyle &line_style) = 0;
 
 

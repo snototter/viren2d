@@ -9,11 +9,9 @@ Camera Geometry
 To inspect the results of a pinhole camera calibration, ``viren2d`` provides
 the following utilities:
 
-* Overlaying coordinate system axes via :func:`~viren2d.Painter.draw_xyz_axes`.
+* Overlay coordinate system axes via :func:`~viren2d.Painter.draw_xyz_axes`.
 
-* TODO ground plane
-
-* TODO horizon
+* Estimate and overlay the line of horizon via :func:`~viren2d.Painter.draw_horizon_line`.
 
 
 .. image:: ../images/pinhole-camera.png
@@ -21,10 +19,10 @@ the following utilities:
    :alt: Pinhole camera visualizations
    :align: center
 
-This visualization has been created with the following Python code:
+Corresponding Python example code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/pinhole.py
    :language: python
-   :emphasize-lines: 24-26
+   :emphasize-lines: 24-26, 34-35
    :lines: 6-
    :linenos:

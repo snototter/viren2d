@@ -31,15 +31,34 @@ def _overlay_axes(painter, K, R, t):
         lengths=(48, 48, 48), arrow_style=arrow_style)
 
 
+def _overlay_horizon(painter, K, R, t):
+    """Draws the approximated line of horizon."""
+    line_style = viren2d.LineStyle(
+        width=7, color=viren2d.axis_color('z'), dash_pattern=[40, 50],
+        cap='round')
+    horizon_from, horizon_to = painter.draw_horizon_line(
+        K=K, R=R, t=t, line_style=line_style)
+    # Add a label
+    text_style = viren2d.TextStyle(family='xkcd', size=29, color='#1a1c1d')
+    line_style.width = 3
+    line_style.dash_pattern = []
+    painter.draw_text_box(
+        ['Line of Horizon'],
+        position=(horizon_from + horizon_to) * 0.8 + (0, 8),
+        anchor='top', text_style=text_style, padding=(10, 6),
+        line_style=line_style, fill_color='#c0bab1c0')
+
+
 def demo_pinhole():
     """Visualizations for calibrated pinhole cameras"""
     img, K, R, t = _example_calibration()
     painter1 = viren2d.Painter(img)
 
-    # Visualize origin/world reference frame:
+    # Visualize origin/world reference frame:  #TODO WIP - needs 3d line clipping
     _overlay_axes(painter1, K, R, t)
 
-    # TODO Visualize line of horizon
+    # Visualize line of horizon
+    _overlay_horizon(painter1, K, R, t)
 
     # TODO Visualize ground plane
 
