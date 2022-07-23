@@ -28,6 +28,31 @@ Arrow shapes can easily be customized:
    :dedent: 4
 
 
+.. _tutorial-draw-circles:
+
+...............
+Circles & Lines
+...............
+
+The following example shows basic line & circle drawings:
+
+.. image:: ../images/circle-tangents.png
+   :width: 512
+   :alt: Circles
+   :align: center
+
+This example is C++ only, because ``viren2d`` focuses on visualization and
+thus, does not provide Python bindings for the tangent computation. This
+geometric functionality is available in C++ via the
+`werkzeugkiste::geometry library <https://github.com/snototter/werkzeugkiste>`__:
+
+.. literalinclude:: ../../../examples/demo-cpp/demo_utils/demos_shapes.cpp
+   :language: cpp
+   :lines: 13-101
+   :emphasize-lines: 21, 38, 42-47
+   :linenos:
+
+
 .. _tutorial-draw-ellipses:
 
 ........
@@ -70,3 +95,4 @@ Rectangles can be drawn in a variety of configurations:
    :linenos:
    :dedent: 4
    :emphasize-lines: 7, 10, 15, 18, 24, 27
+

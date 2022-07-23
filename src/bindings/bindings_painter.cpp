@@ -7,6 +7,7 @@
 
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
+#include <pybind11/eigen.h>
 
 #include <bindings/binding_helpers.h>
 

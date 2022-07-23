@@ -1,6 +1,6 @@
 import numpy as np
 import viren2d
-import os
+from rtd_demo_images.constants import EXAMPLE_DATA_PATH
 
 
 def demo_relief_shading():
@@ -15,8 +15,7 @@ def demo_relief_shading():
     text_style = viren2d.TextStyle(family='xkcd', size=21)
 
     # Load the relief data & crop to some craters on the upper-left quadrant:
-    moon_full = viren2d.load_image_uint8(
-        os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'data', 'lunar-farside.jpg'))
+    moon_full = viren2d.load_image_uint8(EXAMPLE_DATA_PATH / 'lunar-farside.jpg')
     moon = moon_full.roi(left=200, top=200, width=200, height=200)
 
     cmap_names = ['Earth', 'Relief', 'Relief Low Contrast']
@@ -105,19 +104,17 @@ def demo_colormaps():
 
     return np.array(painter.canvas, copy=True)
 
-
+#FUCK fixme
 def demo_colorize_labels():
     try:
         from PIL import Image
-        data_path = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), '..', '..', 'data')
 
         class_labels = viren2d.load_image_uint8(
-            os.path.join(data_path, 'semseg-classes.png'))
+            EXAMPLE_DATA_PATH / 'semseg-classes.png')
         # Instance labels are stored as 16-bit png, requires Pillow or any
         # other external library to load properly:
         instance_labels = np.array(
-            Image.open(os.path.join(data_path, 'semseg-instances.png')))
+            Image.open(str(EXAMPLE_DATA_PATH / 'semseg-instances.png')))
         
         text_style = viren2d.TextStyle(
             family='xkcd', size=21, color='white')

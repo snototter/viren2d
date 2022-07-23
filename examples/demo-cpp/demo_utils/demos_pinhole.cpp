@@ -62,7 +62,7 @@ void DemoPinhole() {
 
   painter->DrawXYZAxes(
         K, R, t, {12, 12, 0}, Vec3d::All(48),
-        ArrowStyle(7, Color::Black, 30, 25, false));
+        ArrowStyle(7, Color::Black, 35, 25, false));
 
   ProcessDemoOutput(painter->GetCanvas(false), "demo-output-pinhole.png");
 }

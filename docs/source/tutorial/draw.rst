@@ -70,6 +70,6 @@ visualization from the :class:`~viren2d.Painter`:
    (Snake case in Python *vs.* camel case in C++), both APIs are highly
    similar.
 
-   Thus, the rest of this tutorial omits the C++ examples. The corresponding
-   C++ counterpart will instead be mentioned in the corresponding
-   Python :ref:`API documentation<api-documentation>`.
+   Thus, the rest of this tutorial will mostly omit the C++ examples. The
+   corresponding C++ counterpart will instead be mentioned in the
+   :ref:`API documentation<api-documentation>` of the Python bindings.

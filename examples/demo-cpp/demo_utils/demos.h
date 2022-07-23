@@ -18,6 +18,8 @@ void DemoBoundingBoxes2D();
 
 void DemoCircles();
 
+void DemoCircleTangents();
+
 void DemoColorMaps();
 
 void DemoImageBufferConversionOpenCV();
@@ -33,8 +35,6 @@ void DemoPinhole();
 void DemoPolygons();
 
 void DemoRects();
-
-void DemoTangents();
 
 void DemoText();
 

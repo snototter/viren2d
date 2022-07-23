@@ -51,6 +51,7 @@ void Showcase() {
 //  DemoArrows();
 //  DemoBoundingBoxes2D();
 //  DemoCircles();
+  DemoCircleTangents();
 //  DemoColorMaps();
 //  DemoImageBufferConversionOpenCV();
 //  DemoLines();
@@ -59,7 +60,6 @@ void Showcase() {
   DemoPinhole();
 //  DemoPolygons();
 //  DemoRects();
-  DemoTangents();
 //  DemoText();
 //  DemoTrajectories();
 }

@@ -164,6 +164,21 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
 }
 
 
+std::string PathFromPyObject(const py::object &path) {
+  if (py::isinstance<py::str>(path)) {
+    return path.cast<std::string>();
+  } else {
+    return py::str(path).cast<std::string>();
+  }
+}
+
+
+ImageBuffer LoadImageUInt8Helper(
+    const py::object &path, int force_num_channels) {
+  return LoadImageUInt8(PathFromPyObject(path), force_num_channels);
+}
+
+
 void RegisterImageBuffer(py::module &m) {
   py::class_<ImageBuffer> imgbuf(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
         Encapsulates image data.
@@ -532,7 +547,7 @@ void RegisterImageBuffer(py::module &m) {
 
 
   m.def("load_image_uint8",
-        &LoadImageUInt8, R"docstr(
+        &LoadImageUInt8Helper, R"docstr(
         Reads an 8-bit image from disk.
 
         This functionality uses the
