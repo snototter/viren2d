@@ -13,6 +13,12 @@ color maps.
 .. autoclass:: viren2d.ColorMap
 
 
+.. autofunction:: viren2d.get_colormap
+
+
+.. autofunction:: viren2d.set_custom_colormap
+
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Label/Category Colorization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -107,6 +107,24 @@ void RegisterColorMapEnum(pybind11::module &m) {
         `matplotlib's <https://matplotlib.org>`__ *copper* map.
         )docstr")
       .value(
+        "Custom1",
+        ColorMap::Custom1, R"docstr(
+        A color map which can freely be set by the user via
+        :func:`~viren2d.set_custom_colormap`.
+        )docstr")
+      .value(
+        "Custom2",
+        ColorMap::Custom2, R"docstr(
+        A color map which can freely be set by the user via
+        :func:`~viren2d.set_custom_colormap`.
+        )docstr")
+      .value(
+        "Custom3",
+        ColorMap::Custom3, R"docstr(
+        A color map which can freely be set by the user via
+        :func:`~viren2d.set_custom_colormap`.
+        )docstr")
+      .value(
         "Disparity",
         ColorMap::Disparity, R"docstr(
         High contrast color map for depth & disparity images.
@@ -374,7 +392,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
       Returns all :class:`~viren2d.ColorMap` values.
 
       Convenience utility to easily iterate all enumeration
-      values.
+      values. This list **will not** include the customizable
+      enumeration values.
 
       **Corresponding C++ API:** ``viren2d::ListColorMaps``.
       )docstr";
@@ -435,6 +454,19 @@ StreamColorizer CreateStreamColorizer(
   ColorMap cm = ColorMapFromPyObject(colormap);
   StreamColorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
   return StreamColorizer(cm, lm, bins, output_channels, low, high);
+}
+
+
+void SetCustomColorMapHelper(
+    const py::object &colormap, const std::vector<Color> &colors) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
+  SetCustomColorMap(cm, colors);
+}
+
+
+std::vector<Color> GetColorMapColorsHelper(const py::object &colormap) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
+  return GetColorMapColors(cm);
 }
 
 
@@ -605,6 +637,49 @@ void RegisterColormaps(pybind11::module &m) {
 
           **Corresponding C++ API:** ``viren2d::StreamColorizer::GetColorMap/SetColorMap``.
         )docstr");
+
+
+  m.def("get_colormap",
+        &GetColorMapColorsHelper, R"docstr(
+        Returns the :class:`list` of :class:`~viren2d.Color` for the
+        specified color map.
+
+        **Corresponding C++ API:** ``viren2d::GetColorMapColors``.
+
+        Args:
+          colormap: The :class:`~viren2d.ColorMap` enumeration value or its
+            string representation.
+
+        Example:
+          >>> colors = viren2d.get_colormap('ocean')
+        )docstr",
+        py::arg("colormap"));
+
+
+  m.def("set_custom_colormap",
+        &SetCustomColorMapHelper, R"docstr(
+        Registers a customized color map.
+
+        Allows library users to register their own color maps for the
+        enumeration values :attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`,
+        and :attr:`ColorMap.Custom3`.
+
+        **Corresponding C++ API:** ``viren2d::SetCustomColorMap``.
+
+        Args:
+          id: The :class:`~viren2d.ColorMap` enumeration value under which to
+            register the color map. Also accepts the corresponding string
+            representation.
+          colors: The color map as :class:`list` of :class:`~viren2d.Color`.
+            Note that a :class:`~viren2d.Color` is defined by
+            :math:`r,g,b \in [0,1]`.
+
+        Example:
+          >>> viren2d.set_custom_colormap(
+          >>>     'custom1', ['#00ffff', 'maroon', (1, 0, 1)])
+        )docstr",
+        py::arg("id"),
+        py::arg("colors"));
 
 
   m.def("colorize_scaled",

@@ -2949,7 +2949,58 @@ constexpr RGBColor kColorMapYarg[] = {
 constexpr std::size_t kBinsYarg = sizeof(kColorMapYarg) / sizeof(kColorMapYarg[0]);
 
 
+// Users can define up to 3 custom color maps
+std::vector<RGBColor> ColorMapCustom1;
+std::vector<RGBColor> ColorMapCustom2;
+std::vector<RGBColor> ColorMapCustom3;
+
+
+// Helper to populate the custom color maps
+void SetUserDefinedColorMapHelper(
+    std::vector<RGBColor> &map, const std::vector<RGBColor> &colors) {
+  map.clear();
+  for (const auto &c : colors) {
+    map.push_back(c);
+  }
+}
+
+
+void SetUserDefinedColorMap(
+    ColorMap colormap, const std::vector<RGBColor> &colors) {
+  switch (colormap) {
+    case ColorMap::Custom1:
+      SetUserDefinedColorMapHelper(ColorMapCustom1, colors);
+      break;
+
+    case ColorMap::Custom2:
+      SetUserDefinedColorMapHelper(ColorMapCustom2, colors);
+      break;
+
+    case ColorMap::Custom3:
+      SetUserDefinedColorMapHelper(ColorMapCustom3, colors);
+      break;
+
+    default: {
+        std::string s(
+              "A custom color map can only be registered for one of the "
+              "`ColorMap::Custom#` enumeration values, but got: `");
+        s += ColorMapToString(colormap);
+        s += "`!";
+        throw std::invalid_argument(s);
+      }
+  }
+}
+
+
 std::pair<const RGBColor *, std::size_t> GetColorMap(ColorMap colormap) {
+  // Sanity check for user-defined color maps:
+  if (((colormap == ColorMap::Custom1) && (ColorMapCustom1.size() == 0))
+      || ((colormap == ColorMap::Custom2) && (ColorMapCustom2.size() == 0))
+      || ((colormap == ColorMap::Custom3) && (ColorMapCustom3.size() == 0))) {
+    throw std::logic_error(
+          "Cannot load user-defined color map, as it has not been initialized!");
+  }
+
   switch(colormap) {
     case ColorMap::Autumn:
       return std::make_pair(kColorMapAutumn, kBinsAutumn);
@@ -2980,6 +3031,15 @@ std::pair<const RGBColor *, std::size_t> GetColorMap(ColorMap colormap) {
             kBinsColorBlindSequentialVivid);
     case ColorMap::Copper:
       return std::make_pair(kColorMapCopper, kBinsCopper);
+    case ColorMap::Custom1:
+      return std::make_pair(
+            &ColorMapCustom1[0], ColorMapCustom1.size());
+    case ColorMap::Custom2:
+      return std::make_pair(
+            &ColorMapCustom2[0], ColorMapCustom2.size());
+    case ColorMap::Custom3:
+      return std::make_pair(
+            &ColorMapCustom3[0], ColorMapCustom3.size());
     case ColorMap::Disparity:
       return std::make_pair(kColorMapDisparity, kBinsDisparity);
     case ColorMap::Earth:

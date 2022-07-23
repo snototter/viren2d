@@ -116,3 +116,11 @@ representing thermographic (``thermal``), topographic (``earth``, ``ocean``,
    :alt: Specialized color maps
    :align: center
 
+
+.................
+User-Customizable
+.................
+
+If you need other than the provided color maps, you can register your custom
+color maps via :func:`~viren2d.set_custom_colormap`. These can then be used
+analogously to the predefined color maps.

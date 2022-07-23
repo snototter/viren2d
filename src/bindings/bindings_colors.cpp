@@ -194,10 +194,10 @@ void RegisterColor(py::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const Color &c) { return "<Color" + c.ToUInt8String() + '>'; })
+        [](const Color &c) { return "<Color" + c.ToUInt8String(false) + '>'; })
       .def(
         "__str__",
-        &Color::ToUInt8String)
+        [](const Color &c) { return c.ToUInt8String(false); })
       .def(
         py::pickle(&ColorToTuple, &ColorFromTuple),
         ":class:`~viren2d.Color` instances can be pickled.");
