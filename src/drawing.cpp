@@ -334,9 +334,6 @@ protected:
       const Color &color_z) override {
     SPDLOG_DEBUG(
           "DrawXYZAxes: Axis lengths {:s}.", lengths);
-//    SPDLOG_TRACE(
-//          "FIXME\nK={:s}, R={:s}, t={:s}",
-//          K, R, t);
     return helpers::DrawXYZAxes(
           surface_, context_, K, R, t, origin, lengths, style,
           color_x, color_y, color_z, GetCanvasSize());

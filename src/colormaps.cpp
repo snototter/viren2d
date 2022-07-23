@@ -592,7 +592,6 @@ ImageBuffer ColorizeScaled(
 
 ImageBuffer ColorizeLabels(
     const ImageBuffer &labels, ColorMap colormap, int output_channels) {
-  //FIXME extend image buffer with int64
   SPDLOG_DEBUG(
         "Colorize labels: {:s} with {:s}.",
         labels.ToString(), ColorMapToString(colormap));
