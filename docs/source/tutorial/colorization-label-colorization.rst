@@ -23,7 +23,7 @@ Corresponding colorization code:
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
    :language: python
    :emphasize-lines: 13-14, 27-28
-   :lines: 115-151
+   :lines: 112-148
    :linenos:
    :dedent: 8
 

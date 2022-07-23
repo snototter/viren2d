@@ -25,6 +25,6 @@ This visualization has been created with the following Python code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/pinhole.py
    :language: python
-   :emphasize-lines: 2-4, 53, 55, 58, 60
-   :lines: 5-
+   :emphasize-lines: 24-26
+   :lines: 6-
    :linenos:
