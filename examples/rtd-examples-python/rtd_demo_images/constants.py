@@ -1,3 +1,4 @@
 from pathlib import Path
 
-EXAMPLE_DATA_PATH = Path(__file__).absolute().parents[2] / 'data'
+VIREN2D_ROOT_PATH = Path(__file__).absolute().parents[3]
+VIREN2D_DATA_PATH = VIREN2D_ROOT_PATH / 'examples' / 'data'

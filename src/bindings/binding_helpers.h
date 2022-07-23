@@ -63,6 +63,7 @@ void RegisterBoundingBox2DStyle(pybind11::module &m);
 void RegisterVectors(pybind11::module &m);
 
 //-------------------------------------------------  Painter
+std::string PathStringFromPyObject(const pybind11::object &path);
 void RegisterImageBuffer(pybind11::module &m);
 void RegisterPainter(pybind11::module &m);
 

@@ -1,6 +1,5 @@
 """This script renders all images included in the RTD documentation."""
 import numpy as np
-from pathlib import Path
 from vito import imvis, imutils
 
 from rtd_demo_images import *
@@ -17,7 +16,7 @@ def _process_result(
     if show_image:
         imvis.imshow(img, wait_ms=-1) # ignore the title
     if save_image:
-        output_folder = Path(__file__).absolute().parents[2] / 'docs' / 'source' / 'images'
+        output_folder = VIREN2D_ROOT_PATH / 'docs' / 'source' / 'images'
         imutils.imsave(output_folder / filename, img)
 
 
@@ -135,8 +134,8 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 
 
 if __name__ == '__main__':
-    # render_rtd_demos(True, True)
-    # render_rtd_cheatsheets(True, True)
-    img = demo_pinhole()
-    _process_result(
-        img, True, 'Pinhole Camera', True, 'pinhole-camera.png')
+    render_rtd_demos(True, True)
+    render_rtd_cheatsheets(True, True)
+    # img = demo_pinhole()
+    # _process_result(
+    #     img, True, 'Pinhole Camera', True, 'pinhole-camera.png')

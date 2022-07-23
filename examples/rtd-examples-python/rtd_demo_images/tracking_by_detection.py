@@ -1,13 +1,12 @@
 from turtle import bgcolor
 import numpy as np
 import viren2d
-from pathlib import Path
+from rtd_demo_images.constants import VIREN2D_DATA_PATH
 
 
 def demo_tracking_by_detection():
     painter = viren2d.Painter()
-    painter.set_canvas_filename(
-        str(Path(__file__).absolute().parents[2] / 'data' / 'ninja.jpg'))
+    painter.set_canvas_filename(VIREN2D_DATA_PATH / 'ninja.jpg')
 
     line_style = viren2d.LineStyle(width=4, color='navy-blue!80')
     

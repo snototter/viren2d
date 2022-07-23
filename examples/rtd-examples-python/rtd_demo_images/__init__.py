@@ -1,3 +1,4 @@
+from rtd_demo_images.constants import *
 from rtd_demo_images.color_names import demo_color_names
 from rtd_demo_images.markers import cheat_sheet_markers
 from rtd_demo_images.text import demo_text_anchors, demo_multiline_text

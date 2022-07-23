@@ -29,16 +29,27 @@ ImageBuffer OpticalFlowLegendHelper(
 }
 
 
-void RegisterOpticalFlowUtils(pybind11::module &m) {
+ImageBuffer LoadOpticalFlowHelper(const py::object &path) {
+  return LoadOpticalFlow(PathStringFromPyObject(path));
+}
+
+
+void SaveOpticalFlowHelper(const py::object &path, const ImageBuffer &flow) {
+  SaveOpticalFlow(PathStringFromPyObject(path), flow);
+}
+
+
+void RegisterOpticalFlowUtils(py::module &m) {
   m.def("save_optical_flow",
-        &SaveOpticalFlow, R"docstr(
+        &SaveOpticalFlowHelper, R"docstr(
         Saves a two-band optical flow field as ``.flo`` file.
 
         **Corresponding C++ API:** ``viren2d::SaveOpticalFlow``.
 
         Args:
-          filename: The output filename as :class:`str`. The calling code must
-            ensure that the directory hierarchy exists.
+          filename: The output filename as :class:`str` or
+            :class:`pathlib.Path`. The calling code must ensure that the
+            directory hierarchy exists.
           flow: The optical flow data as 2-channel
             :class:`~viren2d.ImageBuffer` which should be written to disk.
             Must be of type :class:`numpy.float32` or :class:`numpy.float64`.
@@ -47,13 +58,14 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
 
 
   m.def("load_optical_flow",
-        &LoadOpticalFlow, R"docstr(
+        &LoadOpticalFlowHelper, R"docstr(
         Loads an optical flow field from a ``.flo`` file.
 
         **Corresponding C++ API:** ``viren2d::LoadOpticalFlow``.
 
         Args:
-          filename: The path to the ``.flo`` file as :class:`str`.
+          filename: The path to the ``.flo`` file as :class:`str` or
+            :class:`pathlib.Path`.
 
         Returns:
           A 2-channel :class:`~viren2d.ImageBuffer` of

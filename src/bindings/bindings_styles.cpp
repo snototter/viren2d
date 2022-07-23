@@ -214,13 +214,13 @@ void RegisterMarker(pybind11::module &m) {
         Marker::Reticle, R"docstr(
         A plus with a :math:`\text{thickness} \times \text{thickness}` hole in
         the middle, char representation: ``'r'``.
-        The hole will always be at least :math:`3 \times 3` pixels.
+        The hole will always be at least :math:`4 \times 4` pixels.
         )docstr")
       .value(
         "RotatedReticle",
         Marker::RotatedReticle, R"docstr(
         A cross with a :math:`\text{thickness} \times \text{thickness}` hole in
-        the middle, char representation: ``'r'``.
+        the middle, char representation: ``'R'``.
         The hole will always be at least :math:`4 \times 4` pixels.
         )docstr")
       .value(

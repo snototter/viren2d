@@ -164,7 +164,7 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
 }
 
 
-std::string PathFromPyObject(const py::object &path) {
+std::string PathStringFromPyObject(const py::object &path) {
   if (py::isinstance<py::str>(path)) {
     return path.cast<std::string>();
   } else {
@@ -175,7 +175,13 @@ std::string PathFromPyObject(const py::object &path) {
 
 ImageBuffer LoadImageUInt8Helper(
     const py::object &path, int force_num_channels) {
-  return LoadImageUInt8(PathFromPyObject(path), force_num_channels);
+  return LoadImageUInt8(PathStringFromPyObject(path), force_num_channels);
+}
+
+
+void SaveImageUInt8Helper(
+    const py::object &path, const ImageBuffer &image) {
+  SaveImageUInt8(PathStringFromPyObject(path), image);
 }
 
 
@@ -423,13 +429,18 @@ void RegisterImageBuffer(py::module &m) {
 
         **Corresponding C++ API:** ``viren2d::ImageBuffer::MinMaxLocation``.
 
+        Args:
+          channel: Zero-based channel index. If called on a single-channel
+            buffer, a negative value will automatically changed to 0.
+            Otherwise, negative values will raise an :class:`IndexError`.
+
         Returns:
           A :class:`tuple` which contains ``(min_val, max_val, min_loc, max_loc)``,
           where ``min_val`` & ``max_val`` are the extremal values of the selected
           channel as :class:`float` and ``min_loc`` & ``max_loc`` are the
           *x* & *y* positions as :class:`~viren2d.Vec2i`.
         )docstr",
-        py::arg("channel"))
+        py::arg("channel") = -1)
       .def(
         "blend",
         &ImageBuffer::Blend, R"docstr(
@@ -525,7 +536,7 @@ void RegisterImageBuffer(py::module &m) {
 
 
   m.def("save_image_uint8",
-        &SaveImageUInt8, R"docstr(
+        &SaveImageUInt8Helper, R"docstr(
         Stores an 8-bit image to disk as either JPEG or PNG.
 
         Note that PNG output will usually result in 20-50% larger files in
@@ -537,9 +548,9 @@ void RegisterImageBuffer(py::module &m) {
         **Corresponding C++ API:** ``viren2d::SaveImageUInt8``.
 
         Args:
-          filename: The output filename as :class:`str`. The
-            calling code must ensure that the directory
-            hierarchy exists.
+          filename: The output filename as :class:`str` or
+            :class:`pathlib.Path`. The calling code must ensure that the
+            directory hierarchy exists.
           image: The :class:`~viren2d.ImageBuffer` which
             should be written to disk.
         )docstr",
@@ -559,7 +570,8 @@ void RegisterImageBuffer(py::module &m) {
         **Corresponding C++ API:** ``viren2d::LoadImageUInt8``.
 
         Args:
-          filename: The path to the image file as :class:`str`.
+          filename: The path to the image file as :class:`str` or
+            :class:`pathlib.Path`.
           force_channels: An :class:`int` which is used to
             force the number of loaded channels, *e.g.* to
             load a JPEG into RGBA format with ``force_channels = 4``.

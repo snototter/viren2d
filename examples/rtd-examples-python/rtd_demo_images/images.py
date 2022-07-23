@@ -1,6 +1,6 @@
 import viren2d
 import numpy as np
-from pathlib import Path
+from rtd_demo_images.constants import VIREN2D_DATA_PATH
 
 
 def demo_image_anchors():
@@ -60,8 +60,7 @@ def demo_image_overlay():
     # FIXME change this to something actually useful for the rtd doc! --> could overlay optical flow...
     painter = viren2d.Painter()
 
-    img_buf = viren2d.load_image_uint8(
-        str(Path(__file__).absolute().parents[2] / 'data' / 'ninja.jpg'))
+    img_buf = viren2d.load_image_uint8(VIREN2D_DATA_PATH / 'ninja.jpg')
 
     painter.set_canvas_rgb(width=600, height=400, color='white')
     

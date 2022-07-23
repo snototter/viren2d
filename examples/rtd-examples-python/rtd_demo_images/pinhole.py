@@ -1,12 +1,11 @@
 import viren2d
 import numpy as np
-from pathlib import Path
-from rtd_demo_images.constants import EXAMPLE_DATA_PATH
+from rtd_demo_images.constants import VIREN2D_DATA_PATH
 
 
 def _example_calibration():
     """Example image (`ninja`) and its calibration (estimated via PnP)."""
-    img = viren2d.load_image_uint8(EXAMPLE_DATA_PATH / 'ninja.jpg')
+    img = viren2d.load_image_uint8(VIREN2D_DATA_PATH / 'ninja.jpg')
     K = np.array(
         [[523.17808219,   0.0,        341.0],
          [  0.0,        523.17808219, 256.0],
@@ -46,7 +45,7 @@ def demo_pinhole():
 
     # Create the collage:
     canvas_width = 600
-    canvas_height = 250
+    canvas_height = 255
     padding = 5
     scale = (canvas_width / 2 - 2 * padding) / img.shape[1]
     painter_comb = viren2d.Painter(
@@ -60,10 +59,10 @@ def demo_pinhole():
         painter1.canvas,  position=(padding, padding), anchor='top-left',
         scale_x=scale, scale_y=scale, clip_factor=0.1)
     painter_comb.draw_text_box(
-        ['Axes & Horizon'],
-        position=(canvas_width / 4, canvas_height - padding), anchor='bottom',
-        fill_color=bg_color, text_style=text_style, line_style=line_style,
-        padding=(10, 6))
+        ['Axes & Horizon (TBD)'],  # TODO update text once finished
+        position=(canvas_width / 4, canvas_height - 2 * padding),
+        anchor='bottom', fill_color=bg_color, text_style=text_style,
+        line_style=line_style, padding=(10, 6))
 
     # TODO Replace by ground plane visualization
     dampened = (0.2 * np.array(img)).astype(np.uint8)
@@ -71,8 +70,8 @@ def demo_pinhole():
         dampened,  position=(canvas_width - padding, padding),
         anchor='top-right', scale_x=scale, scale_y=scale, clip_factor=0.1)
     painter_comb.draw_text_box(
-        ['Ground plane (TBD)'],
-        position=(3 * canvas_width / 4, canvas_height - padding),
+        ['Ground plane (TBD)'],  # TODO update text once finished
+        position=(3 * canvas_width / 4, canvas_height - 2 * padding),
         anchor='bottom', fill_color=bg_color, text_style=text_style,
         line_style=line_style, padding=(10, 6))
 

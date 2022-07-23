@@ -61,8 +61,8 @@ public:
   }
 
 
-  void SetCanvasFilename(const std::string &image_filename) {
-    painter_->SetCanvas(image_filename);
+  void SetCanvasFilename(const py::object &image_filename) {
+    painter_->SetCanvas(PathStringFromPyObject(image_filename));
   }
 
 
@@ -79,6 +79,12 @@ public:
   py::tuple GetCanvasSize() {
     auto sz = painter_->GetCanvasSize();
     return py::make_tuple(sz.x(), sz.y());
+  }
+
+
+  void SaveCanvas(const py::object &path) {
+    ImageBuffer canvas = painter_->GetCanvas(false);
+    SaveImageUInt8(PathStringFromPyObject(path), canvas);
   }
 
 
@@ -532,7 +538,35 @@ void RegisterPainter(py::module &m) {
             you display/process the visualization, use the shared view
             (*i.e.* ``copy = False``) on its canvas to avoid unnecessary
             memory allocation.
-        )docstr", py::arg("copy") = true);
+        )docstr",
+        py::arg("copy") = true);
+
+
+  painter.def(
+        "save_canvas",
+        &PainterWrapper::SaveCanvas, R"docstr(
+        Saves the current visualization to disk.
+
+        This method is provided only for convenience and simply calls
+        :func:`~viren2d.Painter.get_canvas` and
+        :func:`~viren2d.save_image_uint8`. Check their documentation
+        to be aware about the shortcomings (since ``viren2d`` is not
+        an image I/O library).
+
+        **No corresponding C++ API:** Use ``viren2d::Painter::GetCanvas``
+        and ``viren2d::Painter::SaveImageUInt8`` (or preferably a proper
+        image I/O library) instead.
+
+        Args:
+          filename: The output filename as :class:`str` or
+            :class:`pathlib.Path`. The calling code must ensure that the
+            directory hierarchy exists.
+
+        Example:
+          >>> output_folder = pathlib.Path(...)
+          >>> painter.save_canvas(output_folder / 'visualization.jpg')
+        )docstr",
+        py::arg("filename"));
 
 
   //----------------------------------------------------------------------
