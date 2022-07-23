@@ -13,6 +13,15 @@ color maps.
 .. autoclass:: viren2d.ColorMap
 
 
+~~~~~~~~~~~~~~~~~
+Custom Color Maps
+~~~~~~~~~~~~~~~~~
+
+Use :func:`~viren2d.set_custom_colormap` to register a custom color map.
+Additionally, :func:`~viren2d.get_colormap` can be used to retrieve the colors
+of a predefined map, which can then be adjusted to your application needs.
+
+
 .. autofunction:: viren2d.get_colormap
 
 

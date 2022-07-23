@@ -395,8 +395,11 @@ void RegisterTextStyle(py::module &m) {
 
   text_style.def(
         "copy",
-        [](const TextStyle &st) { return TextStyle(st); },
-        "Returns a deep copy.")
+        [](const TextStyle &st) { return TextStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::TextStyle``.
+        )docstr")
       .def(
         "__repr__",
         [](const TextStyle &st) {

@@ -117,10 +117,11 @@ representing thermographic (``thermal``), topographic (``earth``, ``ocean``,
    :align: center
 
 
-.................
-User-Customizable
-.................
+...................
+User-Defined Colors
+...................
 
-If you need other than the provided color maps, you can register your custom
+If you need other than the provided color maps, you can define your custom
 color maps via :func:`~viren2d.set_custom_colormap`. These can then be used
-analogously to the predefined color maps.
+analogously to the predefined color maps via the enumeration values
+:attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`, *etc.*

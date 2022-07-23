@@ -174,8 +174,13 @@ void RegisterEllipse(pybind11::module &m) {
       )docstr";
   ellipse.def(py::init<>(&EllipseFromTupleOrList), doc.c_str(), py::arg("tpl"));
 
-  ellipse.def("copy", [](const Ellipse &e) { return Ellipse(e); },
-           "Returns a deep copy.")
+  ellipse.def(
+        "copy",
+        [](const Ellipse &e) { return Ellipse(e); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::Ellipse``.
+        )docstr")
       .def("__repr__",
            [](const Ellipse &e)
            { return "<Ellipse" + e.ToString() + ">"; })
@@ -465,7 +470,11 @@ void RegisterRectangle(py::module &m) {
 
   rect.def(
         "copy",
-        [](const Rect &r) { return Rect(r); }, "Returns a deep copy.")
+        [](const Rect &r) { return Rect(r); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::Rect``.
+        )docstr")
       .def(
         "__repr__",
         [](const Rect &) { return FullyQualifiedType("Rect", true); })

@@ -121,7 +121,7 @@ void RegisterColor(py::module &m) {
            >>> # Mistakenly specifying a color as `RGB` tuple instead of `rgb`:
            >>> painter.draw_polygon(..., fill_color=(20, 20, 75))
 
-           To specify a color as *RGB*, use :func:`~viren2d.RGBa` instead:
+           To specify a color as **RGB**, use :func:`~viren2d.RGBa` instead:
 
            >>> # Correctly specifying a color as `RGB`:
            >>> painter.draw_polygon(..., fill_color=viren2d.RGBa(20, 20, 75))
@@ -137,7 +137,7 @@ void RegisterColor(py::module &m) {
         )docstr")
       .def(
         py::init<>(&ColorFromTuple), R"docstr(
-        Initializes the color from a *rgb* or *rgba* ``tuple``.
+        Initializes the color from a **r,g,b** or **r,g,b,a** ``tuple``.
 
         Each value must be a floating point number within ``[0, 1]``.
         The alpha value will be set to 1 if not provided.
@@ -190,8 +190,11 @@ void RegisterColor(py::module &m) {
         py::arg("alpha") = 1.0)
       .def(
         "copy",
-        [](const Color &c) { return Color(c); },
-        "Returns a deep copy.")
+        [](const Color &c) { return Color(c); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::Color``.
+        )docstr")
       .def(
         "__repr__",
         [](const Color &c) { return "<Color" + c.ToUInt8String(false) + '>'; })
@@ -344,7 +347,7 @@ void RegisterColor(py::module &m) {
 
         The web/hex code representation will contain 8 components,
         *i.e.* it includes the alpha value. To compute the hexadecimal
-        representation, each component (*rgba*) is first scaled to
+        representation, each component (*i.e.* **r,g,b,a**) is first scaled to
         ``[0, 255]``.
 
         **Corresponding C++ API:** ``viren2d::Color::ToHexString``.

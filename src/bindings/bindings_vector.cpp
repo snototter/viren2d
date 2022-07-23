@@ -301,11 +301,16 @@ void RegisterVec(py::module &m) {
       .def(
         "__getitem__",
         [](const VC &self, int index) -> _Tp { return self[index]; },
-        "Allows accessing this vector's values via ``vec[i]``.")
-      .def(
+        "Allows accessing this vector's values via ``vec[i]``.");
+
+  std::ostringstream().swap(doc);
+  doc << "Returns a deep copy.\n\n"
+         "**Corresponding C++ API:** Copy constructor of ``viren2d::``."
+      << VC::TypeName() << "``.";
+  vec_cls.def(
         "copy",
         [](const VC &self) { return VC(self); },
-        "Returns a deep copy.");
+        doc.str().c_str());
 
 
   std::ostringstream().swap(doc);

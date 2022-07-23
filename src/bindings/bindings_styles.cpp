@@ -467,8 +467,33 @@ void RegisterMarkerStyle(pybind11::module &m) {
             py::arg("cap") = default_style.cap,
             py::arg("join") = default_style.join);
 
-  style.def("copy", [](const MarkerStyle &st) { return MarkerStyle(st); },
-           "Returns a deep copy.")
+
+  style.def(
+    "cap_offset",
+    &MarkerStyle::CapOffset,
+    "Computes how much the line cap will extend the start/end of the lines.")
+  .def(
+    "join_offset",
+    &MarkerStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter (see LineStyle bindings)
+    "Computes how much a line join will extend the joint.\n\n"
+    "The ``interior_angle`` is the angle between two line segments\n"
+    "in degrees.\n"
+    "This method needs to know the ``miter_limit`` because Cairo switches\n"
+    "from ``MITER`` to ``BEVEL`` if the ``miter_limit`` is exceeded.\n"
+    "Refer to the "
+    "`Cairo documentation <https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit>`__ "
+    "for details.",
+    py::arg("interior_angle"),
+    py::arg("miter_limit") = 10.0);
+
+
+  style.def(
+        "copy",
+        [](const MarkerStyle &st) { return MarkerStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::MarkerStyle``.
+        )docstr")
       .def("__repr__",
            [](const MarkerStyle &st) {
              return "<" + st.ToString() + ">";
@@ -689,11 +714,14 @@ void RegisterLineStyle(pybind11::module &m) {
 
   line_style.def(
         "copy",
-        [](const LineStyle &st) { return LineStyle(st); },
-        "Returns a deep copy.")
+        [](const LineStyle &st) { return LineStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::LineStyle``.
+        )docstr")
       .def(
         "__repr__",
-        [](const LineStyle &) { return "<LineStyle>";}) //FIXME add style summary
+        [](const LineStyle &l) { return "<" + l.ToString() + ">";})
       .def(
         "__str__",
         &LineStyle::ToString)
@@ -721,7 +749,7 @@ void RegisterLineStyle(pybind11::module &m) {
         "line's start/end.")
       .def(
         "join_offset",
-        &LineStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter //FIXME add to markerstyle, too!
+        &LineStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter
         "Computes how much a line join will extend the joint.\n\n"
         "The ``interior_angle`` is the angle between two line segments\n"
         "in degrees.\n"
@@ -960,11 +988,14 @@ void RegisterArrowStyle(pybind11::module &m) {
 
   arrow_style.def(
         "copy",
-        [](const ArrowStyle &st) { return ArrowStyle(st); },
-        "Returns a deep copy.")
+        [](const ArrowStyle &st) { return ArrowStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::ArrowStyle``.
+        )docstr")
       .def(
         "__repr__",
-        [](const ArrowStyle &) { return "<ArrowStyle>"; }) //FIXME add style summary
+        [](const ArrowStyle &a) { return "<" + a.ToString() + ">"; })
       .def(
         "__str__",
         &ArrowStyle::ToString)
@@ -1146,12 +1177,15 @@ void RegisterBoundingBox2DStyle(py::module &m) {
 
   bbox_style.def(
         "copy",
-        [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); },
-        "Returns a deep copy.")
+        [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::BoundingBox2DStyle``.
+        )docstr")
       .def(
         "__repr__",
-        [](const BoundingBox2DStyle &)
-        { return "<BoundingBox2DStyle>"; }) //FIXME add summary
+        [](const BoundingBox2DStyle &bb)
+        { return "<" + bb.ToString() + ">"; })
       .def(
         "__str__",
         &BoundingBox2DStyle::ToString)

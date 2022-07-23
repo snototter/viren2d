@@ -844,7 +844,7 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
 std::string BoundingBox2DStyle::ToString() const {
   std::ostringstream s;
   s << "BoundingBox2DStyle("
-    << line_style << ", " << text_style
+    << line_style.ToString() << ", " << text_style.ToString()
     << ", box fill=" << box_fill_color
     << ", text fill=" << text_fill_color
     << ", label at " << label_position;
