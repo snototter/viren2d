@@ -388,6 +388,10 @@ void MinMaxLocation(
     const ImageBuffer &buf, int channel,
     double *min_val, double *max_val,
     Vec2i *min_loc, Vec2i *max_loc) {
+  if ((channel < 0) && buf.Channels() == 1) {
+    channel = 0;
+  }
+
   if ((channel < 0) || (channel >= buf.Channels())) {
     std::ostringstream s;
     s << "Cannot perform `MinMaxLocation` on channel " << channel

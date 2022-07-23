@@ -533,10 +533,13 @@ public:
 
   /// Computes the minimum & maximum values over a single channel.
   /// To compute only the locations, pass nullptr for min_val/max_val.
+  /// A negative channel index is only allowed for single-channel buffers.
+  /// Otherwise, std::out_of_range will be thrown, unless you provide a valid
+  /// (zero-based) channel index.
   void MinMaxLocation(
       double *min_val, double *max_val,
       Vec2i *min_loc = nullptr, Vec2i *max_loc = nullptr,
-      int channel = 0) const;
+      int channel = -1) const;
 
 
   /// Returns a human readable representation.
