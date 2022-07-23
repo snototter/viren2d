@@ -13,6 +13,17 @@ namespace wgu = werkzeugkiste::geometry;
 
 namespace viren2d {
 namespace helpers {
+Line2d DrawHorizonLineImpl(
+    cairo_surface_t *surface, cairo_t *context,
+    const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+    const LineStyle &line_style, const Vec2i &img_size) {
+  // Surface/context check is done in `DrawLine`
+  const Line2d horizon = werkzeugkiste::geometry::GetProjectionOfHorizon(
+        K, R, t, img_size);
+  DrawLine(surface, context, horizon.From(), horizon.To(), line_style);
+  return horizon;
+}
+
 
 bool DrawXYZAxes(
     cairo_surface_t *surface, cairo_t *context,
@@ -20,7 +31,7 @@ bool DrawXYZAxes(
     const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
     const Color &color_x, const Color &color_y, const Color &color_z,
     const Vec2i &img_size) {
-  CheckCanvas(surface, context);
+  // Surface/context check is done in `DrawArrow`
 
   //FIXME just return on invalid inputs (in each DrawXXX call)?
   if (!style.IsValid()) {
@@ -34,7 +45,7 @@ bool DrawXYZAxes(
   wgu::Plane image_plane = wgu::ImagePlaneInWorldCoordinateSystem(R, t);
 
 
-  //FIXME
+  //FIXME implement once Line3d is integrated into werkzeugkiste
   // Vec4d image_plane = wgu::ImagePlaneInWorldCoordinateSystem(R, t);
   // const bool is_origin_in_front = wgu::IsPointInFrontOfPlane(origin, image_plane);
   // if(is_origin_in_front) {

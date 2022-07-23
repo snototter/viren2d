@@ -140,6 +140,15 @@ public:
   }
 
 
+  py::tuple DrawHorizonLine(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const LineStyle &line_style) {
+    Line2d horizon = painter_->DrawHorizonLine(K, R, t, line_style);
+    // FIXME change to Line2d once this class is integrated in the python module
+    return py::make_tuple(horizon.From(), horizon.To());
+  }
+
+
   void DrawImage(
       ImageBuffer &image, const Vec2d &position,
       const py::object &anchor, double alpha, double scale_x, double scale_y,
@@ -784,6 +793,49 @@ void RegisterPainter(py::module &m) {
 
   //----------------------------------------------------------------------
   painter.def(
+        "draw_horizon_line",
+        &PainterWrapper::DrawHorizonLine, R"docstr(
+        Draws the estimated line of horizon.
+
+        TODO explain approximation/estimation.
+
+        **Corresponding C++ API:** ``viren2d::Painter::DrawHorizonLine``.
+
+        Args:
+          K: The :math:`3 \times 3` camera matrix as :class:`numpy.ndarray` of
+            type :class:`numpy.float64`, which holds the intrinsic parameters.
+          R: The :math:`3 \times 3` extrinsic rotation matrix, again as
+            :class:`numpy.ndarray` of type :class:`numpy.float64`.
+          t: The 3d extrinsic translation vector as :class:`~viren2d.Vec3d`.
+          line_style: The :class:`~viren2d.LineStyle` specifying how the
+            horizon line should be drawn.
+
+        Returns:
+          TODO we should bind wkg::Line2d (midpoint, direction, etc. might be
+          useful in python too)
+
+        Example:
+          >>> K = np.array(
+          >>>     [[523.2, 0.0, 341.0],
+          >>>      [0.0, 523.2, 256.0],
+          >>>      [0.0, 0.0, 1.0]], dtype=np.float64)
+          >>> R = np.array(
+          >>>     [[ 0.99013141,  0.14006482, -0.00465153],
+          >>>      [ 0.05439048, -0.41465762, -0.90835056],
+          >>>      [-0.12915675,  0.89913342, -0.41818372]], dtype=np.float64)
+          >>> t = np.array([-51.8, 17.3, 82.5], dtype=np.float64)
+          >>> line_style =
+          >>> TODO
+        )docstr",
+        py::arg("K"),
+        py::arg("R"),
+        py::arg("t"),
+        py::arg("line_style") = LineStyle(
+          5, Color::CoordinateAxisColor('z'), {20, 30}, 0.0, LineCap::Round));
+
+
+  //----------------------------------------------------------------------
+  painter.def(
         "draw_image",
         &PainterWrapper::DrawImage, R"docstr(
         Draws an image onto the canvas.
@@ -1228,6 +1280,7 @@ void RegisterPainter(py::module &m) {
         py::arg("fading_factor") = std::function<double(double)>(ColorFadeOutQuadratic));
 
 
+  //----------------------------------------------------------------------
   painter.def(
         "draw_xyz_axes",
         &PainterWrapper::DrawXYZAxes, R"docstr(

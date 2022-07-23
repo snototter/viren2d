@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <werkzeugkiste/files/filesys.h>
+#include <werkzeugkiste/geometry/camera.h> //FIXME remove
 
 #ifdef viren2d_WITH_OPENCV
 #  include <opencv2/core.hpp>
@@ -60,9 +61,14 @@ void DemoPinhole() {
 //       Color::FromObjectID(2, ColorMap::Custom1)
 
 
+  // FIXME draw xyz is not yet finished - axis clipping is missing!
   painter->DrawXYZAxes(
         K, R, t, {12, 12, 0}, Vec3d::All(48),
         ArrowStyle(7, Color::Black, 35, 25, false));
+
+
+  painter->DrawHorizonLine(K, R, t);
+
 
   ProcessDemoOutput(painter->GetCanvas(false), "demo-output-pinhole.png");
 }
