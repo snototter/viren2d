@@ -186,23 +186,20 @@ void RegisterImageBuffer(py::module &m) {
         >>> # Create a numpy.ndarray from an ImageBuffer
         >>> img_np = np.array(img_buf, copy=False)
 
-        Moreover, a :class:`numpy.ndarray` can be implicitly converted to
-        an :class:`~viren2d.ImageBuffer`. Thus, there is no need for explicit
-        conversion when calling a ``viren2d`` function which expects an
-        :class:`~viren2d.ImageBuffer`.
-        The only caveat is that the :class:`numpy.ndarray` must be C-style, *i.e.*
-        row-major, and contiguous. If you need to pass the result of a slicing
-        operation, you'll need to call :meth:`numpy.ndarray.copy` first.
+        Important:
+           A :class:`numpy.ndarray` can be implicitly converted to an
+           :class:`~viren2d.ImageBuffer`. Thus, there is no need for explicit
+           conversion when calling a ``viren2d`` function which expects an
+           :class:`~viren2d.ImageBuffer`.
+           The only caveat is that the :class:`numpy.ndarray` must be
+           **row-major** (*i.e.* C-style) and **contiguous**. If you need to
+           pass the result of a slicing operation, you'll need to explicitly
+           create a copy via :meth:`numpy.ndarray.copy` first.
         )docstr");
 
   imgbuf.def(
         py::init(&CreateImageBuffer), R"docstr(
         Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
-
-        Note that the :class:`numpy.ndarray` must be C-contiguous, see its
-        :attr:`numpy.ndarray.flags`. If it is not, create a
-        :meth:`numpy.ndarray.copy` before passing into any viren2d
-        function.
 
         Args:
           array: The :class:`numpy.ndarray` holding the image data.
@@ -424,7 +421,7 @@ void RegisterImageBuffer(py::module &m) {
         Returns an alpha-blended image.
 
         Creates a new image as the result of
-        :math:`(1 - \alpha) * self + \alpha * other``.
+        :math:`(1 - \alpha) * \text{self} + \alpha * \text{other}``.
         If the number of channels is not the same, the number of
         output channels will be the maximum of ``self.channels``
         and ``other.channels``. In this case, *non-blendable* channels

@@ -21,6 +21,22 @@ def test_colormap_usage():
                 assert img.dtype == np.uint8
                 assert img.channels == 3
 
+                colors = viren2d.get_colormap(cm)
+                # Try overwriting an existing color map
+                with pytest.raises(ValueError):
+                    viren2d.set_custom_colormap(cm, colors)
+                
+                if cm == viren2d.ColorMap.Categories10:
+                    assert len(colors) == 10
+                elif cm == viren2d.ColorMap.Categories12:
+                    assert len(colors) == 12
+                elif cm == viren2d.ColorMap.Categories20:
+                    assert len(colors) == 20
+                elif cm == viren2d.ColorMap.OpticalFlow:
+                    assert len(colors) == 55
+                else:
+                    assert len(colors) == 256
+
     # Invalid inputs:
     with pytest.raises(ValueError):
         viren2d.colorize_scaled(
@@ -45,6 +61,32 @@ def test_colormap_usage():
         assert img.height == 600
         assert img.dtype == np.uint8
         assert img.channels == 4
+
+
+def test_custom_colormaps():
+    data = viren2d.peaks(height=400, width=600)
+
+    colors = ['#ffffff', 'azure', (1, 0, 1), 'black']
+
+    # Try overwriting an existing map
+    with pytest.raises(ValueError):
+        viren2d.set_custom_colormap('hsv', colors)
+
+    # Try using before initialization
+    for cmap in ['custom1', 'custom2', 'custom3']:
+        with pytest.raises(RuntimeError):
+            img = viren2d.colorize_scaled(
+                data=data, colormap=cmap, low=-6, high=6, bins=256)
+    
+    # Register one correctly
+    viren2d.set_custom_colormap('custom2', colors)
+    img = viren2d.colorize_scaled(
+        data=data, colormap='custom2', low=-6, high=6, bins=256)
+
+    assert img.width == 600
+    assert img.height == 400
+    assert img.dtype == np.uint8
+    assert img.channels == 3
 
 
 def test_label_colorization():

@@ -348,3 +348,15 @@ Some **workflow-related extensions**, I'd fancy:
    push, but before the RTD workflow starts building the docs)
 
 *  Prepare github templates for PRs, issue reports, *etc.*
+
+
+Finally, **design choices** I'd like to change in the very distant future (read:
+when hell freezes over):
+
+*  Change :class:`~viren2d.ImageBuffer` and :class:`~viren2d.Painter` to
+   follow the `RAII <https://en.cppreference.com/w/cpp/language/raii>`__ idiom.
+
+*  Exceptions are (mostly only) thrown if the user provides invalid inputs.
+   While this is acceptable in Python, I'd like to change that to mostly
+   *noexcept* calls, which simply log a warning/failure message and ignore
+   invalid inputs.

@@ -52,6 +52,11 @@ inline RGBColor GetCategoryColor(int category_id, ColorMap colormap) {
   return map.first[static_cast<std::size_t>(category_id) % map.second];
 }
 
+
+/// Registers the given colors under a `ColorMap::Custom#` enumeration value.
+void SetUserDefinedColorMap(
+    ColorMap colormap, const std::vector<RGBColor> &colors);
+
 } // namespace helpers
 } // namespace viren2d
 

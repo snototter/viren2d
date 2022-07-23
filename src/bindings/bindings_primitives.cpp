@@ -529,13 +529,14 @@ void RegisterRectangle(py::module &m) {
         &Rect::radius, R"docstr(
         float: Corner radius.
 
-          If :math:`0 \leq radius \leq 0.5`, the actural corner radius
-          will be computed as :math:`radius * \min(width, height)`.
+          If :math:`0 \leq \text{radius} \leq 0.5`, the actural corner radius
+          will be computed as
+          :math:`\text{radius} * \min(\text{width}, \text{height})`.
 
-          If :math:`radius > 1`, it denotes the absolute
+          If :math:`\text{radius} > 1`, it denotes the absolute
           corner radius in pixels.
 
-          Otherwise, *i.e.* :math:`0.5 < radius < 1`, the rectangle
+          Otherwise, *i.e.* :math:`0.5 < \text{radius} < 1`, the rectangle
           will be invalid.
 
           **Corresponding C++ API:** ``viren2d::Rect::radius``.

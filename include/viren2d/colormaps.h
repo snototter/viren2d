@@ -79,6 +79,18 @@ enum class ColorMap : unsigned char
   /// `matplotlib's <https://matplotlib.org>`__ *copper* map.
   Copper,
 
+  /// A color map which can freely be set by the library user, see
+  /// `SetCustomColorMap`.
+  Custom1,
+
+  /// A color map which can freely be set by the library user, see
+  /// `SetCustomColorMap`.
+  Custom2,
+
+  /// A color map which can freely be set by the library user, see
+  /// `SetCustomColorMap`.
+  Custom3,
+
   /// High contrast color map for depth & disparity images.
   /// Based on `disparity` for MATLAB
   /// `by Oliver Woodford <https://github.com/ojwoodford/sc>`__,

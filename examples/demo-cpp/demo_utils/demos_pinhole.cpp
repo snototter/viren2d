@@ -52,9 +52,17 @@ void DemoPinhole() {
   Vec3d t(-51.84341161, 17.32680283, 82.51435241);
 //  viren2d::Vec3d t(-5, 24, 90);
 
+
+// TODO move color map customization to colormaps demo
+//   SetCustomColorMap(ColorMap::Custom1, {"maroon", "forest-green", "azure"});
+//       Color::FromObjectID(0, ColorMap::Custom1),
+//       Color::FromObjectID(1, ColorMap::Custom1),
+//       Color::FromObjectID(2, ColorMap::Custom1)
+
+
   painter->DrawXYZAxes(
         K, R, t, {12, 12, 0}, Vec3d::All(48),
-        ArrowStyle(7, Color::Black, 20, 20, true));
+        ArrowStyle(7, Color::Black, 30, 25, false));
 
   ProcessDemoOutput(painter->GetCanvas(false), "demo-output-pinhole.png");
 }

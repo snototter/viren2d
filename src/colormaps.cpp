@@ -133,6 +133,12 @@ std::string ColorMapToString(ColorMap cm) {
       return "cvd-sequential-vivid";
     case ColorMap::Copper:
       return "copper";
+    case ColorMap::Custom1:
+      return "custom1";
+    case ColorMap::Custom2:
+      return "custom2";
+    case ColorMap::Custom3:
+      return "custom3";
     case ColorMap::Disparity:
       return "disparity";
     case ColorMap::Earth:
@@ -248,6 +254,12 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::ColorBlindSequentialVivid;
   } else if (lower.compare("copper") == 0) {
     return ColorMap::Copper;
+  } else if (lower.compare("custom1") == 0) {
+    return ColorMap::Custom1;
+  } else if (lower.compare("custom2") == 0) {
+    return ColorMap::Custom2;
+  } else if (lower.compare("custom3") == 0) {
+    return ColorMap::Custom3;
   } else if (lower.compare("disparity") == 0) {
     return ColorMap::Disparity;
   } else if (lower.compare("earth") == 0) {
@@ -346,7 +358,10 @@ std::vector<ColorMap> ListColorMaps() {
     ColorMap::Autumn, ColorMap::Yarg> ColormapIterator;
 
   for (ColorMap cm: ColormapIterator()) {
-    lst.push_back(cm);
+    if ((cm != ColorMap::Custom1) && (cm != ColorMap::Custom2)
+        && (cm != ColorMap::Custom3)) {
+      lst.push_back(cm);
+    }
   }
   return lst;
 }

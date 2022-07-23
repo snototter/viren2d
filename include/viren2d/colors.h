@@ -236,7 +236,7 @@ class Color {
 
   /// Returns the RGBA string representation `(R, G, B, A)`, where R, G, B
   /// in [0, 255] and A in [0, 100].
-  std::string ToUInt8String() const;
+  std::string ToUInt8String(bool fixed_width = false) const;
 
 
   /// Returns the corresponding (R, G, B, a) tuple, where R, G, B in [0, 255]
@@ -368,6 +368,17 @@ double ColorFadeOutQuadratic(double progress);
 /// Returns a logarithmic factor for the color transition
 /// in `viren2d::Painter::DrawTrajectory`.
 double ColorFadeOutLogarithmic(double progress);
+
+
+/// Registers the given color map under one of the
+/// `ColorMap::Custom#` enumeration values.
+void SetCustomColorMap(
+    ColorMap colormap, const std::vector<Color> &colors);
+
+
+/// Returns the colors for the specified color map.
+std::vector<Color> GetColorMapColors(ColorMap colormap);
+
 
 } // namespace viren2d
 

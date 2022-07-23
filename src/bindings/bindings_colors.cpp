@@ -194,10 +194,10 @@ void RegisterColor(py::module &m) {
         "Returns a deep copy.")
       .def(
         "__repr__",
-        [](const Color &c) { return "<Color" + c.ToUInt8String() + '>'; })
+        [](const Color &c) { return "<Color" + c.ToUInt8String(false) + '>'; })
       .def(
         "__str__",
-        &Color::ToUInt8String)
+        [](const Color &c) { return c.ToUInt8String(false); })
       .def(
         py::pickle(&ColorToTuple, &ColorFromTuple),
         ":class:`~viren2d.Color` instances can be pickled.");
@@ -660,7 +660,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutLinear``.
 
         Returns:
-          The input value, *i.e.* :math:`y=value`.
+          The input value, *i.e.* :math:`y = \text{value}`.
         )docstr",
         py::arg("value"));
 
@@ -675,7 +675,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutQuadratic``.
 
         Returns:
-          The quadratic factor :math:`y=value*value`.
+          The quadratic factor :math:`y = \text{value}^2`.
         )docstr", py::arg("value"));
 
 
@@ -689,7 +689,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutLogarithmic``.
 
         Returns:
-          The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * value + 1)`.
+          The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * \text{value} + 1)`.
         )docstr", py::arg("value"));
 }
 
