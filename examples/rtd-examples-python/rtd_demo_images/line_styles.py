@@ -13,8 +13,8 @@ def demo_line_cap():
     text_style = viren2d.TextStyle(
         family='xkcd', size=18, color='white')
 
-    line_style = viren2d.LineStyle(
-        width=29, color='azure!80')
+    line_style = viren2d.LineStyle(width=29, color='azure!80')
+    highlight_style = viren2d.LineStyle(width=3, color='salmon!80')
 
     y = 20
     line_style.cap = 'butt'
@@ -43,10 +43,12 @@ def demo_line_cap():
         [str(line_style.cap)], (canvas_width / 2, y),
         'center', text_style)
 
-    # Return the visualization as a NumPy buffer (let NumPy take care of
-    # the memory copy):
-    shared_canvas = painter.get_canvas(copy=False)
-    return np.array(shared_canvas, copy=True)
+    painter.draw_line((30, 0), (30, canvas_height), highlight_style)
+    painter.draw_line(
+        (canvas_width - 30, 0), (canvas_width - 30, canvas_height),
+        highlight_style)
+    
+    return np.array(painter.canvas, copy=True)
 
 
 def demo_line_join():

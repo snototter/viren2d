@@ -30,6 +30,8 @@ bool AdjustMarkerFill(Marker marker, bool desired_fill) {
     case Marker::Cross:
     case Marker::Plus:
     case Marker::Star:
+    case Marker::Reticle:
+    case Marker::RotatedReticle:
       return false;
 
     case Marker::Point:
@@ -185,9 +187,13 @@ Marker MarkerFromChar(char m) {
     return Marker::Plus;
   } else if (m == 'x') {
     return Marker::Cross;
+  } else if (m == 'r') {
+    return Marker::Reticle;
+  } else if (m == 'R') {
+    return Marker::RotatedReticle;
   } else if (m == 's') {
     return Marker::Square;
-  } else if (m == 'r') {
+  } else if (m == 'S') {
     return Marker::RotatedSquare;
   } else if (m == '^') {
     return Marker::TriangleUp;
@@ -275,8 +281,14 @@ char MarkerToChar(Marker marker) {
     case Marker::Point:
       return '.';
 
-    case Marker::RotatedSquare:
+    case Marker::Reticle:
       return 'r';
+
+    case Marker::RotatedReticle:
+      return 'R';
+
+    case Marker::RotatedSquare:
+      return 'S';
 
     case Marker::Star:
       return '*';

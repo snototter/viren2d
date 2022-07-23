@@ -202,12 +202,26 @@ void RegisterMarker(pybind11::module &m) {
       .value(
         "RotatedSquare",
         Marker::RotatedSquare, R"docstr(
-        Rotated square (a thick diamond), char representation: ``'r'``.
+        Rotated square (a thick diamond), char representation: ``'S'``.
         )docstr")
       .value(
         "Diamond",
         Marker::Diamond, R"docstr(
         Diamond marker, char representation: ``'d'``.
+        )docstr")
+      .value(
+        "Reticle",
+        Marker::Reticle, R"docstr(
+        A plus with a :math:`\text{thickness} \times \text{thickness}` hole in
+        the middle, char representation: ``'r'``.
+        The hole will always be at least :math:`3 \times 3` pixels.
+        )docstr")
+      .value(
+        "RotatedReticle",
+        Marker::RotatedReticle, R"docstr(
+        A cross with a :math:`\text{thickness} \times \text{thickness}` hole in
+        the middle, char representation: ``'r'``.
+        The hole will always be at least :math:`4 \times 4` pixels.
         )docstr")
       .value(
         "Star",

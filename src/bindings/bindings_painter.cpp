@@ -544,12 +544,12 @@ void RegisterPainter(py::module &m) {
 
         Args:
           center: Center position as :class:`~viren2d.Vec2d`.
-          radius: Radius of the arc in pixels as :class:`float`
+          radius: Radius of the arc in pixels as :class:`float`.
           angle_from: The arc will be drawn from ``angle_from``
             to ``angle_to`` in clockwise direction. Both angles
             are specified in degrees as :class:`float`, where 0
             degrees points in the direction of increasing *x* coordinates.
-          angle_to: See ``angle_from``
+          angle_to: See ``angle_from``.
           line_style: A :class:`~viren2d.LineStyle` specifying how
             to draw the arc's outline.
 
@@ -650,7 +650,7 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawCircle``.
 
         Args:
-          center: Center position as :class:`~viren2d.Vec2d`
+          center: Center position as :class:`~viren2d.Vec2d`.
           radius: Radius of the circle in pixels as :class:`float`.
           line_style: A :class:`~viren2d.LineStyle` specifying how
             to draw the circle's outline.
@@ -694,7 +694,7 @@ void RegisterPainter(py::module &m) {
             contour will not be drawn - then, you must provide a
             valid ``fill_color``.
           fill_color: If you provide a valid :class:`~viren2d.Color`,
-            the ellipse will be filled."
+            the ellipse will be filled.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -760,6 +760,8 @@ void RegisterPainter(py::module &m) {
             :class:`numpy.ndarray` will be implicitly converted if it is
             C-contiguous - which can be verified via its
             :attr:`numpy.ndarray.flags`).
+          position: The position of the reference point where
+            to anchor the image as :class:`~viren2d.Vec2d`.
           anchor: How to orient the text with respect to ``position``.
             Valid inputs are :class:`~viren2d.Anchor` values
             and their string representations. For details, refer to the
@@ -891,7 +893,7 @@ void RegisterPainter(py::module &m) {
           polygon: Points of the polygon as :class:`list` of
             :class:`~Vec2d`.
           line_style: A :class:`~viren2d.LineStyle` specifying how
-            to draw the circle's outline.
+            to draw the polygon's outline.
 
             If you pass :attr:`~viren2d.LineStyle.Invalid`, the
             contour will not be drawn - then, you must provide a
@@ -1073,7 +1075,7 @@ void RegisterPainter(py::module &m) {
 
         **Corresponding C++ API:** ``viren2d::Painter::DrawTrajectory``.
 
-        Can be used to either draw **a single-color path** (if
+        Can be used to either draw **a fixed-color path** (if
         ``fade_out_color`` is invalid), or **a path which gradually
         changes its color** from ``line_style.color`` to ``fade_out_color``.
         In the latter case, the color transition can be controlled
@@ -1130,7 +1132,7 @@ void RegisterPainter(py::module &m) {
           colors are used, the individual segment endpoints will be visible.
 
           To avoid this behavior, the trajectory needs to be drawn with
-          a single color, *i.e.* pass :attr:`viren2d.Color.Invalid` as
+          a single color, *i.e.* pass :attr:`Color.Invalid` as
           ``fade_out_color``.
         )docstr",
         py::arg("trajectory"),
@@ -1194,8 +1196,7 @@ void RegisterPainter(py::module &m) {
   painter.def(
         "draw_xyz_axes",
         &PainterWrapper::DrawXYZAxes, R"docstr(
-        Draws the coordinate system axes for the given pinhole camera
-        calibration.
+        Draws the coordinate system axes for the pinhole camera calibration.
 
         **Corresponding C++ API:** ``viren2d::Painter::DrawXYZAxes``.
 
@@ -1215,7 +1216,7 @@ void RegisterPainter(py::module &m) {
             The default value assumes that the calibration is given in
             millimeters and will result in 1 meter long arrows.
           arrow_style: The :class:`~viren2d.ArrowStyle` specifying how the
-            the axis arrows should be drawn. Note that it's color attribute
+            axis arrows should be drawn. Note that it's color attribute
             will be ignored.
           color_x: :class:`~viren2d.Color` of the *x*-axis arrow. Default reddish.
           color_y: :class:`~viren2d.Color` of the *y*-axis arrow. Default greenish.

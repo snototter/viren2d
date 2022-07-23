@@ -19,7 +19,7 @@ Corresponding Python code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
    :language: python
-   :emphasize-lines: 1, 13-14
+   :emphasize-lines: 1, 15-16
    :lines: 78-104
    :linenos:
    :dedent: 4

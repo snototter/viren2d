@@ -91,13 +91,18 @@ enum class Marker : unsigned char {
   Cross,      ///< Cross marker, char representation: 'x'.
 
   Square,        ///< Square marker, char representation: 's'.
-  RotatedSquare, ///< Rotated square marker, char representation: 'r'.
+  RotatedSquare, ///< Rotated square marker, char representation: 'S'.
   Diamond,       ///< Diamond marker, char representation: 'd'.
 
   TriangleUp,    ///< Upward-pointing triangle marker, char representation: '^'.
   TriangleDown,  ///< Downward-pointing triangle marker, char representation: 'v'.
   TriangleLeft,  ///< Left-pointing triangle marker, char representation: '<'.
   TriangleRight, ///< Right-pointing triangle marker, char representation: '>'.
+
+  Reticle,        ///< A plus with a `thickness x thickness` hole in the
+                  ///  center, distantly similar to a German reticle, char
+                  ///  representation: 'r'.
+  RotatedReticle, ///< Rotated 'reticle', char representation: 'R'.
 
   Star,       ///< Five-pointed star (Asterisk), char representation: '*'.
   Pentagram,  ///< Five-pointed star, char representation: '5'.
