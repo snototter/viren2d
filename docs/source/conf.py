@@ -102,7 +102,7 @@ def autodoc_skip_member(app, what, name, obj, would_skip, options):
     if name == "__init__":
         return False
     # Include overloaded operators:
-    if name in ["__add__", "__eq__", "__getstate__", "__iadd__", "__imul__",
+    if name in ["__add__", "__call__", "__eq__", "__getstate__", "__iadd__", "__imul__",
             "__getitem__", "__setitem__", "__isub__", "__itruediv__", "__mul__", "__ne__", "__neg__", "__rmul__",
             "__sub__", "__truediv__", "__setstate__"]:
         return False

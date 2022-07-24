@@ -513,7 +513,7 @@ void RegisterColormaps(pybind11::module &m) {
 
 
   py::class_<StreamColorizer> colorizer(m, "StreamColorizer", R"docstr(
-      Utility class to simplify colorization of a data stream.
+      Utility class for *scaled colorization* of a data stream.
 
       This class takes care of computing/storing the input data limits, the
       selected color map, *etc.* This comes in handy whenever we need to apply
@@ -525,7 +525,7 @@ void RegisterColormaps(pybind11::module &m) {
       Example:
         >>> depth_cam = ...  # Open camera stream
         >>> colorizer = viren2d.StreamColorizer(
-        >>>     colormap=...)
+        >>>     colormap=...) #TODO finish example!
         >>> while depth_cam.is_available():
         >>>     depth = depth_cam.next()
         >>>     vis = colorizer(depth)
@@ -563,6 +563,25 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("output_channels") = 3,
         py::arg("low") = std::numeric_limits<double>::infinity(),
         py::arg("high") = std::numeric_limits<double>::infinity())
+      .def(
+        "__call__",
+        [](StreamColorizer &sc, const ImageBuffer &data) {
+          return sc(data);
+        }, R"docstr(
+        Applies the configured colorization.
+
+        **Corresponding C++ API:** ``viren2d::StreamColorizer::operator()``.
+
+        Args:
+          data: A single channel :class:`~viren2d.ImageBuffer` or
+            :class:`numpy.ndarray` holding the data for colorization.
+        
+        Returns:
+          The colorization as :class:`~viren2d.ImageBuffer` of type
+          :class:`numpy.uint8` with
+          :attr:`~viren2d.StreamColorizer.output_channels` channels.
+        )docstr",
+        py::arg("data"))
       .def_property(
         "limit_low",
         &StreamColorizer::GetLimitLow,
@@ -620,7 +639,7 @@ void RegisterColormaps(pybind11::module &m) {
         :class:`int`: Number of discretization bins.
 
           Must be :math:`\geq 2`. This parameter will be ignored if the
-          selected :attr:`colormap` has less than ``bins`` colors.
+          selected :attr:`colormap` has less than :attr:`bins` colors.
 
           **Corresponding C++ API:** ``viren2d::StreamColorizer::GetBins/SetBins``.
         )docstr")
