@@ -413,7 +413,7 @@ void StreamColorizer::SetOutputChannels(int channels_out) {
 }
 
 
-ImageBuffer StreamColorizer::Apply(const ImageBuffer &data) {
+ImageBuffer StreamColorizer::Colorize(const ImageBuffer &data) {
   if ((limits_mode == LimitsMode::FromDataContinuously)
       || (limits_mode == LimitsMode::FromDataOnce)) {
     // Sanity checks are performed by a) MinMaxLocation (if buffer was invalid)

@@ -334,10 +334,10 @@ public:
   void SetOutputChannels(int channels_out);
   int GetOutputChannels() const { return output_channels; }
 
-  ImageBuffer Apply(const ImageBuffer &data);
+  ImageBuffer Colorize(const ImageBuffer &data);
 
   inline ImageBuffer operator()(const ImageBuffer &data) {
-    return Apply(data);
+    return Colorize(data);
   }
 
 private:

@@ -523,11 +523,17 @@ void RegisterColormaps(pybind11::module &m) {
       **Corresponding C++ API:** ``viren2d::StreamColorizer``.
 
       Example:
-        >>> depth_cam = ...  # Open camera stream
+        >>> # Open depth camera stream
+        >>> depth_cam = ...
+        >>> # Configure stream colorization with fixed data limits
         >>> colorizer = viren2d.StreamColorizer(
-        >>>     colormap=...) #TODO finish example!
+        >>>     colormap='turbo', mode='fixed', bins=32,
+        >>>     output_channels=3, low=0, high=5000)
+        >>> # Colorize the incoming data stream
         >>> while depth_cam.is_available():
         >>>     depth = depth_cam.next()
+        >>>     vis = colorizer.colorize(depth)
+        >>>     # Or alternatively use the call operator:
         >>>     vis = colorizer(depth)
       )docstr");
 
@@ -543,7 +549,6 @@ void RegisterColormaps(pybind11::module &m) {
           mode: The :class:`~viren2d.LimitsMode` specifying how the data limits
             should be computed. Can be provided as enumeration value or its
             corresponding string representation.
-
             If set to :attr:`LimitsMode.Fixed`, then the parameters
             ``low`` and ``high`` *must* be set to valid numbers.
           bins: Number of discretization bins as :class:`int`.
@@ -552,10 +557,10 @@ void RegisterColormaps(pybind11::module &m) {
           output_channels: Number of output channels as :class:`int`.
             Must be either 3 or 4. The optional 4th channel will be
             considered an alpha channel and set to 255.
-          low: Lower limit of the input data. Will be considered only if
-            ``mode`` is :attr:`LimitsMode.Fixed`.
-          high: Upper limit of the input data. Will be considered only if
-            ``mode`` is :attr:`LimitsMode.Fixed`.
+          low: Lower limit of the input data as :class:`float`. Will only
+            be considered if ``mode`` is :attr:`LimitsMode.Fixed`.
+          high: Upper limit of the input data as :class:`float`. Will only
+            be considered if ``mode`` is :attr:`LimitsMode.Fixed`.
         )docstr",
         py::arg("colormap"),
         py::arg("mode") = "continuous",
@@ -568,7 +573,10 @@ void RegisterColormaps(pybind11::module &m) {
         [](StreamColorizer &sc, const ImageBuffer &data) {
           return sc(data);
         }, R"docstr(
-        Applies the configured colorization.
+        Applies the configured scaled colorization.
+
+        This is an alias of :meth:`~viren2d.StreamColorizer.colorize`
+        for convenience.
 
         **Corresponding C++ API:** ``viren2d::StreamColorizer::operator()``.
 
@@ -576,6 +584,25 @@ void RegisterColormaps(pybind11::module &m) {
           data: A single channel :class:`~viren2d.ImageBuffer` or
             :class:`numpy.ndarray` holding the data for colorization.
         
+        Returns:
+          The colorization as :class:`~viren2d.ImageBuffer` of type
+          :class:`numpy.uint8` with
+          :attr:`~viren2d.StreamColorizer.output_channels` channels.
+        )docstr",
+        py::arg("data"))
+      .def(
+        "colorize",
+        [](StreamColorizer &sc, const ImageBuffer &data) {
+          return sc(data);
+        }, R"docstr(
+        Applies the configured scaled colorization.
+
+        **Corresponding C++ API:** ``viren2d::StreamColorizer::Colorize``.
+
+        Args:
+          data: A single channel :class:`~viren2d.ImageBuffer` or
+            :class:`numpy.ndarray` holding the data for colorization.
+
         Returns:
           The colorization as :class:`~viren2d.ImageBuffer` of type
           :class:`numpy.uint8` with
