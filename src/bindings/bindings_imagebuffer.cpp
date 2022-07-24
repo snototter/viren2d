@@ -201,10 +201,10 @@ void RegisterImageBuffer(py::module &m) {
         and can thus be swiftly converted to/from other buffer types,
         such as a :class:`numpy.ndarray`, for example:
 
-        >>> # Create an ImageBuffer from a numpy.ndarray
+        >>> # Create a shared ImageBuffer from a numpy.ndarray
         >>> img_buf = viren2d.ImageBuffer(img_np, copy=False)
 
-        >>> # Create a numpy.ndarray from an ImageBuffer
+        >>> # Create a shared numpy.ndarray from an ImageBuffer
         >>> img_np = np.array(img_buf, copy=False)
 
         Important:
@@ -212,10 +212,14 @@ void RegisterImageBuffer(py::module &m) {
            :class:`~viren2d.ImageBuffer`. Thus, there is no need for explicit
            conversion when calling a ``viren2d`` function which expects an
            :class:`~viren2d.ImageBuffer`.
+
            The only caveat is that the :class:`numpy.ndarray` must be
-           **row-major** (*i.e.* C-style) and **contiguous**. If you need to
-           pass the result of a slicing operation, you'll need to explicitly
-           create a copy via :meth:`numpy.ndarray.copy` first.
+           **row-major** (*i.e.* C-style) and **contiguous**. If you want to
+           pass the result of a slicing operation, you'll need to make it
+           C-contiguous first. This can be done by creating a copy via
+           :meth:`numpy.ndarray.copy` first.
+           If you are not sure whether your :class:`numpy.ndarray` is
+           C-contiguous, check its :attr:`numpy.ndarray.flags`.
         )docstr");
 
   imgbuf.def(
@@ -225,8 +229,7 @@ void RegisterImageBuffer(py::module &m) {
         Args:
           array: The :class:`numpy.ndarray` holding the image data.
           copy: If ``True``, the :class:`~viren2d.ImageBuffer` will
-            make a copy of the given ``array``. The default (``False``)
-            is to share the data instead, which avoids memory allocation.
+            make a deep copy of the given ``array``.
         )docstr", py::arg("array"), py::arg("copy")=false)
       .def_buffer(&ImageBufferInfo)
       .def(
@@ -280,31 +283,29 @@ void RegisterImageBuffer(py::module &m) {
           ch2: Zero-based index of the second channel as :class:`int`.
         )docstr", py::arg("ch1"), py::arg("ch2"))
       .def(
-        "to_rgb",
-        [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(3); }, R"docstr(
-        Returns a 3-channel representation.
+        "to_channels",
+        &ImageBuffer::ToChannels, R"docstr(
+        Returns a copy with duplicated channels or removed alpha channel.
 
-        This conversion is only supported for :class:`~viren2d.ImageBuffer`
-        instances which have 1, 3, or 4 channels. Thus, it will only
-        **duplicate**/**copy** channels, or **remove** the alpha channel
-        (despite it's name, it is format-agnostic, *i.e.* it doesn't matter
-        whether you apply it on a RGB(A) or BGR(A) buffer).
+        This method can only **duplicate channels** or **remove the alpha
+        channel**. Thus, it only supports the following use cases:
 
-        Note that this call will always allocate and copy memory, even
-        if ``self`` is already a 3-channel buffer.
+        * From a single channel to 1-, 3-, or 4-channel output.
+        * From 3 channels to a 3- or 4-channel output, *i.e.* adding
+          an alpha channel.
+        * From 4 channels to a 3- or 4-channel output, *i.e.* removing
+          the alpha channel.
 
-        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels(3)``.
-        )docstr")
-      .def(
-        "to_rgba",
-        [](const ImageBuffer &buf) -> ImageBuffer { return buf.ToChannels(4); }, R"docstr(
-        Returns a 4-channel representation.
+        It **will not** convert color images to grayscale. For this, use
+        :func:`~viren2d.convert_rgb2gray` instead.
 
-        Refer to :meth:`~viren2d.ImageBuffer.to_rgb` as all comments
-        apply analogously.
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels``.
 
-        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels(4)``.
-        )docstr")
+        Important:
+          This call will always create a deep copy, even if ``self`` already
+          has the same number of channels as requested by ``output_channels``.
+        )docstr",
+        py::arg("output_channels"))
       .def(
         "__repr__",
         [](const ImageBuffer &buf)
@@ -539,11 +540,12 @@ void RegisterImageBuffer(py::module &m) {
         &SaveImageUInt8Helper, R"docstr(
         Stores an 8-bit image to disk as either JPEG or PNG.
 
-        Note that PNG output will usually result in 20-50% larger files in
-        comparison to optimized PNG libraries.
-        Thus, this option should only be used if you don't already
-        work with a specialized image processing library, which offers
-        optimized image I/O.
+        Important:
+          The PNG output will usually result in 20-50% larger files in
+          comparison to optimized PNG libraries.
+          Thus, this option should only be used if you don't already
+          work with a specialized image processing library that offers
+          optimized image I/O.
 
         **Corresponding C++ API:** ``viren2d::SaveImageUInt8``.
 

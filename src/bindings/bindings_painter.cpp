@@ -535,12 +535,12 @@ void RegisterPainter(py::module &m) {
           >>> img_np = np.array(p.get_canvas(copy=True), copy=False)
 
           If we need a 3-channel image, we can leverage the
-          :meth:`~viren2d.ImageBuffer.to_rgb` method of the buffer:
+          :meth:`~viren2d.ImageBuffer.to_channels` method of the buffer:
 
           >>> # We only need a shared view on the canvas...
           >>> img_buf = p.get_canvas(copy=False)
-          >>> # ... because the following call copies memory anyways:
-          >>> img_np = img_buf.to_rgb()
+          >>> # ... because the following performs a deep copy:
+          >>> img_np = img_buf.to_channels(3)
 
         .. tip::
             If you can ensure that the painter is not destroyed while
@@ -847,7 +847,7 @@ void RegisterPainter(py::module &m) {
           image: The image as :class:`~viren2d.ImageBuffer`. Note that a
             :class:`numpy.ndarray` will be implicitly converted if it is
             C-contiguous - which can be verified via its
-            :attr:`numpy.ndarray.flags`).
+            :attr:`numpy.ndarray.flags`.
           position: The position of the reference point where
             to anchor the image as :class:`~viren2d.Vec2d`.
           anchor: How to orient the text with respect to ``position``.

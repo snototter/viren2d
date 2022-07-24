@@ -46,13 +46,13 @@ def test_buffer_conversion():
             assert not np.array_equal(data, res_copied)
 
             # If we have a grayscale, rgb, or rgba image, also
-            # test that to_rgb/a works as expected:
+            # test that to_channels works as expected:
             if channels in [1, 3, 4]:
-                as_rgb = buf_shared.to_rgb()
+                as_rgb = buf_shared.to_channels(3)
                 assert as_rgb.channels == 3
                 assert as_rgb.owns_data
 
-                as_rgba = buf_shared.to_rgba()
+                as_rgba = buf_shared.to_channels(4)
                 assert as_rgba.channels == 4
                 assert as_rgba.owns_data
 
