@@ -149,8 +149,8 @@ enum class ColorMap : unsigned char
   /// *jet* map.
   /// Note that this color map has several limitations (perceptual ordering,
   /// lightness gradient reversals). Refer to the excellent article by
-  /// `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
-  /// about these issues.
+  /// `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__ for more
+  /// details about these issues.
   Jet,
 
   /// A green-blue color map to visualize water depths. Based on

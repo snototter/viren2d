@@ -1285,7 +1285,7 @@ void RegisterPainter(py::module &m) {
   painter.def(
         "draw_xyz_axes",
         &PainterWrapper::DrawXYZAxes, R"docstr(
-        Draws the coordinate system axes for the pinhole camera calibration.
+        Draws three arrows to visualize a coordinate system reference frame.
 
         **Corresponding C++ API:** ``viren2d::Painter::DrawXYZAxes``.
 

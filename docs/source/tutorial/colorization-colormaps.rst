@@ -11,7 +11,7 @@ Color Maps
    
    Be also aware that **choosing a color map is more intricate than most people
    anticipate**. For more details, I highly recommend
-   `Peter Kovesi's excellent article <https://arxiv.org/abs/1509.03700>`__
+   `Peter Kovesi's excellent article <https://doi.org/10.48550/arXiv.1509.03700>`__
    about the caveats with color maps and how to avoid them.
 
 
@@ -124,15 +124,23 @@ User-Defined Colors
 If you need other than the provided color maps, you can define your custom
 color maps via :func:`~viren2d.set_custom_colormap`. These can then be used
 analogously to the predefined color maps via the enumeration values
-:attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`, *etc.*
+:attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`, *etc.* or their
+string representation.
 For example:
 
 .. code-block:: python
    :linenos:
 
-   # Register custom 4-color map:
+   # Exemplary categorical data for visualization
+   import numpy as np
+   labels = np.array(
+       [[0, 1, 2], [-3, -4, -6], [20000, 20001, 20003]],
+       dtype=np.int32)
+
+   # Register a custom color map. This is a usage example and by
+   # no means a useful color map!
    viren2d.set_custom_colormap(
-      'custom1', ['#ff0000', 'maroon', (0.94, 0.13, 0.15), (0.3, 0.8, 0)])
+      'custom1', ['#800000', (0.94, 0.13, 0.15), 'rose-red'])
 
    # Apply the custom map for label colorization:
-   vis = viren2d.colorize_labels(labels=label_image, colormap='custom1')
+   vis = viren2d.colorize_labels(labels=labels, colormap='custom1')

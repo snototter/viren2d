@@ -208,8 +208,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Note that this color map has several known limitations (*e.g.* reversed
         lightness gradients at yellow and red affect the viewer's perceptual
         ordering). Refer to the excellent article by
-        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
-        about these issues.
+        `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__ for more
+        details about these issues.
         )docstr")
       .value(
         "Ocean",
@@ -675,8 +675,17 @@ void RegisterColormaps(pybind11::module &m) {
             :math:`r,g,b \in [0,1]`.
 
         Example:
+          >>> # Exemplary categorical data for visualization
+          >>> import numpy as np
+          >>> labels = np.array(
+          >>>     [[0, 1, 2], [-3, -4, -6], [20000, 20001, 20003]],
+          >>>     dtype=np.int32)
+          >>> # Register a custom color map. This is a usage example and by
+          >>> # no means a useful color map!
           >>> viren2d.set_custom_colormap(
-          >>>     'custom1', ['#00ffff', 'maroon', (1, 0, 1)])
+          >>>     'custom1', ['#800000', (0.94, 0.13, 0.15), 'rose-red'])
+          >>> # Apply the custom map for label colorization:
+          >>> vis = viren2d.colorize_labels(labels=labels, colormap='custom1')
         )docstr",
         py::arg("id"),
         py::arg("colors"));

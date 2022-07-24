@@ -82,7 +82,7 @@ void RegisterOpticalFlowUtils(py::module &m) {
         where the flow orientation defines the color map bin and the magnitude
         defines the corresponding color's saturation.
         The default color map is the cyclic six-color map CET-C6 proposed by
-        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__.
+        `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__.
 
         This assumes that flow is normalized such that the maximum magnitude
         is 1. Larger motion will be indicated by a desaturated color. To avoid
