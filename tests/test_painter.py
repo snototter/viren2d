@@ -275,34 +275,31 @@ def test_draw_line():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_line((0, 0), (50, 50), viren2d.LineStyle())
+    assert not p.draw_line((0, 0), (50, 50), viren2d.LineStyle())
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     ### Draw with explicit types
     style = viren2d.LineStyle()
-    p.draw_line(viren2d.Vec2d(0, 30), viren2d.Vec2d(70, 80), style)
+    assert p.draw_line(viren2d.Vec2d(0, 30), viren2d.Vec2d(70, 80), style)
     # Same as above from kwargs
-    p.draw_line(pt2=viren2d.Vec2d(70, 80), pt1=viren2d.Vec2d(0, 30), line_style=style)
-    p.draw_line(pt2=viren2d.Vec2d(y=80, x=70), pt1=viren2d.Vec2d(x=0, y=30), line_style=style)
+    assert p.draw_line(
+        pt2=viren2d.Vec2d(70, 80), pt1=viren2d.Vec2d(0, 30), line_style=style)
+    assert p.draw_line(
+        pt2=viren2d.Vec2d(y=80, x=70), pt1=viren2d.Vec2d(x=0, y=30), line_style=style)
 
     ### Draw with implicit conversions
-    p.draw_line((0, 30), (70, 80), style)
+    assert p.draw_line((0, 30), (70, 80), style)
     # Using kwargs
-    p.draw_line(line_style=style, pt2=(10, 10), pt1=(50, 30))
-    p.draw_line(pt2=(10, 10), pt1=(50, 30))
+    assert p.draw_line(line_style=style, pt2=(10, 10), pt1=(50, 30))
+    assert p.draw_line(pt2=(10, 10), pt1=(50, 30))
 
     ### Sweep valid and invalid configurations
     for style in line_style_configurations():
         for pt1 in [(10, 2), (-100, -300), (0.2, 1000), (5000, 90000)]:
             for pt2 in [(-99, -32), (10, 30), (100000, 0.2), (90, 5)]:
-                if is_valid_line(style):
-                    p.draw_line(pt1, pt2, style)
-                else:
-                    with pytest.raises(ValueError):
-                        p.draw_line(pt1, pt2, style)
+                assert p.draw_line(pt1, pt2, style) == is_valid_line(style)
                 # Painter should always be kept in a valid state
                 assert p.is_valid()
 
@@ -311,31 +308,31 @@ def test_draw_marker():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_marker((0, 0))
+    assert not p.draw_marker((0, 0))
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     # Draw inside/on the border/outside of the canvas
-    p.draw_marker((10, 10))
-    p.draw_marker((0, 0))
-    p.draw_marker((-100, 20))
+    assert p.draw_marker((10, 10))
+    assert p.draw_marker((0, 0))
+    assert p.draw_marker((-100, 20))
     
     # Same with the default style
     style = viren2d.MarkerStyle()
-    p.draw_marker((10, 10), style)
-    p.draw_marker((0, 0), style)
-    p.draw_marker((-100, 20), style)
+    assert p.draw_marker((10, 10), style)
+    assert p.draw_marker((0, 0), style)
+    assert p.draw_marker((-100, 20), style)
 
     # Call draw_marker with kwargs and different parameter order
-    p.draw_marker(pt=(0, 0), marker_style=style)
-    p.draw_marker(marker_style=style, pt=(-100, 20))
-    p.draw_marker(pt=(0, 0))
-    with pytest.raises(TypeError): # Typo
-        p.draw_marker(position=(0, 0), marker_style=style)
-    with pytest.raises(TypeError): # Typo
-        p.draw_marker(pt=(0, 0), style=style)
+    assert p.draw_marker(position=(0, 0), marker_style=style)
+    assert p.draw_marker(marker_style=style, position=(-100, 20))
+    assert p.draw_marker(position=(0, 0))
+    # Invalid keywords
+    with pytest.raises(TypeError):
+        p.draw_marker(pt=(0, 0), marker_style=style)
+    with pytest.raises(TypeError):
+        p.draw_marker(position=(0, 0), style=style)
 
     # Test draw markers
     markers = [
@@ -346,89 +343,78 @@ def test_draw_marker():
         ((770, 42), (-1, -1, -1)),
         ((100, 20), 'invalid')
     ]
-    p.draw_markers(markers)
-    p.draw_markers(markers, style)
+    assert p.draw_markers(markers)
+    assert p.draw_markers(markers, style)
     # Same with kwargs
-    p.draw_markers(markers=markers)
-    p.draw_markers(markers=markers, marker_style=style)
-    p.draw_markers(marker_style=style, markers=markers)
+    assert p.draw_markers(markers=markers)
+    assert p.draw_markers(markers=markers, marker_style=style)
+    assert p.draw_markers(marker_style=style, markers=markers)
 
 
 def test_draw_polygon():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_polygon([(0, 0), (50, 50), (30, 20)])
+    assert not p.draw_polygon([(0, 0), (50, 50), (30, 20)])
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
-    p.draw_polygon([(0, 0), (50, 50), (30, 20)])
+    assert p.draw_polygon([(0, 0), (50, 50), (30, 20)])
 
     # A polygon needs at least 3 points
-    with pytest.raises(ValueError):
-        p.draw_polygon([(0, 0), (50, 50)])
+    assert not p.draw_polygon([(0, 0), (50, 50)])
 
     for line_style in line_style_configurations():
         for fill_color in color_configurations():
-            if is_valid_line_or_fill(line_style, fill_color):
-                p.draw_polygon(
+            res = p.draw_polygon(
                     polygon=[(0, 0), (50, 50), (30, 20)],
                     line_style=line_style, fill_color=fill_color)
-            else:
-                with pytest.raises(ValueError):
-                    p.draw_polygon(
-                        polygon=[(0, 0), (50, 50), (30, 20)],
-                        line_style=line_style, fill_color=fill_color)
+            assert res == is_valid_line_or_fill(line_style, fill_color)
 
 
 def test_draw_rect():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_rect(((0, 0), (30, 50)))
+    assert not p.draw_rect(((0, 0), (30, 50)))
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
-
     ### Draw with explicit initialization
     style = viren2d.LineStyle()
     # Rect as (cx, cx), (w, h)
-    p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
+    assert p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
     
     # Rect as center, size
-    p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
+    assert p.draw_rect(viren2d.Rect((10, 20), (30, 50)), style)
     # The above from kwargs
-    p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50)), style)
+    assert p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50)), style)
 
     # Rect as center, size, angle, radius
-    p.draw_rect(viren2d.Rect((10, 20), (30, 50), 30, 0), style)
+    assert p.draw_rect(viren2d.Rect((10, 20), (30, 50), 30, 0), style)
     # The above from kwargs
-    p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50), rotation=30, radius=0), style)
-
+    assert p.draw_rect(viren2d.Rect(center=(10, 20), size=(30, 50), rotation=30, radius=0), style)
 
     ### Draw with implicit conversions
     # Rect as tuple (cx, cy, w, h)
-    p.draw_rect((10, 20, 30, 50), style)
+    assert p.draw_rect((10, 20, 30, 50), style)
     # Same as above, but with kwargs
-    p.draw_rect(line_style=style, rect=(10, 20, 30, 50))
+    assert p.draw_rect(line_style=style, rect=(10, 20, 30, 50))
     # Like above, but includes additional fill
-    p.draw_rect(rect=(10, 20, 30, 50), line_style=style, fill_color='green')
+    assert p.draw_rect(rect=(10, 20, 30, 50), line_style=style, fill_color='green')
 
     # Rect from tuple (cx, cy, w, h, angle)
-    p.draw_rect((10, 20, 30, 50, 78), style)
+    assert p.draw_rect((10, 20, 30, 50, 78), style)
     # Rect from tuple (cx, cy, w, h, angle, radius)
-    p.draw_rect((10, 20, 30, 50, 78, 5), style)
+    assert p.draw_rect((10, 20, 30, 50, 78, 5), style)
     # Rect from tuple (center, size)
-    p.draw_rect(((10, 20), (30, 50)), style)
+    assert p.draw_rect(((10, 20), (30, 50)), style)
     # Rect from tuple (center, size, angle)
-    p.draw_rect(((10, 20), (30, 50), 78), style)
+    assert p.draw_rect(((10, 20), (30, 50), 78), style)
     # Rect from tuple (center, size, angle, radius)
-    p.draw_rect(((10, 20), (30, 50), 78, 5), style)
-
+    assert p.draw_rect(((10, 20), (30, 50), 78, 5), style)
     
     ### Sweep valid and invalid configurations
     # Collect rectangles
@@ -443,10 +429,9 @@ def test_draw_rect():
         for style in line_style_configurations():
             for fill_color in color_configurations():
                 if rect.is_valid() and is_valid_line_or_fill(style, fill_color):
-                    p.draw_rect(rect, style, fill_color)
+                    assert p.draw_rect(rect, style, fill_color)
                 else:
-                    with pytest.raises(ValueError):
-                        p.draw_rect(rect, style, fill_color)
+                    assert not p.draw_rect(rect, style, fill_color)
 
 
 def test_draw_text():

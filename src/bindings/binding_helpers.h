@@ -32,11 +32,10 @@ Color ColorFromTuple(const pybind11::tuple &tpl);
 pybind11::tuple ColorToTuple(const Color &obj);
 
 
-//-------------------------------------------------  Primitives (Ellipse)
+//-------------------------------------------------  Primitives
 void RegisterEllipse(pybind11::module &m);
-
-//-------------------------------------------------  Primitives (Rect)
 void RegisterRectangle(pybind11::module &m);
+void RegisterLine2d(pybind11::module &m);
 
 //-------------------------------------------------  Styles (MarkerStyle & LineStyle)
 // Enums must be registered before using them in the

@@ -140,12 +140,10 @@ public:
   }
 
 
-  py::tuple DrawHorizonLine(
+  Line2d DrawHorizonLine(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const LineStyle &line_style) {
-    Line2d horizon = painter_->DrawHorizonLine(K, R, t, line_style);
-    // FIXME change to Line2d once this class is integrated in the python module
-    return py::make_tuple(horizon.From(), horizon.To());
+    return painter_->DrawHorizonLine(K, R, t, line_style);
   }
 
 
@@ -822,7 +820,7 @@ void RegisterPainter(py::module &m) {
         &PainterWrapper::DrawHorizonLine, R"docstr(
         Draws the estimated line of horizon.
 
-        TODO explain approximation/estimation.
+        TODO explain approximation/estimation. Or adjust it in wkz!
 
         **Corresponding C++ API:** ``viren2d::Painter::DrawHorizonLine``.
 
@@ -836,8 +834,11 @@ void RegisterPainter(py::module &m) {
             horizon line should be drawn.
 
         Returns:
-          TODO we should bind wkg::Line2d (midpoint, direction, etc. might be
-          useful in python too) - then use its is_valid to check for successful/visible drawing
+          The line of horizon as :class:`~viren2d.Line2d`. Use its
+          :meth:`~viren2d.Line2d.is_valid` method to check whether the line
+          could be drawn. If not, it is either not visible or you provided
+          invalid inputs. The latter will be indicated by an error message in
+          the log.
 
         Example:
           >>> K = np.array(
@@ -954,7 +955,7 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawMarker``.
 
         Args:
-          pos: Position as :class:`~viren2d.Vec2d`.
+          position: Position as :class:`~viren2d.Vec2d`.
           marker_style: A :class:`~viren2d.MarkerStyle` specifying
             how to draw the marker.
         
@@ -969,7 +970,7 @@ void RegisterPainter(py::module &m) {
           >>>     cap='round', join='miter')
           >>> painter.draw_marker(pt=(42, 70), marker_style=marker_style)
         )docstr",
-        py::arg("pt"),
+        py::arg("position"),
         py::arg("marker_style") = MarkerStyle());
 
 

@@ -412,7 +412,7 @@ bool DrawLine(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const LineStyle &line_style) {
   if (!CheckCanvas(surface, context)
-      || CheckLineStyle(line_style)) {
+      || !CheckLineStyle(line_style)) {
     return false;
   }
 
@@ -779,7 +779,7 @@ bool DrawRect(
   cairo_stroke(context);
   // Restore context
   cairo_restore(context);
-  return false;
+  return true;
 }
 
 } // namespace helpers

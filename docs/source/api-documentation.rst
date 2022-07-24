@@ -113,6 +113,7 @@ API Documentation
       :nosignatures:
 
       viren2d.Ellipse
+      viren2d.Line2d
       viren2d.Rect
       viren2d.ellipse_from_endpoints
       viren2d.rect_from_cwh

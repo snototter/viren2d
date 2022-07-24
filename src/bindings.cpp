@@ -48,6 +48,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   viren2d::bindings::RegisterEllipse(m);
   viren2d::bindings::RegisterRectangle(m);
+  viren2d::bindings::RegisterLine2d(m);
 
   //------------------------------------------------- Drawing - Styles
   viren2d::bindings::RegisterLineCap(m);
