@@ -224,10 +224,10 @@ public:
   ///   from: Start position.
   ///   to: End position.
   ///     line_style: How to draw the line.
-  void DrawLine(
+  bool DrawLine(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style = LineStyle()) {
-    DrawLineImpl(from, to, line_style);
+    return DrawLineImpl(from, to, line_style);
   }
 
 
@@ -236,10 +236,10 @@ public:
   /// Args:
   ///   pos: Position of the marker.
   ///   marker_style: How to draw the marker.
-  void DrawMarker(
+  bool DrawMarker(
       const Vec2d &position,
       const MarkerStyle &style = MarkerStyle()) {
-    DrawMarkerImpl(position, style);
+    return DrawMarkerImpl(position, style);
   }
 
 
@@ -250,10 +250,10 @@ public:
   ///     If a marker's color is invalid, it will be drawn using
   ///     ``style``'s color specification instead.
   ///   marker_style: How to draw the markers (except for the color).
-  void DrawMarkers(
+  bool DrawMarkers(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style = MarkerStyle()) {
-    DrawMarkersImpl(markers, style);
+    return DrawMarkersImpl(markers, style);
   }
 
 
@@ -265,11 +265,11 @@ public:
   ///     If you pass `LineStyle::Invalid`, the contour will not be
   ///     drawn - then, you must provide a valid ``fill_color``.
   ///   fill_color: If you provide a valid color, the polygon will be filled.
-  void DrawPolygon(
+  bool DrawPolygon(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawPolygonImpl(points, line_style, fill_color);
+    return DrawPolygonImpl(points, line_style, fill_color);
   }
 
 
@@ -285,11 +285,11 @@ public:
   ///     a valid ``fill_color``.
   ///   fill_color: If you provide a valid :class:`~viren2d.Color`,
   ///     the rectangle will be filled.
-  void DrawRect(
+  bool DrawRect(
       const Rect &rect,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawRectImpl(rect, line_style, fill_color);
+    return DrawRectImpl(rect, line_style, fill_color);
   }
 
 
@@ -485,31 +485,31 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawLineImpl(
+  virtual bool DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawMarkerImpl(
+  virtual bool DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawMarkersImpl(
+  virtual bool DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawPolygonImpl(
+  virtual bool DrawPolygonImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawRectImpl(
+  virtual bool DrawRectImpl(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) = 0;
 

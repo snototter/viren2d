@@ -167,29 +167,26 @@ protected:
   }
 
 
-  void DrawLineImpl(
+  bool DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) override {
     SPDLOG_DEBUG(
           "DrawLine: p1={:s}, p2={:s}, style={:s}.", from, to, line_style);
 
-    helpers::DrawLine(
+    return helpers::DrawLine(
           surface_, context_, from, to, line_style);
   }
 
 
-  void DrawMarkerImpl(
+  bool DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) override {
     SPDLOG_DEBUG("DrawMarker: pos={:s}, style={:s}.", pos, style);
 
-    helpers::DrawMarker(surface_, context_, pos, style);
-
-    //TODO(improvement): Marker should support different contour & fill colors
-    // --> makes it easier to highlight points!
+    return helpers::DrawMarker(surface_, context_, pos, style);
   }
 
 
-  void DrawMarkersImpl(
+  bool DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) override {
     SPDLOG_DEBUG(
@@ -204,18 +201,21 @@ protected:
     // b) unless we're drawing hundreds+ points at once,
     //    I doubt that the speedup would be noticable
     MarkerStyle s(style);
+    bool success = true;
     for (const auto &p : markers) {
       if (p.second.IsValid()) {
         s.color = p.second;
       } else {
         s.color = style.color;
       }
-      helpers::DrawMarker(surface_, context_, p.first, s);
+      const bool result = helpers::DrawMarker(surface_, context_, p.first, s);
+      success = success && result;
     }
+    return success;
   }
 
 
-  void DrawPolygonImpl(
+  bool DrawPolygonImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style,
       const Color &fill_color) override {
@@ -223,19 +223,19 @@ protected:
           "DrawPolygon: {:d} points, style={:s}, fill={:s}.",
           points.size(), line_style, fill_color);
 
-    helpers::DrawPolygon(
+    return helpers::DrawPolygon(
           surface_, context_, points, line_style, fill_color);
   }
 
 
-  void DrawRectImpl(
+  bool DrawRectImpl(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
           "DrawRect: {:s}, style={:s}, fill={:s}.",
           rect, line_style, fill_color);
 
-    helpers::DrawRect(
+    return helpers::DrawRect(
           surface_, context_, rect, line_style, fill_color);
   }
 

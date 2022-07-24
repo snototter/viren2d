@@ -14,7 +14,7 @@ bool DrawImage(
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor,
     LineStyle line_style) {
-  if (!CheckCanvasNoExcept(surface, context)) {
+  if (!CheckCanvas(surface, context)) {
     return false;
   }
 

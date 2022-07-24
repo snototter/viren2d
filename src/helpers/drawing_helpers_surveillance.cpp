@@ -22,7 +22,7 @@ bool DrawBoundingBox2D(
     Rect rect, const std::vector<std::string> &label,
     const BoundingBox2DStyle &style) {
   //-------------------- Sanity checks
-  if (!CheckCanvasNoExcept(surface, context)) {
+  if (!CheckCanvas(surface, context)) {
     return false;
   }
 
@@ -31,7 +31,6 @@ bool DrawBoundingBox2D(
     s += style.ToString(); //TODO implement and use ToDetailedString?
     s += '!';
     SPDLOG_WARN(s);
-    // throw std::invalid_argument(s);
     return false;
   }
 
@@ -40,7 +39,6 @@ bool DrawBoundingBox2D(
     s += rect.ToString();
     s += '!';
     SPDLOG_WARN(s);
-    // throw std::invalid_argument(s);
     return false;
   }
 
@@ -198,7 +196,7 @@ bool DrawBoundingBox2D(
           label_box.left(), label_box.bottom() - mlt.Height(),
           label_box.width, mlt.Height());
   } else {
-    // This exception can stay. Would be caused by an implementation
+    // This exception can remain. Would be caused by an implementation
     // error (in this function) only.
     throw std::logic_error(
           "Internal vertical alignment in "
@@ -277,7 +275,7 @@ bool DrawTrajectory(
       const std::vector<Vec2d> &points, const LineStyle &style,
       Color color_fade_out, bool oldest_position_first,
       const std::function<double(double)> &mix_factor) {
-  if (!CheckCanvasNoExcept(surface, context)) {
+  if (!CheckCanvas(surface, context)) {
     return false;
   }
 
@@ -287,7 +285,6 @@ bool DrawTrajectory(
     s += style.ToDetailedString();
     s += '!';
     SPDLOG_WARN(s);
-    // throw std::invalid_argument(s);
     return false;
   }
 

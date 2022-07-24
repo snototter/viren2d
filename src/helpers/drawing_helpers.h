@@ -21,38 +21,12 @@ namespace helpers {
 //---------------------------------------------------- Sanity checks
 // To be used by all drawing helpers.
 
-/// Ensures that the canvas is set up correctly. Should be
-/// called within each drawing helper function.
-inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
-  if (!surface) {
-    throw std::logic_error(
-          "Invalid cairo surface (nullptr). "
-          "Did you forget to set up the canvas first?");
-  }
-
-  cairo_status_t surf_stat = cairo_surface_status(surface);
-  if (surf_stat != CAIRO_STATUS_SUCCESS) {
-    std::ostringstream s;
-    s << "Invalid Cairo surface status (" << surf_stat
-      << "), check "
-         "https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t "
-         "for details.";
-    throw std::logic_error(s.str());
-  }
-
-  if (!context) {
-    throw std::logic_error(
-          "Invalid Cairo context (nullptr) - "
-          "cannot continue drawing.");
-  }
-}
-
 
 // TODO should replace the throwing CheckCanvas calls everywhere.
 // Once this is done, rename it back to CheckCanvas.
 /// Ensures that the canvas is set up correctly. Should be
 /// called within each drawing helper function.
-inline bool CheckCanvasNoExcept(cairo_surface_t *surface, cairo_t *context) {
+inline bool CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
   if (!surface) {
     SPDLOG_WARN(
           "Invalid cairo surface (nullptr). "
@@ -83,20 +57,7 @@ inline bool CheckCanvasNoExcept(cairo_surface_t *surface, cairo_t *context) {
 
 
 /// Checks if the line style is valid.
-inline void CheckLineStyle(const LineStyle &style) {
-  if (!style.IsValid()) {
-    std::string s("Cannot draw with invalid line style ");
-    s += style.ToDetailedString();
-    s += '!';
-    throw std::invalid_argument(s);
-  }
-}
-
-
-// TODO should replace the throwing CheckLineStyle calls everywhere.
-// Once this is done, rename it back to CheckLineStyle.
-/// Checks if the line style is valid.
-inline bool CheckLineStyleNoExcept(const LineStyle &style) {
+inline bool CheckLineStyle(const LineStyle &style) {
   if (!style.IsValid()) {
     std::string s("Cannot draw with invalid line style ");
     s += style.ToDetailedString();
@@ -112,31 +73,7 @@ inline bool CheckLineStyleNoExcept(const LineStyle &style) {
 /// Checks if line style *or* fill color are valid.
 /// To be used in functions which allow only filling or
 /// only drawing a shape's contour.
-inline void CheckLineStyleAndFill(
-    const LineStyle &style, Color &fill_color) {
-  if (fill_color.IsSpecialSame()) {
-    fill_color = style.color.WithAlpha(fill_color.alpha);
-  }
-
-  if (!style.IsValid() && !fill_color.IsValid()) {
-    std::string s(
-          "Cannot draw with both invalid line "
-          "style and invalid fill color: ");
-    s += style.ToDetailedString();
-    s += " and ";
-    s += fill_color.ToString();
-    s += '!';
-    throw std::invalid_argument(s);
-  }
-}
-
-
-// TODO should replace the throwing CheckLineStyleAndFill calls everywhere.
-// Once this is done, rename it back to CheckLineStyleAndFill.
-/// Checks if line style *or* fill color are valid.
-/// To be used in functions which allow only filling or
-/// only drawing a shape's contour.
-inline bool CheckLineStyleAndFillNoExcept(
+inline bool CheckLineStyleAndFill(
     const LineStyle &style, Color &fill_color) {
   if (fill_color.IsSpecialSame()) {
     fill_color = style.color.WithAlpha(fill_color.alpha);
@@ -517,23 +454,23 @@ bool DrawImage(cairo_surface_t *surface, cairo_t *context,
     double rotation, double clip_factor, LineStyle line_style);
 
 
-void DrawLine(
+bool DrawLine(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const LineStyle &line_style);
 
 
-void DrawMarker(
+bool DrawMarker(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d pos, const MarkerStyle &style);
 
 
-void DrawPolygon(
+bool DrawPolygon(
     cairo_surface_t *surface, cairo_t *context,
     const std::vector<Vec2d> &points,
     const LineStyle &line_style, Color fill_color);
 
 
-void DrawRect(
+bool DrawRect(
     cairo_surface_t *surface, cairo_t *context,
     Rect rect, const LineStyle &line_style,
     Color fill_color);

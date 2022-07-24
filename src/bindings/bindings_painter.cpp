@@ -160,36 +160,36 @@ public:
   }
 
 
-  void DrawLine(
+  bool DrawLine(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) {
-    painter_->DrawLine(from, to, line_style);
+    return painter_->DrawLine(from, to, line_style);
   }
 
 
-  void DrawMarker(const Vec2d &pos, const MarkerStyle &style) {
-    painter_->DrawMarker(pos, style);
+  bool DrawMarker(const Vec2d &pos, const MarkerStyle &style) {
+    return painter_->DrawMarker(pos, style);
   }
 
 
-  void DrawMarkers(
+  bool DrawMarkers(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) {
-    painter_->DrawMarkers(markers, style);
+    return painter_->DrawMarkers(markers, style);
   }
 
 
-  void DrawPolygon(
+  bool DrawPolygon(
       const std::vector<Vec2d> &polygon, const LineStyle &line_style,
       const Color &fill_color) {
-    painter_->DrawPolygon(polygon, line_style, fill_color);
+    return painter_->DrawPolygon(polygon, line_style, fill_color);
   }
 
 
-  void DrawRect(
+  bool DrawRect(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) {
-    painter_->DrawRect(rect, line_style, fill_color);
+    return painter_->DrawRect(rect, line_style, fill_color);
   }
 
 
@@ -927,6 +927,10 @@ void RegisterPainter(py::module &m) {
           pt2: End position as :class:`~viren2d.Vec2d`.
           line_style: A :class:`~viren2d.LineStyle` specifying
             how to draw the line.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -953,6 +957,10 @@ void RegisterPainter(py::module &m) {
           pos: Position as :class:`~viren2d.Vec2d`.
           marker_style: A :class:`~viren2d.MarkerStyle` specifying
             how to draw the marker.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> marker_style = viren2d.MarkerStyle(
@@ -981,6 +989,11 @@ void RegisterPainter(py::module &m) {
             ``marker_style``'s color specification instead.
           marker_style: A :class:`~viren2d.MarkerStyle` specifying
             how to draw the markers (except for the color).
+        
+        Returns:
+          ``True`` if drawing completed successfully for all markers.
+          Otherwise, check the log messages. Drawing errors are most
+          likely caused by invalid inputs.
 
         Example:
           >>> marker_style = viren2d.MarkerStyle(color='crimson')
@@ -1017,6 +1030,10 @@ void RegisterPainter(py::module &m) {
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the polygon will be filled.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
         Example:
           >>> points = [(0, 0), (10, 20), (42, 30), ...]
           >>> line_style = viren2d.LineStyle(
@@ -1050,6 +1067,10 @@ void RegisterPainter(py::module &m) {
             a valid ``fill_color``.
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the rectangle will be filled.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle()

@@ -228,7 +228,7 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
     double rotation, const LineStyle &box_line_style,
     const Color &box_fill_color, double box_corner_radius,
     const Vec2d &fixed_box_size) {
-  if (!CheckCanvasNoExcept(surface, context)) {
+  if (!CheckCanvas(surface, context)) {
     return Rect();
   }
 
@@ -241,7 +241,6 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
     s += text_style.ToString();
     s += '!';
     SPDLOG_WARN(s);
-    //throw std::invalid_argument(s);
     return Rect();
   }
 
