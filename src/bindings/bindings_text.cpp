@@ -8,26 +8,29 @@
 
 #include <bindings/binding_helpers.h>
 
+//TODO(doc) add corresponding c++ api to docstr
+
 namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
 //-------------------------------------------------  TextStyle
+/// Convert to tuple (used for pickling)
 py::tuple TextStyleToTuple(const TextStyle &obj) {
-  return py::make_tuple(obj.size, obj.family,
-                        ColorToTuple(obj.color),
-                        obj.bold, obj.italic,
-                        obj.line_spacing, obj.alignment);
+  return py::make_tuple(
+        obj.size, obj.family, ColorToTuple(obj.color), obj.bold, obj.italic,
+        obj.line_spacing, obj.halign, obj.valign);
 }
 
 
+/// Convert from tuple (used for pickling and overloaded constructor).
 TextStyle TextStyleFromTuple(const py::tuple &tpl) {
   // Convert empty tuple to pre-defined default style
   if(tpl.empty()) {
     return TextStyle();
   }
 
-  if (tpl.size() > 7) {
+  if (tpl.size() > 8) {
     std::ostringstream s;
     s << "Cannot create `viren2d.TextStyle` from tuple with "
       << tpl.size() << " entries!";
@@ -58,7 +61,11 @@ TextStyle TextStyleFromTuple(const py::tuple &tpl) {
   }
 
   if (tpl.size() > 6) {
-    style.alignment = tpl[6].cast<HorizontalAlignment>();
+    style.halign = tpl[6].cast<HorizontalAlignment>();
+  }
+
+  if (tpl.size() > 7) {
+    style.valign = tpl[7].cast<VerticalAlignment>();
   }
 
   return style;
@@ -66,22 +73,31 @@ TextStyle TextStyleFromTuple(const py::tuple &tpl) {
 
 
 void RegisterAnchors(py::module &m) {
-  py::enum_<HorizontalAlignment> halign(m, "HorizontalAlignment",
-             "Options for horizontal alignment.");
+  py::enum_<HorizontalAlignment> halign(m, "HorizontalAlignment", R"docstr(
+            Enumeration for horizontal alignment.
+
+            **Corresponding C++ API:** ``viren2d::HorizontalAlignment``.
+            )docstr");
   halign.value(
         "Left",
         HorizontalAlignment::Left, R"docstr(
         Horizontally left-aligned.
+
+        String representation ``'left'`` or ``'west'``.
         )docstr")
       .value(
         "Center",
         HorizontalAlignment::Center, R"docstr(
         Horizontally centered.
+
+        String representation ``'center'`` or ``'middle'``.
         )docstr")
       .value(
         "Right",
         HorizontalAlignment::Right, R"docstr(
         Horizontally right-aligned.
+
+        String representation ``'right'`` or ``'east'``.
         )docstr");
 
   halign.def(
@@ -97,22 +113,31 @@ void RegisterAnchors(py::module &m) {
         }, py::name("__repr__"), py::is_method(m));
 
 
-  py::enum_<VerticalAlignment> valign(m, "VerticalAlignment",
-             "Options for vertical alignment.");
+  py::enum_<VerticalAlignment> valign(m, "VerticalAlignment", R"docstr(
+            Options for vertical alignment.
+
+            **Corresponding C++ API:** ``viren2d::VerticalAlignment``.
+            )docstr");
   valign.value(
         "Top",
         VerticalAlignment::Top, R"docstr(
         Vertically top-aligned.
+
+        String representation ``'top'`` or ``'north'``.
         )docstr")
       .value(
         "Center",
         VerticalAlignment::Center, R"docstr(
         Vertically centered.
+
+        String representation ``'center'`` or ``'middle'``.
         )docstr")
       .value(
         "Bottom",
         VerticalAlignment::Bottom, R"docstr(
         Vertically bottom-aligned.
+
+        String representation ``'bottom'`` or ``'south'``.
         )docstr");
 
   valign.def(
@@ -128,12 +153,16 @@ void RegisterAnchors(py::module &m) {
         }, py::name("__repr__"), py::is_method(m));
 
 
-  py::enum_<Anchor> anchor(m, "Anchor",
-             "Placement options with respect to a reference point.");
+  py::enum_<Anchor> anchor(m, "Anchor", R"docstr(
+            Placement options with respect to a reference point.
+
+            **Corresponding C++ API:** ``viren2d::Anchor``.
+            )docstr");
   anchor.value(
         "Center",
         Anchor::Center, R"docstr(
         Horizontally & vertically centered.
+        Alias string representation: ``'middle'``.
         )docstr")
       .value(
         "Left",
@@ -211,6 +240,8 @@ void RegisterAnchors(py::module &m) {
   py::enum_<LabelPosition> bblp(
         m, "LabelPosition", R"docstr(
         Placement options for labels.
+
+        **Corresponding C++ API:** ``viren2d::LabelPosition``.
         )docstr");
   bblp.value(
         "Top",
@@ -279,17 +310,35 @@ HorizontalAlignment HorizontalAlignmentFromPyObject(const py::object &o) {
 }
 
 
+VerticalAlignment VerticalAlignmentFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    const auto str = py::cast<std::string>(o);
+    return VerticalAlignmentFromString(str);
+  } else if (py::isinstance<VerticalAlignment>(o)) {
+    return py::cast<VerticalAlignment>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.VerticalAlignment`!";
+    throw std::invalid_argument(str.str());
+  }
+}
+
+
 /// Convenience construction of a text style,
 /// which accepts alignment definition as
 /// either enum or string representation.
 TextStyle CreateTextStyle(
     unsigned int font_size, const std::string &font_family,
     const Color &font_color, bool font_bold, bool font_italic,
-    double spacing, const py::object &align) {
-  HorizontalAlignment halign = HorizontalAlignmentFromPyObject(align);
+    double spacing, const py::object &halign, const py::object &valign) {
+  HorizontalAlignment horz_align = HorizontalAlignmentFromPyObject(halign);
+  VerticalAlignment vert_align = VerticalAlignmentFromPyObject(valign);
   return TextStyle(
         font_size, font_family, font_color,
-        font_bold, font_italic, spacing, halign);
+        font_bold, font_italic, spacing, horz_align, vert_align);
 }
 
 
@@ -297,12 +346,14 @@ void RegisterTextStyle(py::module &m) {
   std::string doc = R"docstr(
       How text should be rendered.
 
+      **Corresponding C++ API:** ``viren2d::TextStyle``.
+
       Example:
         >>> text_style = viren2d.TextStyle(
         >>>     family='monospace', size=18,
         >>>     color='navy-blue', bold=True,
         >>>     italic=False, line_spacing=1.1,
-        >>>     alignment='left')
+        >>>     halign='left', valign='top')
       )docstr";
   py::class_<TextStyle>text_style(m, "TextStyle", doc.c_str());
 
@@ -319,9 +370,14 @@ void RegisterTextStyle(py::module &m) {
         italic: If ``True``, the font slant will be italic (type :class:`bool`).
         line_spacing: Scaling factor of the vertical distance between
           consecutive lines of text.
-        alignment: Horizontal alignment of multi-line text
+        halign: Horizontal alignment of multi-line text
           as :class:`~viren2d.HorizontalAlignment` enum. This parameter
           also accepts the corresponding string representation.
+        valign: Vertical alignment of multi-line text
+          as :class:`~viren2d.VerticalAlignment` enum. This parameter
+          also accepts the corresponding string representation. Only affects
+          alignment of **fixed-size** text boxes, see
+          :meth:`~viren2d.Painter.draw_text_box`.
       )docstr";
 
   TextStyle default_style;
@@ -334,12 +390,16 @@ void RegisterTextStyle(py::module &m) {
         py::arg("bold") = default_style.bold,
         py::arg("italic") = default_style.italic,
         py::arg("line_spacing") = default_style.line_spacing,
-        py::arg("alignment") = default_style.alignment);
+        py::arg("halign") = default_style.halign,
+        py::arg("valign") = default_style.valign);
 
   text_style.def(
         "copy",
-        [](const TextStyle &st) { return TextStyle(st); },
-        "Returns a deep copy.")
+        [](const TextStyle &st) { return TextStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::TextStyle``.
+        )docstr")
       .def(
         "__repr__",
         [](const TextStyle &st) {
@@ -349,69 +409,114 @@ void RegisterTextStyle(py::module &m) {
         "__str__",
         &TextStyle::ToString)
       .def(
-        py::pickle(&TextStyleToTuple, &TextStyleFromTuple),
-        ":class:`~viren2d.TextStyle` instances can be pickled.")
+        py::pickle(&TextStyleToTuple, &TextStyleFromTuple), R"docstr(
+        :class:`~viren2d.TextStyle` instances can be pickled.
+        )docstr")
       .def(
-        py::self == py::self,
-        "Checks for equality.")
+        py::self == py::self, R"docstr(
+        Checks for equality.
+        )docstr")
       .def(
-        py::self != py::self,
-        "Checks for inequality.")
+        py::self != py::self, R"docstr(
+        Checks for inequality.
+        )docstr")
       .def(
         "is_valid",
-        &TextStyle::IsValid,
-        "Returns ``True`` if the style allows rendering text.")
+        &TextStyle::IsValid, R"docstr(
+        Returns ``True`` if the style allows rendering text.
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::IsValid``.
+        )docstr")
       .def_readwrite(
         "size",
-        &TextStyle::size,
-        "float: Font size in pixels.")
+        &TextStyle::size, R"docstr(
+        float: Font size in pixels.
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::size``.
+        )docstr")
       .def_readwrite(
         "family",
         &TextStyle::family, R"docstr(
-          str: Name of the font family.
+        str: Name of the font family.
 
           Most available fonts on the system should be supported.
           If you experience issues, try the generic CSS2 family names
           first, *e.g.* ``serif``, ``sans-serif``, or ``monospace``. Refer to the
           `Cairo documentation <https://www.cairographics.org/manual/cairo-text.html#cairo_select_font_face>`__
           for more details.
-          )docstr")
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::family``.
+        )docstr")
       .def_readwrite(
         "bold",
-        &TextStyle::bold,
-        "bool: If ``True``, the font weight will be bold.")
+        &TextStyle::bold, R"docstr(
+        bool: If ``True``, the font weight will be bold.
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::bold``.
+        )docstr")
       .def_readwrite(
         "italic",
-        &TextStyle::italic,
-        "bool: If ``True``, the font slant will be italic.")
+        &TextStyle::italic, R"docstr(
+        bool: If ``True``, the font slant will be italic.
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::italic``.
+        )docstr")
       .def_readwrite(
         "line_spacing",
-        &TextStyle::line_spacing,
-        "float: Scaling factor of the vertical distance between\n"
-        "  consecutive lines of text.");
+        &TextStyle::line_spacing, R"docstr(
+        float: Scaling factor of the vertical distance between
+          consecutive lines of text.
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::line_spacing``.
+        )docstr")
+      .def_readwrite(
+        "color",
+        &TextStyle::color, R"docstr(
+        :class:`~viren2d.Color`: Color of the text glyphs.
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::color``.
+        )docstr");
 
 
-  doc = ":class:`~viren2d.Color`: Color of the text glyphs.";
-  text_style.def_readwrite("color", &TextStyle::color, doc.c_str());
-
-
-  doc = R"docstr(
-      :class:`~viren2d.HorizontalAlignment`:  Horizontal
-        alignment of multi-line text.
-
-        In addition to the enum values, you can use
-        the string representations (``left|west``,
-        ``center|middle``, ``right|east``) to set this member:
-
-        >>> style.alignment = viren2d.HorizontalAlignment.Center
-        >>> style.alignment = 'center'
-      )docstr";
   text_style.def_property(
-        "alignment",
-        [](TextStyle &s) { return s.alignment; },
+        "halign",
+        [](const TextStyle &s) { return s.halign; },
         [](TextStyle &s, py::object o) {
-            s.alignment = HorizontalAlignmentFromPyObject(o);
-        }, doc.c_str());
+            s.halign = HorizontalAlignmentFromPyObject(o);
+        }, R"docstr(
+        :class:`~viren2d.HorizontalAlignment`:  Horizontal alignment of
+          multi-line text.
+
+          In addition to the enumeration values, you can use
+          the string representations (``left|west``,
+          ``center|middle``, ``right|east``) to set this member:
+
+          >>> style.halign = viren2d.HorizontalAlignment.Center
+          >>> style.halign = 'center'
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::halign``.
+        )docstr");
+
+
+  text_style.def_property(
+        "valign",
+        [](const TextStyle &s) { return s.valign; },
+        [](TextStyle &s, py::object o) {
+            s.valign = VerticalAlignmentFromPyObject(o);
+        }, R"docstr(
+        :class:`~viren2d.VerticalAlignment`:  Vertical alignment of
+          multi-line text. Will only affect the output of **fixed-size**
+          text boxes, see :meth:`~viren2d.Painter.draw_text_box`.
+
+          In addition to the enumeration values, you can use
+          the string representations (``top|north``,
+          ``center|middle``, ``bottom|south``) to set this member:
+
+          >>> style.valign = viren2d.VerticalAlignment.Center
+          >>> style.valign = 'center'
+
+          **Corresponding C++ API:** ``viren2d::TextStyle::valign``.
+        )docstr");
 }
 
 } // namespace bindings

@@ -9,11 +9,11 @@
 
 namespace viren2d {
 
-/// Loads a `.flo` optical flow file into a two-band image.
+/// Loads a `.flo` optical flow file into a two-band image buffer.
 ImageBuffer LoadOpticalFlow(const std::string &filename);
 
 
-/// Saves a two-band optical flow image as `.flo` format.
+/// Saves a two-band optical flow image as `.flo` file.
 void SaveOpticalFlow(const std::string &filename, const ImageBuffer &flow);
 
 
@@ -29,7 +29,7 @@ void SaveOpticalFlow(const std::string &filename, const ImageBuffer &flow);
 /// to divide the flow magnitude.
 ///
 /// The default color map is the cyclic six-color map CET-C6 proposed by
-/// `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__.
+/// `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__.
 ///
 /// Args:
 ///   flow: The optical flow field as 2-channel ImageBuffer of type float

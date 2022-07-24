@@ -29,29 +29,43 @@ ImageBuffer OpticalFlowLegendHelper(
 }
 
 
-void RegisterOpticalFlowUtils(pybind11::module &m) {
+ImageBuffer LoadOpticalFlowHelper(const py::object &path) {
+  return LoadOpticalFlow(PathStringFromPyObject(path));
+}
+
+
+void SaveOpticalFlowHelper(const py::object &path, const ImageBuffer &flow) {
+  SaveOpticalFlow(PathStringFromPyObject(path), flow);
+}
+
+
+void RegisterOpticalFlowUtils(py::module &m) {
   m.def("save_optical_flow",
-        &SaveOpticalFlow, R"docstr(
-        Saves a two-band optical flow field as ``.flo`` format.
+        &SaveOpticalFlowHelper, R"docstr(
+        Saves a two-band optical flow field as ``.flo`` file.
+
+        **Corresponding C++ API:** ``viren2d::SaveOpticalFlow``.
 
         Args:
-          filename: The output filename as :class:`str`. The
-            calling code must ensure that the directory
-            hierarchy exists.
+          filename: The output filename as :class:`str` or
+            :class:`pathlib.Path`. The calling code must ensure that the
+            directory hierarchy exists.
           flow: The optical flow data as 2-channel
-            :class:`~viren2d.ImageBuffer` or :class:`numpy.ndarray` which
-            should be written to disk. Must be of type :class:`numpy.float32`
-            or :class:`numpy.float64`.
+            :class:`~viren2d.ImageBuffer` which should be written to disk.
+            Must be of type :class:`numpy.float32` or :class:`numpy.float64`.
         )docstr",
         py::arg("filename"), py::arg("flow"));
 
 
   m.def("load_optical_flow",
-        &LoadOpticalFlow, R"docstr(
+        &LoadOpticalFlowHelper, R"docstr(
         Loads an optical flow field from a ``.flo`` file.
 
+        **Corresponding C++ API:** ``viren2d::LoadOpticalFlow``.
+
         Args:
-          filename: The path to the ``.flo`` file as :class:`str`.
+          filename: The path to the ``.flo`` file as :class:`str` or
+            :class:`pathlib.Path`.
 
         Returns:
           A 2-channel :class:`~viren2d.ImageBuffer` of
@@ -67,21 +81,22 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
         Given a cyclic color map, this returns the false color representation,
         where the flow orientation defines the color map bin and the magnitude
         defines the corresponding color's saturation.
+        The default color map is the cyclic six-color map CET-C6 proposed by
+        `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__.
 
         This assumes that flow is normalized such that the maximum magnitude
         is 1. Larger motion will be indicated by a desaturated color. To avoid
         this, you can adjust the ``motion_normalizer`` parameter.
 
-        The default color map is the cyclic six-color map CET-C6 proposed by
-        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__.
+        **Corresponding C++ API:** ``viren2d::ColorizeOpticalFlow``.
 
         Args:
-          flow: The optical flow field as 2-channel :class:`~viren2d.ImageBuffer`
-            or :class:`numpy.ndarray`, where the first and second channels hold
-            the motion in *x* and *y* direction, respectively. Must be of type
+          flow: The optical flow field as 2-channel :class:`~viren2d.ImageBuffer`,
+            where the first and second channels hold the motion in :math:`x`
+            and :math:`y` direction, respectively. Must be of type
             :class:`numpy.float32` or :class:`numpy.float64`.
           colormap: The :class:`~viren2d.ColorMap` to be used for
-            colorization. In addition to the enum value, the corresponding
+            colorization. In addition to the enumeration value, the corresponding
             string representation can be used for convenience.
           motion_normalizer: A :class:`float` parameter used to divide the flow
             magnitude. Set to the maximum motion magnitude to avoid
@@ -104,10 +119,12 @@ void RegisterOpticalFlowUtils(pybind11::module &m) {
         &OpticalFlowLegendHelper, R"docstr(
         Returns the color wheel visualization.
 
+        **Corresponding C++ API:** ``viren2d::OpticalFlowLegend``.
+
         Args:
           size: The output image will be ``size`` by ``size`` pixels.
           colormap: The :class:`~viren2d.ColorMap` to be used for
-            colorization. In addition to the enum value, the corresponding
+            colorization. In addition to the enumeration value, the corresponding
             string representation can be used for convenience.
           line_style: A :class:`~viren2d.LineStyle` specifying how to draw the
             grid overlay on the legend. Disable grid overlay by passing

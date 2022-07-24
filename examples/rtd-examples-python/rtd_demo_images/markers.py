@@ -19,9 +19,9 @@ def cheat_sheet_markers():
         text_style.size = 18
 
         painter.draw_text(
-            ['Marker code:'], (5, y1), 'left', text_style)
+            ['Marker:'], (5, y1), 'left', text_style)
         painter.draw_text(
-            ['Not filled:'], (5, y2), 'left', text_style)
+            ['Contour:'], (5, y2), 'left', text_style)
         painter.draw_text(
             ['Filled:'], (5, y3), 'left', text_style)
 
@@ -42,14 +42,16 @@ def cheat_sheet_markers():
             return 1
         elif mc in ['+', 'x', '*']:
             return 5
-        elif mc in ['o', 's', 'r', 'd', '^', 'v', '<', '>']:
+        elif mc in ['r', 'R']:
+            return 4
+        elif mc in ['o', 's', 'S', 'd', '^', 'v', '<', '>']:
             return 3
         else:
             return 2
 
     # Iterate and visualize the available markers:
     y1, y2, y3 = 25, 75, 125
-    left = 145
+    left = 110
     _prepare_display_row(y1, y2, y3)
     x = left
     for marker in viren2d.Marker.list_all():

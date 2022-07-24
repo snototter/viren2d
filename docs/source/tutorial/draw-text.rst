@@ -14,19 +14,21 @@ Text can be rendered via :meth:`~viren2d.Painter.draw_text` or
 Text Positioning
 ................
 
-To neatly position text, you simply need a **reference position** (*i.e. x* and
-*y* coordinate) and a :class:`~viren2d.Anchor`. The following figure shows
-text boxes, along with the corresponding anchor and reference positions,
-which are highlighted via :func:`~viren2d.Painter.draw_marker`:
+To position text on the canvas, you simply need a **reference position**
+(*i.e.* :math:`x`` and :math:`y` coordinate) and an :class:`~viren2d.Anchor`.
+The following example shows text boxes along with the corresponding anchor
+and reference positions.
+These reference positions are highlighted via
+:func:`~viren2d.Painter.draw_marker`:
 
 .. image:: ../images/text-anchors.png
    :width: 440
    :alt: Text anchors
    :align: center
 
-This visualization has been created with the following Python code:
+Corresponding Python code:
 
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/positioning.py
+.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/text.py
    :language: python
    :linenos:
    :lines: 35-51
@@ -40,8 +42,8 @@ This visualization has been created with the following Python code:
 Multi-Line Text
 ...............
 
-The following figure shows the different (horizontal) alignment options of
-multi-line text boxes. The displayed text lines are an excerpt from
+The following example shows the different alignment options of multi-line text
+boxes. These lines are an excerpt from
 `Revelation, a Visual Poem <https://vimeo.com/57370112>`__.
 
 .. image:: ../images/text-multi-line.png
@@ -51,9 +53,9 @@ multi-line text boxes. The displayed text lines are an excerpt from
 
 This visualization has been created with the following Python code:
 
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/positioning.py
+.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/text.py
    :language: python
-   :lines: 67-97
+   :lines: 64-98
    :linenos:
-   :emphasize-lines: 15, 21, 27
+   :emphasize-lines: 15-17, 23-24, 30-31
    :dedent: 4

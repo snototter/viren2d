@@ -8,6 +8,7 @@
 #include <bindings/binding_helpers.h>
 namespace py = pybind11;
 
+//TODO(doc) add corresponding c++ api to docstr
 
 namespace viren2d {
 namespace bindings {
@@ -70,7 +71,7 @@ LineStyle LineStyleFromTuple(const py::tuple &tpl) {
 
 void RegisterLineCap(pybind11::module &m) {
   py::enum_<LineCap> cap(m, "LineCap",
-             "Enum specifying how to render the endpoints of a line/dash stroke.");
+             "Enumeration specifying how to render the endpoints of a line/dash stroke.");
   cap.value(
         "Butt",
         LineCap::Butt, R"docstr(
@@ -121,7 +122,7 @@ LineCap LineCapFromPyObject(const py::object &o) {
 
 void RegisterLineJoin(pybind11::module &m) {
   py::enum_<LineJoin> join(m, "LineJoin",
-             "Enum specifying how to render the junction of two lines/segments.");
+             "Enumeration specifying how to render the junction of two lines/segments.");
 
   join.value(
         "Miter",
@@ -171,7 +172,7 @@ LineJoin LineJoinFromPyObject(const py::object &o) {
 
 void RegisterMarker(pybind11::module &m) {
   py::enum_<Marker> marker(
-        m, "Marker", "Enum specifying the marker shape.");
+        m, "Marker", "Enumeration specifying the marker shape.");
 
   marker.value(
         "Point",
@@ -201,12 +202,26 @@ void RegisterMarker(pybind11::module &m) {
       .value(
         "RotatedSquare",
         Marker::RotatedSquare, R"docstr(
-        Rotated square (a thick diamond), char representation: ``'r'``.
+        Rotated square (a thick diamond), char representation: ``'S'``.
         )docstr")
       .value(
         "Diamond",
         Marker::Diamond, R"docstr(
         Diamond marker, char representation: ``'d'``.
+        )docstr")
+      .value(
+        "Reticle",
+        Marker::Reticle, R"docstr(
+        A plus with a :math:`\text{thickness} \times \text{thickness}` hole in
+        the middle, char representation: ``'r'``.
+        The hole will always be at least :math:`4 \times 4` pixels.
+        )docstr")
+      .value(
+        "RotatedReticle",
+        Marker::RotatedReticle, R"docstr(
+        A cross with a :math:`\text{thickness} \times \text{thickness}` hole in
+        the middle, char representation: ``'R'``.
+        The hole will always be at least :math:`4 \times 4` pixels.
         )docstr")
       .value(
         "Star",
@@ -416,7 +431,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
       Creates a customized marker style.
 
       Args:
-        marker: Shape as :class:`~viren2d.Marker` enum value
+        marker: Shape as :class:`~viren2d.Marker` enumeration value
           or its character representation.
         size: Marker size in pixels as :class:`float`.
         thickness: Width/thickness of the contour in pixels
@@ -452,8 +467,33 @@ void RegisterMarkerStyle(pybind11::module &m) {
             py::arg("cap") = default_style.cap,
             py::arg("join") = default_style.join);
 
-  style.def("copy", [](const MarkerStyle &st) { return MarkerStyle(st); },
-           "Returns a deep copy.")
+
+  style.def(
+    "cap_offset",
+    &MarkerStyle::CapOffset,
+    "Computes how much the line cap will extend the start/end of the lines.")
+  .def(
+    "join_offset",
+    &MarkerStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter (see LineStyle bindings)
+    "Computes how much a line join will extend the joint.\n\n"
+    "The ``interior_angle`` is the angle between two line segments\n"
+    "in degrees.\n"
+    "This method needs to know the ``miter_limit`` because Cairo switches\n"
+    "from ``MITER`` to ``BEVEL`` if the ``miter_limit`` is exceeded.\n"
+    "Refer to the "
+    "`Cairo documentation <https://www.cairographics.org/manual/cairo-cairo-t.html#cairo-set-miter-limit>`__ "
+    "for details.",
+    py::arg("interior_angle"),
+    py::arg("miter_limit") = 10.0);
+
+
+  style.def(
+        "copy",
+        [](const MarkerStyle &st) { return MarkerStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::MarkerStyle``.
+        )docstr")
       .def("__repr__",
            [](const MarkerStyle &st) {
              return "<" + st.ToString() + ">";
@@ -485,7 +525,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
   doc = R"docstr(
       :class:`~viren2d.Marker`: Marker shape.
 
-        In addition to the enum values, you can use
+        In addition to the enumeration values, you can use
         the character codes to set this member:
 
         >>> style.marker = viren2d.Marker.Cross
@@ -542,7 +582,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
         :class:`~viren2d.LineCap`: How to render the endpoints of the marker's
           contour.
 
-          In addition to the enum values, you can use the corresponding string
+          In addition to the enumeration values, you can use the corresponding string
           representation to set this member:
 
           >>> style.cap = viren2d.LineCap.Round
@@ -552,7 +592,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
 
   doc = ":class:`~viren2d.LineJoin`: "
         "How to render the junctions of the marker's contour.\n\n"
-        "In addition to the enum values, you can use\n"
+        "In addition to the enumeration values, you can use\n"
         "the corresponding string representation to set this member:\n\n"
         ">>> style.join = viren2d.LineJoin.Miter\n"
         ">>> style.join = 'miter'\n";
@@ -585,10 +625,9 @@ void RegisterLineStyle(pybind11::module &m) {
       anti-aliasing effects.
 
       Note that several ``draw_xxx`` methods of the
-      :class:`~viren2d.Painter` also accept the special
-      member :attr:`~viren2d.LineStyle.Invalid`, which
-      indicates that a shape should only be filled,
-      but it's contour should not be drawn.
+      :class:`~viren2d.Painter` also accept the special member
+      :attr:`LineStyle.Invalid`, which indicates that a shape should
+      only be filled, but it's contour should not be drawn.
 
       Example:
         >>> style = viren2d.LineStyle(
@@ -675,11 +714,14 @@ void RegisterLineStyle(pybind11::module &m) {
 
   line_style.def(
         "copy",
-        [](const LineStyle &st) { return LineStyle(st); },
-        "Returns a deep copy.")
+        [](const LineStyle &st) { return LineStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::LineStyle``.
+        )docstr")
       .def(
         "__repr__",
-        [](const LineStyle &) { return "<LineStyle>";}) //FIXME add style summary
+        [](const LineStyle &l) { return "<" + l.ToString() + ">";})
       .def(
         "__str__",
         &LineStyle::ToString)
@@ -707,7 +749,7 @@ void RegisterLineStyle(pybind11::module &m) {
         "line's start/end.")
       .def(
         "join_offset",
-        &LineStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter //FIXME add to markerstyle, too!
+        &LineStyle::JoinOffset, //TODO rephrase doc text after implementing get/set miter
         "Computes how much a line join will extend the joint.\n\n"
         "The ``interior_angle`` is the angle between two line segments\n"
         "in degrees.\n"
@@ -760,7 +802,7 @@ void RegisterLineStyle(pybind11::module &m) {
       :class:`~viren2d.LineCap`: How to render the endpoints"
         of the line (or dash strokes).
 
-        In addition to the enum values, you can use
+        In addition to the enumeration values, you can use
         the corresponding string representation to set this member:
 
         >>> style.cap = viren2d.LineCap.Round
@@ -777,7 +819,7 @@ void RegisterLineStyle(pybind11::module &m) {
       :class:`~viren2d.LineJoin`: How to render the junctions
         of the line segments.
 
-        In addition to the enum values, you can use
+        In addition to the enumeration values, you can use
         the corresponding string representation to set this member:
 
         >>> style.join = viren2d.LineJoin.Miter
@@ -946,11 +988,14 @@ void RegisterArrowStyle(pybind11::module &m) {
 
   arrow_style.def(
         "copy",
-        [](const ArrowStyle &st) { return ArrowStyle(st); },
-        "Returns a deep copy.")
+        [](const ArrowStyle &st) { return ArrowStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::ArrowStyle``.
+        )docstr")
       .def(
         "__repr__",
-        [](const ArrowStyle &) { return "<ArrowStyle>"; }) //FIXME add style summary
+        [](const ArrowStyle &a) { return "<" + a.ToString() + ">"; })
       .def(
         "__str__",
         &ArrowStyle::ToString)
@@ -1092,9 +1137,9 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         >>> line_style = viren2d.LineStyle()
         >>> text_style = viren2d.TextStyle()
         >>> box_style = viren2d.BoundingBox2DStyle(
-        >>>   line_style=line_style, text_style=text_style,
-        >>>   box_fill_color='same!20', text_fill_color='white!60',
-        >>>   label_position='top', clip_label=True)
+        >>>     line_style=line_style, text_style=text_style,
+        >>>     box_fill_color='same!20', text_fill_color='white!60',
+        >>>     label_position='top', clip_label=True)
       )docstr";
   py::class_<BoundingBox2DStyle> bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 
@@ -1111,7 +1156,7 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         text_fill_color: Optional :class:`~viren2d.Color` to
           fill the background of the label.
         label_position: A :class:`~viren2d.LabelPosition` specifying
-          where to place the label. In addition to the enum value,
+          where to place the label. In addition to the enumeration value,
           this parameter can be set using its string representation.
         label_padding: Padding between the nearest bounding box
           edges and the label as :class:`~viren2d.Vec`.
@@ -1132,12 +1177,15 @@ void RegisterBoundingBox2DStyle(py::module &m) {
 
   bbox_style.def(
         "copy",
-        [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); },
-        "Returns a deep copy.")
+        [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); }, R"docstr(
+        Returns a deep copy.
+
+        **Corresponding C++ API:** Copy constructor of ``viren2d::BoundingBox2DStyle``.
+        )docstr")
       .def(
         "__repr__",
-        [](const BoundingBox2DStyle &)
-        { return "<BoundingBox2DStyle>"; }) //FIXME add summary
+        [](const BoundingBox2DStyle &bb)
+        { return "<" + bb.ToString() + ">"; })
       .def(
         "__str__",
         &BoundingBox2DStyle::ToString)
@@ -1197,7 +1245,7 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       :class:`~viren2d.LabelPosition`: Where to place
       the label within the box.
 
-      In addition to the enum values, you can use
+      In addition to the enumeration values, you can use
       the string representation to set this member:
 
       >>> style.label_position = viren2d.LabelPosition.Left

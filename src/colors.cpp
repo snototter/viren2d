@@ -502,7 +502,7 @@ Color Color::Inverse() const {
 }
 
 
-Color Color::Grayscale() const {
+Color Color::ToGray() const {
   const double luminance = helpers::CvtHelperRGB2Gray(red, green, blue);
   return Color(luminance, luminance, luminance, alpha);
 }
@@ -575,7 +575,7 @@ std::string Color::ToString() const {
 }
 
 
-std::string Color::ToUInt8String() const {
+std::string Color::ToUInt8String(bool fixed_width) const {
   std::ostringstream s;
   s << '(';
 
@@ -587,11 +587,18 @@ std::string Color::ToUInt8String() const {
       s << "Invalid: ";
     }
 
-    s << std::setw(3)
-      << static_cast<int>(255 * red) << ", "
-      << static_cast<int>(255 * green) << ", "
-      << static_cast<int>(255 * blue) << ", "
-      << static_cast<int>(100 * alpha) << ')';
+    if (fixed_width) {
+      s << std::setw(3)
+        << static_cast<int>(255 * red) << ", "
+        << static_cast<int>(255 * green) << ", "
+        << static_cast<int>(255 * blue) << ", "
+        << static_cast<int>(100 * alpha) << ')';
+    } else {
+      s << static_cast<int>(255 * red) << ", "
+        << static_cast<int>(255 * green) << ", "
+        << static_cast<int>(255 * blue) << ", "
+        << static_cast<int>(100 * alpha) << ')';
+    }
   }
   return s.str();
 }
@@ -727,7 +734,7 @@ Color Color::CoordinateAxisColor(char axis) {
     case 1:
     case 'y':
     case 'Y':
-      return Color(0.19, 0.80, 0.66, 1.0);
+      return Color(0.19, 0.63, 0.30, 1.0);
 
     case 2:
     case 'z':
@@ -862,5 +869,38 @@ double ColorFadeOutLogarithmic(double progress) {
   // y = 0.5 at 25% progress
   return std::log10(progress * 9.0 + 1);
 }
+
+
+void SetCustomColorMap(
+    ColorMap colormap, const std::vector<Color> &colors) {
+  std::vector<helpers::RGBColor> rgb_colors;
+  for (const auto &c : colors) {
+    rgb_colors.push_back(
+          helpers::RGBColor(
+            static_cast<unsigned char>(255 * c.red),
+            static_cast<unsigned char>(255 * c.green),
+            static_cast<unsigned char>(255 * c.blue)));
+  }
+
+  helpers::SetUserDefinedColorMap(colormap, rgb_colors);
+}
+
+
+/// Returns the colors for the specified color map.
+std::vector<Color> GetColorMapColors(ColorMap colormap) {
+  std::pair<const helpers::RGBColor *, std::size_t> map =
+      helpers::GetColorMap(colormap);
+
+  std::vector<Color> colors;
+  colors.reserve(map.second);
+
+  for (std::size_t i = 0; i < map.second; ++i) {
+    colors.push_back(
+          RGBa(map.first[i].red, map.first[i].green, map.first[i].blue));
+  }
+
+  return colors;
+}
+
 
 } // namespace viren2d

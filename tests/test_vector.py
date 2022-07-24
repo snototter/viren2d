@@ -2,6 +2,7 @@ import pytest
 import viren2d
 import math
 import pickle
+import numpy as np
 
 
 def vector_test_helper(vec, zero):
@@ -177,3 +178,54 @@ def test_pickling():
         restored = pickle.loads(data)
         assert vec == restored
 
+
+def test_vector_numpy():
+    x = np.array([1, 2, 3])
+    y = np.array([4, 5, 6])
+    expected_elem = x * y
+    expected_dot = x @ y
+
+    vy = viren2d.Vec3d(y)
+    res_a = x * vy
+    assert np.array_equal(expected_elem, res_a)
+
+    vx = viren2d.Vec3d(x)
+    res_b = vx * y
+    assert np.array_equal(expected_elem, res_b)
+
+    res_a = x @ vy
+    assert pytest.approx(expected_dot) == res_a
+
+    res_b = vx @ y
+    assert pytest.approx(expected_dot) == res_b
+
+    assert pytest.approx(expected_dot) == vx.dot(vy)
+
+    for dt in [np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+               np.int64, np.uint64, np.float32, np.float64]:
+        npv = np.array([1, 2], dtype=dt)
+        v = viren2d.Vec2d(npv)
+        assert v[0] == float(npv[0])
+        assert v[1] == float(npv[1])
+
+        npv = np.array([[1], [2]], dtype=dt)
+        v = viren2d.Vec2d(npv)
+        assert v[0] == float(npv[0])
+        assert v[1] == float(npv[1])
+
+        npv = np.array([[1, 2, -3], [4, -5, 6]], dtype=dt)
+        
+        with pytest.raises(ValueError):
+            v = viren2d.Vec2d(npv[0, :])
+        
+        v = viren2d.Vec2d(npv[:, 0])
+        assert v[0] == float(npv[0, 0])
+        assert v[1] == float(npv[1, 0])
+
+        v = viren2d.Vec2d(npv[:, 1])
+        assert v[0] == float(npv[0, 1])
+        assert v[1] == float(npv[1, 1])
+
+        v = viren2d.Vec2d(npv[:, 2])
+        assert v[0] == float(npv[0, 2])
+        assert v[1] == float(npv[1, 2])

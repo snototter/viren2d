@@ -1,17 +1,8 @@
 .. _tutorial-colormaps:
 
-----------
+~~~~~~~~~~
 Color Maps
-----------
-
-Choose any supported :class:`~viren2d.ColorMap` to colorize 2D input data via
-:meth:`~viren2d.colorize` or the :class:`~viren2d.Colorizer` (for repeatedly
-colorizing inputs with similar characteristics, *e.g.* when displaying a ToF
-camera stream).
-
-~~~~~~~~~~~~~~~~~~~~
-Available Color Maps
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 .. important::
    Note that **not every color map is perceptually uniform**. Always check the
@@ -20,7 +11,7 @@ Available Color Maps
    
    Be also aware that **choosing a color map is more intricate than most people
    anticipate**. For more details, I highly recommend
-   `Peter Kovesi's excellent article <https://arxiv.org/abs/1509.03700>`__
+   `Peter Kovesi's excellent article <https://doi.org/10.48550/arXiv.1509.03700>`__
    about the caveats with color maps and how to avoid them.
 
 
@@ -30,7 +21,7 @@ Sequential
 
 Sequential (*aka* linear) color maps linearly increase/decrease the lightness
 and/or saturation over the color map range. They are the most generic color
-maps and shoulde be used to represent data which has an intrinsic ordering.
+maps and should be used to represent data which has an intrinsic ordering.
 
 .. image:: ../images/colormaps-cheat-sheet-sequential.png
    :width: 480
@@ -126,58 +117,30 @@ representing thermographic (``thermal``), topographic (``earth``, ``ocean``,
    :align: center
 
 
-~~~~~~~~~~~~~~~~~~~~
-Colorization Example
-~~~~~~~~~~~~~~~~~~~~
+...................
+User-Defined Colors
+...................
 
-The following example uses the `"gouldian" color map <https://colorcet.com/>`__
-to colorize example data computed by the well-known
-`peaks function <https://www.mathworks.com/help/matlab/ref/peaks.html>`__,
-by varying the number of discretization bins:
+If you need other than the provided color maps, you can define your custom
+color maps via :func:`~viren2d.set_custom_colormap`. These can then be used
+analogously to the predefined color maps via the enumeration values
+:attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`, *etc.* or their
+string representation.
+For example:
 
-
-.. image:: ../images/colormap-peaks.png
-   :width: 500
-   :alt: Exemplary colorization
-   :align: center
-
-
-Corresponding Python code:
-
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
-   :language: python
-   :emphasize-lines: 1, 13-14
-   :lines: 78-97
+.. code-block:: python
    :linenos:
-   :dedent: 4
 
+   # Exemplary categorical data for visualization
+   import numpy as np
+   labels = np.array(
+       [[0, 1, 2], [-3, -4, -6], [20000, 20001, 20003]],
+       dtype=np.int32)
 
-~~~~~~~~~~~~~~
-Relief Shading
-~~~~~~~~~~~~~~
+   # Register a custom color map. This is a usage example and by
+   # no means a useful color map!
+   viren2d.set_custom_colormap(
+      'custom1', ['#800000', (0.94, 0.13, 0.15), 'rose-red'])
 
-*Multiplicative relief shading* can be performed via
-:func:`~viren2d.relief_shading`. This technique can notably enhance the
-perception of shape induced by the shading:
-
-.. image:: ../images/relief-shading.png
-   :width: 600
-   :alt: Exemplary relief shading
-   :align: center
-
-
-This visualization uses relief shading with different color maps to
-show the topographical structure of (a small part of) the lunar farside. The
-underlying topographical data was captured by the *Lunar Reconnaissance
-Orbiter* in 2011 and published by
-`NASA/GSFC/Arizona State University <https://photojournal.jpl.nasa.gov/catalog/PIA14021>`__.
-The smaller images below each main visualization show the inputs to
-:func:`~viren2d.relief_shading`, *i.e.* the relief and its colorization.
-Python code for this visualization example:
-
-.. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/colormaps.py
-   :language: python
-   :emphasize-lines: 23-24, 26
-   :lines: 20-72
-   :linenos:
-   :dedent: 4
+   # Apply the custom map for label colorization:
+   vis = viren2d.colorize_labels(labels=labels, colormap='custom1')

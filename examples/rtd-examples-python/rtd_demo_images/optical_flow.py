@@ -1,13 +1,10 @@
 import numpy as np
 import viren2d
-import os
+from rtd_demo_images.constants import VIREN2D_DATA_PATH
 
 
 def demo_optical_flow():
-    filename = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        '..', '..', 'data', 'sintel-alley2.flo')
-    flow = viren2d.load_optical_flow(filename)
+    flow = viren2d.load_optical_flow(VIREN2D_DATA_PATH / 'sintel-alley2.flo')
     (_, max_motion, _, _) = flow.magnitude().min_max(0)
     
     painter = viren2d.Painter(height=230, width=600, color='white!0')

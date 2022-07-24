@@ -5,8 +5,8 @@ Overview & Basics
 -----------------
 
 **How to draw "stuff"?**
-   Simply :ref:`initialize a painter's canvas<tutorial-painter-usage>` and use
-   its ``draw_...`` methods.
+   Simply :ref:`initialize a canvas<tutorial-painter-usage>` and use
+   the ``draw_...`` methods provided by the :class:`~viren2d.Painter`.
 
 
 **Which "stuff" can be drawn?**
@@ -14,19 +14,18 @@ Overview & Basics
 
 
 **What about visualizations besides drawing?**
-   Besides drawing, ``viren2d`` also provides various color maps for *scaled
-   colorization* to inspect and represent data, see :func:`~viren2d.colorize`
-   and :class:`~viren2d.Colorizer`.
+   Besides drawing, ``viren2d`` also provides various
+   :ref:`color maps and colorization techniques<tutorial-colorization>`
+   to inspect and represent data, such as depth measurements, topographic
+   data, gradient or flow fields, *etc.*
 
-   Suitable color maps can also be used to visualize *optical flow*
-   via :func:`~viren2d.colorize_optical_flow`.
-
-   The :class:`~viren2d.ImageBuffer` provides some basic image processing
-   functionalities, suitable to :meth:`~viren2d.ImageBuffer.blend` images,
-   :meth:`~viren2d.ImageBuffer.pixelate` some :meth:`~viren2d.ImageBuffer.roi`,
-   *etc.* Note, however, that these functionalities are mostly provided for
-   user convenience and are not optimized towards high-speed, *i.e.*
-   ``viren2d`` does not use `OpenMP <https://www.openmp.org/>`__,
+   Additionally, the :class:`~viren2d.ImageBuffer` provides some basic image
+   processing functionalities, *e.g.* to :meth:`~viren2d.ImageBuffer.blend`
+   images, :meth:`~viren2d.ImageBuffer.pixelate` regions, or perform
+   some general color space conversions. Note, however, that these
+   functionalities are only provided for user convenience and are not optimized
+   towards high-speed, *i.e.* ``viren2d`` does not use
+   `OpenMP <https://www.openmp.org/>`__,
    `oneTBB <https://github.com/oneapi-src/oneTBB>`__,
    `AVX <https://en.wikipedia.org/wiki/Advanced_Vector_Extensions>`__,
    `Neon <https://developer.arm.com/Architectures/Neon>`__
@@ -35,11 +34,12 @@ Overview & Basics
 
 **Which coordinate system is used?**
    All coordinates assume an image coordinate system, where the origin
-   ``(0, 0)`` is at the *top left* corner, the positive *x*-axis is
-   pointing right and the positive *y*-axis is pointing down.
+   ``(0, 0)`` is at the *top left* corner, the positive :math:`x` axis is
+   pointing right and the positive :math:`y` axis is pointing down.
 
 
 **How to specify angles?**
-   All angle measurements should be provided in *degrees*. The rotation
-   direction for positive angles is from the positive *x*-axis towards the
-   positive *y*-axis.
+   Unless stated otherwise in the corresponding API documentation, all angle
+   measurements are assumed to be in *degrees*. The rotation direction
+   for positive angles is from the positive :math:`x` axis towards
+   the positive :math:`y` axis.

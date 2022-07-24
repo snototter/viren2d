@@ -9,8 +9,8 @@ def demo_color_names():
         width=canvas_width, height=448, color='white!0')
 
     # Style specifications:
-    text_style = viren2d.TextStyle(family='xkcd', size=18)
-    text_style.alignment = 'center'
+    text_style = viren2d.TextStyle(
+        family='xkcd', size=18, halign='center', valign='center')
 
     line_style = viren2d.LineStyle(1, 'black')
 
@@ -24,7 +24,7 @@ def demo_color_names():
     # Iterate and visualize the available color names:
     for color_name in viren2d.color_names():
         color = viren2d.Color(color_name)
-        text_style.color = color.grayscale().inverse()
+        text_style.color = color.to_gray().inverse()
 
         painter.draw_text_box(
             [color_name], (x, y), anchor=viren2d.Anchor.Top,

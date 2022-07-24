@@ -149,7 +149,8 @@ Anchor AnchorFromString(const std::string &anchor) {
   // * Standard corner terminology (bottom right, top, center, ...)
   // * Eight principal compass directions (south, north-west, east, ...)
   //TODO support abbreviations? n,e,s,w; t,r,b,l;
-  if (slug.compare("center") == 0) {
+  if ((slug.compare("center") == 0)
+      || (slug.compare("middle") == 0)) {
     return Anchor::Center;
   } else if ((slug.compare("right") == 0)
              || (slug.compare("east") == 0)) {

@@ -3,6 +3,8 @@
 #include <sstream>
 #include <string>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 
 #include <werkzeugkiste/strings/strings.h>
 
@@ -15,6 +17,96 @@
 namespace wks = werkzeugkiste::strings;
 
 namespace viren2d {
+namespace helpers {
+template <typename _Tp>
+ImageBuffer ColorLookupScaled(
+    const ImageBuffer &data, const helpers::RGBColor *map, int num_colors,
+    double limit_low, double limit_high, int output_channels, int bins) {
+  // Sanity checks have been performed in `ColorizeScaled`
+  ImageBuffer dst(
+        data.Height(), data.Width(), output_channels, ImageBufferType::UInt8);
+
+  const int map_bins = num_colors - 1;
+  const double map_idx_factor = static_cast<double>(map_bins) / (bins - 1);
+  const double interval = (limit_high - limit_low) / bins;
+
+  int rows = data.Height();
+  int cols = data.Width();
+
+  if (data.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    const _Tp *data_ptr = data.ImmutablePtr<_Tp>(row, 0, 0);
+    unsigned char *dst_ptr = dst.MutablePtr<unsigned char>(row, 0, 0);
+    for (int col = 0; col < cols; ++col) {
+      const double value = std::max(
+            limit_low,
+            std::min(
+              limit_high,
+              static_cast<double>(*data_ptr)));
+      const int bin = std::max(
+            0, std::min(
+              map_bins, static_cast<int>(
+                map_idx_factor * std::floor((value - limit_low) / interval))));
+
+      *dst_ptr++ = map[bin].red;
+      *dst_ptr++ = map[bin].green;
+      *dst_ptr++ = map[bin].blue;
+      if (output_channels == 4) {
+        *dst_ptr++ = 255;
+      }
+      ++data_ptr;
+    }
+  }
+
+  return dst;
+}
+
+
+template <typename _Tp>
+ImageBuffer Label2Image(
+    const ImageBuffer &data, const helpers::RGBColor *map,
+    std::size_t num_colors, int output_channels) {
+  if (!std::numeric_limits<_Tp>::is_integer) {
+    throw std::logic_error(
+          "`Label2Image` is only supported for labels of integral type!");
+  }
+
+  ImageBuffer dst(
+        data.Height(), data.Width(), output_channels, ImageBufferType::UInt8);
+
+  int rows = data.Height();
+  int cols = data.Width();
+
+  if (data.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    const _Tp *data_ptr = data.ImmutablePtr<_Tp>(row, 0, 0);
+    unsigned char *dst_ptr = dst.MutablePtr<unsigned char>(row, 0, 0);
+    for (int col = 0; col < cols; ++col) {
+      const std::size_t bin = static_cast<std::size_t>(*data_ptr) % num_colors;
+      *dst_ptr++ = map[bin].red;
+      *dst_ptr++ = map[bin].green;
+      *dst_ptr++ = map[bin].blue;
+      if (output_channels == 4) {
+        *dst_ptr++ = 255;
+      }
+      ++data_ptr;
+    }
+  }
+
+  return dst;
+}
+
+} // namespace helpers
+
+
 std::string ColorMapToString(ColorMap cm) {
   switch (cm) {
     case ColorMap::Autumn:
@@ -41,6 +133,12 @@ std::string ColorMapToString(ColorMap cm) {
       return "cvd-sequential-vivid";
     case ColorMap::Copper:
       return "copper";
+    case ColorMap::Custom1:
+      return "custom1";
+    case ColorMap::Custom2:
+      return "custom2";
+    case ColorMap::Custom3:
+      return "custom3";
     case ColorMap::Disparity:
       return "disparity";
     case ColorMap::Earth:
@@ -156,6 +254,12 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::ColorBlindSequentialVivid;
   } else if (lower.compare("copper") == 0) {
     return ColorMap::Copper;
+  } else if (lower.compare("custom1") == 0) {
+    return ColorMap::Custom1;
+  } else if (lower.compare("custom2") == 0) {
+    return ColorMap::Custom2;
+  } else if (lower.compare("custom3") == 0) {
+    return ColorMap::Custom3;
   } else if (lower.compare("disparity") == 0) {
     return ColorMap::Disparity;
   } else if (lower.compare("earth") == 0) {
@@ -254,62 +358,16 @@ std::vector<ColorMap> ListColorMaps() {
     ColorMap::Autumn, ColorMap::Yarg> ColormapIterator;
 
   for (ColorMap cm: ColormapIterator()) {
-    lst.push_back(cm);
+    if ((cm != ColorMap::Custom1) && (cm != ColorMap::Custom2)
+        && (cm != ColorMap::Custom3)) {
+      lst.push_back(cm);
+    }
   }
   return lst;
 }
 
 
-template <typename _Tp>
-ImageBuffer ColorLookup(
-    const ImageBuffer &data, const helpers::RGBColor *map, int num_colors,
-    double limit_low, double limit_high, int output_channels, int bins) {
-  // Sanity checks have been performed in `Colorize`
-  ImageBuffer dst(
-        data.Height(), data.Width(), output_channels, ImageBufferType::UInt8);
-
-  const int map_bins = num_colors - 1;
-  const double map_idx_factor = static_cast<double>(map_bins) / (bins - 1);
-  const double interval = (limit_high - limit_low) / bins;
-
-  int rows = data.Height();
-  int cols = data.Width();
-
-  if (data.IsContiguous()) {
-    cols *= rows;
-    rows = 1;
-  }
-
-  for (int row = 0; row < rows; ++row) {
-    const _Tp *data_ptr = data.ImmutablePtr<_Tp>(row, 0, 0);
-    unsigned char *dst_ptr = dst.MutablePtr<unsigned char>(row, 0, 0);
-    for (int col = 0; col < cols; ++col) {
-      const double value = std::max(
-            limit_low,
-            std::min(
-              limit_high,
-              static_cast<double>(*data_ptr)));
-      const int bin = std::max(
-            0, std::min(
-              map_bins, static_cast<int>(
-                map_idx_factor * std::floor((value - limit_low) / interval))));
-
-      *dst_ptr++ = map[bin].red;
-      *dst_ptr++ = map[bin].green;
-      *dst_ptr++ = map[bin].blue;
-      if (output_channels == 4) {
-        *dst_ptr++ = 255;
-      }
-      ++data_ptr;
-    }
-  }
-
-  return dst;
-}
-
-
-
-Colorizer::Colorizer(ColorMap cmap,
+StreamColorizer::StreamColorizer(ColorMap cmap,
     LimitsMode mode, int num_bins, int channels_out,
     double low, double high)
   : colormap(cmap), limits_mode(mode), bins(num_bins),
@@ -318,44 +376,44 @@ Colorizer::Colorizer(ColorMap cmap,
 }
 
 
-void Colorizer::SetLimitLow(double low) {
+void StreamColorizer::SetLimitLow(double low) {
   limits_mode = LimitsMode::Fixed;
   limit_low = low;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetLimitHigh(double high) {
+void StreamColorizer::SetLimitHigh(double high) {
   limits_mode = LimitsMode::Fixed;
   limit_high = high;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetLimitsMode(LimitsMode m) {
+void StreamColorizer::SetLimitsMode(LimitsMode m) {
   limits_mode = m;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetColorMap(ColorMap cmap) {
+void StreamColorizer::SetColorMap(ColorMap cmap) {
   colormap = cmap;
 }
 
 
-void Colorizer::SetBins(int num_bins) {
+void StreamColorizer::SetBins(int num_bins) {
   bins = num_bins;
   ValidateConfiguration();
 }
 
 
-void Colorizer::SetOutputChannels(int channels_out) {
+void StreamColorizer::SetOutputChannels(int channels_out) {
   output_channels = channels_out;
   ValidateConfiguration();
 }
 
 
-ImageBuffer Colorizer::operator()(const ImageBuffer &data) {
+ImageBuffer StreamColorizer::Apply(const ImageBuffer &data) {
   if ((limits_mode == LimitsMode::FromDataContinuously)
       || (limits_mode == LimitsMode::FromDataOnce)) {
     // Sanity checks are performed by a) MinMaxLocation (if buffer was invalid)
@@ -368,11 +426,12 @@ ImageBuffer Colorizer::operator()(const ImageBuffer &data) {
       limits_mode = LimitsMode::Fixed;
     }
   }
-  return Colorize(data, colormap, limit_low, limit_high, output_channels, bins);
+  return ColorizeScaled(
+        data, colormap, limit_low, limit_high, output_channels, bins);
 }
 
 
-void Colorizer::ValidateConfiguration() const {
+void StreamColorizer::ValidateConfiguration() const {
   if ((bins < 2) || (bins > 256)) {
     std::ostringstream s;
     s << "Number of bins in `Colorizer` must be >= 2 and <= 256, but got: "
@@ -403,15 +462,15 @@ void Colorizer::ValidateConfiguration() const {
 }
 
 
-std::string LimitsModeToString(Colorizer::LimitsMode lm) {
+std::string LimitsModeToString(StreamColorizer::LimitsMode lm) {
   switch (lm) {
-    case Colorizer::LimitsMode::Fixed:
+    case StreamColorizer::LimitsMode::Fixed:
       return "fixed";
 
-    case Colorizer::LimitsMode::FromDataContinuously:
+    case StreamColorizer::LimitsMode::FromDataContinuously:
       return "continuous";
 
-    case Colorizer::LimitsMode::FromDataOnce:
+    case StreamColorizer::LimitsMode::FromDataOnce:
       return "once";
   }
 
@@ -422,15 +481,15 @@ std::string LimitsModeToString(Colorizer::LimitsMode lm) {
 }
 
 
-Colorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
+StreamColorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
   const std::string lower = wks::Trim(wks::Lower(lm));
 
   if (wks::StartsWith(lower, "fix")) {
-    return Colorizer::LimitsMode::Fixed;
+    return StreamColorizer::LimitsMode::Fixed;
   } else if (wks::StartsWith(lower, "cont")) {
-    return Colorizer::LimitsMode::FromDataContinuously;
+    return StreamColorizer::LimitsMode::FromDataContinuously;
   } else if (lower.compare("once") == 0) {
-    return Colorizer::LimitsMode::FromDataOnce;
+    return StreamColorizer::LimitsMode::FromDataOnce;
   }
 
   std::string s("Could not deduce `LimitsMode` from string representation \"");
@@ -440,7 +499,7 @@ Colorizer::LimitsMode LimitsModeFromString(const std::string &lm) {
 }
 
 
-ImageBuffer Colorize(
+ImageBuffer ColorizeScaled(
     const ImageBuffer &data, ColorMap colormap,
     double limit_low, double limit_high, int output_channels, int bins) {
   SPDLOG_DEBUG(
@@ -449,14 +508,15 @@ ImageBuffer Colorize(
         limit_low, limit_high);
 
   if (data.Channels() != 1) {
-    std::string s("`Colorize` requires a single-channel data buffer, not ");
+    std::string s(
+          "`ColorizeScaled` requires a single-channel data buffer, not ");
     s += data.ToString();
     throw std::invalid_argument(s);
   }
 
   if (bins < 2) {
     std::ostringstream s;
-    s << "Number of bins for `Colorize` must be > 1, but got: "
+    s << "Number of bins for `ColorizeScaled` must be > 1, but got: "
       << bins << '!';
     throw std::invalid_argument(s.str());
   }
@@ -477,7 +537,7 @@ ImageBuffer Colorize(
   if ((output_channels < 3)
       || (output_channels > 4)) {
     std::ostringstream s;
-    s << "Parameter `output_channels` in `Colorize` must be "
+    s << "Parameter `output_channels` in `ColorizeScaled` must be "
          "either 3 or 4, but got: " << output_channels << '!';
     throw std::invalid_argument(s.str());
   }
@@ -487,29 +547,109 @@ ImageBuffer Colorize(
 
   switch (data.BufferType()) {
     case ImageBufferType::UInt8:
-      return ColorLookup<uint8_t>(
+      return helpers::ColorLookupScaled<uint8_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Int16:
-      return ColorLookup<int16_t>(
+      return helpers::ColorLookupScaled<int16_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
+    case ImageBufferType::UInt16:
+      return helpers::ColorLookupScaled<uint16_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Int32:
-      return ColorLookup<int32_t>(
+      return helpers::ColorLookupScaled<int32_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
+    case ImageBufferType::UInt32:
+      return helpers::ColorLookupScaled<uint32_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
+    case ImageBufferType::Int64:
+      return helpers::ColorLookupScaled<int64_t>(
+            data, map.first, map.second, limit_low, limit_high, output_channels, bins);
+
+    case ImageBufferType::UInt64:
+      return helpers::ColorLookupScaled<uint64_t>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Float:
-      return ColorLookup<float>(
+      return helpers::ColorLookupScaled<float>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
 
     case ImageBufferType::Double:
-      return ColorLookup<double>(
+      return helpers::ColorLookupScaled<double>(
             data, map.first, map.second, limit_low, limit_high, output_channels, bins);
   }
 
   std::string s("Type `");
   s += ImageBufferTypeToString(data.BufferType());
-  s += "` not handled in `Colorize` switch!";
+  s += "` not handled in `ColorizeScaled` switch!";
+  throw std::logic_error(s);
+}
+
+
+ImageBuffer ColorizeLabels(
+    const ImageBuffer &labels, ColorMap colormap, int output_channels) {
+  SPDLOG_DEBUG(
+        "Colorize labels: {:s} with {:s}.",
+        labels.ToString(), ColorMapToString(colormap));
+
+  if (labels.Channels() != 1) {
+    std::string s("`ColorizeLabels` requires a single-channel data buffer, not ");
+    s += labels.ToString();
+    throw std::invalid_argument(s);
+  }
+
+  if ((output_channels < 3)
+      || (output_channels > 4)) {
+    std::ostringstream s;
+    s << "Parameter `output_channels` in `ColorizeLabels` must be "
+         "either 3 or 4, but got: " << output_channels << '!';
+    throw std::invalid_argument(s.str());
+  }
+
+  std::pair<const helpers::RGBColor *, std::size_t> map = helpers::GetColorMap(colormap);
+
+  switch (labels.BufferType()) {
+    case ImageBufferType::UInt8:
+      return helpers::Label2Image<uint8_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::Int16:
+      return helpers::Label2Image<int16_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::UInt16:
+      return helpers::Label2Image<uint16_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::Int32:
+      return helpers::Label2Image<int32_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::UInt32:
+      return helpers::Label2Image<uint32_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::Int64:
+      return helpers::Label2Image<int64_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::UInt64:
+      return helpers::Label2Image<uint64_t>(
+            labels, map.first, map.second, output_channels);
+
+    case ImageBufferType::Float:
+    case ImageBufferType::Double:
+        throw std::invalid_argument(
+              "Labels must be of integral type, not float/double!");
+  }
+
+  std::string s("Type `");
+  s += ImageBufferTypeToString(labels.BufferType());
+  s += "` not handled in `ColorizeScaled` switch!";
   throw std::logic_error(s);
 }
 

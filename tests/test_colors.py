@@ -105,11 +105,11 @@ def test_webcodes():
     # Test initialization via webcodes/hex codes
     color = viren2d.Color("#000000", 0.1)
     assert color == "black!10"
-    assert color.as_hex() == "#00000019"
+    assert color.to_hex() == "#00000019"
 
     color = viren2d.Color("#fFfFfF", 0.3)
     assert color == 'white!30'
-    assert color.as_hex() == "#ffffff4c"
+    assert color.to_hex() == "#ffffff4c"
 
     # Invalid inputs
     with pytest.raises(ValueError):
@@ -130,13 +130,16 @@ def test_webcodes():
     assert color == viren2d.RGBa(234, 132, 53)
 
     color = viren2d.rgba(1, 0, 0.5)
-    assert color.as_rgba() == (1, 0, 0.5, 1.0)
-    assert color.as_RGBa() == (255, 0, 127, 1.0)
-    assert color.as_hex() == '#ff007fff'
+    assert color.to_rgba() == (1, 0, 0.5, 1.0)
+    assert color.to_RGBa() == (255, 0, 127, 1.0)
+    assert color.to_hex() == '#ff007fff'
 
     color = viren2d.Color()
     assert not color.is_valid()
-    assert color.as_hex() == '#????????'
+    assert color.to_hex() == '#????????'
+
+
+#TODO test hsv conversion
 
 
 def test_color_names():
@@ -218,7 +221,7 @@ def test_operators():
     assert color == (viren2d.Color.Magenta / 10.0)
 
     # Addition
-    print(f'{color} + self = {color + color} vs 2*sefl = {2*color}')
+    print(f'{color} + self = {color + color} vs 2*sefl = {2 * color}')
     add = color + color
     assert (2 * color) == add
     cp.green = 0.3

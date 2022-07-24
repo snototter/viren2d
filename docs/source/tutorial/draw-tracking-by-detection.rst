@@ -17,7 +17,7 @@ This visualization has been created with the following Python code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/tracking_by_detection.py
    :language: python
-   :lines: 11-76
-   :emphasize-lines: 7, 17-20, 39-42
+   :lines: 11-72
+   :emphasize-lines: 7, 18-20, 28, 39-42
    :linenos:
    :dedent: 4

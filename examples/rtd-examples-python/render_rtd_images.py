@@ -1,6 +1,5 @@
 """This script renders all images included in the RTD documentation."""
 import numpy as np
-from pathlib import Path
 from vito import imvis, imutils
 
 from rtd_demo_images import *
@@ -12,10 +11,12 @@ def _process_result(
         title: str,  # currently ignored
         save_image: bool,
         filename: str) -> None:
+    if img is None:
+        return
     if show_image:
-        imvis.imshow(img, wait_ms=-1)#100) # ignore the title
+        imvis.imshow(img, wait_ms=-1) # ignore the title
     if save_image:
-        output_folder = Path(__file__).absolute().parents[2] / 'docs' / 'source' / 'images'
+        output_folder = VIREN2D_ROOT_PATH / 'docs' / 'source' / 'images'
         imutils.imsave(output_folder / filename, img)
 
 
@@ -49,7 +50,7 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'Text anchors', save_images, 'text-anchors.png')
 
-    # Multi-line text, horizontal alignment
+    # Multi-line text, horizontal & vertical alignment
     img = demo_multiline_text()
     _process_result(
         img, show_images, 'Multi-line Text', save_images, 'text-multi-line.png')
@@ -84,6 +85,11 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'colormaps', save_images, 'colormap-peaks.png')
     
+     # Color map demo - label visualizations
+    img = demo_colorize_labels()
+    _process_result(
+        img, show_images, 'colorize-labels', save_images, 'colorize-labels.png')
+
     # Color map demo - Relief shading
     img = demo_relief_shading()
     _process_result(
@@ -93,6 +99,11 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     img = demo_optical_flow()
     _process_result(
         img, show_images, 'Optical Flow', save_images, 'optical-flow.png')
+
+    # Pinhole camera calibration results
+    img = demo_pinhole()
+    _process_result(
+        img, show_images, 'Pinhole Camera', save_images, 'pinhole-camera.png')
 
 
 def render_rtd_cheatsheets(show_images: bool, save_images: bool):
@@ -125,3 +136,6 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 if __name__ == '__main__':
     render_rtd_demos(True, True)
     render_rtd_cheatsheets(True, True)
+    # img = demo_pinhole()
+    # _process_result(
+    #     img, True, 'Pinhole Camera', True, 'pinhole-camera.png')

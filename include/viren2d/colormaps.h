@@ -79,6 +79,18 @@ enum class ColorMap : unsigned char
   /// `matplotlib's <https://matplotlib.org>`__ *copper* map.
   Copper,
 
+  /// A color map which can freely be set by the library user, see
+  /// `SetCustomColorMap`.
+  Custom1,
+
+  /// A color map which can freely be set by the library user, see
+  /// `SetCustomColorMap`.
+  Custom2,
+
+  /// A color map which can freely be set by the library user, see
+  /// `SetCustomColorMap`.
+  Custom3,
+
   /// High contrast color map for depth & disparity images.
   /// Based on `disparity` for MATLAB
   /// `by Oliver Woodford <https://github.com/ojwoodford/sc>`__,
@@ -137,8 +149,8 @@ enum class ColorMap : unsigned char
   /// *jet* map.
   /// Note that this color map has several limitations (perceptual ordering,
   /// lightness gradient reversals). Refer to the excellent article by
-  /// `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
-  /// about these issues.
+  /// `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__ for more
+  /// details about these issues.
   Jet,
 
   /// A green-blue color map to visualize water depths. Based on
@@ -280,7 +292,7 @@ std::vector<ColorMap> ListColorMaps();
 /// Utility class to simplify colorization of a data stream.
 /// This class takes care of computing/storing the limits,
 /// color map, etc. so your client code doesn't need to.
-class Colorizer {
+class StreamColorizer {
 public:
 
   enum class LimitsMode {
@@ -296,7 +308,7 @@ public:
   };
 
 
-  Colorizer(
+  StreamColorizer(
       ColorMap cmap,
       LimitsMode mode = LimitsMode::FromDataContinuously,
       int num_bins = 256,
@@ -305,10 +317,10 @@ public:
       double high = std::numeric_limits<double>::infinity());
 
   void SetLimitLow(double low);
-  double LimitLow() const { return limit_low; }
+  double GetLimitLow() const { return limit_low; }
 
   void SetLimitHigh(double high);
-  double LimitHigh() const { return limit_high; }
+  double GetLimitHigh() const { return limit_high; }
 
   void SetLimitsMode(LimitsMode m);
   LimitsMode GetLimitsMode() const { return limits_mode; }
@@ -317,12 +329,16 @@ public:
   ColorMap GetColorMap() const { return colormap; }
 
   void SetBins(int num_bins);
-  int Bins() const { return bins; }
+  int GetBins() const { return bins; }
 
   void SetOutputChannels(int channels_out);
-  int OutputChannels() const { return output_channels; }
+  int GetOutputChannels() const { return output_channels; }
 
-  ImageBuffer operator()(const ImageBuffer &data);
+  ImageBuffer Apply(const ImageBuffer &data);
+
+  inline ImageBuffer operator()(const ImageBuffer &data) {
+    return Apply(data);
+  }
 
 private:
   ColorMap colormap;
@@ -337,11 +353,11 @@ private:
 
 
 /// Returns the string representation.
-std::string LimitsModeToString(Colorizer::LimitsMode lm);
+std::string LimitsModeToString(StreamColorizer::LimitsMode lm);
 
 
 /// Returns the LimitsMode enum from its string representation.
-Colorizer::LimitsMode LimitsModeFromString(const std::string &lm);
+StreamColorizer::LimitsMode LimitsModeFromString(const std::string &lm);
 
 
 /// Colorizes 2D data array using a colormap.
@@ -360,10 +376,18 @@ Colorizer::LimitsMode LimitsModeFromString(const std::string &lm);
 ///
 /// Returns:
 ///   The colorization result as UInt8 ImageBuffer.
-ImageBuffer Colorize(
+ImageBuffer ColorizeScaled(
     const ImageBuffer &data, ColorMap colormap,
     double limit_low, double limit_high,
     int output_channels = 3, int bins = 256);
+
+
+/// Colorizes a label image using the given color map. The input buffer must
+/// be of integral type and have a single channel.
+/// Output will be a 3- or 4-channel image buffer. If a fourth channel is
+/// requested, it will be interpreted as alpha channel and set to 255.
+ImageBuffer ColorizeLabels(
+    const ImageBuffer &labels, ColorMap colormap, int output_channels = 3);
 
 
 // data: single-channel --> will be converted to float/double

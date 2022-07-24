@@ -1,6 +1,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstdlib>
+#include <limits>
 
 #include <pybind11/operators.h>
 #include <pybind11/numpy.h>
@@ -19,8 +20,16 @@ inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
     return ImageBufferType::UInt8;
   } else if (dt.is(py::dtype::of<int16_t>())) {
     return ImageBufferType::Int16;
+  } else if (dt.is(py::dtype::of<uint16_t>())) {
+    return ImageBufferType::UInt16;
   } else if (dt.is(py::dtype::of<int32_t>())) {
     return ImageBufferType::Int32;
+  } else if (dt.is(py::dtype::of<uint32_t>())) {
+    return ImageBufferType::UInt32;
+  } else if (dt.is(py::dtype::of<int64_t>())) {
+    return ImageBufferType::Int64;
+  } else if (dt.is(py::dtype::of<uint64_t>())) {
+    return ImageBufferType::UInt64;
   } else if (dt.is(py::dtype::of<float>())) {
     return ImageBufferType::Float;
   } else if (dt.is(py::dtype::of<double>())) {
@@ -44,28 +53,32 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     throw std::invalid_argument(s.str());
   }
 
+  const pybind11::dtype buf_dtype = buf.dtype();
+  if (!buf_dtype.is(py::dtype::of<uint8_t>())
+      && !buf_dtype.is(py::dtype::of<int16_t>())
+      && !buf_dtype.is(py::dtype::of<uint16_t>())
+      && !buf_dtype.is(py::dtype::of<int32_t>())
+      && !buf_dtype.is(py::dtype::of<uint32_t>())
+      && !buf_dtype.is(py::dtype::of<int64_t>())
+      && !buf_dtype.is(py::dtype::of<uint64_t>())
+      && !buf_dtype.is(py::dtype::of<float>())
+      && !buf_dtype.is(py::dtype::of<double>())) {
+    std::string s("Incompatible `dtype`: ");
+    s += py::cast<std::string>(buf_dtype.attr("name"));
+    s += ". ImageBuffer can only be constructed from: "
+         "uint8, (u)int16, (u)int32, (u)int64, float32, or float64!";
+    // TODO(dev): Update error message with newly supported types, and
+    //   extend type handling in `ImageBufferTypeFromDType`.
+    //   Also update the docstring of the `ImageBuffer` class.
+    throw std::invalid_argument(s);
+  }
+
   // Buffer layout must be row-major (C-style)
   if ((buf.flags() & py::array::c_style) != py::array::c_style) {
     throw std::invalid_argument(
           "An ImageBuffer can only be constructed from C-style buffers! "
           "Check `image_np.flags` and explicitly copy the NumPy array via "
           "`image_np.copy()` before passing it into the ImageBuffer constructor.");
-  }
-
-  pybind11::dtype buf_dtype = buf.dtype();
-  if (!buf_dtype.is(py::dtype::of<uint8_t>())
-      && !buf_dtype.is(py::dtype::of<int16_t>())
-      && !buf_dtype.is(py::dtype::of<int32_t>())
-      && !buf_dtype.is(py::dtype::of<float>())
-      && !buf_dtype.is(py::dtype::of<double>())) {
-    std::string s("Incompatible `dtype`: ");
-    s += py::cast<std::string>(buf_dtype.attr("name"));
-    s += ". ImageBuffer can only be constructed from: "
-         "uint8, int16, int32, float32, or float64!";
-    // TODO(dev): Update error message with newly supported types, and
-    //   extend type handling in `ImageBufferTypeFromDType`!
-    //   Also update the docstring of `ImageBuffer`!
-    throw std::invalid_argument(s);
   }
 
   const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
@@ -106,8 +119,20 @@ inline std::string FormatDescriptor(ImageBufferType t) {
     case ImageBufferType::Int16:
       return py::format_descriptor<int16_t>::format();
 
+    case ImageBufferType::UInt16:
+      return py::format_descriptor<uint16_t>::format();
+
     case ImageBufferType::Int32:
       return py::format_descriptor<int32_t>::format();
+
+    case ImageBufferType::UInt32:
+      return py::format_descriptor<uint32_t>::format();
+
+    case ImageBufferType::Int64:
+      return py::format_descriptor<int64_t>::format();
+
+    case ImageBufferType::UInt64:
+      return py::format_descriptor<uint64_t>::format();
 
     case ImageBufferType::Float:
       return py::format_descriptor<float>::format();
@@ -139,14 +164,36 @@ py::buffer_info ImageBufferInfo(ImageBuffer &img) {
 }
 
 
+std::string PathStringFromPyObject(const py::object &path) {
+  if (py::isinstance<py::str>(path)) {
+    return path.cast<std::string>();
+  } else {
+    return py::str(path).cast<std::string>();
+  }
+}
+
+
+ImageBuffer LoadImageUInt8Helper(
+    const py::object &path, int force_num_channels) {
+  return LoadImageUInt8(PathStringFromPyObject(path), force_num_channels);
+}
+
+
+void SaveImageUInt8Helper(
+    const py::object &path, const ImageBuffer &image) {
+  SaveImageUInt8(PathStringFromPyObject(path), image);
+}
+
+
 void RegisterImageBuffer(py::module &m) {
   py::class_<ImageBuffer> imgbuf(m, "ImageBuffer", py::buffer_protocol(), R"docstr(
         Encapsulates image data.
 
         This class is primarily used to pass images between the client
         application and ``viren2d``. Supported data types are:
-        :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.int32`,
-        :class:`numpy.float32`, and :class:`numpy.float64`.
+        :class:`numpy.uint8`, :class:`numpy.int16`, :class:`numpy.uint16`,
+        :class:`numpy.int32`, :class:`numpy.uint32`, :class:`numpy.int64`,
+        :class:`numpy.uint64`, :class:`numpy.float32`, and :class:`numpy.float64`.
         Additionally, it provides several basic image manipulation methods
         to adjust an image quickly for visualization.
 
@@ -159,16 +206,21 @@ void RegisterImageBuffer(py::module &m) {
 
         >>> # Create a numpy.ndarray from an ImageBuffer
         >>> img_np = np.array(img_buf, copy=False)
+
+        Important:
+           A :class:`numpy.ndarray` can be implicitly converted to an
+           :class:`~viren2d.ImageBuffer`. Thus, there is no need for explicit
+           conversion when calling a ``viren2d`` function which expects an
+           :class:`~viren2d.ImageBuffer`.
+           The only caveat is that the :class:`numpy.ndarray` must be
+           **row-major** (*i.e.* C-style) and **contiguous**. If you need to
+           pass the result of a slicing operation, you'll need to explicitly
+           create a copy via :meth:`numpy.ndarray.copy` first.
         )docstr");
 
   imgbuf.def(
         py::init(&CreateImageBuffer), R"docstr(
         Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
-
-        Note that the :class:`numpy.ndarray` must be C-contiguous, see its
-        :attr:`numpy.ndarray.flags`. If it is not, create a
-        :meth:`numpy.ndarray.copy` before passing into any viren2d
-        function.
 
         Args:
           array: The :class:`numpy.ndarray` holding the image data.
@@ -184,6 +236,8 @@ void RegisterImageBuffer(py::module &m) {
 
         The returned copy will **always** allocate and copy the memory,
         even if you call this method on a *shared* buffer.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::DeepCopy``.
         )docstr")
       .def(
         "roi",
@@ -194,6 +248,8 @@ void RegisterImageBuffer(py::module &m) {
         :class:`~viren2d.ImageBuffer`. The returned buffer will always
         *share* its memory - be aware of this when performing pixel
         modifications on the ROI afterwards.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ROI``.
 
         Args:
            left: Position of the ROI's left edge as :class:`int`.
@@ -207,12 +263,17 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("left"), py::arg("top"), py::arg("width"), py::arg("height"))
       .def(
         "is_valid",
-        &ImageBuffer::IsValid,
-        "Returns ``True`` if this buffer points to a valid memory location.")
+        &ImageBuffer::IsValid, R"docstr(
+        Returns ``True`` if this buffer points to a valid memory location.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::IsValid``.
+        )docstr")
       .def(
         "swap_channels",
         &ImageBuffer::SwapChannels, R"docstr(
         Swaps the specified channels **in-place**.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::SwapChannels``.
 
         Args:
           ch1: Zero-based index of the first channel as :class:`int`.
@@ -232,7 +293,7 @@ void RegisterImageBuffer(py::module &m) {
         Note that this call will always allocate and copy memory, even
         if ``self`` is already a 3-channel buffer.
 
-        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels``.
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels(3)``.
         )docstr")
       .def(
         "to_rgba",
@@ -242,7 +303,7 @@ void RegisterImageBuffer(py::module &m) {
         Refer to :meth:`~viren2d.ImageBuffer.to_rgb` as all comments
         apply analogously.
 
-        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels``.
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels(4)``.
         )docstr")
       .def(
         "__repr__",
@@ -264,6 +325,8 @@ void RegisterImageBuffer(py::module &m) {
 
         If ``left``, ``top``, ``width`` **and** ``height`` are all ``-1``,
         the whole image will be pixelated.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Pixelate``.
 
         Args:
           block_width: Width of a pixelation block as :class:`int`.
@@ -292,13 +355,15 @@ void RegisterImageBuffer(py::module &m) {
         the values will be **multiplied by 255**. Otherwise, the values will
         be clamped into [0, 255].
 
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToUInt8``.
+
         Args:
-          num_channels: Number of output channels as :class:`int`. The following
+          output_channels: Number of output channels as :class:`int`. The following
             configurations are supported:
-            * For a single-channel buffer: ``num_channels`` either 1, 3, or 4.
-            * For a 3-channel buffer: ``num_channels`` either 3 or 4.
-            * For a 4-channel buffer: ``num_channels`` either 3 or 4.
-        )docstr", py::arg("num_channels"))
+            * For a single-channel buffer: ``output_channels`` either 1, 3, or 4.
+            * For a 3-channel buffer: ``output_channels`` either 3 or 4.
+            * For a 4-channel buffer: ``output_channels`` either 3 or 4.
+        )docstr", py::arg("output_channels"))
       .def(
         "to_float32",
         &ImageBuffer::ToFloat, R"docstr(
@@ -307,34 +372,43 @@ void RegisterImageBuffer(py::module &m) {
         If the underlying type is integral (*e.g.* :class:`numpy.uint8`,
         :class:`numpy.int32`), the values will be **divided by 255**.
         The number of channels remains the same.
-        )docstr")
-      .def(
-        "to_grayscale",
-        &ImageBuffer::ToGrayscale, R"docstr(
-        Returns the grayscale image.
 
-        Args:
-          num_channels: Number of output channels as :class:`int`. Must be
-            :math:`\leq 4`. The first three channels will contain the repeated
-            luminance, whereas the 4th channel will always be 255 (*i.e.*
-            alpha, fully opaque).
-          is_bgr: Set to ``True`` if the channels of this image are in BGR format.
-        )docstr",
-        py::arg("num_channels"),
-        py::arg("is_bgr") = false)
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToFloat``.
+        )docstr")
       .def(
         "magnitude",
         &ImageBuffer::Magnitude, R"docstr(
-        Computes the magnitude for dual-channel images.
+        Computes the magnitude for dual-channel floating point images.
 
         Can only be applied to dual-channel images of type
         :class:`numpy.float32` or :class:`numpy.float64`, *e.g.* optical flow
         fields or image gradients.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Magnitude``.
         )docstr")
+      .def(
+        "orientation",
+        &ImageBuffer::Orientation, R"docstr(
+        Computes the orientation **in radians** as
+        :math:`\operatorname{atan2}\left(I(r, c, 1), I(r, c, 0)\right)`.
+
+        Can only be applied to dual-channel images of type
+        :class:`numpy.float32` or :class:`numpy.float64`, *e.g.* optical flow
+        fields or image gradients.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Orientation``.
+
+        Args:
+          invalid: If both components of an input pixel are 0, the output value
+            will be set to this user-defined `invalid` value.
+        )docstr",
+        py::arg("invalid") = std::numeric_limits<float>::quiet_NaN())
       .def(
         "channel",
         &ImageBuffer::Channel, R"docstr(
         Extracts a single channel.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Channel``.
 
         Args:
           channel: The 0-based channel index as :class:`int`.
@@ -353,24 +427,33 @@ void RegisterImageBuffer(py::module &m) {
         }, R"docstr(
         Computes the min/max values and locations for the given channel.
 
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::MinMaxLocation``.
+
+        Args:
+          channel: Zero-based channel index. If called on a single-channel
+            buffer, a negative value will automatically changed to 0.
+            Otherwise, negative values will raise an :class:`IndexError`.
+
         Returns:
           A :class:`tuple` which contains ``(min_val, max_val, min_loc, max_loc)``,
           where ``min_val`` & ``max_val`` are the extremal values of the selected
           channel as :class:`float` and ``min_loc`` & ``max_loc`` are the
-          *x* & *y* positions as :class:`~viren2d.Vec2i`.
+          :math:`x` and :math:`y` positions as :class:`~viren2d.Vec2i`.
         )docstr",
-        py::arg("channel"))
+        py::arg("channel") = -1)
       .def(
         "blend",
         &ImageBuffer::Blend, R"docstr(
         Returns an alpha-blended image.
 
         Creates a new image as the result of
-        :math:`(1 - \alpha) * self + \alpha * other``.
+        :math:`(1 - \alpha) * \text{self} + \alpha * \text{other}``.
         If the number of channels is not the same, the number of
         output channels will be the maximum of ``self.channels``
         and ``other.channels``. In this case, *non-blendable* channels
         are copied from the input buffer which has more channels.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Blend``.
 
         Args:
           other: The other :class:`~viren2d.ImageBuffer` to blend.
@@ -378,44 +461,74 @@ void RegisterImageBuffer(py::module &m) {
         )docstr", py::arg("other"), py::arg("alpha"))
       .def_property_readonly(
         "width",
-        &ImageBuffer::Width,
-        "int: Image width in pixels (read-only).")
+        &ImageBuffer::Width, R"docstr(
+        int: Image width in pixels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Width``.
+        )docstr")
       .def_property_readonly(
         "height",
-        &ImageBuffer::Height,
-        "int: Image height in pixels (read-only).")
+        &ImageBuffer::Height, R"docstr(
+        int: Image height in pixels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Height``.
+        )docstr")
       .def_property_readonly(
         "channels",
-        &ImageBuffer::Channels,
-        "int: Number of channels (read-only).")
+        &ImageBuffer::Channels, R"docstr(
+        int: Number of channels (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::Channels``.
+        )docstr")
       .def_property_readonly(
         "row_stride",
-        &ImageBuffer::RowStride,
-        "int: Stride in bytes per row (read-only).")
+        &ImageBuffer::RowStride, R"docstr(
+        int: Stride in bytes per row (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::RowStride``.
+        )docstr")
       .def_property_readonly(
         "pixel_stride",
-        &ImageBuffer::PixelStride,
-        "int: Stride in bytes per pixel (read-only).")
+        &ImageBuffer::PixelStride, R"docstr(
+        int: Stride in bytes per pixel (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::PixelStride``.
+        )docstr")
       .def_property_readonly(
         "owns_data",
-        &ImageBuffer::OwnsData,
-        "bool: Read-only flag indicating whether this\n"
-        ":class:`~viren2d.ImageBuffer` owns the\n"
-        "image data (and is responsible for cleaning up).")
+        &ImageBuffer::OwnsData, R"docstr(
+        bool: Read-only flag indicating whether this
+          :class:`~viren2d.ImageBuffer` owns the image data and is thus
+          responsible for cleaning up.
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::OwnsData``.
+        )docstr")
       .def_property_readonly(
         "shape",
         [](const ImageBuffer &buf) {
-            return py::make_tuple(
-                  buf.Height(), buf.Width(), buf.Channels());
-        }, "tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).")
+          return py::make_tuple(buf.Height(), buf.Width(), buf.Channels());
+        }, R"docstr(
+        tuple: Shape of the buffer as ``(H, W, C)`` tuple (read-only).
+
+          **No corresponding C++ API**, retrieve height, width and channels
+          separately.
+        )docstr")
       .def_property_readonly(
         "itemsize",
-        &ImageBuffer::ElementSize,
-        "int: Size (in bytes) of a single buffer element.")
+        &ImageBuffer::ElementSize, R"docstr(
+        int: Number of bytes a single buffer element occupies (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::ElementSize``.
+        )docstr")
       .def_property_readonly(
         "dtype",
-        [](const ImageBuffer &buf) { return py::dtype(FormatDescriptor(buf.BufferType())); },
-        "numpy.dtype: Underlying data type (read-only).");
+        [](const ImageBuffer &buf) {
+          return py::dtype(FormatDescriptor(buf.BufferType()));
+        }, R"docstr(
+        numpy.dtype: Underlying data type (read-only).
+
+          **Corresponding C++ API:** ``viren2d::ImageBuffer::BufferType``.
+        )docstr");
 
 
   // An ImageBuffer can be initialized from a numpy array
@@ -423,7 +536,7 @@ void RegisterImageBuffer(py::module &m) {
 
 
   m.def("save_image_uint8",
-        &SaveImageUInt8, R"docstr(
+        &SaveImageUInt8Helper, R"docstr(
         Stores an 8-bit image to disk as either JPEG or PNG.
 
         Note that PNG output will usually result in 20-50% larger files in
@@ -432,10 +545,12 @@ void RegisterImageBuffer(py::module &m) {
         work with a specialized image processing library, which offers
         optimized image I/O.
 
+        **Corresponding C++ API:** ``viren2d::SaveImageUInt8``.
+
         Args:
-          filename: The output filename as :class:`str`. The
-            calling code must ensure that the directory
-            hierarchy exists.
+          filename: The output filename as :class:`str` or
+            :class:`pathlib.Path`. The calling code must ensure that the
+            directory hierarchy exists.
           image: The :class:`~viren2d.ImageBuffer` which
             should be written to disk.
         )docstr",
@@ -443,7 +558,7 @@ void RegisterImageBuffer(py::module &m) {
 
 
   m.def("load_image_uint8",
-        &LoadImageUInt8, R"docstr(
+        &LoadImageUInt8Helper, R"docstr(
         Reads an 8-bit image from disk.
 
         This functionality uses the
@@ -452,11 +567,14 @@ void RegisterImageBuffer(py::module &m) {
 
            JPEG, PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM
 
+        **Corresponding C++ API:** ``viren2d::LoadImageUInt8``.
+
         Args:
-          filename: The path to the image file as :class:`str`.
+          filename: The path to the image file as :class:`str` or
+            :class:`pathlib.Path`.
           force_channels: An :class:`int` which is used to
             force the number of loaded channels, *e.g.* to
-            load a JPEG as RGBA format with ``force_channels = 4``.
+            load a JPEG into RGBA format with ``force_channels = 4``.
 
             Valid parameter settings are:
 
@@ -468,6 +586,127 @@ void RegisterImageBuffer(py::module &m) {
         )docstr",
         py::arg("filename"),
         py::arg("force_channels") = 0);
+
+
+  m.def("convert_rgb2gray",
+        &ConvertRGB2Gray, R"docstr(
+        Converts RGB(A)/BGR(A) images to grayscale.
+
+        **Corresponding C++ API:** ``viren2d::ConvertRGB2Gray``.
+
+        Args:
+          color: The 3- or 4-channel color :class:`~viren2d.ImageBuffer`
+            of type :class:`numpy.uint8`.
+          output_channels: Number of output channels as :class:`int`. Must be
+            1, 3, or 4. The first three channels will contain the repeated
+            luminance, whereas the 4th channel will be the alpha channel and
+            either fully opaque or a copy of this image's alpha channel.
+          is_bgr: Set to ``True`` if the channels of the color image are in
+            BGR format.
+        )docstr",
+        py::arg("color"),
+        py::arg("output_channels") = 1,
+        py::arg("is_bgr") = false);
+
+
+  m.def("convert_gray2rgb",
+        [] (const ImageBuffer &g, int output_channels) {
+          return g.ToChannels(output_channels);
+        }, R"docstr(
+        Converts a grayscale image to RGB(A).
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::ToChannels``.
+
+        Args:
+          grayscale: An :class:`~viren2d.ImageBuffer` which can have 1, 3 or 4
+            channels (assuming that the first 3 channels simply repeat the
+            luminance and the 4th holds the alpha values).
+          output_channels: Number of output channels. Must be 3 (for RGB)
+            or 4 (for RGBA).
+        )docstr",
+        py::arg("grayscale"),
+        py::arg("output_channels") = 3);
+
+
+  m.def("convert_rgb2hsv",
+        &ConvertRGB2HSV, R"docstr(
+        Converts a RGB(A)/BGR(A) image to HSV.
+
+        **Corresponding C++ API:** ``viren2d::ConvertRGB2HSV``.
+
+        Args:
+          image: The 3- or 4-channel color :class:`~viren2d.ImageBuffer`
+            of type :class:`numpy.uint8`.
+          is_bgr: Set to ``True`` if the channels of the color image are in
+            BGR format.
+
+        Returns:
+          A 3-channel :class:`~viren2d.ImageBuffer` holding hue, saturation and
+          value, with hue :math:`\in [0, 180]`, saturation :math:`\in [0, 255]`
+          and value :math:`\in [0, 255]`.
+        )docstr",
+        py::arg("image"),
+        py::arg("is_bgr") = false);
+
+
+  m.def("convert_hsv2rgb",
+        &ConvertHSV2RGB, R"docstr(
+        Converts a HSV image to RGB(A)/BGR(A).
+
+        **Corresponding C++ API:** ``viren2d::ConvertHSV2RGB``.
+
+        Args:
+          hsv: The 3-channel HSV :class:`~viren2d.ImageBuffer`
+            of type :class:`numpy.uint8`, where hue :math:`\in [0, 180]`,
+            saturation :math:`\in [0, 255]` and value :math:`\in [0, 255]`.
+          output_channels: The number of output channels, which must be 3 or 4.
+            The optional fourth channel will be set to 255 (fully-opaque).
+          output_bgr: If ``True``, the result will be in BGR(A) format.
+        )docstr",
+        py::arg("hsv"),
+        py::arg("output_channels") = 3,
+        py::arg("output_bgr") = false);
+
+
+  m.def("color_pop",
+        &ColorPop, R"docstr(
+        Returns an image where the specified color range is highlighted.
+
+        Implements a *color pop* effect, *i.e.* colors within the given HSV
+        range remain as-is, whereas all other colors are converted to
+        grayscale.
+
+        **Corresponding C++ API:** ``viren2d::ColorPop``.
+
+        Args:
+          rgb: Color image in RGB(A)/BGR(A) format as
+            :class:`~viren2d.ImageBuffer`.
+          hue_range: Hue range as :class:`tuple` ``(min_hue, max_hue)``, where
+            hue values are of type :class:`float` and :math:`\in [0, 360]`.
+          saturation_range: Saturation range as :class:`tuple`
+            ``(min_saturation, max_saturation)``, where saturation values are
+            of type :class:`float` and :math:`\in [0, 1]`.
+          value_range: Value range as :class:`tuple`
+            ``(min_value, max_value)``, where each value is of type
+            :class:`float` and :math:`\in [0, 1]`.
+          is_bgr: Set to ``True`` if the color image is provided in BGR(A)
+            format.
+
+        Returns:
+          An :class:`~viren2d.ImageBuffer` of type :class:`numpy.uint8`, which
+          has the same format and number of channels as the input ``rgb``.
+
+        Example:
+          >>> red_pop = viren2d.color_pop(
+          >>>     rgb=img, hue_range=(320, 360), saturation_range=(0.4, 1),
+          >>>     value_range=(0.2, 1), is_bgr=False)
+        )docstr",
+        py::arg("rgb"),
+        py::arg("hue_range"),
+        py::arg("saturation_range") = std::make_pair<float, float>(0.0f, 1.0f),
+        py::arg("value_range") = std::make_pair<float, float>(0.0f, 1.0f),
+        py::arg("is_bgr") = false);
+
 }
 } // namespace bindings
 } // namespace viren2d

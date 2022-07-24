@@ -1,26 +1,48 @@
-----------
+------------
+Colorization
+------------
+
+~~~~~~~~~~
 Color Maps
-----------
+~~~~~~~~~~
 
 Refer to the :ref:`color map tutorial<tutorial-colormaps>`
 for additional notes, exemplary code and visualizations of all implemented
 color maps.
 
-~~~~~~~~~~~~~~~~~~~~
-Supported Color Maps
-~~~~~~~~~~~~~~~~~~~~
-
 .. autoclass:: viren2d.ColorMap
 
 
-~~~~~~~~~~~~
-Colorization
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+Custom Color Maps
+~~~~~~~~~~~~~~~~~
 
-.. autofunction:: viren2d.colorize
+Use :func:`~viren2d.set_custom_colormap` to register a custom color map.
+Additionally, :func:`~viren2d.get_colormap` can be used to retrieve the colors
+of a predefined map, which can then be adjusted to your application needs.
 
 
-.. autoclass:: viren2d.Colorizer
+.. autofunction:: viren2d.get_colormap
+
+
+.. autofunction:: viren2d.set_custom_colormap
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Label/Category Colorization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: viren2d.colorize_labels
+
+
+~~~~~~~~~~~~~~~~~~~
+Scaled Colorization
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: viren2d.colorize_scaled
+
+
+.. autoclass:: viren2d.StreamColorizer
    :autosummary:
    :autosummary-nosignatures:
    :members:

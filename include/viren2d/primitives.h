@@ -8,10 +8,11 @@
 #include <cmath>
 
 #include <werkzeugkiste/geometry/vector.h>
+#include <werkzeugkiste/geometry/primitives.h>
 
 
 namespace viren2d {
-//------------------------------------------------- Reuse vector class from werkzeugkiste library
+//------------------------------------------------- Reuse types from werkzeugkiste
 typedef werkzeugkiste::geometry::Vec2d Vec2d;
 typedef werkzeugkiste::geometry::Vec2d Size2d;
 typedef werkzeugkiste::geometry::Vec3d Vec3d;
@@ -20,6 +21,7 @@ typedef werkzeugkiste::geometry::Vec4d Vec4d;
 typedef werkzeugkiste::geometry::Vec2i Vec2i;
 typedef werkzeugkiste::geometry::Vec3i Vec3i;
 
+typedef werkzeugkiste::geometry::Line2d Line2d;
 
 //-------------------------------------------------  Ellipse
 /**
@@ -239,14 +241,14 @@ struct Rect {
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Returns half the width. */
-  inline double half_width() const {
+  inline double HalfWidth() const {
     return width / 2.0;
   }
 
   //DONE [x] add documentation
   //DONE [x] add C++ test (tests/xxx_test.cpp)
   /** @brief Returns half the height. */
-  inline double half_height() const {
+  inline double HalfHeight() const {
     return height / 2.0;
   }
 

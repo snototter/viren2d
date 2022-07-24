@@ -311,11 +311,13 @@ public:
       const TextStyle &text_style,
       cairo_t *context);
 
+
   /// Computes reference points for each line.
   /// Must be called **before** `PlaceText`
   void Align(
       Vec2d anchor_point, Anchor anchor,
       Vec2d padding, Vec2d fixed_size);
+
 
   /// Returns the axis-aligned bounding box.
   /// Valid results are only available
@@ -323,12 +325,26 @@ public:
   Rect BoundingBox(
       double corner_radius = 0.0) const;
 
+
   /// Draws the text lines onto the given context.
   void PlaceText(cairo_t *context) const;
 
+
+  /// Returns the width of the text box. This might differ from
+  /// the actual width (maximum line width and padding) if  a fixed size box
+  /// is requested.
   double Width() const;
 
+
+  /// Returns the height of the text box. This might differ from
+  /// the actual height (induced by lines and padding) if  a fixed size box
+  /// is requested.
   double Height() const;
+
+  /// Returns the height (font extent + line spacing) for the given line
+  /// number - because we don't include line spacing for the first line.
+  double LineHeight(std::size_t idx) const;
+
 
 private:
   /// Top left corner of the bounding box which
@@ -336,20 +352,31 @@ private:
   /// Will be set after `Align` has been called.
   Vec2d top_left;
 
+
   /// Padding between reference position and
   /// start of the glyphs.
   Vec2d padding;
+
 
   /// If set, `Align` will use this as a size
   /// hint instead of the actual text extent.
   Vec2d fixed_size;
 
+
+  /// Actual text width (maximum line length).
   double width;
 
+
+  /// Actual height of all text lines (computed from
+  /// font extent and line spacing)
   double height;
 
+
+  /// The customized style to be used for drawing these text lines.
   TextStyle style;
 
+
+  /// The text lines which should be drawn.
   std::vector<SingleLineText> lines;
 };
 
@@ -396,6 +423,12 @@ void DrawGrid(
     const LineStyle &line_style);
 
 
+Line2d DrawHorizonLineImpl(
+    cairo_surface_t *surface, cairo_t *context,
+    const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+    const LineStyle &line_style, const Vec2i &img_size);
+
+
 void DrawImage(cairo_surface_t *surface, cairo_t *context,
     const ImageBuffer &image, const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
@@ -438,6 +471,14 @@ void DrawTrajectory(
     const std::vector<Vec2d> &points, const LineStyle &style,
     Color color_fade_out, bool oldest_position_first,
     const std::function<double(double)> &mix_factor);
+
+
+bool DrawXYZAxes(
+    cairo_surface_t *surface, cairo_t *context,
+    const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+    const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
+    const Color &color_x, const Color &color_y, const Color &color_z,
+    const Vec2i &img_size);
 
 
 /// Creates a path for a rectangle with rounded corners.

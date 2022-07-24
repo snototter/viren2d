@@ -96,19 +96,8 @@ C++ Library
    test suite. Usability tests (like the interface stability checks
    mentioned earlier) should be conducted via the python test suite.
    
-*  TODO update/extend task template
+*  TODO add task-list template for new interface functions/classes
 
-   Task template for (almost) each new function:  
-   
-   .. code-block:: cpp
-
-      //TODO [ ] add documentation
-      //TODO [ ] add C++ test (tests/xxx_test.cpp)
-      //TODO [ ] add Python bindings
-      //TODO [ ] add Python test (tests/test_xxx.py)
-      //TODO [ ] add C++ demo
-      //TODO [ ] add Python demo
- 
 
 ..............
 Python Library
@@ -221,16 +210,14 @@ Library Layout
 .. _dev-library-layout:
 
 Before diving into the layout of the code framework, note: to avoid name
-clashes or having to use naming schemes which rely on underscores, the physical
-C++ and Python libraries use different names:
+clashes or having to use naming schemes which use underscores, the physical
+C++ and Python libraries are named differently:
 
 *  The target name of the C++ library is ``viren2d++``, whereas the target name
    of the Python library is ``viren2d``.
 
 *  Currently, I prefer to statically link the C++ library into the consuming
    application. The Python bindings, however, have to be dynamic libraries.
-
-*  TODO double-check before release
 
 The following subsections provide a hands-on introduction on the library
 layout with supplementary explanations on some design choices.
@@ -349,8 +336,6 @@ Some **functional features**, that I'd like to see at some time in the future:
 
 *  Creating stereoglyphs
   
-*  Extend ImageBuffer to support the more "exotic" data types.
-
 
 Some **workflow-related extensions**, I'd fancy:
 
@@ -363,3 +348,15 @@ Some **workflow-related extensions**, I'd fancy:
    push, but before the RTD workflow starts building the docs)
 
 *  Prepare github templates for PRs, issue reports, *etc.*
+
+
+Finally, **design choices** I'd like to change in the very distant future (read:
+when hell freezes over):
+
+*  Change :class:`~viren2d.ImageBuffer` and :class:`~viren2d.Painter` to
+   follow the `RAII <https://en.cppreference.com/w/cpp/language/raii>`__ idiom.
+
+*  Exceptions are (mostly only) thrown if the user provides invalid inputs.
+   While this is acceptable in Python, I'd like to change that to mostly
+   *noexcept* calls, which simply log a warning/failure message and ignore
+   invalid inputs.

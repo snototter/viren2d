@@ -39,7 +39,7 @@ void DemoImageBufferConversionOpenCV() {
         roi.channels(), roi.step1(0), roi.step1(1),
         ImageBufferType::UInt8);
 
-  ImageBuffer gray = buf.ToGrayscale(3);
+  ImageBuffer gray = viren2d::ConvertRGB2Gray(buf, 3);
   ImageBuffer blend = buf.Blend(gray, 0.7);
 
   ImageBuffer hsv = viren2d::ConvertRGB2HSV(buf, true);
@@ -48,7 +48,7 @@ void DemoImageBufferConversionOpenCV() {
   ImageBuffer rgb = viren2d::ConvertHSV2RGB(hsv, 3);
   viren2d::SaveImageUInt8("todo-rgb.png", rgb);
 
-  {
+  {//FIXME refactor this into a proper demo!
     cv::Mat cvtmp(blend.Height(), blend.Width(),
                     CV_MAKETYPE(CV_8U, blend.Channels()),
                     blend.MutableData(), blend.RowStride());

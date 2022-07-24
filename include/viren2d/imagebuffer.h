@@ -10,6 +10,7 @@
 #include <algorithm> // std::min
 #include <limits> // quiet nan
 #include <initializer_list>
+#include <utility> // pair
 
 #include <viren2d/primitives.h>
 
@@ -20,7 +21,11 @@ namespace viren2d {
 enum class ImageBufferType : int {
   UInt8 = 0,
   Int16,
+  UInt16,
   Int32,
+  UInt32,
+  Int64,
+  UInt64,
   Float,
   Double
 };
@@ -37,12 +42,28 @@ using image_buffer_t = typename std::conditional<
     T == ImageBufferType::Int16,
     int16_t,
     typename std::conditional<
-      T == ImageBufferType::Int32,
-      int32_t,
+      T == ImageBufferType::UInt16,
+      uint16_t,
       typename std::conditional<
-        T == ImageBufferType::Float,
-        float,
-        double
+        T == ImageBufferType::Int32,
+        int32_t,
+        typename std::conditional<
+          T == ImageBufferType::UInt32,
+          uint32_t,
+          typename std::conditional<
+            T == ImageBufferType::Int64,
+            int64_t,
+            typename std::conditional<
+              T == ImageBufferType::UInt64,
+              uint64_t,
+              typename std::conditional<
+                T == ImageBufferType::Float,
+                float,
+                double
+              >::type
+            >::type
+          >::type
+        >::type
       >::type
     >::type
   >::type
@@ -125,13 +146,13 @@ public:
 
   /// Number of bytes per subsequent rows in memory.
   /// On a freshly allocated buffer, this
-  /// equals `width * num_channels * item_size`.
+  /// equals `width * channels * item_size`.
   inline int RowStride() const { return row_stride; }
 
 
   /// Number of bytes between subsequent pixels.
   /// On a freshly allocated buffer, this
-  /// equals `num_channels * item_size`.
+  /// equals `channels * item_size`.
   inline int PixelStride() const { return pixel_stride; }
 
 
@@ -458,16 +479,6 @@ public:
   ImageBuffer ToFloat() const;
 
 
-  /// Returns the grayscale image.
-  ///
-  /// Args:
-  ///   num_channels: Number of output channels as :class:`int`, must be ``<=4``.
-  ///     The first (up to) 3 channels will contain the repeated luminance,
-  ///     whereas the 4th channel will always be 255 (*i.e.* alpha, fully opaque).
-  ///   is_bgr: Set to ``true`` if the channels of this image are in BGR format.
-  ImageBuffer ToGrayscale(int output_channels, bool is_bgr_format = false) const;
-
-
   //TODO Gradient (sobel, border handling)
 
 
@@ -477,9 +488,10 @@ public:
   ImageBuffer Magnitude() const;
 
 
-  /// Computes the orientation of a dual-channel image, e.g. an optical flow
-  /// field or an image gradient. Only implemented for buffers of type float
-  /// or double. Output buffer type will be the same as this buffer's.
+  /// Computes the orientation in radians of a dual-channel image, e.g. an
+  /// optical flow field or an image gradient. Only implemented for buffers of
+  /// type float or double. Output buffer type will be the same as this
+  /// buffer's.
   /// If both .At(r,c,0) and .At(r,c,1) are zero, the output value will be set
   /// to the specified `invalid` value.
   ImageBuffer Orientation(
@@ -521,10 +533,13 @@ public:
 
   /// Computes the minimum & maximum values over a single channel.
   /// To compute only the locations, pass nullptr for min_val/max_val.
+  /// A negative channel index is only allowed for single-channel buffers.
+  /// Otherwise, std::out_of_range will be thrown, unless you provide a valid
+  /// (zero-based) channel index.
   void MinMaxLocation(
       double *min_val, double *max_val,
       Vec2i *min_loc = nullptr, Vec2i *max_loc = nullptr,
-      int channel = 0) const;
+      int channel = -1) const;
 
 
   /// Returns a human readable representation.
@@ -594,7 +609,7 @@ private:
   template <typename _Tp> inline
   void CheckType() const {
     if (typeid(_Tp) != ImageBufferTypeInfo(buffer_type)) {
-      std::string s("Invalid template type with id `");
+      std::string s("Invalid template type with typeid `");
       s += typeid(_Tp).name();
       s += "`, but buffer is of type `";
       s += ImageBufferTypeToString(buffer_type);
@@ -611,12 +626,69 @@ private:
 };
 
 
+// TODO(interface) - other color conversions (i.e. rgb2gray,
+// gray2rgb) should be added here, too
+// Then, add "ImageBuffer utils" doc section on RTD
+
+
+/// Returns a uint8 single channel mask where a pixel is set to 255 iff
+/// the corresponding hsv pixel is within the given range.
+/// Args:
+///   hsv: Color image in HSV format (uint8), see `ConvertRGB2HSV`.
+///   hue_range: Hue range as ``(min_hue, max_hue)``, where
+///     hue values are in `[0, 360]`.
+///   saturation_range: Saturation range as
+///     ``(min_saturation, max_saturation)``, where saturation
+///     values are in `[0, 1]`.
+///   value_range: Similar to saturation range, *i.e.* values in `[0, 1]`.
+ImageBuffer MaskHSVRange(
+    const ImageBuffer &hsv,
+    const std::pair<float, float> &hue_range,
+    const std::pair<float, float> &saturation_range,
+    const std::pair<float, float> &value_range);
+
+
+/// Implements a *color pop* effect, *i.e.* colors within the given HSV
+/// range remain as-is, whereas all other colors are converted to
+/// grayscale.
+/// Args:
+///   rgb: Color image in RGB(A)/BGR(A) format.
+///   hue_range: Hue range as ``(min_hue, max_hue)``, where
+///     hue values are in `[0, 360]`.
+///   saturation_range: Saturation range as
+///     ``(min_saturation, max_saturation)``, where saturation
+///     values are in `[0, 1]`.
+///   value_range: Similar to saturation range, *i.e.* values in `[0, 1]`.
+///   is_bgr: Set to ``true`` if the color image is provided in BGR(A) format.
+ImageBuffer ColorPop(const ImageBuffer &rgb,
+    const std::pair<float, float> &hue_range,
+    const std::pair<float, float> &saturation_range,
+    const std::pair<float, float> &value_range,
+    bool is_bgr = false);
+
+
+/// Returns the grayscale image.
+///
+/// Args:
+///   output_channels: Number of output channels as :class:`int`, must
+///     be ``<=4``. The first (up to) 3 channels will contain the repeated
+///     luminance, whereas the 4th channel will always be 255 (*i.e.* alpha,
+///     fully opaque).
+///   is_bgr: Set to ``true`` if the channels of the color image are in BGR format.
+ImageBuffer ConvertRGB2Gray(
+    const ImageBuffer &color,
+    int output_channels = 1,
+    bool is_bgr_format = false);
+
+
 /// Converts a RGB(A)/BGR(A) image to HSV. Input image must be of type uint8.
 ///
 /// Returns:
 ///   A 3-channel uint8 image, where hue in [0, 180], saturation in [0, 255]
 ///   and value in [0, 255].
-ImageBuffer ConvertRGB2HSV(const ImageBuffer &image_rgb, bool is_bgr_format = false);
+ImageBuffer ConvertRGB2HSV(
+    const ImageBuffer &image_rgb,
+    bool is_bgr_format = false);
 
 
 /// Converts a HSV image to RGB(A)/BGR(A).

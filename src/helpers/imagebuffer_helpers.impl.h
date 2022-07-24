@@ -127,8 +127,20 @@ inline ImageBuffer Gray2RGBx(
     case ImageBufferType::Int16:
       return ConversionHelperGray<int16_t>(img, num_channels_out);
 
+    case ImageBufferType::UInt16:
+      return ConversionHelperGray<uint16_t>(img, num_channels_out);
+
     case ImageBufferType::Int32:
       return ConversionHelperGray<int32_t>(img, num_channels_out);
+
+    case ImageBufferType::UInt32:
+      return ConversionHelperGray<uint32_t>(img, num_channels_out);
+
+    case ImageBufferType::Int64:
+      return ConversionHelperGray<int64_t>(img, num_channels_out);
+
+    case ImageBufferType::UInt64:
+      return ConversionHelperGray<uint64_t>(img, num_channels_out);
 
     case ImageBufferType::Float:
       return ConversionHelperGray<float>(img, num_channels_out);
@@ -210,8 +222,20 @@ inline ImageBuffer RGBx2RGBx(
     case ImageBufferType::Int16:
       return ConversionHelperRGB<int16_t>(img, num_channels_out);
 
+    case ImageBufferType::UInt16:
+      return ConversionHelperRGB<uint16_t>(img, num_channels_out);
+
     case ImageBufferType::Int32:
       return ConversionHelperRGB<int32_t>(img, num_channels_out);
+
+    case ImageBufferType::UInt32:
+      return ConversionHelperRGB<uint32_t>(img, num_channels_out);
+
+    case ImageBufferType::Int64:
+      return ConversionHelperRGB<int64_t>(img, num_channels_out);
+
+    case ImageBufferType::UInt64:
+      return ConversionHelperRGB<uint64_t>(img, num_channels_out);
 
     case ImageBufferType::Float:
       return ConversionHelperRGB<float>(img, num_channels_out);
@@ -364,6 +388,10 @@ void MinMaxLocation(
     const ImageBuffer &buf, int channel,
     double *min_val, double *max_val,
     Vec2i *min_loc, Vec2i *max_loc) {
+  if ((channel < 0) && buf.Channels() == 1) {
+    channel = 0;
+  }
+
   if ((channel < 0) || (channel >= buf.Channels())) {
     std::ostringstream s;
     s << "Cannot perform `MinMaxLocation` on channel " << channel

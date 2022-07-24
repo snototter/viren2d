@@ -140,6 +140,17 @@ protected:
   }
 
 
+  Line2d DrawHorizonLineImpl(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const LineStyle &line_style) override {
+    SPDLOG_DEBUG(
+          "DrawHorizonLineImpl: style={:s}.", line_style);
+    return helpers::DrawHorizonLineImpl(
+          surface_, context_, K, R, t, line_style, GetCanvasSize());
+  }
+
+
+
   void DrawImageImpl(
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
@@ -318,13 +329,26 @@ protected:
       } else if (p.second.IsSpecialSame()) {
         s.color = style.color.WithAlpha(p.second.alpha);
       } else {
-        s.color = p.second;
+        s.color = style.color;
       }
 
       helpers::DrawTrajectory(
             surface_, context_, smoothed, s, color_fade_out,
             oldest_position_first, mix_factor);
     }
+  }
+
+
+  bool DrawXYZAxesImpl(
+      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
+      const Color &color_x, const Color &color_y,
+      const Color &color_z) override {
+    SPDLOG_DEBUG(
+          "DrawXYZAxes: Axis lengths {:s}.", lengths);
+    return helpers::DrawXYZAxes(
+          surface_, context_, K, R, t, origin, lengths, style,
+          color_x, color_y, color_z, GetCanvasSize());
   }
 
 
@@ -443,11 +467,7 @@ void PainterImpl::SetCanvas(int height, int width, const Color &color) {
         "SetCanvas: width={:d}, height={:d}, color={:s}).",
         width, height, color);
 
-  //FIXME reuse doesn't work if we want to switch to a transparent canvas!
-  // Should be investigated (neither paint/paint_with_alpha + mark dirty did change anything)
-  // Maybe check with pre-flushing the surface?
-
-  // Simplest solution is to create a new surface.
+  // Simplest solution is to create a new surface:
   if (context_) {
     cairo_destroy(context_);
     context_ = nullptr;
@@ -456,26 +476,7 @@ void PainterImpl::SetCanvas(int height, int width, const Color &color) {
     cairo_surface_destroy(surface_);
     surface_ = nullptr;
   }
-  /*
-  // Check if we can reuse the current image surface to
-  // save ourselves the memory allocation:
-  if (surface_) {
-    int prev_width = cairo_image_surface_get_width(surface_);
-    int prev_height = cairo_image_surface_get_height(surface_);
 
-    if (prev_width != width || prev_height != height) {
-      SPDLOG_TRACE("Cannot reuse previous canvas, size "
-                   "mismatch: prev={:d}x{:d}, now={:d}x{:d}.",
-                   prev_width, prev_height, width, height);
-      if (context_) {
-        cairo_destroy(context_);
-        context_ = nullptr;
-      }
-      cairo_surface_destroy(surface_);
-      surface_ = nullptr;
-    }
-  }
-  */
 
   if (!surface_) {
     SPDLOG_TRACE(

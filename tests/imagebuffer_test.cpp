@@ -47,9 +47,25 @@ template <typename _Tp>
       return CheckChannelConstantHelper<int16_t>(
             buf, channel, static_cast<int16_t>(value));
 
+    case viren2d::ImageBufferType::UInt16:
+      return CheckChannelConstantHelper<uint16_t>(
+            buf, channel, static_cast<uint16_t>(value));
+
     case viren2d::ImageBufferType::Int32:
       return CheckChannelConstantHelper<int32_t>(
             buf, channel, static_cast<int32_t>(value));
+
+    case viren2d::ImageBufferType::UInt32:
+      return CheckChannelConstantHelper<uint32_t>(
+            buf, channel, static_cast<uint32_t>(value));
+
+    case viren2d::ImageBufferType::Int64:
+      return CheckChannelConstantHelper<int64_t>(
+            buf, channel, static_cast<int64_t>(value));
+
+    case viren2d::ImageBufferType::UInt64:
+      return CheckChannelConstantHelper<uint64_t>(
+            buf, channel, static_cast<uint64_t>(value));
 
     case viren2d::ImageBufferType::Float:
       return CheckChannelConstantHelper<float>(
@@ -125,8 +141,20 @@ template<typename _Tp>
     case viren2d::ImageBufferType::Int16:
       return CheckChannelEqualsHelper<int16_t>(buf1, ch1, buf2, ch2);
 
+    case viren2d::ImageBufferType::UInt16:
+      return CheckChannelEqualsHelper<uint16_t>(buf1, ch1, buf2, ch2);
+
     case viren2d::ImageBufferType::Int32:
       return CheckChannelEqualsHelper<int32_t>(buf1, ch1, buf2, ch2);
+
+    case viren2d::ImageBufferType::UInt32:
+      return CheckChannelEqualsHelper<uint32_t>(buf1, ch1, buf2, ch2);
+
+    case viren2d::ImageBufferType::Int64:
+      return CheckChannelEqualsHelper<int64_t>(buf1, ch1, buf2, ch2);
+
+    case viren2d::ImageBufferType::UInt64:
+      return CheckChannelEqualsHelper<uint64_t>(buf1, ch1, buf2, ch2);
 
     case viren2d::ImageBufferType::Float:
       return CheckChannelEqualsHelper<float>(buf1, ch1, buf2, ch2);
@@ -471,7 +499,7 @@ TEST(ImageBufferTest, GrayscaleDouble) {
   EXPECT_DOUBLE_EQ(maxval, 100.0);
 
   // Back to grayscale conversion
-  viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
+  viren2d::ImageBuffer gray = viren2d::ConvertRGB2Gray(buf, 4, false);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
   EXPECT_EQ(gray.Channels(), 4);
@@ -489,7 +517,7 @@ TEST(ImageBufferTest, GrayscaleDouble) {
 
 
   // Repeat with BGR format
-  gray = buf.ToGrayscale(3, true);
+  gray = viren2d::ConvertRGB2Gray(buf, 3, true);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
   EXPECT_EQ(gray.Channels(), 3);
@@ -510,7 +538,7 @@ TEST(ImageBufferTest, GrayscaleDouble) {
 
 
   // Check that single-channel output yields the same conversion results
-  viren2d::ImageBuffer gray2 = buf.ToGrayscale(1, true);
+  viren2d::ImageBuffer gray2 = viren2d::ConvertRGB2Gray(buf, 1, true);
   EXPECT_EQ(gray2.Width(), buf.Width());
   EXPECT_EQ(gray2.Height(), buf.Height());
   EXPECT_EQ(gray2.Channels(), 1);
@@ -550,7 +578,7 @@ TEST(ImageBufferTest, GrayscaleUInt8) {
   buf.AtChecked<uint8_t>(0, 4, 2) = 255;
   buf.AtChecked<uint8_t>(0, 4, 3) = 5;
 
-  viren2d::ImageBuffer gray = buf.ToGrayscale(4, false);
+  viren2d::ImageBuffer gray = viren2d::ConvertRGB2Gray(buf, 4, false);
   EXPECT_EQ(gray.Width(), buf.Width());
   EXPECT_EQ(gray.Height(), buf.Height());
   EXPECT_EQ(gray.Channels(), 4);
@@ -582,7 +610,7 @@ TEST(ImageBufferTest, GrayscaleUInt8) {
   EXPECT_EQ(gray.AtChecked<uint8_t>(0, 4, 3), 5);
 
   // Check that single-channel output yields the same conversion results
-  viren2d::ImageBuffer gray2 = buf.ToGrayscale(1, false);
+  viren2d::ImageBuffer gray2 = viren2d::ConvertRGB2Gray(buf, 1, false);
   EXPECT_EQ(gray2.Width(), buf.Width());
   EXPECT_EQ(gray2.Height(), buf.Height());
   EXPECT_EQ(gray2.Channels(), 1);

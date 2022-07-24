@@ -1,8 +1,105 @@
+#include <vector>
+
+#include <werkzeugkiste/geometry/primitives.h>
+namespace wkg = werkzeugkiste::geometry;
+
 #include <viren2d/viren2d.h>
+
 #include <demo_utils/demos.h>
+
 
 namespace viren2d {
 namespace demos {
+/// Draws the two circles and their tangents.
+void TangentsDemoHelper(
+    std::unique_ptr<Painter> &painter,
+    const wkg::Circle &circ1,
+    const wkg::Circle &circ2) {
+  LineStyle tangent_style(3, Color::CoordinateAxisColor('x'));
+  LineStyle circle_style(3, "azure");
+
+  // Draw the transverse common tangents:
+  wkg::Line2d t1, t2;
+  const int num_transverse = circ1.TransverseCommonTangents(circ2, &t1, &t2);
+
+  std::vector<wkg::Line2d> transverse_tangents;
+  if (num_transverse > 0) {
+    transverse_tangents.push_back(t1);
+  }
+  if (num_transverse > 1) {
+    transverse_tangents.push_back(t2);
+  }
+  for (const auto &tangent : transverse_tangents) {
+    painter->DrawLine(tangent.From(), tangent.To(), tangent_style);
+  }
+
+  // Draw the direct common tangents:
+  wkg::Line2d d1, d2;
+  const int num_direct = circ1.DirectCommonTangents(circ2, &d1, &d2);
+
+  std::vector<wkg::Line2d> direct_tangents;
+  if (num_direct > 0) {
+    direct_tangents.push_back(d1);
+  }
+  if (num_direct > 1) {
+    direct_tangents.push_back(d2);
+  }
+
+  tangent_style.color = Color::CoordinateAxisColor('y');
+  for (const auto &tan : direct_tangents) {
+    painter->DrawLine(tan.From(), tan.To(), tangent_style);
+  }
+
+  // Draw the circles
+  painter->DrawCircle(
+        circ1.Center(), circ1.Radius(),
+        circle_style, Color::Same.WithAlpha(0.3));
+  painter->DrawCircle(
+        circ2.Center(), circ2.Radius(),
+        circle_style, Color::Same.WithAlpha(0.3));
+}
+
+
+void DemoCircleTangents() {
+  PrintDemoHeader("Circle Tangents");
+
+  auto painter = CreatePainter();
+  painter->SetCanvas(512, 512, Color::White.WithAlpha(0.0));
+
+  // Two separate circles, with all four tangents
+  wkg::Circle circle1{{100.0, 100.0}, 90.0};
+  wkg::Circle circle2{{300.0,  60.0}, 50.0};
+  TangentsDemoHelper(painter, circle1, circle2);
+
+  // Same radii
+  circle1 = {{440.0,  50.0}, 40.0};
+  circle2 = {{455.0, 160.0}, 40.0};
+  TangentsDemoHelper(painter, circle1, circle2);
+
+  // Intersecting (outside), different radii
+  circle1 = {{285.0, 450.0}, 50.0};
+  circle2 = {{375.0, 450.0}, 40.0};
+  TangentsDemoHelper(painter, circle1, circle2);
+
+  // Overlapping
+  circle1 = {{260.0, 245.0}, 80.0};
+  circle2 = {{350.0, 230.0}, 60.0};
+  TangentsDemoHelper(painter, circle1, circle2);
+
+  // Intersecting (inner)
+  circle1 = {{100.0, 400.0}, 80.0};
+  circle2 = {{140.0, 400.0}, 40.0};
+  TangentsDemoHelper(painter, circle1, circle2);
+
+  // Inside (no tangent)
+  circle1 = {{425.0, 340.0}, 35.0};
+  circle2 = {{420.0, 340.0}, 50.0};
+  TangentsDemoHelper(painter, circle1, circle2);
+
+  ProcessDemoOutput(painter->GetCanvas(false), "circle-tangents.png");
+  painter.reset();
+}
+
 
 void DemoCircles() {
   PrintDemoHeader("Circles & Ellipses");
@@ -181,7 +278,6 @@ void DemoMarkers() {
   ProcessDemoOutput(painter->GetCanvas(false), "demo-output-markers.png");
   painter.reset();
 }
-
 
 } // namespace demos
 } // namespace viren2d

@@ -30,6 +30,8 @@ bool AdjustMarkerFill(Marker marker, bool desired_fill) {
     case Marker::Cross:
     case Marker::Plus:
     case Marker::Star:
+    case Marker::Reticle:
+    case Marker::RotatedReticle:
       return false;
 
     case Marker::Point:
@@ -185,9 +187,13 @@ Marker MarkerFromChar(char m) {
     return Marker::Plus;
   } else if (m == 'x') {
     return Marker::Cross;
+  } else if (m == 'r') {
+    return Marker::Reticle;
+  } else if (m == 'R') {
+    return Marker::RotatedReticle;
   } else if (m == 's') {
     return Marker::Square;
-  } else if (m == 'r') {
+  } else if (m == 'S') {
     return Marker::RotatedSquare;
   } else if (m == '^') {
     return Marker::TriangleUp;
@@ -275,8 +281,14 @@ char MarkerToChar(Marker marker) {
     case Marker::Point:
       return '.';
 
-    case Marker::RotatedSquare:
+    case Marker::Reticle:
       return 'r';
+
+    case Marker::RotatedReticle:
+      return 'R';
+
+    case Marker::RotatedSquare:
+      return 'S';
 
     case Marker::Star:
       return '*';
@@ -695,7 +707,8 @@ TextStyle::TextStyle()
     bold(false),
     italic(false),
     line_spacing(1.2),
-    alignment(HorizontalAlignment::Left)
+    halign(HorizontalAlignment::Left),
+    valign(VerticalAlignment::Top)
 {}
 
 
@@ -704,12 +717,13 @@ TextStyle::TextStyle(unsigned int font_size,
                      const Color &font_color,
                      bool font_bold, bool font_italic,
                      double spacing,
-                     HorizontalAlignment align)
+                     HorizontalAlignment horz_alignment, VerticalAlignment vert_alignment)
   : size(font_size), family(font_family),
     color(font_color), bold(font_bold),
     italic(font_italic),
     line_spacing(spacing),
-    alignment(align)
+    halign(horz_alignment),
+    valign(vert_alignment)
 {}
 
 
@@ -743,7 +757,7 @@ std::string TextStyle::ToString() const {
   }
 
   s << ", ls=" << std::setprecision(2) << line_spacing
-    << ", " << alignment
+    << ", " << halign << ", " << valign
     << ", " << color;
 
   if (!IsValid()) {
@@ -830,7 +844,7 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
 std::string BoundingBox2DStyle::ToString() const {
   std::ostringstream s;
   s << "BoundingBox2DStyle("
-    << line_style << ", " << text_style
+    << line_style.ToString() << ", " << text_style.ToString()
     << ", box fill=" << box_fill_color
     << ", text fill=" << text_fill_color
     << ", label at " << label_position;

@@ -3,7 +3,7 @@ import viren2d
 
 
 def demo_text_anchors():
-    # Set up empty canvas:
+    # Plot available anchors with corresponding reference point
     painter = viren2d.Painter()
     canvas_width = 440
     canvas_height = 240
@@ -12,14 +12,14 @@ def demo_text_anchors():
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=18, alignment='center', color='white')
+        family='xkcd', size=18, halign='center', color='white')
 
     line_style = viren2d.LineStyle(
         width=1, dash_pattern=[10, 10], color=(0.4, 0.4, 0.4))
 
     marker_style = viren2d.MarkerStyle(
-        viren2d.Marker.Pentagram, size=18, thickness=1, filled=True,
-        color='rose-red', bg_border=2, bg_color='ivory!60')
+        viren2d.Marker.RotatedReticle, size=14, thickness=3, filled=True,
+        color='rose-red!90', bg_border=2, bg_color='ivory!80')
 
     # Draw a grid
     offset_x = 20
@@ -43,60 +43,58 @@ def demo_text_anchors():
         painter.draw_text_box(
             [str(anchor)], pos, anchor=anchor, text_style=text_style,
             padding=padding, rotation=0, line_style=viren2d.LineStyle.Invalid,
-            fill_color='azure!80', radius=0.15)
+            fill_color='azure!90', radius=0.15)
 
         x += delta_x
         if x >= canvas_width:
             x = offset_x
             y += delta_y
 
-    # Return the visualization as a NumPy buffer (let NumPy take care of
-    # the memory copy):
-    shared_canvas = painter.get_canvas(copy=False)
-    return np.array(shared_canvas, copy=True)
+    return np.array(painter.canvas, copy=True)
 
 
 def demo_multiline_text():
-    # Set up empty canvas:
+    # Horizontal & vertical alignment for fixed-size text boxes
     painter = viren2d.Painter()
     canvas_width = 750
-    canvas_height = 155
+    canvas_height = 185
     painter.set_canvas_rgb(
         width=canvas_width, height=canvas_height, color='white!0')
 
     poem = [
         'This nature frames my world!',
         '',
-        'It´s a Leitmotiv,',
+        "It's a Leitmotiv,",
         'a compass, an anchor,',
         'a constant companion,',
         'a steady hand...'
     ]
     padding = (14, 6)
+    fixed_box_size = (220, 170)
     color = 'tangerine!90'
 
     line_style = viren2d.LineStyle.Invalid
 
     text_style = viren2d.TextStyle(family='xkcd', size=14)
-    text_style.alignment = 'left'
+    text_style.halign = 'left'
+    text_style.valign = 'top'
     painter.draw_text_box(
         poem, (5, 5), anchor='top-left', text_style=text_style,
         padding=padding, rotation=0, line_style=line_style,
-        fill_color=color, radius=0.1)
+        fill_color=color, radius=0.1, fixed_size=fixed_box_size)
 
-    text_style.alignment = 'center'
+    text_style.halign = 'center'
+    text_style.valign = 'center'
     painter.draw_text_box(
         poem, (canvas_width / 2, 5), anchor='top', text_style=text_style,
         padding=padding, rotation=0, line_style=line_style,
-        fill_color=color, radius=0.1)
+        fill_color=color, radius=0.1, fixed_size=fixed_box_size)
 
-    text_style.alignment = 'right'
+    text_style.halign = 'right'
+    text_style.valign = 'bottom'
     painter.draw_text_box(
         poem, (canvas_width - 5, 5), anchor='top-right', text_style=text_style,
         padding=padding, rotation=0, line_style=line_style,
-        fill_color=color, radius=0.1)
+        fill_color=color, radius=0.1, fixed_size=fixed_box_size)
 
-    # Return the visualization as a NumPy buffer (let NumPy take care of
-    # the memory copy):
-    shared_canvas = painter.get_canvas(copy=False)
-    return np.array(shared_canvas, copy=True)
+    return np.array(painter.canvas, copy=True)

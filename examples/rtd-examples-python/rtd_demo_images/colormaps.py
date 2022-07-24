@@ -1,6 +1,6 @@
 import numpy as np
 import viren2d
-import os
+from rtd_demo_images.constants import VIREN2D_DATA_PATH
 
 
 def demo_relief_shading():
@@ -15,8 +15,7 @@ def demo_relief_shading():
     text_style = viren2d.TextStyle(family='xkcd', size=21)
 
     # Load the relief data & crop to some craters on the upper-left quadrant:
-    moon_full = viren2d.load_image_uint8(
-        os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'data', 'lunar-farside.jpg'))
+    moon_full = viren2d.load_image_uint8(VIREN2D_DATA_PATH / 'lunar-farside.jpg')
     moon = moon_full.roi(left=200, top=200, width=200, height=200)
 
     cmap_names = ['Earth', 'Relief', 'Relief Low Contrast']
@@ -27,7 +26,7 @@ def demo_relief_shading():
     x = column_width / 2 + 5
     for cmap_name in cmap_names:
         # Show the color bar on top of the shaded relief:
-        colorbar = viren2d.colorize(
+        colorbar = viren2d.colorize_scaled(
             data=colorbar_data, colormap=cmap_name, low=0, high=255)
 
         painter.draw_image(
@@ -39,7 +38,7 @@ def demo_relief_shading():
             text_style=text_style)
 
         # Colorize & shade the relief of the farside of the moon:
-        vis = viren2d.colorize(
+        vis = viren2d.colorize_scaled(
             data=moon, colormap=cmap_name)
 
         relief = viren2d.relief_shading(relief=moon, colorized=vis)
@@ -84,16 +83,72 @@ def demo_colormaps():
     canvas_height = int(scale * peaks.height + 10.5)
     painter = viren2d.Painter(
         width=canvas_width, height=canvas_height, color='white!0')
+    
+    text_style = viren2d.TextStyle(family='xkcd', size=18, color='black')
 
     x = column_width / 2 + 5
     for bins in cmap_bins:
-        vis = viren2d.colorize(
+        vis = viren2d.colorize_scaled(
             data=peaks, colormap='gouldian', low=-6.5, high=8, bins=bins)
         
         painter.draw_image(
             image=vis, position=(x, canvas_height / 2), anchor='center',
             scale_x=scale, scale_y=scale, rotation=0, clip_factor=0.2)
+
+        painter.draw_text(
+            text=[f'{bins} Bins'], anchor='bottom-left', rotation=-90, 
+            position=(x + column_width / 2 - 5, canvas_height * 0.85),
+            text_style=text_style)
         
         x += column_width + 10
 
     return np.array(painter.canvas, copy=True)
+
+
+def demo_colorize_labels():
+    try:
+        from PIL import Image
+
+        class_labels = viren2d.load_image_uint8(
+            VIREN2D_DATA_PATH / 'semseg-classes.png')
+        # Instance labels are stored as 16-bit PNG, loading this properly
+        # requires Pillow or any other external library:
+        instance_labels = np.array(
+            Image.open(str(VIREN2D_DATA_PATH / 'semseg-instances.png')))
+
+        text_style = viren2d.TextStyle(
+            family='xkcd', size=21, color='white')
+
+        painter = viren2d.Painter(height=215, width=600, color='white!0')
+        
+        vis_cls = viren2d.colorize_labels(
+            labels=class_labels, colormap='glasbey-light')
+        
+        scale = (painter.canvas.width / 2 - 10) / vis_cls.width
+
+        painter.draw_image(
+            vis_cls, position=(5, 5), anchor='top-left', scale_x=scale,
+            scale_y=scale, clip_factor=0.15)
+
+        painter.draw_text(
+            text=['Class Labels'],
+            position=(0.25 * painter.canvas.width, painter.canvas.height - 15),
+            anchor='bottom', text_style=text_style)
+        
+        vis_ids = viren2d.colorize_labels(
+            labels=instance_labels, colormap='glasbey-light')
+        
+        painter.draw_image(
+            image=vis_ids, position=(painter.canvas.width - 5, 5),
+            anchor='top-right', scale_x=scale, scale_y=scale, clip_factor=0.15)
+
+        painter.draw_text(
+            text=['Instance IDs'],
+            position=(0.75 * painter.canvas.width, painter.canvas.height - 15),
+            anchor='bottom', text_style=text_style)
+        
+        return np.array(painter.canvas, copy=True)
+
+    except ModuleNotFoundError:
+        print('Optional depency PIL is not installed - skipping label colorization demo.')
+        return None

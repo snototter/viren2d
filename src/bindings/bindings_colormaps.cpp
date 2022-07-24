@@ -13,8 +13,11 @@ namespace py = pybind11;
 namespace viren2d {
 namespace bindings {
 void RegisterColorMapEnum(pybind11::module &m) {
-  py::enum_<ColorMap> cm(m, "ColorMap",
-             "Enum to select a color map.");
+  py::enum_<ColorMap> cm(m, "ColorMap", R"docstr(
+            Enumeration of available color maps.
+
+            **Corresponding C++ API:** ``viren2d::ColorMap``.
+            )docstr");
   cm.value(
         "Autumn",
         ColorMap::Autumn, R"docstr(
@@ -104,6 +107,24 @@ void RegisterColorMapEnum(pybind11::module &m) {
         `matplotlib's <https://matplotlib.org>`__ *copper* map.
         )docstr")
       .value(
+        "Custom1",
+        ColorMap::Custom1, R"docstr(
+        A color map which can freely be set by the user via
+        :func:`~viren2d.set_custom_colormap`.
+        )docstr")
+      .value(
+        "Custom2",
+        ColorMap::Custom2, R"docstr(
+        A color map which can freely be set by the user via
+        :func:`~viren2d.set_custom_colormap`.
+        )docstr")
+      .value(
+        "Custom3",
+        ColorMap::Custom3, R"docstr(
+        A color map which can freely be set by the user via
+        :func:`~viren2d.set_custom_colormap`.
+        )docstr")
+      .value(
         "Disparity",
         ColorMap::Disparity, R"docstr(
         High contrast color map for depth & disparity images.
@@ -187,8 +208,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Note that this color map has several known limitations (*e.g.* reversed
         lightness gradients at yellow and red affect the viewer's perceptual
         ordering). Refer to the excellent article by
-        `Peter Kovesi <https://arxiv.org/abs/1509.03700>`__ for more details
-        about these issues.
+        `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__ for more
+        details about these issues.
         )docstr")
       .value(
         "Ocean",
@@ -371,7 +392,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
       Returns all :class:`~viren2d.ColorMap` values.
 
       Convenience utility to easily iterate all enumeration
-      values.
+      values. This list **will not** include the customizable
+      enumeration values.
 
       **Corresponding C++ API:** ``viren2d::ListColorMaps``.
       )docstr";
@@ -389,79 +411,100 @@ ColorMap ColorMapFromPyObject(const py::object &o) {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
-    str << "Cannot cast type `" << tp
-        << "` to `viren2d.ColorMap`!";
+    str << "Cannot cast type `" << tp << "` to `viren2d.ColorMap`!";
     throw std::invalid_argument(str.str());
   }
 }
 
 
-Colorizer::LimitsMode LimitsModeFromPyObject(const py::object &o) {
+StreamColorizer::LimitsMode LimitsModeFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
     return LimitsModeFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<Colorizer::LimitsMode>(o)) {
-    return py::cast<Colorizer::LimitsMode>(o);
+  } else if (py::isinstance<StreamColorizer::LimitsMode>(o)) {
+    return py::cast<StreamColorizer::LimitsMode>(o);
   } else {
     std::string s("Cannot cast type `");
-    s += py::cast<std::string>(
-          o.attr("__class__").attr("__name__"));
+    s += py::cast<std::string>(o.attr("__class__").attr("__name__"));
     s += "` to `viren2d.LimitsMode`!";
     throw std::invalid_argument(s);
   }
 }
 
 
-ImageBuffer ColorizationHelper(
+ImageBuffer ColorizationScaledHelper(
     const ImageBuffer &data, const py::object &colormap,
     double limit_low, double limit_high, int output_channels,
     int bins) {
   ColorMap cmap = ColorMapFromPyObject(colormap);
-  return Colorize(data, cmap, limit_low, limit_high, output_channels, bins);
+  return ColorizeScaled(data, cmap, limit_low, limit_high, output_channels, bins);
 }
 
 
-Colorizer CreateColorizer(
+ImageBuffer ColorizationLabelsHelper(
+    const ImageBuffer &labels, const py::object &colormap,
+    int output_channels) {
+  ColorMap cmap = ColorMapFromPyObject(colormap);
+  return ColorizeLabels(labels, cmap, output_channels);
+}
+
+
+StreamColorizer CreateStreamColorizer(
     const py::object &colormap, const py::object &limits_mode, int bins,
     int output_channels, double low, double high) {
   ColorMap cm = ColorMapFromPyObject(colormap);
-  Colorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
-  return Colorizer(cm, lm, bins, output_channels, low, high);
+  StreamColorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
+  return StreamColorizer(cm, lm, bins, output_channels, low, high);
+}
+
+
+void SetCustomColorMapHelper(
+    const py::object &colormap, const std::vector<Color> &colors) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
+  SetCustomColorMap(cm, colors);
+}
+
+
+std::vector<Color> GetColorMapColorsHelper(const py::object &colormap) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
+  return GetColorMapColors(cm);
 }
 
 
 void RegisterColormaps(pybind11::module &m) {
-  py::enum_<Colorizer::LimitsMode> mode(m, "LimitsMode",
-             "Specifies how the colorization limits should be computed.");
+  py::enum_<StreamColorizer::LimitsMode> mode(m, "LimitsMode",
+             "Enumeration of how the colorization limits should be computed.");
   mode.value(
         "Continuous",
-        Colorizer::LimitsMode::FromDataContinuously, R"docstr(
+        StreamColorizer::LimitsMode::FromDataContinuously, R"docstr(
         Compute limits for each incoming sample separately.
 
         Corresponding string representation: ``'continuous'``.
         )docstr")
       .value(
         "Fixed",
-        Colorizer::LimitsMode::Fixed, R"docstr(
+        StreamColorizer::LimitsMode::Fixed, R"docstr(
         Use fixed, user-defined limits.
 
         Corresponding string representation: ``'fixed'``.
         )docstr")
       .value(
         "Once",
-        Colorizer::LimitsMode::FromDataOnce, R"docstr(
+        StreamColorizer::LimitsMode::FromDataOnce, R"docstr(
         Compute limits from the first incoming sample, then apply these to all
         further samples.
 
         Corresponding string representation: ``'continuous'``.
         )docstr");
 
+
   mode.def(
-        "__str__", [](Colorizer::LimitsMode lm) -> py::str {
+        "__str__", [](StreamColorizer::LimitsMode lm) -> py::str {
             return py::str(LimitsModeToString(lm));
         }, py::name("__str__"), py::is_method(m));
 
+
   mode.def(
-        "__repr__", [](Colorizer::LimitsMode lm) -> py::str {
+        "__repr__", [](StreamColorizer::LimitsMode lm) -> py::str {
             std::ostringstream s;
             s << "<LimitsMode." << LimitsModeToString(lm) << '>';
             return py::str(s.str());
@@ -469,7 +512,7 @@ void RegisterColormaps(pybind11::module &m) {
 
 
 
-  py::class_<Colorizer> colorizer(m, "Colorizer", R"docstr(
+  py::class_<StreamColorizer> colorizer(m, "StreamColorizer", R"docstr(
       Utility class to simplify colorization of a data stream.
 
       This class takes care of computing/storing the input data limits, the
@@ -477,9 +520,11 @@ void RegisterColormaps(pybind11::module &m) {
       the same colorization over and over again. For example, think of
       displaying the live stream of a time-of-flight sensor.
 
+      **Corresponding C++ API:** ``viren2d::StreamColorizer``.
+
       Example:
         >>> depth_cam = ...  # Open camera stream
-        >>> colorizer = viren2d.Colorizer(
+        >>> colorizer = viren2d.StreamColorizer(
         >>>     colormap=...)
         >>> while depth_cam.is_available():
         >>>     depth = depth_cam.next()
@@ -488,18 +533,18 @@ void RegisterColormaps(pybind11::module &m) {
 
 
   colorizer.def(
-        py::init<>(&CreateColorizer), R"docstr(
-        Creates a customized colorizer.
+        py::init<>(&CreateStreamColorizer), R"docstr(
+        Creates a customized stream colorizer.
 
         Args:
           colormap: The :class:`~viren2d.ColorMap` to be used for
-            colorization. In addition to the enum value, the corresponding
+            colorization. In addition to the enumeration value, its
             string representation can be used for convenience.
           mode: The :class:`~viren2d.LimitsMode` specifying how the data limits
-            should be computed. Can be provided as enum value or its
+            should be computed. Can be provided as enumeration value or its
             corresponding string representation.
 
-            If set to :attr:`~viren2d.LimitsMode.Fixed`, then the parameters
+            If set to :attr:`LimitsMode.Fixed`, then the parameters
             ``low`` and ``high`` *must* be set to valid numbers.
           bins: Number of discretization bins as :class:`int`.
             Must be :math:`\geq 2`. This parameter will be ignored if the
@@ -508,9 +553,9 @@ void RegisterColormaps(pybind11::module &m) {
             Must be either 3 or 4. The optional 4th channel will be
             considered an alpha channel and set to 255.
           low: Lower limit of the input data. Will be considered only if
-            ``mode`` is :attr:`~viren2d.LimitsMode.Fixed`.
+            ``mode`` is :attr:`LimitsMode.Fixed`.
           high: Upper limit of the input data. Will be considered only if
-            ``mode`` is :attr:`~viren2d.LimitsMode.Fixed`.
+            ``mode`` is :attr:`LimitsMode.Fixed`.
         )docstr",
         py::arg("colormap"),
         py::arg("mode") = "continuous",
@@ -520,77 +565,143 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("high") = std::numeric_limits<double>::infinity())
       .def_property(
         "limit_low",
-        &Colorizer::LimitLow,
-        &Colorizer::SetLimitLow, R"docstr(
+        &StreamColorizer::GetLimitLow,
+        &StreamColorizer::SetLimitLow, R"docstr(
         :class:`float`: Lower limit of the input data.
 
           If you intend to set this to *inf*/*nan*, ensure that
           :attr:`limits_mode` is not set to ``fixed``, or a :class:`ValueError`
           will be raised.
+
+          **Corresponding C++ API:** ``viren2d::StreamColorizer::GetLimitLow/SetLimitLow``.
         )docstr")
       .def_property(
         "limit_high",
-        &Colorizer::LimitHigh,
-        &Colorizer::SetLimitHigh, R"docstr(
+        &StreamColorizer::GetLimitHigh,
+        &StreamColorizer::SetLimitHigh, R"docstr(
         :class:`float`: Lower limit of the input data.
 
           If you intend to set this to *inf*/*nan*, ensure that
           :attr:`limits_mode` is not set to ``fixed``, or a :class:`ValueError`
           will be raised.
+
+          **Corresponding C++ API:** ``viren2d::StreamColorizer::GetLimitHigh/SetLimitHigh``.
         )docstr")
       .def_property(
         "limits_mode",
-        &Colorizer::GetLimitsMode,
-        [](Colorizer &c, py::object lm) {
+        &StreamColorizer::GetLimitsMode,
+        [](StreamColorizer &c, py::object lm) {
             c.SetLimitsMode(LimitsModeFromPyObject(lm));
         }, R"docstr(
         :class:`~viren2d.LimitsMode`: Specifies how the data limits
-          should be computed. Can be set via the enum value or its
+          should be computed. Can be set via the enumeration value or its
           corresponding string representation.
 
           Note that :attr:`limit_low` and :attr:`limit_high` must be set to
           valid numbers **before** the mode is changed to ``fixed``.
+
+          **Corresponding C++ API:** ``viren2d::StreamColorizer::GetLimitsMode/SetLimitsMode``.
         )docstr")
       .def_property(
         "output_channels",
-        &Colorizer::OutputChannels,
-        &Colorizer::SetOutputChannels, R"docstr(
+        &StreamColorizer::GetOutputChannels,
+        &StreamColorizer::SetOutputChannels, R"docstr(
         :class:`int`: Number of output channels.
 
           Must be either 3 or 4. The optional 4th channel will be considered an
           alpha channel and set to 255.
+
+          **Corresponding C++ API:** ``viren2d::StreamColorizer::GetOutputChannels/SetOutputChannels``.
         )docstr")
       .def_property(
         "bins",
-        &Colorizer::Bins,
-        &Colorizer::SetBins, R"docstr(
+        &StreamColorizer::GetBins,
+        &StreamColorizer::SetBins, R"docstr(
         :class:`int`: Number of discretization bins.
 
-            Must be :math:`\geq 2`. This parameter will be ignored if the
-            selected :attr:`colormap` has less than ``bins`` colors.
+          Must be :math:`\geq 2`. This parameter will be ignored if the
+          selected :attr:`colormap` has less than ``bins`` colors.
+
+          **Corresponding C++ API:** ``viren2d::StreamColorizer::GetBins/SetBins``.
         )docstr")
       .def_property(
         "colormap",
-        &Colorizer::GetColorMap,
-        [](Colorizer &c, const py::object &o) {
+        &StreamColorizer::GetColorMap,
+        [](StreamColorizer &c, const py::object &o) {
           c.SetColorMap(ColorMapFromPyObject(o));
         }, R"docstr(
         :class:`~viren2d.ColorMap`: The selected color map.
 
-          In addition to the enum value, the corresponding string
+          In addition to the enumeration value, the corresponding string
           representation can be used to set this property.
+
+          **Corresponding C++ API:** ``viren2d::StreamColorizer::GetColorMap/SetColorMap``.
         )docstr");
 
 
-  m.def("colorize",
-        &ColorizationHelper, R"docstr(
+  m.def("get_colormap",
+        &GetColorMapColorsHelper, R"docstr(
+        Returns the :class:`list` of :class:`~viren2d.Color` for the
+        specified color map.
+
+        **Corresponding C++ API:** ``viren2d::GetColorMapColors``.
+
+        Args:
+          colormap: The :class:`~viren2d.ColorMap` enumeration value or its
+            string representation.
+
+        Example:
+          >>> colors = viren2d.get_colormap('ocean')
+        )docstr",
+        py::arg("colormap"));
+
+
+  m.def("set_custom_colormap",
+        &SetCustomColorMapHelper, R"docstr(
+        Registers a customized color map.
+
+        Allows library users to register their own color maps for the
+        enumeration values :attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`,
+        and :attr:`ColorMap.Custom3`.
+
+        **Corresponding C++ API:** ``viren2d::SetCustomColorMap``.
+
+        Args:
+          id: The :class:`~viren2d.ColorMap` enumeration value under which to
+            register the color map. Also accepts the corresponding string
+            representation.
+          colors: The color map as :class:`list` of :class:`~viren2d.Color`.
+            Note that a :class:`~viren2d.Color` is defined by
+            :math:`r,g,b \in [0,1]`.
+
+        Example:
+          >>> # Exemplary categorical data for visualization
+          >>> import numpy as np
+          >>> labels = np.array(
+          >>>     [[0, 1, 2], [-3, -4, -6], [20000, 20001, 20003]],
+          >>>     dtype=np.int32)
+          >>> # Register a custom color map. This is a usage example and by
+          >>> # no means a useful color map!
+          >>> viren2d.set_custom_colormap(
+          >>>     'custom1', ['#800000', (0.94, 0.13, 0.15), 'rose-red'])
+          >>> # Apply the custom map for label colorization:
+          >>> vis = viren2d.colorize_labels(labels=labels, colormap='custom1')
+        )docstr",
+        py::arg("id"),
+        py::arg("colors"));
+
+
+  m.def("colorize_scaled",
+        &ColorizationScaledHelper, R"docstr(
         Colorizes 2D data array using a colormap.
+
+        **Corresponding C++ API:** ``viren2d::ColorizeScaled``.
 
         Args:
           data: A single channel :class:`~viren2d.ImageBuffer` or
             :class:`numpy.ndarray` holding the data for colorization.
           colormap: The :class:`~viren2d.ColorMap` to be used for
-            colorization. In addition to the enum value, the corresponding
+            colorization. In addition to the enumeration value, its
             string representation can be used for convenience.
           low: Lower limit of the input values as :class:`float`. If either
             ``low`` or ``high`` are ``inf`` or ``nan``, **both limits** will
@@ -609,15 +720,49 @@ void RegisterColormaps(pybind11::module &m) {
 
         Example:
           >>> data = viren2d.peaks(400, 400)
-          >>> vis = viren2d.colorize(
-          >>>     data, colormap='viridis', low=-8, high=8, bins=256, output_channels=3)
+          >>> vis = viren2d.colorize_scaled(
+          >>>     data, colormap='gouldian', low=-8, high=8,
+          >>>     bins=256, output_channels=3)
         )docstr",
         py::arg("data"),
-        py::arg("colormap") = ColorMap::Viridis,
+        py::arg("colormap") = ColorMap::Gouldian,
         py::arg("low") = std::numeric_limits<double>::infinity(),
         py::arg("high") = std::numeric_limits<double>::infinity(),
         py::arg("output_channels") = 3,
         py::arg("bins") = 256);
+
+
+  m.def("colorize_labels",
+        &ColorizationLabelsHelper, R"docstr(
+        Colorizes a label image.
+
+        **Corresponding C++ API:** ``viren2d::ColorizeLabels``.
+
+        Args:
+          labels: A single channel :class:`~viren2d.ImageBuffer` or
+            :class:`numpy.ndarray` holding the labels as integral data type.
+          colormap: The :class:`~viren2d.ColorMap` to be used for
+            colorization. In addition to the enumeration value, its
+            string representation can be used for convenience.
+          output_channels: Number of output channels as :class:`int`.
+            Must be either 3 or 4. The optional 4th channel will be
+            considered an alpha channel and set to 255.
+
+        Returns:
+          A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
+          type :class:`numpy.uint8`.
+
+        Example:
+          >>> import numpy as np
+          >>> labels = np.array(
+          >>>     [[1, 2, 3], [4, 5, 6], [20000, 20001, 20003]],
+          >>>     dtype=np.int32)
+          >>> vis = viren2d.colorize_labels(
+          >>>     labels, colormap='category-20', output_channels=3)
+        )docstr",
+        py::arg("labels"),
+        py::arg("colormap") = ColorMap::GlasbeyDark,
+        py::arg("output_channels") = 3);
 
 
   m.def("relief_shading",
@@ -633,6 +778,8 @@ void RegisterColormaps(pybind11::module &m) {
         shading. Particularly well suited color maps have only low (or even no)
         variation in lightness values, *e.g.* :attr:`ColorMap.Relief` or
         :attr:`ColorMap.ReliefLowContrast`.
+
+        **Corresponding C++ API:** ``viren2d::ReliefShading``.
 
         Args:
           relief: A single channel :class:`~viren2d.ImageBuffer` or
@@ -650,12 +797,13 @@ void RegisterColormaps(pybind11::module &m) {
 
         Example:
           >>> moon = viren2d.load_image_uint8('examples/data/lunar-farside.jpg')
-          >>> vis = viren2d.colorize(
+          >>> vis = viren2d.colorize_scaled(
           >>>     data=moon, colormap='relief-low-contrast', low=0, high=255)
           >>> shaded = viren2d.relief_shading(relief=moon, colorized=vis)
         )docstr",
         py::arg("relief"),
         py::arg("colorized"));
+
 
   m.def("peaks",
         &Peaks, R"docstr(
@@ -665,6 +813,8 @@ void RegisterColormaps(pybind11::module &m) {
         distributions, known from MATLAB's `peaks`. For details on
         the formal definition, refer to the
         `MATLAB documentation <https://www.mathworks.com/help/matlab/ref/peaks.html>`__.
+
+        **Corresponding C++ API:** ``viren2d::Peaks``.
 
         Returns:
           A ``width`` by ``height`` single-channel :class:`~viren2d.ImageBuffer`

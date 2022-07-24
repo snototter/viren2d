@@ -13,6 +13,10 @@ namespace wgu = werkzeugkiste::geometry;
 #include <helpers/drawing_helpers.h>
 #include <helpers/enum.h>
 
+// Flag to enable debugging the text extent (will render an additional box
+// around the text and also highlight the given reference position)
+//#define VIREN2D_DEBUG_TEXT_EXTENT
+
 
 namespace viren2d {
 namespace helpers {
@@ -104,7 +108,7 @@ MultiLineText::MultiLineText(
           SingleLineText(text[idx].c_str(), context, &font_extent));
     width = std::max(width, lines[idx].Width());
 
-    height += (lines[idx].Height() * ((idx > 0) ? text_style.line_spacing : 1.0));
+    height += LineHeight(idx);
   }
 }
 
@@ -139,7 +143,7 @@ void MultiLineText::Align(
   // for each TextLine depending on the
   // user's TextStyle choice:
   double x = 0.0;
-  switch(style.alignment) {
+  switch(style.halign) {
     case HorizontalAlignment::Left:
       x = top_left.x() + padding.x();
       break;
@@ -153,13 +157,28 @@ void MultiLineText::Align(
       break;
   }
 
+  // Compute the vertical anchor coordinate
+  double y = 0.0;
+  switch(style.valign) {
+    case VerticalAlignment::Top:
+      y = top_left.y() + padding.y();
+      break;
+
+    case VerticalAlignment::Bottom:
+      y = top_left.y() + Height() - padding.y() - height;
+      break;
+
+    case VerticalAlignment::Center:
+      y = top_left.y() + (Height() / 2.0) - (height / 2.0);
+      break;
+  }
+
   // Align each SingleLineText:
-  double y = top_left.y() + padding.y();
   for (std::size_t idx = 0; idx < lines.size(); ++idx) {
-    y += (lines[idx].Height() * ((idx == 0) ? 1.0 : style.line_spacing));
+    y += LineHeight(idx);
     lines[idx].Align(
           Vec2d(x, y),
-          VerticalAlignment::Bottom | style.alignment);
+          VerticalAlignment::Bottom | style.halign);
   }
 }
 
@@ -192,6 +211,11 @@ double MultiLineText::Height() const {
   return (fixed_size.height() > 0.0)
       ? fixed_size.height()
       : (height + 2 * padding.y());
+}
+
+
+double MultiLineText::LineHeight(std::size_t idx) const {
+  return (lines[idx].Height() * ((idx == 0) ? 1.0 : style.line_spacing));
 }
 
 
@@ -232,7 +256,6 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
   MultiLineText mlt(text, text_style, context);
   mlt.Align(transformed_anchor_position, anchor, padding, fixed_box_size);
 
-//#define VIREN2D_DEBUG_TEXT_EXTENT // TODO(snototter) document this debug flag
 #ifdef VIREN2D_DEBUG_TEXT_EXTENT
   // Draw a box showing the text extent
   DrawRect(surface, context, mlt.BoundingBox(),

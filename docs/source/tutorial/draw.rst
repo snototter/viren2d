@@ -26,12 +26,12 @@ Once you've set up the painter, you can start drawing:
 
       draw-primitives
       draw-markers
+      draw-text
       draw-image
       draw-tracking-by-detection
       draw-poses
       draw-3d-results
       draw-3d-calibration
-      draw-text
 
 
 Finally, you simply retrieve the visualization result via 
@@ -58,7 +58,7 @@ visualization from the :class:`~viren2d.Painter`:
    You can retrieve either a **deep copy** or a **shared view** on the
    :class:`~viren2d.Painter`'s canvas.
    If you can ensure that the :class:`~viren2d.Painter` instance is not
-   destroyed (and you don't immediately continue drawing), you should prefer
+   destroyed and you don't concurrently change the canvas, you should prefer
    the shared view because it avoids unnecessary memory allocation.
 
    Refer to :meth:`~viren2d.Painter.get_canvas` for details.
@@ -70,9 +70,6 @@ visualization from the :class:`~viren2d.Painter`:
    (Snake case in Python *vs.* camel case in C++), both APIs are highly
    similar.
 
-   Thus, the rest of this tutorial omits the (mostly redundant) C++ examples.
-   You will definitely be able to deduce the corresponding C++ functionality
-   from the Python examples alone - you got this!
-
-   In cases where the **C++ counterpart is not easily deducible**, it is
-   explicitly mentioned in the Python :ref:`API documentation<api-documentation>`.
+   Thus, the rest of this tutorial will mostly omit the C++ examples. The
+   corresponding C++ counterpart will instead be mentioned in the
+   :ref:`API documentation<api-documentation>` of the Python bindings.

@@ -12,10 +12,9 @@ def demo_ellipses():
 
     # Style specifications:
     text_style = viren2d.TextStyle(
-        family='xkcd', size=23, line_spacing=0.8, alignment='center')
+        family='xkcd', size=23, line_spacing=0.8, halign='center')
 
-    line_style = viren2d.LineStyle(
-        width=5, color='forest-green')
+    line_style = viren2d.LineStyle(width=5, color='azure!80')
     
     fill_color = 'ivory!80'
 
@@ -60,10 +59,7 @@ def demo_ellipses():
     ellipse.cx = 500
     painter.draw_ellipse(ellipse, viren2d.LineStyle.Invalid, fill_color)
 
-    # Return the visualization as a NumPy buffer (let NumPy take care of
-    # the memory copy):
-    shared_canvas = painter.get_canvas(copy=False)
-    return np.array(shared_canvas, copy=True)
+    return np.array(painter.canvas, copy=True)
 
 
 def demo_arrows():
@@ -110,7 +106,7 @@ def demo_rectangles():
         width=canvas_width, height=canvas_height, color=viren2d.RGBa(26, 28, 29))
 
     # Style specification:
-    line_style = viren2d.LineStyle(width=5, color='forest-green')
+    line_style = viren2d.LineStyle(width=5, color='azure!80')
     fill_color = 'ivory!80'
 
     # Square rectangles (left):
@@ -137,7 +133,4 @@ def demo_rectangles():
     rect.cx += 80
     painter.draw_rect(rect, line_style, fill_color)
 
-    # Return the visualization as a NumPy buffer (let NumPy take care of
-    # the memory copy):
-    shared_canvas = painter.get_canvas(copy=False)
-    return np.array(shared_canvas, copy=True)
+    return np.array(painter.canvas, copy=True)

@@ -1,8 +1,8 @@
 .. _tutorial-optical-flow:
 
-------------
-Optical Flow
-------------
+-------------------------
+Optical Flow Colorization
+-------------------------
 
 Optical flow fields can be visualized via
 :func:`~viren2d.colorize_optical_flow`. There is also an option to illustrate
@@ -21,6 +21,6 @@ with different cyclic color maps. Corresponding Python code:
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/optical_flow.py
    :language: python
    :emphasize-lines: 2, 12-13, 19-20
-   :lines: 10-43
+   :lines: 7-40
    :linenos:
    :dedent: 4

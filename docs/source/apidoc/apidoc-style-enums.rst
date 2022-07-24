@@ -11,7 +11,9 @@ Line Cap
    :alt: Line Cap Styles
    :align: center
 
-   Cheat Sheet: :class:`~viren2d.LineCap`
+   Cheat Sheet: :class:`~viren2d.LineCap` - The thin vertical line shows the
+   line's start and end points.
+
 
 .. autoclass:: viren2d.LineCap
 

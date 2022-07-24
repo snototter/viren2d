@@ -28,6 +28,13 @@ TEST(ColorMapTest, StringRepresentation) {
   const auto cmaps = viren2d::ListColorMaps();
   std::size_t cnt = 0;
   for (viren2d::ColorMap cm: ColormapIterator()) {
+    // The customizable slots should not be contained in
+    // the list:
+    if ((cm == viren2d::ColorMap::Custom1)
+        || (cm == viren2d::ColorMap::Custom2)
+        || (cm == viren2d::ColorMap::Custom3)) {
+      continue;
+    }
     EXPECT_TRUE(wkc::ContainsValue(cmaps, cm));
     ++cnt;
   }

@@ -51,11 +51,13 @@ void Showcase() {
 //  DemoArrows();
 //  DemoBoundingBoxes2D();
 //  DemoCircles();
+  DemoCircleTangents();
 //  DemoColorMaps();
-  DemoImageBufferConversionOpenCV();
+//  DemoImageBufferConversionOpenCV();
 //  DemoLines();
 //  DemoMarkers();
-  DemoOpticalFlow();
+//  DemoOpticalFlow();
+  DemoPinhole();
 //  DemoPolygons();
 //  DemoRects();
 //  DemoText();
