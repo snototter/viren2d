@@ -45,18 +45,21 @@ void PathHelperRoundedRect(cairo_t *context, Rect rect) {
 
 
 //---------------------------------------------------- Arc/Circle
-void DrawArc(
+bool DrawArc(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d center, double radius,
     double angle1, double angle2,
     const LineStyle &line_style,
     bool include_center,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (radius <= 0.0) {
-    throw std::invalid_argument("Radius must be > 0.0!");
+    SPDLOG_WARN("Radius must be > 0.0!");
+    return false;
   }
 
   // Move to the center of the pixel coordinates:
@@ -80,6 +83,7 @@ void DrawArc(
   cairo_stroke(context);
   // Restore previous context
   cairo_restore(context);
+  return true;
 }
 
 
@@ -118,17 +122,18 @@ Vec2d HelperClosedHead(
 }
 
 
-void DrawArrow(
+bool DrawArrow(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
-  CheckCanvas(surface, context);
-  CheckLineStyle(arrow_style);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyle(arrow_style)) {
+    return false;
+  }
 
   // Add 0.5 (half a pixel) to align the arrow exactly
   // with the given coordinates
   from += 0.5;
   to += 0.5;
-
 
   // Adjust endpoints s.t. the "pointy end" points exactly to
   // the given endpoint. My implementation ensures that for
@@ -230,6 +235,7 @@ void DrawArrow(
   }
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 
@@ -255,18 +261,21 @@ double AdjustEllipseAngle(
 }
 
 
-void DrawEllipse(
+bool DrawEllipse(
     cairo_surface_t *surface, cairo_t *context,
     Ellipse ellipse, const LineStyle &line_style,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (!ellipse.IsValid()) {
     std::string s("Cannot draw an invalid ellipse: ");
     s += ellipse.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly).
@@ -328,21 +337,25 @@ void DrawEllipse(
 
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Grid
-void DrawGrid(
+bool DrawGrid(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d top_left, Vec2d bottom_right,
     double spacing_x, double spacing_y,
     const LineStyle &line_style) {
   // Sanity checks
-  CheckCanvas(surface, context);
-  CheckLineStyle(line_style);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyle(line_style)) {
+    return false;
+  }
 
   if ((spacing_x <= 0.0) || (spacing_y <= 0.0)) {
-    throw std::invalid_argument("Cell spacing for grid must be > 0.");
+    SPDLOG_WARN("Cell spacing for grid must be > 0.");
+    return false;
   }
 
   // Adjust corners if necessary
@@ -390,15 +403,18 @@ void DrawGrid(
   cairo_stroke(context);
   // Restore previous state
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Line
-void DrawLine(
+bool DrawLine(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const LineStyle &line_style) {
-  CheckCanvas(surface, context);
-  CheckLineStyle(line_style);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyle(line_style)) {
+    return false;
+  }
 
   // Adjust coordinates to support thin (1px) lines
   from += 0.5;
@@ -415,6 +431,7 @@ void DrawLine(
 
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 
@@ -463,7 +480,7 @@ inline std::tuple<int, double, double> NGonMarkerSteps(Marker m) {
   }
 }
 
-void DrawMarker(
+bool DrawMarker(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d pos, const MarkerStyle &style) {
   // General idea for all markers implemented so far:
@@ -474,13 +491,16 @@ void DrawMarker(
   //   which overlap between fill and stroke)
 
   // Sanity checks
-  CheckCanvas(surface, context);
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
 
   if (!style.IsValid()) {
     std::string s("Cannot draw with invalid marker style ");
     s += style.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
   }
 
   cairo_save(context);
@@ -675,19 +695,24 @@ void DrawMarker(
   }
 
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Polygon
-void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
-                 const std::vector<Vec2d> &points,
-                 const LineStyle &line_style,
-                 Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+bool DrawPolygon(
+    cairo_surface_t *surface, cairo_t *context,
+    const std::vector<Vec2d> &points,
+    const LineStyle &line_style,
+    Color fill_color) {
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (points.size() < 3) {
-    throw std::invalid_argument("A polygon must have at least 3 points!");
+    SPDLOG_WARN("A polygon must have at least 3 points!");
+    return false;
   }
 
   cairo_save(context);
@@ -707,23 +732,26 @@ void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
   cairo_stroke(context);
 
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Rectangle (box, rounded, rotated)
-void DrawRect(
+bool DrawRect(
     cairo_surface_t *surface, cairo_t *context,
     Rect rect, const LineStyle &line_style,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  // Fill color may be changed here if it is 'same'
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (!rect.IsValid()) {
     std::string s("Cannot draw an invalid rectangle: ");
     s += rect.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly)
@@ -751,6 +779,7 @@ void DrawRect(
   cairo_stroke(context);
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 } // namespace helpers

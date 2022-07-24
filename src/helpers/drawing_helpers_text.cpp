@@ -12,6 +12,7 @@ namespace wgu = werkzeugkiste::geometry;
 // Custom
 #include <helpers/drawing_helpers.h>
 #include <helpers/enum.h>
+#include <helpers/logging.h>
 
 // Flag to enable debugging the text extent (will render an additional box
 // around the text and also highlight the given reference position)
@@ -227,7 +228,9 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
     double rotation, const LineStyle &box_line_style,
     const Color &box_fill_color, double box_corner_radius,
     const Vec2d &fixed_box_size) {
-  CheckCanvas(surface, context);
+  if (!CheckCanvas(surface, context)) {
+    return Rect();
+  }
 
   if (text.empty()) {
     return Rect();
@@ -237,7 +240,8 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
     std::string s("Cannot draw text with invalid style: ");
     s += text_style.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return Rect();
   }
 
   // Push the current context. Now, we just apply styles

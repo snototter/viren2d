@@ -28,6 +28,16 @@ Exemplary ellipse configurations:
    :members:
 
 
+~~~~~~~
+2D Line
+~~~~~~~
+
+.. autoclass:: viren2d.Line2d
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
+
+
 ~~~~~~~~~
 Rectangle
 ~~~~~~~~~

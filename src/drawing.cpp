@@ -59,7 +59,7 @@ public:
 
 
 protected:
-  void DrawArcImpl(
+  bool DrawArcImpl(
       const Vec2d &center, double radius,
       double angle1, double angle2, const LineStyle &line_style,
       bool include_center, const Color &fill_color) override {
@@ -69,37 +69,37 @@ protected:
           center, radius, angle1, angle2, line_style,
           include_center, fill_color);
 
-    helpers::DrawArc(
+    return helpers::DrawArc(
           surface_, context_, center, radius,
           angle1, angle2, line_style,
           include_center, fill_color);
   }
 
 
-  void DrawArrowImpl(
+  bool DrawArrowImpl(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) override {
     SPDLOG_DEBUG(
           "DrawArrow: p1={:s} --> p2={:s}, style={:s}.",
           from, to, arrow_style);
 
-    helpers::DrawArrow(surface_, context_, from, to, arrow_style);
+    return helpers::DrawArrow(surface_, context_, from, to, arrow_style);
   }
 
 
-  void DrawBoundingBox2DImpl(
+  bool DrawBoundingBox2DImpl(
       const Rect &rect, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) override {
     SPDLOG_DEBUG(
           "DrawBoundingBox2D: {:s}, {:d} label lines, style={:s}.",
           rect, label.size(), style);
 
-    helpers::DrawBoundingBox2D(
+    return helpers::DrawBoundingBox2D(
           surface_, context_, rect, label, style);
   }
 
 
-  void DrawCircleImpl(
+  bool DrawCircleImpl(
       const Vec2d &center, double radius,
       const LineStyle &line_style,
       const Color &fill_color) override {
@@ -107,25 +107,25 @@ protected:
           "DrawCircle: c={:s}, r={:.1f}, style={:s}, fill={:s}.",
           center, radius, line_style, fill_color);
 
-    helpers::DrawCircle(
+    return helpers::DrawCircle(
           surface_, context_, center, radius,
           line_style, fill_color);
   }
 
 
-  void DrawEllipseImpl(
+  bool DrawEllipseImpl(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
           "DrawEllipse: {:s}, style={:s}, fill={:s}.",
           ellipse, line_style, fill_color);
 
-    helpers::DrawEllipse(
+    return helpers::DrawEllipse(
           surface_, context_, ellipse, line_style, fill_color);
   }
 
 
-  void DrawGridImpl(
+  bool DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) override {
@@ -133,7 +133,7 @@ protected:
           "DrawGrid: cells={:.1f}x{:.1f}, tl={:s}, br={:s}, style={:s}.",
           spacing_x, spacing_y, top_left, bottom_right, line_style);
 
-    helpers::DrawGrid(
+    return helpers::DrawGrid(
           surface_, context_, top_left, bottom_right,
           spacing_x, spacing_y, line_style);
   }
@@ -150,7 +150,7 @@ protected:
 
 
 
-  void DrawImageImpl(
+  bool DrawImageImpl(
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
@@ -161,35 +161,32 @@ protected:
           image.ToString(), AnchorToString(anchor), position.ToString(),
           alpha, scale_x, scale_y, rotation, clip_factor, line_style.ToString());
 
-    helpers::DrawImage(
+    return helpers::DrawImage(
           surface_, context_, image, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
 
-  void DrawLineImpl(
+  bool DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) override {
     SPDLOG_DEBUG(
           "DrawLine: p1={:s}, p2={:s}, style={:s}.", from, to, line_style);
 
-    helpers::DrawLine(
+    return helpers::DrawLine(
           surface_, context_, from, to, line_style);
   }
 
 
-  void DrawMarkerImpl(
+  bool DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) override {
     SPDLOG_DEBUG("DrawMarker: pos={:s}, style={:s}.", pos, style);
 
-    helpers::DrawMarker(surface_, context_, pos, style);
-
-    //TODO(improvement): Marker should support different contour & fill colors
-    // --> makes it easier to highlight points!
+    return helpers::DrawMarker(surface_, context_, pos, style);
   }
 
 
-  void DrawMarkersImpl(
+  bool DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) override {
     SPDLOG_DEBUG(
@@ -204,18 +201,21 @@ protected:
     // b) unless we're drawing hundreds+ points at once,
     //    I doubt that the speedup would be noticable
     MarkerStyle s(style);
+    bool success = true;
     for (const auto &p : markers) {
       if (p.second.IsValid()) {
         s.color = p.second;
       } else {
         s.color = style.color;
       }
-      helpers::DrawMarker(surface_, context_, p.first, s);
+      const bool result = helpers::DrawMarker(surface_, context_, p.first, s);
+      success = success && result;
     }
+    return success;
   }
 
 
-  void DrawPolygonImpl(
+  bool DrawPolygonImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style,
       const Color &fill_color) override {
@@ -223,19 +223,19 @@ protected:
           "DrawPolygon: {:d} points, style={:s}, fill={:s}.",
           points.size(), line_style, fill_color);
 
-    helpers::DrawPolygon(
+    return helpers::DrawPolygon(
           surface_, context_, points, line_style, fill_color);
   }
 
 
-  void DrawRectImpl(
+  bool DrawRectImpl(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
           "DrawRect: {:s}, style={:s}, fill={:s}.",
           rect, line_style, fill_color);
 
-    helpers::DrawRect(
+    return helpers::DrawRect(
           surface_, context_, rect, line_style, fill_color);
   }
 
@@ -279,7 +279,7 @@ protected:
   }
 
 
-  void DrawTrajectoryImpl(
+  bool DrawTrajectoryImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &style,
       const Color &color_fade_out,
@@ -298,13 +298,13 @@ protected:
             points, smoothing_window)
         : points;
 
-    helpers::DrawTrajectory(
+    return helpers::DrawTrajectory(
           surface_, context_, smoothed, style, color_fade_out,
           oldest_position_first, mix_factor);
   }
 
 
-  void DrawTrajectoriesImpl(
+  bool DrawTrajectoriesImpl(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,
@@ -316,6 +316,7 @@ protected:
           oldest_position_first, smoothing_window);
 
     LineStyle s(style);
+    bool success = true;
     for (const auto &p : trajectories) {
       const std::vector<Vec2d> &smoothed =
           (smoothing_window > 0)
@@ -331,10 +332,14 @@ protected:
         s.color = style.color;
       }
 
-      helpers::DrawTrajectory(
+      const bool result = helpers::DrawTrajectory(
             surface_, context_, smoothed, s, color_fade_out,
             oldest_position_first, mix_factor);
+      // Avoid combining the flag update. This way, valid trajectories will
+      // still be drawn after we skipped an invalid one.
+      success = success && result;
     }
+    return success;
   }
 
 

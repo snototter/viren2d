@@ -21,13 +21,17 @@ namespace helpers {
 //---------------------------------------------------- Sanity checks
 // To be used by all drawing helpers.
 
+
+// TODO should replace the throwing CheckCanvas calls everywhere.
+// Once this is done, rename it back to CheckCanvas.
 /// Ensures that the canvas is set up correctly. Should be
 /// called within each drawing helper function.
-inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
+inline bool CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
   if (!surface) {
-    throw std::logic_error(
+    SPDLOG_WARN(
           "Invalid cairo surface (nullptr). "
           "Did you forget to set up the canvas first?");
+    return false;
   }
 
   cairo_status_t surf_stat = cairo_surface_status(surface);
@@ -37,24 +41,31 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
       << "), check "
          "https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t "
          "for details.";
-    throw std::logic_error(s.str());
+    SPDLOG_WARN(s.str());
+    return false;
   }
 
   if (!context) {
-    throw std::logic_error(
+    SPDLOG_WARN(
           "Invalid Cairo context (nullptr) - "
           "cannot continue drawing.");
+    return false;
   }
+
+  return true;
 }
 
 
 /// Checks if the line style is valid.
-inline void CheckLineStyle(const LineStyle &style) {
+inline bool CheckLineStyle(const LineStyle &style) {
   if (!style.IsValid()) {
     std::string s("Cannot draw with invalid line style ");
     s += style.ToDetailedString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
+  } else {
+    return true;
   }
 }
 
@@ -62,7 +73,7 @@ inline void CheckLineStyle(const LineStyle &style) {
 /// Checks if line style *or* fill color are valid.
 /// To be used in functions which allow only filling or
 /// only drawing a shape's contour.
-inline void CheckLineStyleAndFill(
+inline bool CheckLineStyleAndFill(
     const LineStyle &style, Color &fill_color) {
   if (fill_color.IsSpecialSame()) {
     fill_color = style.color.WithAlpha(fill_color.alpha);
@@ -76,7 +87,10 @@ inline void CheckLineStyleAndFill(
     s += " and ";
     s += fill_color.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
+  } else {
+    return true;
   }
 }
 
@@ -113,6 +127,8 @@ inline cairo_line_cap_t LineCap2Cairo(LineCap cap) {
       return CAIRO_LINE_CAP_SQUARE;
   }
 
+  // This exception can remain as it would be caused by an implementation
+  // error (and Cairo will very likely not introduce a new cap style).
   std::string s("Line cap style \"");
   s += LineCapToString(cap);
   s += "\" is not yet mapped to corresponding Cairo type!";
@@ -131,6 +147,9 @@ inline cairo_line_join_t LineJoin2Cairo(LineJoin join) {
     case LineJoin::Round:
       return CAIRO_LINE_JOIN_ROUND;
   }
+
+  // This exception can remain as it would be caused by an implementation
+  // error (and Cairo will very likely not introduce a new cap style).
   std::string s("Line join style \"");
   s += LineJoinToString(join);
   s += "\" is not yet mapped to corresponding Cairo type!";
@@ -384,39 +403,39 @@ private:
 //---------------------------------------------------- Available drawing helpers
 // These declarations should stay alphabetically sorted:
 
-void DrawArc(
+bool DrawArc(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d center, double radius, double angle1, double angle2,
     const LineStyle &line_style, bool include_center,
     Color fill_color);
 
 
-void DrawArrow(
+bool DrawArrow(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
 
-void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
+bool DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
     Rect rect, const std::vector<std::string> &label,
     const BoundingBox2DStyle &style);
 
 
-inline void DrawCircle(
+inline bool DrawCircle(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d center, double radius, const LineStyle &line_style,
     const Color &fill_color) {
-  DrawArc(surface, context, center, radius, 0, 360, line_style,
+  return DrawArc(surface, context, center, radius, 0, 360, line_style,
           false, fill_color);
 }
 
 
-void DrawEllipse(
+bool DrawEllipse(
     cairo_surface_t *surface, cairo_t *context,
     Ellipse ellipse, const LineStyle &line_style,
     Color fill_color);
 
 
-void DrawGrid(
+bool DrawGrid(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d top_left, Vec2d bottom_right,
     double spacing_x, double spacing_y,
@@ -429,29 +448,29 @@ Line2d DrawHorizonLineImpl(
     const LineStyle &line_style, const Vec2i &img_size);
 
 
-void DrawImage(cairo_surface_t *surface, cairo_t *context,
+bool DrawImage(cairo_surface_t *surface, cairo_t *context,
     const ImageBuffer &image, const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor, LineStyle line_style);
 
 
-void DrawLine(
+bool DrawLine(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const LineStyle &line_style);
 
 
-void DrawMarker(
+bool DrawMarker(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d pos, const MarkerStyle &style);
 
 
-void DrawPolygon(
+bool DrawPolygon(
     cairo_surface_t *surface, cairo_t *context,
     const std::vector<Vec2d> &points,
     const LineStyle &line_style, Color fill_color);
 
 
-void DrawRect(
+bool DrawRect(
     cairo_surface_t *surface, cairo_t *context,
     Rect rect, const LineStyle &line_style,
     Color fill_color);
@@ -466,7 +485,7 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
     const Vec2d &fixed_box_size);
 
 
-void DrawTrajectory(
+bool DrawTrajectory(
     cairo_surface_t *surface, cairo_t *context,
     const std::vector<Vec2d> &points, const LineStyle &style,
     Color color_fade_out, bool oldest_position_first,

@@ -93,103 +93,101 @@ public:
   }
 
 
-  void DrawArc(
+  bool DrawArc(
       const Vec2d &center, double radius, double angle1, double angle2,
       const LineStyle &line_style, bool include_center, const Color &fill_color) {
-    painter_->DrawArc(
+    return painter_->DrawArc(
           center, radius, angle1, angle2, line_style,
           include_center, fill_color);
   }
 
 
-  void DrawArrow(
+  bool DrawArrow(
       const Vec2d &from, const Vec2d &to, const ArrowStyle &arrow_style) {
-    painter_->DrawArrow(from, to, arrow_style);
+    return painter_->DrawArrow(from, to, arrow_style);
   }
 
 
-  void DrawBoundingBox2D(
+  bool DrawBoundingBox2D(
       const Rect &box, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) {
-    painter_->DrawBoundingBox2D(box, label, style);
+    return painter_->DrawBoundingBox2D(box, label, style);
   }
 
 
-  void DrawCircle(
+  bool DrawCircle(
       const Vec2d &center, double radius,
       const LineStyle &line_style, const Color &fill_color) {
-    painter_->DrawCircle(center, radius, line_style, fill_color);
+    return painter_->DrawCircle(center, radius, line_style, fill_color);
   }
 
 
-  void DrawEllipse(
+  bool DrawEllipse(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) {
-    painter_->DrawEllipse(ellipse, line_style, fill_color);
+    return painter_->DrawEllipse(ellipse, line_style, fill_color);
   }
 
 
-  void DrawGrid(
+  bool DrawGrid(
       double spacing_x, double spacing_y,
       const LineStyle &line_style,
       const Vec2d &top_left,
       const Vec2d &bottom_right) {
-    painter_->DrawGrid(
+    return painter_->DrawGrid(
           top_left, bottom_right,
           spacing_x, spacing_y, line_style);
   }
 
 
-  py::tuple DrawHorizonLine(
+  Line2d DrawHorizonLine(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const LineStyle &line_style) {
-    Line2d horizon = painter_->DrawHorizonLine(K, R, t, line_style);
-    // FIXME change to Line2d once this class is integrated in the python module
-    return py::make_tuple(horizon.From(), horizon.To());
+    return painter_->DrawHorizonLine(K, R, t, line_style);
   }
 
 
-  void DrawImage(
+  bool DrawImage(
       ImageBuffer &image, const Vec2d &position,
       const py::object &anchor, double alpha, double scale_x, double scale_y,
       double rotation, double clip_factor, const LineStyle &line_style) {
     Anchor a = AnchorFromPyObject(anchor);
-    painter_->DrawImage(
+    return painter_->DrawImage(
           image, position, a, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
 
-  void DrawLine(
+  bool DrawLine(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) {
-    painter_->DrawLine(from, to, line_style);
+    return painter_->DrawLine(from, to, line_style);
   }
 
 
-  void DrawMarker(const Vec2d &pos, const MarkerStyle &style) {
-    painter_->DrawMarker(pos, style);
+  bool DrawMarker(const Vec2d &pos, const MarkerStyle &style) {
+    return painter_->DrawMarker(pos, style);
   }
 
 
-  void DrawMarkers(
+  bool DrawMarkers(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) {
-    painter_->DrawMarkers(markers, style);
+    return painter_->DrawMarkers(markers, style);
   }
 
 
-  void DrawPolygon(
+  bool DrawPolygon(
       const std::vector<Vec2d> &polygon, const LineStyle &line_style,
       const Color &fill_color) {
-    painter_->DrawPolygon(polygon, line_style, fill_color);
+    return painter_->DrawPolygon(polygon, line_style, fill_color);
   }
 
 
-  void DrawRect(
+  bool DrawRect(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) {
-    painter_->DrawRect(rect, line_style, fill_color);
+    return painter_->DrawRect(rect, line_style, fill_color);
   }
 
 
@@ -220,23 +218,23 @@ public:
   }
 
 
-  void DrawTrajectory(
+  bool DrawTrajectory(
       const std::vector<Vec2d> &trajectory, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
       int smoothing_window,
       const std::function<double(double)> &fading_factor) {
-    painter_->DrawTrajectory(
+    return painter_->DrawTrajectory(
           trajectory, style, color_fade_out, oldest_position_first,
           smoothing_window, fading_factor);
   }
 
 
-  void DrawTrajectories(
+  bool DrawTrajectories(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,
       const std::function<double(double)> &fading_factor) {
-    painter_->DrawTrajectories(
+    return painter_->DrawTrajectories(
           trajectories, style, color_fade_out, oldest_position_first,
           smoothing_window, fading_factor);
   }
@@ -317,7 +315,7 @@ void RegisterPainter(py::module &m) {
            methods, for example:
 
            >>> painter.draw_arrow(...)
-           >>> painter.draw_bounding_box(...)
+           >>> painter.draw_bounding_box_2d(...)
 
         4. After all objects have been drawn, retrieve the
            visualization via :meth:`get_canvas`. For example,
@@ -606,6 +604,10 @@ void RegisterPainter(py::module &m) {
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the arc will be filled.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
         Example:
           >>> line_style = viren2d.LineStyle(
           >>>     width=5, color='maroon',
@@ -640,6 +642,10 @@ void RegisterPainter(py::module &m) {
             :class:`~viren2d.Vec2d`.
           arrow_style: An :class:`~viren2d.ArrowStyle` specifying
             how to draw the arrow.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> arrow_style = viren2d.ArrowStyle(
@@ -676,6 +682,10 @@ void RegisterPainter(py::module &m) {
           box_style: A :class:`~viren2d.BoundingBox2DStyle` specifying how
             to draw this bounding box.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
         Example:
           >>> #TODO
         )docstr",
@@ -705,6 +715,10 @@ void RegisterPainter(py::module &m) {
             valid ``fill_color``.
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the circle will be filled.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -740,6 +754,10 @@ void RegisterPainter(py::module &m) {
             valid ``fill_color``.
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the ellipse will be filled.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -778,6 +796,10 @@ void RegisterPainter(py::module &m) {
             the grid will span the whole canvas.
           bottom_right: Bottom-right corner as :class:`~viren2d.Vec2d`.
             See ``top_left``.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(width=1, color='light-gray!80')
@@ -798,7 +820,7 @@ void RegisterPainter(py::module &m) {
         &PainterWrapper::DrawHorizonLine, R"docstr(
         Draws the estimated line of horizon.
 
-        TODO explain approximation/estimation.
+        TODO explain approximation/estimation. Or adjust it in wkz!
 
         **Corresponding C++ API:** ``viren2d::Painter::DrawHorizonLine``.
 
@@ -812,8 +834,11 @@ void RegisterPainter(py::module &m) {
             horizon line should be drawn.
 
         Returns:
-          TODO we should bind wkg::Line2d (midpoint, direction, etc. might be
-          useful in python too)
+          The line of horizon as :class:`~viren2d.Line2d`. Use its
+          :meth:`~viren2d.Line2d.is_valid` method to check whether the line
+          could be drawn. If not, it is either not visible or you provided
+          invalid inputs. The latter will be indicated by an error message in
+          the log.
 
         Example:
           >>> K = np.array(
@@ -869,6 +894,10 @@ void RegisterPainter(py::module &m) {
             contour. If set to :attr:`LineStyle.Invalid`, the contour will not
             be drawn.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
         Example:
           >>> painter.draw_image(
           >>>     image=img, position=(10, 20), anchor='top-left',
@@ -899,6 +928,10 @@ void RegisterPainter(py::module &m) {
           pt2: End position as :class:`~viren2d.Vec2d`.
           line_style: A :class:`~viren2d.LineStyle` specifying
             how to draw the line.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -922,9 +955,13 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawMarker``.
 
         Args:
-          pos: Position as :class:`~viren2d.Vec2d`.
+          position: Position as :class:`~viren2d.Vec2d`.
           marker_style: A :class:`~viren2d.MarkerStyle` specifying
             how to draw the marker.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> marker_style = viren2d.MarkerStyle(
@@ -933,7 +970,7 @@ void RegisterPainter(py::module &m) {
           >>>     cap='round', join='miter')
           >>> painter.draw_marker(pt=(42, 70), marker_style=marker_style)
         )docstr",
-        py::arg("pt"),
+        py::arg("position"),
         py::arg("marker_style") = MarkerStyle());
 
 
@@ -953,6 +990,11 @@ void RegisterPainter(py::module &m) {
             ``marker_style``'s color specification instead.
           marker_style: A :class:`~viren2d.MarkerStyle` specifying
             how to draw the markers (except for the color).
+        
+        Returns:
+          ``True`` if drawing completed successfully for all markers.
+          Otherwise, check the log messages. Drawing errors are most
+          likely caused by invalid inputs.
 
         Example:
           >>> marker_style = viren2d.MarkerStyle(color='crimson')
@@ -989,6 +1031,10 @@ void RegisterPainter(py::module &m) {
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the polygon will be filled.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
         Example:
           >>> points = [(0, 0), (10, 20), (42, 30), ...]
           >>> line_style = viren2d.LineStyle(
@@ -1022,6 +1068,10 @@ void RegisterPainter(py::module &m) {
             a valid ``fill_color``.
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the rectangle will be filled.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle()
@@ -1070,7 +1120,8 @@ void RegisterPainter(py::module &m) {
             degrees as :class:`float`.
 
         Returns:
-          The bounding box of the drawn text as :class:`~viren2d.Rect`.
+          The bounding box of the drawn text as :class:`~viren2d.Rect`. Check
+          if drawing completed successfully via :meth:`~viren2d.Rect.is_valid`.
 
         Example:
           >>> text_style = viren2d.TextStyle(
@@ -1124,7 +1175,8 @@ void RegisterPainter(py::module &m) {
             extent, the text will overflow the box.
 
         Returns:
-          The bounding box of the drawn text as :class:`~viren2d.Rect`.
+          The bounding box of the drawn text as :class:`~viren2d.Rect`. Check
+          if drawing completed successfully via :meth:`~viren2d.Rect.is_valid`.
 
         Example:
           >>> text_style = viren2d.TextStyle(
@@ -1199,6 +1251,10 @@ void RegisterPainter(py::module &m) {
             :func:`~viren2d.fade_out_quadratic`, and :func:`~viren2d.fade_out_logarithmic`.
             The default ``fading_factor`` function is :func:`~viren2d.fade_out_quadratic`.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
         Example:
           >>> points = [(0, 0), (10, 20), (42, 30), ...]
           >>> line_style = viren2d.LineStyle(
@@ -1257,6 +1313,11 @@ void RegisterPainter(py::module &m) {
           others: For details on all other parameters, refer to the
             documentation of :meth:`~viren2d.Painter.draw_trajectory`.
 
+        Returns:
+          ``True`` if drawing all trajectories completed successfully.
+          Otherwise, check the log messages. Drawing errors are most likely
+          caused by invalid inputs.
+
         Example:
           >>> points1 = [(20,  0), (10, 20), (42, 30), ...]
           >>> points2 = [(70, 70), (50, 20), (23, 30), ...]
@@ -1312,8 +1373,10 @@ void RegisterPainter(py::module &m) {
           color_z: :class:`~viren2d.Color` of the :math:`z` axis arrow. Default bluish.
 
         Returns:
-          ``True`` if at least one point (axis arrow tip or the origin) is
-          visible within the camera's field-of-view.
+          ``True`` if drawing completed successfully and at least one
+          point (axis arrow tip or the origin) is visible within the camera's
+          field-of-view. Drawing errors (such as caused by invalid inputs) will
+          be indicated by log messages.
 
         Example:
           >>> K = np.array(
