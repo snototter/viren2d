@@ -89,6 +89,7 @@ bool DrawXYZAxes(
     is_any_visible |= wgu::IsPointInsideImage(p, img_size);
   }
 
+  // TODO adjust once drawarrow is noexcept and returns boolean flag
   ArrowStyle axis_style(style);
   axis_style.color = color_x;
   DrawArrow(surface, context, img_origin, img_x, axis_style);

@@ -48,6 +48,40 @@ inline void CheckCanvas(cairo_surface_t *surface, cairo_t *context) {
 }
 
 
+// TODO should replace the throwing CheckCanvas calls everywhere.
+// Once this is done, rename it back to CheckCanvas.
+/// Ensures that the canvas is set up correctly. Should be
+/// called within each drawing helper function.
+inline bool CheckCanvasNoExcept(cairo_surface_t *surface, cairo_t *context) {
+  if (!surface) {
+    SPDLOG_WARN(
+          "Invalid cairo surface (nullptr). "
+          "Did you forget to set up the canvas first?");
+    return false;
+  }
+
+  cairo_status_t surf_stat = cairo_surface_status(surface);
+  if (surf_stat != CAIRO_STATUS_SUCCESS) {
+    std::ostringstream s;
+    s << "Invalid Cairo surface status (" << surf_stat
+      << "), check "
+         "https://www.cairographics.org/manual/cairo-Error-handling.html#cairo-status-t "
+         "for details.";
+    SPDLOG_WARN(s.str());
+    return false;
+  }
+
+  if (!context) {
+    SPDLOG_WARN(
+          "Invalid Cairo context (nullptr) - "
+          "cannot continue drawing.");
+    return false;
+  }
+
+  return true;
+}
+
+
 /// Checks if the line style is valid.
 inline void CheckLineStyle(const LineStyle &style) {
   if (!style.IsValid()) {
@@ -396,7 +430,7 @@ void DrawArrow(
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
 
-void DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
+bool DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
     Rect rect, const std::vector<std::string> &label,
     const BoundingBox2DStyle &style);
 
@@ -429,7 +463,7 @@ Line2d DrawHorizonLineImpl(
     const LineStyle &line_style, const Vec2i &img_size);
 
 
-void DrawImage(cairo_surface_t *surface, cairo_t *context,
+bool DrawImage(cairo_surface_t *surface, cairo_t *context,
     const ImageBuffer &image, const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor, LineStyle line_style);
@@ -466,7 +500,7 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
     const Vec2d &fixed_box_size);
 
 
-void DrawTrajectory(
+bool DrawTrajectory(
     cairo_surface_t *surface, cairo_t *context,
     const std::vector<Vec2d> &points, const LineStyle &style,
     Color color_fade_out, bool oldest_position_first,

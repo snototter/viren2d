@@ -1,6 +1,8 @@
 #ifndef __VIREN2D_HELPERS_LOGGING_H__
 #define __VIREN2D_HELPERS_LOGGING_H__
 
+// TODO if disabled, create a warning/error macro to log
+// invalid inputs to drawing calls!
 
 #ifdef viren2d_ENABLE_LOGGING
 #  include <spdlog/spdlog.h>

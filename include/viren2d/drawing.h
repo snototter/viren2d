@@ -10,7 +10,6 @@
 
 #include <Eigen/Core>
 
-
 #include <viren2d/primitives.h>
 #include <viren2d/imagebuffer.h>
 #include <viren2d/colors.h>
@@ -127,10 +126,10 @@ public:
   ///   rect: The box geometry.
   ///   label: The (potentially multi-line) label.
   ///   box_style: How to draw this bounding box.
-  void DrawBoundingBox2D(
+  bool DrawBoundingBox2D(
       const Rect &box, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    DrawBoundingBox2DImpl(box, label, style);
+    return DrawBoundingBox2DImpl(box, label, style);
   }
 
 
@@ -205,7 +204,7 @@ public:
   ///     If :math:`\text{clip} > 0.5`, the clip region will be an ellipse,
   ///     where major/minor axis length equal the width/height of the image.
   ///   line_style: If provided, the contour/border of the image will be drawn.
-  void DrawImage(
+  bool DrawImage(
       const ImageBuffer &image,
       const Vec2d &position,
       Anchor anchor = Anchor::TopLeft,
@@ -213,7 +212,7 @@ public:
       double scale_x = 1.0, double scale_y = 1.0,
       double rotation = 0.0, double clip_factor = 0.0,
       const LineStyle &line_style = LineStyle::Invalid) {
-    DrawImageImpl(
+    return DrawImageImpl(
           image, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
@@ -363,14 +362,14 @@ public:
   ///
   ///   To avoid this behavior, the trajectory needs to be drawn with
   ///   a single color, *i.e.* pass `Color::Invalid` as ``color_fade_out``.
-  void DrawTrajectory(
+  bool DrawTrajectory(
       const std::vector<Vec2d> &points,
       const LineStyle &style = LineStyle(),
       const Color &color_fade_out = Color::White.WithAlpha(0.4),
       bool oldest_position_first = false,
       int smoothing_window = 0,
       const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
-    DrawTrajectoryImpl(
+    return DrawTrajectoryImpl(
           points, style, color_fade_out, oldest_position_first,
           smoothing_window, mix_factor);
   }
@@ -379,14 +378,14 @@ public:
   /// Draws multiple (similarly styled) trajectories.
   /// If a trajectory's color is Color::Invalid or Color::Same, the
   /// style's color will be used instead.
-  void DrawTrajectories(
+  bool DrawTrajectories(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style = LineStyle(),
       const Color &color_fade_out = Color::White.WithAlpha(0.4),
       bool oldest_position_first = false,
       int smoothing_window = 0,
       const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
-    DrawTrajectoriesImpl(
+    return DrawTrajectoriesImpl(
           trajectories, style, color_fade_out, oldest_position_first,
           smoothing_window, mix_factor);
   }
@@ -445,7 +444,7 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawBoundingBox2DImpl(
+  virtual bool DrawBoundingBox2DImpl(
       const Rect &box,
       const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) = 0;
@@ -478,7 +477,7 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawImageImpl(
+  virtual bool DrawImageImpl(
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
@@ -534,7 +533,7 @@ protected:
 
 
   /// Internal helper to allow default values in public interface.
-  virtual void DrawTrajectoryImpl(
+  virtual bool DrawTrajectoryImpl(
       const std::vector<Vec2d> &points, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
       int smoothing_window,
@@ -542,7 +541,7 @@ protected:
 
 
   /// Internal helper to allow default values in public interface.
-  virtual void DrawTrajectoriesImpl(
+  virtual bool DrawTrajectoriesImpl(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,

@@ -108,10 +108,10 @@ public:
   }
 
 
-  void DrawBoundingBox2D(
+  bool DrawBoundingBox2D(
       const Rect &box, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) {
-    painter_->DrawBoundingBox2D(box, label, style);
+    return painter_->DrawBoundingBox2D(box, label, style);
   }
 
 
@@ -149,12 +149,12 @@ public:
   }
 
 
-  void DrawImage(
+  bool DrawImage(
       ImageBuffer &image, const Vec2d &position,
       const py::object &anchor, double alpha, double scale_x, double scale_y,
       double rotation, double clip_factor, const LineStyle &line_style) {
     Anchor a = AnchorFromPyObject(anchor);
-    painter_->DrawImage(
+    return painter_->DrawImage(
           image, position, a, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
@@ -220,23 +220,23 @@ public:
   }
 
 
-  void DrawTrajectory(
+  bool DrawTrajectory(
       const std::vector<Vec2d> &trajectory, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
       int smoothing_window,
       const std::function<double(double)> &fading_factor) {
-    painter_->DrawTrajectory(
+    return painter_->DrawTrajectory(
           trajectory, style, color_fade_out, oldest_position_first,
           smoothing_window, fading_factor);
   }
 
 
-  void DrawTrajectories(
+  bool DrawTrajectories(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,
       const std::function<double(double)> &fading_factor) {
-    painter_->DrawTrajectories(
+    return painter_->DrawTrajectories(
           trajectories, style, color_fade_out, oldest_position_first,
           smoothing_window, fading_factor);
   }
@@ -317,7 +317,7 @@ void RegisterPainter(py::module &m) {
            methods, for example:
 
            >>> painter.draw_arrow(...)
-           >>> painter.draw_bounding_box(...)
+           >>> painter.draw_bounding_box_2d(...)
 
         4. After all objects have been drawn, retrieve the
            visualization via :meth:`get_canvas`. For example,
@@ -676,6 +676,10 @@ void RegisterPainter(py::module &m) {
           box_style: A :class:`~viren2d.BoundingBox2DStyle` specifying how
             to draw this bounding box.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages (most likely due to invalid inputs).
+
         Example:
           >>> #TODO
         )docstr",
@@ -868,6 +872,10 @@ void RegisterPainter(py::module &m) {
           line_style: A :class:`~viren2d.LineStyle` specifying how to draw the
             contour. If set to :attr:`LineStyle.Invalid`, the contour will not
             be drawn.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> painter.draw_image(
@@ -1070,7 +1078,8 @@ void RegisterPainter(py::module &m) {
             degrees as :class:`float`.
 
         Returns:
-          The bounding box of the drawn text as :class:`~viren2d.Rect`.
+          The bounding box of the drawn text as :class:`~viren2d.Rect`. Check
+          if drawing completed successfully via :meth:`~viren2d.Rect.is_valid`.
 
         Example:
           >>> text_style = viren2d.TextStyle(
@@ -1124,7 +1133,8 @@ void RegisterPainter(py::module &m) {
             extent, the text will overflow the box.
 
         Returns:
-          The bounding box of the drawn text as :class:`~viren2d.Rect`.
+          The bounding box of the drawn text as :class:`~viren2d.Rect`. Check
+          if drawing completed successfully via :meth:`~viren2d.Rect.is_valid`.
 
         Example:
           >>> text_style = viren2d.TextStyle(
@@ -1199,6 +1209,10 @@ void RegisterPainter(py::module &m) {
             :func:`~viren2d.fade_out_quadratic`, and :func:`~viren2d.fade_out_logarithmic`.
             The default ``fading_factor`` function is :func:`~viren2d.fade_out_quadratic`.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
         Example:
           >>> points = [(0, 0), (10, 20), (42, 30), ...]
           >>> line_style = viren2d.LineStyle(
@@ -1257,6 +1271,11 @@ void RegisterPainter(py::module &m) {
           others: For details on all other parameters, refer to the
             documentation of :meth:`~viren2d.Painter.draw_trajectory`.
 
+        Returns:
+          ``True`` if drawing all trajectories completed successfully.
+          Otherwise, check the log messages. Drawing errors are most likely
+          caused by invalid inputs.
+
         Example:
           >>> points1 = [(20,  0), (10, 20), (42, 30), ...]
           >>> points2 = [(70, 70), (50, 20), (23, 30), ...]
@@ -1312,8 +1331,10 @@ void RegisterPainter(py::module &m) {
           color_z: :class:`~viren2d.Color` of the :math:`z` axis arrow. Default bluish.
 
         Returns:
-          ``True`` if at least one point (axis arrow tip or the origin) is
-          visible within the camera's field-of-view.
+          ``True`` if drawing completed successfully and at least one
+          point (axis arrow tip or the origin) is visible within the camera's
+          field-of-view. Drawing errors (such as caused by invalid inputs) will
+          be indicated by log messages.
 
         Example:
           >>> K = np.array(

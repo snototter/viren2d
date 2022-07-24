@@ -463,80 +463,87 @@ def test_draw_text():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_text(['test'], (10, 10))
+    res = p.draw_text(['test'], (10, 10))
+    assert not res.is_valid()
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
-    p.draw_text(['test'], (10, 10))
-    p.draw_text(text=['test'], position=(10, 10))
+    res = p.draw_text(['test'], (10, 10))
+    assert res.is_valid()
+    res = p.draw_text(text=['test'], position=(10, 10))
+    assert res.is_valid()
 
     text_style = viren2d.TextStyle()
     text_style.size = -3
-    with pytest.raises(ValueError):
-        p.draw_text(
-            text=['test'], position=(50, 100), anchor='north-west',
-            text_style=text_style, padding=(77, 3), rotation=13)
+    res = p.draw_text(
+        text=['test'], position=(50, 100), anchor='north-west',
+        text_style=text_style, padding=(77, 3), rotation=13)
+    assert not res.is_valid()
 
     # With/without parameter names    
     text_style.size = 10
-    p.draw_text(
+    res = p.draw_text(
         text=['test'], position=(50, 100), anchor='north-west',
         text_style=text_style, padding=(77, 3), rotation=13)
+    assert res.is_valid()
 
-    p.draw_text(
+    res = p.draw_text(
             ['test'], (50, 100), 'south', text_style, (77, 3), 13)
+    assert res.is_valid()
 
 
 def test_draw_text_box():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_text_box(['test'], (10, 10))
+    res = p.draw_text_box(['test'], (10, 10))
+    assert not res.is_valid()
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
-    p.draw_text_box(['test'], (10, 10))
-    p.draw_text_box(text=['test'], position=(10, 10))
+    res = p.draw_text_box(['test'], (10, 10))
+    assert res.is_valid()
+    res = p.draw_text_box(text=['test'], position=(10, 10))
+    assert res.is_valid()
 
     for border_style in [viren2d.LineStyle.Invalid, viren2d.LineStyle()]:
         for box_size in [(-1, -1), (20, 10), (200, 70)]:
             text_style = viren2d.TextStyle()
             text_style.size = -3
-            with pytest.raises(ValueError):
-                p.draw_text_box(
+            res = p.draw_text_box(
                     text=['test'], position=(50, 100), anchor='north-west',
                     text_style=text_style, padding=(77, 3), rotation=90,
                     line_style=border_style, fill_color='blue', radius=0.1,
                     fixed_size=box_size)
+            assert not res.is_valid()
 
             # With/without parameter names    
             text_style.size = 15
-            p.draw_text_box(
+            res = p.draw_text_box(
                     text=['test'], position=(50, 100), anchor='north-west',
                     text_style=text_style, padding=(77, 3), rotation=90,
                     line_style=border_style, fill_color='blue', radius=0.1,
                     fixed_size=box_size)
+            assert res.is_valid()
 
-            p.draw_text_box(
+            res = p.draw_text_box(
                     ['test'], (50, 100), 'north-west', text_style, (77, 3),
                     90, border_style, 'blue', 0.1, box_size)
+            assert res.is_valid()
 
 
 def test_draw_trajectory():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_trajectory([(0, 0), (50, 50)])
+    assert not p.draw_trajectory([(0, 0), (50, 50)])
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
-    p.draw_trajectory([(0, 0), (50, 50)])
+    assert p.draw_trajectory([(0, 0), (50, 50)])
 
     # Create dummy trajectory (which may partially be
     # outside the image boundaries)
@@ -585,15 +592,11 @@ def test_draw_trajectory():
     
     ### Sweep valid and invalid configurations
     for line_style in line_style_configurations():
-        if is_valid_line(line_style):
-            p.draw_trajectory(
-                trajectory=pts, line_style=line_style)
-        else:
-            with pytest.raises(ValueError):
-                p.draw_trajectory(
-                    trajectory=pts, line_style=line_style)
-            # Painter should always be kept in a valid state
-            assert p.is_valid()
+        res = p.draw_trajectory(
+            trajectory=pts, line_style=line_style)
+        assert res == is_valid_line(line_style)
+        # Painter should always be kept in a valid state
+        assert p.is_valid()
 
 
 def test_draw_trajectories():
@@ -608,20 +611,18 @@ def test_draw_trajectories():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_trajectories(trajectories)
+    assert not p.draw_trajectories(trajectories)
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
-    p.draw_trajectories(trajectories)
-    p.draw_trajectories(trajectories=trajectories)
+    assert p.draw_trajectories(trajectories)
+    assert p.draw_trajectories(trajectories=trajectories)
 
     line_style = viren2d.LineStyle(width=10)
 
     line_style.color = 'invalid'
-    with pytest.raises(ValueError):
-        p.draw_trajectories(trajectories, line_style=line_style)
+    assert not p.draw_trajectories(trajectories, line_style=line_style)
 
     line_style.color = 'azure'
     # Include all parameters (not fading):

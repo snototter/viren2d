@@ -7,14 +7,16 @@
 
 namespace viren2d {
 namespace helpers {
-void DrawImage(
+bool DrawImage(
     cairo_surface_t *surface, cairo_t *context,
     const ImageBuffer &image,
     const Vec2d &position, Anchor anchor,
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor,
     LineStyle line_style) {
-  CheckCanvas(surface, context);
+  if (!CheckCanvasNoExcept(surface, context)) {
+    return false;
+  }
 
   ImageBuffer img4 = image.ToUInt8(4);
 
@@ -137,6 +139,7 @@ void DrawImage(
 
   cairo_restore(context);
   cairo_surface_destroy(imsurf);
+  return true;
 }
 
 } // namespace helpers

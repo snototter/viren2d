@@ -87,14 +87,14 @@ protected:
   }
 
 
-  void DrawBoundingBox2DImpl(
+  bool DrawBoundingBox2DImpl(
       const Rect &rect, const std::vector<std::string> &label,
       const BoundingBox2DStyle &style) override {
     SPDLOG_DEBUG(
           "DrawBoundingBox2D: {:s}, {:d} label lines, style={:s}.",
           rect, label.size(), style);
 
-    helpers::DrawBoundingBox2D(
+    return helpers::DrawBoundingBox2D(
           surface_, context_, rect, label, style);
   }
 
@@ -150,7 +150,7 @@ protected:
 
 
 
-  void DrawImageImpl(
+  bool DrawImageImpl(
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
@@ -161,7 +161,7 @@ protected:
           image.ToString(), AnchorToString(anchor), position.ToString(),
           alpha, scale_x, scale_y, rotation, clip_factor, line_style.ToString());
 
-    helpers::DrawImage(
+    return helpers::DrawImage(
           surface_, context_, image, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
@@ -279,7 +279,7 @@ protected:
   }
 
 
-  void DrawTrajectoryImpl(
+  bool DrawTrajectoryImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &style,
       const Color &color_fade_out,
@@ -298,13 +298,13 @@ protected:
             points, smoothing_window)
         : points;
 
-    helpers::DrawTrajectory(
+    return helpers::DrawTrajectory(
           surface_, context_, smoothed, style, color_fade_out,
           oldest_position_first, mix_factor);
   }
 
 
-  void DrawTrajectoriesImpl(
+  bool DrawTrajectoriesImpl(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,
@@ -316,6 +316,7 @@ protected:
           oldest_position_first, smoothing_window);
 
     LineStyle s(style);
+    bool success = true;
     for (const auto &p : trajectories) {
       const std::vector<Vec2d> &smoothed =
           (smoothing_window > 0)
@@ -331,10 +332,14 @@ protected:
         s.color = style.color;
       }
 
-      helpers::DrawTrajectory(
+      const bool result = helpers::DrawTrajectory(
             surface_, context_, smoothed, s, color_fade_out,
             oldest_position_first, mix_factor);
+      // Avoid combining the flag update. This way, valid trajectories will
+      // still be drawn after we skipped an invalid one.
+      success = success && result;
     }
+    return success;
   }
 
 

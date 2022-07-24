@@ -17,25 +17,31 @@ namespace wgu = werkzeugkiste::geometry;
 namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- BoundingBox 2D
-void DrawBoundingBox2D(
+bool DrawBoundingBox2D(
     cairo_surface_t *surface, cairo_t *context,
     Rect rect, const std::vector<std::string> &label,
     const BoundingBox2DStyle &style) {
   //-------------------- Sanity checks
-  CheckCanvas(surface, context);
+  if (!CheckCanvasNoExcept(surface, context)) {
+    return false;
+  }
 
   if (!style.IsValid()) {
     std::string s("Cannot draw a bounding box with an invalid style: ");
     s += style.ToString(); //TODO implement and use ToDetailedString?
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    // throw std::invalid_argument(s);
+    return false;
   }
 
   if (!rect.IsValid()) {
     std::string s("Cannot draw an invalid bounding box: ");
     s += rect.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    // throw std::invalid_argument(s);
+    return false;
   }
 
   //-------------------- Drawing
@@ -192,6 +198,8 @@ void DrawBoundingBox2D(
           label_box.left(), label_box.bottom() - mlt.Height(),
           label_box.width, mlt.Height());
   } else {
+    // This exception can stay. Would be caused by an implementation
+    // error (in this function) only.
     throw std::logic_error(
           "Internal vertical alignment in "
           "helpers::DrawBoundingBox2d must "
@@ -259,28 +267,33 @@ void DrawBoundingBox2D(
 
   // Pop the original context
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Trajectory 2D
-void DrawTrajectory(
+bool DrawTrajectory(
       cairo_surface_t *surface, cairo_t *context,
       const std::vector<Vec2d> &points, const LineStyle &style,
       Color color_fade_out, bool oldest_position_first,
       const std::function<double(double)> &mix_factor) {
-  CheckCanvas(surface, context);
+  if (!CheckCanvasNoExcept(surface, context)) {
+    return false;
+  }
 
   if (!style.IsValid()) {
     std::string s(
           "Cannot draw a trajectory with an invalid line style: ");
     s += style.ToDetailedString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    // throw std::invalid_argument(s);
+    return false;
   }
 
   if (points.size() < 2) {
     SPDLOG_WARN("Input trajectory must have at least 2 points!");
-    return;
+    return false;
   }
 
   if (color_fade_out.IsSpecialSame()) {
@@ -345,6 +358,8 @@ void DrawTrajectory(
     cairo_stroke(context);
   }
   cairo_restore(context);
+
+  return true;
 }
 
 } // namespace helpers
