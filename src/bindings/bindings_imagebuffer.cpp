@@ -438,7 +438,7 @@ void RegisterImageBuffer(py::module &m) {
           A :class:`tuple` which contains ``(min_val, max_val, min_loc, max_loc)``,
           where ``min_val`` & ``max_val`` are the extremal values of the selected
           channel as :class:`float` and ``min_loc`` & ``max_loc`` are the
-          *x* & *y* positions as :class:`~viren2d.Vec2i`.
+          :math:`x` and :math:`y` positions as :class:`~viren2d.Vec2i`.
         )docstr",
         py::arg("channel") = -1)
       .def(

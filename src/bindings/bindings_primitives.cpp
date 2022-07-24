@@ -103,7 +103,7 @@ void RegisterEllipse(pybind11::module &m) {
       and :attr:`cy`), length of its :attr:`major_axis`,
       length of its :attr:`minor_axis` and it's
       clockwise :attr:`rotation` (in degrees). At 0° rotation,
-      the major axis is aligned with the *x*-axis.
+      the major axis is aligned with the :math:`x` axis.
 
       Optionally, an ellipse can be drawn only partially,
       *i.e.* starting at :attr:`angle_from`, drawing clockwise
@@ -565,10 +565,10 @@ void RegisterRectangle(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Rect::FromLTWH``.
 
         Args:
-          left: *x*-coordinate of the left edge as :class:`float`.
-          top: *y*-coordinate of the top edge as :class:`float`.
-          width: Width (extent along the *x*-axis) as :class:`float`.
-          height: Height (extent along the *y*-axis) as :class:`float`.
+          left: :math:`x` coordinate of the left edge as :class:`float`.
+          top: :math:`y` coordinate of the top edge as :class:`float`.
+          width: Width (extent along the :math:`x` axis) as :class:`float`.
+          height: Height (extent along the :math:`y` axis) as :class:`float`.
           radius: Corner radius as :class:`float`, see documentation
             of the :attr:`radius` attribute.
         )docstr",
@@ -585,10 +585,10 @@ void RegisterRectangle(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Rect::FromLRTB``.
 
         Args:
-          left: *x*-coordinate of the left edge as :class:`float`.
-          right: *x*-coordinate of the right edge as :class:`float`.
-          top: *y*-coordinate of top edge as :class:`float`.
-          bottom: *y*-coordinate of bottom edge as :class:`float`.
+          left: :math:`x` coordinate of the left edge as :class:`float`.
+          right: :math:`x` coordinate of the right edge as :class:`float`.
+          top: :math:`y` coordinate of top edge as :class:`float`.
+          bottom: :math:`y` coordinate of bottom edge as :class:`float`.
           radius: Corner radius as :class:`float`, see documentation
             of the :attr:`radius` attribute.
         )docstr",
@@ -607,8 +607,10 @@ void RegisterRectangle(py::module &m) {
         Args:
           cx: Horizontal center coordinate as :class:`float`.
           cy: Vertical center coordinate as :class:`float`.
-          width: Width (extent along the *x*-axis) as :class:`float`.
-          height: Height (extent along the *y*-axis) as :class:`float`.
+          width: Width (extent along the :math:`x` axis if the rectangle is
+            not rotated) as :class:`float`.
+          height: Height (extent along the :math:`y` axis if the rectangle is
+            not rotated) as :class:`float`.
           rotation: Clockwise rotation in degrees as :class:`float`.
           radius: Corner radius as :class:`float`, see documentation
             of the :attr:`radius` attribute.

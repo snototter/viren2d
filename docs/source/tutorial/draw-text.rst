@@ -14,17 +14,19 @@ Text can be rendered via :meth:`~viren2d.Painter.draw_text` or
 Text Positioning
 ................
 
-To neatly position text, you simply need a **reference position** (*i.e. x* and
-*y* coordinate) and a :class:`~viren2d.Anchor`. The following figure shows
-text boxes along with the corresponding anchor and reference positions.
-These positions are highlighted via :func:`~viren2d.Painter.draw_marker`:
+To position text on the canvas, you simply need a **reference position**
+(*i.e.* :math:`x`` and :math:`y` coordinate) and an :class:`~viren2d.Anchor`.
+The following example shows text boxes along with the corresponding anchor
+and reference positions.
+These reference positions are highlighted via
+:func:`~viren2d.Painter.draw_marker`:
 
 .. image:: ../images/text-anchors.png
    :width: 440
    :alt: Text anchors
    :align: center
 
-Corresponding example code:
+Corresponding Python code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/text.py
    :language: python

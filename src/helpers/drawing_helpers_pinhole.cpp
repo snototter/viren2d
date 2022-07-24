@@ -61,7 +61,7 @@ bool DrawXYZAxes(
          std::make_pair('y', &tip_y), std::make_pair('z', &tip_z)}) {
       if (!image_plane.IsPointInFrontOfPlane(*p.second)) {
 //        SPDLOG_INFO(
-//              "`DrawXYZAxes`: Adjusting end point of {}-axis as it would "
+//              "`DrawXYZAxes`: Adjusting end point of {} axis as it would "
 //              "project behind the image plane.", p.first);
         // FIXME implement, once wgu has line3d
 //        const auto axis = Line3d(origin, *p.second);
@@ -73,7 +73,7 @@ bool DrawXYZAxes(
 //          *p.second = visible_axis.MidPoint();
 //        }
 //        else
-//          LOG_FAILURE("Couldn't compute a valid intersection point between " << p.second << "-axis and image plane (maybe numerical issue?)");
+//          LOG_FAILURE("Couldn't compute a valid intersection point between " << p.second << " axis and image plane (maybe numerical issue?)");
       }
     }
   }

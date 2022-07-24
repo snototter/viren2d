@@ -592,7 +592,8 @@ void RegisterPainter(py::module &m) {
           angle_from: The arc will be drawn from ``angle_from``
             to ``angle_to`` in clockwise direction. Both angles
             are specified in degrees as :class:`float`, where 0
-            degrees points in the direction of increasing *x* coordinates.
+            degrees points in the direction of increasing :math:`x`
+            coordinates.
           angle_to: See ``angle_from``.
           line_style: A :class:`~viren2d.LineStyle` specifying how
             to draw the arc's outline.
@@ -1298,7 +1299,7 @@ void RegisterPainter(py::module &m) {
             :class:`~viren2d.Vec3d`.
           lengths: A :class:`~viren2d.Vec3d` specifying how far to shift the
             arrow tips from the origin. Each axis tip will be computed as
-            :math:`\text{tip}_{\text{axis}} = \text{origin} + \mathbf{e}_{\text{axis}} * \text{lengths}[axis]`,
+            :math:`\text{tip}_{\text{axis}} = \text{origin} + \mathbf{e}_{\text{axis}} * \text{lengths}[\text{axis}]`,
             where :math:`\mathbf{e}_{\text{axis}}` is the unit vector for the
             corresponding axis.
             The default value assumes that the calibration is given in
@@ -1306,9 +1307,9 @@ void RegisterPainter(py::module &m) {
           arrow_style: The :class:`~viren2d.ArrowStyle` specifying how the
             axis arrows should be drawn. Note that it's color attribute
             will be ignored.
-          color_x: :class:`~viren2d.Color` of the *x*-axis arrow. Default reddish.
-          color_y: :class:`~viren2d.Color` of the *y*-axis arrow. Default greenish.
-          color_z: :class:`~viren2d.Color` of the *z*-axis arrow. Default bluish.
+          color_x: :class:`~viren2d.Color` of the :math:`x` axis arrow. Default reddish.
+          color_y: :class:`~viren2d.Color` of the :math:`y` axis arrow. Default greenish.
+          color_z: :class:`~viren2d.Color` of the :math:`z` axis arrow. Default bluish.
 
         Returns:
           ``True`` if at least one point (axis arrow tip or the origin) is

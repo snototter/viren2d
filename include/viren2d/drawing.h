@@ -402,16 +402,16 @@ public:
   ///   origin: Center of the world coordinate system.
   ///   lengths: Specifies how far to shift the arrow tips from the origin.
   ///     Each axis tip will be computed as
-  ///     :math:`\text{tip}_{\text{axis}} = \text{origin} + \mathbf{e}_{\text{axis}} * \text{lengths}[axis]`,
+  ///     :math:`\text{tip}_{\text{axis}} = \text{origin} + \mathbf{e}_{\text{axis}} * \text{lengths}[\text{axis}]`,
   ///     where :math:`\mathbf{e}_{\text{axis}}` is the unit vector for the
   ///     corresponding axis.
   ///     The default value assumes that the calibration is given in
   ///     millimeters and will result in 1 meter long arrows.
   ///   arrow_style: How the axis arrows should be drawn. Note that it's color
   ///     attribute will be ignored.
-  ///   color_x: Color of the *x*-axis arrow. Default reddish.
-  ///   color_y: Color of the *y*-axis arrow. Default greenish.
-  ///   color_z: Color of the *z*-axis arrow. Default bluish.
+  ///   color_x: Color of the *x* axis arrow. Default reddish.
+  ///   color_y: Color of the *y* axis arrow. Default greenish.
+  ///   color_z: Color of the *z* axis arrow. Default bluish.
   ///
   /// Returns:
   ///   True if at least one point (axis arrow tip or the origin) is

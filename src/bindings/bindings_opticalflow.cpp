@@ -92,9 +92,9 @@ void RegisterOpticalFlowUtils(py::module &m) {
 
         Args:
           flow: The optical flow field as 2-channel :class:`~viren2d.ImageBuffer`,
-            where the first and second channels hold the motion in *x* and *y*
-            direction, respectively. Must be of type :class:`numpy.float32`
-            or :class:`numpy.float64`.
+            where the first and second channels hold the motion in :math:`x`
+            and :math:`y` direction, respectively. Must be of type
+            :class:`numpy.float32` or :class:`numpy.float64`.
           colormap: The :class:`~viren2d.ColorMap` to be used for
             colorization. In addition to the enumeration value, the corresponding
             string representation can be used for convenience.

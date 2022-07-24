@@ -34,11 +34,12 @@ Overview & Basics
 
 **Which coordinate system is used?**
    All coordinates assume an image coordinate system, where the origin
-   ``(0, 0)`` is at the *top left* corner, the positive *x*-axis is
-   pointing right and the positive *y*-axis is pointing down.
+   ``(0, 0)`` is at the *top left* corner, the positive :math:`x` axis is
+   pointing right and the positive :math:`y` axis is pointing down.
 
 
 **How to specify angles?**
-   All angle measurements should be provided in *degrees*. The rotation
-   direction for positive angles is from the positive *x*-axis towards the
-   positive *y*-axis.
+   Unless stated otherwise in the corresponding API documentation, all angle
+   measurements are assumed to be in *degrees*. The rotation direction
+   for positive angles is from the positive :math:`x` axis towards
+   the positive :math:`y` axis.

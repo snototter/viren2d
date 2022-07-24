@@ -125,3 +125,14 @@ If you need other than the provided color maps, you can define your custom
 color maps via :func:`~viren2d.set_custom_colormap`. These can then be used
 analogously to the predefined color maps via the enumeration values
 :attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`, *etc.*
+For example:
+
+.. code-block:: python
+   :linenos:
+
+   # Register custom 4-color map:
+   viren2d.set_custom_colormap(
+      'custom1', ['#ff0000', 'maroon', (0.94, 0.13, 0.15), (0.3, 0.8, 0)])
+
+   # Apply the custom map for label colorization:
+   vis = viren2d.colorize_labels(labels=label_image, colormap='custom1')

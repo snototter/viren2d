@@ -614,7 +614,7 @@ void RegisterColor(py::module &m) {
 
   m.def("axis_color",
         &CoordinateAxisColorFromPyObject, R"docstr(
-        Returns a color for the *x*, *y*, or *z* axis.
+        Returns a color for the :math:`x`, :math:`y`, or :math:`z` axis.
 
         Can be used, for example, to visualize the origin/orientation
         of the world coordinate system via differently colored

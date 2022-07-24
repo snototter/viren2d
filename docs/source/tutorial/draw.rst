@@ -26,12 +26,12 @@ Once you've set up the painter, you can start drawing:
 
       draw-primitives
       draw-markers
+      draw-text
       draw-image
       draw-tracking-by-detection
       draw-poses
       draw-3d-results
       draw-3d-calibration
-      draw-text
 
 
 Finally, you simply retrieve the visualization result via 
