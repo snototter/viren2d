@@ -59,7 +59,7 @@ public:
 
 
 protected:
-  void DrawArcImpl(
+  bool DrawArcImpl(
       const Vec2d &center, double radius,
       double angle1, double angle2, const LineStyle &line_style,
       bool include_center, const Color &fill_color) override {
@@ -69,21 +69,21 @@ protected:
           center, radius, angle1, angle2, line_style,
           include_center, fill_color);
 
-    helpers::DrawArc(
+    return helpers::DrawArc(
           surface_, context_, center, radius,
           angle1, angle2, line_style,
           include_center, fill_color);
   }
 
 
-  void DrawArrowImpl(
+  bool DrawArrowImpl(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) override {
     SPDLOG_DEBUG(
           "DrawArrow: p1={:s} --> p2={:s}, style={:s}.",
           from, to, arrow_style);
 
-    helpers::DrawArrow(surface_, context_, from, to, arrow_style);
+    return helpers::DrawArrow(surface_, context_, from, to, arrow_style);
   }
 
 
@@ -99,7 +99,7 @@ protected:
   }
 
 
-  void DrawCircleImpl(
+  bool DrawCircleImpl(
       const Vec2d &center, double radius,
       const LineStyle &line_style,
       const Color &fill_color) override {
@@ -107,7 +107,7 @@ protected:
           "DrawCircle: c={:s}, r={:.1f}, style={:s}, fill={:s}.",
           center, radius, line_style, fill_color);
 
-    helpers::DrawCircle(
+    return helpers::DrawCircle(
           surface_, context_, center, radius,
           line_style, fill_color);
   }

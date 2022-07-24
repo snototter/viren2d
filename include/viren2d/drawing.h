@@ -95,13 +95,13 @@ public:
   ///    include_center:  If ``true`` (default), the center point
   ///       will be included when drawing the outline and filling.
   ///    fill_color: If you provide a valid color, the arc will be filled.
-  void DrawArc(
+  bool DrawArc(
       const Vec2d &center, double radius,
       double angle1, double angle2,
       const LineStyle &line_style = LineStyle(),
       bool include_center = true,
       const Color &fill_color = Color::Invalid) {
-    DrawArcImpl(
+    return DrawArcImpl(
           center, radius, angle1, angle2, line_style,
           include_center, fill_color);
   }
@@ -113,10 +113,10 @@ public:
   ///   pt1: Start of the arrow shaft.
   ///   pt2: End of the arrow shaft (the *pointy* end).
   ///   arrow_style: How to draw the arrow.
-  void DrawArrow(
+  bool DrawArrow(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style = ArrowStyle()) {
-    DrawArrowImpl(from, to, arrow_style);
+    return DrawArrowImpl(from, to, arrow_style);
   }
 
 
@@ -140,11 +140,11 @@ public:
   ///   radius: Radius of the circle in pixels.
   ///   line_style: How to draw the circle's outline.
   ///   fill_color: If provided, the circle will be filled.
-  void DrawCircle(
+  bool DrawCircle(
       const Vec2d &center, double radius,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawCircleImpl(center, radius, line_style, fill_color);
+    return DrawCircleImpl(center, radius, line_style, fill_color);
   }
 
 
@@ -430,7 +430,7 @@ public:
 
 protected:
   /// Internal helper to enable default values in public interface.
-  virtual void DrawArcImpl(
+  virtual bool DrawArcImpl(
       const Vec2d &center, double radius,
       double angle1, double angle2,
       const LineStyle &line_style,
@@ -438,7 +438,7 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawArrowImpl(
+  virtual bool DrawArrowImpl(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) = 0;
 
@@ -451,7 +451,7 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawCircleImpl(
+  virtual bool DrawCircleImpl(
       const Vec2d &center, double radius,
       const LineStyle &line_style,
       const Color &fill_color) = 0;

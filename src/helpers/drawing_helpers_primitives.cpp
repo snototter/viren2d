@@ -45,18 +45,24 @@ void PathHelperRoundedRect(cairo_t *context, Rect rect) {
 
 
 //---------------------------------------------------- Arc/Circle
-void DrawArc(
+bool DrawArc(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d center, double radius,
     double angle1, double angle2,
     const LineStyle &line_style,
     bool include_center,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvasNoExcept(surface, context)) {
+    return false;
+  }
+
+  if (!CheckLineStyleAndFillNoExcept(line_style, fill_color)) {
+    return false;
+  }
 
   if (radius <= 0.0) {
-    throw std::invalid_argument("Radius must be > 0.0!");
+    SPDLOG_WARN("Radius must be > 0.0!");
+    return false;
   }
 
   // Move to the center of the pixel coordinates:
@@ -80,6 +86,7 @@ void DrawArc(
   cairo_stroke(context);
   // Restore previous context
   cairo_restore(context);
+  return true;
 }
 
 
@@ -118,17 +125,20 @@ Vec2d HelperClosedHead(
 }
 
 
-void DrawArrow(
+bool DrawArrow(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
-  CheckCanvas(surface, context);
-  CheckLineStyle(arrow_style);
+  if (!CheckCanvasNoExcept(surface, context)) {
+    return false;
+  }
+  if (!CheckLineStyleNoExcept(arrow_style)) {
+    return false;
+  }
 
   // Add 0.5 (half a pixel) to align the arrow exactly
   // with the given coordinates
   from += 0.5;
   to += 0.5;
-
 
   // Adjust endpoints s.t. the "pointy end" points exactly to
   // the given endpoint. My implementation ensures that for
@@ -230,6 +240,7 @@ void DrawArrow(
   }
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 

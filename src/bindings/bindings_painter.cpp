@@ -93,18 +93,18 @@ public:
   }
 
 
-  void DrawArc(
+  bool DrawArc(
       const Vec2d &center, double radius, double angle1, double angle2,
       const LineStyle &line_style, bool include_center, const Color &fill_color) {
-    painter_->DrawArc(
+    return painter_->DrawArc(
           center, radius, angle1, angle2, line_style,
           include_center, fill_color);
   }
 
 
-  void DrawArrow(
+  bool DrawArrow(
       const Vec2d &from, const Vec2d &to, const ArrowStyle &arrow_style) {
-    painter_->DrawArrow(from, to, arrow_style);
+    return painter_->DrawArrow(from, to, arrow_style);
   }
 
 
@@ -115,10 +115,10 @@ public:
   }
 
 
-  void DrawCircle(
+  bool DrawCircle(
       const Vec2d &center, double radius,
       const LineStyle &line_style, const Color &fill_color) {
-    painter_->DrawCircle(center, radius, line_style, fill_color);
+    return painter_->DrawCircle(center, radius, line_style, fill_color);
   }
 
 
@@ -606,6 +606,10 @@ void RegisterPainter(py::module &m) {
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the arc will be filled.
 
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages (most likely due to invalid inputs).
+
         Example:
           >>> line_style = viren2d.LineStyle(
           >>>     width=5, color='maroon',
@@ -640,6 +644,10 @@ void RegisterPainter(py::module &m) {
             :class:`~viren2d.Vec2d`.
           arrow_style: An :class:`~viren2d.ArrowStyle` specifying
             how to draw the arrow.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages (most likely due to invalid inputs).
 
         Example:
           >>> arrow_style = viren2d.ArrowStyle(
@@ -709,6 +717,10 @@ void RegisterPainter(py::module &m) {
             valid ``fill_color``.
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the circle will be filled.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages (most likely due to invalid inputs).
 
         Example:
           >>> line_style = viren2d.LineStyle(

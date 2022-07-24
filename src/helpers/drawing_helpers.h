@@ -93,6 +93,22 @@ inline void CheckLineStyle(const LineStyle &style) {
 }
 
 
+// TODO should replace the throwing CheckLineStyle calls everywhere.
+// Once this is done, rename it back to CheckLineStyle.
+/// Checks if the line style is valid.
+inline void CheckLineStyleNoExcept(const LineStyle &style) {
+  if (!style.IsValid()) {
+    std::string s("Cannot draw with invalid line style ");
+    s += style.ToDetailedString();
+    s += '!';
+    SPDLOG_WARN(s);
+    return false;
+  } else {
+    return true;
+  }
+}
+
+
 /// Checks if line style *or* fill color are valid.
 /// To be used in functions which allow only filling or
 /// only drawing a shape's contour.
@@ -111,6 +127,33 @@ inline void CheckLineStyleAndFill(
     s += fill_color.ToString();
     s += '!';
     throw std::invalid_argument(s);
+  }
+}
+
+
+// TODO should replace the throwing CheckLineStyleAndFill calls everywhere.
+// Once this is done, rename it back to CheckLineStyleAndFill.
+/// Checks if line style *or* fill color are valid.
+/// To be used in functions which allow only filling or
+/// only drawing a shape's contour.
+inline void CheckLineStyleAndFillNoExcept(
+    const LineStyle &style, Color &fill_color) {
+  if (fill_color.IsSpecialSame()) {
+    fill_color = style.color.WithAlpha(fill_color.alpha);
+  }
+
+  if (!style.IsValid() && !fill_color.IsValid()) {
+    std::string s(
+          "Cannot draw with both invalid line "
+          "style and invalid fill color: ");
+    s += style.ToDetailedString();
+    s += " and ";
+    s += fill_color.ToString();
+    s += '!';
+    SPDLOG_WARN(s);
+    return false;
+  } else {
+    return true;
   }
 }
 
@@ -147,6 +190,8 @@ inline cairo_line_cap_t LineCap2Cairo(LineCap cap) {
       return CAIRO_LINE_CAP_SQUARE;
   }
 
+  // This exception can remain as it would be caused by an implementation
+  // error (and Cairo will very likely not introduce a new cap style).
   std::string s("Line cap style \"");
   s += LineCapToString(cap);
   s += "\" is not yet mapped to corresponding Cairo type!";
@@ -165,6 +210,9 @@ inline cairo_line_join_t LineJoin2Cairo(LineJoin join) {
     case LineJoin::Round:
       return CAIRO_LINE_JOIN_ROUND;
   }
+
+  // This exception can remain as it would be caused by an implementation
+  // error (and Cairo will very likely not introduce a new cap style).
   std::string s("Line join style \"");
   s += LineJoinToString(join);
   s += "\" is not yet mapped to corresponding Cairo type!";
@@ -418,14 +466,14 @@ private:
 //---------------------------------------------------- Available drawing helpers
 // These declarations should stay alphabetically sorted:
 
-void DrawArc(
+bool DrawArc(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d center, double radius, double angle1, double angle2,
     const LineStyle &line_style, bool include_center,
     Color fill_color);
 
 
-void DrawArrow(
+bool DrawArrow(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
@@ -435,11 +483,11 @@ bool DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
     const BoundingBox2DStyle &style);
 
 
-inline void DrawCircle(
+inline bool DrawCircle(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d center, double radius, const LineStyle &line_style,
     const Color &fill_color) {
-  DrawArc(surface, context, center, radius, 0, 360, line_style,
+  return DrawArc(surface, context, center, radius, 0, 360, line_style,
           false, fill_color);
 }
 
