@@ -96,7 +96,7 @@ inline void CheckLineStyle(const LineStyle &style) {
 // TODO should replace the throwing CheckLineStyle calls everywhere.
 // Once this is done, rename it back to CheckLineStyle.
 /// Checks if the line style is valid.
-inline void CheckLineStyleNoExcept(const LineStyle &style) {
+inline bool CheckLineStyleNoExcept(const LineStyle &style) {
   if (!style.IsValid()) {
     std::string s("Cannot draw with invalid line style ");
     s += style.ToDetailedString();
@@ -136,7 +136,7 @@ inline void CheckLineStyleAndFill(
 /// Checks if line style *or* fill color are valid.
 /// To be used in functions which allow only filling or
 /// only drawing a shape's contour.
-inline void CheckLineStyleAndFillNoExcept(
+inline bool CheckLineStyleAndFillNoExcept(
     const LineStyle &style, Color &fill_color) {
   if (fill_color.IsSpecialSame()) {
     fill_color = style.color.WithAlpha(fill_color.alpha);
@@ -492,13 +492,13 @@ inline bool DrawCircle(
 }
 
 
-void DrawEllipse(
+bool DrawEllipse(
     cairo_surface_t *surface, cairo_t *context,
     Ellipse ellipse, const LineStyle &line_style,
     Color fill_color);
 
 
-void DrawGrid(
+bool DrawGrid(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d top_left, Vec2d bottom_right,
     double spacing_x, double spacing_y,

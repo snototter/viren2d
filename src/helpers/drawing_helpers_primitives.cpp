@@ -52,11 +52,8 @@ bool DrawArc(
     const LineStyle &line_style,
     bool include_center,
     Color fill_color) {
-  if (!CheckCanvasNoExcept(surface, context)) {
-    return false;
-  }
-
-  if (!CheckLineStyleAndFillNoExcept(line_style, fill_color)) {
+  if (!CheckCanvasNoExcept(surface, context)
+      || !CheckLineStyleAndFillNoExcept(line_style, fill_color)) {
     return false;
   }
 
@@ -128,10 +125,8 @@ Vec2d HelperClosedHead(
 bool DrawArrow(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
-  if (!CheckCanvasNoExcept(surface, context)) {
-    return false;
-  }
-  if (!CheckLineStyleNoExcept(arrow_style)) {
+  if (!CheckCanvasNoExcept(surface, context)
+      || !CheckLineStyleNoExcept(arrow_style)) {
     return false;
   }
 
@@ -266,18 +261,21 @@ double AdjustEllipseAngle(
 }
 
 
-void DrawEllipse(
+bool DrawEllipse(
     cairo_surface_t *surface, cairo_t *context,
     Ellipse ellipse, const LineStyle &line_style,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvasNoExcept(surface, context)
+      || !CheckLineStyleAndFillNoExcept(line_style, fill_color)) {
+    return false;
+  }
 
   if (!ellipse.IsValid()) {
     std::string s("Cannot draw an invalid ellipse: ");
     s += ellipse.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly).
@@ -339,21 +337,25 @@ void DrawEllipse(
 
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Grid
-void DrawGrid(
+bool DrawGrid(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d top_left, Vec2d bottom_right,
     double spacing_x, double spacing_y,
     const LineStyle &line_style) {
   // Sanity checks
-  CheckCanvas(surface, context);
-  CheckLineStyle(line_style);
+  if (!CheckCanvasNoExcept(surface, context)
+      || !CheckLineStyleNoExcept(line_style)) {
+    return false;
+  }
 
   if ((spacing_x <= 0.0) || (spacing_y <= 0.0)) {
-    throw std::invalid_argument("Cell spacing for grid must be > 0.");
+    SPDLOG_WARN("Cell spacing for grid must be > 0.");
+    return false;
   }
 
   // Adjust corners if necessary
@@ -401,6 +403,7 @@ void DrawGrid(
   cairo_stroke(context);
   // Restore previous state
   cairo_restore(context);
+  return true;
 }
 
 

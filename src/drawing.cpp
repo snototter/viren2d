@@ -113,19 +113,19 @@ protected:
   }
 
 
-  void DrawEllipseImpl(
+  bool DrawEllipseImpl(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
           "DrawEllipse: {:s}, style={:s}, fill={:s}.",
           ellipse, line_style, fill_color);
 
-    helpers::DrawEllipse(
+    return helpers::DrawEllipse(
           surface_, context_, ellipse, line_style, fill_color);
   }
 
 
-  void DrawGridImpl(
+  bool DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) override {
@@ -133,7 +133,7 @@ protected:
           "DrawGrid: cells={:.1f}x{:.1f}, tl={:s}, br={:s}, style={:s}.",
           spacing_x, spacing_y, top_left, bottom_right, line_style);
 
-    helpers::DrawGrid(
+    return helpers::DrawGrid(
           surface_, context_, top_left, bottom_right,
           spacing_x, spacing_y, line_style);
   }

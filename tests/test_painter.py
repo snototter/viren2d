@@ -108,19 +108,19 @@ def test_draw_arc():
     p = viren2d.Painter()
     assert not p.is_valid()
     # Try drawing on invalid painter
-    with pytest.raises(RuntimeError):
-        p.draw_arc((0, 0), 15, 0, 10)
+    assert not p.draw_arc((0, 0), 15, 0, 10)
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     style = viren2d.LineStyle()
     # Draw with explicit types
-    p.draw_arc(viren2d.Vec2d(45, 77), 30, 20, 300, style, True, viren2d.rgba(1, 0, 1))
+    assert p.draw_arc(
+        viren2d.Vec2d(45, 77), 30, 20, 300, style, True, viren2d.rgba(1, 0, 1))
 
     # Draw with implicit conversions
-    p.draw_arc((1, 2), 10, 30, 40, style, False, "midnight-blue!80")
-    p.draw_arc(
+    assert p.draw_arc((1, 2), 10, 30, 40, style, False, "midnight-blue!80")
+    assert p.draw_arc(
         angle_from=20, angle_to=300, center=(1, 2), radius=10,
         fill_color='black!40', line_style=style, include_center=False)
 
@@ -132,10 +132,9 @@ def test_draw_arc():
                     for style in line_style_configurations():
                         for fill_color in color_configurations():
                             if radius > 0 and is_valid_line_or_fill(style, fill_color):
-                                p.draw_arc(center, radius, angles[0], angles[1], style, inc_center, fill_color)
+                                assert p.draw_arc(center, radius, angles[0], angles[1], style, inc_center, fill_color)
                             else:
-                                with pytest.raises(ValueError):
-                                    p.draw_arc(center, radius, angles[0], angles[1], style, inc_center, fill_color)
+                                assert not p.draw_arc(center, radius, angles[0], angles[1], style, inc_center, fill_color)
                             # Painter should always be kept in a valid state
                             assert p.is_valid()
 
@@ -144,19 +143,18 @@ def test_draw_arrow():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_arrow((0, 0), (50, 50))
+    assert not p.draw_arrow((0, 0), (50, 50))
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
     # Draw with explicit types
     style = viren2d.ArrowStyle()
-    p.draw_arrow(viren2d.Vec2d(0, 30), viren2d.Vec2d(70, 80), style)
+    assert p.draw_arrow(viren2d.Vec2d(0, 30), viren2d.Vec2d(70, 80), style)
 
     # Draw with implicit conversions
-    p.draw_arrow((0, 30), (70, 80), style)
-    p.draw_arrow(arrow_style=style, pt2=(10, 10), pt1=(50, 30))
+    assert p.draw_arrow((0, 30), (70, 80), style)
+    assert p.draw_arrow(arrow_style=style, pt2=(10, 10), pt1=(50, 30))
     # Sweep valid and invalid configurations
     for pt1 in [(10, 2), (-100, -300), (0.2, 1000), (50, 900)]:
         for pt2 in [(-99, -32), (10, 30), (100, 0.2), (90, 5)]:
@@ -166,11 +164,8 @@ def test_draw_arrow():
                     style.tip_angle = tip_angle
                     for fill in [True, False]:
                         style.tip_closed = fill
-                        if style.is_valid():
-                            p.draw_arrow(pt1, pt2, style)
-                        else:
-                            with pytest.raises(ValueError):
-                                p.draw_arrow(pt1, pt2, style)
+                        res = p.draw_arrow(pt1, pt2, style)
+                        assert res == style.is_valid()
                         # Painter should always be kept in a valid state
                         assert p.is_valid()
 
@@ -179,19 +174,19 @@ def test_draw_circles():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_circle((10, 10), 5)
+    assert not p.draw_circle((10, 10), 5)
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
     
     # Draw with explicit types
     style = viren2d.LineStyle()
-    p.draw_circle(viren2d.Vec2d(0, 30), 7, style, viren2d.Color("black"))
+    assert p.draw_circle(
+        viren2d.Vec2d(0, 30), 7, style, viren2d.Color("black"))
 
     # Draw with implicit conversions
-    p.draw_circle((0, 30), 70, style, "blue!10")
-    p.draw_circle(
+    assert p.draw_circle((0, 30), 70, style, "blue!10")
+    assert p.draw_circle(
         radius=70, center=(0, 30), fill_color="blue!10", line_style=style)
   
     # Sweep valid and invalid configurations
@@ -200,10 +195,9 @@ def test_draw_circles():
             for style in line_style_configurations():
                 for fill_color in color_configurations():
                     if radius > 0 and is_valid_line_or_fill(style, fill_color):
-                        p.draw_circle(center, radius, style, fill_color)
+                        assert p.draw_circle(center, radius, style, fill_color)
                     else:
-                        with pytest.raises(ValueError):
-                            p.draw_circle(center, radius, style, fill_color)
+                        assert not p.draw_circle(center, radius, style, fill_color)
                     # Painter should always be kept in a valid state
                     assert p.is_valid()
 
@@ -212,24 +206,22 @@ def test_draw_ellipse():
     ### Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)))
+    assert not p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)))
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
 
-
     # Draw with explicit initialization
     style = viren2d.LineStyle()
     # Ellipse as center, size
-    p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)), style)
+    assert p.draw_ellipse(viren2d.Ellipse((150, 150), (300, 100)), style)
     # The above from kwargs
-    p.draw_ellipse(viren2d.Ellipse(axes=(300, 100), center=(150, 150)), style)
+    assert p.draw_ellipse(viren2d.Ellipse(axes=(300, 100), center=(150, 150)), style)
 
     # Implicit ellipse as (cx, cy), (major, minor), rotation, angle_from, angle_to, include_center
-    p.draw_ellipse(((150, 180), (300, 100), 90, 45, -45, False), style)
+    assert p.draw_ellipse(((150, 180), (300, 100), 90, 45, -45, False), style)
     # The above explicitly from kwargs
-    p.draw_ellipse(line_style=style,
+    assert p.draw_ellipse(line_style=style,
         ellipse=viren2d.Ellipse(axes=(300, 200), center=(150, 180),
             rotation=90, angle_from=45, angle_to=-45,
             include_center=False))
@@ -239,30 +231,29 @@ def test_draw_grid():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
     assert not p.is_valid()
-    with pytest.raises(RuntimeError):
-        p.draw_grid(20, 20, viren2d.LineStyle())
+    assert not p.draw_grid(20, 20, viren2d.LineStyle())
     # Prepare canvas
     p.set_canvas_rgb(height=300, width=400)
     assert p.is_valid()
     
     # Draw with explicit types
     style = viren2d.LineStyle()
-    p.draw_grid(20, 20)
-    p.draw_grid(20, 20, style)
-    p.draw_grid(20, 20, style, viren2d.Vec2d(), viren2d.Vec2d())
+    assert p.draw_grid(20, 20)
+    assert p.draw_grid(20, 20, style)
+    assert p.draw_grid(20, 20, style, viren2d.Vec2d(), viren2d.Vec2d())
 
     # Draw with explicit types & named parameters
     style = viren2d.LineStyle()
-    p.draw_grid(spacing_x=20, spacing_y=20)
-    p.draw_grid(spacing_x=20, spacing_y=20, line_style=style)
-    p.draw_grid(
+    assert p.draw_grid(spacing_x=20, spacing_y=20)
+    assert p.draw_grid(spacing_x=20, spacing_y=20, line_style=style)
+    assert p.draw_grid(
         spacing_x=20, spacing_y=20, line_style=style,
         top_left=viren2d.Vec2d(), bottom_right=viren2d.Vec2d())
 
     # Draw with implicit conversions
-    p.draw_grid(20, 20, style, (0, 0), (50, 50))
+    assert p.draw_grid(20, 20, style, (0, 0), (50, 50))
     # Draw with implicit conversions
-    p.draw_grid(
+    assert p.draw_grid(
         spacing_x=20, spacing_y=20, line_style=style,
         top_left=(0, 0), bottom_right=(50, 50))
     
@@ -273,10 +264,9 @@ def test_draw_grid():
             for sy in [-5, 0, 5]:
               for style in line_style_configurations():
                   if is_valid_line(style) and sx > 0 and sy > 0:
-                      p.draw_grid(sx, sy, style, tl, br)
+                      assert p.draw_grid(sx, sy, style, tl, br)
                   else:
-                      with pytest.raises(ValueError):
-                          p.draw_grid(sx, sy, style, tl, br)
+                      assert not p.draw_grid(sx, sy, style, tl, br)
                   # Painter should always be kept in a valid state
                   assert p.is_valid()
 

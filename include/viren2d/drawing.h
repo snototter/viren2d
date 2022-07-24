@@ -154,21 +154,21 @@ public:
   ///   ellipse: The ellipse to be drawn.
   ///   line_style: How to draw the ellipse's outline.
   ///   fill_color: If provided, the ellipse will be filled.
-  void DrawEllipse(
+  bool DrawEllipse(
       const Ellipse &ellipse,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawEllipseImpl(ellipse, line_style, fill_color);
+    return DrawEllipseImpl(ellipse, line_style, fill_color);
   }
 
 
   /// Draws a grid between top_left and bottom_right.
   /// If both points are the same, the grid will span the whole canvas.
-  void DrawGrid(
+  bool DrawGrid(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style = LineStyle()) {
-    DrawGridImpl(
+    return DrawGridImpl(
           top_left, bottom_right,
           spacing_x, spacing_y,
           line_style);
@@ -458,13 +458,13 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawEllipseImpl(
+  virtual bool DrawEllipseImpl(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawGridImpl(
+  virtual bool DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) = 0;

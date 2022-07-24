@@ -122,19 +122,19 @@ public:
   }
 
 
-  void DrawEllipse(
+  bool DrawEllipse(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) {
-    painter_->DrawEllipse(ellipse, line_style, fill_color);
+    return painter_->DrawEllipse(ellipse, line_style, fill_color);
   }
 
 
-  void DrawGrid(
+  bool DrawGrid(
       double spacing_x, double spacing_y,
       const LineStyle &line_style,
       const Vec2d &top_left,
       const Vec2d &bottom_right) {
-    painter_->DrawGrid(
+    return painter_->DrawGrid(
           top_left, bottom_right,
           spacing_x, spacing_y, line_style);
   }
@@ -608,7 +608,7 @@ void RegisterPainter(py::module &m) {
 
         Returns:
           ``True`` if drawing completed successfully. Otherwise, check the log
-          messages (most likely due to invalid inputs).
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -647,7 +647,7 @@ void RegisterPainter(py::module &m) {
 
         Returns:
           ``True`` if drawing completed successfully. Otherwise, check the log
-          messages (most likely due to invalid inputs).
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> arrow_style = viren2d.ArrowStyle(
@@ -686,7 +686,7 @@ void RegisterPainter(py::module &m) {
 
         Returns:
           ``True`` if drawing completed successfully. Otherwise, check the log
-          messages (most likely due to invalid inputs).
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> #TODO
@@ -720,7 +720,7 @@ void RegisterPainter(py::module &m) {
 
         Returns:
           ``True`` if drawing completed successfully. Otherwise, check the log
-          messages (most likely due to invalid inputs).
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -756,6 +756,10 @@ void RegisterPainter(py::module &m) {
             valid ``fill_color``.
           fill_color: If you provide a valid :class:`~viren2d.Color`,
             the ellipse will be filled.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(
@@ -794,6 +798,10 @@ void RegisterPainter(py::module &m) {
             the grid will span the whole canvas.
           bottom_right: Bottom-right corner as :class:`~viren2d.Vec2d`.
             See ``top_left``.
+        
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
           >>> line_style = viren2d.LineStyle(width=1, color='light-gray!80')
@@ -829,7 +837,7 @@ void RegisterPainter(py::module &m) {
 
         Returns:
           TODO we should bind wkg::Line2d (midpoint, direction, etc. might be
-          useful in python too)
+          useful in python too) - then use its is_valid to check for successful/visible drawing
 
         Example:
           >>> K = np.array(
