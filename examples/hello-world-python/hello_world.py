@@ -20,9 +20,11 @@ marker_style = viren2d.MarkerStyle(
     bg_border=2, bg_color='ivory')
 
 painter.draw_marker(
-    pt=(bbox.cx - bbox.width/2 - 35, height/2), marker_style=marker_style)
+    position=(bbox.cx - bbox.width/2 - 35, height/2),
+    marker_style=marker_style)
 painter.draw_marker(
-    pt=(bbox.cx + bbox.width/2 + 35, height/2), marker_style=marker_style)
+    position=(bbox.cx + bbox.width/2 + 35, height/2),
+    marker_style=marker_style)
 
 # Display the image:
 shared_canvas_np = np.array(painter.canvas, copy=False)
