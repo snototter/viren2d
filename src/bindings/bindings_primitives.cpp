@@ -762,21 +762,21 @@ void RegisterLine2d(pybind11::module &m) {
   line.def_property_readonly(
         "pt1",
         &Line2d::From, R"docstr(
-        float: Starting point.
+        :class:`~viren2d.Vec2d`: Starting point.
 
           **Corresponding C++ API:** ``viren2d::Line2d::From``.
         )docstr")
       .def_property_readonly(
         "pt2",
         &Line2d::To, R"docstr(
-        float: End point.
+        :class:`~viren2d.Vec2d`: End point.
 
           **Corresponding C++ API:** ``viren2d::Line2d::To``.
         )docstr")
       .def_property_readonly(
         "mid_point",
         &Line2d::MidPoint, R"docstr(
-        float: Mid point between :attr:`~viren2d.Line2d.pt1`
+        :class:`~viren2d.Vec2d`: Mid point between :attr:`~viren2d.Line2d.pt1`
           and :attr:`~viren2d.Line2d.pt2`.
 
           **Corresponding C++ API:** ``viren2d::Line2d::MidPoint``.
