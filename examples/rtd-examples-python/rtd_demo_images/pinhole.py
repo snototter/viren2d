@@ -3,7 +3,7 @@ import numpy as np
 from rtd_demo_images.constants import VIREN2D_DATA_PATH
 
 
-def _example_calibration():
+def _calibrated_example():
     """Example image (`ninja`) and its calibration (estimated via PnP)."""
     img = viren2d.load_image_uint8(VIREN2D_DATA_PATH / 'ninja.jpg')
     K = np.array(
@@ -36,22 +36,21 @@ def _overlay_horizon(painter, K, R, t):
     line_style = viren2d.LineStyle(
         width=7, color=viren2d.axis_color('z'), dash_pattern=[40, 50],
         cap='round')
-    horizon_from, horizon_to = painter.draw_horizon_line(
-        K=K, R=R, t=t, line_style=line_style)
+    horizon = painter.draw_horizon_line(K=K, R=R, t=t, line_style=line_style)
     # Add a label
     text_style = viren2d.TextStyle(family='xkcd', size=29, color='#1a1c1d')
     line_style.width = 3
     line_style.dash_pattern = []
     painter.draw_text_box(
         ['Line of Horizon'],
-        position=(horizon_from + horizon_to) * 0.8 + (0, 8),
+        position=horizon.point_at_offset(0.8) + (0, 10),
         anchor='top', text_style=text_style, padding=(10, 6),
         line_style=line_style, fill_color='#c0bab1c0')
 
 
 def demo_pinhole():
     """Visualizations for calibrated pinhole cameras"""
-    img, K, R, t = _example_calibration()
+    img, K, R, t = _calibrated_example()
     painter1 = viren2d.Painter(img)
 
     # Visualize origin/world reference frame:  #TODO WIP - needs 3d line clipping
