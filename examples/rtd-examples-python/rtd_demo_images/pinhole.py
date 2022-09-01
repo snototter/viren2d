@@ -37,15 +37,16 @@ def _overlay_horizon(painter, K, R, t):
         width=7, color=viren2d.axis_color('z'), dash_pattern=[40, 50],
         cap='round')
     horizon = painter.draw_horizon_line(K=K, R=R, t=t, line_style=line_style)
-    # Add a label
-    text_style = viren2d.TextStyle(family='xkcd', size=29, color='#1a1c1d')
-    line_style.width = 3
-    line_style.dash_pattern = []
-    painter.draw_text_box(
-        ['Line of Horizon'],
-        position=horizon.point_at_offset(0.8) + (0, 10),
-        anchor='top', text_style=text_style, padding=(10, 6),
-        line_style=line_style, fill_color='#c0bab1c0')
+    if horizon.is_valid():
+        # Add a label
+        text_style = viren2d.TextStyle(family='xkcd', size=29, color='#1a1c1d')
+        line_style.width = 3
+        line_style.dash_pattern = []
+        painter.draw_text_box(
+            ['Line of Horizon'],
+            position=horizon.point_at_offset(0.8) + (0, 10),
+            anchor='top', text_style=text_style, padding=(10, 6),
+            line_style=line_style, fill_color='#c0bab1c0')
 
 
 def demo_pinhole():
