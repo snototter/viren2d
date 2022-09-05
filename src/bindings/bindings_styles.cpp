@@ -1159,7 +1159,7 @@ void RegisterBoundingBox2DStyle(py::module &m) {
           where to place the label. In addition to the enumeration value,
           this parameter can be set using its string representation.
         label_padding: Padding between the nearest bounding box
-          edges and the label as :class:`~viren2d.Vec`.
+          edges and the label as :class:`~viren2d.Vec2d`.
         clip_label: If ``True``, the label will be clipped if it
           exceeds the bounding box.
       )docstr";
