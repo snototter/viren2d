@@ -403,7 +403,7 @@ void RegisterTextStyle(py::module &m) {
       .def(
         "__repr__",
         [](const TextStyle &st) {
-          return "<TextStyle" + st.ToString() + ">";
+          return "<" + st.ToString() + ">";
         })
       .def(
         "__str__",

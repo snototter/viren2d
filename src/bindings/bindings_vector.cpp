@@ -262,10 +262,14 @@ void RegisterVec(py::module &m) {
   vec_cls.def(
         "__repr__",
         [](const VC &v) {
-          return "<"  + v.ToString() + ">";
+          return "<"  + v.ToString(true) + ">";
         });
 
-  vec_cls.def("__str__", &VC::ToString);
+  vec_cls.def(
+        "__str__",
+        [](const VC &v) {
+          return v.ToString(false);
+        });
 
 
   std::ostringstream().swap(doc);
