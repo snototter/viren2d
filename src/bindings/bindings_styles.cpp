@@ -1061,7 +1061,7 @@ LabelPosition LabelPositionFromPyObject(const py::object &o) {
 py::tuple BoundingBox2DStyleToTuple(const BoundingBox2DStyle &st) {
   return py::make_tuple(
         st.line_style, st.text_style, st.box_fill_color, st.text_fill_color,
-        st.label_position, st.label_padding, st.clip_label);
+        st.label_padding, st.clip_label);
 }
 
 
@@ -1073,13 +1073,11 @@ BoundingBox2DStyle CreateBoundingBox2DStyle(
     const TextStyle &text_style,
     const Color &bbox_fill_color,
     const Color &label_box_color,
-    const py::object &label_pos,
     const Vec2d &text_padding,
     bool clip_lbl) {
-  LabelPosition lpos = LabelPositionFromPyObject(label_pos);
   return BoundingBox2DStyle(
         line_style, text_style, bbox_fill_color, label_box_color,
-        lpos, text_padding, clip_lbl);
+        text_padding, clip_lbl);
 }
 
 
@@ -1113,16 +1111,17 @@ BoundingBox2DStyle BoundingBox2DStyleFromTuple(const py::tuple &tpl) {
     bstyle.text_fill_color = tpl[3].cast<Color>();
   }
 
+  //FIXME remove
+//  if (tpl.size() > 4) {
+//    bstyle.label_position = tpl[4].cast<LabelPosition>();
+//  }
+
   if (tpl.size() > 4) {
-    bstyle.label_position = tpl[4].cast<LabelPosition>();
+    bstyle.label_padding = tpl[4].cast<Vec2d>();
   }
 
   if (tpl.size() > 5) {
-    bstyle.label_padding = tpl[5].cast<Vec2d>();
-  }
-
-  if (tpl.size() > 6) {
-    bstyle.clip_label = tpl[6].cast<bool>();
+    bstyle.clip_label = tpl[5].cast<bool>();
   }
 
   return bstyle;
@@ -1155,9 +1154,6 @@ void RegisterBoundingBox2DStyle(py::module &m) {
           fill the box.
         text_fill_color: Optional :class:`~viren2d.Color` to
           fill the background of the label.
-        label_position: A :class:`~viren2d.LabelPosition` specifying
-          where to place the label. In addition to the enumeration value,
-          this parameter can be set using its string representation.
         label_padding: Padding between the nearest bounding box
           edges and the label as :class:`~viren2d.Vec2d`.
         clip_label: If ``True``, the label will be clipped if it
@@ -1171,10 +1167,12 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         py::arg("text_style") = default_style.text_style,
         py::arg("box_fill_color") = default_style.box_fill_color,
         py::arg("text_fill_color") = default_style.text_fill_color,
-        py::arg("label_position") = default_style.label_position,
         py::arg("label_padding") = default_style.label_padding,
         py::arg("clip_label") = default_style.clip_label);
-
+// FIXME add doc to draw_bounding_box (changed label parameter!)
+// label_position: A :class:`~viren2d.LabelPosition` specifying
+//  where to place the label. In addition to the enumeration value,
+//  this parameter can be set using its string representation.
   bbox_style.def(
         "copy",
         [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); }, R"docstr(
@@ -1241,22 +1239,23 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         doc.c_str());
 
 
-  doc = R"docstr(
-      :class:`~viren2d.LabelPosition`: Where to place
-      the label within the box.
+//  doc = R"docstr(
+//      :class:`~viren2d.LabelPosition`: Where to place
+//      the label within the box.
 
-      In addition to the enumeration values, you can use
-      the string representation to set this member:
+//      In addition to the enumeration values, you can use
+//      the string representation to set this member:
 
-      >>> style.label_position = viren2d.LabelPosition.Left
-      >>> style.label_position = 'left'
-      )docstr";
-  bbox_style.def_property(
-        "label_position",
-        [](BoundingBox2DStyle &s) { return s.label_position; },
-        [](BoundingBox2DStyle &s, py::object o) {
-            s.label_position = LabelPositionFromPyObject(o);
-        }, doc.c_str());
+//      >>> style.label_position = viren2d.LabelPosition.Left
+//      >>> style.label_position = 'left'
+//      )docstr";
+//  bbox_style.def_property(
+//        "label_position",
+//        [](BoundingBox2DStyle &s) { return s.label_position; },
+//        [](BoundingBox2DStyle &s, py::object o) {
+//            s.label_position = LabelPositionFromPyObject(o);
+//        }, doc.c_str());
+  //FIXME remove
 
 
   doc = R"docstr(

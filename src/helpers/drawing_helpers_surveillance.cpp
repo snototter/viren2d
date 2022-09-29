@@ -3,6 +3,7 @@
 #include <exception>
 #include <cmath>
 #include <cstdlib>
+#include <tuple>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
@@ -17,104 +18,56 @@ namespace wgu = werkzeugkiste::geometry;
 namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- BoundingBox 2D
-bool DrawBoundingBox2D(
-    cairo_surface_t *surface, cairo_t *context,
-    Rect rect, const std::vector<std::string> &label,
-    const BoundingBox2DStyle &style) {
-  //-------------------- Sanity checks
-  if (!CheckCanvas(surface, context)) {
-    return false;
+struct AlignedLabel {
+  Rect bg_rect;
+  MultiLineText text;
+  double rotation;
+  bool valid;
+
+  AlignedLabel(
+      Rect rect, MultiLineText txt, double rotation_angle)
+    : bg_rect(rect), text(txt), rotation(rotation_angle), valid(true)
+  {}
+
+  AlignedLabel()
+    : bg_rect(), text(), rotation(0.0), valid(false)
+  {}
+};
+
+
+AlignedLabel PrepareAlignedLabel(
+    cairo_t *context, Rect bounding_box, const BoundingBox2DStyle &style,
+    const std::vector<std::string> &label, LabelPosition position) {
+  if (label.empty()) {
+    return AlignedLabel();
   }
 
-  if (!style.IsValid()) {
-    std::string s("Cannot draw a bounding box with an invalid style: ");
-    s += style.ToString(); //TODO implement and use ToDetailedString?
-    s += '!';
-    SPDLOG_WARN(s);
-    return false;
-  }
-
-  if (!rect.IsValid()) {
-    std::string s("Cannot draw an invalid bounding box: ");
-    s += rect.ToString();
-    s += '!';
-    SPDLOG_WARN(s);
-    return false;
-  }
-
-  //-------------------- Drawing
-  // In a nutshell:
-  // * (optional) Fill the box background
-  // * (optional) Fill the text box background (but only
-  //   the region which intersects with the box)
-  // * Draw the box contour
-  // * Draw the label
-
-  // Shift coordinates to the pixel center to
-  // correctly draw 1px borders
-  rect += 0.5;
-
-  // Shift & rotate the canvas such that we have
-  // a (0, 0)-centered, axis-aligned rectangle
-  cairo_save(context);
-  cairo_translate(context, rect.cx, rect.cy);
-  cairo_rotate(context, wgu::deg2rad(rect.rotation));
-
-  // Draw a standard (square) rect or rounded rectangle:
-  if (rect.radius > 0.0) {
-    PathHelperRoundedRect(context, rect);
-  } else {
-    cairo_rectangle(
-          context, -rect.HalfWidth(), -rect.HalfHeight(),
-          rect.width, rect.height);
-  }
-  // Create a copy of this path to be reused for the
-  // contour later on.
-  cairo_path_t *bbox_path = cairo_copy_path(context);
-
-  // For labels along the left/right edge, we have to rotate
-  // the canvas again. We use a separate context so that we
-  // can reuse the copied bbox_path to draw the box' contour
-  // later on.
-  cairo_save(context);
-
-  // Logic behind the following (quite redundant, I know) code
-  // blocks:
-  // * If labels should be placed along the left/right edge, we
-  //   rotate the canvas by +/-90 degrees. Then, we only have to
-  //   differ between top-/bottom-aligned labels.
-  // * If we have to rotate, we also have to swap x/y coordinates,
-  //   including the label's padding.
-  // * To reuse the box path from above, we then have to use the
-  //   original context (original x/y coordinates).
-  // TODO(cleanup) The following is a prime candidate for refactoring
-  //   and simplification
   Rect label_box;
   Vec2d padding = style.label_padding;
-  Vec2d oriented_size = rect.Size();
+  Vec2d oriented_size = bounding_box.Size();
   VerticalAlignment valign;
   double rotation = 0.0;
-  switch (style.label_position) {
+  switch (position) {
     case LabelPosition::Top:
       label_box = Rect::FromLTWH(
-            -rect.HalfWidth(), -rect.HalfHeight(),
-            rect.width, rect.height);
+            -bounding_box.HalfWidth(), -bounding_box.HalfHeight(),
+            bounding_box.width, bounding_box.height);
       valign = VerticalAlignment::Top;
       break;
 
     case LabelPosition::Bottom:
       label_box = Rect::FromLTWH(
-            -rect.HalfWidth(), -rect.HalfHeight(),
-            rect.width, rect.height);
+            -bounding_box.HalfWidth(), -bounding_box.HalfHeight(),
+            bounding_box.width, bounding_box.height);
       valign = VerticalAlignment::Bottom;
       break;
 
     case LabelPosition::LeftB2T:
       rotation = wgu::deg2rad(-90.0);
       label_box = Rect::FromLTWH(
-            -rect.HalfHeight(), -rect.HalfWidth(),
-            rect.height, rect.width);
-      oriented_size = Vec2d(rect.height, rect.width);
+            -bounding_box.HalfHeight(), -bounding_box.HalfWidth(),
+            bounding_box.height, bounding_box.width);
+      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
       valign = VerticalAlignment::Top;
       padding = Vec2d(
             style.label_padding.y(), style.label_padding.x());
@@ -123,9 +76,9 @@ bool DrawBoundingBox2D(
     case LabelPosition::LeftT2B://TODO double-check: t2b now seems to work!
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(
-            -rect.HalfHeight(), -rect.HalfWidth(),
-            rect.height, rect.width);
-      oriented_size = Vec2d(rect.height, rect.width);
+            -bounding_box.HalfHeight(), -bounding_box.HalfWidth(),
+            bounding_box.height, bounding_box.width);
+      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
       valign = VerticalAlignment::Bottom;
       padding = Vec2d(
             style.label_padding.y(), style.label_padding.x());
@@ -134,9 +87,9 @@ bool DrawBoundingBox2D(
     case LabelPosition::RightB2T:
       rotation = wgu::deg2rad(-90.0);
       label_box = Rect::FromLTWH(
-            -rect.HalfHeight(), -rect.HalfWidth(),
-            rect.height, rect.width);
-      oriented_size = Vec2d(rect.height, rect.width);
+            -bounding_box.HalfHeight(), -bounding_box.HalfWidth(),
+            bounding_box.height, bounding_box.width);
+      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
       valign = VerticalAlignment::Bottom;
       padding = Vec2d(
             style.label_padding.y(), style.label_padding.x());
@@ -145,9 +98,9 @@ bool DrawBoundingBox2D(
     case LabelPosition::RightT2B:
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(
-            -rect.HalfHeight(), -rect.HalfWidth(),
-            rect.height, rect.width);
-      oriented_size = Vec2d(rect.height, rect.width);
+            -bounding_box.HalfHeight(), -bounding_box.HalfWidth(),
+            bounding_box.height, bounding_box.width);
+      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
       valign = VerticalAlignment::Top;
       padding = Vec2d(
             style.label_padding.y(), style.label_padding.x());
@@ -180,6 +133,7 @@ bool DrawBoundingBox2D(
   // Now, we compute the text extent and finalize
   // computing the reference point, i.e. where to
   // place the label and its (optional) text box:
+  cairo_save(context);
   cairo_rotate(context, rotation);
   ApplyTextStyle(context, style.text_style, false);
   MultiLineText mlt(label, style.text_style, context);
@@ -203,6 +157,182 @@ bool DrawBoundingBox2D(
           "helpers::DrawBoundingBox2d must "
           "be either Top or Bottom!");
   }
+  cairo_restore(context);
+  return AlignedLabel(label_box, mlt, rotation);
+}
+
+
+std::tuple<Rect, std::vector<AlignedLabel>>
+AlignBoundingBoxLabels(
+    cairo_t *context, Rect bounding_box, const BoundingBox2DStyle &style,
+    const std::vector<std::string> &label_top,
+    const std::vector<std::string> &label_bottom,
+    const std::vector<std::string> &label_left, bool left_top_to_bottom,
+    const std::vector<std::string> &label_right, bool right_top_to_bottom) {
+  Rect bbox_background(0.0, 0.0, bounding_box.width, bounding_box.height);
+  std::vector<AlignedLabel> aligned_labels;
+
+  AlignedLabel top = PrepareAlignedLabel(
+        context, bounding_box, style, label_top, LabelPosition::Top);
+  if (top.valid) {
+    aligned_labels.push_back(top);
+
+    bbox_background.cy += top.bg_rect.height / 2.0;
+    bbox_background.height -= top.bg_rect.height;
+  }
+
+  AlignedLabel bottom = PrepareAlignedLabel(
+        context, bounding_box, style, label_bottom, LabelPosition::Bottom);
+  if (bottom.valid) {
+    aligned_labels.push_back(bottom);
+
+    bbox_background.cy -= bottom.bg_rect.height / 2.0;
+    bbox_background.height -= bottom.bg_rect.height;
+  }
+
+  // Adjust height of the bounding box background to avoid 1px wide gaps if
+  // we also need to place a text box on the left/right:
+  if (top.valid || bottom.valid) {
+    bbox_background.height += 0.5;
+  }
+
+  AlignedLabel left = PrepareAlignedLabel(
+        context, bbox_background, style, label_left,
+        left_top_to_bottom ? LabelPosition::LeftT2B : LabelPosition::LeftB2T);
+  // TODO if top or bottom --> correct left label_box
+  if (left.valid) {
+//    if (top.valid) {
+//      //FIXME shift up/down depends on t2b/b2t!!
+//    }
+//    if (bottom.valid) {
+//      //FIXME
+//    }
+    aligned_labels.push_back(left);
+
+    bbox_background.cx += left.bg_rect.height / 2.0; // Height because of the context rotation
+    bbox_background.width -= left.bg_rect.height;
+  }
+
+  AlignedLabel right = PrepareAlignedLabel(
+        context, bbox_background, style, label_right,//FIXME pass "free box bg space" instead of full bbox region
+        right_top_to_bottom ? LabelPosition::RightT2B : LabelPosition::RightB2T);
+  // TODO if top or bottom --> correct right label_box
+  if (right.valid) {
+//    if (top.valid) {
+//      //FIXME
+//    }
+//    if (bottom.valid) {
+//      //FIXME
+//    }
+    aligned_labels.push_back(right);
+
+    bbox_background.cx -= right.bg_rect.height / 2.0; // Height because of the context rotation
+    bbox_background.width -= right.bg_rect.height;
+  }
+
+  return std::make_tuple(bbox_background, aligned_labels);
+}
+
+
+bool DrawBoundingBox2D(
+    cairo_surface_t *surface, cairo_t *context, Rect bounding_box,
+    const BoundingBox2DStyle &style,
+    const std::vector<std::string> &label_top,
+    const std::vector<std::string> &label_bottom,
+    const std::vector<std::string> &label_left, bool left_top_to_bottom,
+    const std::vector<std::string> &label_right, bool right_top_to_bottom) {
+  //-------------------- Sanity checks
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  if (!style.IsValid()) {
+    std::string s("Cannot draw a bounding box with an invalid style: ");
+    s += style.ToString(); //TODO implement and use ToDetailedString?
+    s += '!';
+    SPDLOG_WARN(s);
+    return false;
+  }
+
+  if (!bounding_box.IsValid()) {
+    std::string s("Cannot draw an invalid bounding box: ");
+    s += bounding_box.ToString();
+    s += '!';
+    SPDLOG_WARN(s);
+    return false;
+  }
+
+  //-------------------- Drawing
+  // In a nutshell:
+  // * (optional) Fill the box background
+  // * (optional) Fill the text box background (but only
+  //   the region which intersects with the box)
+  // * Draw the box contour
+  // * Draw the label (optionally clipped)
+
+  // Shift coordinates to the pixel center to
+  // correctly draw 1px borders
+  bounding_box += 0.5;
+
+  // Shift & rotate the canvas such that we have
+  // a (0, 0)-centered, axis-aligned rectangle
+  cairo_save(context);
+  cairo_translate(context, bounding_box.cx, bounding_box.cy);
+  cairo_rotate(context, wgu::deg2rad(bounding_box.rotation));
+
+  // Draw a standard (square) rect or rounded rectangle:
+  if (bounding_box.radius > 0.0) {
+    PathHelperRoundedRect(context, bounding_box);
+  } else {
+    cairo_rectangle(
+          context, -bounding_box.HalfWidth(), -bounding_box.HalfHeight(),
+          bounding_box.width, bounding_box.height);
+  }
+  // Create a copy of this path to be reused for the
+  // contour later on.
+  cairo_path_t *bbox_path = cairo_copy_path(context);
+
+  // Save the context, so we can reuse the copied bbox_path to draw the box'
+  // contour later on. This is needed because we might have to rotate the
+  // canvas again if there are labels along the left or right edges.
+  cairo_save(context);
+
+  std::vector<AlignedLabel> aligned_labels;
+  Rect box_background;
+  std::tie(box_background, aligned_labels) = AlignBoundingBoxLabels(
+        context, bounding_box, style,
+        label_top, label_bottom, label_left, left_top_to_bottom,
+        label_right, right_top_to_bottom);
+
+  // Text box backgrounds will always be clipped by the bounding box contour.
+  cairo_clip(context);
+  // Fill the box background.
+  const auto bbox_fill = style.BoxFillColor();
+  if (bbox_fill.IsValid()) {
+    ApplyColor(context, bbox_fill);
+    SPDLOG_WARN("FIXME: filling box background: {:s}", box_background);
+    cairo_rectangle(
+          context, box_background.left(), box_background.top(),
+          box_background.width, box_background.height);
+    cairo_fill(context);
+  }
+  // Then fill the text box background(s).
+  const auto text_fill = style.TextFillColor();
+  if (text_fill.IsValid()) {
+    ApplyColor(context, text_fill);
+    for (const auto &aligned : aligned_labels) {
+      cairo_save(context);
+      cairo_rotate(context, aligned.rotation);
+      cairo_rectangle(
+            context, aligned.bg_rect.left(), aligned.bg_rect.top(),
+            aligned.bg_rect.width, aligned.bg_rect.height);
+      cairo_fill(context);
+      cairo_restore(context);
+    }
+  }
+  cairo_reset_clip(context);
+  /*
+
 
   // Optionally, fill the text box
   cairo_clip(context);
@@ -241,6 +371,8 @@ bool DrawBoundingBox2D(
     }
   }
   cairo_reset_clip(context);
+
+  */
   cairo_restore(context);
 
   // We always draw the box' contour:
@@ -255,13 +387,14 @@ bool DrawBoundingBox2D(
     cairo_stroke(context);
   }
 
-  // Finally, draw the label on top
-  cairo_rotate(context, rotation);
-
-  // Since we saved/restored the context, we
-  // have to re-apply the text style:
+  // Finally, draw the label on top.
   ApplyTextStyle(context, style.text_style, true);
-  mlt.PlaceText(context);
+  for (const auto &aligned : aligned_labels) {
+    cairo_save(context);
+    cairo_rotate(context, aligned.rotation);
+    aligned.text.PlaceText(context);
+    cairo_restore(context);
+  }
 
   // Pop the original context
   cairo_restore(context);

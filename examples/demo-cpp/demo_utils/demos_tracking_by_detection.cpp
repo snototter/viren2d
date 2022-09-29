@@ -38,6 +38,7 @@ void DemoBoundingBoxes2D() {
   style.label_padding.SetX(10);
   style.label_padding.SetY(5);
   style.text_fill_color = Color::Same.WithAlpha(0.3);
+  style.box_fill_color = "navy-blue";
   style.clip_label = true;
   style.text_style = TextStyle(10, "monospace");
 

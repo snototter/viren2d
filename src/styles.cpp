@@ -783,7 +783,6 @@ BoundingBox2DStyle::BoundingBox2DStyle()
   : line_style(), text_style(),
     box_fill_color(Color::Same.WithAlpha(0.1)),
     text_fill_color(Color::Same.WithAlpha(0.5)),
-    label_position(LabelPosition::Top),
     label_padding(5, 5), clip_label(true)
 {}
 
@@ -792,13 +791,11 @@ BoundingBox2DStyle::BoundingBox2DStyle(const LineStyle &contour,
                                        const TextStyle &label_style,
                                        const Color &bounding_box_fill_color,
                                        const Color &label_box_color,
-                                       LabelPosition label_pos,
                                        const Vec2d &text_padding,
                                        bool clip_lbl)
   : line_style(contour), text_style(label_style),
     box_fill_color(bounding_box_fill_color),
     text_fill_color(label_box_color),
-    label_position(label_pos),
     label_padding(text_padding), clip_label(clip_lbl)
 {}
 
@@ -836,7 +833,6 @@ bool BoundingBox2DStyle::Equals(const BoundingBox2DStyle &other) const {
       && (text_style == other.text_style)
       && (box_fill_color == other.box_fill_color)
       && (text_fill_color == other.text_fill_color)
-      && (label_position == other.label_position)
       && (clip_label == other.clip_label);
 }
 
@@ -846,8 +842,7 @@ std::string BoundingBox2DStyle::ToString() const {
   s << "BoundingBox2DStyle("
     << line_style.ToString() << ", " << text_style.ToString()
     << ", box fill=" << box_fill_color
-    << ", text fill=" << text_fill_color
-    << ", label at " << label_position;
+    << ", text fill=" << text_fill_color;
 
   if (clip_label) {
     s << ", clipped";
