@@ -179,7 +179,47 @@ def test_pickling():
         assert vec == restored
 
 
+def test_vector_conversion():
+    # FIXME: not working conversions to vec2d:
+    # 'f2' -- Haven't investigated (and am currently not interested in) half-
+    #   precision floating point types in C++
+    # '>f8' -- "Wrong" endianness for your system; don't see a reason why I
+    #   should support this currently.
+    # from sys import byteorder
+    # print(f'System byte order: {byteorder}')
+    types = ['i1', 'i2', 'i4', 'i8', 'l', 'u1', 'u2', 'u4', 'u8', 'f4', '<f8', 'd']
+    for tp in types:
+        print(f'Testing "{tp}"')
+        x = np.array([1, 2], dtype=tp)
+        vec = viren2d.Vec2d(x)
+        assert vec.x == pytest.approx(1.0)
+        assert vec.y == pytest.approx(2.0)
+        
+        y = np.array([[3], [4]], dtype=tp)
+        vec = viren2d.Vec2d(y)
+        assert vec.x == pytest.approx(3.0)
+        assert vec.y == pytest.approx(4.0)
+
+        vec = viren2d.Vec2i(x)
+        assert vec.x == 1
+        assert vec.y == 2
+
+        vec = viren2d.Vec2i(y)
+        assert vec.x == 3
+        assert vec.y == 4
+    
+    # Special type conversion (from bool array)
+    vec = viren2d.Vec2i(np.array([1, 2], dtype=np.bool))
+    assert vec.x == 1
+    assert vec.y == 1
+
+    vec = viren2d.Vec2i(np.array([0, 2], dtype=np.bool))
+    assert vec.x == 0
+    assert vec.y == 1
+
+
 def test_vector_numpy():
+    """Vector construction from numpy arrays & basic math/type interchangability"""
     x = np.array([1, 2, 3])
     y = np.array([4, 5, 6])
     expected_elem = x * y
@@ -229,3 +269,18 @@ def test_vector_numpy():
         v = viren2d.Vec2d(npv[:, 2])
         assert v[0] == float(npv[0, 2])
         assert v[1] == float(npv[1, 2])
+
+
+def test_vector_numpy_sliced():
+    """Construct a vector from slices of a numpy array."""
+    x = np.array(
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=np.float64)
+    
+    for idx in range(3):
+        v = viren2d.Vec3d(x[:, idx])
+        data = x[:, idx]
+        assert v == viren2d.Vec3d(data[0], data[1], data[2])
+
+        v = viren2d.Vec3d(x[idx, :])
+        data = x[idx, :]
+        assert v == viren2d.Vec3d(data[0], data[1], data[2])

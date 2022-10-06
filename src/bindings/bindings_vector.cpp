@@ -112,10 +112,14 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromArray(const py::array &arr) {
   if (arr.size() == 0) {
     return VC();
   }
-
+//FIXME extend imagebuffer conversion by:
+  // 1) int8, bool (to uchar)
+  // 2) non-c-contig --> iterate pixel by pixel
   const py::dtype dtype = arr.dtype();
   if (dtype.is(py::dtype::of<uint8_t>())) {
     return VecFromArrayT<uint8_t, _Tp, dim>(arr);
+  } else if (dtype.is(py::dtype::of<int8_t>())) {
+    return VecFromArrayT<int8_t, _Tp, dim>(arr);
   } else if (dtype.is(py::dtype::of<int16_t>())) {
     return VecFromArrayT<int16_t, _Tp, dim>(arr);
   } else if (dtype.is(py::dtype::of<uint16_t>())) {
@@ -132,6 +136,8 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromArray(const py::array &arr) {
     return VecFromArrayT<float, _Tp, dim>(arr);
   } else if (dtype.is(py::dtype::of<double>())) {
     return VecFromArrayT<double, _Tp, dim>(arr);
+  } else if (dtype.is(py::dtype::of<bool>())) {
+    return VecFromArrayT<bool, _Tp, dim>(arr);
   } else {
     std::string s("Incompatible `dtype` (");
     s += py::cast<std::string>(dtype.attr("name"));
