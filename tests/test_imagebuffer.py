@@ -169,9 +169,14 @@ def test_buffer_side_effects():
 
 
 def test_dtypes():
+    supported_types = [
+        np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+        np.int64, np.uint64, np.float32, np.float64]
+    not_supported_types = [
+        np.int8, np.float16, '?']
+
     for channels in [1, 2, 3]:
-        for tp in [np.uint8, np.int16, np.uint16, np.int32, np.uint32,
-                   np.int64, np.uint64, np.float32, np.float64]:
+        for tp in supported_types:
             buf_np = np.ones((3, 5, channels), dtype=tp)
             buf_vi = viren2d.ImageBuffer(buf_np, copy=False)
             assert buf_vi.width == 5
@@ -182,7 +187,7 @@ def test_dtypes():
             # check format, shape, dtype
             # check values for equality
 
-    for tp in [np.int8, np.float16]:
+    for tp in not_supported_types:
         buf_np = np.ones((3, 5), dtype=tp)
         with pytest.raises(ValueError):
             viren2d.ImageBuffer(buf_np)
@@ -190,6 +195,9 @@ def test_dtypes():
     invalid = np.asfortranarray(np.ones((3, 5), dtype=np.uint8))
     with pytest.raises(ValueError):
         viren2d.ImageBuffer(invalid)
+
+
+#FIXME test_slicing
 
 
 def test_pixelation():

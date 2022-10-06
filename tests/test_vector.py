@@ -209,11 +209,11 @@ def test_vector_conversion():
         assert vec.y == 4
     
     # Special type conversion (from bool array)
-    vec = viren2d.Vec2i(np.array([1, 2], dtype=np.bool))
+    vec = viren2d.Vec2i(np.array([1, 2], dtype=bool))
     assert vec.x == 1
     assert vec.y == 1
 
-    vec = viren2d.Vec2i(np.array([0, 2], dtype=np.bool))
+    vec = viren2d.Vec2i(np.array([0, 2], dtype=bool))
     assert vec.x == 0
     assert vec.y == 1
 
