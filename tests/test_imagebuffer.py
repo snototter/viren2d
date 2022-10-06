@@ -192,12 +192,18 @@ def test_dtypes():
         with pytest.raises(ValueError):
             viren2d.ImageBuffer(buf_np)
 
+
+def test_non_contiguous_inits():
     invalid = np.asfortranarray(np.ones((3, 5), dtype=np.uint8))
     with pytest.raises(ValueError):
         viren2d.ImageBuffer(invalid)
 
+    valid = np.ones((10, 9), dtype='f8')
+    viren2d.ImageBuffer(valid)
 
-#FIXME test_slicing
+    invalid = valid[:, 3:5]
+    with pytest.raises(ValueError):
+        viren2d.ImageBuffer(invalid)
 
 
 def test_pixelation():

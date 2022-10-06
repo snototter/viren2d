@@ -7,6 +7,7 @@
 #include <pybind11/numpy.h>
 
 #include <bindings/binding_helpers.h>
+#include <helpers/logging.h>
 #include <viren2d/imagebuffer.h>
 
 
@@ -38,6 +39,7 @@ inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
     std::string s("Buffer `dtype` ");
     s += py::cast<std::string>(dt.attr("name"));
     s += " is not handled in `ImageBufferTypeFromDType`!";
+    SPDLOG_ERROR(s);
     throw std::logic_error(s);
   }
 }
@@ -50,6 +52,7 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     s << "Incompatible buffer dimensions - "
          "expected `ndim` to be 2 or 3, but got: "
       << buf.ndim() << '!';
+    SPDLOG_ERROR(s.str());
     throw std::invalid_argument(s.str());
   }
 
@@ -80,16 +83,8 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
       }
     }
     s += "\") to construct a `viren2d.ImageBuffer`!";
+    SPDLOG_ERROR(s);
     throw std::invalid_argument(s);
-  }
-
-  // Buffer layout must be row-major (C-style)
-  // FIXME if not row-major, implement "ForceBufferCopy"
-  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
-    throw std::invalid_argument(
-          "An ImageBuffer can only be constructed from C-style buffers! "
-          "Check `image_np.flags` and explicitly copy the NumPy array via "
-          "`image_np.copy()` before passing it into the ImageBuffer constructor.");
   }
 
   const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
@@ -98,27 +93,40 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     s << "ImageBuffer `" << ImageBufferTypeToString(buffer_type)
       << "` expected item size " << ElementSizeFromImageBufferType(buffer_type)
       << " bytes, but python buffer info states " << buf_dtype.itemsize() << "!";
+    SPDLOG_ERROR(s.str());
     throw std::logic_error(s.str());
   }
 
-  ImageBuffer img;
-  const int row_stride = static_cast<int>(buf.strides(0));
-  const int col_stride = static_cast<int>(buf.strides(1));
-  const int height = static_cast<int>(buf.shape(0));
-  const int width = static_cast<int>(buf.shape(1));
-  const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
-  if (copy) {
-    img.CreateCopiedBuffer(
-          static_cast<unsigned char const*>(buf.data()),
-          height, width, channels, row_stride, col_stride, buffer_type);
+  // Buffer layout must be row-major (C-style)
+  // FIXME if not row-major, implement "ForceBufferCopy"
+  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
+    SPDLOG_ERROR("FIXME Copying a non-contiguous buffer is not yet implemented!");
+    // FIXME force copy: if !copy --> log warning, then copy
+    throw std::invalid_argument(
+          "An ImageBuffer can only be constructed from C-style buffers! "
+          "Check `image_np.flags` and explicitly copy the NumPy array via "
+          "`image_np.copy()` before passing it into the ImageBuffer constructor.");
   } else {
-    img.CreateSharedBuffer(
-          static_cast<unsigned char*>(buf.mutable_data()),
-          height, width, channels, row_stride, col_stride, buffer_type);
-  }
+    ImageBuffer img;
+    const int row_stride = static_cast<int>(buf.strides(0));
+    const int col_stride = static_cast<int>(buf.strides(1));
+    const int height = static_cast<int>(buf.shape(0));
+    const int width = static_cast<int>(buf.shape(1));
+    const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
-  return img;
+    if (copy) {
+      img.CreateCopiedBuffer(
+            static_cast<unsigned char const*>(buf.data()),
+            height, width, channels, row_stride, col_stride, buffer_type);
+    } else {
+      img.CreateSharedBuffer(
+            static_cast<unsigned char*>(buf.mutable_data()),
+            height, width, channels, row_stride, col_stride, buffer_type);
+    }
+
+    return img;
+  }
 }
 
 
@@ -155,6 +163,7 @@ inline std::string FormatDescriptor(ImageBufferType t) {
   std::string s("ImageBufferType `");
   s += ImageBufferTypeToString(t);
   s += "` not handled in `FormatDescriptor` switch!";
+  SPDLOG_ERROR(s);
   throw std::logic_error(s);
 }
 
@@ -719,7 +728,6 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("saturation_range") = std::make_pair<float, float>(0.0f, 1.0f),
         py::arg("value_range") = std::make_pair<float, float>(0.0f, 1.0f),
         py::arg("is_bgr") = false);
-
 }
 } // namespace bindings
 } // namespace viren2d
