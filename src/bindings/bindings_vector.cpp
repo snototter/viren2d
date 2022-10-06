@@ -141,7 +141,19 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromArray(const py::array &arr) {
   } else {
     std::string s("Incompatible `dtype` (");
     s += py::cast<std::string>(dtype.attr("name"));
-    s += ") to construct a `viren2d." + VC::TypeName() + "`!";
+    s += ", \"";
+    const py::list dt_descr = py::cast<py::list>(dtype.attr("descr"));
+    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
+      // First element holds the optional name, second one holds the
+      // type description we're interested in, check for example:
+      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
+      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
+      s += py::cast<std::string>(td[1]);
+      if (i < dt_descr.size() - 1) {
+        s += "\", \"";
+      }
+    }
+    s += "\") to construct a `viren2d." + VC::TypeName() + "`!";
     throw std::invalid_argument(s);
   }
 }

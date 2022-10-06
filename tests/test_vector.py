@@ -180,14 +180,14 @@ def test_pickling():
 
 
 def test_vector_conversion():
-    # FIXME: not working conversions to vec2d:
-    # 'f2' -- Haven't investigated (and am currently not interested in) half-
-    #   precision floating point types in C++
-    # '>f8' -- "Wrong" endianness for your system; don't see a reason why I
-    #   should support this currently.
-    # from sys import byteorder
-    # print(f'System byte order: {byteorder}')
-    types = ['i1', 'i2', 'i4', 'i8', 'l', 'u1', 'u2', 'u4', 'u8', 'f4', '<f8', 'd']
+    from sys import byteorder
+    supported_endian = '<' if (byteorder == 'little') else '>'
+    not_supported_endian = '>' if (byteorder == 'little') else '<'
+
+    types = [
+        'i1', 'i2', 'i4', 'i8', 'l',
+        'u1', 'u2', 'u4', 'u8',
+        'f4', 'f8', f'{supported_endian}f8', 'd']
     for tp in types:
         print(f'Testing "{tp}"')
         x = np.array([1, 2], dtype=tp)
@@ -220,6 +220,19 @@ def test_vector_conversion():
     vec = viren2d.Vec2i(np.array([9, 0], dtype='?'))
     assert vec.x == 1
     assert vec.y == 0
+
+    # Currently not supported numpy dtypes:
+    # 'f2' -- Haven't investigated (and am currently not interested in) half-
+    #   precision floating point types in C++
+    # '>f8' -- "Wrong" endianness for your system; don't see a reason why I
+    #   should support this currently.
+    types = [
+        f'{not_supported_endian}i4', f'{not_supported_endian}i8',
+        'f2', f'{not_supported_endian}f4', f'{not_supported_endian}f8']
+    for tp in types:
+        x = np.array([1, 2], dtype=tp)
+        with pytest.raises(ValueError):
+            vec = viren2d.Vec2d(x)
 
 
 def test_vector_numpy():
@@ -283,8 +296,13 @@ def test_vector_numpy_sliced():
     for idx in range(3):
         v = viren2d.Vec3d(x[:, idx])
         data = x[:, idx]
+        assert not data.flags.c_contiguous
         assert v == viren2d.Vec3d(data[0], data[1], data[2])
 
         v = viren2d.Vec3d(x[idx, :])
         data = x[idx, :]
+        assert data.flags.c_contiguous
         assert v == viren2d.Vec3d(data[0], data[1], data[2])
+
+def test_vector_numpy_noncont():
+    """Construct a vector from non-C-contiguous arrays."""
