@@ -54,6 +54,8 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   }
 
   const pybind11::dtype buf_dtype = buf.dtype();
+  //FIXME add int8 & bool (here and in ImageBufferTypeFromDType)
+  // --> extend ImageBuffer with int8 & bool
   if (!buf_dtype.is(py::dtype::of<uint8_t>())
       && !buf_dtype.is(py::dtype::of<int16_t>())
       && !buf_dtype.is(py::dtype::of<uint16_t>())
@@ -63,17 +65,26 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
       && !buf_dtype.is(py::dtype::of<uint64_t>())
       && !buf_dtype.is(py::dtype::of<float>())
       && !buf_dtype.is(py::dtype::of<double>())) {
-    std::string s("Incompatible `dtype`: ");
+    std::string s("Incompatible `dtype` (");
     s += py::cast<std::string>(buf_dtype.attr("name"));
-    s += ". ImageBuffer can only be constructed from: "
-         "uint8, (u)int16, (u)int32, (u)int64, float32, or float64!";
-    // TODO(dev): Update error message with newly supported types, and
-    //   extend type handling in `ImageBufferTypeFromDType`.
-    //   Also update the docstring of the `ImageBuffer` class.
+    s += ", \"";
+    const py::list dt_descr = py::cast<py::list>(buf_dtype.attr("descr"));
+    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
+      // First element holds the optional name, second one holds the
+      // type description we're interested in, check for example:
+      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
+      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
+      s += py::cast<std::string>(td[1]);
+      if (i < dt_descr.size() - 1) {
+        s += "\", \"";
+      }
+    }
+    s += "\") to construct a `viren2d.ImageBuffer`!";
     throw std::invalid_argument(s);
   }
 
   // Buffer layout must be row-major (C-style)
+  // FIXME if not row-major, implement "ForceBufferCopy"
   if ((buf.flags() & py::array::c_style) != py::array::c_style) {
     throw std::invalid_argument(
           "An ImageBuffer can only be constructed from C-style buffers! "
