@@ -217,6 +217,10 @@ def test_vector_conversion():
     assert vec.x == 0
     assert vec.y == 1
 
+    vec = viren2d.Vec2i(np.array([9, 0], dtype='?'))
+    assert vec.x == 1
+    assert vec.y == 0
+
 
 def test_vector_numpy():
     """Vector construction from numpy arrays & basic math/type interchangability"""
