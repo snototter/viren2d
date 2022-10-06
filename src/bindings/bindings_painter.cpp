@@ -8,6 +8,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 #include <pybind11/eigen.h>
+#include <pybind11/numpy.h>
 
 #include <bindings/binding_helpers.h>
 
@@ -239,7 +240,8 @@ public:
           smoothing_window, fading_factor);
   }
 
-
+//FIXME double check potential issues: https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html
+  // Matrix must be an Eigen::Ref<const type>! https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html#pass-by-reference
   bool DrawXYZAxes(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin, const Vec3d &axes_lengths,

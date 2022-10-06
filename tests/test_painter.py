@@ -619,3 +619,8 @@ def test_draw_trajectories():
         fade_out_color=viren2d.Color.Blue,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
+
+
+def test_cam_geo():
+    p = viren2d.Painter(1000, 1000, 'white')
+    p.draw_xyz_axes(np.eye(3), np.eye(3), np.zeros((3, 1)))
