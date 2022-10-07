@@ -11,31 +11,25 @@ def demo_tracking_by_detection():
     line_style = viren2d.LineStyle(width=4, color='navy-blue!80')
     
     text_style = viren2d.TextStyle(
-        family='xkcd', halign=viren2d.HorizontalAlignment.Center)
+        family='xkcd', size=18, color='navy-blue', halign='center')
     
     # Customize the style
-    bbox_style = viren2d.BoundingBox2DStyle()
-    bbox_style.line_style = line_style
-    bbox_style.line_style.color = "navy-blue"
-    bbox_style.text_style = text_style
-    bbox_style.text_style.color = bbox_style.line_style.color
-    bbox_style.text_style.size = 18
-    bbox_style.box_fill_color = 'same!15'
-    bbox_style.text_fill_color = 'white!60'
-    bbox_style.label_position = 'top'
+    bbox_style = viren2d.BoundingBox2DStyle(
+        line_style=line_style, text_style=text_style,
+        box_fill_color = 'same!15', text_fill_color = 'white!60')
     
     # Tabi bounding box
     rect_tabi = viren2d.Rect(
-        center=(505, 290), size=(120, 70), rotation=18, radius=20)
-    painter.draw_bounding_box_2d(rect_tabi, ['Tabi socks'], bbox_style)
+        center=(508, 285), size=(120, 70), rotation=18, radius=20)
+    painter.draw_bounding_box_2d(rect_tabi, bbox_style, label_top=['Tabi socks'])
 
     # Lens bounding box
-    bbox_style.label_position = 'left'
     bbox_style.line_style.color = 'teal-green'
     bbox_style.text_style.color = 'black'
     rect_lens = viren2d.Rect(
         center=(150, 145), size=(310, 190), rotation=-5, radius=20)
-    painter.draw_bounding_box_2d(rect_lens, ['Camera lens'], bbox_style)
+    painter.draw_bounding_box_2d(
+        rect_lens, bbox_style, label_left=['Camera lens'], left_t2b=True)
 
     # Trajectory of the katana:
     traj_sword = [
