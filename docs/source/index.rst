@@ -64,7 +64,7 @@ to be swiftly integrated into both **C++ and Python** environments.
    
    * |checked| Drawing Arcs
    * |checked| Drawing Arrows
-   * |unchecked| Drawing Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
+   * |checked| Drawing Bounding Boxes (2D)
    * |checked| Drawing Circles
    * |unchecked| Drawing Coordinate System Axes - WIP (implemented, but not fully tested/documented)
    * |checked| Drawing Ellipses
