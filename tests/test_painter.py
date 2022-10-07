@@ -530,36 +530,36 @@ def test_draw_trajectory():
     line_style = viren2d.LineStyle()
     
     ##### Plain trajectory (draws a single path)
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.Invalid)
     # Include all parameters explicitly
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.Invalid,
         True, 3, viren2d.fade_out_linear)
     # Use named arguments
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid)
     # Include all parameters:
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
 
     # Fading out (draws multiple line segments)
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.White)
     # Include all parameters explicitly
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.Black,
         True, 3, viren2d.fade_out_linear)
     # Use named arguments
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Red)
     # Include all parameters:
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Blue,
         tail_first=False, smoothing_window=17,
@@ -601,20 +601,20 @@ def test_draw_trajectories():
 
     line_style.color = 'azure'
     # Include all parameters (not fading):
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories=trajectories, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
 
     # Fading out (draws multiple line segments)
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories, line_style, viren2d.Color.White)
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories=trajectories, line_style=line_style,
         fade_out_color=viren2d.Color.Red)
     # Include all parameters:
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories=trajectories, line_style=line_style,
         fade_out_color=viren2d.Color.Blue,
         tail_first=False, smoothing_window=17,
@@ -638,13 +638,13 @@ def test_bounding_boxes_2d():
     assert p.draw_bounding_box_2d(rect=rect)
 
     # All parameters:
-    p.draw_bounding_box_2d(
+    assert p.draw_bounding_box_2d(
         rect=rect, box_style=box_style,
         label_top=['Multi-Line Label', '(... at the top)'],
         label_bottom=['Bottom Edge'], label_left=['Left Edge'],
         left_t2b=True, label_right=[], right_t2b=False)
     
-    p.draw_bounding_box_2d(
+    assert p.draw_bounding_box_2d(
         rect=rect, box_style=box_style,
         label_top=['Multi-Line Label', '(... at the top)'],
         label_bottom=['Bottom Edge'], label_left=['Left Edge'],

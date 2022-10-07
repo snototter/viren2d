@@ -122,9 +122,16 @@ public:
   /// Draws a single 2D bounding box.
   ///
   /// Args:
-  ///   rect: The box geometry.
-  ///   label: The (potentially multi-line) label.
+  ///   rect: Where to place the bounding box.
   ///   box_style: How to draw this bounding box.
+  ///   label_top: Label text to display at the top of the bounding box.
+  ///   label_bottom: Label text to display at the bottom edge.
+  ///   label_left: Label text to display along the left edge.
+  ///   left_t2b: If ``true``, the label text will be oriented from
+  ///     top-to-bottom.
+  ///   label_right: Label text to display along the right edge.
+  ///   right_t2b: If ``true``, the label text will be oriented from
+  ///     top-to-bottom.
   bool DrawBoundingBox2D(
       const Rect &box, const BoundingBox2DStyle &style = BoundingBox2DStyle(),
       const std::vector<std::string> &label_top = {},

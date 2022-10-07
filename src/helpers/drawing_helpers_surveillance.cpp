@@ -42,12 +42,6 @@ AlignedLabel PrepareAlignedLabel(
     return AlignedLabel();
   }
 
-  SPDLOG_CRITICAL("prepare label at {:s}: {:s}", position, bounding_box);
-  cairo_save(context);
-//  cairo_translate(context, -bounding_box.cx, bounding_box.cy);
-//  bounding_box.cx = 0.0;
-//  bounding_box.cy = 0.0;
-
   Rect label_box;
   Vec2d padding = style.label_padding;
   Vec2d oriented_size = bounding_box.Size();
@@ -139,8 +133,7 @@ AlignedLabel PrepareAlignedLabel(
   // Now, we compute the text extent and finalize
   // computing the reference point, i.e. where to
   // place the label and its (optional) text box:
-//  cairo_save(context);FIXME
-//  cairo_translate(context, -bounding_box.cx, -bounding_box.cy);
+  cairo_save(context);
   cairo_rotate(context, rotation);
   ApplyTextStyle(context, style.text_style, false);
   MultiLineText mlt(label, style.text_style, context);
@@ -327,7 +320,6 @@ bool DrawBoundingBox2D(
   const auto bbox_fill = style.BoxFillColor();
   if (bbox_fill.IsValid()) {
     ApplyColor(context, bbox_fill);
-    SPDLOG_WARN("FIXME: filling box background: {:s}", box_background);
     cairo_rectangle(
           context, box_background.left(), box_background.top(),
           box_background.width, box_background.height);
@@ -348,48 +340,6 @@ bool DrawBoundingBox2D(
     }
   }
   cairo_reset_clip(context);
-  /*
-
-
-  // Optionally, fill the text box
-  cairo_clip(context);
-  const auto bbox_fill = style.BoxFillColor();
-  const auto text_fill = style.TextFillColor();
-  if (text_fill.IsValid()) {
-    ApplyColor(context, text_fill);
-    cairo_rectangle(context, label_box.left(), label_box.top(),
-                    label_box.width, label_box.height);
-    cairo_fill(context);
-
-    // Fill bounding box
-    if (bbox_fill.IsValid()) {
-      helpers::ApplyColor(context, bbox_fill);
-      auto fill_roi = (valign == VerticalAlignment::Top) ?
-            Rect::FromLTWH(
-              label_box.left(), label_box.bottom(),
-              label_box.width,
-              oriented_size.height() - label_box.height)
-          : Rect::FromLRTB(
-              label_box.left(), label_box.right(),
-              -oriented_size.height() / 2.0,
-              label_box.top());
-      cairo_rectangle(
-            context, fill_roi.left(), fill_roi.top(),
-            fill_roi.width, fill_roi.height);
-      cairo_fill(context);
-    }
-  } else {
-    // We don't have to mask out the label background
-    // and can simply fill the currently clipped
-    // region
-    if (bbox_fill.IsValid()) {
-      helpers::ApplyColor(context, bbox_fill);
-      cairo_paint(context);
-    }
-  }
-  cairo_reset_clip(context);
-
-  */
   cairo_restore(context);
 
   // We always draw the box' contour:
