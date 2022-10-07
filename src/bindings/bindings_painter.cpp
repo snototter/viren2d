@@ -252,25 +252,6 @@ public:
           K, R, t, origin, axes_lengths, style, color_x, color_y, color_z);
   }
 
-  //FIXME ImageBuffer2Eigen works
-//  bool DrawXYZAxes(
-//      const ImageBuffer &K,
-//      const ImageBuffer &R,
-////      const py::EigenDRef<const Eigen::Matrix3d> K,
-////      const py::EigenDRef<const Eigen::Matrix3d> R,
-//      const Vec3d &t,
-//      const Vec3d &origin, const Vec3d &axes_lengths,
-//      const ArrowStyle &style, const Color &color_x,
-//      const Color &color_y, const Color &color_z) {
-//    SPDLOG_ERROR("FIXME convert {:s} & {:s} to Eigen::3x3 row-major", K, R);
-//    const auto eig_K = ImageBuffer2Eigen<3, 3>(K);
-//    const auto eig_R = ImageBuffer2Eigen<3, 3>(R);
-//    SPDLOG_WARN("FIXME converted? {:s} & {:s}", eig_K, eig_R);
-//    return true;
-////    return painter_->DrawXYZAxes(
-////          K, R, t, origin, axes_lengths, style, color_x, color_y, color_z);
-//  }
-
 
   /// String representation used to bind __str__ and __repr__.
   std::string StringRepresentation(bool tag) const {
