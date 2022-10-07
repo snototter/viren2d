@@ -153,8 +153,7 @@ AlignedLabel PrepareAlignedLabel(
     // This exception can remain. Would be caused by an implementation
     // error (in this function) only.
     throw std::logic_error(
-          "Internal vertical alignment in "
-          "helpers::DrawBoundingBox2d must "
+          "Internal vertical alignment in helpers::DrawBoundingBox2d must "
           "be either Top or Bottom!");
   }
   cairo_restore(context);
@@ -162,37 +161,53 @@ AlignedLabel PrepareAlignedLabel(
 }
 
 
-std::tuple<Rect, std::vector<AlignedLabel>>
+/// Returns:
+///   * a flag indicating whether any text should be drawn at all
+///   * a rectangle which defines the portion of the bounding box which is
+///     not covered by a label's text box background (if the text box should
+///     be filled)
+///   * a vector containing the text placement details for each drawable
+///     label
+std::tuple<bool, Rect, std::vector<AlignedLabel>>
 AlignBoundingBoxLabels(
     cairo_t *context, Rect bounding_box, const BoundingBox2DStyle &style,
     const std::vector<std::string> &label_top,
     const std::vector<std::string> &label_bottom,
     const std::vector<std::string> &label_left, bool left_top_to_bottom,
     const std::vector<std::string> &label_right, bool right_top_to_bottom) {
+  bool has_text = false;
   Rect bbox_background(0.0, 0.0, bounding_box.width, bounding_box.height);
   std::vector<AlignedLabel> aligned_labels;
+  const bool should_fill_text = style.TextFillColor().IsValid();
 
   AlignedLabel top = PrepareAlignedLabel(
         context, bounding_box, style, label_top, LabelPosition::Top);
   if (top.valid) {
+    has_text = true;
     aligned_labels.push_back(top);
 
-    bbox_background.cy += top.bg_rect.height / 2.0;
-    bbox_background.height -= top.bg_rect.height;
+    if (should_fill_text) {
+      bbox_background.cy += top.bg_rect.height / 2.0;
+      bbox_background.height -= top.bg_rect.height;
+    }
   }
 
   AlignedLabel bottom = PrepareAlignedLabel(
         context, bounding_box, style, label_bottom, LabelPosition::Bottom);
   if (bottom.valid) {
+    has_text = true;
     aligned_labels.push_back(bottom);
-
-    bbox_background.cy -= bottom.bg_rect.height / 2.0;
-    bbox_background.height -= bottom.bg_rect.height;
+    if (should_fill_text) {
+      bbox_background.cy -= bottom.bg_rect.height / 2.0;
+      bbox_background.height -= bottom.bg_rect.height;
+    }
   }
 
-  // Adjust height of the bounding box background to avoid 1px wide gaps if
-  // we also need to place a text box on the left/right:
-  if (top.valid || bottom.valid) {
+  // To compute the placement of labels on the left/right edges more easily,
+  // we pass the "remaining free box space" (background) to the alignment
+  // function. Thus, we have to adjust the height of the background region to
+  // avoid 1px wide gaps.
+  if (should_fill_text && (top.valid || bottom.valid)) {
     bbox_background.height += 0.5;
   }
 
@@ -201,36 +216,33 @@ AlignBoundingBoxLabels(
         left_top_to_bottom ? LabelPosition::LeftT2B : LabelPosition::LeftB2T);
   // TODO if top or bottom --> correct left label_box
   if (left.valid) {
-//    if (top.valid) {
-//      //FIXME shift up/down depends on t2b/b2t!!
-//    }
-//    if (bottom.valid) {
-//      //FIXME
-//    }
+    has_text = true;
     aligned_labels.push_back(left);
 
-    bbox_background.cx += left.bg_rect.height / 2.0; // Height because of the context rotation
-    bbox_background.width -= left.bg_rect.height;
+    if (should_fill_text) {
+      // Use height for the horizontal offset because the drawing context will
+      // be rotated.
+      bbox_background.cx += left.bg_rect.height / 2.0;
+      bbox_background.width -= left.bg_rect.height;
+    }
   }
 
+  // Similar computation for text to be placed along the right edge of the box:
   AlignedLabel right = PrepareAlignedLabel(
-        context, bbox_background, style, label_right,//FIXME pass "free box bg space" instead of full bbox region
+        context, bbox_background, style, label_right,
         right_top_to_bottom ? LabelPosition::RightT2B : LabelPosition::RightB2T);
   // TODO if top or bottom --> correct right label_box
   if (right.valid) {
-//    if (top.valid) {
-//      //FIXME
-//    }
-//    if (bottom.valid) {
-//      //FIXME
-//    }
+    has_text = true;
     aligned_labels.push_back(right);
 
-    bbox_background.cx -= right.bg_rect.height / 2.0; // Height because of the context rotation
-    bbox_background.width -= right.bg_rect.height;
+    if (should_fill_text) {
+      bbox_background.cx -= right.bg_rect.height / 2.0;
+      bbox_background.width -= right.bg_rect.height;
+    }
   }
-
-  return std::make_tuple(bbox_background, aligned_labels);
+  return std::make_tuple(
+        has_text, bbox_background, aligned_labels);
 }
 
 
@@ -297,9 +309,10 @@ bool DrawBoundingBox2D(
   // canvas again if there are labels along the left or right edges.
   cairo_save(context);
 
-  std::vector<AlignedLabel> aligned_labels;
+  bool has_text;
   Rect box_background;
-  std::tie(box_background, aligned_labels) = AlignBoundingBoxLabels(
+  std::vector<AlignedLabel> aligned_labels;
+  std::tie(has_text, box_background, aligned_labels) = AlignBoundingBoxLabels(
         context, bounding_box, style,
         label_top, label_bottom, label_left, left_top_to_bottom,
         label_right, right_top_to_bottom);
@@ -318,7 +331,7 @@ bool DrawBoundingBox2D(
   }
   // Then fill the text box background(s).
   const auto text_fill = style.TextFillColor();
-  if (text_fill.IsValid()) {
+  if (has_text && text_fill.IsValid()) {
     ApplyColor(context, text_fill);
     for (const auto &aligned : aligned_labels) {
       cairo_save(context);
@@ -388,12 +401,14 @@ bool DrawBoundingBox2D(
   }
 
   // Finally, draw the label on top.
-  ApplyTextStyle(context, style.text_style, true);
-  for (const auto &aligned : aligned_labels) {
-    cairo_save(context);
-    cairo_rotate(context, aligned.rotation);
-    aligned.text.PlaceText(context);
-    cairo_restore(context);
+  if (has_text) {
+    ApplyTextStyle(context, style.text_style, true);
+    for (const auto &aligned : aligned_labels) {
+      cairo_save(context);
+      cairo_rotate(context, aligned.rotation);
+      aligned.text.PlaceText(context);
+      cairo_restore(context);
+    }
   }
 
   // Pop the original context

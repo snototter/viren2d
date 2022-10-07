@@ -93,10 +93,7 @@ protected:
     SPDLOG_DEBUG(
           "DrawBoundingBox2D: {:s}, {:d} label lines, style={:s}.",
           rect, label.size(), style);
-
-    //FIXME sanity check for changed input parameter
-//    const std::vector<std::pair<LabelPosition, std::vector<std::string>>> &labels
-    // assign to left/top, ...
+//FIXME change public API!
     return helpers::DrawBoundingBox2D(
           surface_, context_, rect,
           style, label, label, {}, true, label, true);

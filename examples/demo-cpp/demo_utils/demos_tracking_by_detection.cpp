@@ -97,6 +97,11 @@ void DemoBoundingBoxes2D() {
         {"Centered", "label"}, style);
 
 
+  // Bounding box without any label:
+  painter->DrawBoundingBox2D(
+        Rect::FromLTWH(200, 350, 100, 150, 0.4),{}, style);
+
+
   style.text_style.halign = HorizontalAlignment::Left;
   style.text_fill_color = Color::Same.WithAlpha(0.3);
 //  style.label_position = label_positions[randmod(label_positions.size())];
