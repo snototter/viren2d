@@ -871,10 +871,8 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawImage``.
 
         Args:
-          image: The image as :class:`~viren2d.ImageBuffer`. Note that a
-            :class:`numpy.ndarray` will be implicitly converted if it is
-            C-contiguous - which can be verified via its
-            :attr:`numpy.ndarray.flags`.
+          image: The image as :class:`~viren2d.ImageBuffer`, which can also be
+            implicitly created by passing a :class:`numpy.ndarray`.
           position: The position of the reference point where
             to anchor the image as :class:`~viren2d.Vec2d`.
           anchor: How to orient the text with respect to ``position``.
@@ -1353,10 +1351,12 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawXYZAxes``.
 
         Args:
-          K: The :math:`3 \times 3` camera matrix as :class:`numpy.ndarray` of
-            type :class:`numpy.float64`, which holds the intrinsic parameters.
-          R: The :math:`3 \times 3` extrinsic rotation matrix, again as
-            :class:`numpy.ndarray` of type :class:`numpy.float64`.
+          K: The :math:`3 \times 3` camera matrix as :class:`numpy.ndarray`
+            which holds the intrinsic parameters. Inputs will be converted
+            to type :class:`numpy.float64`.
+          R: The :math:`3 \times 3` extrinsic rotation matrix, as
+            :class:`numpy.ndarray`. Inputs will be converted to type
+            :class:`numpy.float64`.
           t: The 3d extrinsic translation vector as :class:`~viren2d.Vec3d`.
           origin: Center of the world coordinate system as
             :class:`~viren2d.Vec3d`.

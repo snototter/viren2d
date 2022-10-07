@@ -194,16 +194,25 @@ def test_dtypes():
 
 
 def test_non_contiguous_inits():
-    invalid = np.asfortranarray(np.ones((3, 5), dtype=np.uint8))
-    with pytest.raises(ValueError):
-        viren2d.ImageBuffer(invalid)
+    # F-style & contiguous
+    f_style = np.asfortranarray(np.ones((17, 42), dtype=np.uint8))
+    assert f_style.flags.f_contiguous
+    assert viren2d.ImageBuffer(f_style).is_valid
+    # ... non-contiguous
+    non_cont = f_style[2:5, 7:11]
+    assert not non_cont.flags.f_contiguous
+    assert not non_cont.flags.c_contiguous
+    assert viren2d.ImageBuffer(non_cont).is_valid
 
-    valid = np.ones((10, 9), dtype='f8')
-    viren2d.ImageBuffer(valid)
-
-    invalid = valid[:, 3:5]
-    with pytest.raises(ValueError):
-        viren2d.ImageBuffer(invalid)
+    # C-style & contiguous
+    c_style = np.ones((10, 9), dtype='f8')
+    assert c_style.flags.c_contiguous
+    assert viren2d.ImageBuffer(c_style).is_valid
+    # ... non-contiguous
+    non_cont = c_style[:, 3:5]
+    assert not non_cont.flags.c_contiguous
+    assert not non_cont.flags.f_contiguous
+    assert viren2d.ImageBuffer(non_cont).is_valid
 
 
 def test_pixelation():

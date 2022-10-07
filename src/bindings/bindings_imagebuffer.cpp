@@ -98,23 +98,26 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   }
 
 
-  // Buffer layout must be row-major (C-style)
-  // FIXME if not row-major, implement "ForceBufferCopy"
-  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
-    SPDLOG_ERROR("FIXME Copying a non-contiguous buffer is not yet implemented!");
-    // FIXME force copy: if !copy --> log warning, then copy
-    throw std::invalid_argument(
-          "An ImageBuffer can only be constructed from C-style buffers! "
-          "Check `image_np.flags` and explicitly copy the NumPy array via "
-          "`image_np.copy()` before passing it into the ImageBuffer constructor.");
-  } else {
-    ImageBuffer img;
-    const int row_stride = static_cast<int>(buf.strides(0));
-    const int col_stride = static_cast<int>(buf.strides(1));
-    const int height = static_cast<int>(buf.shape(0));
-    const int width = static_cast<int>(buf.shape(1));
-    const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
+  ImageBuffer img;
+  const int row_stride = static_cast<int>(buf.strides(0));
+  const int col_stride = static_cast<int>(buf.strides(1));
+  const int height = static_cast<int>(buf.shape(0));
+  const int width = static_cast<int>(buf.shape(1));
+  const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
+  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
+    // Non-contiguous buffers must be copied element-wise:
+    if (!copy) {
+      SPDLOG_WARN(
+            "Input python array is not row-major. The "
+            "`viren2d.ImageBuffer` will be created as a copy, which ignores "
+            "the input parameter `copy=False`.");
+    }
+    img.CreateCopiedBuffer(
+          static_cast<unsigned char const*>(buf.data()),
+          height, width, channels, row_stride, col_stride, buffer_type);
+  } else {
+    // C-style buffers can be shared & easily copied:
     if (copy) {
       img.CreateCopiedBuffer(
             static_cast<unsigned char const*>(buf.data()),
@@ -124,9 +127,8 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
             static_cast<unsigned char*>(buf.mutable_data()),
             height, width, channels, row_stride, col_stride, buffer_type);
     }
-
-    return img;
   }
+  return img;
 }
 
 
@@ -233,13 +235,14 @@ void RegisterImageBuffer(py::module &m) {
            conversion when calling a ``viren2d`` function which expects an
            :class:`~viren2d.ImageBuffer`.
 
-           The only caveat is that the :class:`numpy.ndarray` must be
-           **row-major** (*i.e.* C-style) and **contiguous**. If you want to
-           pass the result of a slicing operation, you'll need to make it
-           C-contiguous first. This can be done by creating a copy via
-           :meth:`numpy.ndarray.copy` first.
-           If you are not sure whether your :class:`numpy.ndarray` is
-           C-contiguous, check its :attr:`numpy.ndarray.flags`.
+           Note that by default, ``viren2d`` tries to create a shared buffer.
+           However, if the input :class:`numpy.ndarray` is **not row-major**,
+           the implicit conversion will **always create a copy**.  This would
+           result in a warning message.
+           To suppress this warning, explicitly create a copy via
+           ``viren2d.ImageBuffer(non_row_major_array, copy=True)``,
+           or ensure that the input is C-style, *e.g.* via
+           :func:`numpy.ascontiguousarray`.
         )docstr");
 
   imgbuf.def(
