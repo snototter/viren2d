@@ -621,7 +621,37 @@ def test_draw_trajectories():
         fading_factor=viren2d.fade_out_quadratic)
 
 
-def test_cam_geo():
+def test_bounding_boxes_2d():
+    box_style = viren2d.BoundingBox2DStyle(
+        line_style=viren2d.LineStyle(),
+        text_style=viren2d.TextStyle(),
+        box_fill_color='same!20', text_fill_color='white!60',
+        clip_label=True)
+    rect = viren2d.Rect.from_ltwh(20, 42, 200, 400, radius=0.2)
+    # Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    assert not p.draw_bounding_box_2d(rect=rect)
+    
+    p = viren2d.Painter(1000, 1000, 'lightblue')
+    assert p.is_valid()
+    assert p.draw_bounding_box_2d(rect=rect)
+
+    # All parameters:
+    p.draw_bounding_box_2d(
+        rect=rect, box_style=box_style,
+        label_top=['Multi-Line Label', '(... at the top)'],
+        label_bottom=['Bottom Edge'], label_left=['Left Edge'],
+        left_t2b=True, label_right=[], right_t2b=False)
+    
+    p.draw_bounding_box_2d(
+        rect=rect, box_style=box_style,
+        label_top=['Multi-Line Label', '(... at the top)'],
+        label_bottom=['Bottom Edge'], label_left=['Left Edge'],
+        left_t2b=False, label_right=['Right Edge'], right_t2b=True)
+
+
+def test_pinhole_xyz_axes():
     p = viren2d.Painter(1000, 1000, 'white')
     for dt in [np.int64, np.float32, np.float64]:
         assert p.draw_xyz_axes(

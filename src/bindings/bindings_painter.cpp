@@ -683,7 +683,7 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawBoundingBox2D``.
 
         Args:
-          rect: The box geometry as :class:`~viren2d.Rect`.
+          rect: The box as :class:`~viren2d.Rect`.
           box_style: A :class:`~viren2d.BoundingBox2DStyle` specifying how
             to draw this bounding box.
           label_top: Label text to display at the top of the bounding box,
@@ -702,7 +702,25 @@ void RegisterPainter(py::module &m) {
           messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
-          >>> #TODO FIXME
+          >>> line_style = viren2d.LineStyle(
+          >>>   width=7, color='navy-blue',
+          >>>   dash_pattern=[], dash_offset=0.0,
+          >>>   cap='round', join='miter')
+          >>> text_style = viren2d.TextStyle(
+          >>>   family='monospace', size=18,
+          >>>   color='navy-blue', bold=True,
+          >>>   italic=False, line_spacing=1.1,
+          >>>   halign='center', valign='top')
+          >>> box_style = viren2d.BoundingBox2DStyle(
+          >>>   line_style=line_style, text_style=text_style,
+          >>>   box_fill_color='same!20', text_fill_color='white!60',
+          >>>   clip_label=True)
+          >>> painter.draw_bounding_box_2d(
+          >>>   rect=viren2d.Rect.from_ltwh(20, 42, 200, 400, radius=0.2),
+          >>>   box_style=box_style,
+          >>>   label_top=['Multi-Line Label', '(... at the top)'],
+          >>>   label_bottom=['Bottom Edge'], label_left=['Left Edge'],
+          >>>   left_t2b=True, label_right=[], right_t2b=False)
         )docstr",
         py::arg("rect"),
         py::arg("box_style") = BoundingBox2DStyle(),

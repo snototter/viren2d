@@ -8,22 +8,22 @@ def demo_tracking_by_detection():
     painter = viren2d.Painter()
     painter.set_canvas_filename(VIREN2D_DATA_PATH / 'ninja.jpg')
 
+    # Create a customized bounding box style
     line_style = viren2d.LineStyle(width=4, color='navy-blue!80')
     
     text_style = viren2d.TextStyle(
         family='xkcd', size=18, color='navy-blue', halign='center')
     
-    # Customize the style
     bbox_style = viren2d.BoundingBox2DStyle(
         line_style=line_style, text_style=text_style,
         box_fill_color = 'same!15', text_fill_color = 'white!60')
     
-    # Tabi bounding box
+    # Draw the bounding box containing the Tabi
     rect_tabi = viren2d.Rect(
         center=(508, 285), size=(120, 70), rotation=18, radius=20)
     painter.draw_bounding_box_2d(rect_tabi, bbox_style, label_top=['Tabi socks'])
 
-    # Lens bounding box
+    # Draw the bounding box containing the lens
     bbox_style.line_style.color = 'teal-green'
     bbox_style.text_style.color = 'black'
     rect_lens = viren2d.Rect(
@@ -31,7 +31,7 @@ def demo_tracking_by_detection():
     painter.draw_bounding_box_2d(
         rect_lens, bbox_style, label_left=['Camera lens'], left_t2b=True)
 
-    # Trajectory of the katana:
+    # Draw the trajectory of the katana:
     traj_sword = [
         (646, 192), (642, 166), (634, 136), (620, 108), (610,  88), (588,  70),
         (566,  58), (546,  54), (522,  52), (492,  56), (462,  66), (434,  80),
