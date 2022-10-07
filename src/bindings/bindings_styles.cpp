@@ -1133,12 +1133,19 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       How a 2D bounding box should be drawn."
 
       Example:
-        >>> line_style = viren2d.LineStyle()
-        >>> text_style = viren2d.TextStyle()
+        >>> line_style = viren2d.LineStyle(
+        >>>   width=7, color='navy-blue',
+        >>>   dash_pattern=[], dash_offset=0.0,
+        >>>   cap='round', join='miter')
+        >>> text_style = viren2d.TextStyle(
+        >>>   family='monospace', size=18,
+        >>>   color='navy-blue', bold=True,
+        >>>   italic=False, line_spacing=1.1,
+        >>>   halign='left', valign='top')
         >>> box_style = viren2d.BoundingBox2DStyle(
-        >>>     line_style=line_style, text_style=text_style,
-        >>>     box_fill_color='same!20', text_fill_color='white!60',
-        >>>     label_position='top', clip_label=True)
+        >>>   line_style=line_style, text_style=text_style,
+        >>>   box_fill_color='same!20', text_fill_color='white!60',
+        >>>   clip_label=True)
       )docstr";
   py::class_<BoundingBox2DStyle> bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 

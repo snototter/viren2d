@@ -169,9 +169,14 @@ def test_buffer_side_effects():
 
 
 def test_dtypes():
+    supported_types = [
+        np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+        np.int64, np.uint64, np.float32, np.float64]
+    not_supported_types = [
+        np.int8, np.float16, '?']
+
     for channels in [1, 2, 3]:
-        for tp in [np.uint8, np.int16, np.uint16, np.int32, np.uint32,
-                   np.int64, np.uint64, np.float32, np.float64]:
+        for tp in supported_types:
             buf_np = np.ones((3, 5, channels), dtype=tp)
             buf_vi = viren2d.ImageBuffer(buf_np, copy=False)
             assert buf_vi.width == 5
@@ -182,14 +187,32 @@ def test_dtypes():
             # check format, shape, dtype
             # check values for equality
 
-    for tp in [np.int8, np.float16]:
+    for tp in not_supported_types:
         buf_np = np.ones((3, 5), dtype=tp)
         with pytest.raises(ValueError):
             viren2d.ImageBuffer(buf_np)
 
-    invalid = np.asfortranarray(np.ones((3, 5), dtype=np.uint8))
-    with pytest.raises(ValueError):
-        viren2d.ImageBuffer(invalid)
+
+def test_non_contiguous_inits():
+    # F-style & contiguous
+    f_style = np.asfortranarray(np.ones((17, 42), dtype=np.uint8))
+    assert f_style.flags.f_contiguous
+    assert viren2d.ImageBuffer(f_style).is_valid
+    # ... non-contiguous
+    non_cont = f_style[2:5, 7:11]
+    assert not non_cont.flags.f_contiguous
+    assert not non_cont.flags.c_contiguous
+    assert viren2d.ImageBuffer(non_cont).is_valid
+
+    # C-style & contiguous
+    c_style = np.ones((10, 9), dtype='f8')
+    assert c_style.flags.c_contiguous
+    assert viren2d.ImageBuffer(c_style).is_valid
+    # ... non-contiguous
+    non_cont = c_style[:, 3:5]
+    assert not non_cont.flags.c_contiguous
+    assert not non_cont.flags.f_contiguous
+    assert viren2d.ImageBuffer(non_cont).is_valid
 
 
 def test_pixelation():

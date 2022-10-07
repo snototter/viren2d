@@ -5,6 +5,7 @@
 #include <pybind11/numpy.h>
 
 #include <bindings/binding_helpers.h>
+#include <helpers/logging.h>
 #include <werkzeugkiste/geometry/vector.h>
 
 
@@ -14,6 +15,7 @@ namespace viren2d {
 namespace bindings {
 
 //------------------------------------------------- Vector from tuple
+/// Constructs a vector from a py::tuple/py::list.
 template<typename _Tp, int dim> inline
 werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(
     const py::tuple &tpl, const char *type) {
@@ -26,6 +28,7 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(
     std::ostringstream s;
     s << "Cannot cast " << type << " with " << tpl.size()
       << " elements to `viren2d." << VC::TypeName() << "`!";
+    SPDLOG_ERROR(s.str());
     throw std::invalid_argument(s.str());
   }
 
@@ -36,7 +39,7 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromTupleOrList(
 }
 
 
-/// The explicit VecFromList(py::list) is needed to allow pickling, as we
+/// This explicit VecFromList(py::list) is needed to allow pickling, as we
 /// can only bind to the exact same type returned by __getstate__, see
 /// VecToList().
 template<typename _Tp, int dim>
@@ -81,6 +84,7 @@ werkzeugkiste::geometry::Vec<_VTp, dim> VecFromArrayT(const py::array &arr) {
     std::ostringstream s;
     s << "Cannot cast array with " << arr.size() << " elements to `viren2d."
       << VC::TypeName() << "`!";
+    SPDLOG_ERROR(s.str());
     throw std::invalid_argument(s.str());
   }
 
@@ -112,10 +116,14 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromArray(const py::array &arr) {
   if (arr.size() == 0) {
     return VC();
   }
-
+//FIXME extend imagebuffer conversion by:
+  // 1) int8, bool (to uchar)
+  // 2) non-c-contig --> iterate pixel by pixel
   const py::dtype dtype = arr.dtype();
   if (dtype.is(py::dtype::of<uint8_t>())) {
     return VecFromArrayT<uint8_t, _Tp, dim>(arr);
+  } else if (dtype.is(py::dtype::of<int8_t>())) {
+    return VecFromArrayT<int8_t, _Tp, dim>(arr);
   } else if (dtype.is(py::dtype::of<int16_t>())) {
     return VecFromArrayT<int16_t, _Tp, dim>(arr);
   } else if (dtype.is(py::dtype::of<uint16_t>())) {
@@ -132,10 +140,25 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromArray(const py::array &arr) {
     return VecFromArrayT<float, _Tp, dim>(arr);
   } else if (dtype.is(py::dtype::of<double>())) {
     return VecFromArrayT<double, _Tp, dim>(arr);
+  } else if (dtype.is(py::dtype::of<bool>())) {
+    return VecFromArrayT<bool, _Tp, dim>(arr);
   } else {
     std::string s("Incompatible `dtype` (");
     s += py::cast<std::string>(dtype.attr("name"));
-    s += ") to construct a `viren2d." + VC::TypeName() + "`!";
+    s += ", \"";
+    const py::list dt_descr = py::cast<py::list>(dtype.attr("descr"));
+    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
+      // First element holds the optional name, second one holds the
+      // type description we're interested in, check for example:
+      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
+      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
+      s += py::cast<std::string>(td[1]);
+      if (i < dt_descr.size() - 1) {
+        s += "\", \"";
+      }
+    }
+    s += "\") to construct a `viren2d." + VC::TypeName() + "`!";
+    SPDLOG_ERROR(s);
     throw std::invalid_argument(s);
   }
 }
@@ -157,6 +180,7 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromPyObject(const py::object &object)
     std::ostringstream s;
     s << "Cannot cast `" << type << "` to `viren2d." << VC::TypeName()
       << "`. Only tuple, list and numpy.ndarray is supported!";
+    SPDLOG_ERROR(s.str());
     throw std::invalid_argument(s.str());
   }
 
@@ -166,6 +190,7 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromPyObject(const py::object &object)
     s << "Cannot create `viren2d." << VC::TypeName()
       << "` from " << tpl.size() << " values, expected "
       << dim << "!";
+    SPDLOG_ERROR(s.str());
     throw std::invalid_argument(s.str());
   }
 

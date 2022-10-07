@@ -9,6 +9,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/eigen.h>
 
+#include <helpers/logging.h>
 #include <bindings/binding_helpers.h>
 
 
@@ -109,9 +110,14 @@ public:
 
 
   bool DrawBoundingBox2D(
-      const Rect &box, const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style) {
-    return painter_->DrawBoundingBox2D(box, label, style);
+      const Rect &box, const BoundingBox2DStyle &style,
+      const std::vector<std::string> &label_top,
+      const std::vector<std::string> &label_bottom,
+      const std::vector<std::string> &label_left, bool left_top_to_bottom,
+      const std::vector<std::string> &label_right, bool right_top_to_bottom) {
+    return painter_->DrawBoundingBox2D(
+          box, style, label_top, label_bottom, label_left, left_top_to_bottom,
+          label_right, right_top_to_bottom);
   }
 
 
@@ -239,9 +245,10 @@ public:
           smoothing_window, fading_factor);
   }
 
-
   bool DrawXYZAxes(
-      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const py::EigenDRef<const Matrix3x3d> K,
+      const py::EigenDRef<const Matrix3x3d> R,
+      const Vec3d &t,
       const Vec3d &origin, const Vec3d &axes_lengths,
       const ArrowStyle &style, const Color &color_x,
       const Color &color_y, const Color &color_z) {
@@ -676,24 +683,53 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawBoundingBox2D``.
 
         Args:
-          rect: The box geometry as :class:`~viren2d.Rect`.
-          label: The label as :class:`list` of :class:`str`, since multi-line
-            labels are supported.
+          rect: The box as :class:`~viren2d.Rect`.
           box_style: A :class:`~viren2d.BoundingBox2DStyle` specifying how
             to draw this bounding box.
+          label_top: Label text to display at the top of the bounding box,
+            given as :class:`list` of :class:`str` (supporting multi-line
+            labels).
+          label_bottom: Label text to display at the bottom edge.
+          label_left: Label text to display along the left edge.
+          left_t2b: If ``True``, the label text will be oriented from
+            top-to-bottom.
+          label_right: Label text to display along the right edge.
+          right_t2b: If ``True``, the label text will be oriented from
+            top-to-bottom.
 
         Returns:
           ``True`` if drawing completed successfully. Otherwise, check the log
           messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
-          >>> #TODO
+          >>> line_style = viren2d.LineStyle(
+          >>>   width=7, color='navy-blue',
+          >>>   dash_pattern=[], dash_offset=0.0,
+          >>>   cap='round', join='miter')
+          >>> text_style = viren2d.TextStyle(
+          >>>   family='monospace', size=18,
+          >>>   color='navy-blue', bold=True,
+          >>>   italic=False, line_spacing=1.1,
+          >>>   halign='center', valign='top')
+          >>> box_style = viren2d.BoundingBox2DStyle(
+          >>>   line_style=line_style, text_style=text_style,
+          >>>   box_fill_color='same!20', text_fill_color='white!60',
+          >>>   clip_label=True)
+          >>> painter.draw_bounding_box_2d(
+          >>>   rect=viren2d.Rect.from_ltwh(20, 42, 200, 400, radius=0.2),
+          >>>   box_style=box_style,
+          >>>   label_top=['Multi-Line Label', '(... at the top)'],
+          >>>   label_bottom=['Bottom Edge'], label_left=['Left Edge'],
+          >>>   left_t2b=True, label_right=[], right_t2b=False)
         )docstr",
         py::arg("rect"),
-        py::arg("label"),
-        py::arg("box_style") = BoundingBox2DStyle());
-
-  //TODO multiple 2d bounding boxes
+        py::arg("box_style") = BoundingBox2DStyle(),
+        py::arg("label_top") = std::vector<std::string>(),
+        py::arg("label_bottom") = std::vector<std::string>(),
+        py::arg("label_left") = std::vector<std::string>(),
+        py::arg("left_t2b") = false,
+        py::arg("label_right") = std::vector<std::string>(),
+        py::arg("right_t2b") = true);
 
 
   //----------------------------------------------------------------------
@@ -869,10 +905,8 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawImage``.
 
         Args:
-          image: The image as :class:`~viren2d.ImageBuffer`. Note that a
-            :class:`numpy.ndarray` will be implicitly converted if it is
-            C-contiguous - which can be verified via its
-            :attr:`numpy.ndarray.flags`.
+          image: The image as :class:`~viren2d.ImageBuffer`, which can also be
+            implicitly created by passing a :class:`numpy.ndarray`.
           position: The position of the reference point where
             to anchor the image as :class:`~viren2d.Vec2d`.
           anchor: How to orient the text with respect to ``position``.
@@ -1351,10 +1385,12 @@ void RegisterPainter(py::module &m) {
         **Corresponding C++ API:** ``viren2d::Painter::DrawXYZAxes``.
 
         Args:
-          K: The :math:`3 \times 3` camera matrix as :class:`numpy.ndarray` of
-            type :class:`numpy.float64`, which holds the intrinsic parameters.
-          R: The :math:`3 \times 3` extrinsic rotation matrix, again as
-            :class:`numpy.ndarray` of type :class:`numpy.float64`.
+          K: The :math:`3 \times 3` camera matrix as :class:`numpy.ndarray`
+            which holds the intrinsic parameters. Inputs will be converted
+            to type :class:`numpy.float64`.
+          R: The :math:`3 \times 3` extrinsic rotation matrix, as
+            :class:`numpy.ndarray`. Inputs will be converted to type
+            :class:`numpy.float64`.
           t: The 3d extrinsic translation vector as :class:`~viren2d.Vec3d`.
           origin: Center of the world coordinate system as
             :class:`~viren2d.Vec3d`.
@@ -1393,6 +1429,8 @@ void RegisterPainter(py::module &m) {
           >>>     tip_closed=True, double_headed=False,
           >>>     dash_pattern=[], dash_offset=0.0,
           >>>     cap='round', join='miter')
+          >>> # This examplary calibration uses millimeters, thus the lengths
+          >>> # parameter corresponds to 1m along each axis.
           >>> painter.draw_xyz_axes(
           >>>     K=K, R=R, t=t, origin=(0, 0, 0),
           >>>     lengths=(1e3, 1e3, 1e3), arrow_style=arrow_style,
@@ -1402,7 +1440,7 @@ void RegisterPainter(py::module &m) {
         py::arg("R"),
         py::arg("t"),
         py::arg("origin") = Vec3d::All(0.0),
-        py::arg("lengths") = Vec2d::All(1e3),
+        py::arg("lengths") = Vec3d::All(1e3),
         py::arg("arrow_style") = default_arrow_style,
         py::arg("color_x") = Color::CoordinateAxisColor('x'),
         py::arg("color_y") = Color::CoordinateAxisColor('y'),

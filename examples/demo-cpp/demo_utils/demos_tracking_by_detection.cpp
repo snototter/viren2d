@@ -26,92 +26,65 @@ void DemoBoundingBoxes2D() {
   PrintDemoHeader("Bounding Boxes in 2D");
 
   auto painter = CreatePainter();
-//  std::vector<LabelPosition> label_positions {LabelPosition::Top,
-//        LabelPosition::Bottom, LabelPosition::LeftB2T,
-//        LabelPosition::RightB2T};
+  std::vector<std::string> lbl_top = {"This is at", "the top"};
+  std::vector<std::string> lbl_bottom = {"This is along", "the bottom"};
+  std::vector<std::string> lbl_left = {"The left edge"};
+  std::vector<std::string> lbl_right = {"The right edge"};
 
-  painter->SetCanvas(600, 600, Color::White);
+  painter->SetCanvas(800, 1200, Color::White);
+  painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!40"));
 
-  painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!60"));
-
-  BoundingBox2DStyle style;
-  style.label_padding.SetX(10);
-  style.label_padding.SetY(5);
-  style.text_fill_color = Color::Same.WithAlpha(0.3);
-  style.box_fill_color = "navy-blue";
-  style.clip_label = true;
-  style.text_style = TextStyle(10, "monospace");
-
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.text_style.halign = HorizontalAlignment::Left;
+  BoundingBox2DStyle style(
+        LineStyle(3, "navy-blue"), TextStyle(14, "xkcd", "midnight-blue"),
+        "same!20", "orange!20", {6, 6}, true);
 
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 50, 100, 80, 0.2),
-        {"fill B & T, clip ABCDEFG"}, style);
+        Rect::FromLTWH(50, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom);
 
-
-  style.box_fill_color = Color::Same.WithAlpha(0.5);
-  style.text_fill_color = Color::Same.WithAlpha(0.2);
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = false;
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 150, 100, 80, 0.2),
-        {"fill B 0.5 & T 0.2, noclip"}, style);
+        Rect::FromLTWH(200, 50, 100, 220, 0.2), style, {}, {},
+        lbl_left, false);
 
-
-  style.box_fill_color = Color::Invalid;
-  style.text_fill_color = Color::Same.WithAlpha(0.3);
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = true;
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 250, 100, 80, 0.2),
-        {"fill T 0.3, clip label"}, style);
+        Rect::FromLTWH(350, 50, 100, 220, 0.2), style, {}, {},
+        {}, true, lbl_right, true);
 
+  painter->DrawBoundingBox2D(
+        Rect::FromLTWH(500, 50, 100, 220, 0.2), style, {}, {},
+        lbl_left, false, lbl_right, false);
 
-  style.box_fill_color = Color("crimson!50");
+  painter->DrawBoundingBox2D(
+        Rect::FromLTWH(650, 50, 100, 220, 0.2), style, {}, {},
+        lbl_left, true, lbl_right, false);
+
+  painter->DrawBoundingBox2D(
+        Rect::FromLTWH(800, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom,
+        lbl_left, true, lbl_right, false);
+
+  // Don't fill the text box:
   style.text_fill_color = Color::Invalid;
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = false;
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 350, 100, 80, 0.2),
-        {"fill B crimson!50, noclip", style.ToString()}, style);
+        Rect::FromLTWH(50, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom);
 
-  style.box_fill_color = Color::Invalid;
-  style.text_fill_color = Color::Invalid;
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = true;
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 450, 100, 80, 0),
-        {"no fill, but clip", style.ToString()}, style);
+        Rect::FromLTWH(200, 300, 100, 220, 0.2), style, {}, {},
+        lbl_left, false, lbl_right, true);
 
-
-  style.clip_label = true;
-  style.box_fill_color = Color::Same.WithAlpha(0.3);
-  style.text_fill_color = Color("crimson!60");
-  style.text_style = TextStyle(14, "Arial", "black", true);
-//  style.label_position = label_positions[randmod(label_positions.size())];
-
-  style.text_style.halign = HorizontalAlignment::Center;
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(200, 50, 100, 250, 0.4),
-        {"Centered", "label"}, style);
+        Rect::FromLTWH(350, 300, 100, 220, 0.2), style, {}, {},
+        lbl_left, true, lbl_right, true);
 
-
-  style.text_style.halign = HorizontalAlignment::Left;
-  style.text_fill_color = Color::Same.WithAlpha(0.3);
-//  style.label_position = label_positions[randmod(label_positions.size())];
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(350, 50, 100, 250),
-        {"Left-aligned", "label"}, style);
+        Rect::FromLTWH(500, 300, 100, 220, 0.2), style, {}, {},
+        lbl_left, false, lbl_right, false);
 
-  style.clip_label = true;
-  style.box_fill_color = Color::Invalid;
-  style.text_fill_color = Color::Same.WithAlpha(0.5);
-  style.text_style.halign = HorizontalAlignment::Right;
-//  style.label_position = label_positions[randmod(label_positions.size())];
   painter->DrawBoundingBox2D(
-        Rect::FromLTWH(475, 50, 100, 250),
-        {"Right-aligned", "label (clipped)"}, style);
+        Rect::FromLTWH(650, 300, 100, 220, 0.2), style, {}, {},
+        lbl_left, true, lbl_right, false);
+
+  painter->DrawBoundingBox2D(
+        Rect::FromLTWH(800, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom,
+        lbl_left, true, lbl_right, false);
 
   ProcessDemoOutput(painter->GetCanvas(false), "demo-output-bbox2d.png");
 }

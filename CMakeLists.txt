@@ -274,6 +274,8 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/bindings_painter.cpp
         src/bindings/bindings_vector.cpp
         src/bindings.cpp)
+        
+    setup_spdlog(${viren2d_TARGET_PYTHON_LIB})
 
     target_compile_definitions(${viren2d_TARGET_PYTHON_LIB} PRIVATE
         viren2d_VERSION_INFO=${viren2d_VERSION}

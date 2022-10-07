@@ -59,13 +59,13 @@ def demo_relief_shading():
         # Draw a marker that looks like element-wise matrix multiplication:
         pos_multiplier = (x, cheight - 5 - moon.width * scale / 6)
         painter.draw_marker(
-            pt=pos_multiplier,
+            position=pos_multiplier,
             marker_style=viren2d.MarkerStyle('.', size=23, color='ivory'))
         painter.draw_marker(
-            pt=pos_multiplier,
+            position=pos_multiplier,
             marker_style=viren2d.MarkerStyle('o', size=18, color='black', thickness=2))
         painter.draw_marker(
-            pt=pos_multiplier,
+            position=pos_multiplier,
             marker_style=viren2d.MarkerStyle('x', size=12, color='black', thickness=2))
 
         x += (column_width + 10)
