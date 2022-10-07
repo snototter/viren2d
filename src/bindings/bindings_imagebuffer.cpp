@@ -7,6 +7,7 @@
 #include <pybind11/numpy.h>
 
 #include <bindings/binding_helpers.h>
+#include <helpers/logging.h>
 #include <viren2d/imagebuffer.h>
 
 
@@ -38,6 +39,7 @@ inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
     std::string s("Buffer `dtype` ");
     s += py::cast<std::string>(dt.attr("name"));
     s += " is not handled in `ImageBufferTypeFromDType`!";
+    SPDLOG_ERROR(s);
     throw std::logic_error(s);
   }
 }
@@ -50,10 +52,13 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     s << "Incompatible buffer dimensions - "
          "expected `ndim` to be 2 or 3, but got: "
       << buf.ndim() << '!';
+    SPDLOG_ERROR(s.str());
     throw std::invalid_argument(s.str());
   }
 
   const pybind11::dtype buf_dtype = buf.dtype();
+  //FIXME add int8 & bool (here and in ImageBufferTypeFromDType)
+  // --> extend ImageBuffer with int8 & bool
   if (!buf_dtype.is(py::dtype::of<uint8_t>())
       && !buf_dtype.is(py::dtype::of<int16_t>())
       && !buf_dtype.is(py::dtype::of<uint16_t>())
@@ -63,22 +68,23 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
       && !buf_dtype.is(py::dtype::of<uint64_t>())
       && !buf_dtype.is(py::dtype::of<float>())
       && !buf_dtype.is(py::dtype::of<double>())) {
-    std::string s("Incompatible `dtype`: ");
+    std::string s("Incompatible `dtype` (");
     s += py::cast<std::string>(buf_dtype.attr("name"));
-    s += ". ImageBuffer can only be constructed from: "
-         "uint8, (u)int16, (u)int32, (u)int64, float32, or float64!";
-    // TODO(dev): Update error message with newly supported types, and
-    //   extend type handling in `ImageBufferTypeFromDType`.
-    //   Also update the docstring of the `ImageBuffer` class.
+    s += ", \"";
+    const py::list dt_descr = py::cast<py::list>(buf_dtype.attr("descr"));
+    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
+      // First element holds the optional name, second one holds the
+      // type description we're interested in, check for example:
+      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
+      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
+      s += py::cast<std::string>(td[1]);
+      if (i < dt_descr.size() - 1) {
+        s += "\", \"";
+      }
+    }
+    s += "\") to construct a `viren2d.ImageBuffer`!";
+    SPDLOG_ERROR(s);
     throw std::invalid_argument(s);
-  }
-
-  // Buffer layout must be row-major (C-style)
-  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
-    throw std::invalid_argument(
-          "An ImageBuffer can only be constructed from C-style buffers! "
-          "Check `image_np.flags` and explicitly copy the NumPy array via "
-          "`image_np.copy()` before passing it into the ImageBuffer constructor.");
   }
 
   const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
@@ -87,8 +93,10 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     s << "ImageBuffer `" << ImageBufferTypeToString(buffer_type)
       << "` expected item size " << ElementSizeFromImageBufferType(buffer_type)
       << " bytes, but python buffer info states " << buf_dtype.itemsize() << "!";
+    SPDLOG_ERROR(s.str());
     throw std::logic_error(s.str());
   }
+
 
   ImageBuffer img;
   const int row_stride = static_cast<int>(buf.strides(0));
@@ -97,16 +105,29 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   const int width = static_cast<int>(buf.shape(1));
   const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
-  if (copy) {
+  if ((buf.flags() & py::array::c_style) != py::array::c_style) {
+    // Non-contiguous buffers must be copied element-wise:
+    if (!copy) {
+      SPDLOG_WARN(
+            "Input python array is not row-major. The "
+            "`viren2d.ImageBuffer` will be created as a copy, which ignores "
+            "the input parameter `copy=False`.");
+    }
     img.CreateCopiedBuffer(
           static_cast<unsigned char const*>(buf.data()),
           height, width, channels, row_stride, col_stride, buffer_type);
   } else {
-    img.CreateSharedBuffer(
-          static_cast<unsigned char*>(buf.mutable_data()),
-          height, width, channels, row_stride, col_stride, buffer_type);
+    // C-style buffers can be shared & easily copied:
+    if (copy) {
+      img.CreateCopiedBuffer(
+            static_cast<unsigned char const*>(buf.data()),
+            height, width, channels, row_stride, col_stride, buffer_type);
+    } else {
+      img.CreateSharedBuffer(
+            static_cast<unsigned char*>(buf.mutable_data()),
+            height, width, channels, row_stride, col_stride, buffer_type);
+    }
   }
-
   return img;
 }
 
@@ -144,6 +165,7 @@ inline std::string FormatDescriptor(ImageBufferType t) {
   std::string s("ImageBufferType `");
   s += ImageBufferTypeToString(t);
   s += "` not handled in `FormatDescriptor` switch!";
+  SPDLOG_ERROR(s);
   throw std::logic_error(s);
 }
 
@@ -213,13 +235,14 @@ void RegisterImageBuffer(py::module &m) {
            conversion when calling a ``viren2d`` function which expects an
            :class:`~viren2d.ImageBuffer`.
 
-           The only caveat is that the :class:`numpy.ndarray` must be
-           **row-major** (*i.e.* C-style) and **contiguous**. If you want to
-           pass the result of a slicing operation, you'll need to make it
-           C-contiguous first. This can be done by creating a copy via
-           :meth:`numpy.ndarray.copy` first.
-           If you are not sure whether your :class:`numpy.ndarray` is
-           C-contiguous, check its :attr:`numpy.ndarray.flags`.
+           Note that by default, ``viren2d`` tries to create a shared buffer.
+           However, if the input :class:`numpy.ndarray` is **not row-major**,
+           the implicit conversion will **always create a copy**.  This would
+           result in a warning message.
+           To suppress this warning, explicitly create a copy via
+           ``viren2d.ImageBuffer(non_row_major_array, copy=True)``,
+           or ensure that the input is C-style, *e.g.* via
+           :func:`numpy.ascontiguousarray`.
         )docstr");
 
   imgbuf.def(
@@ -708,7 +731,6 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("saturation_range") = std::make_pair<float, float>(0.0f, 1.0f),
         py::arg("value_range") = std::make_pair<float, float>(0.0f, 1.0f),
         py::arg("is_bgr") = false);
-
 }
 } // namespace bindings
 } // namespace viren2d

@@ -530,36 +530,36 @@ def test_draw_trajectory():
     line_style = viren2d.LineStyle()
     
     ##### Plain trajectory (draws a single path)
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.Invalid)
     # Include all parameters explicitly
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.Invalid,
         True, 3, viren2d.fade_out_linear)
     # Use named arguments
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid)
     # Include all parameters:
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
 
     # Fading out (draws multiple line segments)
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.White)
     # Include all parameters explicitly
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         pts, line_style, viren2d.Color.Black,
         True, 3, viren2d.fade_out_linear)
     # Use named arguments
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Red)
     # Include all parameters:
-    p.draw_trajectory(
+    assert p.draw_trajectory(
         trajectory=pts, line_style=line_style,
         fade_out_color=viren2d.Color.Blue,
         tail_first=False, smoothing_window=17,
@@ -601,21 +601,94 @@ def test_draw_trajectories():
 
     line_style.color = 'azure'
     # Include all parameters (not fading):
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories=trajectories, line_style=line_style,
         fade_out_color=viren2d.Color.Invalid,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
 
     # Fading out (draws multiple line segments)
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories, line_style, viren2d.Color.White)
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories=trajectories, line_style=line_style,
         fade_out_color=viren2d.Color.Red)
     # Include all parameters:
-    p.draw_trajectories(
+    assert p.draw_trajectories(
         trajectories=trajectories, line_style=line_style,
         fade_out_color=viren2d.Color.Blue,
         tail_first=False, smoothing_window=17,
         fading_factor=viren2d.fade_out_quadratic)
+
+
+def test_bounding_boxes_2d():
+    box_style = viren2d.BoundingBox2DStyle(
+        line_style=viren2d.LineStyle(),
+        text_style=viren2d.TextStyle(),
+        box_fill_color='same!20', text_fill_color='white!60',
+        clip_label=True)
+    rect = viren2d.Rect.from_ltwh(20, 42, 200, 400, radius=0.2)
+    # Try drawing on uninitialized canvas
+    p = viren2d.Painter()
+    assert not p.is_valid()
+    assert not p.draw_bounding_box_2d(rect=rect)
+    
+    p = viren2d.Painter(1000, 1000, 'lightblue')
+    assert p.is_valid()
+    assert p.draw_bounding_box_2d(rect=rect)
+
+    # All parameters:
+    assert p.draw_bounding_box_2d(
+        rect=rect, box_style=box_style,
+        label_top=['Multi-Line Label', '(... at the top)'],
+        label_bottom=['Bottom Edge'], label_left=['Left Edge'],
+        left_t2b=True, label_right=[], right_t2b=False)
+    
+    assert p.draw_bounding_box_2d(
+        rect=rect, box_style=box_style,
+        label_top=['Multi-Line Label', '(... at the top)'],
+        label_bottom=['Bottom Edge'], label_left=['Left Edge'],
+        left_t2b=False, label_right=['Right Edge'], right_t2b=True)
+
+
+def test_pinhole_xyz_axes():
+    p = viren2d.Painter(1000, 1000, 'white')
+    for dt in [np.int64, np.float32, np.float64]:
+        assert p.draw_xyz_axes(
+            np.eye(3, dtype=dt), np.eye(3, dtype=dt),
+            np.zeros((3, 1), dtype=dt))
+
+    K = np.array(
+        [[523.2, 0.0, 341.0],
+        [0.0, 523.2, 256.0],
+        [0.0, 0.0, 1.0]], dtype=np.float32)
+    R = np.array(
+        [[ 0.99013141,  0.14006482, -0.00465153],
+        [ 0.05439048, -0.41465762, -0.90835056],
+        [-0.12915675,  0.89913342, -0.41818372]], dtype=np.float64)
+    t = np.array([-51.8, 17.3, 82.5], dtype=np.float64)
+
+    # Using default optional parameters:
+    assert p.draw_xyz_axes(K, R, t)
+    assert p.draw_xyz_axes(K=K, R=R, t=t)
+    
+    # Try implicit conversion for Fortran-style arrays
+    assert p.draw_xyz_axes(
+        K=np.asfarray(K), R=np.asfarray(R), t=np.asfarray(t))
+
+    # Specify all parameters:
+    assert p.draw_xyz_axes(
+        K=K, R=R, t=t, origin=(0, 1, 2), lengths=(1e3, 1.5e3, 1e3),
+        arrow_style=viren2d.ArrowStyle(), color_x='red',
+        color_y=(0, 1, 0), color_z='navyblue')
+    
+    # Invalid vector conversion:
+    with pytest.raises(TypeError):
+        p.draw_xyz_axes(K=K, R=R, t=(1, 2))
+
+    # Implicit conversion from sliced inputs:
+    M = np.ones((5, 9))
+    M[0:3, 0:3] = R
+    M[0:3, 3] = t[:]
+    assert p.draw_xyz_axes(K=K, R=M[:3, :3], t=M[:3, 3])
+

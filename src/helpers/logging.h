@@ -53,6 +53,7 @@
 #    define SPDLOG_DEBUG(...) (void)0
 #    define SPDLOG_INFO(...) (void)0
 #    define SPDLOG_WARN(...) (void)0
+#    define SPDLOG_ERROR(...) (void)0
 #    define SPDLOG_CRITICAL(...) (void)0
 #endif  // viren2d_ENABLE_LOGGING
 #endif  // __VIREN2D_HELPERS_LOGGING_H__

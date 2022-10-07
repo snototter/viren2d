@@ -330,6 +330,9 @@ public:
       const TextStyle &text_style,
       cairo_t *context);
 
+  MultiLineText()
+  {}
+
 
   /// Computes reference points for each line.
   /// Must be called **before** `PlaceText`
@@ -415,9 +418,13 @@ bool DrawArrow(
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style);
 
 
-bool DrawBoundingBox2D(cairo_surface_t *surface, cairo_t *context,
-    Rect rect, const std::vector<std::string> &label,
-    const BoundingBox2DStyle &style);
+bool DrawBoundingBox2D(
+    cairo_surface_t *surface, cairo_t *context, Rect rect,
+    const BoundingBox2DStyle &style,
+    const std::vector<std::string> &label_top,
+    const std::vector<std::string> &label_bottom,
+    const std::vector<std::string> &label_left, bool left_top_to_bottom,
+    const std::vector<std::string> &label_right, bool right_top_to_bottom);
 
 
 inline bool DrawCircle(

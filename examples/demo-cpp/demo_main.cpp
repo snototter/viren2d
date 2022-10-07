@@ -49,15 +49,15 @@ void ProcessDemoOutput(const ImageBuffer &canvas, const std::string &filename) {
 
 void Showcase() {
 //  DemoArrows();
-//  DemoBoundingBoxes2D();
+  DemoBoundingBoxes2D();
 //  DemoCircles();
-  DemoCircleTangents();
+//  DemoCircleTangents();
 //  DemoColorMaps();
 //  DemoImageBufferConversionOpenCV();
 //  DemoLines();
 //  DemoMarkers();
 //  DemoOpticalFlow();
-  DemoPinhole();
+//  DemoPinhole();
 //  DemoPolygons();
 //  DemoRects();
 //  DemoText();

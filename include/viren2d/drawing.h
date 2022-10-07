@@ -4,7 +4,6 @@
 #include <functional>
 #include <memory>
 #include <string>
-//#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -123,13 +122,27 @@ public:
   /// Draws a single 2D bounding box.
   ///
   /// Args:
-  ///   rect: The box geometry.
-  ///   label: The (potentially multi-line) label.
+  ///   rect: Where to place the bounding box.
   ///   box_style: How to draw this bounding box.
+  ///   label_top: Label text to display at the top of the bounding box.
+  ///   label_bottom: Label text to display at the bottom edge.
+  ///   label_left: Label text to display along the left edge.
+  ///   left_t2b: If ``true``, the label text will be oriented from
+  ///     top-to-bottom.
+  ///   label_right: Label text to display along the right edge.
+  ///   right_t2b: If ``true``, the label text will be oriented from
+  ///     top-to-bottom.
   bool DrawBoundingBox2D(
-      const Rect &box, const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    return DrawBoundingBox2DImpl(box, label, style);
+      const Rect &box, const BoundingBox2DStyle &style = BoundingBox2DStyle(),
+      const std::vector<std::string> &label_top = {},
+      const std::vector<std::string> &label_bottom = {},
+      const std::vector<std::string> &label_left = {},
+      bool left_top_to_bottom = false,
+      const std::vector<std::string> &label_right = {},
+      bool right_top_to_bottom = true) {
+    return DrawBoundingBox2DImpl(
+          box, style, label_top, label_bottom, label_left, left_top_to_bottom,
+          label_right, right_top_to_bottom);
   }
 
 
@@ -445,9 +458,13 @@ protected:
 
   /// Internal helper to enable default values in public interface.
   virtual bool DrawBoundingBox2DImpl(
-      const Rect &box,
-      const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style) = 0;
+      const Rect &box, const BoundingBox2DStyle &style,
+      const std::vector<std::string> &label_top,
+      const std::vector<std::string> &label_bottom,
+      const std::vector<std::string> &label_left,
+      bool left_top_to_bottom,
+      const std::vector<std::string> &label_right,
+      bool right_top_to_bottom) = 0;
 
 
   /// Internal helper to enable default values in public interface.
