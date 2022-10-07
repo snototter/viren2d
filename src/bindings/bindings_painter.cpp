@@ -10,6 +10,7 @@
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 
+#include <helpers/logging.h>
 #include <bindings/binding_helpers.h>
 
 
@@ -240,16 +241,35 @@ public:
           smoothing_window, fading_factor);
   }
 
-//FIXME double check potential issues: https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html
-  // Matrix must be an Eigen::Ref<const type>! https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html#pass-by-reference
   bool DrawXYZAxes(
-      const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
+      const py::EigenDRef<const Matrix3x3d> K,
+      const py::EigenDRef<const Matrix3x3d> R,
+      const Vec3d &t,
       const Vec3d &origin, const Vec3d &axes_lengths,
       const ArrowStyle &style, const Color &color_x,
       const Color &color_y, const Color &color_z) {
     return painter_->DrawXYZAxes(
           K, R, t, origin, axes_lengths, style, color_x, color_y, color_z);
   }
+
+  //FIXME ImageBuffer2Eigen works
+//  bool DrawXYZAxes(
+//      const ImageBuffer &K,
+//      const ImageBuffer &R,
+////      const py::EigenDRef<const Eigen::Matrix3d> K,
+////      const py::EigenDRef<const Eigen::Matrix3d> R,
+//      const Vec3d &t,
+//      const Vec3d &origin, const Vec3d &axes_lengths,
+//      const ArrowStyle &style, const Color &color_x,
+//      const Color &color_y, const Color &color_z) {
+//    SPDLOG_ERROR("FIXME convert {:s} & {:s} to Eigen::3x3 row-major", K, R);
+//    const auto eig_K = ImageBuffer2Eigen<3, 3>(K);
+//    const auto eig_R = ImageBuffer2Eigen<3, 3>(R);
+//    SPDLOG_WARN("FIXME converted? {:s} & {:s}", eig_K, eig_R);
+//    return true;
+////    return painter_->DrawXYZAxes(
+////          K, R, t, origin, axes_lengths, style, color_x, color_y, color_z);
+//  }
 
 
   /// String representation used to bind __str__ and __repr__.
@@ -1395,6 +1415,8 @@ void RegisterPainter(py::module &m) {
           >>>     tip_closed=True, double_headed=False,
           >>>     dash_pattern=[], dash_offset=0.0,
           >>>     cap='round', join='miter')
+          >>> # This examplary calibration uses millimeters, thus the lengths
+          >>> # parameter corresponds to 1m along each axis.
           >>> painter.draw_xyz_axes(
           >>>     K=K, R=R, t=t, origin=(0, 0, 0),
           >>>     lengths=(1e3, 1e3, 1e3), arrow_style=arrow_style,
@@ -1404,7 +1426,7 @@ void RegisterPainter(py::module &m) {
         py::arg("R"),
         py::arg("t"),
         py::arg("origin") = Vec3d::All(0.0),
-        py::arg("lengths") = Vec2d::All(1e3),
+        py::arg("lengths") = Vec3d::All(1e3),
         py::arg("arrow_style") = default_arrow_style,
         py::arg("color_x") = Color::CoordinateAxisColor('x'),
         py::arg("color_y") = Color::CoordinateAxisColor('y'),

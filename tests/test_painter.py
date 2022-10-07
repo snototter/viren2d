@@ -623,4 +623,42 @@ def test_draw_trajectories():
 
 def test_cam_geo():
     p = viren2d.Painter(1000, 1000, 'white')
-    p.draw_xyz_axes(np.eye(3), np.eye(3), np.zeros((3, 1)))
+    for dt in [np.int64, np.float32, np.float64]:
+        assert p.draw_xyz_axes(
+            np.eye(3, dtype=dt), np.eye(3, dtype=dt),
+            np.zeros((3, 1), dtype=dt))
+
+    K = np.array(
+        [[523.2, 0.0, 341.0],
+        [0.0, 523.2, 256.0],
+        [0.0, 0.0, 1.0]], dtype=np.float32)
+    R = np.array(
+        [[ 0.99013141,  0.14006482, -0.00465153],
+        [ 0.05439048, -0.41465762, -0.90835056],
+        [-0.12915675,  0.89913342, -0.41818372]], dtype=np.float64)
+    t = np.array([-51.8, 17.3, 82.5], dtype=np.float64)
+
+    # Using default optional parameters:
+    assert p.draw_xyz_axes(K, R, t)
+    assert p.draw_xyz_axes(K=K, R=R, t=t)
+    
+    # Try implicit conversion for Fortran-style arrays
+    assert p.draw_xyz_axes(
+        K=np.asfarray(K), R=np.asfarray(R), t=np.asfarray(t))
+
+    # Specify all parameters:
+    assert p.draw_xyz_axes(
+        K=K, R=R, t=t, origin=(0, 1, 2), lengths=(1e3, 1.5e3, 1e3),
+        arrow_style=viren2d.ArrowStyle(), color_x='red',
+        color_y=(0, 1, 0), color_z='navyblue')
+    
+    # Invalid vector conversion:
+    with pytest.raises(TypeError):
+        p.draw_xyz_axes(K=K, R=R, t=(1, 2))
+
+    # Implicit conversion from sliced inputs:
+    M = np.ones((5, 9))
+    M[0:3, 0:3] = R
+    M[0:3, 3] = t[:]
+    assert p.draw_xyz_axes(K=K, R=M[:3, :3], t=M[:3, 3])
+

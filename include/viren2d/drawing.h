@@ -21,6 +21,36 @@ namespace viren2d {
 using Matrix3x3d = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>;
 using Matrix3x4d = Eigen::Matrix<double, 3, 4, Eigen::RowMajor>;
 
+//template<typename _T, int _Rows, int _Cols>
+//const Eigen::Matrix<double, _Rows, _Cols, Eigen::RowMajor>
+//ImageBuffer2EigenImpl(const ImageBuffer &buf) {
+////  if (buf.BufferType() == ImageBufferType::Double) {
+////    //TODO share memory
+////  }
+//  Eigen::Matrix<double, _Rows, _Cols, Eigen::RowMajor> em;
+//  for (int row = 0; row < _Rows; ++row) {
+//    for (int col = 0; col < _Cols; ++col) {
+//      em(row, col) = static_cast<double>(buf.AtChecked<_T>(row, col));
+//    }
+//  }
+//  return em;
+//}
+
+
+//template<int _Rows, int _Cols>
+//const Eigen::Matrix<double, _Rows, _Cols, Eigen::RowMajor>
+//ImageBuffer2Eigen(const ImageBuffer &buf) {
+////  if (buf.BufferType() == ImageBufferType::Double) {
+////    //TODO share memory
+////  }
+//  switch (buf.BufferType()) {
+//    case ImageBufferType::Double:
+//      return ImageBuffer2EigenImpl<double, _Rows, _Cols>(buf);
+//    case ImageBufferType::Float:
+//      return ImageBuffer2EigenImpl<float, _Rows, _Cols>(buf);
+//  }
+//}
+
 
 /// The Painter provides functionality to draw on a canvas.
 class Painter {
