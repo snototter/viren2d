@@ -110,9 +110,14 @@ public:
 
 
   bool DrawBoundingBox2D(
-      const Rect &box, const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style) {
-    return painter_->DrawBoundingBox2D(box, label, style);
+      const Rect &box, const BoundingBox2DStyle &style,
+      const std::vector<std::string> &label_top,
+      const std::vector<std::string> &label_bottom,
+      const std::vector<std::string> &label_left, bool left_top_to_bottom,
+      const std::vector<std::string> &label_right, bool right_top_to_bottom) {
+    return painter_->DrawBoundingBox2D(
+          box, style, label_top, label_bottom, label_left, left_top_to_bottom,
+          label_right, right_top_to_bottom);
   }
 
 
@@ -679,23 +684,34 @@ void RegisterPainter(py::module &m) {
 
         Args:
           rect: The box geometry as :class:`~viren2d.Rect`.
-          label: The label as :class:`list` of :class:`str`, since multi-line
-            labels are supported.
           box_style: A :class:`~viren2d.BoundingBox2DStyle` specifying how
             to draw this bounding box.
+          label_top: Label text to display at the top of the bounding box,
+            given as :class:`list` of :class:`str` (supporting multi-line
+            labels).
+          label_bottom: Label text to display at the bottom edge.
+          label_left: Label text to display along the left edge.
+          left_t2b: If ``True``, the label text will be oriented from
+            top-to-bottom.
+          label_right: Label text to display along the right edge.
+          right_t2b: If ``True``, the label text will be oriented from
+            top-to-bottom.
 
         Returns:
           ``True`` if drawing completed successfully. Otherwise, check the log
           messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
-          >>> #TODO
+          >>> #TODO FIXME
         )docstr",
         py::arg("rect"),
-        py::arg("label"),
-        py::arg("box_style") = BoundingBox2DStyle());
-
-  //TODO multiple 2d bounding boxes
+        py::arg("box_style") = BoundingBox2DStyle(),
+        py::arg("label_top") = std::vector<std::string>(),
+        py::arg("label_bottom") = std::vector<std::string>(),
+        py::arg("label_left") = std::vector<std::string>(),
+        py::arg("left_t2b") = false,
+        py::arg("label_right") = std::vector<std::string>(),
+        py::arg("right_t2b") = true);
 
 
   //----------------------------------------------------------------------

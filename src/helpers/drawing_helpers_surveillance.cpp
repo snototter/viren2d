@@ -42,6 +42,12 @@ AlignedLabel PrepareAlignedLabel(
     return AlignedLabel();
   }
 
+  SPDLOG_CRITICAL("prepare label at {:s}: {:s}", position, bounding_box);
+  cairo_save(context);
+//  cairo_translate(context, -bounding_box.cx, bounding_box.cy);
+//  bounding_box.cx = 0.0;
+//  bounding_box.cy = 0.0;
+
   Rect label_box;
   Vec2d padding = style.label_padding;
   Vec2d oriented_size = bounding_box.Size();
@@ -73,7 +79,7 @@ AlignedLabel PrepareAlignedLabel(
             style.label_padding.y(), style.label_padding.x());
       break;
 
-    case LabelPosition::LeftT2B://TODO double-check: t2b now seems to work!
+    case LabelPosition::LeftT2B:
       rotation = wgu::deg2rad(90.0);
       label_box = Rect::FromLTWH(
             -bounding_box.HalfHeight(), -bounding_box.HalfWidth(),
@@ -133,7 +139,8 @@ AlignedLabel PrepareAlignedLabel(
   // Now, we compute the text extent and finalize
   // computing the reference point, i.e. where to
   // place the label and its (optional) text box:
-  cairo_save(context);
+//  cairo_save(context);FIXME
+//  cairo_translate(context, -bounding_box.cx, -bounding_box.cy);
   cairo_rotate(context, rotation);
   ApplyTextStyle(context, style.text_style, false);
   MultiLineText mlt(label, style.text_style, context);
@@ -178,68 +185,65 @@ AlignBoundingBoxLabels(
   bool has_text = false;
   Rect bbox_background(0.0, 0.0, bounding_box.width, bounding_box.height);
   std::vector<AlignedLabel> aligned_labels;
-  const bool should_fill_text = style.TextFillColor().IsValid();
+
+  // To avoid overlapping texts (e.g. top + left), we need to keep track of
+  // the area which is still "free" (i.e. where we can place text).
+  Rect available_text_region = bounding_box;
 
   AlignedLabel top = PrepareAlignedLabel(
-        context, bounding_box, style, label_top, LabelPosition::Top);
+        context, available_text_region, style, label_top,
+        LabelPosition::Top);
   if (top.valid) {
     has_text = true;
     aligned_labels.push_back(top);
 
-    if (should_fill_text) {
-      bbox_background.cy += top.bg_rect.height / 2.0;
-      bbox_background.height -= top.bg_rect.height;
-    }
+    bbox_background.cy += top.bg_rect.height / 2.0;
+    bbox_background.height -= top.bg_rect.height;
   }
 
   AlignedLabel bottom = PrepareAlignedLabel(
-        context, bounding_box, style, label_bottom, LabelPosition::Bottom);
+        context, available_text_region, style, label_bottom,
+        LabelPosition::Bottom);
   if (bottom.valid) {
     has_text = true;
     aligned_labels.push_back(bottom);
-    if (should_fill_text) {
-      bbox_background.cy -= bottom.bg_rect.height / 2.0;
-      bbox_background.height -= bottom.bg_rect.height;
-    }
+    bbox_background.cy -= bottom.bg_rect.height / 2.0;
+    bbox_background.height -= bottom.bg_rect.height;
   }
 
-  // To compute the placement of labels on the left/right edges more easily,
-  // we pass the "remaining free box space" (background) to the alignment
-  // function. Thus, we have to adjust the height of the background region to
-  // avoid 1px wide gaps.
-  if (should_fill_text && (top.valid || bottom.valid)) {
-    bbox_background.height += 0.5;
-  }
+  // After "placing" the top/bottom labels, ensure that left/right labels will
+  // only use the remaining "free" space:
+  available_text_region = bbox_background;
 
   AlignedLabel left = PrepareAlignedLabel(
-        context, bbox_background, style, label_left,
+        context, available_text_region, style, label_left,
         left_top_to_bottom ? LabelPosition::LeftT2B : LabelPosition::LeftB2T);
-  // TODO if top or bottom --> correct left label_box
   if (left.valid) {
     has_text = true;
     aligned_labels.push_back(left);
 
-    if (should_fill_text) {
-      // Use height for the horizontal offset because the drawing context will
-      // be rotated.
-      bbox_background.cx += left.bg_rect.height / 2.0;
-      bbox_background.width -= left.bg_rect.height;
-    }
+    // Use height for the horizontal offset because the drawing context will
+    // be rotated.
+    bbox_background.cx += left.bg_rect.height / 2.0;
+    bbox_background.width -= left.bg_rect.height;
   }
 
   // Similar computation for text to be placed along the right edge of the box:
   AlignedLabel right = PrepareAlignedLabel(
-        context, bbox_background, style, label_right,
+        context, available_text_region, style, label_right,
         right_top_to_bottom ? LabelPosition::RightT2B : LabelPosition::RightB2T);
-  // TODO if top or bottom --> correct right label_box
   if (right.valid) {
     has_text = true;
     aligned_labels.push_back(right);
 
-    if (should_fill_text) {
-      bbox_background.cx -= right.bg_rect.height / 2.0;
-      bbox_background.width -= right.bg_rect.height;
-    }
+    bbox_background.cx -= right.bg_rect.height / 2.0;
+    bbox_background.width -= right.bg_rect.height;
+  }
+
+  // If the label text boxes shouldn't be filled, we need to restore the
+  // original background geometry after alignment:
+  if (!style.TextFillColor().IsValid()) {
+    bbox_background = Rect(0.0, 0.0, bounding_box.width, bounding_box.height);
   }
   return std::make_tuple(
         has_text, bbox_background, aligned_labels);

@@ -126,9 +126,16 @@ public:
   ///   label: The (potentially multi-line) label.
   ///   box_style: How to draw this bounding box.
   bool DrawBoundingBox2D(
-      const Rect &box, const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    return DrawBoundingBox2DImpl(box, label, style);
+      const Rect &box, const BoundingBox2DStyle &style = BoundingBox2DStyle(),
+      const std::vector<std::string> &label_top = {},
+      const std::vector<std::string> &label_bottom = {},
+      const std::vector<std::string> &label_left = {},
+      bool left_top_to_bottom = false,
+      const std::vector<std::string> &label_right = {},
+      bool right_top_to_bottom = true) {
+    return DrawBoundingBox2DImpl(
+          box, style, label_top, label_bottom, label_left, left_top_to_bottom,
+          label_right, right_top_to_bottom);
   }
 
 
@@ -444,9 +451,13 @@ protected:
 
   /// Internal helper to enable default values in public interface.
   virtual bool DrawBoundingBox2DImpl(
-      const Rect &box,
-      const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style) = 0;
+      const Rect &box, const BoundingBox2DStyle &style,
+      const std::vector<std::string> &label_top,
+      const std::vector<std::string> &label_bottom,
+      const std::vector<std::string> &label_left,
+      bool left_top_to_bottom,
+      const std::vector<std::string> &label_right,
+      bool right_top_to_bottom) = 0;
 
 
   /// Internal helper to enable default values in public interface.

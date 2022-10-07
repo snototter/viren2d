@@ -88,15 +88,17 @@ protected:
 
 
   bool DrawBoundingBox2DImpl(
-      const Rect &rect, const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style) override {
-    SPDLOG_DEBUG(
-          "DrawBoundingBox2D: {:s}, {:d} label lines, style={:s}.",
-          rect, label.size(), style);
-//FIXME change public API!
+      const Rect &rect, const BoundingBox2DStyle &style,
+      const std::vector<std::string> &label_top,
+      const std::vector<std::string> &label_bottom,
+      const std::vector<std::string> &label_left,
+      bool left_top_to_bottom,
+      const std::vector<std::string> &label_right,
+      bool right_top_to_bottom) override {
+    SPDLOG_DEBUG("DrawBoundingBox2D: {:s}, style={:s}.", rect, style);
     return helpers::DrawBoundingBox2D(
-          surface_, context_, rect,
-          style, label, label, {}, true, label, true);
+          surface_, context_, rect, style, label_top, label_bottom,
+          label_left, left_top_to_bottom, label_right, right_top_to_bottom);
   }
 
 
