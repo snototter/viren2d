@@ -707,13 +707,13 @@ void RegisterImageBuffer(py::module &m) {
           rgb: Color image in RGB(A)/BGR(A) format as
             :class:`~viren2d.ImageBuffer`.
           hue_range: Hue range as :class:`tuple` ``(min_hue, max_hue)``, where
-            hue values are of type :class:`float` and :math:`\in [0, 360]`.
+            hue values are of type :class:`float` :math:`\in [0, 360]`.
           saturation_range: Saturation range as :class:`tuple`
             ``(min_saturation, max_saturation)``, where saturation values are
-            of type :class:`float` and :math:`\in [0, 1]`.
+            of type :class:`float` :math:`\in [0, 1]`.
           value_range: Value range as :class:`tuple`
             ``(min_value, max_value)``, where each value is of type
-            :class:`float` and :math:`\in [0, 1]`.
+            :class:`float` :math:`\in [0, 1]`.
           is_bgr: Set to ``True`` if the color image is provided in BGR(A)
             format.
 
