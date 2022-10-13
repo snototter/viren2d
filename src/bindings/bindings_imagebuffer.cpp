@@ -129,7 +129,7 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
             "Input python array is not writeable. The "
             "`viren2d.ImageBuffer` will be created as a copy, which ignores "
             "the input parameter `copy=False`.");
-      copy = false;
+      copy = true;
     }
 
     if (copy) {
