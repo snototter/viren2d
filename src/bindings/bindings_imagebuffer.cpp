@@ -117,7 +117,21 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
           static_cast<unsigned char const*>(buf.data()),
           height, width, channels, row_stride, col_stride, buffer_type);
   } else {
-    // C-style buffers can be shared & easily copied:
+    // C-style buffers can be shared & easily copied.
+
+    // Sharing, however, requires that the buffer is mutable.
+    // To prevent exceptions, we instead log a warning and fall back to
+    // copying the data: viren2d is a visualization toolbox, I prefer
+    // some overhead (memory copy) over exceptions during python/cpp
+    // type conversion.
+    if (!copy && !buf.writeable()) {
+      SPDLOG_WARN(
+            "Input python array is not writeable. The "
+            "`viren2d.ImageBuffer` will be created as a copy, which ignores "
+            "the input parameter `copy=False`.");
+      copy = false;
+    }
+
     if (copy) {
       img.CreateCopiedBuffer(
             static_cast<unsigned char const*>(buf.data()),
