@@ -567,3 +567,37 @@ std::unique_ptr<Painter> CreatePainter() {
 }
 
 } // namespace viren2d
+
+
+/**
+  TODO Drawing poses
+
+draw_skeleton
+
+Potential ideas for default skeleton visualization:
+1) Draw stick figure (lines with round caps, optionally draw circles at joint locations)
+2) Draw lines as ellipses:
+
+import viren2d
+painter = viren2d.Painter(400, 300)
+line_style = viren2d.LineStyle(width=3, color='azure!80')
+fill_color = 'ivory!80'
+ellipse = viren2d.Ellipse(center=(100, 60), axes=(180, 7), rotation=40)
+painter.draw_ellipse(ellipse, line_style, fill_color)
+
+ellipse = viren2d.Ellipse(center=(100, 200), axes=(180, 3), rotation=40)
+painter.draw_ellipse(ellipse, line_style, fill_color)
+
+ellipse = viren2d.Ellipse(center=(100, 220), axes=(100, 7), rotation=40)
+line_style.width = 1
+painter.draw_ellipse(ellipse, line_style, 'azure')
+
+ellipse = viren2d.Ellipse(center=(100, 240), axes=(80, 7), rotation=40)
+painter.draw_ellipse(ellipse, viren2d.LineStyle.Invalid, 'azure')
+
+from vito import imvis
+import numpy as np
+imvis.imshow(np.array(painter.canvas))
+
+
+**/
