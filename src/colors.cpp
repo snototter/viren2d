@@ -31,6 +31,9 @@ namespace helpers {
 
 /// Saturation cast to [0, 1]. */
 double cast_01(double v) {
+  if ((v < 0.0) || (v > 1.0)) {
+    SPDLOG_WARN("Clipping value {:f} to [0, 1].", v);
+  }
   return saturation_cast<double>(v, 0.0, 1.0);
 }
 
