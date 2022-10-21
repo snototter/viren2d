@@ -19,18 +19,18 @@ namespace viren2d {
 namespace helpers {
 //---------------------------------------------------- BoundingBox 2D
 struct AlignedLabel {
-  Rect bg_rect;
+  Rect label_position;
   MultiLineText text;
   double rotation;
   bool valid;
 
   AlignedLabel(
       Rect rect, MultiLineText txt, double rotation_angle)
-    : bg_rect(rect), text(txt), rotation(rotation_angle), valid(true)
+    : label_position(rect), text(txt), rotation(rotation_angle), valid(true)
   {}
 
   AlignedLabel()
-    : bg_rect(), text(), rotation(0.0), valid(false)
+    : label_position(), text(), rotation(0.0), valid(false)
   {}
 };
 
@@ -42,99 +42,102 @@ AlignedLabel PrepareAlignedLabel(
     return AlignedLabel();
   }
 
-  Rect label_box;
+  Rect label_position;
   Vec2d padding = style.label_padding;
   Vec2d oriented_size = bounding_box.Size();
-  VerticalAlignment valign;
+  VerticalAlignment valign{VerticalAlignment::Top};
   double rotation = 0.0;
   switch (position) {
     case LabelPosition::Top:
-      label_box = Rect::FromLTWH(
-            bounding_box.left(), bounding_box.top(),
-            bounding_box.width, bounding_box.height);
+      label_position = bounding_box;
       valign = VerticalAlignment::Top;
       break;
 
     case LabelPosition::Bottom:
-      label_box = Rect::FromLTWH(
-            bounding_box.left(), bounding_box.top(),
-            bounding_box.width, bounding_box.height);
+      label_position = bounding_box;
       valign = VerticalAlignment::Bottom;
       break;
 
     case LabelPosition::LeftB2T:
       rotation = wgu::deg2rad(-90.0);
-      label_box = Rect::FromLTWH(
+      label_position = Rect::FromLTWH(
             bounding_box.top(), bounding_box.left(),
             bounding_box.height, bounding_box.width);
-      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
       valign = VerticalAlignment::Top;
-      padding = Vec2d(
-            style.label_padding.y(), style.label_padding.x());
       break;
+//    case LabelPosition::LeftB2T:
+//      rotation = wgu::deg2rad(-90.0);
+//      label_position = Rect::FromLTWH(
+//            bounding_box.top(), bounding_box.left(),
+//            bounding_box.height, bounding_box.width);
+//      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
+//      valign = VerticalAlignment::Top;
+//      padding = Vec2d(
+//            style.label_padding.y(), style.label_padding.x());
+//      break;
 
-    case LabelPosition::LeftT2B:
-      rotation = wgu::deg2rad(90.0);
-      label_box = Rect::FromLTWH(
-            bounding_box.top(), bounding_box.left(),
-            bounding_box.height, bounding_box.width);
-      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
-      valign = VerticalAlignment::Bottom;
-      padding = Vec2d(
-            style.label_padding.y(), style.label_padding.x());
-      break;
+//    case LabelPosition::LeftT2B:
+//      rotation = wgu::deg2rad(90.0);
+//      label_position = Rect::FromLTWH(
+//            bounding_box.top(), bounding_box.left(),
+//            bounding_box.height, bounding_box.width);
+//      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
+//      valign = VerticalAlignment::Bottom;
+//      padding = Vec2d(
+//            style.label_padding.y(), style.label_padding.x());
+//      break;
 
-    case LabelPosition::RightB2T:
-      rotation = wgu::deg2rad(-90.0);
-      label_box = Rect::FromLTWH(
-            bounding_box.bottom(), bounding_box.left(),
-            bounding_box.height, bounding_box.width);
-      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
-      valign = VerticalAlignment::Bottom;
-      padding = Vec2d(
-            style.label_padding.y(), style.label_padding.x());
-      break;
+//    case LabelPosition::RightB2T:
+//      rotation = wgu::deg2rad(-90.0);
+//      label_position = Rect::FromLTWH(
+//            bounding_box.bottom(), bounding_box.left(),
+//            bounding_box.height, bounding_box.width);
+//      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
+//      valign = VerticalAlignment::Bottom;
+//      padding = Vec2d(
+//            style.label_padding.y(), style.label_padding.x());
+//      break;
 
-    case LabelPosition::RightT2B:
-      rotation = wgu::deg2rad(90.0);
-      label_box = Rect::FromLTWH(
-            bounding_box.top(), bounding_box.left(),
-            bounding_box.height, bounding_box.width);
-      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
-      valign = VerticalAlignment::Top;
-      padding = Vec2d(
-            style.label_padding.y(), style.label_padding.x());
-      break;
+//    case LabelPosition::RightT2B:
+//      rotation = wgu::deg2rad(90.0);
+//      label_position = Rect::FromLTWH(
+//            bounding_box.top(), bounding_box.left(),
+//            bounding_box.height, bounding_box.width);
+//      oriented_size = Vec2d(bounding_box.height, bounding_box.width);
+//      valign = VerticalAlignment::Top;
+//      padding = Vec2d(
+//            style.label_padding.y(), style.label_padding.x());
+//      break;
+    default:
+      SPDLOG_CRITICAL("Refactor to only use TOP/BOTTOM alignment!");
   }
+
+  label_position.rotation = rotation;//FIXME remove alignedlabel.rotation!
 
   // In addition to the placement of the label, we also
   // have to check how to align the label text horizontally
   // within the desired region:
+//  Vec2d text_anchor {
+//    0.0,
+//    (valign == VerticalAlignment::Top)
+//        ? label_position.top()
+//        : label_position.bottom()};
   Vec2d text_anchor {
-    0.0,
+    (style.text_style.halign == HorizontalAlignment::Left)
+        ? (-label_position.HalfWidth())
+        : ((style.text_style.halign == HorizontalAlignment::Center)
+           ? 0.0
+           : label_position.HalfWidth()),
     (valign == VerticalAlignment::Top)
-        ? label_box.top()
-        : label_box.bottom()};
-
-  switch (style.text_style.halign) {
-    case HorizontalAlignment::Left:
-      text_anchor.SetX(label_box.left());
-      break;
-
-    case HorizontalAlignment::Center:
-      text_anchor.SetX(0.0);
-      break;
-
-    case HorizontalAlignment::Right:
-      text_anchor.SetX(label_box.right());
-      break;
-  }
+        ? -label_position.HalfHeight()
+        : label_position.HalfHeight()};
 
   // Now, we compute the text extent and finalize
   // computing the reference point, i.e. where to
   // place the label and its (optional) text box:
   cairo_save(context);
   cairo_rotate(context, rotation);
+//  cairo_translate(context, label_position.cx, label_position.cy);
   ApplyTextStyle(context, style.text_style, false);
   MultiLineText mlt(label, style.text_style, context);
   mlt.Align(
@@ -142,13 +145,13 @@ AlignedLabel PrepareAlignedLabel(
         valign | style.text_style.halign,
         padding, {-1, -1});
   if (valign == VerticalAlignment::Top) {
-    label_box = Rect::FromLTWH(
-          label_box.left(), label_box.top(),
-          label_box.width, mlt.Height());
+    label_position = Rect::FromLTWH(
+          label_position.left(), label_position.top(),
+          label_position.width, mlt.Height());
   } else if (valign == VerticalAlignment::Bottom) {
-    label_box = Rect::FromLTWH(
-          label_box.left(), label_box.bottom() - mlt.Height(),
-          label_box.width, mlt.Height());
+    label_position = Rect::FromLTWH(
+          label_position.left(), label_position.bottom() - mlt.Height(),
+          label_position.width, mlt.Height());
   } else {
     // This exception can remain. Would be caused by an implementation
     // error (in this function) only.
@@ -157,7 +160,7 @@ AlignedLabel PrepareAlignedLabel(
           "be either Top or Bottom!");
   }
   cairo_restore(context);
-  return AlignedLabel(label_box, mlt, rotation);
+  return AlignedLabel(label_position, mlt, rotation);
 
   //FIXME old solution
 //  if (label.empty()) {
@@ -304,45 +307,45 @@ AlignBoundingBoxLabels(
 
   // To avoid overlapping texts (e.g. top + left), we need to keep track of
   // the area which is still "free" (i.e. where we can place text).
-  Rect available_text_region = bounding_box;
+//  Rect available_text_region = bounding_box;
 
   AlignedLabel top = PrepareAlignedLabel(
-        context, available_text_region, style, label_top,
+        context, bbox_background, style, label_top,
         LabelPosition::Top);
   if (top.valid) {
     has_text = true;
     aligned_labels.push_back(top);
 
-    bbox_background.cy += top.bg_rect.height / 2.0;
-    bbox_background.height -= top.bg_rect.height;
+    bbox_background.cy += top.label_position.height / 2.0;
+    bbox_background.height -= top.label_position.height;
   }
 
   AlignedLabel bottom = PrepareAlignedLabel(
-        context, available_text_region, style, label_bottom,
+        context, bounding_box, style, label_bottom,
         LabelPosition::Bottom);
   if (bottom.valid) {
     has_text = true;
     aligned_labels.push_back(bottom);
-    bbox_background.cy -= bottom.bg_rect.height / 2.0;
-    bbox_background.height -= bottom.bg_rect.height;
+    bbox_background.cy -= bottom.label_position.height / 2.0;
+    bbox_background.height -= bottom.label_position.height;
   }
 
-//  // After "placing" the top/bottom labels, ensure that left/right labels will
-//  // only use the remaining "free" space:
-//  available_text_region = bbox_background;
+  // After "placing" the top/bottom labels, ensure that left/right labels will
+  // only use the remaining "free" space:
+  Rect available_text_region = bbox_background;
 
-//  AlignedLabel left = PrepareAlignedLabel(
-//        context, available_text_region, style, label_left,
-//        left_top_to_bottom ? LabelPosition::LeftT2B : LabelPosition::LeftB2T);
-//  if (left.valid) {
-//    has_text = true;
-//    aligned_labels.push_back(left);
+  AlignedLabel left = PrepareAlignedLabel(
+        context, available_text_region, style, label_left,
+        left_top_to_bottom ? LabelPosition::LeftT2B : LabelPosition::LeftB2T);
+  if (left.valid) {
+    has_text = true;
+    aligned_labels.push_back(left);
 
-//    // Use height for the horizontal offset because the drawing context will
-//    // be rotated.
-//    bbox_background.cx += left.bg_rect.height / 2.0;
-//    bbox_background.width -= left.bg_rect.height;
-//  }
+    // Use height for the horizontal offset because the drawing context will
+    // be rotated.
+    bbox_background.cx += left.label_position.height / 2.0;
+    bbox_background.width -= left.label_position.height;
+  }
 
 //  // Similar computation for text to be placed along the right edge of the box:
 //  AlignedLabel right = PrepareAlignedLabel(
@@ -352,8 +355,8 @@ AlignBoundingBoxLabels(
 //    has_text = true;
 //    aligned_labels.push_back(right);
 
-//    bbox_background.cx -= right.bg_rect.height / 2.0;
-//    bbox_background.width -= right.bg_rect.height;
+//    bbox_background.cx -= right.label_position.height / 2.0;
+//    bbox_background.width -= right.label_position.height;
 //  }
 
   // If the label text boxes shouldn't be filled, we need to restore the
@@ -460,13 +463,14 @@ bool DrawBoundingBox2D(
     ApplyColor(context, text_fill);
     for (const auto &aligned : aligned_labels) {
       cairo_save(context);
-      SPDLOG_CRITICAL("ALIGNED box rotation {:f}, bgrect {:s}", werkzeugkiste::geometry::rad2deg(aligned.rotation), aligned.bg_rect);
-      cairo_translate(context, aligned.bg_rect.cx, aligned.bg_rect.cy);
+      SPDLOG_CRITICAL("ALIGNED box rotation {:f}, bgrect {:s}",
+                      werkzeugkiste::geometry::rad2deg(aligned.rotation), aligned.label_position);
+//      cairo_translate(context, aligned.label_position.cx, aligned.label_position.cy);
       cairo_rotate(context, aligned.rotation);
       cairo_rectangle(
-//            context, aligned.bg_rect.left(), aligned.bg_rect.top(),
-            context, -aligned.bg_rect.HalfWidth(), -aligned.bg_rect.HalfHeight(),
-            aligned.bg_rect.width, aligned.bg_rect.height);
+            context, aligned.label_position.left(), aligned.label_position.top(),
+//            context, -aligned.label_position.HalfWidth(), -aligned.label_position.HalfHeight(),
+            aligned.label_position.width, aligned.label_position.height);
       cairo_fill(context);
       cairo_restore(context);
     }
@@ -491,6 +495,7 @@ bool DrawBoundingBox2D(
     ApplyTextStyle(context, style.text_style, true);
     for (const auto &aligned : aligned_labels) {
       cairo_save(context);
+//      cairo_translate(context, aligned.label_position.cx, aligned.label_position.cy);
       cairo_rotate(context, aligned.rotation);
       aligned.text.PlaceText(context);
       cairo_restore(context);
