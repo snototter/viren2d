@@ -24,69 +24,114 @@ int randmod(int n) {
 
 void DemoBoundingBoxes2D() {
   PrintDemoHeader("Bounding Boxes in 2D");
+  for (const auto halign : {
+       HorizontalAlignment::Left, HorizontalAlignment::Center,
+       HorizontalAlignment::Right}) {
 
-  auto painter = CreatePainter();
-  std::vector<std::string> lbl_top = {"This is at", "the top"};
-  std::vector<std::string> lbl_bottom = {"This is along", "the bottom"};
-  std::vector<std::string> lbl_left = {"The left edge"};
-  std::vector<std::string> lbl_right = {"The right edge"};
+    auto painter = CreatePainter();
+    std::vector<std::string> lbl_top = {"This is at", "the top"};
+    std::vector<std::string> lbl_bottom = {"This is along", "the bottom"};
+    std::vector<std::string> lbl_left = {"The left edge"};
+    std::vector<std::string> lbl_right = {"The right edge"};
 
-  painter->SetCanvas(800, 1200, Color::White);
-  painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!40"));
+    painter->SetCanvas(800, 1600, Color::White);
+    painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!40"));
 
-  BoundingBox2DStyle style(
-        LineStyle(3, "navy-blue"), TextStyle(14, "xkcd", "midnight-blue"),
-        "same!20", "orange!20", {6, 6}, true);
+    BoundingBox2DStyle style(
+          LineStyle(3, "navy-blue"),
+          TextStyle(14, "xkcd", "midnight-blue", false, false, 1.2, halign),
+          "same!20", "orange!20", {6, 6}, true);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(50, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(200, 50, 100, 220, 0.2), style, {}, {},
-        lbl_left, false);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(200, 50, 100, 220, 0.2), style, {}, {},
+          lbl_left, false);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(350, 50, 100, 220, 0.2), style, {}, {},
-        {}, true, lbl_right, true);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(350, 50, 100, 220, 0.2), style, {}, {},
+          lbl_left, true);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(500, 50, 100, 220, 0.2), style, {}, {},
-        lbl_left, false, lbl_right, false);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(500, 50, 100, 220, 0.2), style, {}, {},
+          {}, true, lbl_right, true);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(650, 50, 100, 220, 0.2), style, {}, {},
-        lbl_left, true, lbl_right, false);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(650, 50, 100, 220, 0.2), style, {}, {},
+          {}, true, lbl_right, false);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(800, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom,
-        lbl_left, true, lbl_right, false);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(800, 50, 100, 220, 0.2), style, {}, {},
+          lbl_left, false, lbl_right, false);
 
-  // Don't fill the text box:
-  style.text_fill_color = Color::Invalid;
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(950, 50, 100, 220, 0.2), style, {}, {},
+          lbl_left, true, lbl_right, false);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(200, 300, 100, 220, 0.2), style, {}, {},
-        lbl_left, false, lbl_right, true);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(1100, 50, 100, 220, 0.2), style, {}, {},
+          lbl_left, false, lbl_right, true);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(350, 300, 100, 220, 0.2), style, {}, {},
-        lbl_left, true, lbl_right, true);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(1250, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom,
+          lbl_left, true, lbl_right, false);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(500, 300, 100, 220, 0.2), style, {}, {},
-        lbl_left, false, lbl_right, false);
+    // Don't fill the text box:
+    style.text_fill_color = Color::Invalid;
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(50, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(650, 300, 100, 220, 0.2), style, {}, {},
-        lbl_left, true, lbl_right, false);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(200, 300, 100, 220, 0.2), style, {}, {},
+          lbl_left, false, lbl_right, true);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(800, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom,
-        lbl_left, true, lbl_right, false);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(350, 300, 100, 220, 0.2), style, {}, {},
+          lbl_left, true, lbl_right, true);
 
-  ProcessDemoOutput(painter->GetCanvas(false), "demo-output-bbox2d.png");
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(500, 300, 100, 220, 0.2), style, {}, {},
+          lbl_left, false, lbl_right, false);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(650, 300, 100, 220, 0.2), style, {}, {},
+          lbl_left, true, lbl_right, false);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(800, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom,
+          lbl_left, true, lbl_right, false);
+
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(800, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom,
+          lbl_left, true, lbl_right, false);
+
+    // 3rd row
+    style.text_fill_color = Color::Red.WithAlpha(0.2);
+    style.box_fill_color = Color::Same.WithAlpha(0.2);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(50, 550, 100, 220, 0.2), style, lbl_top, {}, {}, true,
+          lbl_right, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(200, 550, 100, 220, 0.2), style, lbl_top, {}, lbl_left, false,
+          {}, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(350, 550, 100, 220, 0.2), style, {}, lbl_bottom, {}, true,
+          lbl_right, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(500, 550, 100, 220, 0.2), style, {}, lbl_bottom, lbl_left, false,
+          {}, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(650, 550, 100, 220, 0.2), style, lbl_top, {}, {}, true,
+          lbl_right, false);
+
+    ProcessDemoOutput(painter->GetCanvas(false), "demo-output-bbox2d.png");
+  }
 }
 
 

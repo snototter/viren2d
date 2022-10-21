@@ -29,7 +29,8 @@ def demo_tracking_by_detection():
     rect_lens = viren2d.Rect(
         center=(150, 145), size=(310, 190), rotation=-5, radius=20)
     painter.draw_bounding_box_2d(
-        rect_lens, bbox_style, label_left=['Camera lens'], left_t2b=True)
+        rect_lens, bbox_style, label_top=['IP camera'],
+        label_right=['Varifocal lens'], right_t2b=True)
 
     # Draw the trajectory of the katana:
     traj_sword = [
@@ -53,14 +54,14 @@ def demo_tracking_by_detection():
 
     # Arrow
     arrow_style = viren2d.ArrowStyle(width=4, color='crimson', tip_length=0.3)
-    painter.draw_arrow((420, 60), (480, 100), arrow_style)
+    painter.draw_arrow((400, 75), (480, 100), arrow_style)
 
     # Text box
     text_style.line_spacing = 1.0
     text_style.color = 'crimson'
     line_style.width = 2
     painter.draw_text_box(
-        ['Mood:', 'Mildly infuriated'], position=(420, 60),
+        ['Mood:', 'Mildly infuriated'], position=(460, 65),
         anchor=viren2d.Anchor.BottomRight,
         text_style=text_style, padding=(10, 5),
         fill_color="white!80", line_style=line_style)

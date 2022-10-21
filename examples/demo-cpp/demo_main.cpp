@@ -4,9 +4,9 @@
 //#include <Eigen/Dense>
 
 #ifdef viren2d_WITH_OPENCV
-#include <opencv2/opencv.hpp>
+#  include <opencv2/opencv.hpp>
 //#include <opencv2/core/eigen.hpp>
-#include <opencv2/highgui.hpp>
+#  include <opencv2/highgui.hpp>
 #endif // viren2d_WITH_OPENCV
 
 #include <viren2d/imagebuffer.h>
