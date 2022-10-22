@@ -21,7 +21,17 @@ def demo_tracking_by_detection():
     # Draw the bounding box containing the Tabi
     rect_tabi = viren2d.Rect(
         center=(508, 285), size=(120, 70), rotation=18, radius=20)
-    painter.draw_bounding_box_2d(rect_tabi, bbox_style, label_top=['Tabi socks'])
+    painter.draw_bounding_box_2d(
+        rect_tabi, bbox_style, label_top=['Tabi socks'])
+
+    # Draw the bounding box around the face
+    bbox_style.line_style.color = 'crimson'
+    bbox_style.text_style.color = 'crimson'
+    rect_face = viren2d.Rect(
+        center=(525, 120), size=(80, 100), rotation=10, radius=20)
+    painter.draw_bounding_box_2d(
+        rect_face, bbox_style, label_top=['Angry'], label_bottom=['Warrior'])
+
 
     # Draw the bounding box containing the lens
     bbox_style.line_style.color = 'teal-green'
@@ -51,19 +61,5 @@ def demo_tracking_by_detection():
         marker='5', size=30, filled=True, color=line_style.color,
         bg_border=3, bg_color='ivory!70')
     painter.draw_marker(traj_sword[0], marker_style)
-
-    # Arrow
-    arrow_style = viren2d.ArrowStyle(width=4, color='crimson', tip_length=0.3)
-    painter.draw_arrow((400, 75), (480, 100), arrow_style)
-
-    # Text box
-    text_style.line_spacing = 1.0
-    text_style.color = 'crimson'
-    line_style.width = 2
-    painter.draw_text_box(
-        ['Mood:', 'Mildly infuriated'], position=(460, 65),
-        anchor=viren2d.Anchor.BottomRight,
-        text_style=text_style, padding=(10, 5),
-        fill_color="white!80", line_style=line_style)
 
     return np.array(painter.canvas, copy=True)
