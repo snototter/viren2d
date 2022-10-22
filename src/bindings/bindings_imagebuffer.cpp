@@ -710,7 +710,7 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("output_channels") = 3,
         py::arg("output_bgr") = false);
 
-
+//FIXME add python demo + rtd visualization
   m.def("color_pop",
         &ColorPop, R"docstr(
         Returns an image where the specified color range is highlighted.
@@ -722,8 +722,7 @@ void RegisterImageBuffer(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorPop``.
 
         Args:
-          rgb: Color image in RGB(A)/BGR(A) format as
-            :class:`~viren2d.ImageBuffer`.
+          image: Color image in **RGB(A)/BGR(A)** format.
           hue_range: Hue range as :class:`tuple` ``(min_hue, max_hue)``, where
             hue values are of type :class:`float` :math:`\in [0, 360]`.
           saturation_range: Saturation range as :class:`tuple`
@@ -741,10 +740,10 @@ void RegisterImageBuffer(py::module &m) {
 
         Example:
           >>> red_pop = viren2d.color_pop(
-          >>>     rgb=img, hue_range=(320, 360), saturation_range=(0.4, 1),
+          >>>     image=img, hue_range=(320, 360), saturation_range=(0.4, 1),
           >>>     value_range=(0.2, 1), is_bgr=False)
         )docstr",
-        py::arg("rgb"),
+        py::arg("image"),
         py::arg("hue_range"),
         py::arg("saturation_range") = std::make_pair<float, float>(0.0f, 1.0f),
         py::arg("value_range") = std::make_pair<float, float>(0.0f, 1.0f),

@@ -1223,34 +1223,33 @@ ImageBuffer MaskHSVRange(const ImageBuffer &hsv,
 }
 
 
-ImageBuffer ColorPop(
-    const ImageBuffer &rgb,
+ImageBuffer ColorPop(const ImageBuffer &image,
     const std::pair<float, float> &hue_range,
     const std::pair<float, float> &saturation_range,
     const std::pair<float, float> &value_range,
     bool is_bgr) {
-  if (!rgb.IsValid()) {
+  if (!image.IsValid()) {
     throw std::logic_error(
           "Cannot apply `ColorPop` on invalid ImageBuffer!");
   }
 
-  if ((rgb.Channels() < 2) || (rgb.Channels() > 4)
-      || (rgb.BufferType() != ImageBufferType::UInt8)) {
+  if ((image.Channels() < 2) || (image.Channels() > 4)
+      || (image.BufferType() != ImageBufferType::UInt8)) {
     std::ostringstream s;
     s << "`ColorPop` can only be applied on RGB(A)/BGR(A) inputs buffers of "
-         "type `uint8`, but got: " << rgb.ToString() << '!';
+         "type `uint8`, but got: " << image.ToString() << '!';
     throw std::invalid_argument(s.str());
   }
 
-  const ImageBuffer hsv = ConvertRGB2HSV(rgb, is_bgr);
+  const ImageBuffer hsv = ConvertRGB2HSV(image, is_bgr);
   const ImageBuffer mask = MaskHSVRange(
         hsv, hue_range, saturation_range, value_range);
-  const ImageBuffer gray = viren2d::ConvertRGB2Gray(rgb, 1);
+  const ImageBuffer gray = viren2d::ConvertRGB2Gray(image, 1);
 
-  ImageBuffer pop = rgb.DeepCopy();
-  //TODO implement loop more efficiently
-  for (int row = 0; row < rgb.Height(); ++row) {
-    for (int col = 0; col < rgb.Width(); ++col) {
+  ImageBuffer pop = image.DeepCopy();
+  //FIXME implement loop more efficiently
+  for (int row = 0; row < image.Height(); ++row) {
+    for (int col = 0; col < image.Width(); ++col) {
       if (mask.AtUnchecked<unsigned char>(row, col) == 0) {
         pop.AtUnchecked<unsigned char>(row, col, 0) = gray.AtUnchecked<unsigned char>(row, col);
         pop.AtUnchecked<unsigned char>(row, col, 1) = gray.AtUnchecked<unsigned char>(row, col);

@@ -137,7 +137,7 @@ void RegisterColor(py::module &m) {
         )docstr")
       .def(
         py::init<>(&ColorFromTuple), R"docstr(
-        Initializes the color from a **r,g,b** or **r,g,b,a** ``tuple``.
+        Initializes the color from a *r,g,b* or *r,g,b,a* ``tuple``.
 
         Each value must be a floating point number within ``[0, 1]``.
         The alpha value will be set to 1 if not provided.
@@ -347,7 +347,7 @@ void RegisterColor(py::module &m) {
 
         The web/hex code representation will contain 8 components,
         *i.e.* it includes the alpha value. To compute the hexadecimal
-        representation, each component (*i.e.* **r,g,b,a**) is first scaled to
+        representation, each component (*i.e.* *r,g,b,a*) is first scaled to
         ``[0, 255]``.
 
         **Corresponding C++ API:** ``viren2d::Color::ToHexString``.
@@ -513,7 +513,8 @@ void RegisterColor(py::module &m) {
         )docstr")
       .def(
         "is_shade_of_gray", &Color::IsShadeOfGray, R"docstr(
-        Checks if the *r,g,b* values are almost equal, *i.e.* :math:`\pm \epsilon`.
+        Checks if the *r,g,b* values are almost equal, *i.e.* within
+        :math:`\pm \epsilon`.
 
         **Corresponding C++ API:** ``viren2d::Color::IsShadeOfGray``.
         )docstr",
@@ -534,8 +535,8 @@ void RegisterColor(py::module &m) {
         &FromObjectIDHelper, R"docstr(
         Returns a color for the (numeric) object ID.
 
-        Useful to consistently use the same color for the
-        same object or object class.
+        Allows coloring the same object instance consistently, *e.g.* when
+        tracking objects.
 
         **Corresponding C++ API:** ``viren2d::Color::FromObjectId``.
 
@@ -556,8 +557,8 @@ void RegisterColor(py::module &m) {
         &FromObjectCategoryHelper, R"docstr(
         Returns a color for the given category name.
 
-        Useful to consistently use the same :class:`~viren2d.Color`
-        for the same object class, *e.g.* ``car`` or ``person``.
+        Allows coloring the same object class consistently, *e.g.* to
+        distinguish multiple classes, such as ``car`` or ``person``.
 
         **Corresponding C++ API:** ``viren2d::Color::FromObjectCategory``.
 
@@ -580,11 +581,11 @@ void RegisterColor(py::module &m) {
         "object_category_names",
         &Color::ListObjectCategories, R"docstr(
         Returns a list of the category names which are explicitly
-        known :meth:`~viren2d.Color.from_object_category`.
+        known to :meth:`~viren2d.Color.from_object_category`.
 
-        Currently, this list contains all
-        `COCO <https://cocodataset.org>`__ classes (80+1, *i.e.*
-        ``background``), plus some additional aliases, *e.g.*
+        Currently, this list contains all (80+1)
+        `COCO <https://cocodataset.org>`__ classes (incl.
+        ``background``), plus additional aliases, *e.g.*
         ``human``\ :math:`\leftrightarrow`\ ``person``, or
         ``vehicle``\ :math:`\leftrightarrow`\ ``car``.
 
@@ -614,7 +615,7 @@ void RegisterColor(py::module &m) {
 
   m.def("axis_color",
         &CoordinateAxisColorFromPyObject, R"docstr(
-        Returns a color for the :math:`x`, :math:`y`, or :math:`z` axis.
+        Returns a default color for the :math:`x`, :math:`y`, or :math:`z` axis.
 
         Can be used, for example, to visualize the origin/orientation
         of the world coordinate system via differently colored

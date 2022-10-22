@@ -660,7 +660,7 @@ ImageBuffer MaskHSVRange(
 ///     values are in `[0, 1]`.
 ///   value_range: Similar to saturation range, *i.e.* values in `[0, 1]`.
 ///   is_bgr: Set to ``true`` if the color image is provided in BGR(A) format.
-ImageBuffer ColorPop(const ImageBuffer &rgb,
+ImageBuffer ColorPop(const ImageBuffer &image,
     const std::pair<float, float> &hue_range,
     const std::pair<float, float> &saturation_range,
     const std::pair<float, float> &value_range,
