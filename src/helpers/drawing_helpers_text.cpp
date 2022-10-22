@@ -68,7 +68,7 @@ void SingleLineText::Align(
 void SingleLineText::PlaceText(cairo_t *context) const {
   // Shift to the pixel center, and move to the origin of the
   // first glyph. Then, let Cairo render the text:
-  auto position = reference_point + 0.5;
+  const auto position = reference_point + 0.5;
   cairo_move_to(context, position.x(), position.y());
   cairo_show_text(context, text);
 }

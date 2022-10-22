@@ -20,6 +20,8 @@ namespace wkg = werkzeugkiste::geometry;
 
 namespace viren2d {
 namespace helpers {
+/// Draws a rounded rectangle of the given rect's size at the current
+/// canvas location, i.e. the position of this rect will be ignored.
 void PathHelperRoundedRect(cairo_t *context, Rect rect) {
   // If radius in (0, 0.5], we use the value as percentage.
   if (rect.radius <= 0.5) {
