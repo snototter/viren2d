@@ -116,9 +116,7 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromArray(const py::array &arr) {
   if (arr.size() == 0) {
     return VC();
   }
-//FIXME extend imagebuffer conversion by:
-  // 1) int8, bool (to uchar)
-  // 2) non-c-contig --> iterate pixel by pixel
+
   const py::dtype dtype = arr.dtype();
   if (dtype.is(py::dtype::of<uint8_t>())) {
     return VecFromArrayT<uint8_t, _Tp, dim>(arr);

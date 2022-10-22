@@ -17,14 +17,19 @@
 
 namespace viren2d {
 
+/// Alias for a 3x3 double precision matrix.
+/// Since my typical viren2d use cases involve either NumPy or OpenCV,
+/// I choose the non-default Eigen::RowMajor layout.
 using Matrix3x3d = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>;
+
+/// Alias for a 3x4 double precision matrix.
 using Matrix3x4d = Eigen::Matrix<double, 3, 4, Eigen::RowMajor>;
 
 
 /// The Painter provides functionality to draw on a canvas.
 class Painter {
 public:
-  // The basic interface is trivially con-/destructable, assignable & movable.
+  // The interface is trivially con-/destructable, assignable & movable.
   virtual ~Painter() {}
   Painter() = default;
   Painter(const Painter &other) = default;
@@ -133,7 +138,8 @@ public:
   ///   right_t2b: If ``true``, the label text will be oriented from
   ///     top-to-bottom.
   bool DrawBoundingBox2D(
-      const Rect &box, const BoundingBox2DStyle &style = BoundingBox2DStyle(),
+      const Rect &box,
+      const BoundingBox2DStyle &style = BoundingBox2DStyle(),
       const std::vector<std::string> &label_top = {},
       const std::vector<std::string> &label_bottom = {},
       const std::vector<std::string> &label_left = {},
@@ -575,6 +581,7 @@ protected:
 
 /// Creates a Painter object for drawing.
 std::unique_ptr<Painter> CreatePainter();
+//TODO How should we handle SVG vs image painters? CreateRasterizedPainter vs CreateVectorizedPainter ? or ImagePainter/SVGPainter?
 
 } // namespace viren2d
 

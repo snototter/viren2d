@@ -20,7 +20,7 @@
 
 
 //FIXME: should implement a ToDetailedString() for all styles (to be called whenever tests fail)
-//FIXME switch to coding/documentation style
+//FIXME change this header to the updated coding/documentation style
 
 namespace viren2d {
 //-------------------------------------------------  Line endpoints

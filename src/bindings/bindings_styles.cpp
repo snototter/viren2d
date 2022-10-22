@@ -1042,20 +1042,20 @@ void RegisterArrowStyle(pybind11::module &m) {
 
 
 //-------------------------------------------------  BoundingBox2DStyle
-LabelPosition LabelPositionFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    return LabelPositionFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<LabelPosition>(o)) {
-    return py::cast<LabelPosition>(o);
-  } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp
-        << "` to `viren2d.LabelPosition`!";
-    throw std::invalid_argument(str.str());
-  }
-}
+//LabelPosition LabelPositionFromPyObject(const py::object &o) {
+//  if (py::isinstance<py::str>(o)) {
+//    return LabelPositionFromString(py::cast<std::string>(o));
+//  } else if (py::isinstance<LabelPosition>(o)) {
+//    return py::cast<LabelPosition>(o);
+//  } else {
+//    const std::string tp = py::cast<std::string>(
+//        o.attr("__class__").attr("__name__"));
+//    std::ostringstream str;
+//    str << "Cannot cast type `" << tp
+//        << "` to `viren2d.LabelPosition`!";
+//    throw std::invalid_argument(str.str());
+//  }
+//}
 
 
 py::tuple BoundingBox2DStyleToTuple(const BoundingBox2DStyle &st) {
@@ -1110,11 +1110,6 @@ BoundingBox2DStyle BoundingBox2DStyleFromTuple(const py::tuple &tpl) {
   if (tpl.size() > 3) {
     bstyle.text_fill_color = tpl[3].cast<Color>();
   }
-
-  //FIXME remove
-//  if (tpl.size() > 4) {
-//    bstyle.label_position = tpl[4].cast<LabelPosition>();
-//  }
 
   if (tpl.size() > 4) {
     bstyle.label_padding = tpl[4].cast<Vec2d>();
@@ -1176,10 +1171,7 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         py::arg("text_fill_color") = default_style.text_fill_color,
         py::arg("label_padding") = default_style.label_padding,
         py::arg("clip_label") = default_style.clip_label);
-// FIXME add doc to draw_bounding_box (changed label parameter!)
-// label_position: A :class:`~viren2d.LabelPosition` specifying
-//  where to place the label. In addition to the enumeration value,
-//  this parameter can be set using its string representation.
+
   bbox_style.def(
         "copy",
         [](const BoundingBox2DStyle &st) { return BoundingBox2DStyle(st); }, R"docstr(
@@ -1244,25 +1236,6 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         "text_fill_color",
         &BoundingBox2DStyle::text_fill_color,
         doc.c_str());
-
-
-//  doc = R"docstr(
-//      :class:`~viren2d.LabelPosition`: Where to place
-//      the label within the box.
-
-//      In addition to the enumeration values, you can use
-//      the string representation to set this member:
-
-//      >>> style.label_position = viren2d.LabelPosition.Left
-//      >>> style.label_position = 'left'
-//      )docstr";
-//  bbox_style.def_property(
-//        "label_position",
-//        [](BoundingBox2DStyle &s) { return s.label_position; },
-//        [](BoundingBox2DStyle &s, py::object o) {
-//            s.label_position = LabelPositionFromPyObject(o);
-//        }, doc.c_str());
-  //FIXME remove
 
 
   doc = R"docstr(

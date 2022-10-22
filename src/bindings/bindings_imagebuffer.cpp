@@ -16,6 +16,10 @@ namespace py = pybind11;
 namespace viren2d {
 namespace bindings {
 //------------------------------------------------- ImageBuffer from numpy array
+//FIXME extend imagebuffer conversion by:
+  // 1) enable creation from int8, bool (also provide bool.convert_to_uchar)
+  // 2) DONE non-c-contig --> iterate pixel by pixel
+
 inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
   if (dt.is(py::dtype::of<uint8_t>())) {
     return ImageBufferType::UInt8;
