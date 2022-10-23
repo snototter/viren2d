@@ -83,6 +83,5 @@ class StaticTextOverlay(TextOverlay):
         self.anchor = viren2d.Anchor.TopRight
         self.text = 'Static Text'
     
-    def apply(
-        self, painter: viren2d.Painter, no_arg: Any) -> bool:
+    def apply(self, painter: viren2d.Painter) -> bool:
         return super().apply(painter, self.text)

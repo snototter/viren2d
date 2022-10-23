@@ -12,49 +12,67 @@ class VisualizationPipeline(object):
 
     >>> from visualizers.pipeline import VisualizationPipeline
     >>> from visualizers.text_overlay import TextOverlay, frame_label
-    >>> 
     >>> # Set up the visualization pipeline:
     >>> visualizer = VisualizationPipeline()
     >>> overlay = TextOverlay()
-    >>> # Now you could adjust the overlay style, position, placement, etc.
-    >>> visualizer.append(overlay)
-    >>> 
+    >>> visualizer.add('frame-label', overlay)
+    >>> # Process video stream
     >>> while True:
     >>>     image = load_next_image()
-    >>>     vis = visualizer.visualize(image, ['Some label'])
+    >>>     vis = visualizer.visualize(image, {'frame-label': 'Some text'})
 
     #TODO add tracking-by-detection or camera geometry/calibration example
     """
     def __init__(self):
+        # The painter will be passed on to each visualizer
         self._painter = viren2d.Painter()
+        # Registered visualizers as list of tuple(identifier, visualizer)
         self._visualizers = list()
+        # Used to check for unique identifiers
+        self._identifiers = set()
     
-    def append(self, visualizer: object) -> None:
+    def add(self, identifier: str, visualizer: object) -> None:
         """
         Adds the given visualizer to this pipeline.
 
         A valid visualizer must have an `apply` method, which takes the
         `viren2d.Painter` (used for drawing) and its additional parameters.
         """
+        if identifier in self._identifiers:
+            raise KeyError(
+                f'Identifier "{identifier}" has already been registered')
         apply_op = getattr(visualizer, 'apply', None)
         if not callable(apply_op):
-            raise ValueError('Visualizer does not have an `apply` method.')
-        self._visualizers.append(visualizer)
+            raise ValueError(
+                f'Visualizer "{identifier}" does not have an `apply` method.')
+        self._identifiers.add(identifier)
+        self._visualizers.append((identifier, visualizer))
     
     def visualize(
-            self, image: np.ndarray, *args, return_copy: bool=True) -> np.ndarray:
+            self, image: np.ndarray,
+            visualizer_args: dict) -> np.ndarray:
         """
         Applies the configured visualization pipeline on the given image.
         
-        TODO document usage of args or refer to the examples in the pipeline's
-        docstring.
+        TODO document usage of visualizer_args or refer to the examples in
+        the pipeline's docstring.
         """
-        if len(args) != len(self._visualizers):
-            raise ValueError(
-                'Length of argument list does not match visualizers!')
-        
-        self._painter.set_canvas_image(image)
-        for idx in range(len(self._visualizers)):
-            self._visualizers[idx].apply(self._painter, args[idx])
+        if image is None:
+            return None
 
-        return np.array(self._painter.canvas, copy=return_copy)
+        # Suppress viren2d warnings if we have non-contiguous or non-mutable inputs:
+        copy = True if (not image.flags.c_contiguous) or (not image.flags.writeable) else False
+        buffer = viren2d.ImageBuffer(image, copy)
+        self._painter.set_canvas_image(buffer)
+
+        # Apply all configured visualizers
+        for identifier, visualizer in self._visualizers:
+            if identifier in visualizer_args:
+                visualizer.apply(self._painter, visualizer_args[identifier])
+            else:
+                visualizer.apply(self._painter)
+
+        # Return the visualization result
+        rgba = self._painter.canvas
+        rgb = rgba.to_channels(3)
+        return np.array(rgb, copy=True)
