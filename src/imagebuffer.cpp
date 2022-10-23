@@ -447,13 +447,16 @@ void ImageBuffer::CreateSharedBuffer(unsigned char *buffer, int height, int widt
 }
 
 
-void ImageBuffer::CreateCopiedBuffer(unsigned char const *buffer, int height, int width, int channels,
-    int row_stride, int pixel_stride, ImageBufferType buffer_type) {
+void ImageBuffer::CreateCopiedBuffer(
+    unsigned char const *buffer, int height, int width, int channels,
+    int row_stride, int column_stride, int channel_stride,
+    ImageBufferType buffer_type) {
   SPDLOG_DEBUG(
-        "ImageBuffer::CreateSharedBuffer: h={:d}, w={:d},"
-        " ch={:d}, {:s}, row_stride={:d}, col_stride={:d}.",
+        "ImageBuffer::CreateCopiedBuffer: h={:d}, w={:d},"
+        " ch={:d}, {:s}, row_stride={:d}, col_stride={:d},"
+        " ch_stride={:d}.",
         height, width, channels, ImageBufferTypeToString(buffer_type),
-        row_stride, pixel_stride);
+        row_stride, column_stride, channel_stride);
   // Clean up first (if this instance already holds image data)
   Cleanup();
 
@@ -471,19 +474,21 @@ void ImageBuffer::CreateCopiedBuffer(unsigned char const *buffer, int height, in
   this->channels = channels;
   this->row_stride = width * channels * element_size;
   this->buffer_type = buffer_type;
-  this->pixel_stride = channels * this->element_size;
+  this->pixel_stride = channels * element_size;
 
-  if (row_stride == (width * channels * element_size)) {
+  if ((row_stride == (width * channels * element_size))
+      && (column_stride > 0) && (channel_stride > 0)) {
     // Buffer is contiguous, only need a single memcpy:
     std::memcpy(data, buffer, num_bytes);
   } else {
     // Is a single row contiguous?
-    if (pixel_stride == (channels * element_size)) {
+    if ((column_stride == (channels * element_size))
+        && (channel_stride > 0)) {
       for (int row = 0; row < height; ++row) {
         std::memcpy(
               data + (row * this->row_stride),
               buffer + (row * row_stride),
-              width * pixel_stride);
+              width * column_stride);
       }
     } else {
       // Copy each pixel
@@ -491,16 +496,13 @@ void ImageBuffer::CreateCopiedBuffer(unsigned char const *buffer, int height, in
         for (int col = 0; col < width; ++col) {
           for (int ch = 0; ch < channels; ++ch) {
             const int dst_idx = (row * this->row_stride) + (col * this->pixel_stride) + (ch * this->element_size);
-            const int src_idx = (row * row_stride) + (col * pixel_stride) + (ch * this->element_size);
-            data[dst_idx] = buffer[src_idx];
+            int src_idx = (row * row_stride) + (col * column_stride) + (ch * channel_stride);
+            std::memcpy(data + dst_idx, buffer + src_idx, element_size);
           }
         }
       }
     }
   }
-
-  //TODO add tests for numpy views with unusual column strides
-  // maybe we'll want to extend ImageBuffer to handle these, too.
 }
 
 
@@ -508,7 +510,7 @@ ImageBuffer ImageBuffer::DeepCopy() const {
   ImageBuffer cp;
   cp.CreateCopiedBuffer(
         data, height, width, channels,
-        row_stride, pixel_stride, buffer_type);
+        row_stride, pixel_stride, element_size, buffer_type);
   return cp;
 }
 

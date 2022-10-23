@@ -552,7 +552,7 @@ ImageBuffer PainterImpl::GetCanvas(bool copy) const {
   if (copy) {
     buffer.CreateCopiedBuffer(
           data, height, width, channels,
-          row_stride, channels, ImageBufferType::UInt8);
+          row_stride, channels, 1, ImageBufferType::UInt8);
   } else {
     buffer.CreateSharedBuffer(
           data, height, width, channels,

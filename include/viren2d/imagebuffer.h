@@ -428,10 +428,9 @@ public:
   ///   row_stride: Number of bytes between consecutive rows.
   ///   pixel_stride: Number of bytes between neighboring pixels.
   ///   buffer_type: Element type.
-  void CreateCopiedBuffer(
-      unsigned char const *buffer,
+  void CreateCopiedBuffer(unsigned char const *buffer,
       int height, int width, int channels, int row_stride,
-      int pixel_stride, ImageBufferType buffer_type);
+      int column_stride, int channel_stride, ImageBufferType buffer_type);
 
 
   /// Returns a deep copy.

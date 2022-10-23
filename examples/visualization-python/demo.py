@@ -27,7 +27,7 @@ def demo_webcam_visualizer():
 
         # Convert from OpenCV BGR to RGB (used by viren2d)
         #TODO check why flip_layers, ::-1, etc. yields different result with imshow than OpenCV's cvtColor...
-        rgb = frame[:, :, ::-1]#FIXME imagebuffer copy pixel-wise does not work properly!!
+        rgb = frame[:, :, ::-1]#FIXME test if imagebuffer copy pixel-wise works as expected
         # rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         # print(f'TODO bgr/rgb conversion equal: {np.array_equal(rgb1, rgb)}')
         # rgb = imutils.flip_layers(frame)

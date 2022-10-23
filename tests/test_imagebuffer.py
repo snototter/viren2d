@@ -215,6 +215,39 @@ def test_non_contiguous_inits():
     assert viren2d.ImageBuffer(non_cont).is_valid
 
 
+def test_views():
+    for dt in [np.uint8, np.int64, np.float32]:
+        rgb = (np.random.rand(30, 40, 3) * 255).astype(dt)
+
+        # Negative channel strides:
+        bgr = rgb[:, :, ::-1]
+        assert bgr.strides[2] < 0
+
+        buffer = viren2d.ImageBuffer(bgr)
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(bgr, restored)
+
+        # Negative row & column strides:
+        flipped = rgb[::-1, ::-1, :]
+        assert flipped.strides[0] < 0
+        assert flipped.strides[1] < 0
+        assert flipped.strides[2] > 0
+
+        buffer = viren2d.ImageBuffer(flipped)
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(flipped, restored)
+
+        # Slicing
+        sliced = rgb[::2, ::-4, ::-1]
+        assert sliced.strides[0] > 0
+        assert sliced.strides[1] < 0
+        assert sliced.strides[2] < 0
+
+        buffer = viren2d.ImageBuffer(sliced)
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(sliced, restored)
+
+
 def test_pixelation():
     img_np = np.ones((7, 5, 2), dtype=np.int32)
     img_np[:, :, 1] = 17

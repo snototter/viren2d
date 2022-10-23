@@ -49,7 +49,8 @@ inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
 }
 
 
-ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
+ImageBuffer CreateImageBuffer(
+    py::array buf, bool copy, bool disable_warnings) {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3) {
     std::ostringstream s;
@@ -105,16 +106,14 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   ImageBuffer img;
   const int row_stride = static_cast<int>(buf.strides(0));
   const int col_stride = static_cast<int>(buf.strides(1));
+  const int channel_stride = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.strides(2));
   const int height = static_cast<int>(buf.shape(0));
   const int width = static_cast<int>(buf.shape(1));
   const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
-  SPDLOG_CRITICAL("FIXME strides(2)? rowstride {}, colstride {}, chstride {}",
-    static_cast<int>(buf.strides(0)), static_cast<int>(buf.strides(1)), (buf.ndim() == 2) ? 1 : static_cast<int>(buf.strides(2)) );
-
   if ((buf.flags() & py::array::c_style) != py::array::c_style) {
     // Non-contiguous buffers must be copied element-wise:
-    if (!copy) {
+    if (!copy && !disable_warnings) {
       SPDLOG_WARN(
             "Input python array is not row-major. The "
             "`viren2d.ImageBuffer` will be created as a copy, which ignores "
@@ -122,7 +121,9 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     }
     img.CreateCopiedBuffer(
           static_cast<unsigned char const*>(buf.data()),
-          height, width, channels, row_stride, col_stride, buffer_type);
+          height, width, channels,
+          row_stride, col_stride, channel_stride,
+          buffer_type);
   } else {
     // C-style buffers can be shared & easily copied.
 
@@ -132,17 +133,34 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
     // some overhead (memory copy) over exceptions during python/cpp
     // type conversion.
     if (!copy && !buf.writeable()) {
-      SPDLOG_WARN(
-            "Input python array is not writeable. The "
-            "`viren2d.ImageBuffer` will be created as a copy, which ignores "
-            "the input parameter `copy=False`.");
+      if (!disable_warnings) {
+        SPDLOG_WARN(
+              "Input python array is not writeable. The "
+              "`viren2d.ImageBuffer` will be created as a copy, which ignores "
+              "the input parameter `copy=False`.");
+      }
+      copy = true;
+    }
+
+    // If the stride is negative (e.g. when casting `image[:,:,::-1]`),
+    // we need to force a deep copy.
+    if (!copy && ((row_stride < 0) || (col_stride < 0) || (channel_stride < 0))) {
+      if (!disable_warnings) {
+        SPDLOG_WARN(
+              "Channel stride ({:d}) of python array does not match "
+              "itemsize ({:d}). The `viren2d.ImageBuffer` will be created as a "
+              "copy, which ignores the input parameter `copy=False`.",
+              channel_stride, static_cast<int>(buf_dtype.itemsize()));
+      }
       copy = true;
     }
 
     if (copy) {
       img.CreateCopiedBuffer(
             static_cast<unsigned char const*>(buf.data()),
-            height, width, channels, row_stride, col_stride, buffer_type);
+            height, width, channels,
+            row_stride, col_stride, channel_stride,
+            buffer_type);
     } else {
       img.CreateSharedBuffer(
             static_cast<unsigned char*>(buf.mutable_data()),
@@ -270,11 +288,25 @@ void RegisterImageBuffer(py::module &m) {
         py::init(&CreateImageBuffer), R"docstr(
         Creates an *ImageBuffer* from a :class:`numpy.ndarray`.
 
+        Note:
+          If the provided array is "incompatible" with the ImageBuffer
+          implementation (*e.g.* requesting a shared buffer but the
+          array is not mutable, or the array view has negative strides,
+          etc.), the ImageBuffer will enforce a deep copy (as this
+          results in a contiguous, row-major buffer).
+          If this overrides the ``copy`` parameter, a warning message
+          will be logged, unless you set ``disable_warnings`` explicitly.
+
         Args:
           array: The :class:`numpy.ndarray` holding the image data.
           copy: If ``True``, the :class:`~viren2d.ImageBuffer` will
             make a deep copy of the given ``array``.
-        )docstr", py::arg("array"), py::arg("copy")=false)
+          disable_warnings: If ``True``, warnings about overriding the
+            ``copy`` parameter will be silenced.
+        )docstr",
+        py::arg("array"),
+        py::arg("copy") = false,
+        py::arg("disable_warnings") = false)
       .def_buffer(&ImageBufferInfo)
       .def(
         "copy",
