@@ -109,6 +109,9 @@ ImageBuffer CreateImageBuffer(py::array buf, bool copy) {
   const int width = static_cast<int>(buf.shape(1));
   const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
+  SPDLOG_CRITICAL("FIXME strides(2)? rowstride {}, colstride {}, chstride {}",
+    static_cast<int>(buf.strides(0)), static_cast<int>(buf.strides(1)), (buf.ndim() == 2) ? 1 : static_cast<int>(buf.strides(2)) );
+
   if ((buf.flags() & py::array::c_style) != py::array::c_style) {
     // Non-contiguous buffers must be copied element-wise:
     if (!copy) {
