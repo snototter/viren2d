@@ -1,5 +1,7 @@
+from typing import Any, Dict
 import numpy as np
 import viren2d
+import logging
 
 
 class VisualizationPipeline(object):
@@ -35,27 +37,37 @@ class VisualizationPipeline(object):
         """
         Adds the given visualizer to this pipeline.
 
-        A valid visualizer must have an `apply` method, which takes the
-        `viren2d.Painter` (used for drawing) and its additional parameters.
+        Args:
+          identifier: Unique identifier which will be used to look up the
+            input parameters for this visualizer in the `visualize` call.
+          visualizer: A visualizer must have an `apply` method, which takes the
+            `viren2d.Painter` (used for drawing) and its additional parameters.
         """
         if identifier in self._identifiers:
             raise KeyError(
                 f'Identifier "{identifier}" has already been registered')
+
         apply_op = getattr(visualizer, 'apply', None)
         if not callable(apply_op):
             raise ValueError(
                 f'Visualizer "{identifier}" does not have an `apply` method.')
+
         self._identifiers.add(identifier)
         self._visualizers.append((identifier, visualizer))
     
     def visualize(
             self, image: np.ndarray,
-            visualizer_args: dict) -> np.ndarray:
+            visualizer_args: Dict[str, Any]) -> np.ndarray:
         """
         Applies the configured visualization pipeline on the given image.
-        
-        TODO document usage of visualizer_args or refer to the examples in
-        the pipeline's docstring.
+
+        Returns the visualization result as RGB image.
+
+        Args:
+          image: Input image.
+          visualizer_args: Dictionary holding the input parameters for each
+            registered visualizer. The lookup key (type `str`) is the
+            identifier used for the corresponding `add` call.
         """
         if image is None:
             return None
@@ -65,6 +77,13 @@ class VisualizationPipeline(object):
         buffer = viren2d.ImageBuffer(image, copy)
         self._painter.set_canvas_image(buffer)
 
+        # Warn the user about potential typos
+        for k in visualizer_args.keys():
+            if k not in self._identifiers:
+                logging.warning(
+                    f'Visualizer "{k}" has not been registered, but its parameters '
+                    'are provided - check calling code for potential typo.')
+
         # Apply all configured visualizers
         for identifier, visualizer in self._visualizers:
             if identifier in visualizer_args:
@@ -72,7 +91,5 @@ class VisualizationPipeline(object):
             else:
                 visualizer.apply(self._painter)
 
-        # Return the visualization result
-        rgba = self._painter.canvas
-        rgb = rgba.to_channels(3)
-        return np.array(rgb, copy=True)
+        # Return the visualization result (RGBA) as RGB image
+        return np.array(self._painter.canvas.to_channels(3), copy=True)
