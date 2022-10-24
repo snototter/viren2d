@@ -215,10 +215,7 @@ def test_non_contiguous_inits():
     assert viren2d.ImageBuffer(non_cont).is_valid
 
 
-def test_views():
-    #TODO test x.transpose(), copy=False
-    #TODO test x.flags.writeable = False
-    #TODO check that warning is issued! https://docs.pytest.org/en/7.1.x/how-to/capture-stdout-stderr.html#accessing-captured-output-from-a-test-function
+def test_buffer_from_views(capfd):
     for dt in [np.uint8, np.int64, np.float32]:
         rgb = (np.random.rand(30, 40, 3) * 255).astype(dt)
 
@@ -227,16 +224,41 @@ def test_views():
         assert bgr.strides[2] < 0
 
         buffer = viren2d.ImageBuffer(bgr)
+        # Check that there was a warning
+        # Currently, spdlog writes everything to stdout (default setting)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not row-major. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
+        # Check that the buffer was transferred to viren2d correctly
         restored = np.array(buffer, copy=False)
         assert np.allclose(bgr, restored)
 
-        # Negative row & column strides:
+        # Repeat, but disable the warning
+        buffer = viren2d.ImageBuffer(bgr, disable_warnings=True)
+        captured = capfd.readouterr()
+        assert captured.out == ''
+        assert captured.err == ''
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(bgr, restored)
+
+        # Repeat, but enforce a copy --> thus, there should also be no warning
+        buffer = viren2d.ImageBuffer(bgr, copy=True, disable_warnings=False)
+        captured = capfd.readouterr()
+        assert captured.out == ''
+        assert captured.err == ''
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(bgr, restored)
+
+        # Test negative row & column strides:
         flipped = rgb[::-1, ::-1, :]
         assert flipped.strides[0] < 0
         assert flipped.strides[1] < 0
         assert flipped.strides[2] > 0
 
         buffer = viren2d.ImageBuffer(flipped)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not row-major. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
         restored = np.array(buffer, copy=False)
         assert np.allclose(flipped, restored)
 
@@ -249,6 +271,28 @@ def test_views():
         buffer = viren2d.ImageBuffer(sliced)
         restored = np.array(buffer, copy=False)
         assert np.allclose(sliced, restored)
+
+        # #TODO test x.transpose(), copy=False
+    #TODO test x.flags.writeable = False
+        # Transpose
+        trans = np.transpose(rgb)
+        buffer = viren2d.ImageBuffer(trans)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not row-major. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(trans, restored)
+
+        # Try sharing (which requires write-access) a read-only buffer
+        rgb.flags.writeable = False
+        assert not rgb.flags.writeable
+        buffer = viren2d.ImageBuffer(rgb)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not writeable. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(rgb, restored)
+
 
 
 def test_pixelation():

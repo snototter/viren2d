@@ -111,6 +111,7 @@ ImageBuffer CreateImageBuffer(
   const int width = static_cast<int>(buf.shape(1));
   const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
 
+  //TODO refactor/clean up --> check/set copy flag; move createcopy/share outside of if/else
   if ((buf.flags() & py::array::c_style) != py::array::c_style) {
     // Non-contiguous buffers must be copied element-wise:
     if (!copy && !disable_warnings) {
