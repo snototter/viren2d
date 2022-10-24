@@ -216,6 +216,9 @@ def test_non_contiguous_inits():
 
 
 def test_views():
+    #TODO test x.transpose(), copy=False
+    #TODO test x.flags.writeable = False
+    #TODO check that warning is issued! https://docs.pytest.org/en/7.1.x/how-to/capture-stdout-stderr.html#accessing-captured-output-from-a-test-function
     for dt in [np.uint8, np.int64, np.float32]:
         rgb = (np.random.rand(30, 40, 3) * 255).astype(dt)
 
