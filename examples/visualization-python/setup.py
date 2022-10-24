@@ -7,7 +7,7 @@ long_description = 'TODO'
 version = 'dev'
 
 setuptools.setup(
-    name="visualizers",
+    name="cvvis2d",
     version=version,
     author="snototter",
     author_email="snototter@users.noreply.github.com",

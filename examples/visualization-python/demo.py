@@ -1,8 +1,8 @@
 #TODO requires OpenCV
 import cv2
+import numpy as np
 import datetime
-from visualizers.pipeline import VisualizationPipeline
-from visualizers.text_overlay import TextOverlay, frame_label, StaticTextOverlay
+import cvvis2d
 
 
 def demo_webcam_visualizer():
@@ -10,12 +10,12 @@ def demo_webcam_visualizer():
     if not cam.isOpened():
         raise IOError('Cannot open webcam')
 
-    visualizer = VisualizationPipeline()
-    overlay = TextOverlay()
+    visualizer = cvvis2d.VisualizationPipeline()
+    overlay = cvvis2d.TextOverlay()
     overlay.text_style.color = 'navyblue'
     visualizer.add('frame-label', overlay)
 
-    overlay = StaticTextOverlay()
+    overlay = cvvis2d.StaticTextOverlay()
     overlay.text = 'Pipeline Demo'
     visualizer.add('static-text', overlay)
     
@@ -25,10 +25,15 @@ def demo_webcam_visualizer():
         if not retval:
             break
 
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gx = cv2.Sobel(gray, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=3)
+        gy = cv2.Sobel(gray, ddepth=cv2.CV_32F, dx=0, dy=1, ksize=3)
+        mag = cv2.convertScaleAbs(np.sqrt(gx**2 + gy**2))
+        frame = cv2.cvtColor(mag, cv2.COLOR_GRAY2BGR)
         # Convert from OpenCV BGR to RGB (used by viren2d)
         rgb = frame[:, :, ::-1]
         # Prepare parameters for the configured visualizers
-        text = frame_label('Webcam', num_frames, datetime.datetime.now())
+        text = cvvis2d.frame_label('Webcam', num_frames, datetime.datetime.now())
         # Apply the visualization pipeline
         vis = visualizer.visualize(rgb, {'frame-label': text})
         # Convert back to BGR for display
