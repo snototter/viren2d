@@ -261,6 +261,10 @@ void RegisterVec(py::module &m) {
         doc.str().c_str(),
         py::arg("value"));
 
+  std::ostringstream().swap(doc);
+  doc << "Creates a copy of the given ``" << VC::TypeName() << "``.";
+  vec_cls.def(
+        py::init<const VC&>(), doc.str().c_str(), py::arg("vec"));
 
   std::ostringstream().swap(doc);
   doc << "Creates a vector from a " << dim << "-element :class:`tuple`.";
