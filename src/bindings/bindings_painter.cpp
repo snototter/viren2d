@@ -1380,7 +1380,11 @@ void RegisterPainter(py::module &m) {
   painter.def(
         "draw_xyz_axes",
         &PainterWrapper::DrawXYZAxes, R"docstr(
-        Draws three arrows to visualize a coordinate system reference frame.
+        Visualizes a coordinate system reference frame.
+
+        Draws three arrows showing the orientation of the *x*, *y*, and
+        *z* axes at a given position. Note that the default parameter settings
+        assume that the metric camera calibration is given in **millimeters**.
 
         **Corresponding C++ API:** ``viren2d::Painter::DrawXYZAxes``.
 
