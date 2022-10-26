@@ -43,9 +43,9 @@ This means that conversion to a :class:`numpy.ndarray` is as simple as:
 NumPy |right-arrow| viren2d
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Conversion from :class:`numpy.ndarray` to :class:`~viren2d.ImageBuffer` is again
-almost a no-brainer thanks to the buffer protocol. You only need to decide
-whether to copy the data or not:
+Conversion from :class:`numpy.ndarray` to :class:`~viren2d.ImageBuffer` is easy
+thanks to the buffer protocol. You only need to decide whether to copy the data
+or not:
 
 .. code-block:: python
    :linenos:
@@ -55,11 +55,39 @@ whether to copy the data or not:
 
    img_np = np.ones((600, 800, 3), dtype=np.uint8)
 
-   # Create a shared buffer (no memory allocation)
+   # Create a shared buffer (no memory allocation):
    img_buf = viren2d.ImageBuffer(img_np, copy=False)
 
-   # Create a deeply copied buffer
+   # Create a copy:
    img_buf = viren2d.ImageBuffer(img_np, copy=True)
+
+
+The only **caveat** is that converting NumPy array views (*e.g.* slices,
+non-contiguous buffers, *etc.*) to :class:`~viren2d.ImageBuffer` **will
+always result in a deeply copied buffer** (as ``viren2d`` requires contiguous
+memory layouts):
+
+.. code-block:: python
+   :linenos:
+
+   import numpy as np
+   import viren2d
+
+   # Create a non-contiguous view, e.g. by flipping the color channels:
+   img_np_bgr = np.ones((600, 800, 3), dtype=np.uint8)
+   img_np_rgb = img_np_bgr[:, :, ::-1]
+
+   # Convert this view to an ImageBuffer:
+   img_buf = viren2d.ImageBuffer(img_np_rgb, copy=True)
+
+   # Non-contiguous views will *always* result in a copy!
+   # If the `copy` flag contradicts this, viren2d will log a warning
+   # message and ignore the `copy` request:
+   img_buf = viren2d.ImageBuffer(img_np_rgb, copy=False)
+
+   # Note that this warning can be suppressed:
+   img_buf = viren2d.ImageBuffer(img_np_rgb, copy=False, disable_warnings=True)
+
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

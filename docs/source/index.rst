@@ -13,7 +13,7 @@ Visualize Computer Vision Results Neatly in 2D
    ``viren2d`` has not yet reached a stable `v1.0` release.
    
    A stable, mostly feature-complete version might be released in
-   late 2022/early 2023 (this is only a hobby project).
+   early 2023 (this is only a hobby project).
    I **do not recommend** using this toolbox before ``v1.0``.
    Until then, the API may and will change anytime, many features
    are still not properly tested, python bindings & documentation
