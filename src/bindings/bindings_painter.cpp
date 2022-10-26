@@ -32,6 +32,21 @@ Anchor AnchorFromPyObject(const py::object &o) {
 }
 
 
+ImageBuffer ImageBufferU8C4FromPyObject(const py::object &o) {
+  if (py::isinstance<ImageBuffer>(o)) {
+    return py::cast<ImageBuffer>(o).ToUInt8(4);
+  } else if (py::isinstance<py::array>(o)) {
+    return CreateImageBufferUint8C4(py::cast<py::array>(o));
+  } else {
+    std::string s("Cannot convert type `");
+    s += py::cast<std::string>(
+          o.attr("__class__").attr("__name__"));
+    s += "` to `viren2d.ImageBuffer` (uint8, 4-channels)!";
+    throw std::invalid_argument(s);
+  }
+}
+
+
 /// A wrapper for the abstract `Painter`
 ///
 /// This is necessary because I don't want to expose
@@ -45,7 +60,7 @@ public:
   {}
 
 
-  PainterWrapper(const ImageBuffer &image)
+  PainterWrapper(const py::object &image)
     : painter_(CreatePainter()) {
     SetCanvasImage(image);
   }
@@ -67,8 +82,9 @@ public:
   }
 
 
-  void SetCanvasImage(const ImageBuffer &image) {
-    painter_->SetCanvas(image);
+  void SetCanvasImage(const py::object &image) {
+    ImageBuffer img_u8c4 = ImageBufferU8C4FromPyObject(image);
+    painter_->SetCanvas(img_u8c4);
   }
 
 
@@ -152,14 +168,14 @@ public:
     return painter_->DrawHorizonLine(K, R, t, line_style);
   }
 
-
   bool DrawImage(
-      ImageBuffer &image, const Vec2d &position,
+      const py::object &image, const Vec2d &position,
       const py::object &anchor, double alpha, double scale_x, double scale_y,
       double rotation, double clip_factor, const LineStyle &line_style) {
+    const ImageBuffer img_u8c4 = ImageBufferU8C4FromPyObject(image);
     Anchor a = AnchorFromPyObject(anchor);
     return painter_->DrawImage(
-          image, position, a, alpha,
+          img_u8c4, position, a, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
@@ -354,7 +370,7 @@ void RegisterPainter(py::module &m) {
         via :meth:`~viren2d.Painter.set_canvas_image`, *etc.*
         )docstr")
       .def(
-        py::init<const ImageBuffer&>(), R"docstr(
+        py::init<const py::object&>(), R"docstr(
         Creates a painter and initializes its canvas from an image.
 
         Initializes the painter's canvas with the given image.

@@ -4,10 +4,12 @@
 #include <string>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 #include <viren2d/colors.h>
 #include <viren2d/colormaps.h>
 #include <viren2d/primitives.h>
+#include <viren2d/imagebuffer.h>
 
 
 #define STRINGIFY(x) #x
@@ -36,6 +38,11 @@ pybind11::tuple ColorToTuple(const Color &obj);
 void RegisterEllipse(pybind11::module &m);
 void RegisterRectangle(pybind11::module &m);
 void RegisterLine2d(pybind11::module &m);
+
+
+//------------------------------------------------- ImageBuffer
+ImageBuffer CreateImageBufferUint8C4(const pybind11::array &buf);
+
 
 //-------------------------------------------------  Styles (MarkerStyle & LineStyle)
 // Enums must be registered before using them in the

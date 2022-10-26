@@ -1,6 +1,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstdlib>
+#include <cstring>
 #include <limits>
 
 #include <pybind11/operators.h>
@@ -50,7 +51,7 @@ inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
 
 
 ImageBuffer CreateImageBuffer(
-    py::array buf, bool copy, bool disable_warnings) {
+    py::array &buf, bool copy, bool disable_warnings) {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3) {
     std::ostringstream s;
@@ -169,6 +170,156 @@ ImageBuffer CreateImageBuffer(
     }
   }
   return img;
+}
+
+
+template<typename _T>
+ImageBuffer ConvertBufferToUInt8C4Helper(const py::array &buf, _T scale) {
+  const int row_stride = static_cast<int>(buf.strides(0));
+  const int col_stride = static_cast<int>(buf.strides(1));
+  const int channel_stride = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.strides(2));
+  const int height = static_cast<int>(buf.shape(0));
+  const int width = static_cast<int>(buf.shape(1));
+  const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
+
+  ImageBuffer img8u4(height, width, 4, ImageBufferType::UInt8);
+  const uint8_t* src_data = static_cast<const uint8_t*>(buf.data());
+
+  // Copy pixel by pixel because the input buffer might be a sliced,
+  // transposed, or any other view (e.g. with negative strides)
+  for (int row = 0, src_row_offset = 0;
+       row < height;
+       ++row, src_row_offset += row_stride) {
+    // The destination buffer is freshly allocated, thus the memory
+    // is aligned.
+    uint8_t *dst_ptr = img8u4.MutablePtr<uint8_t>(row, 0, 0);
+
+    for (int col = 0, src_col_offset = 0;
+         col < width;
+         ++col, src_col_offset += col_stride) {
+
+      for (int ch = 0, src_channel_offset = 0;
+           ch < 4;
+           ++ch, src_channel_offset += channel_stride) {
+        if (ch < channels) {
+          // Strides in python buffers are in bytes, thus we need
+          // to cast the resulting address to the proper type.
+          const _T* src_ptr = reinterpret_cast<const _T*>(
+                src_data + src_row_offset + src_col_offset + src_channel_offset);
+          *dst_ptr = static_cast<uint8_t>((*src_ptr) * scale);
+        } else {
+          if (ch == 3) {
+            *dst_ptr = 255;
+          } else {
+            *dst_ptr = img8u4.AtUnchecked<uint8_t>(row, col, 0);
+          }
+        }
+        ++dst_ptr;
+      }
+    }
+  }
+
+  return img8u4;
+}
+
+
+ImageBuffer CreateImageBufferUint8C4(const py::array &buf) {
+  // Sanity checks
+  if (buf.ndim() < 2 || buf.ndim() > 3) {
+    std::ostringstream s;
+    s << "Incompatible buffer dimensions - "
+         "expected `ndim` to be 2 or 3, but got: "
+      << buf.ndim() << '!';
+    SPDLOG_ERROR(s.str());
+    throw std::invalid_argument(s.str());
+  }
+
+  const pybind11::dtype buf_dtype = buf.dtype();
+  //FIXME add int8 & bool (here and in ImageBufferTypeFromDType)
+  // --> extend ImageBuffer with int8 & bool
+  if (!buf_dtype.is(py::dtype::of<uint8_t>())
+      && !buf_dtype.is(py::dtype::of<int16_t>())
+      && !buf_dtype.is(py::dtype::of<uint16_t>())
+      && !buf_dtype.is(py::dtype::of<int32_t>())
+      && !buf_dtype.is(py::dtype::of<uint32_t>())
+      && !buf_dtype.is(py::dtype::of<int64_t>())
+      && !buf_dtype.is(py::dtype::of<uint64_t>())
+      && !buf_dtype.is(py::dtype::of<float>())
+      && !buf_dtype.is(py::dtype::of<double>())) {
+    std::string s("Incompatible `dtype` (");
+    s += py::cast<std::string>(buf_dtype.attr("name"));
+    s += ", \"";
+    const py::list dt_descr = py::cast<py::list>(buf_dtype.attr("descr"));
+    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
+      // First element holds the optional name, second one holds the
+      // type description we're interested in, check for example:
+      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
+      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
+      s += py::cast<std::string>(td[1]);
+      if (i < dt_descr.size() - 1) {
+        s += "\", \"";
+      }
+    }
+    s += "\") to construct a `viren2d.ImageBuffer`!";
+    SPDLOG_ERROR(s);
+    throw std::invalid_argument(s);
+  }
+
+  const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
+  if (ElementSizeFromImageBufferType(buffer_type) != static_cast<int>(buf_dtype.itemsize())) {
+    std::ostringstream s;
+    s << "ImageBuffer `" << ImageBufferTypeToString(buffer_type)
+      << "` expected item size " << ElementSizeFromImageBufferType(buffer_type)
+      << " bytes, but python buffer info states " << buf_dtype.itemsize() << "!";
+    SPDLOG_ERROR(s.str());
+    throw std::logic_error(s.str());
+  }
+
+  const int channels = (buf.ndim() == 2) ? 1 : static_cast<int>(buf.shape(2));
+  if ((channels != 1) && (channels != 3) && (channels != 4)) {
+    std::ostringstream s;
+    s << "Python buffer has " << channels
+      << " channels, but only 1, 3, or 4 are supported for conversion to "
+         "a 4-channel uint8 ImageBuffer!";
+    SPDLOG_ERROR(s.str());
+    throw std::logic_error(s.str());
+  }
+
+
+  switch (buffer_type) {
+    case ImageBufferType::UInt8:
+      return ConvertBufferToUInt8C4Helper<uint8_t>(buf, 1);
+
+    case ImageBufferType::Int16:
+      return ConvertBufferToUInt8C4Helper<int16_t>(buf, 1);
+
+    case ImageBufferType::UInt16:
+      return ConvertBufferToUInt8C4Helper<int16_t>(buf, 1);
+
+    case ImageBufferType::Int32:
+      return ConvertBufferToUInt8C4Helper<int32_t>(buf, 1);
+
+    case ImageBufferType::UInt32:
+      return ConvertBufferToUInt8C4Helper<uint32_t>(buf, 1);
+
+    case ImageBufferType::Int64:
+      return ConvertBufferToUInt8C4Helper<int64_t>(buf, 1);
+
+    case ImageBufferType::UInt64:
+      return ConvertBufferToUInt8C4Helper<uint64_t>(buf, 1);
+
+    case ImageBufferType::Float:
+      return ConvertBufferToUInt8C4Helper<float>(buf, 255);
+
+    case ImageBufferType::Double:
+      return ConvertBufferToUInt8C4Helper<double>(buf, 255);
+  }
+
+  std::string s("Conversion from python array of type `");
+  s += ImageBufferTypeToString(buffer_type);
+  s += " ` is not yet supported!";
+  SPDLOG_ERROR(s);
+  throw std::logic_error(s);
 }
 
 
