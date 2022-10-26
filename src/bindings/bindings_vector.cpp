@@ -118,27 +118,27 @@ werkzeugkiste::geometry::Vec<_Tp, dim> VecFromArray(const py::array &arr) {
   }
 
   const py::dtype dtype = arr.dtype();
-  if (dtype.is(py::dtype::of<uint8_t>())) {
+  if (py::isinstance<py::array_t<uint8_t>>(arr)) {
     return VecFromArrayT<uint8_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<int8_t>())) {
+  } else if (py::isinstance<py::array_t<int8_t>>(arr)) {
     return VecFromArrayT<int8_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<int16_t>())) {
+  } else if (py::isinstance<py::array_t<int16_t>>(arr)) {
     return VecFromArrayT<int16_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<uint16_t>())) {
+  } else if (py::isinstance<py::array_t<uint16_t>>(arr)) {
     return VecFromArrayT<uint16_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<int32_t>())) {
+  } else if (py::isinstance<py::array_t<int32_t>>(arr)) {
     return VecFromArrayT<int32_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<uint32_t>())) {
+  } else if (py::isinstance<py::array_t<uint32_t>>(arr)) {
     return VecFromArrayT<uint32_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<int64_t>())) {
+  } else if (py::isinstance<py::array_t<int64_t>>(arr)) {
     return VecFromArrayT<int64_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<uint64_t>())) {
+  } else if (py::isinstance<py::array_t<uint64_t>>(arr)) {
     return VecFromArrayT<uint64_t, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<float>())) {
+  } else if (py::isinstance<py::array_t<float>>(arr)) {
     return VecFromArrayT<float, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<double>())) {
+  } else if (py::isinstance<py::array_t<double>>(arr)) {
     return VecFromArrayT<double, _Tp, dim>(arr);
-  } else if (dtype.is(py::dtype::of<bool>())) {
+  } else if (py::isinstance<py::array_t<bool>>(arr)) {
     return VecFromArrayT<bool, _Tp, dim>(arr);
   } else {
     std::string s("Incompatible `dtype` (");

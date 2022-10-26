@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <tuple>
 
 #include <Eigen/Core>
 
@@ -432,9 +433,10 @@ public:
   ///   color_z: Color of the *z* axis arrow. Default bluish.
   ///
   /// Returns:
+  /// TODO
   ///   True if at least one point (axis arrow tip or the origin) is
   ///   visible within the camera's field-of-view
-  bool DrawXYZAxes(
+  std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxes(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin = Vec3d::All(0.0),
       const Vec3d &axes_lengths = Vec3d::All(1e3),
@@ -572,7 +574,7 @@ protected:
 
 
   /// Internal helper to allow default values in public interface.
-  virtual bool DrawXYZAxesImpl(
+  virtual std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxesImpl(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin, const Vec3d &axes_lengths, const ArrowStyle &style,
       const Color &color_x, const Color &color_y, const Color &color_z) = 0;

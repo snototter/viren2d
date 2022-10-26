@@ -21,31 +21,48 @@ namespace bindings {
   // 1) enable creation from int8, bool (also provide bool.convert_to_uchar)
   // 2) DONE non-c-contig --> iterate pixel by pixel
 
-inline ImageBufferType ImageBufferTypeFromDType(const pybind11::dtype &dt) {
-  if (dt.is(py::dtype::of<uint8_t>())) {
+/// Returns the ImageBufferType for the array's dtype.
+/// As this method is only used during NumPy --> C++ conversion, a
+/// ValueError (std::invalid_argument) will be raised (thrown) for
+/// unsupported dtypes.
+inline ImageBufferType ImageBufferTypeFromPyArray(const py::array &arr) {
+  if (py::isinstance<py::array_t<uint8_t>>(arr)) {
     return ImageBufferType::UInt8;
-  } else if (dt.is(py::dtype::of<int16_t>())) {
+  } else if (py::isinstance<py::array_t<int16_t>>(arr)) {
     return ImageBufferType::Int16;
-  } else if (dt.is(py::dtype::of<uint16_t>())) {
+  } else if (py::isinstance<py::array_t<uint16_t>>(arr)) {
     return ImageBufferType::UInt16;
-  } else if (dt.is(py::dtype::of<int32_t>())) {
+  } else if (py::isinstance<py::array_t<int32_t>>(arr)) {
     return ImageBufferType::Int32;
-  } else if (dt.is(py::dtype::of<uint32_t>())) {
+  } else if (py::isinstance<py::array_t<uint32_t>>(arr)) {
     return ImageBufferType::UInt32;
-  } else if (dt.is(py::dtype::of<int64_t>())) {
+  } else if (py::isinstance<py::array_t<int64_t>>(arr)) {
     return ImageBufferType::Int64;
-  } else if (dt.is(py::dtype::of<uint64_t>())) {
+  } else if (py::isinstance<py::array_t<uint64_t>>(arr)) {
     return ImageBufferType::UInt64;
-  } else if (dt.is(py::dtype::of<float>())) {
+  } else if (py::isinstance<py::array_t<float>>(arr)) {
     return ImageBufferType::Float;
-  } else if (dt.is(py::dtype::of<double>())) {
+  } else if (py::isinstance<py::array_t<double>>(arr)) {
     return ImageBufferType::Double;
   } else {
-    std::string s("Buffer `dtype` ");
-    s += py::cast<std::string>(dt.attr("name"));
-    s += " is not handled in `ImageBufferTypeFromDType`!";
+    const py::dtype dtype = arr.dtype();
+    std::string s("Incompatible `dtype` (");
+    s += py::cast<std::string>(dtype.attr("name"));
+    s += ", \"";
+    const py::list dt_descr = py::cast<py::list>(dtype.attr("descr"));
+    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
+      // First element holds the optional name, second one holds the
+      // type description we're interested in, check for example:
+      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
+      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
+      s += py::cast<std::string>(td[1]);
+      if (i < dt_descr.size() - 1) {
+        s += "\", \"";
+      }
+    }
+    s += "\") to compute the ImageBufferType!";
     SPDLOG_ERROR(s);
-    throw std::logic_error(s);
+    throw std::invalid_argument(s);
   }
 }
 
@@ -62,43 +79,14 @@ ImageBuffer CreateImageBuffer(
     throw std::invalid_argument(s.str());
   }
 
-  const pybind11::dtype buf_dtype = buf.dtype();
-  //FIXME add int8 & bool (here and in ImageBufferTypeFromDType)
-  // --> extend ImageBuffer with int8 & bool
-  if (!buf_dtype.is(py::dtype::of<uint8_t>())
-      && !buf_dtype.is(py::dtype::of<int16_t>())
-      && !buf_dtype.is(py::dtype::of<uint16_t>())
-      && !buf_dtype.is(py::dtype::of<int32_t>())
-      && !buf_dtype.is(py::dtype::of<uint32_t>())
-      && !buf_dtype.is(py::dtype::of<int64_t>())
-      && !buf_dtype.is(py::dtype::of<uint64_t>())
-      && !buf_dtype.is(py::dtype::of<float>())
-      && !buf_dtype.is(py::dtype::of<double>())) {
-    std::string s("Incompatible `dtype` (");
-    s += py::cast<std::string>(buf_dtype.attr("name"));
-    s += ", \"";
-    const py::list dt_descr = py::cast<py::list>(buf_dtype.attr("descr"));
-    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
-      // First element holds the optional name, second one holds the
-      // type description we're interested in, check for example:
-      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
-      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
-      s += py::cast<std::string>(td[1]);
-      if (i < dt_descr.size() - 1) {
-        s += "\", \"";
-      }
-    }
-    s += "\") to construct a `viren2d.ImageBuffer`!";
-    SPDLOG_ERROR(s);
-    throw std::invalid_argument(s);
-  }
 
-  const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
-  if (ElementSizeFromImageBufferType(buffer_type) != static_cast<int>(buf_dtype.itemsize())) {
+  const ImageBufferType buffer_type = ImageBufferTypeFromPyArray(buf);
+
+  if (ElementSizeFromImageBufferType(buffer_type) != static_cast<int>(buf.itemsize())) {
     std::ostringstream s;
     s << "ImageBuffer `" << ImageBufferTypeToString(buffer_type)
       << "` expected item size " << ElementSizeFromImageBufferType(buffer_type)
-      << " bytes, but python buffer info states " << buf_dtype.itemsize() << "!";
+      << " bytes, but python buffer info states " << buf.itemsize() << "!";
     SPDLOG_ERROR(s.str());
     throw std::logic_error(s.str());
   }
@@ -152,7 +140,7 @@ ImageBuffer CreateImageBuffer(
               "Channel stride ({:d}) of python array does not match "
               "itemsize ({:d}). The `viren2d.ImageBuffer` will be created as a "
               "copy, which ignores the input parameter `copy=False`.",
-              channel_stride, static_cast<int>(buf_dtype.itemsize()));
+              channel_stride, static_cast<int>(buf.itemsize()));
       }
       copy = true;
     }
@@ -161,8 +149,7 @@ ImageBuffer CreateImageBuffer(
       img.CreateCopiedBuffer(
             static_cast<unsigned char const*>(buf.data()),
             height, width, channels,
-            row_stride, col_stride, channel_stride,
-            buffer_type);
+            row_stride, col_stride, channel_stride, buffer_type);
     } else {
       img.CreateSharedBuffer(
             static_cast<unsigned char*>(buf.mutable_data()),
@@ -234,43 +221,12 @@ ImageBuffer CreateImageBufferUint8C4(const py::array &buf) {
     throw std::invalid_argument(s.str());
   }
 
-  const pybind11::dtype buf_dtype = buf.dtype();
-  //FIXME add int8 & bool (here and in ImageBufferTypeFromDType)
-  // --> extend ImageBuffer with int8 & bool
-  if (!buf_dtype.is(py::dtype::of<uint8_t>())
-      && !buf_dtype.is(py::dtype::of<int16_t>())
-      && !buf_dtype.is(py::dtype::of<uint16_t>())
-      && !buf_dtype.is(py::dtype::of<int32_t>())
-      && !buf_dtype.is(py::dtype::of<uint32_t>())
-      && !buf_dtype.is(py::dtype::of<int64_t>())
-      && !buf_dtype.is(py::dtype::of<uint64_t>())
-      && !buf_dtype.is(py::dtype::of<float>())
-      && !buf_dtype.is(py::dtype::of<double>())) {
-    std::string s("Incompatible `dtype` (");
-    s += py::cast<std::string>(buf_dtype.attr("name"));
-    s += ", \"";
-    const py::list dt_descr = py::cast<py::list>(buf_dtype.attr("descr"));
-    for (std::size_t i = 0; i < dt_descr.size(); ++i) {
-      // First element holds the optional name, second one holds the
-      // type description we're interested in, check for example:
-      // https://numpy.org/doc/stable/reference/generated/numpy.dtype.descr.html
-      const py::tuple td = py::cast<py::tuple>(dt_descr[i]);
-      s += py::cast<std::string>(td[1]);
-      if (i < dt_descr.size() - 1) {
-        s += "\", \"";
-      }
-    }
-    s += "\") to construct a `viren2d.ImageBuffer`!";
-    SPDLOG_ERROR(s);
-    throw std::invalid_argument(s);
-  }
-
-  const ImageBufferType buffer_type = ImageBufferTypeFromDType(buf_dtype);
-  if (ElementSizeFromImageBufferType(buffer_type) != static_cast<int>(buf_dtype.itemsize())) {
+  const ImageBufferType buffer_type = ImageBufferTypeFromPyArray(buf);
+  if (ElementSizeFromImageBufferType(buffer_type) != static_cast<int>(buf.itemsize())) {
     std::ostringstream s;
     s << "ImageBuffer `" << ImageBufferTypeToString(buffer_type)
       << "` expected item size " << ElementSizeFromImageBufferType(buffer_type)
-      << " bytes, but python buffer info states " << buf_dtype.itemsize() << "!";
+      << " bytes, but python buffer info states " << buf.itemsize() << "!";
     SPDLOG_ERROR(s.str());
     throw std::logic_error(s.str());
   }

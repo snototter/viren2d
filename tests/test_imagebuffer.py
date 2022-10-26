@@ -173,7 +173,7 @@ def test_dtypes():
         np.uint8, np.int16, np.uint16, np.int32, np.uint32,
         np.int64, np.uint64, np.float32, np.float64]
     not_supported_types = [
-        np.int8, np.float16, '?']
+        np.int8, np.float16, '?', bool]
 
     for channels in [1, 2, 3]:
         for tp in supported_types:

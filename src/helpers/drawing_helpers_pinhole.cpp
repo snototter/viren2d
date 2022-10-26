@@ -30,7 +30,8 @@ bool DrawXYZAxes(
     const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
     const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
     const Color &color_x, const Color &color_y, const Color &color_z,
-    const Vec2i &img_size) {
+    const Vec2i &img_size, Vec2d &img_origin, Vec2d &img_endpoint_x,
+    Vec2d &img_endpoint_y, Vec2d &img_endpoint_z) {
   // Surface/context check is done in `DrawArrow`
 
   //FIXME just return on invalid inputs (in each DrawXXX call)?
@@ -79,25 +80,31 @@ bool DrawXYZAxes(
   }
 
   // Project points into the image:
-  Vec2d img_origin, img_x, img_y, img_z;
-  std::tie(img_origin, img_x, img_y, img_z) = wgu::ProjectToVecs(
+  std::tie(
+        img_origin, img_endpoint_x, img_endpoint_y,
+        img_endpoint_z) = wgu::ProjectToVecs(
         P, origin, tip_x, tip_y, tip_z);
 
   // Check if any point is visible:
   bool is_any_visible = is_origin_in_front;
-  for (const auto &p : {img_x, img_y, img_z}) {
+  for (const auto &p : {img_endpoint_x, img_endpoint_y, img_endpoint_z}) {
     is_any_visible |= wgu::IsPointInsideImage(p, img_size);
   }
 
-  // TODO adjust once drawarrow is noexcept and returns boolean flag
   ArrowStyle axis_style(style);
   axis_style.color = color_x;
-  DrawArrow(surface, context, img_origin, img_x, axis_style);
+  bool success = DrawArrow(
+        surface, context, img_origin, img_endpoint_x, axis_style);
+
   axis_style.color = color_y;
-  DrawArrow(surface, context, img_origin, img_y, axis_style);
+  success &= DrawArrow(
+        surface, context, img_origin, img_endpoint_y, axis_style);
+
   axis_style.color = color_z;
-  DrawArrow(surface, context, img_origin, img_z, axis_style);
-  return is_any_visible;
+  success &= DrawArrow(
+        surface, context, img_origin, img_endpoint_z, axis_style);
+
+  return is_any_visible && success;
 }
 
 

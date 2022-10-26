@@ -346,16 +346,19 @@ protected:
   }
 
 
-  bool DrawXYZAxesImpl(
+  std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxesImpl(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
       const Color &color_x, const Color &color_y,
       const Color &color_z) override {
     SPDLOG_DEBUG(
           "DrawXYZAxes: Axis lengths {:s}.", lengths);
-    return helpers::DrawXYZAxes(
+    Vec2d img_origin, img_x, img_y, img_z;
+    bool any_visible = helpers::DrawXYZAxes(
           surface_, context_, K, R, t, origin, lengths, style,
-          color_x, color_y, color_z, GetCanvasSize());
+          color_x, color_y, color_z, GetCanvasSize(), img_origin,
+          img_x, img_y, img_z);
+    return std::make_tuple(any_visible, img_origin, img_x, img_y, img_z);
   }
 
 

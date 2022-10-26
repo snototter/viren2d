@@ -261,7 +261,7 @@ public:
           smoothing_window, fading_factor);
   }
 
-  bool DrawXYZAxes(
+  std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxes(
       const py::EigenDRef<const Matrix3x3d> K,
       const py::EigenDRef<const Matrix3x3d> R,
       const Vec3d &t,
@@ -1429,10 +1429,14 @@ void RegisterPainter(py::module &m) {
           color_z: :class:`~viren2d.Color` of the :math:`z` axis arrow. Default bluish.
 
         Returns:
-          ``True`` if drawing completed successfully and at least one
+          A ``tuple(visible, origin, tip_x, tip_y, tip_z)``, where ``visible``
+          is ``True`` if drawing completed successfully and at least one
           point (axis arrow tip or the origin) is visible within the camera's
           field-of-view. Drawing errors (such as caused by invalid inputs) will
           be indicated by log messages.
+          The other result variables are of type :class:`~viren2d.Vec2d` and
+          hold the image coordinates of the ``origin``, as well as the tips
+          (*i.e.* end points) of the arrows.
 
         Example:
           >>> K = np.array(
