@@ -1271,7 +1271,6 @@ ImageBuffer ColorPop(const ImageBuffer &image,
   const ImageBuffer gray = viren2d::ConvertRGB2Gray(image, 1);
 
   ImageBuffer pop = image.DeepCopy();
-  //FIXME implement loop more efficiently
   for (int row = 0; row < image.Height(); ++row) {
     for (int col = 0; col < image.Width(); ++col) {
       if (mask.AtUnchecked<unsigned char>(row, col) == 0) {
