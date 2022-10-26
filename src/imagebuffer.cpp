@@ -491,12 +491,34 @@ void ImageBuffer::CreateCopiedBuffer(
               width * column_stride);
       }
     } else {
-      // Copy each pixel
+      // Copy pixel by pixel because the input buffer might be a sliced,
+      // transposed, or any other view (e.g. with negative strides)
+//      for (int row = 0, src_row_offset = 0;
+//           row < height;
+//           ++row, src_row_offset += row_stride) {
+//        // The destination buffer is freshly allocated, thus the memory
+//        // is nicely aligned.
+//        unsigned char *dst_ptr = MutablePtr<unsigned char>(row, 0, 0);
+
+//        for (int col = 0, src_col_offset = 0;
+//             col < width;
+//             ++col, src_col_offset += column_stride) {
+
+//          for (int ch = 0, src_channel_offset = 0;
+//               ch < channels;
+//               ++ch, src_channel_offset += channel_stride) {
+//            // We can only copy one element after the other
+//            std::memcpy(
+//                  dst_ptr, buffer + src_row_offset + src_col_offset + src_channel_offset, element_size);
+//            dst_ptr += element_size;
+//          }
+//        }
+//      }
       for (int row = 0; row < height; ++row) {
         for (int col = 0; col < width; ++col) {
           for (int ch = 0; ch < channels; ++ch) {
             const int dst_idx = (row * this->row_stride) + (col * this->pixel_stride) + (ch * this->element_size);
-            int src_idx = (row * row_stride) + (col * column_stride) + (ch * channel_stride);
+            const int src_idx = (row * row_stride) + (col * column_stride) + (ch * channel_stride);
             std::memcpy(data + dst_idx, buffer + src_idx, element_size);
           }
         }
