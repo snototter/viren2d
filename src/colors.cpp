@@ -906,4 +906,52 @@ std::vector<Color> GetColorMapColors(ColorMap colormap) {
 }
 
 
+std::vector<Color> ColorizeScalars(
+    const std::vector<double> &values, ColorMap colormap,
+    double limit_low, double limit_high, int bins) {
+  std::vector<Color> colors(values.size());
+
+  if (bins < 2) {
+    std::ostringstream s;
+    s << "Number of bins for `ColorizeValues` must be > 1, but got: "
+      << bins << '!';
+    throw std::invalid_argument(s.str());
+  }
+
+  //FIXME should we support this here? --> implement min/max in werkzeugkiste!!
+//  if (std::isinf(limit_low) || std::isinf(limit_high)
+//      || std::isnan(limit_low) ||std::isnan(limit_high)) {
+//    data.MinMaxLocation(&limit_low, &limit_high);
+//  }
+
+  if (limit_high <= limit_low) {
+    std::ostringstream s;
+    s << "Invalid colorization limits [" << std::fixed
+      << std::setprecision(2) << limit_low
+      << ", " << limit_high << "]!";
+    throw std::invalid_argument(s.str());
+  }
+
+  std::pair<const helpers::RGBColor *, std::size_t> map = helpers::GetColorMap(
+        colormap);
+  bins = std::min(bins, static_cast<int>(map.second));
+
+  const int map_bins = map.second - 1;
+  const double map_idx_factor = static_cast<double>(map_bins) / (bins - 1);
+  const double interval = (limit_high - limit_low) / bins;
+
+  for (std::size_t idx = 0; idx < values.size(); ++idx) {
+    const double value = std::max(
+          limit_low, std::min(limit_high, values[idx]));
+    const int bin = std::max(0, std::min(map_bins, static_cast<int>(
+              map_idx_factor * std::floor((value - limit_low) / interval))));
+    colors[idx] = RGBa(
+          map.first[bin].red, map.first[bin].green,
+          map.first[bin].blue, 1.0);
+  }
+
+  return colors;
+}
+
+
 } // namespace viren2d

@@ -470,6 +470,14 @@ std::vector<Color> GetColorMapColorsHelper(const py::object &colormap) {
 }
 
 
+std::vector<Color> ColorizeScalarsHelper(
+    const std::vector<double> &values, const py::object &colormap,
+    double limit_low, double limit_high, int bins) {
+  ColorMap cm = ColorMapFromPyObject(colormap);
+  return ColorizeScalars(values, cm, limit_low, limit_high, bins);
+}
+
+
 void RegisterColormaps(pybind11::module &m) {
   py::enum_<StreamColorizer::LimitsMode> mode(m, "LimitsMode",
              "Enumeration of how the colorization limits should be computed.");
@@ -868,6 +876,43 @@ void RegisterColormaps(pybind11::module &m) {
         )docstr",
         py::arg("height") = 600,
         py::arg("width") = 600);
+
+
+  m.def("colorize_scalars",
+        &ColorizeScalarsHelper, R"docstr(
+        Returns pseudocolors for a list of scalar values.
+
+        FIXME test & add to API doc
+
+        **Corresponding C++ API:** ``viren2d::ColorizeScalars``.
+
+        Args:
+          values: The input list of scalar values.
+          colormap: The :class:`~viren2d.ColorMap` to be used for
+            colorization. In addition to the enumeration value, its
+            string representation can be used for convenience.
+          low: Lower limit of the input data as :class:`float`. Will only
+            be considered if ``mode`` is :attr:`LimitsMode.Fixed`.
+          high: Upper limit of the input data as :class:`float`. Will only
+            be considered if ``mode`` is :attr:`LimitsMode.Fixed`.
+          bins: Number of discretization bins as :class:`int`.
+            Must be :math:`\geq 2`. This parameter will be ignored if the
+            selected color map has less than ``bins`` colors.
+
+        Returns:
+          A :class:`list` of :class:`~viren2d.Color`.
+
+        Example:
+          >>> values = [10, -5, 3, 177]
+          >>> colors = colorize_scalars()
+          >>> #TODO
+        )docstr",
+        py::arg("values"),
+        py::arg("colormap") = ColorMap::Gouldian,
+        py::arg("low") = std::numeric_limits<double>::infinity(),
+        py::arg("high") = std::numeric_limits<double>::infinity(),
+        py::arg("bins") = 256);
+
 }
 } // namespace bindings
 } // namespace viren2d

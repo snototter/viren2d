@@ -380,6 +380,13 @@ void SetCustomColorMap(
 std::vector<Color> GetColorMapColors(ColorMap colormap);
 
 
+/// Returns a list of colors by looking up their corresponding
+/// bin in the selected color map.
+std::vector<Color> ColorizeScalars(
+    const std::vector<double> &values, ColorMap colormap,
+    double limit_low, double limit_high, int bins = 256);
+
+
 } // namespace viren2d
 
 #endif // __VIREN2D_COLORS_H__
