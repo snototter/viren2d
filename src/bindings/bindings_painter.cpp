@@ -1018,7 +1018,7 @@ void RegisterPainter(py::module &m) {
           >>>     marker='7', size=20, color='navy-blue!80',
           >>>     thickness=1, filled=True,
           >>>     cap='round', join='miter')
-          >>> painter.draw_marker(pt=(42, 70), marker_style=marker_style)
+          >>> painter.draw_marker(position=(42, 70), marker_style=marker_style)
         )docstr",
         py::arg("position"),
         py::arg("marker_style") = MarkerStyle());
