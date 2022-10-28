@@ -138,15 +138,21 @@ def test_scalars():
         values=l1, colormap='seismic', low=float("inf"), high=float("inf"), bins=256)
     assert len(colors) == len(l1)
     assert colors[0] != colors[1]
+    assert all([isinstance(c, viren2d.Color) for c in colors])
 
     colors = viren2d.colorize_scalars(
         values=l1, colormap='seismic', low=0, high=float("inf"), bins=256)
     assert colors[0] == colors[1]
     assert colors[1] != colors[2]
+    assert all([isinstance(c, viren2d.Color) for c in colors])
 
     l2 = [0.001, 1e5, -17.3, 5]
     colors = viren2d.colorize_scalars(l2)
+    assert all([isinstance(c, viren2d.Color) for c in colors])
+    
     colors = viren2d.colorize_scalars(l2, 'ocean')
+    assert all([isinstance(c, viren2d.Color) for c in colors])
+
     with pytest.raises(TypeError):
         viren2d.colorize_scalars(list=l1)
     
