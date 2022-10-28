@@ -91,19 +91,26 @@ bool DrawXYZAxes(
     is_any_visible |= wgu::IsPointInsideImage(p, img_size);
   }
 
+  bool success = true;
   ArrowStyle axis_style(style);
-  axis_style.color = color_x;
-  bool success = DrawArrow(
-        surface, context, img_origin, img_endpoint_x, axis_style);
+  if (color_x.IsValid()) {
+    axis_style.color = color_x;
+    success &= DrawArrow(
+          surface, context, img_origin, img_endpoint_x, axis_style);
+  }
 
-  axis_style.color = color_y;
-  success &= DrawArrow(
-        surface, context, img_origin, img_endpoint_y, axis_style);
+  if (color_y.IsValid()) {
+    axis_style.color = color_y;
+    success &= DrawArrow(
+          surface, context, img_origin, img_endpoint_y, axis_style);
+  }
 
-  axis_style.color = color_z;
-  success &= DrawArrow(
-        surface, context, img_origin, img_endpoint_z, axis_style);
-
+  if (color_z.IsValid()) {
+    axis_style.color = color_z;
+    success &= DrawArrow(
+          surface, context, img_origin, img_endpoint_z, axis_style);
+  }
+  
   return is_any_visible && success;
 }
 
