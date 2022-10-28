@@ -79,15 +79,15 @@ enum class ColorMap : unsigned char
   /// `matplotlib's <https://matplotlib.org>`__ *copper* map.
   Copper,
 
-  /// A color map which can freely be set by the library user, see
+  /// Placeholder to support using your own color map, see
   /// `SetCustomColorMap`.
   Custom1,
 
-  /// A color map which can freely be set by the library user, see
+  /// Placeholder to support using your own color map, see
   /// `SetCustomColorMap`.
   Custom2,
 
-  /// A color map which can freely be set by the library user, see
+  /// Placeholder to support using your own color map, see
   /// `SetCustomColorMap`.
   Custom3,
 

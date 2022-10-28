@@ -61,23 +61,23 @@ void RegisterColorMapEnum(pybind11::module &m) {
       .value(
         "Cold",
         ColorMap::Cold, R"docstr(
-        Blue shades from dark to light. This is the CET-L06 color map by
+        Blue shades from dark to light. This is the *CET-L06* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
       .value(
         "ColorBlindDiverging",
         ColorMap::ColorBlindDiverging, R"docstr(
-        Perceptually uniform diverging color map for Protanopic/Deuteranopic
-        viewers. This is the CET-CBD1 color map by
+        Perceptually uniform diverging color map for protanopic/deuteranopic
+        viewers. This is the *CET-CBD1* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
       .value(
         "ColorBlindSequential",
         ColorMap::ColorBlindSequential, R"docstr(
-        Perceptually uniform sequential color map for Protanopic/Deuteranopic
-        viewers. This is the CET-CBL1 color map by
+        Perceptually uniform sequential color map for protanopic/deuteranopic
+        viewers. This is the *CET-CBL1* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -85,7 +85,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "ColorBlindSequentialVivid",
         ColorMap::ColorBlindSequentialVivid, R"docstr(
         Perceptually uniform sequential color map with maximal chroma, suitable
-        for Protanopic/Deuteranopic viewers. This is the CET-CBL2 color map by
+        for Protanopic/Deuteranopic viewers. This is the *CET-CBL2* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -94,7 +94,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::ColorBlindOrientation, R"docstr(
         Cyclic blue-white-yellow-black color map for four orientations/phase
         angles, suitable for Protanopic/Deuteranopic viewers.
-        This is the CET-CBC1 color map by
+        This is the *CET-CBC1* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -109,19 +109,19 @@ void RegisterColorMapEnum(pybind11::module &m) {
       .value(
         "Custom1",
         ColorMap::Custom1, R"docstr(
-        A color map which can freely be set by the user via
+        Placeholder to support using your own color map, see
         :func:`~viren2d.set_custom_colormap`.
         )docstr")
       .value(
         "Custom2",
         ColorMap::Custom2, R"docstr(
-        A color map which can freely be set by the user via
+        Placeholder to support using your own color map, see
         :func:`~viren2d.set_custom_colormap`.
         )docstr")
       .value(
         "Custom3",
         ColorMap::Custom3, R"docstr(
-        A color map which can freely be set by the user via
+        Placeholder to support using your own color map, see
         :func:`~viren2d.set_custom_colormap`.
         )docstr")
       .value(
@@ -161,7 +161,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Gouldian, R"docstr(
         Black-blue-green-orange-yellow perceptually uniform sequential color
         map. Similar to MATLAB's `parula`, but with a smoother path and more
-        uniform slope upwards in CIELAB space. This is the CET-L20 color map by
+        uniform slope upwards in CIELAB space. This is the *CET-L20* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -181,7 +181,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Hot",
         ColorMap::Hot, R"docstr(
         Black-red-yellow-white perceptually uniform sequential color map.
-        This is the CET-L03 color map by
+        This is the *CET-L03* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -194,7 +194,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
       .value(
         "Inferno",
         ColorMap::Inferno, R"docstr(
-        Bluish-to-reddish, perceptually uniform sequential color map. Proposed by
+        Bluish-to-reddish, perceptually uniform sequential color map with monotonically
+        increasing luminance. Proposed by
         `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__
         and integrated into `matplotlib >= 1.15 <https://matplotlib.org/>`__.
         )docstr")
@@ -228,7 +229,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Orientation4",
         ColorMap::Orientation4, R"docstr(
         Cyclic magenta-yellow-green-blue color map for four orientations/phase
-        angles to be visualized. This is the CET-C2 color map by
+        angles to be visualized. This is the *CET-C2* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -236,14 +237,14 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Orientation6",
         ColorMap::Orientation6, R"docstr(
         Six-color cyclic map with primaries and secondaries matched in
-        lightness. This is the CET-C6 color map by
+        lightness. This is the *CET-C6* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
       .value(
         "Rainbow",
         ColorMap::Rainbow, R"docstr(
-        The "least worse" rainbow color map, i.e. CET-R2, by
+        The "least worse" rainbow color map, *i.e.* *CET-R2*, by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -251,7 +252,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Relief",
         ColorMap::Relief, R"docstr(
         Green-brownish-bluish perceptually uniform sequential color map for
-        relief shading. This is the CET-L11 color map by
+        relief shading. This is the *CET-L11* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -259,7 +260,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "ReliefLowContrast",
         ColorMap::ReliefLowContrast, R"docstr(
         Low contrast (isoluminant), blue-green-orange perceptually uniform
-        sequential color map for relief shading. This is the CET-I2 color map by
+        sequential color map for relief shading. This is the *CET-I2* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -299,7 +300,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Temperature",
         ColorMap::Temperature, R"docstr(
         Diverging blue-white-red color map.
-        This is the CET-D01A color map by
+        This is the *CET-D01A* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -307,7 +308,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "TemperatureDark",
         ColorMap::TemperatureDark, R"docstr(
         Diverging blue-black-red color map.
-        This is the CET-D04 color map by
+        This is the *CET-D04* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
@@ -349,14 +350,14 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Viridis",
         ColorMap::Viridis, R"docstr(
         Perceptually uniform sequential color map. Proposed by
-        `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__,
+        `Stéfan van der Walt and Nathaniel Smith, based on a design by Eric Firing <https://bids.github.io/colormap/>`__,
         now the default color map of `matplotlib <https://matplotlib.org/>`__.
         )docstr")
       .value(
         "Water",
         ColorMap::Water, R"docstr(
         Perceptually uniform sequential color map for water depth.
-        This is the CET-L12 color map by
+        This is the *CET-L12* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
         under the CC-BY 4.0 license.
         )docstr")
