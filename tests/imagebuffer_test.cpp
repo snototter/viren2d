@@ -275,7 +275,7 @@ TEST(ImageBufferTest, ImageLoading) {
           ptrs[i]->ImmutableData(), ptrs[i]->Height(),
           ptrs[i]->Width(), ptrs[i]->Channels(),
           ptrs[i]->RowStride(), ptrs[i]->PixelStride(),
-          ptrs[i]->BufferType());
+          ptrs[i]->ElementSize(), ptrs[i]->BufferType());
     // Both must now own their allocated data
     EXPECT_TRUE(tmp.OwnsData());
     EXPECT_TRUE(ptrs[i]->OwnsData());
