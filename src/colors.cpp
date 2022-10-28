@@ -11,6 +11,7 @@
 #include <werkzeugkiste/strings/strings.h>
 #include <werkzeugkiste/geometry/utils.h>
 #include <werkzeugkiste/container/sort.h>
+#include <werkzeugkiste/container/math.h>
 
 #include <viren2d/colors.h>
 
@@ -918,11 +919,18 @@ std::vector<Color> ColorizeScalars(
     throw std::invalid_argument(s.str());
   }
 
-  //FIXME should we support this here? --> implement min/max in werkzeugkiste!!
-//  if (std::isinf(limit_low) || std::isinf(limit_high)
-//      || std::isnan(limit_low) ||std::isnan(limit_high)) {
-//    data.MinMaxLocation(&limit_low, &limit_high);
-//  }
+  const bool low_from_data = std::isinf(limit_low) || std::isnan(limit_low);
+  const bool high_from_data = std::isinf(limit_high) ||std::isnan(limit_high);
+  if (low_from_data || high_from_data) {
+    double min_val, max_val;
+    werkzeugkiste::container::MinMax(values, &min_val, &max_val);
+    if (low_from_data) {
+      limit_low = min_val;
+    }
+    if (high_from_data) {
+      limit_high = high_from_data;
+    }
+  }
 
   if (limit_high <= limit_low) {
     std::ostringstream s;

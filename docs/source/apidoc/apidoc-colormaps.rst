@@ -41,6 +41,8 @@ Scaled Colorization
 
 .. autofunction:: viren2d.colorize_scaled
 
+.. autofunction:: viren2d.colorize_scalars
+
 
 .. autoclass:: viren2d.StreamColorizer
    :autosummary:

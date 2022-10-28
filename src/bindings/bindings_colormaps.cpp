@@ -880,9 +880,11 @@ void RegisterColormaps(pybind11::module &m) {
 
   m.def("colorize_scalars",
         &ColorizeScalarsHelper, R"docstr(
-        Returns pseudocolors for a list of scalar values.
+        Returns corresponding color map colors for a list of scalar values.
 
-        FIXME test & add to API doc
+        Performs scaled colorization similar to :func:`~viren2d.colorize_scaled`,
+        but operates on a list of scalars (instead of a :class:`numpy.ndarray`)
+        and returns a list of :class:`~viren2d.Color` objects.
 
         **Corresponding C++ API:** ``viren2d::ColorizeScalars``.
 
@@ -891,21 +893,23 @@ void RegisterColormaps(pybind11::module &m) {
           colormap: The :class:`~viren2d.ColorMap` to be used for
             colorization. In addition to the enumeration value, its
             string representation can be used for convenience.
-          low: Lower limit of the input data as :class:`float`. Will only
-            be considered if ``mode`` is :attr:`LimitsMode.Fixed`.
-          high: Upper limit of the input data as :class:`float`. Will only
-            be considered if ``mode`` is :attr:`LimitsMode.Fixed`.
+          low: Lower limit of the input data as :class:`float`. If :math:`\infty`
+            or *NaN*, it will be computed from the input data.
+          high: Upper limit of the input data as :class:`float`. If :math:`\infty`
+            or *NaN*, it will be computed from the input data.
           bins: Number of discretization bins as :class:`int`.
             Must be :math:`\geq 2`. This parameter will be ignored if the
             selected color map has less than ``bins`` colors.
 
         Returns:
-          A :class:`list` of :class:`~viren2d.Color`.
+          A :class:`list` of :class:`~viren2d.Color` objects.
 
         Example:
-          >>> values = [10, -5, 3, 177]
-          >>> colors = colorize_scalars()
-          >>> #TODO
+          >>> values = [10, -5, 3, 177, 12345]
+          >>> colors = viren2d.colorize_scalars(
+          >>>     values=values, colormap='seismic',
+          >>>     low=float("inf"), high=float("inf"),
+          >>>     bins=256)
         )docstr",
         py::arg("values"),
         py::arg("colormap") = ColorMap::Gouldian,

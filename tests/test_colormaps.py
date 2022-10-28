@@ -129,3 +129,30 @@ def test_label_colorization():
         with pytest.raises(ValueError):
             data = np.random.randn(3,4).astype(dt)
             viren2d.colorize_labels(labels=data)
+
+
+def test_scalars():
+    l1 = [-10, 0, 3, 5, 10]
+
+    colors = viren2d.colorize_scalars(
+        values=l1, colormap='seismic', low=float("inf"), high=float("inf"), bins=256)
+    assert len(colors) == len(l1)
+    assert colors[0] != colors[1]
+
+    colors = viren2d.colorize_scalars(
+        values=l1, colormap='seismic', low=0, high=float("inf"), bins=256)
+    assert colors[0] == colors[1]
+    assert colors[1] != colors[2]
+
+    l2 = [0.001, 1e5, -17.3, 5]
+    colors = viren2d.colorize_scalars(l2)
+    colors = viren2d.colorize_scalars(l2, 'ocean')
+    with pytest.raises(TypeError):
+        viren2d.colorize_scalars(list=l1)
+    
+    with pytest.raises(TypeError):
+        viren2d.colorize_scalars(values=l1, color_map='seismic')
+
+
+#TODO test scaled colorization
+#TODO test relief shading
