@@ -63,7 +63,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Cold, R"docstr(
         Blue shades from dark to light. This is the *CET-L06* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "ColorBlindDiverging",
@@ -71,7 +71,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Perceptually uniform diverging color map for protanopic/deuteranopic
         viewers. This is the *CET-CBD1* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "ColorBlindSequential",
@@ -79,7 +79,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Perceptually uniform sequential color map for protanopic/deuteranopic
         viewers. This is the *CET-CBL1* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "ColorBlindSequentialVivid",
@@ -87,7 +87,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Perceptually uniform sequential color map with maximal chroma, suitable
         for Protanopic/Deuteranopic viewers. This is the *CET-CBL2* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "ColorBlindOrientation",
@@ -96,7 +96,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         angles, suitable for Protanopic/Deuteranopic viewers.
         This is the *CET-CBC1* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Copper",
@@ -163,12 +163,12 @@ void RegisterColorMapEnum(pybind11::module &m) {
         map. Similar to MATLAB's `parula`, but with a smoother path and more
         uniform slope upwards in CIELAB space. This is the *CET-L20* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Gray",
         ColorMap::Gray, R"docstr(
-        Standard grayscale from black-to-white.
+        Standard grayscale range from black-to-white.
         )docstr")
       .value(
         "Hell",
@@ -183,7 +183,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Black-red-yellow-white perceptually uniform sequential color map.
         This is the *CET-L03* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "HSV",
@@ -231,7 +231,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Cyclic magenta-yellow-green-blue color map for four orientations/phase
         angles to be visualized. This is the *CET-C2* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Orientation6",
@@ -239,14 +239,14 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Six-color cyclic map with primaries and secondaries matched in
         lightness. This is the *CET-C6* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Rainbow",
         ColorMap::Rainbow, R"docstr(
         The "least worse" rainbow color map, *i.e.* *CET-R2*, by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Relief",
@@ -254,7 +254,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Green-brownish-bluish perceptually uniform sequential color map for
         relief shading. This is the *CET-L11* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "ReliefLowContrast",
@@ -262,7 +262,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Low contrast (isoluminant), blue-green-orange perceptually uniform
         sequential color map for relief shading. This is the *CET-I2* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Seismic",
@@ -302,7 +302,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Diverging blue-white-red color map.
         This is the *CET-D01A* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "TemperatureDark",
@@ -310,7 +310,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Diverging blue-black-red color map.
         This is the *CET-D04* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Terrain",
@@ -330,7 +330,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
         A rainbow color map similar to the well-known MATLAB `jet`, but following
         a smoother path through the CIELAB color space. Published by
         `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
-        under the Apache-2.0 license. Often used for depth and disparity values.
+        under the `Apache-2.0 license <https://www.apache.org/licenses/LICENSE-2.0>`__.
+        `Turbo` is often used for depth and disparity values.
         )docstr")
       .value(
         "Twilight",
@@ -359,7 +360,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Perceptually uniform sequential color map for water depth.
         This is the *CET-L12* color map by
         `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
-        under the CC-BY 4.0 license.
+        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
         )docstr")
       .value(
         "Winter",
@@ -371,7 +372,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
       .value(
         "Yarg",
         ColorMap::Yarg, R"docstr(
-        Inverted grayscale from white-to-black.
+        Inverted grayscale range from white-to-black.
         )docstr");
 
 
