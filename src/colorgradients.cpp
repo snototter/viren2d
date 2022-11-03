@@ -8,6 +8,19 @@
 #include <helpers/logging.h>
 
 
+//TODOs:
+// * implement painter.SetClipRegion(ellipse | rect)
+// * implement painter.ResetClipRegion()
+// * implement ImageBuffer.blend(other, gradient)
+// * implement ImageBuffer.blend(other, mask)
+// * doc & clean up ColorGradient
+// * implement ColorGradient bindings
+// * implement ImageBuffer blend bindings
+// * rtd doc ColorGradient
+// * rtd doc Clipping
+// * rtd doc ImageBuffer blending
+
+
 namespace viren2d {
 bool ColorGradient::AddColorStop(double offset, const Color &color) {
   if ((offset < 0.0) || (offset > 1.0)) {
