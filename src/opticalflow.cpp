@@ -214,7 +214,7 @@ ImageBuffer ColorizeFlowHelper(
   return dst;
 }
 
-
+//FIXME change stringstream to ostringstream!
 ImageBuffer ColorizeOpticalFlow(
     const ImageBuffer &flow, ColorMap colormap,
     double motion_normalizer, int output_channels) {
