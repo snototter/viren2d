@@ -124,5 +124,22 @@ void DemoColorMaps() {
   //  ShowCanvas(painter->GetCanvas(false), "demo-output-colors.png");
   //  painter.reset();
   //}
+
+
+void DemoColorGradients() {
+  PrintDemoHeader("Color gradients");
+
+  LinearColorGradient gradient_linear({0, 0}, {600, 600});
+  gradient_linear.AddColorStop(0.1, "crimson");
+  gradient_linear.AddColorStop(0.3, "navy-blue");
+  gradient_linear.AddColorStop(0.5, "crimson");
+  gradient_linear.AddColorStop(0.7, "navy-blue");
+  gradient_linear.AddColorStop(0.9, "crimson");
+
+  ProcessDemoOutput(
+        DrawColorGradient(gradient_linear, 600, 200, 3),
+        "demo-output-color-gradients.png");
+}
+
 } // namespace demos
 } // namespace viren2d

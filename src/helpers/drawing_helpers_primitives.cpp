@@ -343,6 +343,44 @@ bool DrawEllipse(
 }
 
 
+//---------------------------------------------------- Color Gradient
+//TODO
+cairo_pattern_t *CreateGradientPattern(const ColorGradient &gradient) {
+  const LinearColorGradient *linear = dynamic_cast<const LinearColorGradient *>(&gradient);
+
+  if (linear != nullptr) {
+    const Vec2d &start = linear->StartPoint();
+    const Vec2d &end = linear->EndPoint();
+    return cairo_pattern_create_linear(start.x(), start.y(), end.x(), end.y());
+  } else {
+    const RadialColorGradient *radial = dynamic_cast<const RadialColorGradient *>(&gradient);
+    if (radial != nullptr) {
+     //FIXME
+    } else {
+      //FIXME throw!
+    }
+  }
+}
+
+
+bool DrawGradient(
+    cairo_surface_t *surface, cairo_t *context,
+    const ColorGradient &gradient) {
+  // Sanity checks
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  //FIXME gradient::isvalid()
+
+  //TODO create_pattern
+  cairo_pattern_t *pattern = CreateGradientPattern(gradient);
+
+  cairo_pattern_destroy(pattern);
+  return true;
+}
+
+
 //---------------------------------------------------- Grid
 bool DrawGrid(
     cairo_surface_t *surface, cairo_t *context,

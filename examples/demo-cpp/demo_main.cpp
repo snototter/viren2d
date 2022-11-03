@@ -53,6 +53,7 @@ void Showcase() {
 //  DemoCircles();
 //  DemoCircleTangents();
 //  DemoColorMaps();
+    DemoColorGradients();
 //  DemoImageBufferConversionOpenCV();
 //  DemoLines();
 //  DemoMarkers();

@@ -57,6 +57,11 @@ public:
 
   ImageBuffer GetCanvas(bool copy) const override;
 
+  bool DrawGradient(const ColorGradient &gradient) override {
+    //TODO log requires gradient::tostring
+    return helpers::DrawGradient(surface_, context_, gradient);
+  }
+
 
 protected:
   bool DrawArcImpl(

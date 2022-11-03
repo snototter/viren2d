@@ -10,6 +10,7 @@
 #include <cairo/cairo.h>
 
 #include <viren2d/colors.h>
+#include <viren2d/colorgradients.h>
 #include <viren2d/styles.h>
 #include <viren2d/drawing.h>
 
@@ -440,6 +441,11 @@ bool DrawEllipse(
     cairo_surface_t *surface, cairo_t *context,
     Ellipse ellipse, const LineStyle &line_style,
     Color fill_color);
+
+
+bool DrawGradient(
+    cairo_surface_t *surface, cairo_t *context,
+    const ColorGradient &gradient);
 
 
 bool DrawGrid(

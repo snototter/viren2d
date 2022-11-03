@@ -81,6 +81,7 @@ configure_file(
 
 set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
+    include/viren2d/colorgradients.h
     include/viren2d/colormaps.h
     include/viren2d/drawing.h
     include/viren2d/opticalflow.h
@@ -106,6 +107,7 @@ set(viren2d_PRIVATE_HEADER_FILES
 set(viren2d_SOURCE_FILES
     src/primitives.cpp
     src/colors.cpp
+    src/colorgradients.cpp
     src/colormaps.cpp
     src/drawing.cpp
     src/opticalflow.cpp

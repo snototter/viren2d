@@ -13,6 +13,7 @@
 #include <viren2d/primitives.h>
 #include <viren2d/imagebuffer.h>
 #include <viren2d/colors.h>
+#include <viren2d/colorgradients.h>
 #include <viren2d/styles.h>
 
 
@@ -180,6 +181,10 @@ public:
       const Color &fill_color = Color::Invalid) {
     return DrawEllipseImpl(ellipse, line_style, fill_color);
   }
+
+
+  //TODO
+  virtual bool DrawGradient(const ColorGradient &gradient) = 0;
 
 
   /// Draws a grid between top_left and bottom_right.
