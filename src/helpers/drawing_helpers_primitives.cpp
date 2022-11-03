@@ -344,8 +344,11 @@ bool DrawEllipse(
 
 
 //---------------------------------------------------- Color Gradient
-//TODO
+/// Utility to create a cairo pattern for the given ColorGradient.
 cairo_pattern_t *CreateGradientPattern(const ColorGradient &gradient) {
+  // This uses dynamic casting because I don't want to expose cairo in the
+  // ColorGradient's public interface (which would be required if they had
+  // a virtual `Apply/Draw(cairo_context_t*)` method).
   const LinearColorGradient *linear = dynamic_cast<const LinearColorGradient *>(&gradient);
 
   if (linear != nullptr) {

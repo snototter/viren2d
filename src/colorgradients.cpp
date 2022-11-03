@@ -61,22 +61,21 @@ ImageBuffer DrawColorGradient(
   auto painter = CreatePainter();
   painter->SetCanvas(height, width, background_color);
 
-  //TODO draw!!!
   painter->DrawGradient(gradient);
 
-  //TODO doc return
-  if (channels == 1) {
-    return painter->GetCanvas(false).Channel(0);
+  //FIXME doc (only 3 or 4 output channels are supported)
+//  if (channels == 1) {
+//    return painter->GetCanvas(false).Channel(0);
+//  } else {
+  if ((channels == 3) || (channels == 4)) {
+    return painter->GetCanvas(false).ToChannels(channels);
   } else {
-    if ((channels == 3) || (channels == 4)) {
-      return painter->GetCanvas(false).ToChannels(channels);
-    } else {
-      std::ostringstream s;
-      s << "Invalid number of output channels requested ("
-        << channels << "), only 1, 3 & 4 are supported!";
-      throw std::invalid_argument(s.str());
-    }
+    std::ostringstream s;
+    s << "Invalid number of output channels requested ("
+      << channels << "), only 1, 3 & 4 are supported!";
+    throw std::invalid_argument(s.str());
   }
+//  }
 }
 
 } // namespace viren2d
