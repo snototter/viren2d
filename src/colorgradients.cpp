@@ -1,4 +1,5 @@
 #include <ostream>
+#include <iomanip>
 #include <exception>
 
 #include <viren2d/colorgradients.h>
@@ -16,8 +17,40 @@ bool ColorGradient::AddColorStop(double offset, const Color &color) {
     return false;
   }
 
-  color_stops_.push_back(std::make_tuple(offset, color));
+  color_stops.push_back(std::make_pair(offset, color));
   return true;
+}
+
+bool ColorGradient::IsValid() const {
+  return color_stops.size() > 1;
+}
+
+
+std::string ColorGradient::ToString() const {
+  std::ostringstream s;
+  s << "ColorGradient(" << color_stops.size() << " color "
+    << ((color_stops.size() == 1) ? "stop" : "stops")
+    << ')';
+  return s.str();
+}
+
+
+std::string LinearColorGradient::ToString() const {
+  std::ostringstream s;
+  s << "LinearColorGradient(" << color_stops.size() << " color "
+    << ((color_stops.size() == 1) ? "stop" : "stops")
+    << ", " << start_point << " to " << end_point << ')';
+  return s.str();
+}
+
+
+std::string RadialColorGradient::ToString() const {
+  std::ostringstream s;
+  s << "RadialColorGradient(" << color_stops.size() << " color "
+    << ((color_stops.size() == 1) ? "stop" : "stops")
+    << ", " << start_center << ", r=" << std::fixed << std::setprecision(1)
+    << start_radius << " to " << end_center << ", r=" << end_radius << ')';
+  return s.str();
 }
 
 
@@ -29,6 +62,7 @@ ImageBuffer DrawColorGradient(
   painter->SetCanvas(height, width, background_color);
 
   //TODO draw!!!
+  painter->DrawGradient(gradient);
 
   //TODO doc return
   if (channels == 1) {

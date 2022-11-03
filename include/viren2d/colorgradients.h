@@ -1,8 +1,10 @@
 #ifndef __VIREN2D_COLORGRADIENTS_H__
 #define __VIREN2D_COLORGRADIENTS_H__
 
+#include <ostream>
+#include <string>
 #include <vector>
-#include <tuple>
+#include <utility>
 
 #include <viren2d/colors.h>
 #include <viren2d/primitives.h>
@@ -26,13 +28,34 @@ public:
   ///     control vector.
   bool AddColorStop(double offset, const Color &color);
 
-  const std::vector<std::tuple<double, Color>> &GetColorStops() const {
-    return color_stops_;
+  // TODO doc
+  inline bool AddGrayscaleStop(double offset, double intensity) {
+    return AddColorStop(offset, Color(intensity, intensity, intensity, 1.0));
+  }
+
+
+  // TODO doc
+  inline const std::vector<std::pair<double, Color>> &ColorStops() const {
+    return color_stops;
+  }
+
+  // TODO doc
+  bool IsValid() const;
+
+
+  /// Returns a human readable representation.
+  virtual std::string ToString() const;
+
+
+  /// Overloaded stream operator.
+  friend std::ostream &operator<<(std::ostream &os, const ColorGradient &buffer) {
+    os << buffer.ToString();
+    return os;
   }
 
 protected:
   //TODO doc
-  std::vector<std::tuple<double, Color>> color_stops_;
+  std::vector<std::pair<double, Color>> color_stops;
 };
 
 
@@ -43,18 +66,20 @@ protected:
 class LinearColorGradient : public ColorGradient {
 public:
   LinearColorGradient(const Vec2d &start, const Vec2d &end)
-    : ColorGradient(), start_point_(start), end_point_(end)
+    : ColorGradient(), start_point(start), end_point(end)
   {}
 
-  const Vec2d &StartPoint() const { return start_point_; }
-  const Vec2d &EndPoint() const { return end_point_; }
+  inline const Vec2d &StartPoint() const { return start_point; }
+  inline const Vec2d &EndPoint() const { return end_point; }
+
+  std::string ToString() const override;
 
 private:
   /// Position of the start point.
-  Vec2d start_point_;
+  Vec2d start_point;
 
   /// Position of the end point.
-  Vec2d end_point_;
+  Vec2d end_point;
 };
 
 
@@ -64,26 +89,33 @@ private:
 /// circle to the corresponding point on the end circle.
 class RadialColorGradient : public ColorGradient {
 public:
-  //TODO c'tor
-  //FIXME naming consistency Get... vs variable names
+  RadialColorGradient(
+      const Vec2d &center_start, double radius_start,
+      const Vec2d &center_end, double radius_end)
+    : ColorGradient(),
+      start_center(center_start), start_radius(radius_start),
+      end_center(center_end), end_radius(radius_end)
+  {}
 
-  const Vec2d &StartCenter() const { return start_center_; }
-  const Vec2d &EndCenter() const { return end_center_; }
-  double StartRadius() const { return start_radius_; }
-  double EndRadius() const { return end_radius_; }
+  inline const Vec2d &StartCenter() const { return start_center; }
+  inline const Vec2d &EndCenter() const { return end_center; }
+  inline double StartRadius() const { return start_radius; }
+  inline double EndRadius() const { return end_radius; }
+
+  std::string ToString() const override;
 
 private:
   /// Center of the start circle.
-  Vec2d start_center_;
+  Vec2d start_center;
 
   /// Radius of the start circle.
-  double start_radius_;
+  double start_radius;
 
   /// Center of the end circle.
-  Vec2d end_center_;
+  Vec2d end_center;
 
   /// Radius of the end circle.
-  double end_radius_;
+  double end_radius;
 };
 
 

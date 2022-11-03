@@ -355,9 +355,17 @@ cairo_pattern_t *CreateGradientPattern(const ColorGradient &gradient) {
   } else {
     const RadialColorGradient *radial = dynamic_cast<const RadialColorGradient *>(&gradient);
     if (radial != nullptr) {
-     //FIXME
+      const Vec2d &start = radial->StartCenter();
+      const Vec2d &end = radial->EndCenter();
+      return cairo_pattern_create_radial(
+            start.x(), start.y(), radial->StartRadius(),
+            end.x(), end.y(), radial->EndRadius());
     } else {
-      //FIXME throw!
+      const std::string s(
+            "Unsupported `ColorGradient`, only linear or radial gradient "
+            "patterns can be drawn!");
+      SPDLOG_ERROR(s);
+      throw std::logic_error(s);
     }
   }
 }
@@ -371,11 +379,26 @@ bool DrawGradient(
     return false;
   }
 
-  //FIXME gradient::isvalid()
+  if (!gradient.IsValid()) {
+    SPDLOG_WARN("Cannot draw invalid {:s}!", gradient.ToString());
+    return false;
+  }
 
-  //TODO create_pattern
+  // Create pattern with configured color stops.
   cairo_pattern_t *pattern = CreateGradientPattern(gradient);
+  for (const auto &color_stop : gradient.ColorStops()) {
+    // We need to swap red & blue, because cairo uses `ARGB` format, whereas
+    // viren2d works with RGB(A).
+    cairo_pattern_add_color_stop_rgba(
+          pattern, color_stop.first,
+          color_stop.second.blue, color_stop.second.green,
+          color_stop.second.red, color_stop.second.alpha);
+  }
 
+  // Use `cairo_mask`, because it also considers the alpha values, whereas
+  // `cairo_paint` would not.
+  cairo_set_source(context, pattern);
+  cairo_mask(context, pattern);
   cairo_pattern_destroy(pattern);
   return true;
 }

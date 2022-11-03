@@ -129,7 +129,7 @@ void DemoColorMaps() {
 void DemoColorGradients() {
   PrintDemoHeader("Color gradients");
 
-  LinearColorGradient gradient_linear({0, 0}, {600, 600});
+  LinearColorGradient gradient_linear({0, 0}, {600, 200});
   gradient_linear.AddColorStop(0.1, "crimson");
   gradient_linear.AddColorStop(0.3, "navy-blue");
   gradient_linear.AddColorStop(0.5, "crimson");
@@ -138,6 +138,13 @@ void DemoColorGradients() {
 
   ProcessDemoOutput(
         DrawColorGradient(gradient_linear, 600, 200, 3),
+        "demo-output-color-gradients.png");
+
+  RadialColorGradient gradient_radial({50, 50}, 10, {50, 50}, 40);
+  gradient_radial.AddColorStop(0.0, "black!100");
+  gradient_radial.AddColorStop(0.8, "black!0");
+  ProcessDemoOutput(
+        DrawColorGradient(gradient_radial, 600, 200, 4),
         "demo-output-color-gradients.png");
 }
 
