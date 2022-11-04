@@ -6,6 +6,7 @@
 #include <utility>
 #include <tuple>
 #include <cstdlib>
+#include <cmath>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
@@ -387,6 +388,7 @@ bool DrawGradient(
     return false;
   }
 
+  cairo_save(context);
   // Create pattern with configured color stops.
   cairo_pattern_t *pattern = CreateGradientPattern(gradient);
   for (const auto &color_stop : gradient.ColorStops()) {
@@ -402,6 +404,7 @@ bool DrawGradient(
   // `cairo_paint` would not.
   cairo_set_source(context, pattern);
   cairo_mask(context, pattern);
+  cairo_restore(context);
   cairo_pattern_destroy(pattern);
   return true;
 }
@@ -845,6 +848,65 @@ bool DrawRect(
   cairo_stroke(context);
   // Restore context
   cairo_restore(context);
+  return true;
+}
+
+//---------------------------------------------------- Clipping
+bool SetClipRegion(cairo_surface_t *surface, cairo_t *context,
+    const Rect &clip) {
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  if (!clip.IsValid()) {
+    SPDLOG_WARN("Cannot clip canvas to an invalid rectangle: {:s}!", clip);
+    return false;
+  }
+
+  cairo_translate(context, clip.cx, clip.cy);
+  cairo_rotate(context, wkg::deg2rad(clip.rotation));
+
+  // Draw a standard (box) rect or rounded rectangle:
+  if (clip.radius > 0.0) {
+    PathHelperRoundedRect(context, clip);
+  } else {
+    cairo_rectangle(
+          context, -clip.HalfWidth(), -clip.HalfHeight(),
+          clip.width, clip.height);
+  }
+
+  cairo_clip(context);
+
+  cairo_rotate(context, -wkg::deg2rad(clip.rotation));
+  cairo_translate(context, -clip.cx, -clip.cy);
+  return true;
+}
+
+
+bool SetClipRegion(
+    cairo_surface_t *surface, cairo_t *context,
+    const Vec2d &center, double radius) {
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  if (radius <= 0.0) {
+    SPDLOG_WARN("Radius must be > 0.0!");
+    return false;
+  }
+
+  cairo_arc(context, center.x(), center.y(), radius, 0.0, 2 * M_PI);
+  cairo_clip(context);
+  return true;
+}
+
+
+bool ReleaseClipRegion(cairo_surface_t *surface, cairo_t *context) {
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  cairo_reset_clip(context);
   return true;
 }
 

@@ -9,8 +9,6 @@
 
 
 //TODOs:
-// * implement painter.SetClipRegion(ellipse | rect)
-// * implement painter.ResetClipRegion()
 // * implement ImageBuffer.blend(other, gradient)
 // * implement ImageBuffer.blend(other, mask)
 // * doc & clean up ColorGradient
@@ -33,6 +31,7 @@ bool ColorGradient::AddColorStop(double offset, const Color &color) {
   color_stops.push_back(std::make_pair(offset, color));
   return true;
 }
+
 
 bool ColorGradient::IsValid() const {
   return color_stops.size() > 1;
@@ -76,10 +75,6 @@ ImageBuffer DrawColorGradient(
 
   painter->DrawGradient(gradient);
 
-  //FIXME doc (only 3 or 4 output channels are supported)
-//  if (channels == 1) {
-//    return painter->GetCanvas(false).Channel(0);
-//  } else {
   if ((channels == 3) || (channels == 4)) {
     return painter->GetCanvas(false).ToChannels(channels);
   } else {
@@ -88,7 +83,6 @@ ImageBuffer DrawColorGradient(
       << channels << "), only 1, 3 & 4 are supported!";
     throw std::invalid_argument(s.str());
   }
-//  }
 }
 
 } // namespace viren2d

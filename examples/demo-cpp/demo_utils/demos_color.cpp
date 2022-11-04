@@ -136,8 +136,27 @@ void DemoColorGradients() {
   gradient_linear.AddColorStop(0.7, "navy-blue");
   gradient_linear.AddColorStop(0.9, "crimson");
 
-  ProcessDemoOutput(
-        DrawColorGradient(gradient_linear, 600, 200, 3),
+  auto grad1 = DrawColorGradient(gradient_linear, 600, 200, 3);
+  auto painter = CreatePainter();
+  painter->SetCanvas(grad1.Height() * 2, grad1.Width(), "white");
+  painter->DrawImage(grad1, {0, 0});
+
+  const Rect clip_rect(
+    grad1.Width() / 2, grad1.Height() * 1.5, grad1.Width(),
+    grad1.Height() / 2, 10, 10);
+  painter->SetClipRegion(clip_rect);
+
+  LinearColorGradient gradient_linear2(
+        {0, 0}, {clip_rect.width, 0.0});
+  gradient_linear2.AddColorStop(0.0, "red");
+  gradient_linear2.AddColorStop(0.25, "green");
+  gradient_linear2.AddColorStop(0.5, "blue");
+  gradient_linear2.AddColorStop(0.75, "cyan");
+  gradient_linear2.AddColorStop(1.0, "purple");
+  painter->DrawGradient(gradient_linear2);
+  //painter->SetClipRegion({50.0, 50.0}, 100.0);
+
+  ProcessDemoOutput(painter->GetCanvas(false),
         "demo-output-color-gradients.png");
 
   RadialColorGradient gradient_radial({50, 50}, 10, {50, 50}, 40);

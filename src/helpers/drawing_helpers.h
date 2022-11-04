@@ -505,12 +505,25 @@ bool DrawTrajectory(
     const std::function<double(double)> &mix_factor);
 
 
-bool DrawXYZAxes(cairo_surface_t *surface, cairo_t *context,
+bool DrawXYZAxes(
+    cairo_surface_t *surface, cairo_t *context,
     const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
     const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
     const Color &color_x, const Color &color_y, const Color &color_z,
     const Vec2i &img_size, Vec2d &img_origin, Vec2d &img_endpoint_x,
     Vec2d &img_endpoint_y, Vec2d &img_endpoint_z);
+
+
+bool SetClipRegion(
+    cairo_surface_t *surface, cairo_t *context,
+    const Rect &clip);
+
+
+bool SetClipRegion(cairo_surface_t *surface, cairo_t *context,
+    const Vec2d &center, double radius);
+
+
+bool ReleaseClipRegion(cairo_surface_t *surface, cairo_t *context);
 
 
 /// Creates a path for a rectangle with rounded corners.

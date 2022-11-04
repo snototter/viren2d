@@ -438,7 +438,7 @@ public:
   ///   color_z: Color of the *z* axis arrow. Default bluish.
   ///
   /// Returns:
-  /// TODO
+  /// TODO fix doc!!
   ///   True if at least one point (axis arrow tip or the origin) is
   ///   visible within the camera's field-of-view
   std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxes(
@@ -452,6 +452,18 @@ public:
     return DrawXYZAxesImpl(
           K, R, t, origin, axes_lengths, style, color_x, color_y, color_z);
   }
+
+
+  //TODO doc
+  virtual bool SetClipRegion(const Rect &clip) = 0;
+
+
+  //TODO doc
+  virtual bool SetClipRegion(const Vec2d &center, double radius) = 0;
+
+
+  //TODO doc
+  virtual bool ReleaseClipRegion() = 0;
 
 
 protected:

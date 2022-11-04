@@ -22,24 +22,45 @@ public:
   ColorGradient(ColorGradient &&) = default;
   ColorGradient &operator=(ColorGradient &&) = default;
 
+
   /// Adds a color stop to the gradient.
+  ///
   /// Args:
   ///   offset: The offset, in [0,1], is the location along the gradient's
   ///     control vector.
+  ///   color: The color at the specified offset.
+  ///
+  /// Returns:
+  ///   True if the color stop was added, false if the inputs were invalid (for
+  ///   example, out-of-range) which will be detailed in a logged warning
+  ///   message.
   bool AddColorStop(double offset, const Color &color);
 
-  // TODO doc
+
+  /// Adds a grayscale stop to the gradient.
+  ///
+  /// Args:
+  ///   offset: The offset, in [0,1], is the location along the gradient's
+  ///     control vector.
+  ///   intensity: The intensity/grayscale value at the specified offset.
+  ///
+  /// Returns:
+  ///   True if the color stop was added, false if the inputs were invalid (for
+  ///   example, out-of-range) which will be detailed in a logged warning
+  ///   message.
   inline bool AddGrayscaleStop(double offset, double intensity) {
     return AddColorStop(offset, Color(intensity, intensity, intensity, 1.0));
   }
 
 
-  // TODO doc
+  /// Returns the defined color stops along the gradient's control vector.
   inline const std::vector<std::pair<double, Color>> &ColorStops() const {
     return color_stops;
   }
 
-  // TODO doc
+
+  /// Returns true if this color gradient can be rendered, i.e. if it has
+  /// at least 2 color stops.
   bool IsValid() const;
 
 
@@ -65,13 +86,21 @@ protected:
 /// to its end point.
 class LinearColorGradient : public ColorGradient {
 public:
+  // TODO doc
   LinearColorGradient(const Vec2d &start, const Vec2d &end)
     : ColorGradient(), start_point(start), end_point(end)
   {}
 
+
+  // TODO doc
   inline const Vec2d &StartPoint() const { return start_point; }
+
+
+  // TODO doc
   inline const Vec2d &EndPoint() const { return end_point; }
 
+
+  /// Returns a human readable representation.
   std::string ToString() const override;
 
 private:
@@ -89,6 +118,7 @@ private:
 /// circle to the corresponding point on the end circle.
 class RadialColorGradient : public ColorGradient {
 public:
+  // TODO doc
   RadialColorGradient(
       const Vec2d &center_start, double radius_start,
       const Vec2d &center_end, double radius_end)
@@ -97,11 +127,24 @@ public:
       end_center(center_end), end_radius(radius_end)
   {}
 
+
+  // TODO doc
   inline const Vec2d &StartCenter() const { return start_center; }
+
+
+  // TODO doc
   inline const Vec2d &EndCenter() const { return end_center; }
+
+
+  // TODO doc
   inline double StartRadius() const { return start_radius; }
+
+
+  // TODO doc
   inline double EndRadius() const { return end_radius; }
 
+
+  /// Returns a human readable representation.
   std::string ToString() const override;
 
 private:
@@ -119,6 +162,15 @@ private:
 };
 
 
+/// Returns a color gradient rendered onto an image of the specified size.
+///
+/// Args:
+///   gradient: The color gradient to be rendered.
+///   width: Width of the output image.
+///   height: Height of the output image.
+///   channels: Number of output channels, must be either 3 or 4.
+///   background_color: The color used to initialize the image buffer before
+///     rendering the gradient.
 ImageBuffer DrawColorGradient(
     const ColorGradient &gradient,
     int width, int height, int channels = 3,
