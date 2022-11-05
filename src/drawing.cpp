@@ -72,9 +72,9 @@ public:
   }
 
 
-  bool ReleaseClipRegion() override {
-    //TODO log
-    return helpers::ReleaseClipRegion(surface_, context_);
+  bool ResetClipRegion() override {
+    SPDLOG_DEBUG("ResetClipRegion.");
+    return helpers::ResetClipRegion(surface_, context_);
   }
 
 

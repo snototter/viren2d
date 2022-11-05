@@ -523,7 +523,7 @@ bool SetClipRegion(cairo_surface_t *surface, cairo_t *context,
     const Vec2d &center, double radius);
 
 
-bool ReleaseClipRegion(cairo_surface_t *surface, cairo_t *context);
+bool ResetClipRegion(cairo_surface_t *surface, cairo_t *context);
 
 
 /// Creates a path for a rectangle with rounded corners.

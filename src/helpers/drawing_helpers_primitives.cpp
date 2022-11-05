@@ -901,7 +901,7 @@ bool SetClipRegion(
 }
 
 
-bool ReleaseClipRegion(cairo_surface_t *surface, cairo_t *context) {
+bool ResetClipRegion(cairo_surface_t *surface, cairo_t *context) {
   if (!CheckCanvas(surface, context)) {
     return false;
   }

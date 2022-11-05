@@ -438,9 +438,13 @@ public:
   ///   color_z: Color of the *z* axis arrow. Default bluish.
   ///
   /// Returns:
-  /// TODO fix doc!!
-  ///   True if at least one point (axis arrow tip or the origin) is
-  ///   visible within the camera's field-of-view
+  ///   A ``tuple(visible, origin, tip_x, tip_y, tip_z)``, where ``visible``
+  ///   is ``true`` if drawing completed successfully and at least one
+  ///   point (axis arrow tip or the origin) is visible within the camera's
+  ///   field-of-view. Drawing errors (such as caused by invalid inputs) will
+  ///   be indicated by log messages.
+  ///   The other result variables hold the image coordinates of the
+  ///   ``origin``, as well as the tips (*i.e.* end points) of the arrows.
   std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxes(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin = Vec3d::All(0.0),
@@ -454,16 +458,50 @@ public:
   }
 
 
-  //TODO doc
+  /// Establishes a rectangular clip region for the current canvas.
+  ///
+  /// Afterwards, any drawing operations outside the clip region are
+  /// effectively masked out. Note that this does not change the canvas
+  /// transformation, *i.e.* coordinates for following drawing operations
+  /// need to be provided in the global/previous canvas coordinate frame.
+  /// Also note that the clip region will be reset automatically whenever
+  /// a new canvas is set.
+  /// To reset the clip region, @see `ResetClipRegion`
+  ///
+  /// Args:
+  ///   clip: Rectangular clipping region (optionally rotated & with rounded
+  ///     corners).
+  ///
+  /// Returns:
+  ///   ``True`` if the given clip region is valid, ``false`` otherwise which
+  ///    will be indicated by log messages.
   virtual bool SetClipRegion(const Rect &clip) = 0;
 
 
-  //TODO doc
+  /// Establishes a circular clip region for the current canvas.
+  ///
+  /// Afterwards, any drawing operations outside the clip region are
+  /// effectively masked out. Note that this does not change the canvas
+  /// transformation, *i.e.* coordinates for following drawing operations
+  /// need to be provided in the global/previous canvas coordinate frame.
+  /// Also note that the clip region will be reset automatically whenever
+  /// a new canvas is set.
+  ///
+  /// Args:
+  ///   center: Center of the circle.
+  ///   radius: Radius of the circle.
+  ///
+  /// Returns:
+  ///   ``True`` if the given circle is valid, ``false`` otherwise which
+  ///    will be indicated by log messages.
   virtual bool SetClipRegion(const Vec2d &center, double radius) = 0;
 
 
-  //TODO doc
-  virtual bool ReleaseClipRegion() = 0;
+  /// Resets the latest clip region.
+  ///
+  /// Note that a separate ``ResetClipRegion`` call is needed for each
+  /// previous (successful) `SetClipRegion` invocation.
+  virtual bool ResetClipRegion() = 0;
 
 
 protected:
