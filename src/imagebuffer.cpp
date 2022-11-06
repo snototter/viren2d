@@ -49,16 +49,21 @@ ImageBuffer RGBx2HSV(
         (is_bgr_format ? "BGR(A)" : "RGB(A)"));
 
   if (!src.IsValid()) {
-    throw std::logic_error("Input ImageBuffer is invalid in `RGBx2HSV`!");
+    const std::string msg("Input ImageBuffer is invalid in `RGBx2HSV`!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   if ((src.BufferType() != ImageBufferType::UInt8)
       || (src.Channels() < 2)
       || (src.Channels() > 4)) {
-    std::string s("Input to `RGB2HSV` must be 3- or 4-channel buffer of type `uint8`, but got ");
-    s += src.ToString();
-    s += '!';
-    throw std::invalid_argument(s);
+    std::string msg(
+          "Input to `RGB2HSV` must be 3- or 4-channel buffer of type `uint8`, "
+          "but got ");
+    msg += src.ToString();
+    msg += '!';
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
 
   // Create destination buffer (will have contiguous memory)
@@ -104,15 +109,20 @@ ImageBuffer HSV2RGBx(
         (request_bgr_format ? "BGR(A)" : "RGB(A)"));
 
   if (!src.IsValid()) {
-    throw std::logic_error("Input ImageBuffer is invalid in `HSV2RGBx`!");
+    const std::string msg("Input ImageBuffer is invalid in `HSV2RGBx`!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   if ((src.BufferType() != ImageBufferType::UInt8)
       || (src.Channels() != 3)) {
-    std::string s("Input to `HSV2RGB` must be 3-channel buffer of type `uint8`, but got ");
-    s += src.ToString();
-    s += '!';
-    throw std::invalid_argument(s);
+    std::string msg(
+          "Input to `HSV2RGB` must be 3-channel buffer of type `uint8`, "
+          "but got ");
+    msg += src.ToString();
+    msg += '!';
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
 
   // Create destination buffer (will have contiguous memory)
@@ -186,10 +196,11 @@ const std::type_info &ImageBufferTypeInfo(ImageBufferType t) {
       return typeid(image_buffer_t<ImageBufferType::Double>);
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(t);
-  s += "` not handled in `ImageBufferTypeInfo` switch!";
-  throw std::logic_error(s);
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(t);
+  msg += "` not handled in `ImageBufferTypeInfo` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
@@ -225,10 +236,11 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
   //TODO(dev) Include newly added string representation also in
   //  `ImageBufferFromString`!
 
-  std::ostringstream s;
-  s << "Type `" << static_cast<int>(t)
-    << "` not handled in `ImageBufferTypeToString` switch!";
-  throw std::logic_error(s.str());
+  std::ostringstream msg;
+  msg << "Type `" << static_cast<int>(t)
+      << "` not handled in `ImageBufferTypeToString` switch!";
+  SPDLOG_ERROR(msg.str());
+  throw std::logic_error(msg.str());
 }
 
 
@@ -260,6 +272,7 @@ ImageBufferType ImageBufferTypeFromString(const std::string &s) {
     std::string msg("Could not look up `ImageBufferType` corresponding to \"");
     msg += s;
     msg += "\"!";
+    SPDLOG_ERROR(msg);
     throw std::invalid_argument(msg);
   }
 }
@@ -295,10 +308,10 @@ int ElementSizeFromImageBufferType(ImageBufferType t) {
       return static_cast<int>(sizeof(double));
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(t);
-  s += "` not handled in `FormatDescriptor` switch!";
-  throw std::logic_error(s);
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(t);
+  msg += "` not handled in `FormatDescriptor` switch!";
+  throw std::logic_error(msg);
 }
 
 
@@ -464,9 +477,10 @@ void ImageBuffer::CreateCopiedBuffer(
   const int num_bytes = height * width * channels * element_size;
   data = static_cast<unsigned char*>(std::malloc(num_bytes));
   if (!data) {
-    std::ostringstream s;
-    s << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
-    throw std::runtime_error(s.str());
+    std::ostringstream msg;
+    msg << "Cannot allocate " << num_bytes << " bytes to copy ImageBuffer!";
+    SPDLOG_ERROR(msg.str());
+    throw std::runtime_error(msg.str());
   }
   owns_data = true;
   this->width = width;
@@ -539,19 +553,21 @@ ImageBuffer ImageBuffer::DeepCopy() const {
 
 ImageBuffer ImageBuffer::ROI(int left, int top, int roi_width, int roi_height) {
   if ((roi_width <= 0) || (roi_height <= 0)) {
-    std::ostringstream s;
-    s << "Invalid ROI(l=" << left << ", t=" << top << ", w=" << roi_width
-      << ", h=" << roi_height << "), height & width must be > 0!";
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Invalid ROI(l=" << left << ", t=" << top << ", w=" << roi_width
+        << ", h=" << roi_height << "), height & width must be > 0!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   if ((left < 0) || ((left + roi_width) > width)
       || (top < 0) || ((top + roi_height) > height)) {
-    std::ostringstream s;
-    s << "Invalid ROI(l=" << left << ", t=" << top << ", w=" << roi_width
-      << ", h=" << roi_height << ") for ImageBuffer of size w=" << width
-      << ", h=" << height << '!';
-    throw std::out_of_range(s.str());
+    std::ostringstream msg;
+    msg << "Invalid ROI(l=" << left << ", t=" << top << ", w=" << roi_width
+        << ", h=" << roi_height << ") for ImageBuffer of size w=" << width
+        << ", h=" << height << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::out_of_range(msg.str());
   }
 
   ImageBuffer roi;
@@ -568,12 +584,12 @@ void ImageBuffer::SwapChannels(int ch1, int ch2) {
 
   if ((ch1 < 0) || (ch1 >= channels)
       || (ch2 < 0) || (ch2 >= channels)) {
-    std::ostringstream s;
-    s << "Cannot swap channels " << ch1
-      << " and " << ch2 << " of a "
-      << channels
-      << "-channel ImageBuffer: Invalid inputs!";
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Cannot swap channels " << ch1
+        << " and " << ch2 << " of a "
+        << channels << "-channel ImageBuffer: Invalid inputs!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   if ((!data) || (ch1 == ch2)) {
@@ -618,10 +634,11 @@ void ImageBuffer::SwapChannels(int ch1, int ch2) {
       return;
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` not handled in `SwapChannels` switch!";
-  throw std::logic_error(s);
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` not handled in `SwapChannels` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
@@ -635,17 +652,19 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
         "ImageBuffer::ToChannels converting {:d} to {:d} channels.",
         channels, output_channels);
   if (!IsValid()) {
-    throw std::logic_error(
+    const std::string msg(
           "Cannot convert an invalid ImageBuffer in `ToChannels`!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   if ((channels != 1) && (channels != 3) && (channels != 4)) {
-    std::ostringstream s;
-    s << "Channel conversion is only supported for ImageBuffer with "
-         "1, 3, or 4 channels, but this buffer has "
-      << channels << '!';
-
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Channel conversion is only supported for ImageBuffer with "
+           "1, 3, or 4 channels, but this buffer has "
+        << channels << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   if (channels == 1) {
@@ -656,10 +675,11 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
                || (output_channels == 4)){
       return helpers::Gray2RGBx(*this, output_channels);
     } else {
-      std::ostringstream s;
-      s << "Conversion from single-channel ImageBuffer to "
-        << output_channels << " output channels is not supported!";
-      throw std::invalid_argument(s.str());
+      std::ostringstream msg;
+      msg << "Conversion from single-channel ImageBuffer to "
+          << output_channels << " output channels is not supported!";
+      SPDLOG_ERROR(msg.str());
+      throw std::invalid_argument(msg.str());
     }
   } else if (channels == 3) {
     // RGB-to-something
@@ -668,10 +688,11 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
     } else if (output_channels == 4) {
       return helpers::RGBx2RGBx(*this, 4);
     } else {
-      std::ostringstream s;
-      s << "Conversion from 3-channel ImageBuffer to "
-        << output_channels << " output channel(s) is not supported!";
-      throw std::invalid_argument(s.str());
+      std::ostringstream msg;
+      msg << "Conversion from 3-channel ImageBuffer to "
+          << output_channels << " output channel(s) is not supported!";
+      SPDLOG_ERROR(msg.str());
+      throw std::invalid_argument(msg.str());
     }
   } else {
     // RGBA-to-something
@@ -680,10 +701,11 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
     } else if (output_channels == 4) {
       return DeepCopy();
     } else {
-      std::ostringstream s;
-      s << "Conversion from 4-channel ImageBuffer to "
-        << output_channels << " output channel(s) is not supported!";
-      throw std::invalid_argument(s.str());
+      std::ostringstream msg;
+      msg << "Conversion from 4-channel ImageBuffer to "
+          << output_channels << " output channel(s) is not supported!";
+      SPDLOG_ERROR(msg.str());
+      throw std::invalid_argument(msg.str());
     }
   }
 }
@@ -1325,6 +1347,7 @@ ImageBuffer MaskHSVRange(const ImageBuffer &hsv,
           "Invalid input to `MaskHSVRange`. Expected 3-channel HSV of type uint8, but got: ");
     s += hsv.ToString();
     s += '!';
+    SPDLOG_ERROR(s);
     throw std::invalid_argument(s);
   }
 

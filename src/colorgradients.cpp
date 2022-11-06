@@ -17,6 +17,9 @@
 // * rtd doc ColorGradient
 // * rtd doc Clipping
 // * rtd doc ImageBuffer blending
+// * explicitly log error before each exception
+// * replace all stringstreams by ostringstreams
+// * replace 's' by 'msg'/'err',...
 
 
 namespace viren2d {
