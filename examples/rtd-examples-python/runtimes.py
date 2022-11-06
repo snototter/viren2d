@@ -70,7 +70,7 @@ def _time_color_init():
             print(f'* From string:  {res/runs:f} ms - "{cstr}"')
             
             color = viren2d.Color(cstr)
-            ctuple = color.as_rgba()
+            ctuple = color.to_rgba()
             res = timeit.timeit(
                 lambda: viren2d.Color(ctuple),
                 number=runs)
@@ -342,34 +342,34 @@ def _time_surveillance():
         rect.radius = 0
         res = timeit.timeit(
             lambda: painter.draw_bounding_box_2d(
-                rect, ['label'], bbox_style),
+                rect, bbox_style, label_top=['label']),
             number=runs)
         print(f'  * Square/axis-aligned box, single-line label:  {res/runs:f} ms')
 
         res = timeit.timeit(
             lambda: painter.draw_bounding_box_2d(
-                rect, ['this', 'is my', 'label'], bbox_style),
+                rect, bbox_style, label_bottom=['this', 'is my', 'label']),
             number=runs)
         print(f'  * Square/axis-aligned box, multi-line label:   {res/runs:f} ms')
 
         rect.rotation = 42
         res = timeit.timeit(
             lambda: painter.draw_bounding_box_2d(
-                rect, ['this', 'is another', 'label'], bbox_style),
+                rect, bbox_style, label_top=['this', 'is another', 'label']),
             number=runs)
         print(f'  * Square/rotated box, multi-line label:        {res/runs:f} ms')
 
         rect.radius = 0.2
         res = timeit.timeit(
             lambda: painter.draw_bounding_box_2d(
-                rect, ['this', 'is my', 'label'], bbox_style),
+                rect, bbox_style, label_bottom=['this', 'is my', 'label']),
             number=runs)
         print(f'  * Rounded/rotated box, multi-line label:       {res/runs:f} ms')
 
         bbox_style.box_fill_color = viren2d.Color.Same
         res = timeit.timeit(
             lambda: painter.draw_bounding_box_2d(
-                rect, ['this', 'is another', 'label'], bbox_style),
+                rect, bbox_style, label_top=['this', 'is another', 'label']),
             number=runs)
         print(f'  * Square/rotated/filled box, multi-line label: {res/runs:f} ms')
 
@@ -377,7 +377,7 @@ def _time_surveillance():
         bbox_style.text_fill_color = (0.2, 0.3, 0.4, 0.1)
         res = timeit.timeit(
             lambda: painter.draw_bounding_box_2d(
-                rect, ['this', 'is another', 'label'], bbox_style),
+                rect, bbox_style, label_top=['this', 'is another', 'label']),
             number=runs)
         print(f'  * Square/rotated/filled box, multi-line label: {res/runs:f} ms (with explicit text fill color)')
         
