@@ -469,8 +469,7 @@ public:
   /// * 1-channel buffer: output_channels either 1, 3, or 4
   /// * 3-channel buffer: output_channels either 3 or 4
   /// * 4-channel buffer: output_channels either 3 or 4
-  ImageBuffer ToUInt8(int output_channels) const; //FIXME add scaling parameter instead of fixed multiplication
-  //FIXME or remove completely --> use AsType instead!
+  ImageBuffer ToUInt8(int output_channels) const;
 
 
   /// Converts this buffer to `float`.
