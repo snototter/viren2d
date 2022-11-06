@@ -96,9 +96,13 @@ def render_rtd_demos(show_images: bool, save_images: bool):
         img, show_images, 'relief-shading', save_images, 'relief-shading.png')
     
     # Optical flow
-    img = demo_optical_flow()
+    img = demo_optical_flow_colormaps()
     _process_result(
-        img, show_images, 'Optical Flow', save_images, 'optical-flow.png')
+        img, show_images, 'Optical Flow', save_images, 'optical-flow-color-maps.png')
+    
+    img = demo_optical_flow_overlay()
+    _process_result(
+        img, show_images, 'Optical Flow', save_images, 'optical-flow-overlay.png')
 
     # Pinhole camera calibration results
     img = demo_pinhole()
