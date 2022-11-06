@@ -196,6 +196,9 @@ const std::type_info &ImageBufferTypeInfo(ImageBufferType t) {
       return typeid(image_buffer_t<ImageBufferType::Double>);
   }
 
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
   std::string msg("Type `");
   msg += ImageBufferTypeToString(t);
   msg += "` not handled in `ImageBufferTypeInfo` switch!";
@@ -236,6 +239,9 @@ std::string ImageBufferTypeToString(ImageBufferType t) {
   //TODO(dev) Include newly added string representation also in
   //  `ImageBufferFromString`!
 
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
   std::ostringstream msg;
   msg << "Type `" << static_cast<int>(t)
       << "` not handled in `ImageBufferTypeToString` switch!";
@@ -308,6 +314,9 @@ int ElementSizeFromImageBufferType(ImageBufferType t) {
       return static_cast<int>(sizeof(double));
   }
 
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
   std::string msg("Type `");
   msg += ImageBufferTypeToString(t);
   msg += "` not handled in `FormatDescriptor` switch!";
@@ -634,6 +643,9 @@ void ImageBuffer::SwapChannels(int ch1, int ch2) {
       return;
   }
 
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
   std::string msg("Type `");
   msg += ImageBufferTypeToString(buffer_type);
   msg += "` not handled in `SwapChannels` switch!";
@@ -713,8 +725,9 @@ ImageBuffer ImageBuffer::ToChannels(int output_channels) const {
 
 ImageBuffer ImageBuffer::ToUInt8(int output_channels) const {
   if (!IsValid()) {
-    throw std::logic_error(
-          "Cannot convert an invalid ImageBuffer to `uint8`!");
+    const std::string msg("Cannot convert an invalid ImageBuffer to `uint8`!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   switch (buffer_type) {
@@ -746,17 +759,22 @@ ImageBuffer ImageBuffer::ToUInt8(int output_channels) const {
       return helpers::ToUInt8<double>(*this, output_channels, 255);
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` not handled in `ToUInt8` switch!";
-  throw std::logic_error(s);
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` not handled in `ToUInt8` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
 ImageBuffer ImageBuffer::ToFloat() const {
   if (!IsValid()) {
-    throw std::logic_error(
-          "Cannot convert an invalid ImageBuffer to `float`!");
+    const std::string msg("Cannot convert an invalid ImageBuffer to `float`!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   switch (buffer_type) {
@@ -788,10 +806,14 @@ ImageBuffer ImageBuffer::ToFloat() const {
       return helpers::ToFloat<double>(*this, 1.0f);
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` not handled in `ToFloat` switch!";
-  throw std::logic_error(s);
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` not handled in `ToFloat` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
@@ -832,6 +854,9 @@ ImageBuffer ImageBuffer::AsType(
       return helpers::ConvertType<double>(*this, type, scaling_factor);
   }
 
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
   std::string msg("Type `");
   msg += ImageBufferTypeToString(buffer_type);
   msg += "` not handled in `AsType` switch!";
@@ -843,8 +868,10 @@ ImageBuffer ImageBuffer::AsType(
 
 ImageBuffer ImageBuffer::Magnitude() const {
   if (!IsValid()) {
-    throw std::logic_error(
+    const std::string msg(
           "Cannot compute `Magnitude` of an invalid ImageBuffer!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   switch (buffer_type) {
@@ -855,11 +882,11 @@ ImageBuffer ImageBuffer::Magnitude() const {
       return helpers::Magnitude<double>(*this);
 
     default: {
-        std::ostringstream s;
-        s << "`Magnitude` can only be computed for buffers of type `float` or "
-             "`double`, but got "
-          << ToString() << '!';
-        throw std::logic_error(s.str());
+        std::ostringstream msg;
+        msg << "`Magnitude` can only be computed for buffers of type `float` "
+               "or `double`, but got " << ToString() << '!';
+        SPDLOG_ERROR(msg.str());
+        throw std::logic_error(msg.str());
       }
   }
 }
@@ -867,8 +894,10 @@ ImageBuffer ImageBuffer::Magnitude() const {
 
 ImageBuffer ImageBuffer::Orientation(float invalid) const {
   if (!IsValid()) {
-    throw std::logic_error(
+    const std::string msg(
           "Cannot compute `Orientation` of an invalid ImageBuffer!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   switch (buffer_type) {
@@ -879,11 +908,11 @@ ImageBuffer ImageBuffer::Orientation(float invalid) const {
       return helpers::Orientation<double>(*this, invalid);
 
     default: {
-        std::ostringstream s;
-        s << "`Orientation` can only be computed for buffers of type `float` or "
-             "`double`, but got "
-          << ToString() << '!';
-        throw std::logic_error(s.str());
+        std::ostringstream msg;
+        msg << "`Orientation` can only be computed for buffers of type "
+               "`float` or `double`, but got " << ToString() << '!';
+        SPDLOG_ERROR(msg.str());
+        throw std::logic_error(msg.str());
       }
   }
 }
@@ -893,8 +922,18 @@ void ImageBuffer::Pixelate(
     int block_width, int block_height,
     int roi_left, int roi_top, int roi_width, int roi_height) {
   if (!IsValid()) {
-    throw std::logic_error(
-          "Cannot pixelate an invalid ImageBuffer!");
+    const std::string msg("Cannot pixelate an invalid ImageBuffer!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
+  }
+
+  if (channels > 4) {
+    std::ostringstream msg;
+    msg << "Pixelation is only supported for up to 4-channel "
+           "images, but " << ToString() << " has "
+        << channels << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::logic_error(msg.str());
   }
 
   // ROI returns a shared image buffer and performs out-of-range checks:
@@ -904,196 +943,61 @@ void ImageBuffer::Pixelate(
       ? ROI(0, 0, width, height)
       : ROI(roi_left, roi_top, roi_width, roi_height);
 
-  // Definitely not the most elegant way of calling
-  // the corresponding helper, but given the current
-  // variadic `SetToPixel` template (and that I can't
-  // think of a use case where we have more than 4
-  // channels to pixelate), this is good enough for me:
   switch (buffer_type) {
-    case ImageBufferType::UInt8: {
-        if (channels == 1) {
-          helpers::Pixelate<uint8_t, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<uint8_t, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<uint8_t, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<uint8_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `uint8_t` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::UInt8:
+      helpers::Pixelate<uint8_t>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::Int16: {
-        if (channels == 1) {
-          helpers::Pixelate<int16_t, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<int16_t, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<int16_t, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<int16_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `int16_t` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::Int16:
+      helpers::Pixelate<int16_t>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::UInt16: {
-        if (channels == 1) {
-          helpers::Pixelate<uint16_t, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<uint16_t, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<uint16_t, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<uint16_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `uint16_t` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::UInt16:
+      helpers::Pixelate<uint16_t>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::Int32: {
-        if (channels == 1) {
-          helpers::Pixelate<int32_t, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<int32_t, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<int32_t, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<int32_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `int32_t` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::Int32:
+      helpers::Pixelate<int32_t>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::UInt32: {
-        if (channels == 1) {
-          helpers::Pixelate<uint32_t, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<uint32_t, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<uint32_t, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<uint32_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `uint32_t` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::UInt32:
+      helpers::Pixelate<uint32_t>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::Int64: {
-        if (channels == 1) {
-          helpers::Pixelate<int64_t, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<int64_t, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<int64_t, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<int64_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `int64_t` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::Int64:
+      helpers::Pixelate<int64_t>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::UInt64: {
-        if (channels == 1) {
-          helpers::Pixelate<uint64_t, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<uint64_t, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<uint64_t, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<uint64_t, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `uint64_t` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::UInt64:
+      helpers::Pixelate<uint64_t>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::Float: {
-        if (channels == 1) {
-          helpers::Pixelate<float, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<float, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<float, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<float, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `float` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::Float:
+      helpers::Pixelate<float>(roi, block_width, block_height);
+      return;
 
-    case ImageBufferType::Double: {
-        if (channels == 1) {
-          helpers::Pixelate<double, 1>(roi, block_width, block_height);
-        } else if (channels == 2) {
-          helpers::Pixelate<double, 2>(roi, block_width, block_height);
-        } else if (channels == 3) {
-          helpers::Pixelate<double, 3>(roi, block_width, block_height);
-        } else if (channels == 4) {
-          helpers::Pixelate<double, 4>(roi, block_width, block_height);
-        } else {
-          std::ostringstream s;
-          s << "Pixelation is only supported for up to 4-channel "
-               "images, but this `float` ImageBuffer has "
-            << channels << '!';
-          throw std::logic_error(s.str());
-        }
-        return;
-      }
+    case ImageBufferType::Double:
+      helpers::Pixelate<double>(roi, block_width, block_height);
+      return;
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` was not handled in `Pixelate` switch!";
-  throw std::logic_error(s);
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` was not handled in `Pixelate` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
 ImageBuffer ImageBuffer::Blend(
     const ImageBuffer &other, double alpha_other) const {
   if (!IsValid() || !other.IsValid()) {
-    throw std::logic_error(
-          "Cannot blend invalid ImageBuffers!");
+    const std::string msg("Cannot blend invalid ImageBuffers!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   switch(buffer_type) {
@@ -1128,18 +1032,20 @@ ImageBuffer ImageBuffer::Blend(
   // Throw an exception as fallback, because due to the default
   // compiler settings, we would have ignored the warning about
   // missing case values.
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` was not handled in `Blend` switch!";
-  throw std::logic_error(s);
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` was not handled in `Blend` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
 ImageBuffer ImageBuffer::Blend(
     const ImageBuffer &other, const ImageBuffer &weights) const {
   if (!IsValid() || !other.IsValid() || !weights.IsValid()) {
-    throw std::logic_error(
-          "Cannot blend invalid ImageBuffers!");
+    const std::string msg("Cannot blend invalid ImageBuffers!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   switch(buffer_type) {
@@ -1171,25 +1077,25 @@ ImageBuffer ImageBuffer::Blend(
       return helpers::BlendWeights<double>(*this, other, weights);
   }
 
-  // Throw an exception as fallback, because due to the default
-  // compiler settings, we would have ignored the warning about
-  // missing case values.
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` was not handled in `Blend` switch!";
-  SPDLOG_ERROR(s);
-  throw std::logic_error(s);
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` was not handled in `Blend` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
 ImageBuffer ImageBuffer::Channel(int channel) const {
   if ((channel < 0) || (channel >= channels)) {
-    std::ostringstream s;
-    s << "Cannot extract channel #" << channel
-      << " from ImageBuffer with " << channels
-      << " channels!";
-    SPDLOG_ERROR(s.str());
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Cannot extract channel #" << channel
+        << " from ImageBuffer with " << channels
+        << " channels!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   switch (buffer_type) {
@@ -1221,11 +1127,14 @@ ImageBuffer ImageBuffer::Channel(int channel) const {
       return helpers::ExtractChannel<double>(*this, channel);
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` not handled in `Channel` switch!";
-  SPDLOG_ERROR(s);
-  throw std::logic_error(s);
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` not handled in `Channel` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
@@ -1285,11 +1194,14 @@ void ImageBuffer::MinMaxLocation(
       return;
   }
 
-  std::string s("Type `");
-  s += ImageBufferTypeToString(buffer_type);
-  s += "` was not handled in `MinMaxLocation` switch!";
-  SPDLOG_ERROR(s);
-  throw std::logic_error(s);
+  // Throw an exception as fallback, because ending up here would be an
+  // implementation error (i.e. we ignored the warning about missing value
+  // in the switch/case above).
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` was not handled in `MinMaxLocation` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
 }
 
 
@@ -1452,16 +1364,20 @@ ImageBuffer ConvertRGB2Gray(
               color, output_channels, is_bgr_format);
     }
 
-    std::string s("Type `");
-    s += ImageBufferTypeToString(color.BufferType());
-    s += "` not handled in `ConvertRGB2Gray` switch!";
-    throw std::logic_error(s);
+    // Throw an exception as fallback, because ending up here would be an
+    // implementation error (i.e. we ignored the warning about missing value
+    // in the switch/case above).
+    std::string msg("Type `");
+    msg += ImageBufferTypeToString(color.BufferType());
+    msg += "` not handled in `ConvertRGB2Gray` switch!";
+    throw std::logic_error(msg);
   } else {
-    std::ostringstream s;
-    s << "`ConvertRGB2Gray` conversion is only supported for "
-         "1-, 3-, and 4-channel buffers. This one has "
-      << color.Channels() << '!';
-    throw std::logic_error(s.str());
+    std::ostringstream msg;
+    msg << "`ConvertRGB2Gray` conversion is only supported for "
+           "1-, 3-, and 4-channel buffers. This one has "
+        << color.Channels() << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::logic_error(msg.str());
   }
 }
 
@@ -1485,10 +1401,11 @@ ImageBuffer LoadImageUInt8(
         image_filename.c_str(), &width, &height, &bytes_per_pixel,
         force_num_channels);
   if (!data) {
-    std::string s("Could not load image from '");
-    s += image_filename;
-    s += "'!";
-    throw std::runtime_error(s);
+    std::string msg("Could not load image from '");
+    msg += image_filename;
+    msg += "'!";
+    SPDLOG_ERROR(msg);
+    throw std::runtime_error(msg);
   }
 
   const int num_channels = (force_num_channels != STBI_default)
@@ -1504,12 +1421,12 @@ ImageBuffer LoadImageUInt8(
         ImageBufferType::UInt8);
   // Then, transfer ownership
   buffer.TakeOwnership();
-  // Alternatively, we could:
+  // Alternatively, we could create an explicit copy and free the stbi memory:
   //     buffer.CreateCopy(data, width, height, num_channels,
   //                       width * num_channels);
   //     stbi_image_free(data);
-  // But according to valgrind, the reuse option works as intended (i.e.
-  // not leaking memory)
+  // But according to valgrind, the reuse option works as intended, i.e. it
+  // not leak memory (stbi only allocates the data buffer).
   return buffer;
 }
 
@@ -1524,10 +1441,12 @@ void SaveImageUInt8(
   int stb_result = 0; // stb return code 0 indicates failure
 
   if (image.BufferType() != ImageBufferType::UInt8) {
-    std::string s("Saving ImageBuffer expected `uint8` buffer type, but got `");
-    s += ImageBufferTypeToString(image.BufferType());
-    s += "`!";
-    throw std::logic_error(s);
+    std::string msg(
+          "Saving ImageBuffer expected `uint8` buffer type, but got `");
+    msg += ImageBufferTypeToString(image.BufferType());
+    msg += "`!";
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   const std::string fn_lower = werkzeugkiste::strings::Lower(image_filename);
@@ -1535,8 +1454,12 @@ void SaveImageUInt8(
       || werkzeugkiste::strings::EndsWith(fn_lower, ".jpeg")) {
     // stbi_write_jpg requires contiguous memory
     if (!image.IsContiguous()) {
-      throw std::logic_error(
+      const std::string msg(
             "Cannot save JPEG because image memory is not contiguous!");
+      SPDLOG_ERROR(msg);
+      // TODO we could create a deep copy (which will be contiguous) and
+      // then recurse (but ensure that this is only tried once!)
+      throw std::logic_error(msg);
     }
     // Default JPEG quality setting: 90%
     stb_result = stbi_write_jpg(
@@ -1548,17 +1471,20 @@ void SaveImageUInt8(
             image_filename.c_str(), image.Width(), image.Height(),
             image.Channels(), image.ImmutableData(), image.RowStride());
     } else {
-      throw std::invalid_argument("ImageBuffer can only be saved"
-                  " as JPEG or PNG. File extension must be '.jpg',"
-                  " '.jpeg' or '.png'.");
+      const std::string msg(
+            "ImageBuffer can only be saved as JPEG or PNG. File extension "
+            "must be '.jpg', '.jpeg' or '.png'.");
+      SPDLOG_ERROR(msg);
+      throw std::invalid_argument(msg);
     }
   }
 
   if (stb_result == 0) {
-    std::ostringstream s;
-    s << "Could not save ImageBuffer to '" << image_filename
-      << "' - failed with `stb` error code " << stb_result << '!';
-    throw std::runtime_error(s.str());
+    std::ostringstream msg;
+    msg << "Could not save ImageBuffer to '" << image_filename
+        << "' - failed with `stb` error code " << stb_result << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::runtime_error(msg.str());
   }
 }
 

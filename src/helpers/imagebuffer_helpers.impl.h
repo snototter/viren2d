@@ -318,14 +318,14 @@ ImageBuffer RGBx2Gray(
 
 
 template <typename _Tp, int C>
-void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
-  // Increase the block size at the edges of the ROI if needed:
-  SPDLOG_DEBUG(
-        "Pixelate {:s} with block_width={:d}, block_height={:d}",
-        roi.ToString(), block_width, block_height);
+void PixelateImpl(ImageBuffer &roi, int block_width, int block_height) {
   if ((block_width <= 0) || (block_height <= 0)) {
-    throw std::invalid_argument("Block width & height must be > 0 in `Pixelate`!");
+    const std::string msg("Block width & height must be > 0 in `Pixelate`!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
+
+  // Increase the block size at the edges of the ROI if needed:
   const int num_blocks_horz = roi.Width() / block_width;
   const int missed_horz = roi.Width() - (num_blocks_horz * block_width);
   int extend_left = missed_horz / 2;
@@ -376,20 +376,51 @@ void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
               roi.AtUnchecked<_Tp>(cy, cx, 0),
               roi.AtUnchecked<_Tp>(cy, cx, 1),
               roi.AtUnchecked<_Tp>(cy, cx, 2));
-      } else if (C == 4) {
+      } else {
         block.SetToPixel<_Tp>(
               roi.AtUnchecked<_Tp>(cy, cx, 0),
               roi.AtUnchecked<_Tp>(cy, cx, 1),
               roi.AtUnchecked<_Tp>(cy, cx, 2),
               roi.AtUnchecked<_Tp>(cy, cx, 3));
-      } else {
-        throw std::logic_error("Pixelation helper only supports up to 4 channels!");
       }
 
       left += bwidth;
     }
 
     top += bheight;
+  }
+}
+
+
+template <typename _Tp>
+void Pixelate(ImageBuffer &roi, int block_width, int block_height) {
+  SPDLOG_DEBUG(
+        "Pixelate {:s} with block_width={:d}, block_height={:d}",
+        roi.ToString(), block_width, block_height);
+
+  switch (roi.Channels()) {
+    case 1:
+      PixelateImpl<_Tp, 1>(roi, block_width, block_height);
+      break;
+
+    case 2:
+      PixelateImpl<_Tp, 2>(roi, block_width, block_height);
+      break;
+
+    case 3:
+      PixelateImpl<_Tp, 3>(roi, block_width, block_height);
+      break;
+
+    case 4:
+      PixelateImpl<_Tp, 4>(roi, block_width, block_height);
+      break;
+
+    default: {
+        const std::string msg(
+              "Pixelation helper only supports up to 4 channels!");
+        SPDLOG_ERROR(msg);
+        throw std::logic_error(msg);
+      }
   }
 }
 
@@ -757,13 +788,6 @@ template <typename _Tp>
 ImageBuffer Magnitude(const ImageBuffer &src) {
   SPDLOG_DEBUG("Computing magnitude of {:s}.", src.ToString());
 
-  if (src.Channels() != 2) {
-    std::string s("Input to `Magnitude` must be a dual-channel image, but got ");
-    s += src.ToString();
-    s += '!';
-    throw std::invalid_argument(s);
-  }
-
   ImageBuffer dst(src.Height(), src.Width(), 1, src.BufferType());
 
   int rows = src.Height();
@@ -778,9 +802,12 @@ ImageBuffer Magnitude(const ImageBuffer &src) {
     const _Tp *src_ptr = src.ImmutablePtr<_Tp>(row, 0, 0);
 
     for (int col = 0; col < cols; ++col) {
-      _Tp u = *src_ptr++;
-      _Tp v = *src_ptr++;
-      *dst_ptr++ = std::sqrt(u * u + v * v);
+      _Tp sqr_sum = 0.0f;
+      for (int ch = 0; ch < src.Channels(); ++ch) {
+        const _Tp val = *src_ptr++;
+        sqr_sum += (val * val);
+      }
+      *dst_ptr++ = std::sqrt(sqr_sum);
     }
   }
 
