@@ -640,6 +640,7 @@ protected:
 std::unique_ptr<Painter> CreatePainter();
 //TODO How should we handle SVG vs image painters? CreateRasterizedPainter vs CreateVectorizedPainter ? or ImagePainter/SVGPainter?
 
+
 } // namespace viren2d
 
 #endif // __VIREN2D_DRAWING_H__

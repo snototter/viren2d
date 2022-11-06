@@ -628,7 +628,8 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("channel") = -1)
       .def(
         "blend",
-        &ImageBuffer::Blend, R"docstr(
+        py::overload_cast<const ImageBuffer &, double>(
+          &ImageBuffer::Blend, py::const_), R"docstr(
         Returns an alpha-blended image.
 
         Creates a new image as the result of

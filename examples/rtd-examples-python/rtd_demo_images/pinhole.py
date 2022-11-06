@@ -84,9 +84,9 @@ def demo_pinhole():
         line_style=line_style, padding=(10, 6))
 
     # TODO Replace by ground plane visualization
-    dampened = (0.2 * np.array(img)).astype(np.uint8)
+    dimmed = (0.2 * np.array(img)).astype(np.uint8)
     painter_comb.draw_image(
-        dampened,  position=(canvas_width - padding, padding),
+        dimmed,  position=(canvas_width - padding, padding),
         anchor='top-right', scale_x=scale, scale_y=scale, clip_factor=0.1)
     painter_comb.draw_text_box(
         ['Ground plane (TBD)'],  # TODO update text once finished

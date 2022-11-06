@@ -85,4 +85,27 @@ ImageBuffer DrawColorGradient(
   }
 }
 
+
+ImageBuffer CreateColorGradientMask(
+    const ColorGradient &gradient,
+    int width, int height,
+    const Color &background_color) {
+  auto painter = CreatePainter();
+  painter->SetCanvas(height, width, background_color);
+
+  painter->DrawGradient(gradient);
+
+  return painter->GetCanvas(false).Channel(0).AsType(
+        ImageBufferType::Double, 1.0/255.0);
+  //FIXME convert to
+//  if ((channels == 3) || (channels == 4)) {
+//    return painter->GetCanvas(false).ToChannels(channels);
+//  } else {
+//    std::ostringstream s;
+//    s << "Invalid number of output channels requested ("
+//      << channels << "), only 1, 3 & 4 are supported!";
+//    throw std::invalid_argument(s.str());
+//  }
+}
+
 } // namespace viren2d

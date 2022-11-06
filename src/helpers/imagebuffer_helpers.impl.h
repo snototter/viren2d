@@ -66,6 +66,8 @@ ImageBuffer ExtractChannel(const ImageBuffer &src, int channel) {
   return dst;
 }
 
+//TODO/FIXME - add log before exception (simplifies error localization in py)
+//TODO/FIXME - implement blend
 
 template<typename _Tp>
 ImageBuffer ConversionHelperGray(
@@ -75,20 +77,29 @@ ImageBuffer ConversionHelperGray(
         channels_out);
 
   if (!src.IsValid()) {
-    throw std::logic_error(
-          "Cannot convert an invalid ImageBuffer to RGB(A)!");
+    const std::string msg("Cannot convert an invalid ImageBuffer to RGB(A)!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   if (src.Channels() != 1) {
-    throw std::invalid_argument("Input image must be grayscale!");
+    const std::string msg("Input image must be grayscale!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
 
   if (!src.ImmutableData()) {
-    throw std::invalid_argument("Invalid input image (nullptr)!");
+    const std::string msg("Invalid input image (nullptr)!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
 
   if (channels_out != 3 && channels_out != 4) {
-    throw std::invalid_argument("Number of output channels must be 3 or 4!");
+    std::ostringstream msg;
+    msg << "Number of output channels must be 3 or 4, but got "
+        << channels_out << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   // Create destination buffer (will have contiguous memory)
@@ -447,12 +458,12 @@ void MinMaxLocation(
 
 
 template <typename _Tp>
-ImageBuffer Blend(
+ImageBuffer BlendConstant(
     const ImageBuffer &src1,
     const ImageBuffer &src2,
     double alpha2) {
   SPDLOG_DEBUG(
-        "Blending {:s} and {:s} with alpha_other={:f}.",
+        "Blending {:s} and {:s} with alpha2={:f}.",
         src1.ToString(), src2.ToString(), alpha2);
 
   if ((src1.Width() != src2.Width())
@@ -484,16 +495,13 @@ ImageBuffer Blend(
     rows = 1;
   }
 
-  _Tp blended;
-
   for (int row = 0; row < rows; ++row) {
     for (int col = 0; col < cols; ++col) {
       for (int ch = 0; ch < channels_out; ++ch) {
         if (ch < channels_to_blend) {
-          blended = static_cast<_Tp>(
+          dst.AtUnchecked<_Tp>(row, col, ch) = static_cast<_Tp>(
                 ((1.0 - alpha2) * src1.AtUnchecked<_Tp>(row, col, ch))
                 + (alpha2 * src2.AtUnchecked<_Tp>(row, col, ch)));
-          dst.AtUnchecked<_Tp>(row, col, ch) = blended;
         } else {
           dst.AtUnchecked<_Tp>(row, col, ch) = rem_channels.AtUnchecked<_Tp>(row, col, ch);
         }
@@ -502,6 +510,93 @@ ImageBuffer Blend(
   }
 
   return dst;
+}
+
+template <typename _TImage, typename _TWeights>
+ImageBuffer BlendWeightsHelper(
+    const ImageBuffer &src1,
+    const ImageBuffer &src2,
+    const ImageBuffer &alpha2) {
+  const int channels_out = std::max(src1.Channels(), src2.Channels());
+  const int channels_to_blend = std::min(src1.Channels(), src2.Channels());
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(
+        src1.Height(), src1.Width(), channels_out, src1.BufferType());
+
+  // If the number of input channels are not the same, we fill the result
+  // with values from the buffer that has more channels.
+  const ImageBuffer &rem_channels =
+      (src1.Channels() > src2.Channels()) ? src1 : src2;
+
+  int rows = src1.Height();
+  int cols = src1.Width();
+  if (src1.IsContiguous() && src2.IsContiguous() && alpha2.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      for (int ch = 0; ch < channels_out; ++ch) {
+        if (ch < channels_to_blend) {
+          const _TWeights a2 = alpha2.AtUnchecked<_TWeights>(
+                row, col, (ch < alpha2.Channels()) ? ch : 0);
+          dst.AtUnchecked<_TImage>(row, col, ch) = static_cast<_TImage>(
+                ((1.0 - a2) * src1.AtUnchecked<_TImage>(row, col, ch))
+                + (a2 * src2.AtUnchecked<_TImage>(row, col, ch)));
+        } else {
+          dst.AtUnchecked<_TImage>(row, col, ch) =
+              rem_channels.AtUnchecked<_TImage>(row, col, ch);
+        }
+      }
+    }
+  }
+
+  return dst;
+}
+
+template <typename _Tp>
+ImageBuffer BlendWeights(
+    const ImageBuffer &src1,
+    const ImageBuffer &src2,
+    const ImageBuffer &alpha2) {
+  SPDLOG_DEBUG(
+        "Blending {:s} and {:s} with alpha2={:s}.",
+        src1.ToString(), src2.ToString(), alpha2);
+
+  if ((src1.Width() != src2.Width())
+      || (src1.Width() != alpha2.Width())
+      || (src1.Height() != src2.Height())
+      || (src1.Height() != src2.Height())
+      || (src1.BufferType() != src2.BufferType())) {
+    std::string s(
+          "Blending is only supported for ImageBuffers with same size and "
+          "type, but got: ");
+    s += src1.ToString();
+    s += " vs. ";
+    s += src2.ToString();
+    s += ", alpha2=";
+    s += alpha2.ToString();
+    s += '!';
+    SPDLOG_ERROR(s);
+    throw std::logic_error(s);
+  }
+
+  switch (alpha2.BufferType()) {
+    case ImageBufferType::Double:
+      return BlendWeightsHelper<_Tp, double>(src1, src2, alpha2);
+
+    case ImageBufferType::Float:
+      return BlendWeightsHelper<_Tp, float>(src1, src2, alpha2);
+
+    default: {
+        std::string s(
+              "Blending weights must be single or double precision floating points, but got: ");
+        s += ImageBufferTypeToString(alpha2.BufferType());
+        SPDLOG_ERROR(s);
+        throw std::logic_error(s);
+      }
+  }
 }
 
 
@@ -585,6 +680,78 @@ ImageBuffer ToFloat(const ImageBuffer &src, float scale) {
 
   return dst;
 }
+
+
+
+template <typename _Tp_src, ImageBufferType _BTp_dst>
+ImageBuffer ConvertTypeImpl(
+    const ImageBuffer &src, double scale) {
+  ImageBuffer dst(src.Height(), src.Width(), src.Channels(), _BTp_dst);
+  int rows = src.Height();
+  int cols = src.Width();
+  // dst was freshly allocated, so it's guaranteed to be contiguous
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  using _Tp_dst = image_buffer_t<_BTp_dst>;
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      for (int ch = 0; ch < src.Channels(); ++ch) {
+        dst.AtUnchecked<_Tp_dst>(row, col, ch) = static_cast<_Tp_dst>(
+                scale * src.AtUnchecked<_Tp_src>(row, col, ch));
+      }
+    }
+  }
+
+  return dst;
+}
+
+
+template <typename _Tsrc>
+ImageBuffer ConvertType(
+    const ImageBuffer &src, ImageBufferType dst_type, double scale) {
+  SPDLOG_DEBUG(
+        "Converting {:s} to `{:s}`, scale={:.2f}.",
+        src.ToString(), dst_type, scale);
+
+  switch (dst_type) {
+    case ImageBufferType::UInt8:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::UInt8>(src, scale);
+
+    case ImageBufferType::Int16:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::Int16>(src, scale);
+
+    case ImageBufferType::UInt16:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::UInt16>(src, scale);
+
+    case ImageBufferType::Int32:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::Int32>(src, scale);
+
+    case ImageBufferType::UInt32:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::UInt32>(src, scale);
+
+    case ImageBufferType::Int64:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::Int64>(src, scale);
+
+    case ImageBufferType::UInt64:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::UInt64>(src, scale);
+
+    case ImageBufferType::Float:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::Float>(src, scale);
+
+    case ImageBufferType::Double:
+      return ConvertTypeImpl<_Tsrc, ImageBufferType::Double>(src, scale);
+  }
+
+  std::string s("Type `");
+  s += ImageBufferTypeToString(dst_type);
+  s += "` not handled in `ConvertType` switch!";
+  SPDLOG_ERROR(s);
+  throw std::logic_error(s);
+}
+
 
 template <typename _Tp>
 ImageBuffer Magnitude(const ImageBuffer &src) {

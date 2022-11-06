@@ -773,6 +773,51 @@ ImageBuffer ImageBuffer::ToFloat() const {
 }
 
 
+ImageBuffer ImageBuffer::AsType(
+    ImageBufferType type, double scaling_factor) const {
+  if (!IsValid()) {
+    const std::string msg("Cannot type-convert an invalid ImageBuffer!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
+  }
+
+  switch (buffer_type) {
+    case ImageBufferType::UInt8:
+      return helpers::ConvertType<uint8_t>(*this, type, scaling_factor);
+
+    case ImageBufferType::Int16:
+      return helpers::ConvertType<int16_t>(*this, type, scaling_factor);
+
+    case ImageBufferType::UInt16:
+      return helpers::ConvertType<uint16_t>(*this, type, scaling_factor);
+
+    case ImageBufferType::Int32:
+      return helpers::ConvertType<int32_t>(*this, type, scaling_factor);
+
+    case ImageBufferType::UInt32:
+      return helpers::ConvertType<uint32_t>(*this, type, scaling_factor);
+
+    case ImageBufferType::Int64:
+      return helpers::ConvertType<int64_t>(*this, type, scaling_factor);
+
+    case ImageBufferType::UInt64:
+      return helpers::ConvertType<uint64_t>(*this, type, scaling_factor);
+
+    case ImageBufferType::Float:
+      return helpers::ConvertType<float>(*this, type, scaling_factor);
+
+    case ImageBufferType::Double:
+      return helpers::ConvertType<double>(*this, type, scaling_factor);
+  }
+
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` not handled in `AsType` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
+}
+
+
 
 ImageBuffer ImageBuffer::Magnitude() const {
   if (!IsValid()) {
@@ -1022,7 +1067,8 @@ void ImageBuffer::Pixelate(
 }
 
 
-ImageBuffer ImageBuffer::Blend(const ImageBuffer &other, double alpha_other) const {
+ImageBuffer ImageBuffer::Blend(
+    const ImageBuffer &other, double alpha_other) const {
   if (!IsValid() || !other.IsValid()) {
     throw std::logic_error(
           "Cannot blend invalid ImageBuffers!");
@@ -1030,31 +1076,31 @@ ImageBuffer ImageBuffer::Blend(const ImageBuffer &other, double alpha_other) con
 
   switch(buffer_type) {
     case ImageBufferType::UInt8:
-      return helpers::Blend<uint8_t>(*this, other, alpha_other);
+      return helpers::BlendConstant<uint8_t>(*this, other, alpha_other);
 
     case ImageBufferType::Int16:
-      return helpers::Blend<int16_t>(*this, other, alpha_other);
+      return helpers::BlendConstant<int16_t>(*this, other, alpha_other);
 
     case ImageBufferType::UInt16:
-      return helpers::Blend<uint16_t>(*this, other, alpha_other);
+      return helpers::BlendConstant<uint16_t>(*this, other, alpha_other);
 
     case ImageBufferType::Int32:
-      return helpers::Blend<int32_t>(*this, other, alpha_other);
+      return helpers::BlendConstant<int32_t>(*this, other, alpha_other);
 
     case ImageBufferType::UInt32:
-      return helpers::Blend<uint32_t>(*this, other, alpha_other);
+      return helpers::BlendConstant<uint32_t>(*this, other, alpha_other);
 
     case ImageBufferType::Int64:
-      return helpers::Blend<int64_t>(*this, other, alpha_other);
+      return helpers::BlendConstant<int64_t>(*this, other, alpha_other);
 
     case ImageBufferType::UInt64:
-      return helpers::Blend<uint64_t>(*this, other, alpha_other);
+      return helpers::BlendConstant<uint64_t>(*this, other, alpha_other);
 
     case ImageBufferType::Float:
-      return helpers::Blend<float>(*this, other, alpha_other);
+      return helpers::BlendConstant<float>(*this, other, alpha_other);
 
     case ImageBufferType::Double:
-      return helpers::Blend<double>(*this, other, alpha_other);
+      return helpers::BlendConstant<double>(*this, other, alpha_other);
   }
 
   // Throw an exception as fallback, because due to the default
@@ -1067,12 +1113,60 @@ ImageBuffer ImageBuffer::Blend(const ImageBuffer &other, double alpha_other) con
 }
 
 
+ImageBuffer ImageBuffer::Blend(
+    const ImageBuffer &other, const ImageBuffer &weights) const {
+  if (!IsValid() || !other.IsValid() || !weights.IsValid()) {
+    throw std::logic_error(
+          "Cannot blend invalid ImageBuffers!");
+  }
+
+  switch(buffer_type) {
+    case ImageBufferType::UInt8:
+      return helpers::BlendWeights<uint8_t>(*this, other, weights);
+
+    case ImageBufferType::Int16:
+      return helpers::BlendWeights<int16_t>(*this, other, weights);
+
+    case ImageBufferType::UInt16:
+      return helpers::BlendWeights<uint16_t>(*this, other, weights);
+
+    case ImageBufferType::Int32:
+      return helpers::BlendWeights<int32_t>(*this, other, weights);
+
+    case ImageBufferType::UInt32:
+      return helpers::BlendWeights<uint32_t>(*this, other, weights);
+
+    case ImageBufferType::Int64:
+      return helpers::BlendWeights<int64_t>(*this, other, weights);
+
+    case ImageBufferType::UInt64:
+      return helpers::BlendWeights<uint64_t>(*this, other, weights);
+
+    case ImageBufferType::Float:
+      return helpers::BlendWeights<float>(*this, other, weights);
+
+    case ImageBufferType::Double:
+      return helpers::BlendWeights<double>(*this, other, weights);
+  }
+
+  // Throw an exception as fallback, because due to the default
+  // compiler settings, we would have ignored the warning about
+  // missing case values.
+  std::string s("Type `");
+  s += ImageBufferTypeToString(buffer_type);
+  s += "` was not handled in `Blend` switch!";
+  SPDLOG_ERROR(s);
+  throw std::logic_error(s);
+}
+
+
 ImageBuffer ImageBuffer::Channel(int channel) const {
   if ((channel < 0) || (channel >= channels)) {
     std::ostringstream s;
     s << "Cannot extract channel #" << channel
       << " from ImageBuffer with " << channels
       << " channels!";
+    SPDLOG_ERROR(s.str());
     throw std::invalid_argument(s.str());
   }
 
@@ -1108,6 +1202,7 @@ ImageBuffer ImageBuffer::Channel(int channel) const {
   std::string s("Type `");
   s += ImageBufferTypeToString(buffer_type);
   s += "` not handled in `Channel` switch!";
+  SPDLOG_ERROR(s);
   throw std::logic_error(s);
 }
 
@@ -1171,6 +1266,7 @@ void ImageBuffer::MinMaxLocation(
   std::string s("Type `");
   s += ImageBufferTypeToString(buffer_type);
   s += "` was not handled in `MinMaxLocation` switch!";
+  SPDLOG_ERROR(s);
   throw std::logic_error(s);
 }
 

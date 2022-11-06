@@ -468,19 +468,24 @@ public:
   /// * 1-channel buffer: output_channels either 1, 3, or 4
   /// * 3-channel buffer: output_channels either 3 or 4
   /// * 4-channel buffer: output_channels either 3 or 4
-  ImageBuffer ToUInt8(int output_channels) const;
+  ImageBuffer ToUInt8(int output_channels) const; //FIXME add scaling parameter instead of fixed multiplication
 
 
   /// Converts this buffer to `float`.
   /// If the underlying type is integral (`uint8`,
   /// `int16`, etc.), the values will be **divided by 255**.
   /// Number of channels remains the same.
-  ImageBuffer ToFloat() const;
+  ImageBuffer ToFloat() const; //FIXME add scaling parameter instead of fixed division
+
+
+  //TODO doc; remove ToFloat & ToUInt8
+  ImageBuffer AsType(
+      ImageBufferType type, double scaling_factor=1.0) const;
 
 
   //TODO Gradient (sobel, border handling)
 
-
+//FIXME extend to any/all channels
   /// Computes the magnitude of a dual-channel image, e.g. an optical flow
   /// field or an image gradient. Only implemented for buffers of type float
   /// or double. Output buffer type will be the same as this buffer's.
@@ -520,6 +525,19 @@ public:
   /// and ``other.channels``. In this case, *non-blendable* channels
   /// are copied from the input buffer which has more channels.
   ImageBuffer Blend(const ImageBuffer &other, double alpha_other) const;
+
+
+  //TODO
+  ImageBuffer Blend(
+      const ImageBuffer &other, const ImageBuffer &weights) const;
+
+//  inline ImageBuffer Blend(
+//      const ImageBuffer &other, const ColorGradient &gradient) const {
+//    auto weights = DrawColorGradient(
+//          gradient, width, height, channels, Color(0, 0, 0, 0));
+//    //TODO how to handle output channels ? always 4 ?
+//    return Blend(other, weights);
+//  }
 
 
   /// Returns a single-channel buffer deeply copied from this ImageBuffer.

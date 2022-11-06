@@ -10,6 +10,9 @@
 #include <viren2d/primitives.h>
 #include <viren2d/imagebuffer.h>
 
+//FIXME DrawColorGradient --> 3 or 4 channels out
+//FIXME ColorGradientMask --> 1 channel
+//FIXME remove stream colorizer
 
 namespace viren2d {
 
@@ -175,6 +178,12 @@ ImageBuffer DrawColorGradient(
     const ColorGradient &gradient,
     int width, int height, int channels = 3,
     const Color &background_color = Color::White);
+
+
+ImageBuffer CreateColorGradientMask(
+    const ColorGradient &gradient,
+    int width, int height,
+    const Color &background_color = Color::Black.WithAlpha(0.0));
 
 } // namespace viren2d
 

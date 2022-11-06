@@ -44,7 +44,7 @@ def demo_optical_flow_colormaps():
 
 def demo_optical_flow_overlay():
     img = viren2d.load_image_uint8(VIREN2D_DATA_PATH / 'sintel-alley2.png')
-    img_dampened = (0.2 * np.array(img)).astype(np.uint8)
+    img_dimmed = (0.2 * np.array(img)).astype(np.uint8)
     
     flow = viren2d.load_optical_flow(VIREN2D_DATA_PATH / 'sintel-alley2.flo')
     (_, max_motion, _, _) = flow.magnitude().min_max(0)
@@ -52,5 +52,5 @@ def demo_optical_flow_overlay():
             flow=flow, colormap='orientation-6', motion_normalizer=max_motion)
     
     # #TODO declare gradient, use gradient overlay
-    vis = flow_vis.blend(img_dampened, 0.4)
+    vis = flow_vis.blend(img_dimmed, 0.4)
     return np.array(vis, copy=True)
