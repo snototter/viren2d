@@ -57,7 +57,7 @@ void Showcase() {
 //  DemoImageBufferConversionOpenCV();
 //  DemoLines();
 //  DemoMarkers();
-//  DemoOpticalFlow();
+  DemoOpticalFlow();
 //  DemoPinhole();
 //  DemoPolygons();
 //  DemoRects();

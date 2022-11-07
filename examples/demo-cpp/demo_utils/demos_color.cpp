@@ -127,6 +127,7 @@ void DemoColorMaps() {
 
 
 void DemoColorGradients() {
+  //TODO refactor demo - this is just a proof-of-concept
   PrintDemoHeader("Color gradients");
 
   LinearColorGradient gradient_linear({0, 0}, {600, 200});
@@ -166,17 +167,17 @@ void DemoColorGradients() {
         DrawColorGradient(gradient_radial, 600, 200, 4),
         "demo-output-color-gradients2.png");
 
-//FIXME qad --> move to optical flow demo (create blending gradient; then merge flow vis & input image)
-  LinearColorGradient weight_gradient({0, 0}, {600, 200});
-  weight_gradient.AddGrayscaleStop(0.1, 1.0);
-  weight_gradient.AddGrayscaleStop(0.5, 0.0);
-  weight_gradient.AddGrayscaleStop(0.9, 1.0);
-  auto weights = CreateColorGradientMask(weight_gradient, grad1.Width(), grad1.Height());
-  ImageBuffer blue(grad1.Height(), grad1.Width(), grad1.Channels(), grad1.BufferType());
-  blue.SetToPixel<uint8_t>(200, 0, 200);
-  auto grad_overlay = grad1.Blend(blue, weights);
-  ProcessDemoOutput(
-        grad_overlay, "demo-output-color-gradients-overlay.png");
+////FIXME qad --> move to optical flow demo (create blending gradient; then merge flow vis & input image)
+//  LinearColorGradient weight_gradient({0, 0}, {600, 200});
+//  weight_gradient.AddGrayscaleStop(0.1, 1.0);
+//  weight_gradient.AddGrayscaleStop(0.5, 0.0);
+//  weight_gradient.AddGrayscaleStop(0.9, 1.0);
+//  auto weights = CreateColorGradientMask(weight_gradient, grad1.Width(), grad1.Height());
+//  ImageBuffer blue(grad1.Height(), grad1.Width(), grad1.Channels(), grad1.BufferType());
+//  blue.SetToPixel<uint8_t>(200, 0, 200);
+//  auto grad_overlay = grad1.Blend(blue, weights);
+//  ProcessDemoOutput(
+//        grad_overlay, "demo-output-color-gradients-overlay.png");
 }
 
 } // namespace demos
