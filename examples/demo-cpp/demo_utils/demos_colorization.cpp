@@ -15,8 +15,8 @@ void DemoOpticalFlow() {
         viren2d_EXAMPLE_DATA_PATH, "sintel-alley2.flo");
 #else
   const std::string flow_filename("../examples/data/sintel-alley2.flo");
-  std::cerr << "Path to example data not given, using default (relative!) path: "
-            << flow_filename << std::endl;
+  std::cerr << "Path to example data not configured, using default "
+               "(relative!) path: " << flow_filename << std::endl;
 #endif
 
   // Colorize exemplary flow:

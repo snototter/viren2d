@@ -382,14 +382,17 @@ void RegisterImageBuffer(py::module &m) {
            conversion when calling a ``viren2d`` function which expects an
            :class:`~viren2d.ImageBuffer`.
 
-           Note that by default, ``viren2d`` tries to create a shared buffer.
+           Note that by default, ``viren2d`` tries to create a **shared buffer**.
            However, if the input :class:`numpy.ndarray` is **not row-major**,
            the implicit conversion will **always create a copy**.  This would
            result in a warning message.
-           To suppress this warning, explicitly create a copy via
-           ``viren2d.ImageBuffer(non_row_major_array, copy=True)``,
-           or ensure that the input is C-style, *e.g.* via
-           :func:`numpy.ascontiguousarray`.
+           To avoid this warning, either explicitly create
+           a copy via ``viren2d.ImageBuffer(non_row_major_array, copy=True)``,
+           or disable the warning via the optional parameter
+           ``viren2d.ImageBuffer(non_row_major_array, disable_warnings=True)``.
+           Alternatively, the input :class:`numpy.ndarray` could be converted
+           to a C-style before invoking any ``viren2d`` function, *e.g.*
+           via :func:`numpy.ascontiguousarray`.
         )docstr");
 
   imgbuf.def(
@@ -563,11 +566,13 @@ void RegisterImageBuffer(py::module &m) {
       .def(
         "magnitude",
         &ImageBuffer::Magnitude, R"docstr(
-        Computes the magnitude for dual-channel floating point images.
+        Computes the magnitude along the channels.
 
-        Can only be applied to dual-channel images of type
-        :class:`numpy.float32` or :class:`numpy.float64`, *e.g.* optical flow
-        fields or image gradients.
+        At each spatial location :math:`(r,c)`, this method computes the
+        magnitude along the :math:`C` channels, *i.e.*
+        :math:`M(r,c) = \sqrt{\sum_{l = [1, \dots, C]}I(r,c,l)^2}`
+        Can only be applied to images of type :class:`numpy.float32` or
+        :class:`numpy.float64`, *e.g.* optical flow fields or image gradients.
 
         **Corresponding C++ API:** ``viren2d::ImageBuffer::Magnitude``.
         )docstr")

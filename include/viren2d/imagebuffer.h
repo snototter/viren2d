@@ -476,11 +476,12 @@ public:
   /// If the underlying type is integral (`uint8`,
   /// `int16`, etc.), the values will be **divided by 255**.
   /// Number of channels remains the same.
-  ImageBuffer ToFloat() const; //FIXME add scaling parameter instead of fixed division
-  //FIXME or remove completely --> use AsType instead!
+  ImageBuffer ToFloat() const;
 
 
-  //TODO doc; remove ToFloat & ToUInt8
+  /// Returns a copy of this buffer converted to the given type.
+  /// Before type casting (and thus, potential value clipping), the values
+  /// will be scaled by the given scaling factor.
   ImageBuffer AsType(
       ImageBufferType type, double scaling_factor=1.0) const;
 
