@@ -110,6 +110,19 @@ public:
   }
 
 
+  bool SetClipRegionRect(const Rect &clip) {
+    return painter_->SetClipRegion(clip);
+  }
+
+  bool SetClipRegionCircle(const Vec2d &center, double radius) {
+    return painter_->SetClipRegion(center, radius);
+  }
+
+  bool ResetClipRegion() {
+    return painter_->ResetClipRegion();
+  }
+
+
   bool DrawArc(
       const Vec2d &center, double radius, double angle1, double angle2,
       const LineStyle &line_style, bool include_center, const Color &fill_color) {
@@ -850,7 +863,16 @@ void RegisterPainter(py::module &m) {
           messages. Drawing errors are most likely caused by invalid inputs.
 
         Example:
-          >>> TODO
+          >>> grad = viren2d.LinearColorGradient((0, 0), (200, 200))
+          >>> grad.add_color_stop(0.1, 'crimson')
+          >>> grad.add_color_stop(0.5, 'teal-green')
+          >>> grad.add_color_stop(0.9, 'navy-blue')
+          >>> painter.draw_gradient(grad)
+
+        Note:
+          This method will render the gradient across the full canvas. If this
+          is not wanted, a *clip region* must be set up before via
+          :meth:`set_clip_rect` or :meth:`set_clip_circle`.
         )docstr",
         py::arg("gradient"));
 
@@ -1494,6 +1516,83 @@ void RegisterPainter(py::module &m) {
         py::arg("color_x") = Color::CoordinateAxisColor('x'),
         py::arg("color_y") = Color::CoordinateAxisColor('y'),
         py::arg("color_z") = Color::CoordinateAxisColor('z'));
+
+
+  //----------------------------------------------------------------------  Clipping
+  painter.def(
+        "set_clip_rect",
+        &PainterWrapper::SetClipRegionRect, R"docstr(
+        Establishes a rectangular clip region for the current canvas.
+
+        After setting the clip region, any drawing operations outside the clip
+        region are effectively masked out. Note that this does not change the
+        canvas transformation, *i.e.* coordinates for following drawing
+        operations need to be provided in the global/previous canvas coordinate
+        frame.
+        Also note that the clip region will be reset automatically whenever a
+        new canvas is set. To reset the clip region, use
+        :meth:`reset_clip`.
+
+        **Corresponding C++ API:** ``viren2d::Painter::SetClipRegion``.
+
+        Args:
+          rect: A :class:`~viren2d.Rect` defining the rectangular clipping
+            region, optionally rotated and with rounded corners).
+
+        Returns:
+          ``True`` if the given clip region is valid, ``False`` otherwise which
+          will be indicated by log messages.
+
+        Example:
+          >>> TODO
+        )docstr",
+        py::arg("rect"));
+
+  painter.def(
+        "set_clip_circle",
+        &PainterWrapper::SetClipRegionCircle, R"docstr(
+        Establishes a circular clip region for the current canvas.
+
+        After setting the clip region, any drawing operations outside the clip
+        region are effectively masked out. Note that this does not change the
+        canvas transformation, *i.e.* coordinates for following drawing
+        operations need to be provided in the global/previous canvas coordinate
+        frame.
+        Also note that the clip region will be reset automatically whenever a
+        new canvas is set. To reset the clip region, use
+        :meth:`reset_clip`.
+
+        **Corresponding C++ API:** ``viren2d::Painter::SetClipRegion``.
+
+        Args:
+          center: Center of the circle as :class:`~viren2d.Vec2d`.
+          radius: Radius of the circle.
+
+        Returns:
+          ``True`` if the given clip region is valid, ``False`` otherwise which
+          will be indicated by log messages.
+
+        Example:
+          >>> # Circular clip region and radial gradient for 3D impression:
+          >>> grad = viren2d.RadialColorGradient((90, 90), 10, (90, 90), 90);
+          >>> grad.add_color_stop(0.0, 'white')
+          >>> grad.add_color_stop(1.0, 'light-gray')
+          >>> painter.set_clip_circle((60, 60), 40)
+          >>> painter.draw_gradient(grad)
+        )docstr",
+        py::arg("center"),
+        py::arg("radius"));
+
+  painter.def(
+        "reset_clip",
+        &PainterWrapper::ResetClipRegion, R"docstr(
+        Resets the latest clip region.
+
+        Note that for each previously set clip region, a separate call to
+        :meth:`reset_clip` is needed.
+
+        **Corresponding C++ API:** ``viren2d::Painter::ResetClipRegion``.
+        )docstr");
 }
 
 } // namespace bindings

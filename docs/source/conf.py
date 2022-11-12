@@ -135,10 +135,13 @@ class Viren2dDrawingSummary(Directive):
         then parsed and returned as a `nodes.table` instance
         I didn't find an easier way to resolve the code doc links.
         """
+        def should_include(fx):
+            return fx.startswith('draw_') or fx.startswith('set_clip') or (fx == 'reset_clip')
+
         draw_fxs = sorted(
             [f for f in dir(viren2d.Painter)
              if callable(getattr(viren2d.Painter, f))
-             and f.startswith('draw_')])
+             and should_include(f)])
         max_fname_len = max([len(f) for f in draw_fxs])
 
         docstr = []

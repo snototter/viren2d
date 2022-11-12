@@ -1,3 +1,6 @@
+.. warning::
+   TODO include linear & radial example visualization; refer to optical flow visualization
+
 ---------------
 Color Gradients
 ---------------
