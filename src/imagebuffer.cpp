@@ -1138,6 +1138,53 @@ ImageBuffer ImageBuffer::Channel(int channel) const {
 }
 
 
+ImageBuffer ImageBuffer::Dim(double alpha) const {
+  if (!IsValid()) {
+    const std::string msg("Cannot dim an invalid ImageBuffer!");
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
+  }
+
+  switch(buffer_type) {
+    case ImageBufferType::UInt8:
+      return helpers::DimImpl<uint8_t>(*this, alpha);
+
+    case ImageBufferType::Int16:
+      return helpers::DimImpl<int16_t>(*this, alpha);
+
+    case ImageBufferType::UInt16:
+      return helpers::DimImpl<uint16_t>(*this, alpha);
+
+    case ImageBufferType::Int32:
+      return helpers::DimImpl<int32_t>(*this, alpha);
+
+    case ImageBufferType::UInt32:
+      return helpers::DimImpl<uint32_t>(*this, alpha);
+
+    case ImageBufferType::Int64:
+      return helpers::DimImpl<int64_t>(*this, alpha);
+
+    case ImageBufferType::UInt64:
+      return helpers::DimImpl<uint64_t>(*this, alpha);
+
+    case ImageBufferType::Float:
+      return helpers::DimImpl<float>(*this, alpha);
+
+    case ImageBufferType::Double:
+      return helpers::DimImpl<double>(*this, alpha);
+  }
+
+  // Throw an exception as fallback, because due to the default
+  // compiler settings, we would have ignored the warning about
+  // missing case values.
+  std::string msg("Type `");
+  msg += ImageBufferTypeToString(buffer_type);
+  msg += "` was not handled in `Dim` switch!";
+  SPDLOG_ERROR(msg);
+  throw std::logic_error(msg);
+}
+
+
 bool ImageBuffer::IsValid() const {
   return (data != nullptr);
 }

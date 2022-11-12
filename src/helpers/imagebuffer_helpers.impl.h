@@ -596,6 +596,7 @@ ImageBuffer BlendWeightsImpl(
   return dst;
 }
 
+
 template <typename _Tp>
 ImageBuffer BlendWeights(
     const ImageBuffer &src1,
@@ -650,6 +651,36 @@ ImageBuffer BlendWeights(
         throw std::logic_error(msg);
       }
   }
+}
+
+
+template <typename _T>
+ImageBuffer DimImpl(
+    const ImageBuffer &src,
+    double &alpha) {
+  // Create destination buffer (will have contiguous memory)
+  ImageBuffer dst(src.Height(), src.Width(), src.Channels(), src.BufferType());
+
+  int rows = src.Height();
+  int cols = src.Width();
+  if (src.IsContiguous()) {
+    cols *= rows;
+    rows = 1;
+  }
+
+  for (int row = 0; row < rows; ++row) {
+    const _T *src_ptr = src.ImmutablePtr<_T>(row, 0);
+    _T *dst_ptr = dst.MutablePtr<_T>(row, 0);
+    for (int col = 0; col < cols; ++col) {
+      for (int ch = 0; ch < src.Channels(); ++ch) {
+        *dst_ptr = static_cast<_T>(alpha * (*src_ptr));
+        ++dst_ptr;
+        ++src_ptr;
+      }
+    }
+  }
+
+  return dst;
 }
 
 

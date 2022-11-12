@@ -631,25 +631,6 @@ void RegisterImageBuffer(py::module &m) {
           :math:`x` and :math:`y` positions as :class:`~viren2d.Vec2i`.
         )docstr",
         py::arg("channel") = -1)
-      .def(
-        "blend",
-        py::overload_cast<const ImageBuffer &, double>(
-          &ImageBuffer::Blend, py::const_), R"docstr(
-        Returns an alpha-blended image.
-
-        Creates a new image as the result of
-        :math:`(1 - \alpha) * \text{self} + \alpha * \text{other}``.
-        If the number of channels is not the same, the number of
-        output channels will be the maximum of ``self.channels``
-        and ``other.channels``. In this case, *non-blendable* channels
-        are copied from the input buffer which has more channels.
-
-        **Corresponding C++ API:** ``viren2d::ImageBuffer::Blend``.
-
-        Args:
-          other: The other :class:`~viren2d.ImageBuffer` to blend.
-          alpha: Blending factor as :class:`float` :math:`\in [0,1]`.
-        )docstr", py::arg("other"), py::arg("alpha"))
       .def_property_readonly(
         "width",
         &ImageBuffer::Width, R"docstr(
@@ -720,6 +701,81 @@ void RegisterImageBuffer(py::module &m) {
 
           **Corresponding C++ API:** ``viren2d::ImageBuffer::BufferType``.
         )docstr");
+
+  imgbuf.def(
+        "blend",
+        py::overload_cast<const ImageBuffer &, double>(
+          &ImageBuffer::Blend, py::const_), R"docstr(
+        Returns an alpha-blended image.
+
+        Creates a new image as the result of
+        :math:`(1 - \alpha) * \text{self} + \alpha * \text{other}`.
+        If the number of channels is not the same, the number of
+        output channels will be the maximum of ``self.channels``
+        and ``other.channels``. In this case, *non-blendable* channels
+        are copied from the input buffer which has more channels.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Blend``.
+
+        Args:
+          other: The other :class:`~viren2d.ImageBuffer` to blend.
+          alpha: Blending factor as :class:`float` :math:`\in [0,1]`.
+        )docstr",
+        py::arg("other"),
+        py::arg("alpha"))
+      .def(
+        "blend",
+        py::overload_cast<const ImageBuffer &, const ImageBuffer &>(
+          &ImageBuffer::Blend, py::const_), R"docstr(
+        Returns an alpha-blended image.
+
+        Creates a new image as the result of
+        :math:`(1 - \alpha_{r,c}) * \text{self}_{r,c} + \alpha_{r,c} * \text{other}_{r,c}`,
+        where :math:`alpha` is a weight mask.
+        If the mask provides multiple channels, the blending weights will be
+        taken from the corresponding channel. Otherwise, the blending weights
+        will be taken from the first mask channel.
+
+        If the number of channels of the two images is not the same, the number
+        of output channels will be the maximum of ``self.channels``
+        and ``other.channels``. In this case, *non-blendable* channels
+        are copied from the input buffer which has more channels.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Blend``.
+
+        Args:
+          other: The other :class:`~viren2d.ImageBuffer` to be overlaid.
+          alpha: Blending mask/weights as :class:`~viren2d.ImageBuffer`
+            of the same width and height. The mask must be of type
+            :class:`numpy.float32` or :class:`numpy.float32` and each
+            :math:`\alpha_{r,c} \in [0,1]`.
+
+        Example:
+          >>> TODO optical flow example
+        )docstr",
+        py::arg("other"),
+        py::arg("alpha"));
+
+  imgbuf.def(
+        "dim",
+        &ImageBuffer::Dim, R"docstr(
+        Returns a scaled version of this image as
+        :math:`\alpha * \text{self}`.
+
+        This method will not apply any sanity checks to the provided scaling
+        factor. Since the output will have the same type, values will be
+        implicitly cast to the data type's range. Thus, be aware of potential
+        value clipping if :math:`\alpha \notin [0, 1]`.
+
+        **Corresponding C++ API:** ``viren2d::ImageBuffer::Dim``.
+
+        Args:
+          alpha: Scaling factor as :class:`float`.
+
+        Example:
+          >>> dimmed = img.dim(0.4)
+        )docstr",
+        py::arg("alpha"));
 
 
   // An ImageBuffer can be initialized from a numpy array
