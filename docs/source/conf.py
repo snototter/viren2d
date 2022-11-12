@@ -132,7 +132,7 @@ class Viren2dDrawingSummary(Directive):
     def _create_table_drawing_methods(self):
         """
         Creates a rst-formatted StringList, which is
-        then parsed and returned as a `nodes.table` instance
+        then parsed and returned as a `nodes.table` instance.
         I didn't find an easier way to resolve the code doc links.
         """
         def should_include(fx):
@@ -175,6 +175,99 @@ class Viren2dDrawingSummary(Directive):
         return node.children
 
 
+class Viren2dColorNamesTable(Directive):
+    required_arguments = 0
+    optional_arguments = 0
+    has_content = False
+
+    def run(self):
+        """
+        Creates a rst-formatted StringList, which is
+        then parsed and returned as a `nodes.table` instance.
+
+        See
+        I didn't find an easier way to resolve the code doc links.
+        """
+        # targetid = 'cnmtab-%d' % targetid = 'todo-%d' % self.env.new_serialno('todo').new_serialno('cnmtab')
+        # targetnode = nodes.target('', '', ids=[targetid])
+        table = self._cname_table()
+        # return [targetnode, table]
+        return [table]
+
+    def _cname_table(self):                
+        table = nodes.table()
+        tgroup = nodes.tgroup(cols=4)
+        for _ in range(4):
+            colspec = nodes.colspec(colwidth=1)
+            tgroup.append(colspec)
+        table += tgroup
+
+        # Header
+        thead = nodes.thead()
+        tgroup += thead
+        row = nodes.row()
+        entry = nodes.entry()
+        entry += nodes.paragraph(text="Name")
+        row += entry
+
+        entry = nodes.entry()
+        entry += nodes.paragraph(text="Web code")
+        row += entry
+
+        entry = nodes.entry()
+        entry += nodes.paragraph(text="RGB")
+        row += entry
+
+        entry = nodes.entry()
+        entry += nodes.paragraph(text="rgb")
+        row += entry
+        thead.append(row)
+
+        rows = list()
+        for cname in viren2d.color_names():
+            color = viren2d.Color(cname)
+
+            row = nodes.row()
+            rows.append(row)
+
+            # First column, the name + link to online color lookup
+            hex = color.to_hex()[:-2]  # hex code without alpha
+            url = f'https://www.google.com/search?q=%23{hex[1:]}'
+
+            entry = nodes.entry()
+            ref = nodes.reference(name=hex, refuri=url)
+            ref += nodes.paragraph(text=cname)
+            txt = nodes.inline()
+            txt += ref
+            entry += txt
+            row += entry
+
+            # Next column, hex code
+            entry = nodes.entry()
+            entry += nodes.literal(text=hex)
+            row += entry
+
+            # Next column, RGB representation
+            RGBa = color.to_RGBa()
+            txt_RGB = f'({RGBa[0]}, {RGBa[1]}, {RGBa[2]})'
+
+            entry = nodes.entry()
+            entry += nodes.literal(text=txt_RGB)
+            row += entry
+
+            # Next column, rgb representation
+            txt_rgb = f'({color.red:3.2f}, {color.green:3.2f}, {color.blue:3.2f})'
+            entry = nodes.entry()
+            entry += nodes.literal(text=txt_rgb)
+            row += entry
+
+        tbody = nodes.tbody()
+        tbody.extend(rows)
+        tgroup += tbody
+
+        return table
+
+
 def setup(app):
     # I want to include overloaded operators in autodoc
     app.connect("autodoc-skip-member", autodoc_skip_member)
@@ -182,3 +275,4 @@ def setup(app):
 
     # Custom directives
     app.add_directive("viren2d-drawing-summary", Viren2dDrawingSummary)
+    app.add_directive("viren2d-color-names-table", Viren2dColorNamesTable)
