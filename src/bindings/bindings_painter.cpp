@@ -151,6 +151,11 @@ public:
   }
 
 
+  bool DrawGradient(const ColorGradient &gradient) {
+    return painter_->DrawGradient(gradient);
+  }
+
+
   bool DrawGrid(
       double spacing_x, double spacing_y,
       const LineStyle &line_style,
@@ -828,6 +833,26 @@ void RegisterPainter(py::module &m) {
         py::arg("line_style") = LineStyle(),
         py::arg("fill_color") = Color::Invalid);
 
+
+  //----------------------------------------------------------------------
+  painter.def(
+        "draw_gradient",
+        &PainterWrapper::DrawGradient, R"docstr(
+        Draws a color gradient.
+
+        **Corresponding C++ API:** ``viren2d::Painter::DrawGradient``.
+
+        Args:
+          gradient: The :class:`~viren2d.ColorGradient` to draw.
+
+        Returns:
+          ``True`` if drawing completed successfully. Otherwise, check the log
+          messages. Drawing errors are most likely caused by invalid inputs.
+
+        Example:
+          >>> TODO
+        )docstr",
+        py::arg("gradient"));
 
   //----------------------------------------------------------------------
   painter.def(

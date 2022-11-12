@@ -18,7 +18,7 @@ void RegisterColorGradientBase(pybind11::module &m) {
       Base class for :class:`~viren2d.LinearColorGradient`
       and :class:`~viren2d.RadialColorGradient`.
 
-      This should not be instantiated directly, refer to the
+      This class should not be instantiated directly, refer to the
       derived classes instead.
 
       **Corresponding C++ API:** ``viren2d::ColorGradient``.

@@ -10,6 +10,7 @@ API Documentation
 
    apidoc/apidoc-basic-shapes
    apidoc/apidoc-color
+   apidoc/apidoc-colorgradients
    apidoc/apidoc-colormaps
    apidoc/apidoc-drawing
    apidoc/apidoc-imagebuffer

@@ -32,26 +32,6 @@ Color Names
    :align: center
 
 
-~~~~~~~~~~~~~~~
-Color Gradients
-~~~~~~~~~~~~~~~
-
-
-.. autoclass:: viren2d.LinearColorGradient
-   :autosummary:
-   :autosummary-nosignatures:
-   :members: __init__, add_color_stop, add_intensity_stop, is_valid
-
-.. autoclass:: viren2d.RadialColorGradient
-   :autosummary:
-   :autosummary-nosignatures:
-   :members: __init__, add_color_stop, add_intensity_stop, is_valid
-
-.. autofunction:: viren2d.color_gradient_mask
-
-.. autofunction:: viren2d.color_gradient_visualization
-
-
 ~~~~~~~~~~~~~~~~
 Color Utilitites
 ~~~~~~~~~~~~~~~~
