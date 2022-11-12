@@ -83,7 +83,7 @@ ImageBuffer DrawColorGradient(
   } else {
     std::ostringstream s;
     s << "Invalid number of output channels requested ("
-      << channels << "), only 1, 3 & 4 are supported!";
+      << channels << "), only 3 or 4 are supported!";
     throw std::invalid_argument(s.str());
   }
 }

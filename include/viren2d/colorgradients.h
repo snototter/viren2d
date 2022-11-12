@@ -10,8 +10,6 @@
 #include <viren2d/primitives.h>
 #include <viren2d/imagebuffer.h>
 
-//FIXME DrawColorGradient --> 3 or 4 channels out
-//FIXME ColorGradientMask --> 1 channel
 //FIXME remove stream colorizer
 
 namespace viren2d {
@@ -78,7 +76,8 @@ public:
   }
 
 protected:
-  //TODO doc
+  /// Color stops along fractions (i.e. within [0,1]) of the gradient's
+  /// control vector.
   std::vector<std::pair<double, Color>> color_stops;
 };
 
@@ -180,8 +179,17 @@ ImageBuffer DrawColorGradient(
     const Color &background_color = Color::White);
 
 
-ImageBuffer CreateColorGradientMask(
-    const ColorGradient &gradient,
+/// Returns a single-channel double-precision mask with values in [0, 1] as
+/// the result of rendering the given gradient.
+///
+/// Args:
+///   gradient: The color gradient to be rendered. Only the red and alpha
+///     components will be considered for the output mask.
+///   width: Width of the output mask in pixels.
+///   height: Height of the output mask in pixels.
+///   background_color: The color used to initialize the output mask before
+///     rendering the gradient.
+ImageBuffer CreateColorGradientMask(const ColorGradient &gradient,
     int width, int height,
     const Color &background_color = Color::Black.WithAlpha(0.0));
 
