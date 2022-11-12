@@ -73,6 +73,10 @@ std::string PathStringFromPyObject(const pybind11::object &path);
 void RegisterImageBuffer(pybind11::module &m);
 void RegisterPainter(pybind11::module &m);
 
+
+//-------------------------------------------------  Color gradients
+void RegisterColorGradients(pybind11::module &m);
+
 //-------------------------------------------------  Colormaps
 void RegisterColormaps(pybind11::module &m);
 void RegisterColorMapEnum(pybind11::module &m);

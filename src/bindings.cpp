@@ -73,6 +73,9 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Visualization - Colormaps
   viren2d::bindings::RegisterColormaps(m);
 
+  //------------------------------------------------- Visualization - Color gradients
+  viren2d::bindings::RegisterColorGradients(m);
+
   //------------------------------------------------- Visualization - Optical Flow
   viren2d::bindings::RegisterOpticalFlowUtils(m);
 

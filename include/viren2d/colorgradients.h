@@ -173,7 +173,7 @@ private:
 ///   channels: Number of output channels, must be either 3 or 4.
 ///   background_color: The color used to initialize the image buffer before
 ///     rendering the gradient.
-ImageBuffer DrawColorGradient(
+ImageBuffer CreateColorGradientVisualization(
     const ColorGradient &gradient,
     int width, int height, int channels = 3,
     const Color &background_color = Color::White);
@@ -189,7 +189,8 @@ ImageBuffer DrawColorGradient(
 ///   height: Height of the output mask in pixels.
 ///   background_color: The color used to initialize the output mask before
 ///     rendering the gradient.
-ImageBuffer CreateColorGradientMask(const ColorGradient &gradient,
+ImageBuffer CreateColorGradientMask(
+    const ColorGradient &gradient,
     int width, int height,
     const Color &background_color = Color::Black.WithAlpha(0.0));
 

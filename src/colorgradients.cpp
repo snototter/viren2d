@@ -21,6 +21,7 @@
 // * replace all stringstreams by ostringstreams
 // * replace 's' by 'msg'/'err',...
 // * add python wrappers (functions), e.g. blend(a, b) --> return ImageBuffer(a).blend(b)
+// * move all python binding helpers in corresponding namespaces
 
 
 namespace viren2d {
@@ -70,7 +71,7 @@ std::string RadialColorGradient::ToString() const {
 }
 
 
-ImageBuffer DrawColorGradient(
+ImageBuffer CreateColorGradientVisualization(
     const ColorGradient &gradient,
     int width, int height, int channels,
     const Color &background_color) {
