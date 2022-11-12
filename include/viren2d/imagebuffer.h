@@ -260,11 +260,11 @@ public:
 
     const int num_el = 1 + sizeof...(elements);
     if (num_el > channels) {
-      std::ostringstream s;
-      s << "Invalid number of template arguments (" << num_el
-        << ") to `SetToPixel` for an ImageBuffer with only " << channels
-        << " channels!";
-      throw std::invalid_argument(s.str());
+      std::ostringstream msg;
+      msg << "Invalid number of template arguments (" << num_el
+          << ") to `SetToPixel` for an ImageBuffer with only " << channels
+          << " channels!";
+      throw std::invalid_argument(msg.str());
     }
 
     const int num_channels = std::min(channels, num_el);
@@ -320,10 +320,10 @@ public:
 
     const int num_inputs = 2 + sizeof...(min_max_others);
     if (num_inputs != 2 * channels) {
-      std::ostringstream s;
-      s << "`MaskRange` expects min/max per channel, i.e. " << (2 * channels)
-        << " values, but got " << num_inputs << '!';
-      throw std::invalid_argument(s.str());
+      std::ostringstream msg;
+      msg << "`MaskRange` expects min/max per channel, i.e. " << (2 * channels)
+          << " values, but got " << num_inputs << '!';
+      throw std::invalid_argument(msg.str());
     }
 
     const _Tp min_max[num_inputs] = {
@@ -368,10 +368,11 @@ public:
 
     const int num_inputs = 3 + sizeof...(sss_others);
     if (num_inputs != 3 * channels) {
-      std::ostringstream s;
-      s << "`Normalize` expects `shift_pre`, `scale` and `shift_post` per channel, i.e. "
-        << (3 * channels) << " values, but got " << num_inputs << '!';
-      throw std::invalid_argument(s.str());
+      std::ostringstream msg;
+      msg << "`Normalize` expects `shift_pre`, `scale` and `shift_post` per "
+             "channel, i.e. " << (3 * channels) << " values, but got "
+          << num_inputs << '!';
+      throw std::invalid_argument(msg.str());
     }
 
     const _Tp sss[num_inputs] = {
@@ -478,9 +479,16 @@ public:
   ImageBuffer ToFloat() const;
 
 
+  /// Returns a copy of this buffer converted to the given type.
+  /// Before type casting (and thus, potential value clipping), the values
+  /// will be scaled by the given scaling factor.
+  ImageBuffer AsType(
+      ImageBufferType type, double scaling_factor=1.0) const;
+
+
   //TODO Gradient (sobel, border handling)
 
-
+//FIXME extend to any/all channels
   /// Computes the magnitude of a dual-channel image, e.g. an optical flow
   /// field or an image gradient. Only implemented for buffers of type float
   /// or double. Output buffer type will be the same as this buffer's.
@@ -522,8 +530,30 @@ public:
   ImageBuffer Blend(const ImageBuffer &other, double alpha_other) const;
 
 
+  /// Returns an alpha-blended image.
+  ///
+  /// Creates a new image as the result of
+  /// :math:`(1 - \alpha_{r,c}) * \text{self}_{r,c} + \alpha_{r,c} * \text{other}_{r,c}``,
+  /// where :math:`alpha` is a weight mask.
+  /// If the mask provides multiple channels, the blending weights will be
+  /// taken from the corresponding channel. Otherwise, the blending weights
+  /// will be taken from the first mask channel.
+  ///
+  /// If the number of channels of the two images is not the same, the number
+  /// of output channels will be the maximum of ``self.channels``
+  /// and ``other.channels``. In this case, *non-blendable* channels
+  /// are copied from the input buffer which has more channels.
+  ImageBuffer Blend(
+      const ImageBuffer &other, const ImageBuffer &weights) const;
+
+
   /// Returns a single-channel buffer deeply copied from this ImageBuffer.
   ImageBuffer Channel(int channel) const;
+
+
+  /// Returns a dimmed version of this image by element-wise
+  /// multiplication of alpha and the corresponding pixel value.
+  ImageBuffer Dim(double alpha) const;
 
 
   /// Returns true if this buffer points to a valid memory location.
@@ -595,12 +625,12 @@ private:
     if ((row < 0) || (row >= height)
         || (col < 0) || (col >= width)
         || (channel < 0) || (channel >= channels)) {
-      std::ostringstream s;
-      s << "Buffer index (row=" << row << ", col="
-        << col << ", ch=" << channel
-        << ") is out of range for ImageBuffer of size h="
-        << height << ", w=" << width << " a " << channels << " channels!";
-      throw std::out_of_range(s.str());
+      std::ostringstream msg;
+      msg << "Buffer index (row=" << row << ", col="
+          << col << ", ch=" << channel
+          << ") is out of range for ImageBuffer of size h="
+          << height << ", w=" << width << " a " << channels << " channels!";
+      throw std::out_of_range(msg.str());
     }
   }
 
@@ -608,12 +638,12 @@ private:
   template <typename _Tp> inline
   void CheckType() const {
     if (typeid(_Tp) != ImageBufferTypeInfo(buffer_type)) {
-      std::string s("Invalid template type with typeid `");
-      s += typeid(_Tp).name();
-      s += "`, but buffer is of type `";
-      s += ImageBufferTypeToString(buffer_type);
-      s += "`!";
-      throw std::logic_error(s);
+      std::string msg("Invalid template type with typeid `");
+      msg += typeid(_Tp).name();
+      msg += "`, but buffer is of type `";
+      msg += ImageBufferTypeToString(buffer_type);
+      msg += "`!";
+      throw std::logic_error(msg);
     }
   }
 

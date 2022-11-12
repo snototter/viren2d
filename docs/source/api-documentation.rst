@@ -10,6 +10,7 @@ API Documentation
 
    apidoc/apidoc-basic-shapes
    apidoc/apidoc-color
+   apidoc/apidoc-colorgradients
    apidoc/apidoc-colormaps
    apidoc/apidoc-drawing
    apidoc/apidoc-imagebuffer
@@ -36,6 +37,18 @@ API Documentation
       viren2d.object_category_names
       viren2d.rgba
       viren2d.RGBa
+
+
+**Color Gradients:**
+
+   .. autosummary::
+      :nosignatures:
+
+      viren2d.ColorGradient
+      viren2d.LinearColorGradient
+      viren2d.RadialColorGradient
+      viren2d.color_gradient_mask
+      viren2d.color_gradient_visualization
 
 
 **Color Maps:**

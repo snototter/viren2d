@@ -21,11 +21,11 @@ Overview & Basics
    data, gradient or flow fields, *etc.*
 
    Additionally, the :class:`~viren2d.ImageBuffer` provides some basic image
-   processing functionalities, *e.g.* to :meth:`~viren2d.ImageBuffer.blend`
-   images, :meth:`~viren2d.ImageBuffer.pixelate` regions, or perform
-   some general color space conversions. Note, however, that these
-   functionalities are only provided for user convenience and are not optimized
-   towards high-speed, *i.e.* ``viren2d`` does not use
+   processing functionalities, *e.g.* to blend/overlay images,
+   :meth:`~viren2d.ImageBuffer.pixelate` regions, some general color space
+   conversions, *etc.* Note, however, that these functionalities are only
+   provided for user convenience and are not optimized towards high-speed,
+   *i.e.* ``viren2d`` does not use
    `OpenMP <https://www.openmp.org/>`__,
    `oneTBB <https://github.com/oneapi-src/oneTBB>`__,
    `AVX <https://en.wikipedia.org/wiki/Advanced_Vector_Extensions>`__,

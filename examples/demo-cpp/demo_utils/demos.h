@@ -22,6 +22,8 @@ void DemoCircleTangents();
 
 void DemoColorMaps();
 
+void DemoColorGradients();
+
 void DemoImageBufferConversionOpenCV();
 
 void DemoLines();

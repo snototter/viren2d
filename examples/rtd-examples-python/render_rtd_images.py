@@ -65,40 +65,49 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     # _process_result(
     #     img, show_images, 'Rectangles', save_images, 'rectangles.png')
     
-    # Trajectory & Bounding Boxes
-    img = demo_tracking_by_detection()
-    _process_result(
-        img, show_images, 'tracking-by-detection', save_images, 'tracking-by-detection.png')
+    # # Trajectory & Bounding Boxes
+    # img = demo_tracking_by_detection()
+    # _process_result(
+    #     img, show_images, 'tracking-by-detection', save_images, 'tracking-by-detection.png')
     
-    # Image overlay
-    img = demo_image_overlay()
-    _process_result(
-        img, show_images, 'image-overlay', save_images, 'image-overlay.png')
+    # # Image overlay
+    # img = demo_image_overlay()
+    # _process_result(
+    #     img, show_images, 'image-overlay', save_images, 'image-overlay.png')
     
-    # Image anchors
-    img = demo_image_anchors()
-    _process_result(
-        img, show_images, 'image-anchors', save_images, 'image-anchors.png')
+    # # Image anchors
+    # img = demo_image_anchors()
+    # _process_result(
+    #     img, show_images, 'image-anchors', save_images, 'image-anchors.png')
     
-    # Color map demo - Peaks
-    img = demo_colormaps()
-    _process_result(
-        img, show_images, 'colormaps', save_images, 'colormap-peaks.png')
+    # # Color map demo - Peaks
+    # img = demo_colormaps()
+    # _process_result(
+    #     img, show_images, 'colormaps', save_images, 'colormap-peaks.png')
     
-     # Color map demo - label visualizations
-    img = demo_colorize_labels()
-    _process_result(
-        img, show_images, 'colorize-labels', save_images, 'colorize-labels.png')
+    #  # Color map demo - label visualizations
+    # img = demo_colorize_labels()
+    # _process_result(
+    #     img, show_images, 'colorize-labels', save_images, 'colorize-labels.png')
 
-    # Color map demo - Relief shading
-    img = demo_relief_shading()
+    # # Color map demo - Relief shading
+    # img = demo_relief_shading()
+    # _process_result(
+    #     img, show_images, 'relief-shading', save_images, 'relief-shading.png')
+
+    # Color gradients
+    img = demo_color_gradients()
     _process_result(
-        img, show_images, 'relief-shading', save_images, 'relief-shading.png')
+        img, show_images, 'Color Gradient', save_images, 'color-gradients.png')
     
     # Optical flow
-    img = demo_optical_flow()
+    img = demo_optical_flow_colormaps()
     _process_result(
-        img, show_images, 'Optical Flow', save_images, 'optical-flow.png')
+        img, show_images, 'Optical Flow', save_images, 'optical-flow-color-maps.png')
+    
+    img = demo_optical_flow_overlay()
+    _process_result(
+        img, show_images, 'Optical Flow', save_images, 'optical-flow-overlay.png')
 
     # Pinhole camera calibration results
     img = demo_pinhole()
@@ -135,7 +144,7 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 
 if __name__ == '__main__':
     render_rtd_demos(True, True)
-    render_rtd_cheatsheets(True, True)
+    # render_rtd_cheatsheets(True, True)
     # img = demo_pinhole()
     # _process_result(
     #     img, True, 'Pinhole Camera', True, 'pinhole-camera.png')

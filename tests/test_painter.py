@@ -692,3 +692,6 @@ def test_pinhole_xyz_axes():
     M[0:3, 3] = t[:]
     assert p.draw_xyz_axes(K=K, R=M[:3, :3], t=M[:3, 3])
 
+#TODO split painter interface tests into several test suites!
+#TODO test clipping
+#TODO test draw_gradients

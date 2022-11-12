@@ -922,7 +922,8 @@ std::vector<Color> ColorizeScalars(
   const bool low_from_data = std::isinf(limit_low) || std::isnan(limit_low);
   const bool high_from_data = std::isinf(limit_high) ||std::isnan(limit_high);
   if (low_from_data || high_from_data) {
-    double min_val, max_val;
+    double min_val {0.0};
+    double max_val {0.0};
     werkzeugkiste::container::MinMax(values, &min_val, &max_val);
     if (low_from_data) {
       limit_low = min_val;

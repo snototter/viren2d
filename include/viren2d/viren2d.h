@@ -2,6 +2,7 @@
 #define __VIREN2D_VIREN2D_H__
 
 #include <viren2d/colors.h>
+#include <viren2d/colorgradients.h>
 #include <viren2d/colormaps.h>
 #include <viren2d/drawing.h>
 #include <viren2d/imagebuffer.h>

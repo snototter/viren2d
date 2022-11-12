@@ -58,6 +58,32 @@ public:
   ImageBuffer GetCanvas(bool copy) const override;
 
 
+  bool SetClipRegion(const Rect &clip) override {
+    SPDLOG_DEBUG("SetClipRection: clip={:s}.", clip);
+    return helpers::SetClipRegion(
+          surface_, context_, clip);
+  }
+
+
+  bool SetClipRegion(const Vec2d &center, double radius) override {
+    SPDLOG_DEBUG("SetClipRection: c={:s}, r={:.2f}.", center, radius);
+    return helpers::SetClipRegion(
+          surface_, context_, center, radius);
+  }
+
+
+  bool ResetClipRegion() override {
+    SPDLOG_DEBUG("ResetClipRegion.");
+    return helpers::ResetClipRegion(surface_, context_);
+  }
+
+
+  bool DrawGradient(const ColorGradient &gradient) override {
+    SPDLOG_DEBUG("DrawGradient: {:s}.", gradient);
+    return helpers::DrawGradient(surface_, context_, gradient);
+  }
+
+
 protected:
   bool DrawArcImpl(
       const Vec2d &center, double radius,
