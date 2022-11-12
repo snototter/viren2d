@@ -193,10 +193,11 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Invalid;
   }
 
-  std::string s("Could not look up NamedColor corresponding to \"");
-  s += name;
-  s += "\"!";
-  throw std::invalid_argument(s);
+  std::string msg("Could not look up NamedColor corresponding to \"");
+  msg += name;
+  msg += "\"!";
+  SPDLOG_ERROR(msg);
+  throw std::invalid_argument(msg);
 }
 
 
@@ -248,10 +249,11 @@ std::string NamedColorToString(const NamedColor &color) {
     case NamedColor::Invalid: return "invalid";
 
     default: {
-      std::ostringstream s;
-      s << "No string representation available for this NamedColor ("
-        << static_cast<unsigned short>(color) << ")";
-      throw std::runtime_error(s.str());
+      std::ostringstream msg;
+      msg << "No string representation available for this NamedColor ("
+          << static_cast<unsigned short>(color) << ")";
+      SPDLOG_ERROR(msg.str());
+      throw std::runtime_error(msg.str());
     }
   }
 }
@@ -408,10 +410,11 @@ Color::Color(const NamedColor color, double alpha) {
       break;
 
     default: {
-        std::string s("No color code available for named color \"");
-        s += NamedColorToString(color);
-        s += "\"!";
-        throw std::runtime_error(s);
+        std::string msg("No color code available for named color \"");
+        msg += NamedColorToString(color);
+        msg += "\"!";
+        SPDLOG_ERROR(msg);
+        throw std::invalid_argument(msg);
       }
   }
 }
@@ -442,20 +445,22 @@ Color::Color(const std::string &colorspec, double alpha) {
       // std::stoi will throw an invalid_argument if the input can't be parsed...
       this->alpha = std::stoi(aspec_) / 100.0;
       if (this->alpha < 0.0 || this->alpha > 1.0) {
-        std::string s("Alpha in \"");
-        s += colorspec;
-        s += "\" must be an integer within [0, 100].";
-        throw std::invalid_argument(s);
+        std::string msg("Alpha in \"");
+        msg += colorspec;
+        msg += "\" must be an integer within [0, 100].";
+        SPDLOG_ERROR(msg);
+        throw std::invalid_argument(msg);
       }
 
       // ... However, std::stoi will silently accept floating point
       // representations (simply return the part before the comma). We
       // explicitly require alpha in the string to be an integer:
       if (!std::all_of(aspec_.begin(), aspec_.end(), ::isdigit)) {
-        std::string s("Alpha in \"");
-        s += colorspec;
-        s += "\" must be an integer, but it contains non-digits.";
-        throw std::invalid_argument(s);
+        std::string msg("Alpha in \"");
+        msg += colorspec;
+        msg += "\" must be an integer, but it contains non-digits.";
+        SPDLOG_ERROR(msg);
+        throw std::invalid_argument(msg);
       }
     }
   }
@@ -477,10 +482,11 @@ Color::Color(std::initializer_list<double> values) {
       alpha = 1.0;
     }
   } else {
-    std::ostringstream s;
-    s << "Color c'tor requires 0, 3 or 4 elements in initializer_list, "
-      << "but got " << values.size() << ".";
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Color c'tor requires 0, 3 or 4 elements in initializer_list, "
+        << "but got " << values.size() << ".";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 }
 
@@ -824,12 +830,13 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
 
   const size_t len = webcode.length();
   if (len != 7 && len != 9) {
-    std::string s(
+    std::string msg(
           "Input must have a leading '#' and either "
           "6 or 8 hex digits, but was: \"");
-    s += webcode;
-    s += "\"!";
-    throw std::invalid_argument(s);
+    msg += webcode;
+    msg += "\"!";
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
 
   const std::string hex = wzks::Lower(webcode);
@@ -913,10 +920,11 @@ std::vector<Color> ColorizeScalars(
   std::vector<Color> colors(values.size());
 
   if (bins < 2) {
-    std::ostringstream s;
-    s << "Number of bins for `ColorizeValues` must be > 1, but got: "
-      << bins << '!';
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Number of bins for `ColorizeValues` must be > 1, but got: "
+        << bins << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   const bool low_from_data = std::isinf(limit_low) || std::isnan(limit_low);
@@ -934,11 +942,12 @@ std::vector<Color> ColorizeScalars(
   }
 
   if (limit_high <= limit_low) {
-    std::ostringstream s;
-    s << "Invalid colorization limits [" << std::fixed
-      << std::setprecision(2) << limit_low
-      << ", " << limit_high << "]!";
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Invalid colorization limits [" << std::fixed
+        << std::setprecision(2) << limit_low
+        << ", " << limit_high << "]!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   std::pair<const helpers::RGBColor *, std::size_t> map = helpers::GetColorMap(
