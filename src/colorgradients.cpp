@@ -9,8 +9,8 @@
 
 
 //TODOs:
-// * implement ImageBuffer.blend(other, gradient)
 // * implement ImageBuffer.blend(other, mask)
+// * bind blend(other, mask)
 // * doc & clean up ColorGradient
 // * implement ColorGradient bindings
 // * implement ImageBuffer blend bindings
@@ -20,6 +20,7 @@
 // * explicitly log error before each exception
 // * replace all stringstreams by ostringstreams
 // * replace 's' by 'msg'/'err',...
+// * add python wrappers (functions), e.g. blend(a, b) --> return ImageBuffer(a).blend(b)
 
 
 namespace viren2d {
@@ -89,8 +90,7 @@ ImageBuffer DrawColorGradient(
 }
 
 
-ImageBuffer CreateColorGradientMask(
-    const ColorGradient &gradient,
+ImageBuffer CreateColorGradientMask(const ColorGradient &gradient,
     int width, int height,
     const Color &background_color) {
   auto painter = CreatePainter();
@@ -100,15 +100,6 @@ ImageBuffer CreateColorGradientMask(
 
   return painter->GetCanvas(false).Channel(0).AsType(
         ImageBufferType::Double, 1.0/255.0);
-  //FIXME convert to
-//  if ((channels == 3) || (channels == 4)) {
-//    return painter->GetCanvas(false).ToChannels(channels);
-//  } else {
-//    std::ostringstream s;
-//    s << "Invalid number of output channels requested ("
-//      << channels << "), only 1, 3 & 4 are supported!";
-//    throw std::invalid_argument(s.str());
-//  }
 }
 
 } // namespace viren2d
