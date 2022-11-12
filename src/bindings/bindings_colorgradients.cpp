@@ -142,7 +142,7 @@ void RegisterRadialColorGradient(pybind11::module &m) {
 
       Example:
         >>> grad = viren2d.RadialColorGradient(
-        >>>   (50, 50), 10, (50, 50), 40)
+        >>>     (50, 50), 10, (50, 50), 40)
         >>> grad.add_color_stop(0.0, 'freesia')
         >>> grad.add_color_stop(0.9, 'navy-blue')
       )docstr");
@@ -196,7 +196,7 @@ void RegisterColorGradients(pybind11::module &m) {
           >>> grad.add_color_stop(0.5, 'teal-green!60')
           >>> grad.add_color_stop(0.9, 'navy-blue!80')
           >>> vis = viren2d.color_gradient_visualization(
-          >>>   grad, width=200, height=200, channels=3, fill_color="white")
+          >>>     grad, width=200, height=200, channels=3, fill_color="white")
         )docstr",
         py::arg("gradient"),
         py::arg("width"),
@@ -231,7 +231,7 @@ void RegisterColorGradients(pybind11::module &m) {
           >>> grad.add_color_stop(0.5, 0.5)
           >>> grad.add_color_stop(0.9, 1.0)
           >>> mask = viren2d.color_gradient_mask(
-          >>>   grad, width=200, height=200, fill_color="black!0")
+          >>>     grad, width=200, height=200, fill_color="black!0")
         )docstr",
         py::arg("gradient"),
         py::arg("width"),

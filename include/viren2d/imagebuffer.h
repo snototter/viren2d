@@ -530,14 +530,30 @@ public:
   ImageBuffer Blend(const ImageBuffer &other, double alpha_other) const;
 
 
-  //TODO doc
-  //TODO include example with gradient(?)
+  /// Returns an alpha-blended image.
+  ///
+  /// Creates a new image as the result of
+  /// :math:`(1 - \alpha_{r,c}) * \text{self}_{r,c} + \alpha_{r,c} * \text{other}_{r,c}``,
+  /// where :math:`alpha` is a weight mask.
+  /// If the mask provides multiple channels, the blending weights will be
+  /// taken from the corresponding channel. Otherwise, the blending weights
+  /// will be taken from the first mask channel.
+  ///
+  /// If the number of channels of the two images is not the same, the number
+  /// of output channels will be the maximum of ``self.channels``
+  /// and ``other.channels``. In this case, *non-blendable* channels
+  /// are copied from the input buffer which has more channels.
   ImageBuffer Blend(
       const ImageBuffer &other, const ImageBuffer &weights) const;
 
 
   /// Returns a single-channel buffer deeply copied from this ImageBuffer.
   ImageBuffer Channel(int channel) const;
+
+
+  /// Returns a dimmed version of this image by element-wise
+  /// multiplication of alpha and the corresponding pixel value.
+  ImageBuffer Dim(double alpha) const;
 
 
   /// Returns true if this buffer points to a valid memory location.

@@ -44,13 +44,33 @@ def demo_optical_flow_colormaps():
 
 def demo_optical_flow_overlay():
     img = viren2d.load_image_uint8(VIREN2D_DATA_PATH / 'sintel-alley2.png')
-    img_dimmed = (0.2 * np.array(img)).astype(np.uint8)
-    
+    img_dimmed = img.dim(0.4)
+
+    # Colorize optical flow    
+    colormap = 'optical-flow'
     flow = viren2d.load_optical_flow(VIREN2D_DATA_PATH / 'sintel-alley2.flo')
     (_, max_motion, _, _) = flow.magnitude().min_max(0)
     flow_vis = viren2d.colorize_optical_flow(
-            flow=flow, colormap='orientation-6', motion_normalizer=max_motion)
+            flow=flow, colormap=colormap, motion_normalizer=max_motion)
     
-    # #TODO declare gradient, use gradient overlay
-    vis = flow_vis.blend(img_dimmed, 0.4)
-    return np.array(vis, copy=True)
+    # Blend input image & flow with a smooth gradient
+    grad = viren2d.LinearColorGradient((0, 0), (img.width, img.height))
+    grad.add_intensity_stop(0.1, 1.0)
+    grad.add_intensity_stop(0.3, 0.3)
+    grad.add_intensity_stop(0.6, 0.2)
+    grad.add_intensity_stop(0.9, 1.0)
+    alpha = viren2d.color_gradient_mask(
+        grad, width=img.width, height=img.height)
+
+    vis = flow_vis.blend_mask(img_dimmed, alpha)
+
+    # Overlay color map legend
+    legend = viren2d.optical_flow_legend(size=100, colormap=colormap)
+    painter = viren2d.Painter(
+        width=vis.width, height=vis.height + 10, color='white!0')
+    painter.draw_image(vis, position=(0, 0), anchor='top-left', clip_factor=0.1)
+    painter.draw_image(
+        legend, position=(vis.width - 10, vis.height - 20),
+        anchor='bottom-right', clip_factor=1)
+
+    return np.array(painter.canvas, copy=True)

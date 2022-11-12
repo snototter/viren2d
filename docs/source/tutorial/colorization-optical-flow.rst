@@ -21,7 +21,7 @@ with different cyclic color maps. Corresponding Python code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/optical_flow.py
    :language: python
-   :emphasize-lines: 2, 12-13, 19-20
+   :emphasize-lines: 1, 13-14, 20-21
    :lines: 7-40
    :linenos:
    :dedent: 4
@@ -40,6 +40,7 @@ Corresponding Python code:
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/optical_flow.py
    :language: python
-   :lines: 46-55
+   :lines: 46-74
+   :emphasize-lines: 4, 11, 20
    :linenos:
    :dedent: 4

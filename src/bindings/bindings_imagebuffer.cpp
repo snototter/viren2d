@@ -703,7 +703,7 @@ void RegisterImageBuffer(py::module &m) {
         )docstr");
 
   imgbuf.def(
-        "blend",
+        "blend_constant",
         py::overload_cast<const ImageBuffer &, double>(
           &ImageBuffer::Blend, py::const_), R"docstr(
         Returns an alpha-blended image.
@@ -724,14 +724,14 @@ void RegisterImageBuffer(py::module &m) {
         py::arg("other"),
         py::arg("alpha"))
       .def(
-        "blend",
+        "blend_mask",
         py::overload_cast<const ImageBuffer &, const ImageBuffer &>(
           &ImageBuffer::Blend, py::const_), R"docstr(
         Returns an alpha-blended image.
 
         Creates a new image as the result of
         :math:`(1 - \alpha_{r,c}) * \text{self}_{r,c} + \alpha_{r,c} * \text{other}_{r,c}`,
-        where :math:`alpha` is a weight mask.
+        where :math:`\alpha` is a weight mask.
         If the mask provides multiple channels, the blending weights will be
         taken from the corresponding channel. Otherwise, the blending weights
         will be taken from the first mask channel.
@@ -751,10 +751,16 @@ void RegisterImageBuffer(py::module &m) {
             :math:`\alpha_{r,c} \in [0,1]`.
 
         Example:
-          >>> TODO optical flow example
+          >>> grad = viren2d.LinearColorGradient((0, 0), (img.width, img.height))
+          >>> grad.add_intensity_stop(0.1, 1.0)
+          >>> grad.add_intensity_stop(0.9, 0.0)
+          >>> mask = viren2d.color_gradient_mask(
+          >>>     grad, width=img.width, height=img.height)
+          >>> blended = img.blend(overlay, mask)
         )docstr",
         py::arg("other"),
         py::arg("alpha"));
+
 
   imgbuf.def(
         "dim",
