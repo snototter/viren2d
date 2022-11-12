@@ -38,23 +38,28 @@ public:
   bool AddColorStop(double offset, const Color &color);
 
 
-  /// Adds a grayscale stop to the gradient.
+  /// Adds an intensity/grayscale stop to the gradient.
   ///
   /// Args:
   ///   offset: The offset, in [0,1], is the location along the gradient's
   ///     control vector.
-  ///   intensity: The intensity/grayscale value at the specified offset.
+  ///   intensity: The intensity/grayscale value, in [0,1], at the specified
+  ///     offset.
+  ///   alpha: The opacity, in [0, 1], at this stop.
   ///
   /// Returns:
   ///   True if the color stop was added, false if the inputs were invalid (for
   ///   example, out-of-range) which will be detailed in a logged warning
   ///   message.
-  inline bool AddGrayscaleStop(double offset, double intensity) {
-    return AddColorStop(offset, Color(intensity, intensity, intensity, 1.0));
+  inline bool AddIntensityStop(
+      double offset, double intensity, double alpha=1.0) {
+    return AddColorStop(
+          offset, Color(intensity, intensity, intensity, alpha));
   }
 
 
-  /// Returns the defined color stops along the gradient's control vector.
+  /// Read-only access to the defined color stops along the
+  /// gradient's control vector.
   inline const std::vector<std::pair<double, Color>> &ColorStops() const {
     return color_stops;
   }
@@ -85,20 +90,20 @@ protected:
 /// Linear color blending along a line.
 ///
 /// The control vector (for adding color stops) is from the line's start point
-/// to its end point.
+/// to its end point. After initialization, the color stops along this control
+/// vector have to be added via `AddColorStop` or `AddIntensityStop`.
 class LinearColorGradient : public ColorGradient {
 public:
-  // TODO doc
   LinearColorGradient(const Vec2d &start, const Vec2d &end)
     : ColorGradient(), start_point(start), end_point(end)
   {}
 
 
-  // TODO doc
+  /// Read-only access to the start point.
   inline const Vec2d &StartPoint() const { return start_point; }
 
 
-  // TODO doc
+  /// Read-only access to the end point.
   inline const Vec2d &EndPoint() const { return end_point; }
 
 
@@ -117,10 +122,11 @@ private:
 /// Radial gradient between two circles.
 ///
 /// The control vector (for adding color stops) is from any point on the start
-/// circle to the corresponding point on the end circle.
+/// circle to the corresponding point on the end circle. After initialization,
+/// the color stops along this control vector have to be added via
+/// `AddColorStop` or `AddIntensityStop`.
 class RadialColorGradient : public ColorGradient {
 public:
-  // TODO doc
   RadialColorGradient(
       const Vec2d &center_start, double radius_start,
       const Vec2d &center_end, double radius_end)
@@ -130,19 +136,19 @@ public:
   {}
 
 
-  // TODO doc
+  /// Read-only access to the center of the start circle.
   inline const Vec2d &StartCenter() const { return start_center; }
 
 
-  // TODO doc
+  /// Read-only access to the center of the end circle.
   inline const Vec2d &EndCenter() const { return end_center; }
 
 
-  // TODO doc
+  /// Returns the radius of the start circle.
   inline double StartRadius() const { return start_radius; }
 
 
-  // TODO doc
+  /// Returns the radius of the end circle.
   inline double EndRadius() const { return end_radius; }
 
 

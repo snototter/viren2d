@@ -35,7 +35,7 @@ void RegisterColorGradientBase(pybind11::module &m) {
   grad.def(
       "is_valid",
       &ColorGradient::IsValid, R"docstr(
-      Returns true if this color gradient can be rendered, i.e. if it has
+      Returns true if this color gradient can be rendered, *i.e.* if it has
       at least 2 color stops.
       )docstr");
 
@@ -64,35 +64,29 @@ void RegisterColorGradientBase(pybind11::module &m) {
 
 
   grad.def(
-        "add_grayscale_stop",
-        &ColorGradient::AddGrayscaleStop, R"docstr(
-        Adds a grayscale stop to the gradient.
+        "add_intensity_stop",
+        &ColorGradient::AddIntensityStop, R"docstr(
+        Adds an intensity/grayscale stop to the gradient.
 
         Args:
           offset: The offset :math:`\in [0,1]` is the location along the
             gradient's control vector.
-          color: The grayscale/intensity value :math:`\in [0,1]` at the
+          color: The intensity/grayscale value :math:`\in [0,1]` at the
             specified offset.
+          alpha: The opacity :math:`\in [0,1]` at this stop.
 
         Returns:
-          True if the grayscale stop was added, false if the inputs were
+          True if the intensity stop was added, false if the inputs were
           invalid (for example, out-of-range) which will be detailed in a
           logged warning message.
 
         Example:
-          >>> grad.add_grayscale_stop(0.1, 0.0)
-          >>> grad.add_grayscale_stop(0.9, 1.0)
+          >>> grad.add_intensity_stop(0.1, 0.0)
+          >>> grad.add_intensity_stop(0.9, 1.0)
         )docstr",
         py::arg("offset"),
-        py::arg("intensity"));
-
-
-  grad.def(
-        "add_intensity_stop",
-        &ColorGradient::AddGrayscaleStop,
-        "This is an alias of :meth:`~viren2d.ColorGradient.add_grayscale_stop`.",
-        py::arg("offset"),
-        py::arg("intensity"));
+        py::arg("intensity"),
+        py::arg("alpha") = 1.0);
 }
 
 
@@ -105,7 +99,7 @@ void RegisterLinearColorGradient(pybind11::module &m) {
       add color stops) from a line's start point to its end point.
       After initialization, the color stops have to
       be added via :meth:`~viren2d.LinearColorGradient.add_color_stop` or
-      :meth:`~viren2d.LinearColorGradient.add_grayscale_stop`.
+      :meth:`~viren2d.LinearColorGradient.add_intensity_stop`.
 
       **Corresponding C++ API:** ``viren2d::LinearColorGradient``.
 
@@ -130,13 +124,53 @@ void RegisterLinearColorGradient(pybind11::module &m) {
       py::arg("pt2"));
 }
 
+
+void RegisterRadialColorGradient(pybind11::module &m) {
+  py::class_<RadialColorGradient, ColorGradient> grad(
+      m, "RadialColorGradient", R"docstr(
+      Radial gradient between two circles.
+
+      Represents a radial gradient between two circles.
+      The control vector (for adding color stops) is from any point on
+      :math:`\text{circle}_1` to the corresponding point on
+      :math:`\text{circle}_2`.
+      After initialization, the color stops have to
+      be added via :meth:`~viren2d.RadialColorGradient.add_color_stop` or
+      :meth:`~viren2d.RadialColorGradient.add_intensity_stop`.
+
+      **Corresponding C++ API:** ``viren2d::RadialColorGradient``.
+
+      Example:
+        >>> grad = viren2d.RadialColorGradient(
+        >>>   (50, 50), 10, (50, 50), 40)
+        >>> grad.add_color_stop(0.0, 'freesia')
+        >>> grad.add_color_stop(0.9, 'navy-blue')
+      )docstr");
+
+  grad.def(
+      py::init<const Vec2d&, double, const Vec2d, double>(), R"docstr(
+      Initializes the radial gradient.
+
+      Args:
+        center1: Center of :math:`\text{circle}_1` as :class:`~viren2d.Vec2d`.
+        radius1: Radius of :math:`\text{circle}_1`.
+        center2: Center of :math:`\text{circle}_2` as :class:`~viren2d.Vec2d`.
+        radius2: Radius of :math:`\text{circle}_2`.
+      )docstr",
+      py::arg("center1"),
+      py::arg("radius1"),
+      py::arg("center2"),
+      py::arg("radius2"));
+}
+
 } // namespace gradients
 
 void RegisterColorGradients(pybind11::module &m) {
   gradients::RegisterColorGradientBase(m);
   gradients::RegisterLinearColorGradient(m);
-  //TODO bind radial
+  gradients::RegisterRadialColorGradient(m);
   //TODO bind Painter::DrawGradient
+  //TODO bind Painter::SetClipRegion
 
   m.def("color_gradient_visualization",
         &CreateColorGradientVisualization, R"docstr(

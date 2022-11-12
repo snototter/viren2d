@@ -170,9 +170,9 @@ void DemoColorGradients() {
 
 ////FIXME qad --> move to optical flow demo (create blending gradient; then merge flow vis & input image)
 //  LinearColorGradient weight_gradient({0, 0}, {600, 200});
-//  weight_gradient.AddGrayscaleStop(0.1, 1.0);
-//  weight_gradient.AddGrayscaleStop(0.5, 0.0);
-//  weight_gradient.AddGrayscaleStop(0.9, 1.0);
+//  weight_gradient.AddIntensityStop(0.1, 1.0);
+//  weight_gradient.AddIntensityStop(0.5, 0.0);
+//  weight_gradient.AddIntensityStop(0.9, 1.0);
 //  auto weights = CreateColorGradientMask(weight_gradient, grad1.Width(), grad1.Height());
 //  ImageBuffer blue(grad1.Height(), grad1.Width(), grad1.Channels(), grad1.BufferType());
 //  blue.SetToPixel<uint8_t>(200, 0, 200);

@@ -33,11 +33,11 @@ void DemoOpticalFlowOverlay(
 
   LinearColorGradient gradient(
         Vec2d(0, 0), Vec2d(image.Width(), image.Height()));
-  gradient.AddGrayscaleStop(0.1, 1.0);
-  gradient.AddGrayscaleStop(0.3, 0.1);
-  gradient.AddGrayscaleStop(0.5, 0.0);
-  gradient.AddGrayscaleStop(0.7, 0.1);
-  gradient.AddGrayscaleStop(0.9, 1.0);
+  gradient.AddIntensityStop(0.1, 1.0);
+  gradient.AddIntensityStop(0.3, 0.1);
+  gradient.AddIntensityStop(0.5, 0.0);
+  gradient.AddIntensityStop(0.7, 0.1);
+  gradient.AddIntensityStop(0.9, 1.0);
   const ImageBuffer weights = CreateColorGradientMask(
         gradient, image.Width(), image.Height());
 
