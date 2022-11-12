@@ -94,6 +94,11 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     # img = demo_relief_shading()
     # _process_result(
     #     img, show_images, 'relief-shading', save_images, 'relief-shading.png')
+
+    # Color gradients
+    img = demo_color_gradients()
+    _process_result(
+        img, show_images, 'Color Gradient', save_images, 'color-gradients.png')
     
     # Optical flow
     img = demo_optical_flow_colormaps()

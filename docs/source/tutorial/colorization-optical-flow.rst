@@ -27,6 +27,8 @@ with different cyclic color maps. Corresponding Python code:
    :dedent: 4
 
 
+.. _tutorial-optical-flow-blend:
+
 Using a :class:`~viren2d.ColorGradient`, colorized flow can be aesthetically
 overlaid onto the input image as in the following example:
 
