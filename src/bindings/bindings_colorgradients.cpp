@@ -51,9 +51,9 @@ void RegisterColorGradientBase(pybind11::module &m) {
           color: The :class:`~viren2d.Color` at the specified offset.
 
         Returns:
-          True if the color stop was added, false if the inputs were invalid
-          (for example, out-of-range) which will be detailed in a logged
-          warning message.
+          bool: True if the color stop was added, false if the inputs were invalid
+            (for example, out-of-range) which will be detailed in a logged
+            warning message.
 
         Example:
           >>> grad.add_color_stop(0.1, 'crimson')
@@ -76,9 +76,9 @@ void RegisterColorGradientBase(pybind11::module &m) {
           alpha: The opacity :math:`\in [0,1]` at this stop.
 
         Returns:
-          True if the intensity stop was added, false if the inputs were
-          invalid (for example, out-of-range) which will be detailed in a
-          logged warning message.
+          bool: True if the intensity stop was added, false if the inputs were
+            invalid (for example, out-of-range) which will be detailed in a
+            logged warning message.
 
         Example:
           >>> grad.add_intensity_stop(0.1, 0.0)
@@ -187,8 +187,8 @@ void RegisterColorGradients(pybind11::module &m) {
             output image before rendering the gradient.
 
         Returns:
-          A 3- or 4-channel :class:`~viren2d.ImageBuffer` of type
-          :class:`numpy.uint8` as the result of rendering the given gradient.
+          :class:`~viren2d.ImageBuffer`: A 3- or 4-channel :class:`~viren2d.ImageBuffer`
+          of type :class:`numpy.uint8` as the result of rendering the given gradient.
 
         Example:
           >>> grad = viren2d.LinearColorGradient((0, 0), (200, 200))
@@ -221,9 +221,9 @@ void RegisterColorGradients(pybind11::module &m) {
             output mask before rendering the gradient.
 
         Returns:
-          A single-channel :class:`~viren2d.ImageBuffer` of type
-          :class:`numpy.float64` with values :math:`\in [0, 1]` as the
-          result of rendering the given gradient.
+          :class:`~viren2d.ImageBuffer`: A single-channel
+          :class:`~viren2d.ImageBuffer` of type :class:`numpy.float64`
+          with values :math:`\in [0, 1]` as the result of rendering the given gradient.
 
         Example:
           >>> grad = viren2d.LinearColorGradient((0, 0), (200, 200))
