@@ -202,6 +202,14 @@ NamedColor NamedColorFromString(const std::string &name) {
 
 
 std::string NamedColorToString(const NamedColor &color) {
+  /// TODO: Whenever a new named color is added, a CSS style definition has
+  ///   to be added to our RTD CSS (see docs/_static). Python script to print
+  ///   these definitions:
+  /// import viren2d
+  /// for cn in viren2d.color_names():
+  ///     h=viren2d.Color(cn).to_hex()[1:-2]
+  ///     print(f'.bgc{h} {{ background-color: #{h}; }}')
+  
   switch (color) {
     case NamedColor::Black: return "black";
     case NamedColor::White: return "white";

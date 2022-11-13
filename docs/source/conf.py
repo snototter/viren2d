@@ -235,7 +235,7 @@ class Viren2dColorNamesTable(Directive):
             url = f'https://www.google.com/search?q=%23{hex[1:]}'
 
             entry = nodes.entry()
-            ref = nodes.reference(name=hex, refuri=url)
+            ref = nodes.reference(name=f'lookup-{hex[1:]}', refuri=url, target='_blank')
             ref += nodes.paragraph(text=cname)
             txt = nodes.inline()
             txt += ref
@@ -244,6 +244,8 @@ class Viren2dColorNamesTable(Directive):
 
             # Next column, hex code
             entry = nodes.entry()
+            color_block = nodes.inline(classes=['colorblock', f'bgc{hex[1:]}'])
+            entry += color_block
             entry += nodes.literal(text=hex)
             row += entry
 

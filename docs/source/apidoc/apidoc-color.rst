@@ -25,17 +25,17 @@ Color Names
 .. autofunction:: viren2d.color_names
 
 
+**Currently supported Color Names:**
+
+.. viren2d-color-names-table::
+
+
 **Color Name Cheat Sheet:**
 
 .. figure:: ../images/color-names.png
    :width: 750
    :alt: Color names
    :align: center
-
-
-**Color Names:**
-
-.. viren2d-color-names-table::
 
 
 ~~~~~~~~~~~~~~~~

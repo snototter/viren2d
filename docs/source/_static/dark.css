@@ -10,7 +10,7 @@ body[data-theme="dark"] #text-anchors img {
 }
 /*
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {*/
     html {
         background-color: #181a1b !important;
     }
@@ -2005,4 +2005,54 @@ body[data-theme="dark"] #text-anchors img {
     #text-anchors img {
         filter: invert(1) brightness(0.85) hue-rotate(-60deg);
     }
+/* // end of the @media selector
+}*/
+
+.colorblock {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 1px solid rgb(56, 61, 63);
+    margin-right: .5em;
+    vertical-align: middle;
 }
+
+.bgc000000 { background-color: #000000; }
+.bgcffffff { background-color: #ffffff; }
+.bgc7f7f7f { background-color: #7f7f7f; }
+.bgcc6c6c6 { background-color: #c6c6c6; }
+.bgcff0000 { background-color: #ff0000; }
+.bgc00ff00 { background-color: #00ff00; }
+.bgc0000ff { background-color: #0000ff; }
+.bgc007fff { background-color: #007fff; }
+.bgccc7f33 { background-color: #cc7f33; }
+.bgc87540a { background-color: #87540a; }
+.bgced9121 { background-color: #ed9121; }
+.bgcb77233 { background-color: #b77233; }
+.bgc990000 { background-color: #990000; }
+.bgc00ffff { background-color: #00ffff; }
+.bgc218c21 { background-color: #218c21; }
+.bgcf7c423 { background-color: #f7c423; }
+.bgcffd600 { background-color: #ffd600; }
+.bgc4c0082 { background-color: #4c0082; }
+.bgcffffef { background-color: #ffffef; }
+.bgce5e5f9 { background-color: #e5e5f9; }
+.bgcadd8e5 { background-color: #add8e5; }
+.bgc33cc33 { background-color: #33cc33; }
+.bgc7f0000 { background-color: #7f0000; }
+.bgcff00ff { background-color: #ff00ff; }
+.bgc191970 { background-color: #191970; }
+.bgc00007f { background-color: #00007f; }
+.bgc7f7f00 { background-color: #7f7f00; }
+.bgcffa500 { background-color: #ffa500; }
+.bgcdb70d6 { background-color: #db70d6; }
+.bgca021ef { background-color: #a021ef; }
+.bgcff023d { background-color: #ff023d; }
+.bgcf97f72 { background-color: #f97f72; }
+.bgcbfbfbf { background-color: #bfbfbf; }
+.bgc44af8c { background-color: #44af8c; }
+.bgcf28400 { background-color: #f28400; }
+.bgc473d33 { background-color: #473d33; }
+.bgc006d5b { background-color: #006d5b; }
+.bgc30d6c6 { background-color: #30d6c6; }
+.bgcffff00 { background-color: #ffff00; }
