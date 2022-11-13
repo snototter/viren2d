@@ -7,7 +7,7 @@ Color Maps
 ~~~~~~~~~~
 
 Refer to the :ref:`color map tutorial<tutorial-colormaps>`
-for additional notes, exemplary code and visualizations of all implemented
+for additional notes, exemplary code and visualizations of all available
 color maps.
 
 .. autoclass:: viren2d.ColorMap

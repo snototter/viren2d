@@ -45,7 +45,7 @@
 
 
 ## Documentation
-* [ ] Refactor color map documentation.  
+* [x] Refactor color map documentation.  
   Render color gradient for each map separately. Implement a Sphinx directive (with type parameter, e.g. "sequential", "categorical", etc.) which creates a table.  
   This allows us to copy-paste the color map name from the doc/tutorial!
 * [ ] Investigate git hooks to automate image creation for RTD docs.

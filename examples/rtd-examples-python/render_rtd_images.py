@@ -130,12 +130,18 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'Arrow Style Cheat Sheet', save_images, 'arrow-style-cheat-sheet.png')
 
-    # Colormaps
-    sheets = cheat_sheet_colormaps()
-    for cat, img in sheets:
-        _process_result(
-            img, show_images, f'Colormaps Cheat Sheet {cat}', save_images, f'colormaps-cheat-sheet-{cat}.png')
-    
+    # # Colormaps
+    #TODO remove cheat_sheet_colormaps and check if this affects any code examples of the RTD docs
+    # sheets = cheat_sheet_colormaps()
+    # for cat, img in sheets:
+    #     _process_result(
+    #         img, show_images, f'Colormaps Cheat Sheet {cat}', save_images, f'colormaps-cheat-sheet-{cat}.png')
+    # Color maps
+    colormaps = render_colormap_gradients()
+    for cmap, img in colormaps.items():
+        filename = VIREN2D_ROOT_PATH / 'docs' / 'source' / 'images' / f'colormap-gradient-{cmap}.png'
+        imutils.imsave(filename, img)
+
     # Markers/Keypoints
     img = cheat_sheet_markers()
     _process_result(
@@ -143,8 +149,8 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 
 
 if __name__ == '__main__':
-    render_rtd_demos(True, True)
-    # render_rtd_cheatsheets(True, True)
+    # render_rtd_demos(True, True)
+    render_rtd_cheatsheets(True, True)
     # img = demo_pinhole()
     # _process_result(
     #     img, True, 'Pinhole Camera', True, 'pinhole-camera.png')

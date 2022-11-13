@@ -363,6 +363,77 @@ class Viren2dColorObjectIDsTable(Directive):
         info = f"With the default color map, these are the colors for the first {num_colors} object IDs:"
         return [nodes.paragraph(text=info), table]
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'examples', 'rtd-examples-python'))
+from rtd_demo_images.constants import VIREN2D_COLORMAP_CATEGORIES
+
+class Viren2dColorMapsTable(Directive):
+    required_arguments = 0
+    optional_arguments = 0
+    has_content = False
+
+    option_spec: OptionSpec = {
+        k: directives.flag
+        for k in VIREN2D_COLORMAP_CATEGORIES
+    }
+
+    def run(self):
+        # Collect all color maps to show
+        colormaps = list()
+        for opt in self.options:
+            if opt in VIREN2D_COLORMAP_CATEGORIES:
+                colormaps.extend(VIREN2D_COLORMAP_CATEGORIES[opt])
+
+        table = nodes.table()
+        tgroup = nodes.tgroup(cols=2)
+        for _ in range(2):
+            colspec = nodes.colspec(colwidth=1)
+            tgroup.append(colspec)
+        table += tgroup
+
+        # Header
+        thead = nodes.thead()
+        tgroup += thead
+        row = nodes.row()
+        thead.append(row)
+        entry = nodes.entry()
+        entry += nodes.paragraph(text="Name")
+        row += entry
+
+        entry = nodes.entry()
+        entry += nodes.paragraph(text="Gradient")
+        row += entry
+
+        # Body
+        env = self.state.document.settings.env
+        rows = list()
+        for cmap in colormaps:
+            row = nodes.row()
+            rows.append(row)
+
+            entry = nodes.entry()
+            entry += nodes.paragraph(text=cmap)
+            row += entry
+
+            entry = nodes.entry()
+            image = nodes.image(
+                uri=f'../images/colormap-gradient-{cmap}.png', 
+                remote=False,
+                size=(256, 40), align='center', alt='Rendered color gradient',
+                show_caption=False)
+            entry += image
+            row += entry
+
+            env.images.add_file('', image['uri'])
+
+
+        tbody = nodes.tbody()
+        tbody.extend(rows)
+        tgroup += tbody
+
+        return [table]
+
 
 def setup(app):
     # I want to include overloaded operators in autodoc
@@ -374,3 +445,4 @@ def setup(app):
     app.add_directive("viren2d-color-names-table", Viren2dColorNamesTable)
     app.add_directive("viren2d-object-category-names", Viren2dColorObjectCategoriesTable)
     app.add_directive("viren2d-color-by-id-defaults", Viren2dColorObjectIDsTable)
+    app.add_directive("viren2d-color-map-table", Viren2dColorMapsTable)

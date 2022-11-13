@@ -1,6 +1,6 @@
-from mailbox import linesep
 import numpy as np
 import viren2d
+from rtd_demo_images.constants import VIREN2D_COLORMAP_CATEGORIES
 
 
 def _dash2str(pattern):
@@ -260,42 +260,7 @@ def cheat_sheet_arrowstyle():
     return np.array(shared_canvas, copy=True)
 
 
-
 def cheat_sheet_colormaps():
-    cmap_categories = {
-        'sequential': [
-            'cividis', 'cvd-sequential', 'cvd-sequential-vivid', 'gouldian',
-            'viridis', 'inferno', 'hell', 'thermal', 'black-body', 'hot',
-            'cold', 'water', 'copper', 'spring', 'summer', 'autumn', 'winter',
-            'gray', 'yarg'
-        ],
-        'cyclic': [
-            'cvd-orientation', 'orientation-4', 'orientation-6', 'hsv',
-            'optical-flow', 'twilight', 'twilight-shifted'
-        ],
-        'categorical': [
-            'categories-10', 'categories-12', 'categories-20', 'glasbey-dark',
-            'glasbey-light'
-        ],
-        'color-blind': [
-            'cividis', 'cvd-sequential', 'cvd-sequential-vivid',
-            'cvd-diverging', 'cvd-orientation'
-        ],
-        'diverging': [
-            'cvd-diverging', 'seismic', 'temperature',
-            'temperature-dark', 'spectral-diverging',
-            
-        ],
-        'rainbow': [
-            'jet', 'rainbow', 'turbo'
-        ],
-        'specialized': [
-            'ocean', 'water',  'earth', 'terrain', 'relief',
-            'relief-low-contrast', 'thermal', 'spectral', 'disparity',
-            'optical-flow'
-        ]
-    }
-
     rtd_background_color = viren2d.RGBa(26, 28, 29)
     rtd_text_color = viren2d.RGBa(192, 186, 177)
 
@@ -311,13 +276,13 @@ def cheat_sheet_colormaps():
     data = np.repeat(row.reshape((1,-1)), row_height - 5, axis=0)
 
     sheets = list()
-    for cat in cmap_categories:
-        canvas_height = (row_height + 5) * len(cmap_categories[cat]) + 15
+    for cat in VIREN2D_COLORMAP_CATEGORIES:
+        canvas_height = (row_height + 5) * len(VIREN2D_COLORMAP_CATEGORIES[cat]) + 15
         painter.set_canvas_rgb(
             width=canvas_width, height=canvas_height, color="white!0")
 
         y = 5
-        for cmap in cmap_categories[cat]:
+        for cmap in VIREN2D_COLORMAP_CATEGORIES[cat]:
             vis = viren2d.colorize_scaled(data, colormap=cmap, low=0, high=255)
 
             painter.draw_image(

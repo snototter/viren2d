@@ -23,11 +23,8 @@ Sequential (*aka* linear) color maps linearly increase/decrease the lightness
 and/or saturation over the color map range. They are the most generic color
 maps and should be used to represent data which has an intrinsic ordering.
 
-.. image:: ../images/colormaps-cheat-sheet-sequential.png
-   :width: 480
-   :alt: Sequential color maps
-   :align: center
-
+.. viren2d-color-map-table::
+   :sequential:
 
 ...........
 Categorical
@@ -36,11 +33,8 @@ Categorical
 Categorical or quantitative maps are color palettes with distinct colors,
 suitable to visualize categorical data.
 
-.. image:: ../images/colormaps-cheat-sheet-categorical.png
-   :width: 480
-   :alt: Categorical color maps
-   :align: center
-
+.. viren2d-color-map-table::
+   :categorical:
 
 ......
 Cyclic
@@ -49,11 +43,8 @@ Cyclic
 Cyclic color maps begin and end at the same color. They are useful to represent
 data that wraps around, *e.g.* phase angles or orientation values.
 
-.. image:: ../images/colormaps-cheat-sheet-cyclic.png
-   :width: 480
-   :alt: Cyclic color maps
-   :align: center
-
+.. viren2d-color-map-table::
+   :cyclic:
 
 .......................
 Color Vision Deficiency
@@ -64,11 +55,8 @@ The colors are chosen such that people who are color blind should share a
 common perceptual interpretation of data with people who have normal color
 vision.
 
-.. image:: ../images/colormaps-cheat-sheet-color-blind.png
-   :width: 480
-   :alt: Color maps suitable for the color-blind
-   :align: center
-
+.. viren2d-color-map-table::
+   :color-blind:
 
 .........
 Diverging
@@ -78,11 +66,8 @@ Diverging color maps are suitable to represent values above or below a defined
 reference value. Note that these maps usually have a small perceptual flat spot
 at the center.
 
-.. image:: ../images/colormaps-cheat-sheet-diverging.png
-   :width: 480
-   :alt: Categorical color maps
-   :align: center
-
+.. viren2d-color-map-table::
+   :diverging:
 
 .......
 Rainbow
@@ -97,11 +82,8 @@ These issues can be seen for example at the *jet* color gradient below, which
 shows banding effects. For further details, refer to the summary
 provided on `Peter Kovesi's website <https://colorcet.com/>`__.
 
-.. image:: ../images/colormaps-cheat-sheet-rainbow.png
-   :width: 480
-   :alt: Rainbow color maps
-   :align: center
-
+.. viren2d-color-map-table::
+   :rainbow:
 
 ...............
 Special Purpose
@@ -111,11 +93,8 @@ These color maps are often designed for a particular purpose, such as
 representing thermographic (``thermal``), topographic (``earth``, ``ocean``,
 *etc.*), or multi-spectral (``spectral``) data.
 
-.. image:: ../images/colormaps-cheat-sheet-specialized.png
-   :width: 480
-   :alt: Specialized color maps
-   :align: center
-
+.. viren2d-color-map-table::
+   :specialized:
 
 ...................
 User-Defined Colors
