@@ -210,6 +210,10 @@ class Color {
   Color ToGray() const;
 
 
+  /// Returns the grayscale intensity of this this color.
+  double GrayscaleIntensity() const;
+
+
   /// Returns a mixture of `(percentage_other) * other + (1-percentage_other) * this`.
   Color Mix(const Color &other, double percentage_other) const;
 
@@ -243,6 +247,11 @@ class Color {
   /// and alpha in [0, 1].
   std::tuple<unsigned char, unsigned char, unsigned char, double>
   ToRGBa() const;
+
+
+  /// Returns the corresponding (R, G, B) tuple, where R, G, B in [0, 255].
+  std::tuple<unsigned char, unsigned char, unsigned char>
+  ToRGB() const;
 
 
   /// Returns the corresponding (H, S, V) tuple, where H in [0, 360] and

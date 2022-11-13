@@ -48,6 +48,16 @@ double cast_RGB(double v) {
 /// Mapping COCO category names (+ some widely used aliases)
 /// to their object class IDs.
 /// This is used to implement `FromCategory`.
+///
+/// TODO: Whenever a new category name is added, a CSS style definition has
+///   to be added to our RTD CSS (see docs/_static). Python script to print
+///   these definitions:
+/*
+import viren2d
+for cn in viren2d.object_category_names():
+  h = viren2d.Color.from_object_category(cn).to_hex()[1:-2]
+  print(f'.bgc{h} {{ background-color: #{h}; }}')
+*/
 const std::map<std::string, std::size_t> kCategoryIDMapping {
   {"background", 0}, {"person", 1}, {"bicycle", 2}, {"car", 3}, {"motorcycle", 4},
   {"airplane", 5}, {"bus", 6}, {"train", 7}, {"truck", 8}, {"boat", 9},
@@ -205,10 +215,12 @@ std::string NamedColorToString(const NamedColor &color) {
   /// TODO: Whenever a new named color is added, a CSS style definition has
   ///   to be added to our RTD CSS (see docs/_static). Python script to print
   ///   these definitions:
-  /// import viren2d
-  /// for cn in viren2d.color_names():
-  ///     h=viren2d.Color(cn).to_hex()[1:-2]
-  ///     print(f'.bgc{h} {{ background-color: #{h}; }}')
+  /*
+import viren2d
+for cn in viren2d.color_names():
+    h = viren2d.Color(cn).to_hex()[1:-2]
+    print(f'.bgc{h} {{ background-color: #{h}; }}')
+  */
   
   switch (color) {
     case NamedColor::Black: return "black";
@@ -526,6 +538,11 @@ Color Color::ToGray() const {
 }
 
 
+double Color::GrayscaleIntensity() const {
+  return helpers::CvtHelperRGB2Gray(red, green, blue);
+}
+
+
 Color Color::Mix(const Color &other, double percentage_other) const {
   percentage_other = saturation_cast<double>(percentage_other, 0.0, 1.0);
   return (percentage_other * other) + ((1.0 - percentage_other) * (*this));
@@ -628,6 +645,14 @@ Color::ToRGBa() const {
         static_cast<unsigned char>(green * 255),
         static_cast<unsigned char>(blue * 255),
         alpha);
+}
+
+
+std::tuple<unsigned char, unsigned char, unsigned char>
+Color::ToRGB() const {
+  return std::make_tuple(static_cast<unsigned char>(red * 255),
+        static_cast<unsigned char>(green * 255),
+        static_cast<unsigned char>(blue * 255));
 }
 
 
@@ -743,6 +768,16 @@ Color &Color::operator-=(const Color &rhs) {
 
 
 Color Color::CoordinateAxisColor(char axis) {
+  /// TODO: Whenever these defaults are changed, the CSS style definition
+  ///   within our RTD CSS (see docs/_static) has to be adapted. Python script
+  ///   to print the style definitions:
+  /*
+import viren2d
+for ax in ['x', 'y', 'z']:
+    h = viren2d.axis_color(ax).to_hex()[:-2]
+    print(f'.axis-color-{ax} {{ background-color: {h}; }}')
+  */
+
   switch (axis) {
     case 0:
     case 'x':

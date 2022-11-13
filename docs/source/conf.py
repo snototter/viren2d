@@ -115,11 +115,14 @@ from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import StringList
 from sphinx.util.nodes import nested_parse_with_titles
-from inspect import currentframe
+from sphinx.util.typing import OptionSpec
+import inspect
+
 
 def get_linenumber():
-    cf = currentframe()
+    cf = inspect.currentframe()
     return cf.f_back.f_lineno
+
 
 class Viren2dDrawingSummary(Directive):
     has_content = True
@@ -181,20 +184,7 @@ class Viren2dColorNamesTable(Directive):
     has_content = False
 
     def run(self):
-        """
-        Creates a rst-formatted StringList, which is
-        then parsed and returned as a `nodes.table` instance.
-
-        See
-        I didn't find an easier way to resolve the code doc links.
-        """
-        # targetid = 'cnmtab-%d' % targetid = 'todo-%d' % self.env.new_serialno('todo').new_serialno('cnmtab')
-        # targetnode = nodes.target('', '', ids=[targetid])
-        table = self._cname_table()
-        # return [targetnode, table]
-        return [table]
-
-    def _cname_table(self):                
+        """Creates the color name table (name + hex + rgb + visualization)."""
         table = nodes.table()
         tgroup = nodes.tgroup(cols=4)
         for _ in range(4):
@@ -211,7 +201,7 @@ class Viren2dColorNamesTable(Directive):
         row += entry
 
         entry = nodes.entry()
-        entry += nodes.paragraph(text="Web code")
+        entry += nodes.paragraph(text="Hex code")
         row += entry
 
         entry = nodes.entry()
@@ -246,7 +236,8 @@ class Viren2dColorNamesTable(Directive):
             entry = nodes.entry()
             color_block = nodes.inline(classes=['colorblock', f'bgc{hex[1:]}'])
             entry += color_block
-            entry += nodes.literal(text=hex)
+            # entry += nodes.literal(text=hex)
+            entry += nodes.Text(hex)
             row += entry
 
             # Next column, RGB representation
@@ -254,20 +245,123 @@ class Viren2dColorNamesTable(Directive):
             txt_RGB = f'({RGBa[0]}, {RGBa[1]}, {RGBa[2]})'
 
             entry = nodes.entry()
-            entry += nodes.literal(text=txt_RGB)
+            # entry += nodes.literal(text=txt_RGB)
+            entry += nodes.Text(txt_RGB)
             row += entry
 
             # Next column, rgb representation
             txt_rgb = f'({color.red:3.2f}, {color.green:3.2f}, {color.blue:3.2f})'
             entry = nodes.entry()
-            entry += nodes.literal(text=txt_rgb)
+            # entry += nodes.literal(text=txt_rgb)
+            entry += nodes.Text(txt_rgb)
             row += entry
 
         tbody = nodes.tbody()
         tbody.extend(rows)
         tgroup += tbody
 
-        return table
+        return [table]
+
+
+class Viren2dColorObjectCategoriesTable(Directive):
+    required_arguments = 0
+    optional_arguments = 0
+    has_content = False
+
+    # option_spec: OptionSpec = {
+    #     'refertomethod': directives.flag
+    # }
+
+    def run(self):
+        """Arranges the available category names in a table."""
+        # Fixed number of columns
+        num_cols = 4
+
+        table = nodes.table()
+        tgroup = nodes.tgroup(cols=num_cols)
+        for _ in range(num_cols):
+            colspec = nodes.colspec(colwidth=1)
+            tgroup.append(colspec)
+        table += tgroup
+
+        rows = list()
+        cnames = viren2d.object_category_names()
+        row = None
+        for idx in range(len(cnames)):
+            if (idx % num_cols) == 0:
+                # Create new row
+                row = nodes.row()
+                rows.append(row)
+            # Place a fixed-sized span of the corresponding color before the
+            # category name
+            color = viren2d.Color.from_object_category(cnames[idx])
+            hex = color.to_hex()[:-2]  # hex code without alpha
+            color_block = nodes.inline(classes=['colorblock', f'bgc{hex[1:]}'])
+
+            entry = nodes.entry()
+            entry += color_block
+            entry += nodes.Text(cnames[idx])
+            # entry += nodes.literal(text=cnames[idx])
+            row += entry
+
+        # Fill the last row with empty cells
+        rem = num_cols - (len(cnames) % num_cols)
+        for _ in range(rem):
+            entry = nodes.entry()
+            entry += nodes.Text('')
+            row += entry
+
+        tbody = nodes.tbody()
+        tbody.extend(rows)
+        tgroup += tbody
+
+        return [table]
+
+
+class Viren2dColorObjectIDsTable(Directive):
+    required_arguments = 0
+    optional_arguments = 0
+    has_content = False
+
+    def run(self):
+        """Lists the first few colors for the object ID lookup."""
+        # Fixed table size
+        num_cols = 7
+        num_rows = 6
+        num_colors = num_rows * num_cols
+
+        table = nodes.table()
+        tgroup = nodes.tgroup(cols=num_cols)
+        for _ in range(num_cols):
+            colspec = nodes.colspec(colwidth=1)
+            tgroup.append(colspec)
+        table += tgroup
+
+        rows = list()
+        row = None
+        for idx in range(num_colors):
+            if (idx % num_cols) == 0:
+                # Create new row
+                row = nodes.row()
+                rows.append(row)
+            # Place a fixed-sized span of the corresponding color before the
+            # category name
+            color = viren2d.Color.from_object_id(idx)
+            hex = color.to_hex()[:-2]  # hex code without alpha
+            color_block = nodes.inline(classes=['colorblock', f'bgc{hex[1:]}'])
+
+            entry = nodes.entry()
+            entry += color_block
+            entry += nodes.Text(str(idx))
+            # entry += nodes.literal(text=str(idx))
+            row += entry
+
+        tbody = nodes.tbody()
+        tbody.extend(rows)
+        tgroup += tbody
+
+        info = f"With the default color map, these are the colors for the first {num_colors} object IDs:"
+        return [nodes.paragraph(text=info), table]
 
 
 def setup(app):
@@ -278,3 +372,5 @@ def setup(app):
     # Custom directives
     app.add_directive("viren2d-drawing-summary", Viren2dDrawingSummary)
     app.add_directive("viren2d-color-names-table", Viren2dColorNamesTable)
+    app.add_directive("viren2d-object-category-names", Viren2dColorObjectCategoriesTable)
+    app.add_directive("viren2d-color-by-id-defaults", Viren2dColorObjectIDsTable)
