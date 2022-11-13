@@ -189,8 +189,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Disparity, R"docstr(
         High contrast color map for depth & disparity images.
         Based on `disparity` for MATLAB
-        `by Oliver Woodford <https://github.com/ojwoodford/sc>`__,
-        who released it under the BSD 3-Clause license.
+        `by Oliver Woodford <https://github.com/ojwoodford/sc>`__, who released
+        it under the `BSD 3-Clause license <https://opensource.org/licenses/BSD-3-Clause>`__.
 
         .. image:: ../images/colormap-gradient-disparity.png
            :width: 266
