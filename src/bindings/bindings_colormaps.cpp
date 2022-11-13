@@ -813,21 +813,7 @@ void RegisterColormaps(pybind11::module &m) {
         [](StreamColorizer &sc, const ImageBuffer &data) {
           return sc(data);
         }, R"docstr(
-        Applies the configured scaled colorization.
-
-        This is an alias of :meth:`~viren2d.StreamColorizer.colorize`
-        for convenience.
-
-        **Corresponding C++ API:** ``viren2d::StreamColorizer::operator()``.
-
-        Args:
-          data: A single channel :class:`~viren2d.ImageBuffer` or
-            :class:`numpy.ndarray` holding the data for colorization.
-        
-        Returns:
-          The colorization as :class:`~viren2d.ImageBuffer` of type
-          :class:`numpy.uint8` with
-          :attr:`~viren2d.StreamColorizer.output_channels` channels.
+        Alias of :meth:`~viren2d.StreamColorizer.colorize`.
         )docstr",
         py::arg("data"))
       .def(

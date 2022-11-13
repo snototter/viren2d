@@ -17,6 +17,7 @@
 
 ## Library functionalities
 * [ ] Implement collage
+* [ ] Refactor StreamColorizer: set lower/upper, compute only the other from input data range.
 
 
 ## Style definitions
@@ -29,7 +30,6 @@
 * [ ] Automate testing via CI hooks
 * [ ] Investigate code coverage (how to combine C++ and Python coverage?)
 * [ ] Restructure the complete test suite!
-* [ ] StreamColorizer: set lower/upper, compute the other from input data range
 
 
 ## Installation & Building
