@@ -161,7 +161,7 @@ void RegisterColor(py::module &m) {
         py::arg("blue"),
         py::arg("alpha") = 1.0)
       .def(
-        py::init<const std::string &>(),R"docstr(
+        py::init<const std::string &, double>(),R"docstr(
         Initializes the color from a string representation (hexcode
         or color name).
 
@@ -190,7 +190,8 @@ void RegisterColor(py::module &m) {
 
            >>> painter.draw_rect(..., fill_color = '!blue!30)
         )docstr",
-        py::arg("colorspec"))
+        py::arg("colorspec"),
+        py::arg("alpha") = 1.0)
       .def(
         "copy",
         [](const Color &c) { return Color(c); }, R"docstr(
