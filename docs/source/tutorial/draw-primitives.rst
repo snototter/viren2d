@@ -1,3 +1,5 @@
+.. include:: ../symbols.rst
+
 ~~~~~~~~~~~~
 Basic Shapes
 ~~~~~~~~~~~~
@@ -61,11 +63,7 @@ Ellipses
 
 Both ellipses and elliptical arcs are supported:
 
-.. figure:: ../images/ellipses.png
-   :width: 600
-   :alt: Exemplary ellipses
-   :align: center
-
+|image-ellipse-examples|
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/primitives.py
    :language: python
@@ -83,11 +81,7 @@ Rectangles
 
 Rectangles can be drawn in a variety of configurations:
 
-.. figure:: ../images/rectangles.png
-   :width: 600
-   :alt: Exemplary rectangles
-   :align: center
-
+|image-rect-examples|
 
 .. literalinclude:: ../../../examples/rtd-examples-python/rtd_demo_images/primitives.py
    :language: python
@@ -95,4 +89,3 @@ Rectangles can be drawn in a variety of configurations:
    :linenos:
    :dedent: 4
    :emphasize-lines: 7, 10, 15, 18, 24, 27
-

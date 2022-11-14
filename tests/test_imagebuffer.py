@@ -326,7 +326,7 @@ def test_pixelation():
 
 #TODO test: color gradients (in separate test suite)
 #  * class bindings
-#  * color_gradient_mask & .._visualization bindings
+#  * mask & visualization bindings
 #TODO test: blend_constant
 #TODO test: blend_masked
 #TODO test: dim (incl. clipping)

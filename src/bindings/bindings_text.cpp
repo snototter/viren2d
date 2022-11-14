@@ -157,6 +157,8 @@ void RegisterAnchors(py::module &m) {
             Placement options with respect to a reference point.
 
             **Corresponding C++ API:** ``viren2d::Anchor``.
+
+            |image-cheat-sheet-anchors|
             )docstr");
   anchor.value(
         "Center",

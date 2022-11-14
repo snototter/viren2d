@@ -1,6 +1,23 @@
+.. include:: ../symbols.rst
+
 ------------
 Colorization
 ------------
+
+.. autosummary::
+   :nosignatures:
+
+   viren2d.ColorMap
+   viren2d.get_colormap
+   viren2d.set_custom_colormap
+   viren2d.colorize_labels
+   viren2d.colorize_scaled
+   viren2d.colorize_scalars
+   viren2d.StreamColorizer
+   viren2d.LimitsMode
+   viren2d.relief_shading
+   viren2d.peaks
+
 
 ~~~~~~~~~~
 Color Maps

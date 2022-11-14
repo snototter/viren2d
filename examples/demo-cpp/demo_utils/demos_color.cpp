@@ -137,8 +137,7 @@ void DemoColorGradients() {
   gradient_linear.AddColorStop(0.7, "navy-blue");
   gradient_linear.AddColorStop(0.9, "crimson");
 
-  auto grad1 = CreateColorGradientVisualization(
-        gradient_linear, 600, 200, 3);
+  auto grad1 = gradient_linear.Visualization(600, 200, 3);
   auto painter = CreatePainter();
   painter->SetCanvas(grad1.Height() * 2, grad1.Width(), "white");
   painter->DrawImage(grad1, {0, 0});
@@ -158,15 +157,16 @@ void DemoColorGradients() {
   painter->DrawGradient(gradient_linear2);
   //painter->SetClipRegion({50.0, 50.0}, 100.0);
 
-  ProcessDemoOutput(painter->GetCanvas(false),
-        "demo-output-color-gradients.png");
+  ProcessDemoOutput(
+      painter->GetCanvas(false),
+      "demo-output-color-gradients.png");
 
   RadialColorGradient gradient_radial({50, 50}, 10, {50, 50}, 40);
   gradient_radial.AddColorStop(0.0, "black!100");
   gradient_radial.AddColorStop(0.8, "black!0");
   ProcessDemoOutput(
-        CreateColorGradientVisualization(gradient_radial, 600, 200, 4),
-        "demo-output-color-gradients2.png");
+      gradient_radial.Visualization(600, 200, 4),
+      "demo-output-color-gradients2.png");
 
 ////FIXME qad --> move to optical flow demo (create blending gradient; then merge flow vis & input image)
 //  LinearColorGradient weight_gradient({0, 0}, {600, 200});

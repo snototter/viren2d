@@ -121,6 +121,11 @@ void RegisterEllipse(pybind11::module &m) {
       >>> painter.draw_ellipse((center, axes, ...), line_style=...)
 
       **Corresponding C++ API:** ``viren2d::Ellipse``.
+
+      |image-ellipse-examples|
+
+      The code listing to create this visualization is shown in the
+      :ref:`RTD tutorial section on ellipses<tutorial-draw-ellipses>`.
       )docstr";
   py::class_<Ellipse> ellipse(m, "Ellipse", doc.c_str());
 
@@ -317,7 +322,7 @@ void RegisterEllipse(pybind11::module &m) {
   // Add alias for typing convenience
   m.def("ellipse_from_endpoints",
         &Ellipse::FromEndpoints,
-        "Alias of :meth:`~viren2d.Ellipse.from_endpoints`.",
+        "Alias of :meth:`viren2d.Ellipse.from_endpoints`.",
         py::arg("pt1"), py::arg("pt2"), py::arg("width"),
         py::arg("angle_from") = 0.0,
         py::arg("angle_to") = 360.0,
@@ -423,6 +428,11 @@ void RegisterRectangle(py::module &m) {
         >>> rect = viren2d.Rect.rom_lrtb(left, right, top, bottom)
 
         **Corresponding C++ API:** ``viren2d::Rect``.
+
+        |image-rect-examples|
+
+        The code listing to create this visualization is shown in the
+        :ref:`RTD tutorial section on rectangles<tutorial-draw-rects>`.
         )docstr");
 
 
@@ -625,7 +635,7 @@ void RegisterRectangle(py::module &m) {
   // Add aliases of the static initialization methods (for typing convenience)
   m.def("rect_from_cwh",
         &Rect::FromCWH,
-        "Alias of :meth:`~viren2d.Rect.from_cwh`.",
+        "Alias of :meth:`viren2d.Rect.from_cwh`.",
         py::arg("cx"),
         py::arg("cy"),
         py::arg("width"),
@@ -635,7 +645,7 @@ void RegisterRectangle(py::module &m) {
 
   m.def("rect_from_lrtb",
         &Rect::FromLRTB,
-        "Alias of :meth:`~viren2d.Rect.from_lrtb`.",
+        "Alias of :meth:`viren2d.Rect.from_lrtb`.",
         py::arg("left"),
         py::arg("right"),
         py::arg("top"),
@@ -644,7 +654,7 @@ void RegisterRectangle(py::module &m) {
 
   m.def("rect_from_ltwh",
         &Rect::FromLTWH,
-        "Alias of :meth:`~viren2d.Rect.from_ltwh`.",
+        "Alias of :meth:`viren2d.Rect.from_ltwh`.",
         py::arg("left"),
         py::arg("top"),
         py::arg("width"),

@@ -47,8 +47,6 @@ API Documentation
       viren2d.ColorGradient
       viren2d.LinearColorGradient
       viren2d.RadialColorGradient
-      viren2d.color_gradient_mask
-      viren2d.color_gradient_visualization
 
 
 **Color Maps:**

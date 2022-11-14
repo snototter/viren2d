@@ -8,7 +8,7 @@
 
 
 ## Color gradient
-* [ ] `color_gradient_mask` could support 1, 3, 4 output channels (1 - only first, 3/4 as in `color_gradient_visualization`, but scaled to `[0,1]`)
+* [ ] Add tests
 
 
 ## ImageBuffer class
@@ -46,9 +46,6 @@
 
 
 ## Documentation
-* [x] Refactor color map documentation.  
-  Render color gradient for each map separately. Implement a Sphinx directive (with type parameter, e.g. "sequential", "categorical", etc.) which creates a table.  
-  This allows us to copy-paste the color map name from the doc/tutorial!
 * [ ] Investigate git hooks to automate image creation for RTD docs.
 * [ ] Add collage to landing page.
 * [ ] Add type information to `returns` in docstrings.

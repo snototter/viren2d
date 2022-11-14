@@ -317,6 +317,20 @@ class Color {
   /// corresponding color.
   static Color FromObjectCategory(
       const std::string &category, ColorMap colormap = ColorMap::GlasbeyDark);
+  
+
+
+  /// Creates a Color from the given HSV representation, where H in [0, 360]
+  /// and S & V are in [0, 1].
+  static Color FromHSV(
+      double hue, double saturation, double value, double alpha=1.0);
+
+  
+  /// Creates a Color from the given webcode, e.g. "#abcdef".
+  ///
+  /// If the hexstring/webcode has 8 digits, its alpha specification
+  /// takes precedence over the given "alpha" parameter.
+  static Color FromHexString(const std::string &webcode, double alpha=1.0);
 
 
   /// Returns a list of category names which are explicitly
@@ -348,20 +362,17 @@ Color operator-(Color lhs, const Color& rhs);
 
 /// Convenience wrapper to create a Color from
 /// r,g,b and alpha values must in range [0,1].
-Color rgba(double r, double g, double b, double alpha=1.0);
+inline Color rgba(double r, double g, double b, double alpha=1.0) {
+  return Color(r, g, b, alpha);
+}
 
 
 /// Convenience wrapper to create a Color from
 /// RGB values in range [0,255].
 /// Alpha must be in [0,1].
-Color RGBa(double R, double G, double B, double alpha=1.0);
-
-
-/// Creates a Color from the given webcode, e.g. "#abcdef".
-///
-/// If the hexstring/webcode has 8 digits, its alpha specification
-/// has precedence over the given "alpha" parameter.
-Color ColorFromHexString(const std::string &webcode, double alpha=1.0);
+inline Color RGBa(double R, double G, double B, double alpha=1.0) {
+  return Color(R/255.0, G/255.0, B/255.0, alpha);
+}
 
 
 /// Identity function to implement a linear color transition

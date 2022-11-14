@@ -1,3 +1,5 @@
+.. include:: ../symbols.rst
+   
 ~~~~~~~~~~~~~~~~~~~
 Scaled Colorization
 ~~~~~~~~~~~~~~~~~~~
@@ -9,11 +11,7 @@ color map. The following example uses the
 `peaks example data <https://www.mathworks.com/help/matlab/ref/peaks.html>`__:
 
 
-.. image:: ../images/colormap-peaks.png
-   :width: 500
-   :alt: Exemplary colorization
-   :align: center
-
+|image-colorized-peaks|
 
 Corresponding Python code:
 

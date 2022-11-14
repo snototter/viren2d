@@ -96,23 +96,25 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     #     img, show_images, 'relief-shading', save_images, 'relief-shading.png')
 
     # Color gradients
-    img = demo_color_gradients()
-    _process_result(
-        img, show_images, 'Color Gradient', save_images, 'color-gradients.png')
+    outputs = demo_color_gradients()
+    for grad_type, img in outputs:
+        _process_result(
+            img, show_images, 'Color Gradient', save_images,
+            f'color-gradients-{grad_type}.png')
     
-    # Optical flow
-    img = demo_optical_flow_colormaps()
-    _process_result(
-        img, show_images, 'Optical Flow', save_images, 'optical-flow-color-maps.png')
+    # # Optical flow
+    # img = demo_optical_flow_colormaps()
+    # _process_result(
+    #     img, show_images, 'Optical Flow', save_images, 'optical-flow-color-maps.png')
     
-    img = demo_optical_flow_overlay()
-    _process_result(
-        img, show_images, 'Optical Flow', save_images, 'optical-flow-overlay.png')
+    # img = demo_optical_flow_overlay()
+    # _process_result(
+    #     img, show_images, 'Optical Flow', save_images, 'optical-flow-overlay.png')
 
-    # Pinhole camera calibration results
-    img = demo_pinhole()
-    _process_result(
-        img, show_images, 'Pinhole Camera', save_images, 'pinhole-camera.png')
+    # # Pinhole camera calibration results
+    # img = demo_pinhole()
+    # _process_result(
+    #     img, show_images, 'Pinhole Camera', save_images, 'pinhole-camera.png')
 
 
 def render_rtd_cheatsheets(show_images: bool, save_images: bool):
@@ -125,7 +127,7 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
     _process_result(
         img, show_images, 'Line Style Cheat Sheet', save_images, 'line-style-cheat-sheet.png')
 
-    # LineStyle
+    # ArrowStyle
     img = cheat_sheet_arrowstyle()
     _process_result(
         img, show_images, 'Arrow Style Cheat Sheet', save_images, 'arrow-style-cheat-sheet.png')
@@ -149,7 +151,7 @@ def render_rtd_cheatsheets(show_images: bool, save_images: bool):
 
 
 if __name__ == '__main__':
-    # render_rtd_demos(True, True)
+    render_rtd_demos(True, True)
     render_rtd_cheatsheets(True, True)
     # img = demo_pinhole()
     # _process_result(

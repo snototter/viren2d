@@ -52,6 +52,48 @@ std::string ColorGradient::ToString() const {
 }
 
 
+ImageBuffer ColorGradient::Visualization(
+    int width, int height, int channels,
+    const Color &background_color) const {
+  auto painter = CreatePainter();
+  painter->SetCanvas(height, width, background_color);
+
+  painter->DrawGradient(*this);
+
+  if ((channels == 3) || (channels == 4)) {
+    return painter->GetCanvas(false).ToChannels(channels);
+  } else {
+    std::ostringstream s;
+    s << "Invalid number of output channels requested ("
+      << channels << "), only 3 or 4 are supported!";
+    throw std::invalid_argument(s.str());
+  }
+}
+
+
+ImageBuffer ColorGradient::Mask(
+    int width, int height, int channels,
+    const Color &background_color) const {
+  auto painter = CreatePainter();
+  painter->SetCanvas(height, width, background_color);
+
+  painter->DrawGradient(*this);
+
+  if ((channels == 3) || (channels == 4)) {
+    return painter->GetCanvas(false).ToChannels(channels).AsType(
+        ImageBufferType::Double, 1.0/255.0);
+  } else if (channels == 1) {
+    return painter->GetCanvas(false).Channel(0).AsType(
+        ImageBufferType::Double, 1.0/255.0);
+  } else {
+    std::ostringstream s;
+    s << "Invalid number of output channels requested ("
+      << channels << "), only 3 or 4 are supported!";
+    throw std::invalid_argument(s.str());
+  }
+}
+
+
 std::string LinearColorGradient::ToString() const {
   std::ostringstream s;
   s << "LinearColorGradient(" << color_stops.size() << " color "
@@ -68,39 +110,6 @@ std::string RadialColorGradient::ToString() const {
     << ", " << start_center << ", r=" << std::fixed << std::setprecision(1)
     << start_radius << " to " << end_center << ", r=" << end_radius << ')';
   return s.str();
-}
-
-
-ImageBuffer CreateColorGradientVisualization(
-    const ColorGradient &gradient,
-    int width, int height, int channels,
-    const Color &background_color) {
-  auto painter = CreatePainter();
-  painter->SetCanvas(height, width, background_color);
-
-  painter->DrawGradient(gradient);
-
-  if ((channels == 3) || (channels == 4)) {
-    return painter->GetCanvas(false).ToChannels(channels);
-  } else {
-    std::ostringstream s;
-    s << "Invalid number of output channels requested ("
-      << channels << "), only 3 or 4 are supported!";
-    throw std::invalid_argument(s.str());
-  }
-}
-
-
-ImageBuffer CreateColorGradientMask(const ColorGradient &gradient,
-    int width, int height,
-    const Color &background_color) {
-  auto painter = CreatePainter();
-  painter->SetCanvas(height, width, background_color);
-
-  painter->DrawGradient(gradient);
-
-  return painter->GetCanvas(false).Channel(0).AsType(
-        ImageBufferType::Double, 1.0/255.0);
 }
 
 } // namespace viren2d

@@ -70,8 +70,13 @@ LineStyle LineStyleFromTuple(const py::tuple &tpl) {
 
 
 void RegisterLineCap(pybind11::module &m) {
-  py::enum_<LineCap> cap(m, "LineCap",
-             "Enumeration specifying how to render the endpoints of a line/dash stroke.");
+  py::enum_<LineCap> cap(m, "LineCap", R"docstr(
+        Enumeration specifying how to render the endpoints of a line/dash stroke.
+
+        **Corresponding C++ API:** ``viren2d::LineCap``.
+
+        |image-cheat-sheet-line-cap|
+        )docstr");
   cap.value(
         "Butt",
         LineCap::Butt, R"docstr(
@@ -121,8 +126,13 @@ LineCap LineCapFromPyObject(const py::object &o) {
 
 
 void RegisterLineJoin(pybind11::module &m) {
-  py::enum_<LineJoin> join(m, "LineJoin",
-             "Enumeration specifying how to render the junction of two lines/segments.");
+  py::enum_<LineJoin> join(m, "LineJoin", R"docstr(
+        Enumeration specifying how to render the junction of two lines/segments.
+
+        **Corresponding C++ API:** ``viren2d::LineJoin``.
+        
+        |image-cheat-sheet-line-join|
+        )docstr");
 
   join.value(
         "Miter",
@@ -172,7 +182,13 @@ LineJoin LineJoinFromPyObject(const py::object &o) {
 
 void RegisterMarker(pybind11::module &m) {
   py::enum_<Marker> marker(
-        m, "Marker", "Enumeration specifying the marker shape.");
+        m, "Marker", R"docstr(
+        Enumeration specifying the marker shape.
+
+        **Corresponding C++ API:** ``viren2d::Marker``.
+
+        |image-cheat-sheet-markers|
+        )docstr");
 
   marker.value(
         "Point",
@@ -655,6 +671,8 @@ void RegisterLineStyle(pybind11::module &m) {
       >>> unit_dir = start.direction_vector(end).unit_vector()
       >>> start += line_style.cap_offset() * unit_dir
       >>> end -= line_style.cap_offset() * unit_dir
+
+      |image-cheat-sheet-lines|
       )docstr";
   py::class_<LineStyle>line_style(m, "LineStyle", doc.c_str());
 
@@ -930,6 +948,8 @@ void RegisterArrowStyle(pybind11::module &m) {
         >>>     tip_closed=True, double_headed=False,
         >>>     dash_pattern=[], dash_offset=0.0,
         >>>     cap='round', join='miter')
+      
+      |image-cheat-sheet-arrows|
       )docstr";
   py::class_<ArrowStyle, LineStyle> arrow_style(m, "ArrowStyle", doc.c_str());
 

@@ -38,8 +38,7 @@ void DemoOpticalFlowOverlay(
   gradient.AddIntensityStop(0.5, 0.0);
   gradient.AddIntensityStop(0.7, 0.1);
   gradient.AddIntensityStop(0.9, 1.0);
-  const ImageBuffer weights = CreateColorGradientMask(
-        gradient, image.Width(), image.Height());
+  const ImageBuffer weights = gradient.Mask(image.Width(), image.Height(), 1);
 
   ImageBuffer overlay = flow_vis.Blend(image, weights);
 

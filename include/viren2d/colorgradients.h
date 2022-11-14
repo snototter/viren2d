@@ -80,6 +80,42 @@ public:
     return os;
   }
 
+
+  /// Renders this gradient onto an image of the specified size.
+  ///
+  /// Args:
+  ///   width: Width of the output image.
+  ///   height: Height of the output image.
+  ///   channels: Number of output channels, must be either 3 or 4.
+  ///   background_color: The color used to initialize the image buffer before
+  ///     rendering the gradient.
+  ///
+  /// Returns:
+  ///   An ImageBuffer of type ImageBufferType::UInt8 with values in [0, 255].
+  ImageBuffer Visualization(
+      int width, int height, int channels = 3,
+      const Color &background_color = Color::White) const;
+
+
+  /// Renders this color gradient as a double-precision mask of the
+  /// specified size.
+  ///
+  /// Args:
+  ///   width: Width of the output mask in pixels.
+  ///   height: Height of the output mask in pixels.
+  ///   channels: Number of output channels. Must be either 1, 3, or 4. If a
+  ///     single-channel mask is requested, only the red component of the
+  ///     color stops will contribute to the output mask.
+  ///   fill_color: The :class:`~viren2d.Color` used to initialize the
+  ///     output mask before rendering the gradient.
+  ///
+  /// Returns:
+  ///   An ImageBuffer of type ImageBufferType::Double with values in [0, 1].
+  ImageBuffer Mask(
+      int width, int height, int channels = 1,
+      const Color &background_color = Color::Black.WithAlpha(0.0)) const;
+
+
 protected:
   /// Color stops along fractions (i.e. within [0,1]) of the gradient's
   /// control vector.
@@ -168,37 +204,6 @@ private:
   /// Radius of the end circle.
   double end_radius;
 };
-
-
-/// Returns a color gradient rendered onto an image of the specified size.
-///
-/// Args:
-///   gradient: The color gradient to be rendered.
-///   width: Width of the output image.
-///   height: Height of the output image.
-///   channels: Number of output channels, must be either 3 or 4.
-///   background_color: The color used to initialize the image buffer before
-///     rendering the gradient.
-ImageBuffer CreateColorGradientVisualization(
-    const ColorGradient &gradient,
-    int width, int height, int channels = 3,
-    const Color &background_color = Color::White);
-
-
-/// Returns a single-channel double-precision mask with values in [0, 1] as
-/// the result of rendering the given gradient.
-///
-/// Args:
-///   gradient: The color gradient to be rendered. Only the red and alpha
-///     components will be considered for the output mask.
-///   width: Width of the output mask in pixels.
-///   height: Height of the output mask in pixels.
-///   background_color: The color used to initialize the output mask before
-///     rendering the gradient.
-ImageBuffer CreateColorGradientMask(
-    const ColorGradient &gradient,
-    int width, int height,
-    const Color &background_color = Color::Black.WithAlpha(0.0));
 
 } // namespace viren2d
 

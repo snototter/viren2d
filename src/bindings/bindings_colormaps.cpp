@@ -995,6 +995,8 @@ void RegisterColormaps(pybind11::module &m) {
           >>> vis = viren2d.colorize_scaled(
           >>>     data, colormap='gouldian', low=-8, high=8,
           >>>     bins=256, output_channels=3)
+        
+        |image-colorized-peaks|
         )docstr",
         py::arg("data"),
         py::arg("colormap") = ColorMap::Gouldian,
@@ -1031,6 +1033,8 @@ void RegisterColormaps(pybind11::module &m) {
           >>>     dtype=np.int32)
           >>> vis = viren2d.colorize_labels(
           >>>     labels, colormap='category-20', output_channels=3)
+        
+        |image-label-colorization|
         )docstr",
         py::arg("labels"),
         py::arg("colormap") = ColorMap::GlasbeyDark,
@@ -1072,6 +1076,8 @@ void RegisterColormaps(pybind11::module &m) {
           >>> vis = viren2d.colorize_scaled(
           >>>     data=moon, colormap='relief-low-contrast', low=0, high=255)
           >>> shaded = viren2d.relief_shading(relief=moon, colorized=vis)
+        
+        |image-relief-shading|
         )docstr",
         py::arg("relief"),
         py::arg("colorized"));

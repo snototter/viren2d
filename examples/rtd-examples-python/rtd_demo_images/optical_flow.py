@@ -59,8 +59,7 @@ def demo_optical_flow_overlay():
     grad.add_intensity_stop(0.3, 0.3)
     grad.add_intensity_stop(0.6, 0.2)
     grad.add_intensity_stop(0.9, 1.0)
-    alpha = viren2d.color_gradient_mask(
-        grad, width=img.width, height=img.height)
+    alpha = grad.mask(width=img.width, height=img.height, channels=1)
 
     vis = flow_vis.blend_mask(img_dimmed, alpha)
 

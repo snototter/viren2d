@@ -241,7 +241,7 @@ class Viren2dColorNamesTable(Directive):
             row += entry
 
             # Next column, RGB representation
-            RGBa = color.to_RGBa()
+            RGBa = color.to_RGB()
             txt_RGB = f'({RGBa[0]}, {RGBa[1]}, {RGBa[2]})'
 
             entry = nodes.entry()
@@ -413,7 +413,7 @@ class Viren2dColorMapsTable(Directive):
             rows.append(row)
 
             entry = nodes.entry()
-            entry += nodes.paragraph(text=cmap)
+            entry += nodes.literal(text=cmap)
             row += entry
 
             entry = nodes.entry()

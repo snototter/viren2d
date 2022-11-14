@@ -13,11 +13,27 @@
 Defining Colors
 ---------------
 
+.. autosummary::
+   :nosignatures:
+
+   viren2d.Color
+   viren2d.axis_color
+   viren2d.color_from_object_category
+   viren2d.color_from_object_id
+   viren2d.color_names
+   viren2d.fade_out_linear
+   viren2d.fade_out_logarithmic
+   viren2d.fade_out_quadratic
+   viren2d.object_category_names
+   viren2d.rgba
+   viren2d.RGBa
+
+
 ~~~~~~~~~~~
 Color Class
 ~~~~~~~~~~~
 
-Within ``viren2d``, colors are handled via the :class:`~viren2d.Color` class
+Color definitions are handled via the :class:`~viren2d.Color` class
 in **rgba** format, where :math:`r, g, b, a \in [0, 1]`.
 
 .. autoclass:: viren2d.Color

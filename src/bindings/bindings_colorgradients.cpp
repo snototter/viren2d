@@ -51,9 +51,9 @@ void RegisterColorGradientBase(pybind11::module &m) {
           color: The :class:`~viren2d.Color` at the specified offset.
 
         Returns:
-          bool: True if the color stop was added, false if the inputs were invalid
-            (for example, out-of-range) which will be detailed in a logged
-            warning message.
+          True if the color stop was added, false if the inputs were invalid
+          (for example, out-of-range) which will be detailed in a logged
+          warning message.
 
         Example:
           >>> grad.add_color_stop(0.1, 'crimson')
@@ -76,9 +76,9 @@ void RegisterColorGradientBase(pybind11::module &m) {
           alpha: The opacity :math:`\in [0,1]` at this stop.
 
         Returns:
-          bool: True if the intensity stop was added, false if the inputs were
-            invalid (for example, out-of-range) which will be detailed in a
-            logged warning message.
+          True if the intensity stop was added, false if the inputs were
+          invalid (for example, out-of-range) which will be detailed in a
+          logged warning message.
 
         Example:
           >>> grad.add_intensity_stop(0.1, 0.0)
@@ -87,6 +87,69 @@ void RegisterColorGradientBase(pybind11::module &m) {
         py::arg("offset"),
         py::arg("intensity"),
         py::arg("alpha") = 1.0);
+
+  grad.def("visualization",
+        &ColorGradient::Visualization, R"docstr(
+        Renders this color gradient onto an image of the specified size.
+
+        **Corresponding C++ API:** ``viren2d::ColorGradient::Visualization``.
+
+        Args:
+          width: Width of the output image in pixels.
+          height: Height of the output image in pixels.
+          channels: Number of output channels, must be either 3 or 4.
+          fill_color: The :class:`~viren2d.Color` used to initialize the
+            output image before rendering the gradient.
+
+        Returns:
+          A 3- or 4-channel :class:`~viren2d.ImageBuffer` of type :class:`numpy.uint8`.
+
+        Example:
+          >>> grad = viren2d.LinearColorGradient((0, 0), (200, 200))
+          >>> grad.add_color_stop(0.1, 'crimson!80')
+          >>> grad.add_color_stop(0.5, 'teal-green!60')
+          >>> grad.add_color_stop(0.9, 'navy-blue!80')
+          >>> vis = grad.visualization(
+          >>>     width=200, height=200, channels=3, fill_color="white")
+        )docstr",
+        py::arg("width"),
+        py::arg("height"),
+        py::arg("channels") = 3,
+        py::arg("fill_color") = Color::White);
+
+
+  grad.def("mask",
+        &ColorGradient::Mask, R"docstr(
+        Renders this color gradient as a double-precision mask of the
+        specified size.
+
+        **Corresponding C++ API:** ``viren2d::ColorGradient::Mask``.
+
+        Args:
+          width: Width of the output mask in pixels.
+          height: Height of the output mask in pixels.
+          channels: Number of output channels. Must be either 1, 3, or 4. If a
+            single-channel mask is requested, only the red component of the
+            color stops will contribute to the output mask.
+          fill_color: The :class:`~viren2d.Color` used to initialize the
+            output mask before rendering the gradient.
+
+        Returns:
+          An :class:`~viren2d.ImageBuffer` of type :class:`numpy.float64`
+          with values :math:`\in [0, 1]` and ``channels`` layers/channels.
+
+        Example:
+          >>> grad = viren2d.LinearColorGradient((0, 0), (200, 200))
+          >>> grad.add_color_stop(0.1, 1.0)
+          >>> grad.add_color_stop(0.5, 0.5)
+          >>> grad.add_color_stop(0.9, 1.0)
+          >>> mask = grad.mask(
+          >>>     width=200, height=200, channels=1, fill_color="black!0")
+        )docstr",
+        py::arg("width"),
+        py::arg("height"),
+        py::arg("channels"),
+        py::arg("fill_color") = Color::Black.WithAlpha(0.0));
 }
 
 
@@ -108,6 +171,8 @@ void RegisterLinearColorGradient(pybind11::module &m) {
         >>> grad.add_color_stop(0.1, 'crimson')
         >>> grad.add_color_stop(0.5, 'teal-green')
         >>> grad.add_color_stop(0.9, 'navy-blue')
+      
+      |image-color-gradient-linear|
       )docstr");
 
   grad.def(
@@ -145,6 +210,8 @@ void RegisterRadialColorGradient(pybind11::module &m) {
         >>>     (50, 50), 10, (50, 50), 40)
         >>> grad.add_color_stop(0.0, 'freesia')
         >>> grad.add_color_stop(0.9, 'navy-blue')
+      
+      |image-color-gradient-radial|
       )docstr");
 
   grad.def(
@@ -169,74 +236,6 @@ void RegisterColorGradients(pybind11::module &m) {
   gradients::RegisterColorGradientBase(m);
   gradients::RegisterLinearColorGradient(m);
   gradients::RegisterRadialColorGradient(m);
-  //TODO bind Painter::DrawGradient
-  //TODO bind Painter::SetClipRegion
-
-  m.def("color_gradient_visualization",
-        &CreateColorGradientVisualization, R"docstr(
-        Renders a color gradient onto an image of the specified size.
-
-        **Corresponding C++ API:** ``viren2d::CreateColorGradientVisualization``.
-
-        Args:
-          gradient: The :class:`~viren2d.ColorGradient` to be rendered.
-          width: Width of the output image in pixels.
-          height: Height of the output image in pixels.
-          channels: Number of output channels, must be either 3 or 4.
-          fill_color: The :class:`~viren2d.Color` used to initialize the
-            output image before rendering the gradient.
-
-        Returns:
-          :class:`~viren2d.ImageBuffer`: A 3- or 4-channel :class:`~viren2d.ImageBuffer`
-          of type :class:`numpy.uint8` as the result of rendering the given gradient.
-
-        Example:
-          >>> grad = viren2d.LinearColorGradient((0, 0), (200, 200))
-          >>> grad.add_color_stop(0.1, 'crimson!80')
-          >>> grad.add_color_stop(0.5, 'teal-green!60')
-          >>> grad.add_color_stop(0.9, 'navy-blue!80')
-          >>> vis = viren2d.color_gradient_visualization(
-          >>>     grad, width=200, height=200, channels=3, fill_color="white")
-        )docstr",
-        py::arg("gradient"),
-        py::arg("width"),
-        py::arg("height"),
-        py::arg("channels") = 3,
-        py::arg("fill_color") = Color::White);
-
-
-  m.def("color_gradient_mask",
-        &CreateColorGradientMask, R"docstr(
-        Returns a single-channel double-precision mask for the given gradient.
-
-        **Corresponding C++ API:** ``viren2d::CreateColorGradientMask``.
-
-        Args:
-          gradient: The :class:`~viren2d.ColorGradient` to be rendered. Only
-            the red and alpha components of its color stops will be contribute
-            to the output mask.
-          width: Width of the output mask in pixels.
-          height: Height of the output mask in pixels.
-          fill_color: The :class:`~viren2d.Color` used to initialize the
-            output mask before rendering the gradient.
-
-        Returns:
-          :class:`~viren2d.ImageBuffer`: A single-channel
-          :class:`~viren2d.ImageBuffer` of type :class:`numpy.float64`
-          with values :math:`\in [0, 1]` as the result of rendering the given gradient.
-
-        Example:
-          >>> grad = viren2d.LinearColorGradient((0, 0), (200, 200))
-          >>> grad.add_color_stop(0.1, 1.0)
-          >>> grad.add_color_stop(0.5, 0.5)
-          >>> grad.add_color_stop(0.9, 1.0)
-          >>> mask = viren2d.color_gradient_mask(
-          >>>     grad, width=200, height=200, fill_color="black!0")
-        )docstr",
-        py::arg("gradient"),
-        py::arg("width"),
-        py::arg("height"),
-        py::arg("fill_color") = Color::Black.WithAlpha(0.0));
 }
 
 } // namespace bindings

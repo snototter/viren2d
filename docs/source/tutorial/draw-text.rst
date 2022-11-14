@@ -1,3 +1,5 @@
+.. include:: ../symbols.rst
+   
 .. _tutorial-text:
 
 ~~~~~~~~~~~~~~~~~
@@ -21,10 +23,7 @@ and reference positions.
 These reference positions are highlighted via
 :func:`~viren2d.Painter.draw_marker`:
 
-.. image:: ../images/text-anchors.png
-   :width: 440
-   :alt: Text anchors
-   :align: center
+|image-cheat-sheet-anchors|
 
 Corresponding Python code:
 

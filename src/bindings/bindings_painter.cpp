@@ -702,6 +702,8 @@ void RegisterPainter(py::module &m) {
           Arrows should always be drawn **fully opaque**. Otherwise,
           you'll experience visible blending in the crossing path
           segments (*i.e.* at the tip).
+        
+        |image-cheat-sheet-arrows|
         )docstr",
         py::arg("pt1"),
         py::arg("pt2"),
@@ -755,6 +757,11 @@ void RegisterPainter(py::module &m) {
           >>>   label_top=['Multi-Line Label', '(... at the top)'],
           >>>   label_bottom=['Bottom Edge'], label_left=['Left Edge'],
           >>>   left_t2b=True, label_right=[], right_t2b=False)
+        
+        |image-tracking-by-detection|
+        
+        The code listing to create this visualization is shown in the
+        :ref:`RTD tutorial section on tracking-by-detection<tutorial-tracking-by-detection>`.
         )docstr",
         py::arg("rect"),
         py::arg("box_style") = BoundingBox2DStyle(),
@@ -841,6 +848,11 @@ void RegisterPainter(py::module &m) {
           >>> painter.draw_ellipse(
           >>>     ellipse=ellipse, line_style=line_style,
           >>>     fill_color='same!20')
+        
+        |image-ellipse-examples|
+
+        The code listing to create this visualization is shown in the
+        :ref:`RTD tutorial section on ellipses<tutorial-draw-ellipses>`.
         )docstr",
         py::arg("ellipse"),
         py::arg("line_style") = LineStyle(),
@@ -1066,6 +1078,8 @@ void RegisterPainter(py::module &m) {
           >>>     thickness=1, filled=True,
           >>>     cap='round', join='miter')
           >>> painter.draw_marker(position=(42, 70), marker_style=marker_style)
+        
+        |image-cheat-sheet-markers|
         )docstr",
         py::arg("position"),
         py::arg("marker_style") = MarkerStyle());
@@ -1103,6 +1117,8 @@ void RegisterPainter(py::module &m) {
           >>>     ((50, 34), (-1, -1, -1)) # This one too
           >>> ]
           >>> painter.draw_markers(markers, marker_style)
+
+        |image-cheat-sheet-markers|
         )docstr",
         py::arg("markers"),
         py::arg("marker_style") = MarkerStyle());
@@ -1174,6 +1190,11 @@ void RegisterPainter(py::module &m) {
           >>> line_style = viren2d.LineStyle()
           >>> painter.draw_rect(
           >>>   rect=rect, line_style=line_style, fill_color='same!20')
+        
+        |image-rect-examples|
+
+        The code listing to create this visualization is shown in the
+        :ref:`RTD tutorial section on rectangles<tutorial-draw-rects>`.
         )docstr",
         py::arg("rect"),
         py::arg("line_style") = LineStyle(),
@@ -1375,6 +1396,11 @@ void RegisterPainter(py::module &m) {
           To avoid this behavior, the trajectory needs to be drawn with
           a single color, *i.e.* pass :attr:`Color.Invalid` as
           ``fade_out_color``.
+        
+        |image-tracking-by-detection|
+        
+        The code listing to create this visualization is shown in the
+        :ref:`RTD tutorial section on tracking-by-detection<tutorial-tracking-by-detection>`.
         )docstr",
         py::arg("trajectory"),
 
@@ -1430,6 +1456,11 @@ void RegisterPainter(py::module &m) {
           >>>     fade_out_color=(0.8, 0.8, 0.8, 0.4),
           >>>     smoothing_window=5, tail_first=True,
           >>>     fading_factor=viren2d.fade_out_linear)
+        
+        |image-tracking-by-detection|
+
+        The code listing to create this visualization is shown in the
+        :ref:`RTD tutorial section on tracking-by-detection<tutorial-tracking-by-detection>`.
         )docstr",
         py::arg("trajectories"),
         py::arg("line_style") = default_trajectory_style,

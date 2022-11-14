@@ -757,6 +757,11 @@ void RegisterImageBuffer(py::module &m) {
           >>> mask = viren2d.color_gradient_mask(
           >>>     grad, width=img.width, height=img.height)
           >>> blended = img.blend(overlay, mask)
+        
+        |image-flow-vis-blend|
+
+        Code example to create this blended visualization can be found in the
+        :ref:`RTD tutorial section on optical flow colorization<tutorial-optical-flow-blend>`.
         )docstr",
         py::arg("other"),
         py::arg("alpha"));

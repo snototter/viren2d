@@ -203,6 +203,7 @@ def cheat_sheet_arrowstyle():
     arrow_style.tip_length = 0.4
     arrow_style.tip_closed = True
     arrow_style.tip_angle = 10
+    arrow_style.cap = 'square'
     txt = f'{int(arrow_style.tip_angle)}°'
     painter.draw_arrow((x1, y_txt - 10), (x1, 5), arrow_style)
     
@@ -211,8 +212,8 @@ def cheat_sheet_arrowstyle():
     painter.draw_arrow((x1 + offset_x, 100), (x1 + offset_x, 5), arrow_style)
 
     painter.draw_text(
-        ['Angle:', txt, f'Length: {arrow_style.tip_length:.1f},',
-         'Closed'],
+        ['Angle: ' + txt, f'Length: {arrow_style.tip_length:.1f},',
+         'Square Cap,', 'Closed'],
         (x1 + offset_x / 2, y_txt), 'north', text_style)
 
     # 3rd pair of arrows
@@ -228,8 +229,8 @@ def cheat_sheet_arrowstyle():
     painter.draw_arrow((x1 + offset_x, 100), (x1 + offset_x, 5), arrow_style)
     
     painter.draw_text(
-        [f'Length: {arrow_style.tip_length:0.1f},', 
-         f'Angle: {int(arrow_style.tip_angle):d}°,',
+        [f'Angle: {int(arrow_style.tip_angle):d}°,',
+         f'Length: {arrow_style.tip_length:0.1f},',
           'Round Join,', 'Open & Closed'],
         (x1 + offset_x / 2, y_txt), 'north', text_style)
 
@@ -249,8 +250,8 @@ def cheat_sheet_arrowstyle():
     painter.draw_arrow((x1 + offset_x, 100), (x1 + offset_x, 5), arrow_style)
 
     painter.draw_text(
-        [f'Length: {arrow_style.tip_length:0.2f},', 
-         f'Angle: {int(arrow_style.tip_angle):d}°,',
+        [f'Angle: {int(arrow_style.tip_angle):d}°,',
+         f'Length: {arrow_style.tip_length:0.2f},',
          'Dash Patterns:', txt_dash],
         (x1 + offset_x / 2, y_txt), 'north', text_style)
         

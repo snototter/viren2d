@@ -442,7 +442,7 @@ Color::Color(const NamedColor color, double alpha) {
 
 Color::Color(const std::string &colorspec, double alpha) {
   if (colorspec.length() > 1 && colorspec[0] == '#') {
-    *this = ColorFromHexString(colorspec, alpha);
+    *this = Color::FromHexString(colorspec, alpha);
   } else {
     // Check if we need special handling later on
     const bool invert = colorspec.length() > 1 &&
@@ -819,57 +819,17 @@ Color Color::FromObjectCategory(const std::string &category, ColorMap colormap) 
 }
 
 
-std::vector<std::string> Color::ListObjectCategories() {
-  std::vector<std::string> categories = wzkc::GetMapKeys(helpers::kCategoryIDMapping);
-  // The default comparator results in ascending order:
-  std::sort(categories.begin(), categories.end());
-  return categories;
-}
-
-
-bool operator==(const Color& lhs, const Color& rhs) {
-  return wzkg::eps_equal(lhs.red, rhs.red)
-      && wzkg::eps_equal(lhs.green, rhs.green)
-      && wzkg::eps_equal(lhs.blue, rhs.blue)
-      && wzkg::eps_equal(lhs.alpha, rhs.alpha);
-}
-
-
-bool operator!=(const Color& lhs, const Color& rhs) {
-  return !(lhs == rhs);
-}
-
-
-Color operator*(double scalar, Color rhs) {
-  return rhs * scalar;
-}
-
-
-Color operator+(Color lhs, const Color& rhs) {
-  lhs += rhs;
-  return lhs;
-}
-
-
-Color operator-(Color lhs, const Color& rhs) {
-  lhs -= rhs;
-  return lhs;
-}
-
-
-Color rgba(double r, double g, double b, double alpha) {
+Color Color::FromHSV(
+  double hue, double saturation, double value, double alpha) {
+  float r, g, b;
+  std::tie(r, g, b) = helpers::CvtHelperHSV2RGB(hue, saturation, value);
   return Color(r, g, b, alpha);
 }
 
 
-Color RGBa(double R, double G, double B, double alpha) {
-  return Color(R/255.0, G/255.0, B/255.0, alpha);
-}
-
-
-Color ColorFromHexString(const std::string &webcode, double alpha) {
+Color Color::FromHexString(const std::string &webcode, double alpha) {
   SPDLOG_TRACE(
-        "ColorFromHexString(\"{:s}\", alpha={:.2f}).", webcode, alpha);
+        "Color::FromHexString(\"{:s}\", alpha={:.2f}).", webcode, alpha);
 
   const size_t len = webcode.length();
   if (len != 7 && len != 9) {
@@ -906,6 +866,44 @@ Color ColorFromHexString(const std::string &webcode, double alpha) {
   }
 
   return Color(rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0, alpha);
+}
+
+
+std::vector<std::string> Color::ListObjectCategories() {
+  std::vector<std::string> categories = wzkc::GetMapKeys(helpers::kCategoryIDMapping);
+  // The default comparator results in ascending order:
+  std::sort(categories.begin(), categories.end());
+  return categories;
+}
+
+
+bool operator==(const Color& lhs, const Color& rhs) {
+  return wzkg::eps_equal(lhs.red, rhs.red)
+      && wzkg::eps_equal(lhs.green, rhs.green)
+      && wzkg::eps_equal(lhs.blue, rhs.blue)
+      && wzkg::eps_equal(lhs.alpha, rhs.alpha);
+}
+
+
+bool operator!=(const Color& lhs, const Color& rhs) {
+  return !(lhs == rhs);
+}
+
+
+Color operator*(double scalar, Color rhs) {
+  return rhs * scalar;
+}
+
+
+Color operator+(Color lhs, const Color& rhs) {
+  lhs += rhs;
+  return lhs;
+}
+
+
+Color operator-(Color lhs, const Color& rhs) {
+  lhs -= rhs;
+  return lhs;
 }
 
 

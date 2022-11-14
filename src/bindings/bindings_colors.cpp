@@ -109,7 +109,7 @@ void RegisterColor(py::module &m) {
 
 
   py::class_<Color> color(m, "Color", R"docstr(
-        A color in rgba format, *i.e.* :math:`r,g,b,a \in [0,1]`.
+        A color in *rgba* format, *i.e.* :math:`r,g,b,a \in [0,1]`.
 
         **Corresponding C++ API:** ``viren2d::Color``.
 
@@ -152,7 +152,7 @@ void RegisterColor(py::module &m) {
         )docstr", py::arg("tpl"))
       .def(
         py::init<double, double, double, double>(), R"docstr(
-        Initializes the color from the given rgba components.
+        Initializes the color from the given *rgba* components.
 
         All values **will be clamped** to ``[0, 1]``.
         )docstr",
@@ -161,7 +161,7 @@ void RegisterColor(py::module &m) {
         py::arg("blue"),
         py::arg("alpha") = 1.0)
       .def(
-        py::init<const std::string &, double>(),R"docstr(
+        py::init<const std::string &>(),R"docstr(
         Initializes the color from a string representation (hexcode
         or color name).
 
@@ -190,8 +190,7 @@ void RegisterColor(py::module &m) {
 
            >>> painter.draw_rect(..., fill_color = '!blue!30)
         )docstr",
-        py::arg("colorspec"),
-        py::arg("alpha") = 1.0)
+        py::arg("colorspec"))
       .def(
         "copy",
         [](const Color &c) { return Color(c); }, R"docstr(
@@ -618,6 +617,25 @@ void RegisterColor(py::module &m) {
         )docstr",
         py::arg("category"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
+  
+
+  color.def_static(
+        "from_hsv",
+        &Color::FromHSV, R"docstr(
+        Creates a :class:`~viren2d.Color` from its HSV representation.
+
+        Args:
+          h: Hue, :math:`h \in [0, 360]`.
+          s: Saturation, :math:`s \in [0, 1]`.
+          v: Value, :math:`v \in [0, 1]`.
+          alpha: Optional opacity of the color, :math:`\alpha \in [0, 1]`.
+
+        **Corresponding C++ API:** ``viren2d::ColorFromHSV``.
+        )docstr",
+        py::arg("h"),
+        py::arg("s"),
+        py::arg("v"),
+        py::arg("alpha") = 1.0);
 
 
   color.def_static(
@@ -645,21 +663,21 @@ void RegisterColor(py::module &m) {
   // Also aliases for typing convenience
   m.def("color_from_object_id",
         &FromObjectIDHelper,
-        "Alias of :meth:`~viren2d.Color.from_object_id`.",
+        "Alias of :meth:`viren2d.Color.from_object_id`.",
         py::arg("id"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("color_from_object_category",
         &FromObjectCategoryHelper,
-        "Alias of :meth:`~viren2d.Color.from_object_category`.",
+        "Alias of :meth:`viren2d.Color.from_object_category`.",
         py::arg("category"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("object_category_names",
         &Color::ListObjectCategories,
-        "Alias of :meth:`~viren2d.Color.object_category_names`.");
+        "Alias of :meth:`viren2d.Color.object_category_names`.");
 
 
   m.def("axis_color",
@@ -703,11 +721,11 @@ void RegisterColor(py::module &m) {
         py::arg("green"),
         py::arg("blue"),
         py::arg("alpha") = 1.0);
-
+  
 
   m.def("fade_out_linear",
         &ColorFadeOutLinear, R"docstr(
-        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
@@ -722,7 +740,7 @@ void RegisterColor(py::module &m) {
 
   m.def("fade_out_quadratic",
         &ColorFadeOutQuadratic, R"docstr(
-        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
@@ -736,7 +754,7 @@ void RegisterColor(py::module &m) {
 
   m.def("fade_out_logarithmic",
         &ColorFadeOutLogarithmic, R"docstr(
-        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
