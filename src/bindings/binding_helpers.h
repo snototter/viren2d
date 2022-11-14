@@ -10,6 +10,7 @@
 #include <viren2d/colormaps.h>
 #include <viren2d/primitives.h>
 #include <viren2d/imagebuffer.h>
+#include <viren2d/positioning.h>
 
 
 #define STRINGIFY(x) #x
@@ -41,7 +42,8 @@ void RegisterLine2d(pybind11::module &m);
 
 
 //------------------------------------------------- ImageBuffer
-ImageBuffer CreateImageBufferUint8C4(const pybind11::array &buf);
+void RegisterImageBuffer(pybind11::module &m);
+ImageBuffer CreateImageBufferUint8C4(const pybind11::array buf);
 
 
 //-------------------------------------------------  Styles (MarkerStyle & LineStyle)
@@ -58,7 +60,8 @@ void RegisterLineStyle(pybind11::module &m);
 void RegisterArrowStyle(pybind11::module &m);
 
 //-------------------------------------------------  Styles (TextStyle)
-
+HorizontalAlignment HorizontalAlignmentFromPyObject(const pybind11::object &o);
+VerticalAlignment VerticalAlignmentFromPyObject(const pybind11::object &o);
 void RegisterAnchors(pybind11::module &m);
 void RegisterTextStyle(pybind11::module &m);
 
@@ -70,8 +73,11 @@ void RegisterVectors(pybind11::module &m);
 
 //-------------------------------------------------  Painter
 std::string PathStringFromPyObject(const pybind11::object &path);
-void RegisterImageBuffer(pybind11::module &m);
 void RegisterPainter(pybind11::module &m);
+
+
+//------------------------------------------------- Collage
+void RegisterCollage(pybind11::module &m);
 
 
 //-------------------------------------------------  Color gradients

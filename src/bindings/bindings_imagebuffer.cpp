@@ -210,7 +210,7 @@ ImageBuffer ConvertBufferToUInt8C4Helper(const py::array &buf, _T scale) {
 }
 
 
-ImageBuffer CreateImageBufferUint8C4(const py::array &buf) {
+ImageBuffer CreateImageBufferUint8C4(const py::array buf) {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3) {
     std::ostringstream s;
@@ -240,7 +240,7 @@ ImageBuffer CreateImageBufferUint8C4(const py::array &buf) {
     SPDLOG_ERROR(s.str());
     throw std::logic_error(s.str());
   }
-
+//TODO future optimization: create shared buffer, if input is u8c4
 
   switch (buffer_type) {
     case ImageBufferType::UInt8:

@@ -70,6 +70,10 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Drawing - Painter
   viren2d::bindings::RegisterPainter(m);
 
+  //------------------------------------------------- Visualization - Collage
+  // Requires painter & ImageBuffer to be defined previously
+  viren2d::bindings::RegisterCollage(m);
+
   //------------------------------------------------- Visualization - Colormaps
   viren2d::bindings::RegisterColormaps(m);
 
