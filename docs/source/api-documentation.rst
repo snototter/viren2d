@@ -79,11 +79,12 @@ API Documentation
       :nosignatures:
 
       viren2d.ImageBuffer
+      viren2d.collage
+      viren2d.color_pop
       viren2d.convert_gray2rgb
       viren2d.convert_hsv2rgb
       viren2d.convert_rgb2gray
       viren2d.convert_rgb2hsv
-      viren2d.color_pop
       viren2d.load_image_uint8
       viren2d.save_image_uint8
       
@@ -105,7 +106,9 @@ API Documentation
       :nosignatures:
       
       viren2d.Vec2d
+      viren2d.Vec2i
       viren2d.Vec3d
+      viren2d.Vec3i
 
 
 **Positioning:**
