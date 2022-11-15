@@ -195,6 +195,10 @@ void RegisterCollage(py::module &m) {
           images: A jagged :class:`list` (or :class:`tuple`) of input images.
             Each image can either be an :class:`~viren2d.ImageBuffer`, a
             :class:`numpy.ndarray`, or :class:`None` (to skip a cell).
+            Images will be converted to :class:`numpy.uint8` before rendering.
+            For this, images of type :class:`numpy.float32` and :class:`numpy.float64`
+            will be multiplied by `255`, whereas all other types are currently just
+            cast/truncated.
           size: Optional fixed size of each image.
           anchor: Placement of each image within its corresponding cell.
           fill_color: Background color. Must be a valid :class:`~viren2d.Color`.
