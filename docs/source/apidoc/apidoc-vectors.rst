@@ -1,4 +1,3 @@
-
 --------------
 Points/Vectors
 --------------
@@ -35,7 +34,6 @@ Vector 2D
    :autosummary-nosignatures:
    :members:
 
-
 ~~~~~~~~~
 Vector 3D
 ~~~~~~~~~
@@ -54,4 +52,3 @@ Vector 3D
    :autosummary:
    :autosummary-nosignatures:
    :members:
-
