@@ -111,6 +111,8 @@ bool DrawImageHelper(
     }
   }
 
+  // FIXME check image memory alignment (see to-do in DrawImage & drawing.cpp)
+
   // Paint the image onto the (already clipped) canvas.
   // Removing the const-ness is not a problem, because the cairo image
   // surface is only used to copy the data onto the canvas. There will be
@@ -124,6 +126,7 @@ bool DrawImageHelper(
   cairo_set_source_surface(
         context, imsurf, pattern_offset.x(), pattern_offset.y());
   cairo_paint_with_alpha(context, alpha);
+  cairo_surface_destroy(imsurf);
 
 
   // Draw the contour if requested:
@@ -140,7 +143,6 @@ bool DrawImageHelper(
   }
 
   cairo_restore(context);
-  cairo_surface_destroy(imsurf);
   return true;
 }
 
@@ -156,6 +158,7 @@ bool DrawImage(
     return false;
   }
 
+  //FIXME check stride!!
   if ((image.BufferType() == ImageBufferType::UInt8)
       && (image.Channels() == 4)) {
     return DrawImageHelper(

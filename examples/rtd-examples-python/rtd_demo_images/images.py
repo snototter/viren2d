@@ -1,6 +1,6 @@
 import viren2d
 import numpy as np
-from rtd_demo_images.constants import VIREN2D_DATA_PATH
+from rtd_demo_images.constants import VIREN2D_DATA_PATH, VIREN2D_RTD_IMAGE_PATH
 
 
 def demo_image_anchors():
@@ -54,6 +54,26 @@ def demo_image_anchors():
             y += delta_y
 
     return np.array(painter.canvas, copy=True)
+
+
+def demo_collage():
+    img_tbd = viren2d.load_image_uint8(
+        VIREN2D_RTD_IMAGE_PATH / 'tracking-by-detection.png', 4)
+    img_relief = viren2d.load_image_uint8(
+        VIREN2D_RTD_IMAGE_PATH / 'relief-shading.png', 4)
+    img_flow = viren2d.load_image_uint8(
+        VIREN2D_RTD_IMAGE_PATH / 'optical-flow-overlay.png', 4)
+    img_labels = viren2d.load_image_uint8(
+        VIREN2D_RTD_IMAGE_PATH / 'colorize-labels.png', 4)
+    img_scaled = viren2d.load_image_uint8(
+        VIREN2D_RTD_IMAGE_PATH / 'colormap-peaks.png', 4)
+    img_pinhole = viren2d.load_image_uint8(
+        VIREN2D_RTD_IMAGE_PATH / 'pinhole-camera.png', 4)
+    vis = viren2d.collage(
+        [[img_tbd, img_pinhole], [img_scaled, img_labels], [img_relief, img_flow]],
+        size=(300, -1), anchor='center', fill_color='white!0',
+        channels=4, spacing=(5, 5), margin=(10, 10), clip_factor=0.0)
+    return np.array(vis, copy=True)
 
 
 def demo_image_overlay():

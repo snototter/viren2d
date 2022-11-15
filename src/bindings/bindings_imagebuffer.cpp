@@ -160,6 +160,7 @@ ImageBuffer CreateImageBuffer(
 }
 
 
+//FIXME if input is contiguous, use memcpy!
 template<typename _T>
 ImageBuffer ConvertBufferToUInt8C4Helper(const py::array &buf, _T scale) {
   const int row_stride = static_cast<int>(buf.strides(0));
@@ -210,7 +211,7 @@ ImageBuffer ConvertBufferToUInt8C4Helper(const py::array &buf, _T scale) {
 }
 
 
-ImageBuffer CreateImageBufferUint8C4(const py::array buf) {
+ImageBuffer CastToImageBufferUInt8C4(py::array buf) {
   // Sanity checks
   if (buf.ndim() < 2 || buf.ndim() > 3) {
     std::ostringstream s;
@@ -240,11 +241,15 @@ ImageBuffer CreateImageBufferUint8C4(const py::array buf) {
     SPDLOG_ERROR(s.str());
     throw std::logic_error(s.str());
   }
-//TODO future optimization: create shared buffer, if input is u8c4
 
   switch (buffer_type) {
-    case ImageBufferType::UInt8:
-      return ConvertBufferToUInt8C4Helper<uint8_t>(buf, 1);
+    case ImageBufferType::UInt8: {
+        if (channels == 4) {
+          return CreateImageBuffer(buf, false, true);
+        } else {
+          return ConvertBufferToUInt8C4Helper<uint8_t>(buf, 1);
+        }
+      }
 
     case ImageBufferType::Int16:
       return ConvertBufferToUInt8C4Helper<int16_t>(buf, 1);
@@ -320,7 +325,10 @@ inline std::string FormatDescriptor(ImageBufferType t) {
 py::buffer_info ImageBufferInfo(ImageBuffer &img) {
   return py::buffer_info(
       img.MutableData(),
-      static_cast<std::size_t>(img.ElementSize()), // Size of each element
+      static_cast<std::size_t>(
+          (img.ElementSize() > 0)
+          ? img.ElementSize()
+          : ElementSizeFromImageBufferType(img.BufferType())), // Size of each element
       FormatDescriptor(img.BufferType()), // Python struct-style format descriptor
       3,  //Always return ndim=3 (by design)
       { static_cast<std::size_t>(img.Height()),

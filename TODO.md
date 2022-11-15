@@ -13,11 +13,13 @@
 
 ## ImageBuffer class
 * [ ] Color space conversion to Lab
+* [ ] Python bindings `CastToImageBufferUInt8C4` - reconsider scaling factors for (u)int16 and (u)int32.
 
 
 ## Library functionalities
 * [ ] Implement collage
 * [ ] Refactor StreamColorizer: set lower/upper, compute only the other from input data range.
+* [ ] pybind11: Check if there are any downsides to passing `const py::object &` (they're `py::handle` and thus, references anyhow).
 
 
 ## Style definitions
@@ -30,6 +32,7 @@
 * [ ] Automate testing via CI hooks
 * [ ] Investigate code coverage (how to combine C++ and Python coverage?)
 * [ ] Restructure the complete test suite!
+* [ ] Test `positioning.h` contents
 
 
 ## Installation & Building

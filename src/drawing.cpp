@@ -467,6 +467,19 @@ void PainterImpl::SetCanvas(int height, int width, const Color &color) {
         "SetCanvas: width={:d}, height={:d}, color={:s}).",
         width, height, color);
 
+  if ((0 > height) || (0 > width)) {
+    std::ostringstream msg;
+    msg << "Invalid canvas dimension (w=" << width << ", h=" << height << ")!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
+  }
+
+  if (!color.IsValid()) {
+    const std::string msg("Cannot initialize canvas with invalid color!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
+  }
+
   // Simplest solution is to create a new surface:
   if (context_) {
     cairo_destroy(context_);
@@ -509,6 +522,13 @@ void PainterImpl::SetCanvas(const std::string &image_filename) {
 
 void PainterImpl::SetCanvas(const ImageBuffer &image_buffer) {
   SPDLOG_DEBUG("SetCanvas: {:s}).", image_buffer.ToString());
+  if (!image_buffer.IsValid()) {
+    const std::string msg(
+          "Cannot initialize canvas from invalid ImageBuffer!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
+  }
+
   if (image_buffer.Channels() != 4) {
     SetCanvas(image_buffer.ToChannels(4));
   } else {
@@ -538,6 +558,9 @@ void PainterImpl::SetCanvas(const ImageBuffer &image_buffer) {
           "SetCanvas: Creating Cairo surface and context from image buffer.");
     surface_ = cairo_image_surface_create(
           CAIRO_FORMAT_ARGB32, image_buffer.Width(), image_buffer.Height());
+    //FIXME refactor - check stride/memory alignment before copying!
+    // make it reusable in DrawImage (create surface_t for image; add flag to
+    // "try" copying (if the memory alignment is suitable)
     std::memcpy(
           cairo_image_surface_get_data(surface_),
           image_buffer.ImmutableData(),

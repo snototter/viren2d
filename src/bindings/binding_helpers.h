@@ -43,7 +43,7 @@ void RegisterLine2d(pybind11::module &m);
 
 //------------------------------------------------- ImageBuffer
 void RegisterImageBuffer(pybind11::module &m);
-ImageBuffer CreateImageBufferUint8C4(const pybind11::array buf);
+ImageBuffer CastToImageBufferUInt8C4(pybind11::array buf);
 
 
 //-------------------------------------------------  Styles (MarkerStyle & LineStyle)
@@ -72,6 +72,7 @@ void RegisterBoundingBox2DStyle(pybind11::module &m);
 void RegisterVectors(pybind11::module &m);
 
 //-------------------------------------------------  Painter
+Anchor AnchorFromPyObject(const pybind11::object &o);
 std::string PathStringFromPyObject(const pybind11::object &path);
 void RegisterPainter(pybind11::module &m);
 

@@ -32,17 +32,18 @@ Anchor AnchorFromPyObject(const py::object &o) {
 }
 
 
-ImageBuffer ImageBufferU8C4FromPyObject(const py::object &o) {
+ImageBuffer ImageBufferU8C4FromPyObject(py::object o) {
   if (py::isinstance<ImageBuffer>(o)) {
     return py::cast<ImageBuffer>(o).ToUInt8(4);
   } else if (py::isinstance<py::array>(o)) {
-    return CreateImageBufferUint8C4(py::cast<py::array>(o));
+    return CastToImageBufferUInt8C4(py::cast<py::array>(o));
   } else {
-    std::string s("Cannot convert type `");
-    s += py::cast<std::string>(
+    std::string msg("Cannot convert type `");
+    msg += py::cast<std::string>(
           o.attr("__class__").attr("__name__"));
-    s += "` to `viren2d.ImageBuffer` (uint8, 4-channels)!";
-    throw std::invalid_argument(s);
+    msg += "` to `viren2d.ImageBuffer` (uint8, 4-channels)!";
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
 }
 
@@ -82,8 +83,8 @@ public:
   }
 
 
-  void SetCanvasImage(const py::object &image) {
-    ImageBuffer img_u8c4 = ImageBufferU8C4FromPyObject(image);
+  void SetCanvasImage(py::object image) {
+    const ImageBuffer img_u8c4 = ImageBufferU8C4FromPyObject(image);
     painter_->SetCanvas(img_u8c4);
   }
 
