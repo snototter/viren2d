@@ -2,6 +2,7 @@ from pathlib import Path
 
 VIREN2D_ROOT_PATH = Path(__file__).absolute().parents[3]
 VIREN2D_DATA_PATH = VIREN2D_ROOT_PATH / 'examples' / 'data'
+VIREN2D_RTD_IMAGE_PATH = VIREN2D_ROOT_PATH / 'docs' / 'source' / 'images'
 
 VIREN2D_COLORMAP_CATEGORIES = {
     'sequential': [

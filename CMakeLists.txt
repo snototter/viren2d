@@ -83,6 +83,7 @@ set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
     include/viren2d/colorgradients.h
     include/viren2d/colormaps.h
+    include/viren2d/collage.h
     include/viren2d/drawing.h
     include/viren2d/opticalflow.h
     include/viren2d/imagebuffer.h
@@ -109,6 +110,7 @@ set(viren2d_SOURCE_FILES
     src/colors.cpp
     src/colorgradients.cpp
     src/colormaps.cpp
+    src/collage.cpp
     src/drawing.cpp
     src/opticalflow.cpp
     src/imagebuffer.cpp
@@ -268,6 +270,7 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/bindings_colors.cpp
         src/bindings/bindings_colormaps.cpp
         src/bindings/bindings_colorgradients.cpp
+        src/bindings/bindings_collage.cpp
         src/bindings/bindings_imagebuffer.cpp
         src/bindings/bindings_opticalflow.cpp
         src/bindings/bindings_primitives.cpp
