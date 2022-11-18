@@ -462,7 +462,7 @@ public:
   ///
   /// Afterwards, any drawing operations outside the clip region are
   /// effectively masked out. Note that this does not change the canvas
-  /// transformation, *i.e.* coordinates for following drawing operations
+  /// transformation, *i.e.* coordinates for subsequent drawing operations
   /// need to be provided in the global/previous canvas coordinate frame.
   /// Also note that the clip region will be reset automatically whenever
   /// a new canvas is set.
@@ -482,7 +482,7 @@ public:
   ///
   /// Afterwards, any drawing operations outside the clip region are
   /// effectively masked out. Note that this does not change the canvas
-  /// transformation, *i.e.* coordinates for following drawing operations
+  /// transformation, *i.e.* coordinates for subsequent drawing operations
   /// need to be provided in the global/previous canvas coordinate frame.
   /// Also note that the clip region will be reset automatically whenever
   /// a new canvas is set.

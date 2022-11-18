@@ -221,7 +221,7 @@ class Viren2dColorNamesTable(Directive):
             rows.append(row)
 
             # First column, the name + link to online color lookup
-            hex = color.to_hex()[:-2]  # hex code without alpha
+            hex = color.to_hex(False)  # hex code without alpha
             url = f'https://www.google.com/search?q=%23{hex[1:]}'
 
             entry = nodes.entry()

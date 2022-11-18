@@ -661,11 +661,16 @@ std::tuple<float, float, float> Color::ToHSV() const {
 }
 
 
-std::string Color::ToHexString() const {
-  if (!IsValid())
-    return std::string("#????????");
+std::string Color::ToHexString(bool with_alpha) const {
+  if (!IsValid()) {
+    if (with_alpha) {
+      return std::string("#????????");
+    } else {
+      return std::string("#??????");
+    }
+  }
 
-  std::string webcode("#00000000");
+  std::string webcode(with_alpha ? "#00000000" : "#000000");
 
   // Mapping from [0,15] to corresponding hex code character
   std::map<unsigned char, char> hex2char {
@@ -675,7 +680,7 @@ std::string Color::ToHexString() const {
     {14, 'e'}, {15, 'f'}
   };
 
-  // RGB is easier to work with
+  // RGB is easier to work with:
   auto RGBa = ToRGBa();
 
   // For now, tuple elements can't be accessed
@@ -701,11 +706,13 @@ std::string Color::ToHexString() const {
   webcode[6] = hex2char[rem];
 
   // Scale alpha to [0, 255]
-  auto a = static_cast<unsigned char>(alpha * 255);
-  div = static_cast<unsigned char>(a / 16);
-  rem = static_cast<unsigned char>(a % 16);
-  webcode[7] = hex2char[div];
-  webcode[8] = hex2char[rem];
+  if (with_alpha) {
+    auto a = static_cast<unsigned char>(alpha * 255);
+    div = static_cast<unsigned char>(a / 16);
+    rem = static_cast<unsigned char>(a % 16);
+    webcode[7] = hex2char[div];
+    webcode[8] = hex2char[rem];
+  }
 
   return webcode;
 }

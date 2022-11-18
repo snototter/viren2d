@@ -105,11 +105,13 @@ def test_webcodes():
     # Test initialization via webcodes/hex codes
     color = viren2d.Color("#000000", 0.1)
     assert color == "black!10"
-    assert color.to_hex() == "#00000019"
+    assert color.to_hex(True) == "#00000019"
+    assert color.to_hex(False) == "#000000"
 
     color = viren2d.Color("#fFfFfF", 0.3)
     assert color == 'white!30'
-    assert color.to_hex() == "#ffffff4c"
+    assert color.to_hex(True) == "#ffffff4c"
+    assert color.to_hex(False) == "#ffffff"
 
     # Invalid inputs
     with pytest.raises(ValueError):
@@ -132,11 +134,13 @@ def test_webcodes():
     color = viren2d.rgba(1, 0, 0.5)
     assert color.to_rgba() == (1, 0, 0.5, 1.0)
     assert color.to_RGBa() == (255, 0, 127, 1.0)
-    assert color.to_hex() == '#ff007fff'
+    assert color.to_hex(True) == '#ff007fff'
+    assert color.to_hex(False) == '#ff007f'
 
     color = viren2d.Color()
     assert not color.is_valid()
-    assert color.to_hex() == '#????????'
+    assert color.to_hex(True) == '#????????'
+    assert color.to_hex(False) == '#??????'
 
 
 #TODO test hsv conversion

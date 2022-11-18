@@ -261,7 +261,7 @@ class Color {
 
   /// Returns the web color code, e.g. "#dcdce4ff".
   /// If the color is invalid, the hex digits will be replaced by question marks.
-  std::string ToHexString() const;
+  std::string ToHexString(bool with_alpha = false) const;
 
 
   /// Returns a color with the same r,g,b components, but the given alpha.

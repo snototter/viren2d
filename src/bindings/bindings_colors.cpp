@@ -373,13 +373,17 @@ void RegisterColor(py::module &m) {
         &Color::ToHexString, R"docstr(
         Returns the hex code representation.
 
-        The web/hex code representation will contain 8 components,
-        *i.e.* it includes the alpha value. To compute the hexadecimal
-        representation, each component (*i.e.* *r,g,b,a*) is first scaled to
-        ``[0, 255]``.
+        If ``with_alpha`` is ``True``, the returned string representation will
+        contain 8 digits (+ 1 character for the leading ``#``), and 6 digits
+        otherwise. To compute the hexadecimal representation, each component,
+        *i.e.* *r,g,b* and optionally *a*, is first scaled to ``[0, 255]``.
 
         **Corresponding C++ API:** ``viren2d::Color::ToHexString``.
-        )docstr")
+
+        Args:
+          with_alpha: Boolean flag whether to include the alpha value or not.
+        )docstr",
+        py::arg("with_alpha") = false)
       .def(
         "to_hsv",
         &Color::ToHSV, R"docstr(

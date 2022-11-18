@@ -167,13 +167,14 @@ void RegisterCollage(py::module &m) {
 
         The maximum size of all images in a row/column define the
         corresponding height/width.
-        This can be constrained by specifying a fixed ``size`` **for each
-        image**. Optionally, only one dimension can be fixed.
-        In this case, the other image dimension will be adjusted according
-        to its aspect ratio. For example:
+        Optionally, the row/column size can be constrained by specifying
+        a fixed ``size`` **for each image**, by either providing both, height
+        and width, or only one fixed dimension. In the latter case, the
+        other image dimension will be adjusted according to its aspect ratio.
+        For example:
 
           >>> size = (-1, -1)
-          Each image will be placed as-is.
+          Each image will be rendered at the original resolution.
 
           >>> size = (200, -1)
           Each image will be 200 pixels wide.
