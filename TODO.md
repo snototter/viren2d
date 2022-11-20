@@ -17,7 +17,7 @@
 
 
 ## Library functionalities
-* [ ] Implement collage
+* [ ] Implement collage - spacing bug when resizing the images
 * [ ] Refactor StreamColorizer: set lower/upper, compute only the other from input data range.
 * [ ] pybind11: Check if there are any downsides to passing `const py::object &` (they're `py::handle` and thus, references anyhow).
 * [ ] Color::FromObjectID Python bindings - support negative integers.
@@ -36,6 +36,7 @@
 
 
 ## Installation & Building
+* [ ] Eigen include/typedef causes compile error in drawing.h
 * [ ] Remove spdlog and stb submodules, replace by CMake fetch
 * [ ] Maybe fetch Eigen also(?)
 * [ ] Include backup/fallback snapshots of the 3 major dependencies, i.e. spdlog, stb and pybind11 (not needed as long as they're actively maintained)
