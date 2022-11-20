@@ -185,9 +185,11 @@ ImageBuffer Collage(
     }
 
     // If a row is completely empty, we also ignore it.
-    if ((row > 0) && (row_heights[row] > 0)) {
-      canvas_height += spacing.height();
+    if (row_heights[row] > 0) {
       top_left.y() += spacing.height();
+      if ((row + 1) < images.size()) {
+        canvas_height += spacing.height();
+      }
     }
     canvas_height += row_heights[row];
     top_left.y() += row_heights[row];

@@ -17,7 +17,7 @@
 
 
 ## Library functionalities
-* [ ] Implement collage - spacing bug when resizing the images
+* [ ] Test collage, benchmark runtime
 * [ ] Refactor StreamColorizer: set lower/upper, compute only the other from input data range.
 * [ ] pybind11: Check if there are any downsides to passing `const py::object &` (they're `py::handle` and thus, references anyhow).
 * [ ] Color::FromObjectID Python bindings - support negative integers.
