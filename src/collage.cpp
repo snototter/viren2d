@@ -158,12 +158,10 @@ ImageBuffer Collage(
   }
 
   // Second pass:
-  // * Compute the position of the image anchor points within the cells.
-  // * Compute the canvas size in the 2nd pass, because some images could
-  //   have been 'invalid' to request skipping the corresponding cells.
+  // * Compute the position of the image anchor points within the cells,
+  //   because we now know the size of each cell.
   const auto halign = HorizontalAlignmentFromAnchor(cell_alignment);
   const auto valign = VerticalAlignmentFromAnchor(cell_alignment);
-  int canvas_height = 0;
   std::vector<Vec2d> anchor_points;
   Vec2d top_left(margin);
   std::size_t idx_flat = 0;
@@ -186,13 +184,8 @@ ImageBuffer Collage(
 
     // If a row is completely empty, we also ignore it.
     if (row_heights[row] > 0) {
-      top_left.y() += spacing.height();
-      if ((row + 1) < images.size()) {
-        canvas_height += spacing.height();
-      }
+      top_left.y() += row_heights[row] + spacing.height();
     }
-    canvas_height += row_heights[row];
-    top_left.y() += row_heights[row];
   }
 
   // Compute the required canvas width.
@@ -202,6 +195,15 @@ ImageBuffer Collage(
       canvas_width += spacing.width();
     }
     canvas_width += column_widths[col];
+  }
+
+  // Compute the required canvas height.
+  int canvas_height = 0;
+  for (std::size_t row = 0; row < row_heights.size(); ++row) {
+    if ((row > 0) && (row_heights[row] > 0)) {
+      canvas_height += spacing.height();
+    }
+    canvas_height += row_heights[row];
   }
 
   // Sanity check.

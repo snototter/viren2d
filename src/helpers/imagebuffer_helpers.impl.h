@@ -211,7 +211,15 @@ ImageBuffer ConversionHelperRGB(
 
   const bool add_alpha = (channels_out == 4);
   for (int row = 0; row < rows; ++row) {
+//    _Tp *dst_ptr = dst.MutablePtr<_Tp>(row, 0);
+//    const _Tp *src_ptr = src.ImmutablePtr<_Tp>(row, 0);
     for (int col = 0; col < cols; ++col) {
+      // FIXME: pointer access is much faster, but we need to take care
+      //   of strided memory (e.g. numpy slices/views). Could implement a
+      //   generic "pixelwise iterator"
+//      *dst_ptr++ = *src_ptr++;
+//      *dst_ptr++ = *src_ptr++;
+//      *dst_ptr++ = *src_ptr++;
       dst.AtUnchecked<_Tp>(row, col, 0) = src.AtUnchecked<_Tp>(row, col, 0);
       dst.AtUnchecked<_Tp>(row, col, 1) = src.AtUnchecked<_Tp>(row, col, 1);
       dst.AtUnchecked<_Tp>(row, col, 2) = src.AtUnchecked<_Tp>(row, col, 2);
@@ -220,6 +228,7 @@ ImageBuffer ConversionHelperRGB(
       // * RGB  --> RGBA, we must add the alpha channel
       if (add_alpha) {
         dst.AtUnchecked<_Tp>(0, col, 3) = 255;
+//        *dst_ptr++ = 255;
       }
     }
   }
