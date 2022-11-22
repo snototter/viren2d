@@ -55,7 +55,7 @@ double cast_RGB(double v) {
 /*
 import viren2d
 for cn in viren2d.object_category_names():
-  h = viren2d.Color.from_object_category(cn).to_hex()[1:-2]
+  h = viren2d.Color.from_object_category(cn).to_hex()[1:]
   print(f'.bgc{h} {{ background-color: #{h}; }}')
 */
 const std::map<std::string, std::size_t> kCategoryIDMapping {
@@ -218,7 +218,7 @@ std::string NamedColorToString(const NamedColor &color) {
   /*
 import viren2d
 for cn in viren2d.color_names():
-    h = viren2d.Color(cn).to_hex()[1:-2]
+    h = viren2d.Color(cn).to_hex()[1:]
     print(f'.bgc{h} {{ background-color: #{h}; }}')
   */
   
@@ -781,7 +781,7 @@ Color Color::CoordinateAxisColor(char axis) {
   /*
 import viren2d
 for ax in ['x', 'y', 'z']:
-    h = viren2d.axis_color(ax).to_hex()[:-2]
+    h = viren2d.axis_color(ax).to_hex(False)
     print(f'.axis-color-{ax} {{ background-color: {h}; }}')
   */
 

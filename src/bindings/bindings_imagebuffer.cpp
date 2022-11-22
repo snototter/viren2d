@@ -172,6 +172,7 @@ ImageBuffer ConvertBufferToUInt8C4Helper(const py::array &buf, _T scale) {
 
   ImageBuffer img8u4(height, width, 4, ImageBufferType::UInt8);
   const uint8_t* src_data = static_cast<const uint8_t*>(buf.data());
+  //TODO check: https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html#direct-access
 
   // Copy pixel by pixel because the input buffer might be a sliced,
   // transposed, or any other view (e.g. with negative strides)

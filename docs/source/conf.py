@@ -295,7 +295,7 @@ class Viren2dColorObjectCategoriesTable(Directive):
             # Place a fixed-sized span of the corresponding color before the
             # category name
             color = viren2d.Color.from_object_category(cnames[idx])
-            hex = color.to_hex()[:-2]  # hex code without alpha
+            hex = color.to_hex(False)  # hex code without alpha
             color_block = nodes.inline(classes=['colorblock', f'bgc{hex[1:]}'])
 
             entry = nodes.entry()
