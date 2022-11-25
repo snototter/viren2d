@@ -140,6 +140,14 @@ void RegisterColor(py::module &m) {
         handling, *e.g.* to skip filling.
         )docstr")
       .def(
+        py::init<>([](py::none) { return Color::Invalid; }), R"docstr(
+        Any ``None`` will be interpreted as an **invalid color**.
+
+        An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
+        :class:`~viren2d.Painter` methods to mark *special* color
+        handling, *e.g.* to skip filling.
+        )docstr")
+      .def(
         py::init<>(&ColorFromTuple), R"docstr(
         Initializes the color from a *r,g,b* or *r,g,b,a* ``tuple``.
 
