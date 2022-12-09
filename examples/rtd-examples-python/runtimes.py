@@ -409,6 +409,25 @@ def _time_collage():
                     number=runs) * 1e3
                 print(f'  * {dt.__name__} {width}x{height}x{channels}, full res:   {res/runs:.3f} ms')
 
+                buffer1 = viren2d.ImageBuffer(data1)
+                buffer2 = viren2d.ImageBuffer(data2)
+                buffer3 = viren2d.ImageBuffer(data3)
+                imbuffers = [[buffer1, None, buffer2], [buffer3, buffer1, None, buffer2], [buffer3, buffer1]]
+                res = timeit.timeit(
+                    lambda: viren2d.collage(
+                        imbuffers, size=(-1, -1), anchor='center', fill_color='white',
+                        channels=3, spacing=(20, 20), margin=(7, 7), clip_factor=0),
+                    number=runs) * 1e3
+                print(f'  * {dt.__name__} {width}x{height}x{channels}, full res, pre-converted to ImageBuffers:   {res/runs:.3f} ms')
+
+                imbuffers4 = [[buffer1.to_channels(4), None, buffer2.to_channels(4)], [buffer3.to_channels(4), buffer1.to_channels(4), None, buffer2.to_channels(4)], [buffer3.to_channels(4), buffer1.to_channels(4)]]
+                res = timeit.timeit(
+                    lambda: viren2d.collage(
+                        imbuffers4, size=(-1, -1), anchor='center', fill_color='white',
+                        channels=3, spacing=(20, 20), margin=(7, 7), clip_factor=0),
+                    number=runs) * 1e3
+                print(f'  * {dt.__name__} {width}x{height}x{channels}, full res, pre-converted to 4-channel ImageBuffers:   {res/runs:.3f} ms')
+
                 res = timeit.timeit(
                     lambda: viren2d.collage(
                         images, size=(400, -1), anchor='center', fill_color='white',
