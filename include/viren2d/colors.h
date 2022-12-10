@@ -210,6 +210,10 @@ class Color {
   Color ToGray() const;
 
 
+  /// Returns the grayscale intensity of this this color.
+  double GrayscaleIntensity() const;
+
+
   /// Returns a mixture of `(percentage_other) * other + (1-percentage_other) * this`.
   Color Mix(const Color &other, double percentage_other) const;
 
@@ -245,6 +249,11 @@ class Color {
   ToRGBa() const;
 
 
+  /// Returns the corresponding (R, G, B) tuple, where R, G, B in [0, 255].
+  std::tuple<unsigned char, unsigned char, unsigned char>
+  ToRGB() const;
+
+
   /// Returns the corresponding (H, S, V) tuple, where H in [0, 360] and
   /// S & V are in [0, 1].
   std::tuple<float, float, float> ToHSV() const;
@@ -252,7 +261,7 @@ class Color {
 
   /// Returns the web color code, e.g. "#dcdce4ff".
   /// If the color is invalid, the hex digits will be replaced by question marks.
-  std::string ToHexString() const;
+  std::string ToHexString(bool with_alpha = false) const;
 
 
   /// Returns a color with the same r,g,b components, but the given alpha.
@@ -308,6 +317,20 @@ class Color {
   /// corresponding color.
   static Color FromObjectCategory(
       const std::string &category, ColorMap colormap = ColorMap::GlasbeyDark);
+  
+
+
+  /// Creates a Color from the given HSV representation, where H in [0, 360]
+  /// and S & V are in [0, 1].
+  static Color FromHSV(
+      double hue, double saturation, double value, double alpha=1.0);
+
+  
+  /// Creates a Color from the given webcode, e.g. "#abcdef".
+  ///
+  /// If the hexstring/webcode has 8 digits, its alpha specification
+  /// takes precedence over the given "alpha" parameter.
+  static Color FromHexString(const std::string &webcode, double alpha=1.0);
 
 
   /// Returns a list of category names which are explicitly
@@ -339,20 +362,17 @@ Color operator-(Color lhs, const Color& rhs);
 
 /// Convenience wrapper to create a Color from
 /// r,g,b and alpha values must in range [0,1].
-Color rgba(double r, double g, double b, double alpha=1.0);
+inline Color rgba(double r, double g, double b, double alpha=1.0) {
+  return Color(r, g, b, alpha);
+}
 
 
 /// Convenience wrapper to create a Color from
 /// RGB values in range [0,255].
 /// Alpha must be in [0,1].
-Color RGBa(double R, double G, double B, double alpha=1.0);
-
-
-/// Creates a Color from the given webcode, e.g. "#abcdef".
-///
-/// If the hexstring/webcode has 8 digits, its alpha specification
-/// has precedence over the given "alpha" parameter.
-Color ColorFromHexString(const std::string &webcode, double alpha=1.0);
+inline Color RGBa(double R, double G, double B, double alpha=1.0) {
+  return Color(R/255.0, G/255.0, B/255.0, alpha);
+}
 
 
 /// Identity function to implement a linear color transition
@@ -378,6 +398,13 @@ void SetCustomColorMap(
 
 /// Returns the colors for the specified color map.
 std::vector<Color> GetColorMapColors(ColorMap colormap);
+
+
+/// Returns a list of colors by looking up their corresponding
+/// bin in the selected color map.
+std::vector<Color> ColorizeScalars(
+    const std::vector<double> &values, ColorMap colormap,
+    double limit_low, double limit_high, int bins = 256);
 
 
 } // namespace viren2d

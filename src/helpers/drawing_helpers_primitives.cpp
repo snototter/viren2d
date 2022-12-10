@@ -6,6 +6,7 @@
 #include <utility>
 #include <tuple>
 #include <cstdlib>
+#include <cmath>
 
 // non-STL, external
 #include <werkzeugkiste/geometry/utils.h>
@@ -20,6 +21,8 @@ namespace wkg = werkzeugkiste::geometry;
 
 namespace viren2d {
 namespace helpers {
+/// Draws a rounded rectangle of the given rect's size at the current
+/// canvas location, i.e. the position of this rect will be ignored.
 void PathHelperRoundedRect(cairo_t *context, Rect rect) {
   // If radius in (0, 0.5], we use the value as percentage.
   if (rect.radius <= 0.5) {
@@ -45,18 +48,21 @@ void PathHelperRoundedRect(cairo_t *context, Rect rect) {
 
 
 //---------------------------------------------------- Arc/Circle
-void DrawArc(
+bool DrawArc(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d center, double radius,
     double angle1, double angle2,
     const LineStyle &line_style,
     bool include_center,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (radius <= 0.0) {
-    throw std::invalid_argument("Radius must be > 0.0!");
+    SPDLOG_WARN("Radius must be > 0.0!");
+    return false;
   }
 
   // Move to the center of the pixel coordinates:
@@ -80,6 +86,7 @@ void DrawArc(
   cairo_stroke(context);
   // Restore previous context
   cairo_restore(context);
+  return true;
 }
 
 
@@ -118,17 +125,18 @@ Vec2d HelperClosedHead(
 }
 
 
-void DrawArrow(
+bool DrawArrow(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const ArrowStyle &arrow_style) {
-  CheckCanvas(surface, context);
-  CheckLineStyle(arrow_style);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyle(arrow_style)) {
+    return false;
+  }
 
   // Add 0.5 (half a pixel) to align the arrow exactly
   // with the given coordinates
   from += 0.5;
   to += 0.5;
-
 
   // Adjust endpoints s.t. the "pointy end" points exactly to
   // the given endpoint. My implementation ensures that for
@@ -230,6 +238,7 @@ void DrawArrow(
   }
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 
@@ -255,18 +264,21 @@ double AdjustEllipseAngle(
 }
 
 
-void DrawEllipse(
+bool DrawEllipse(
     cairo_surface_t *surface, cairo_t *context,
     Ellipse ellipse, const LineStyle &line_style,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (!ellipse.IsValid()) {
     std::string s("Cannot draw an invalid ellipse: ");
     s += ellipse.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly).
@@ -328,21 +340,91 @@ void DrawEllipse(
 
   // Restore context
   cairo_restore(context);
+  return true;
+}
+
+
+//---------------------------------------------------- Color Gradient
+/// Utility to create a cairo pattern for the given ColorGradient.
+cairo_pattern_t *CreateGradientPattern(const ColorGradient &gradient) {
+  // This uses dynamic casting because I don't want to expose cairo in the
+  // ColorGradient's public interface (which would be required if they had
+  // a virtual `Apply/Draw(cairo_context_t*)` method).
+  const LinearColorGradient *linear = dynamic_cast<const LinearColorGradient *>(&gradient);
+
+  if (linear != nullptr) {
+    const Vec2d &start = linear->StartPoint();
+    const Vec2d &end = linear->EndPoint();
+    return cairo_pattern_create_linear(start.x(), start.y(), end.x(), end.y());
+  } else {
+    const RadialColorGradient *radial = dynamic_cast<const RadialColorGradient *>(&gradient);
+    if (radial != nullptr) {
+      const Vec2d &start = radial->StartCenter();
+      const Vec2d &end = radial->EndCenter();
+      return cairo_pattern_create_radial(
+            start.x(), start.y(), radial->StartRadius(),
+            end.x(), end.y(), radial->EndRadius());
+    } else {
+      const std::string s(
+            "Unsupported `ColorGradient`, only linear or radial gradient "
+            "patterns can be drawn!");
+      SPDLOG_ERROR(s);
+      throw std::logic_error(s);
+    }
+  }
+}
+
+
+bool DrawGradient(
+    cairo_surface_t *surface, cairo_t *context,
+    const ColorGradient &gradient) {
+  // Sanity checks
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  if (!gradient.IsValid()) {
+    SPDLOG_WARN("Cannot draw invalid {:s}!", gradient.ToString());
+    return false;
+  }
+
+  cairo_save(context);
+  // Create pattern with configured color stops.
+  cairo_pattern_t *pattern = CreateGradientPattern(gradient);
+  for (const auto &color_stop : gradient.ColorStops()) {
+    // We need to swap red & blue, because cairo uses `ARGB` format, whereas
+    // viren2d works with RGB(A).
+    cairo_pattern_add_color_stop_rgba(
+          pattern, color_stop.first,
+          color_stop.second.blue, color_stop.second.green,
+          color_stop.second.red, color_stop.second.alpha);
+  }
+
+  // Use `cairo_mask`, because it also considers the alpha values, whereas
+  // `cairo_paint` would not.
+  cairo_set_source(context, pattern);
+  cairo_mask(context, pattern);
+  cairo_restore(context);
+  cairo_pattern_destroy(pattern);
+  return true;
 }
 
 
 //---------------------------------------------------- Grid
-void DrawGrid(
+bool DrawGrid(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d top_left, Vec2d bottom_right,
     double spacing_x, double spacing_y,
     const LineStyle &line_style) {
   // Sanity checks
-  CheckCanvas(surface, context);
-  CheckLineStyle(line_style);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyle(line_style)) {
+    return false;
+  }
 
   if ((spacing_x <= 0.0) || (spacing_y <= 0.0)) {
-    throw std::invalid_argument("Cell spacing for grid must be > 0.");
+    SPDLOG_WARN("Cell spacing for grid must be > 0.");
+    return false;
   }
 
   // Adjust corners if necessary
@@ -390,15 +472,18 @@ void DrawGrid(
   cairo_stroke(context);
   // Restore previous state
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Line
-void DrawLine(
+bool DrawLine(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d from, Vec2d to, const LineStyle &line_style) {
-  CheckCanvas(surface, context);
-  CheckLineStyle(line_style);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyle(line_style)) {
+    return false;
+  }
 
   // Adjust coordinates to support thin (1px) lines
   from += 0.5;
@@ -415,6 +500,7 @@ void DrawLine(
 
   // Restore context
   cairo_restore(context);
+  return true;
 }
 
 
@@ -463,7 +549,7 @@ inline std::tuple<int, double, double> NGonMarkerSteps(Marker m) {
   }
 }
 
-void DrawMarker(
+bool DrawMarker(
     cairo_surface_t *surface, cairo_t *context,
     Vec2d pos, const MarkerStyle &style) {
   // General idea for all markers implemented so far:
@@ -474,13 +560,16 @@ void DrawMarker(
   //   which overlap between fill and stroke)
 
   // Sanity checks
-  CheckCanvas(surface, context);
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
 
   if (!style.IsValid()) {
     std::string s("Cannot draw with invalid marker style ");
     s += style.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
   }
 
   cairo_save(context);
@@ -675,19 +764,24 @@ void DrawMarker(
   }
 
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Polygon
-void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
-                 const std::vector<Vec2d> &points,
-                 const LineStyle &line_style,
-                 Color fill_color) {
-  CheckCanvas(surface, context);
-  CheckLineStyleAndFill(line_style, fill_color);
+bool DrawPolygon(
+    cairo_surface_t *surface, cairo_t *context,
+    const std::vector<Vec2d> &points,
+    const LineStyle &line_style,
+    Color fill_color) {
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (points.size() < 3) {
-    throw std::invalid_argument("A polygon must have at least 3 points!");
+    SPDLOG_WARN("A polygon must have at least 3 points!");
+    return false;
   }
 
   cairo_save(context);
@@ -707,23 +801,26 @@ void DrawPolygon(cairo_surface_t *surface, cairo_t *context,
   cairo_stroke(context);
 
   cairo_restore(context);
+  return true;
 }
 
 
 //---------------------------------------------------- Rectangle (box, rounded, rotated)
-void DrawRect(
+bool DrawRect(
     cairo_surface_t *surface, cairo_t *context,
     Rect rect, const LineStyle &line_style,
     Color fill_color) {
-  CheckCanvas(surface, context);
-  // Fill color may be changed here if it is 'same'
-  CheckLineStyleAndFill(line_style, fill_color);
+  if (!CheckCanvas(surface, context)
+      || !CheckLineStyleAndFill(line_style, fill_color)) {
+    return false;
+  }
 
   if (!rect.IsValid()) {
     std::string s("Cannot draw an invalid rectangle: ");
     s += rect.ToString();
     s += '!';
-    throw std::invalid_argument(s);
+    SPDLOG_WARN(s);
+    return false;
   }
 
   // Shift to the pixel center (so 1px borders are drawn correctly)
@@ -751,6 +848,66 @@ void DrawRect(
   cairo_stroke(context);
   // Restore context
   cairo_restore(context);
+  return true;
+}
+
+//---------------------------------------------------- Clipping
+bool SetClipRegion(cairo_surface_t *surface, cairo_t *context,
+    const Rect &clip) {
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  if (!clip.IsValid()) {
+    SPDLOG_WARN("Cannot clip canvas to an invalid rectangle: {:s}!", clip);
+    return false;
+  }
+
+  cairo_translate(context, clip.cx, clip.cy);
+  cairo_rotate(context, wkg::deg2rad(clip.rotation));
+
+  // Draw a standard (box) rect or rounded rectangle:
+  if (clip.radius > 0.0) {
+    PathHelperRoundedRect(context, clip);
+  } else {
+    cairo_rectangle(
+          context, -clip.HalfWidth(), -clip.HalfHeight(),
+          clip.width, clip.height);
+  }
+
+  cairo_clip(context);
+
+  cairo_rotate(context, -wkg::deg2rad(clip.rotation));
+  cairo_translate(context, -clip.cx, -clip.cy);
+  return true;
+}
+
+
+bool SetClipRegion(
+    cairo_surface_t *surface, cairo_t *context,
+    const Vec2d &center, double radius) {
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  if (radius <= 0.0) {
+    SPDLOG_WARN("Radius must be > 0.0!");
+    return false;
+  }
+
+  cairo_arc(context, center.x(), center.y(), radius, 0.0, 2 * M_PI);
+  cairo_clip(context);
+  return true;
+}
+
+
+bool ResetClipRegion(cairo_surface_t *surface, cairo_t *context) {
+  if (!CheckCanvas(surface, context)) {
+    return false;
+  }
+
+  cairo_reset_clip(context);
+  return true;
 }
 
 } // namespace helpers

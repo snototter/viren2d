@@ -8,36 +8,41 @@ def demo_tracking_by_detection():
     painter = viren2d.Painter()
     painter.set_canvas_filename(VIREN2D_DATA_PATH / 'ninja.jpg')
 
+    # Create a customized bounding box style
     line_style = viren2d.LineStyle(width=4, color='navy-blue!80')
     
     text_style = viren2d.TextStyle(
-        family='xkcd', halign=viren2d.HorizontalAlignment.Center)
+        family='xkcd', size=18, color='navy-blue', halign='center')
     
-    # Customize the style
-    bbox_style = viren2d.BoundingBox2DStyle()
-    bbox_style.line_style = line_style
-    bbox_style.line_style.color = "navy-blue"
-    bbox_style.text_style = text_style
-    bbox_style.text_style.color = bbox_style.line_style.color
-    bbox_style.text_style.size = 18
-    bbox_style.box_fill_color = 'same!15'
-    bbox_style.text_fill_color = 'white!60'
-    bbox_style.label_position = 'top'
+    bbox_style = viren2d.BoundingBox2DStyle(
+        line_style=line_style, text_style=text_style,
+        box_fill_color = 'same!15', text_fill_color = 'white!60')
     
-    # Tabi bounding box
+    # Draw the bounding box containing the Tabi
     rect_tabi = viren2d.Rect(
-        center=(505, 290), size=(120, 70), rotation=18, radius=20)
-    painter.draw_bounding_box_2d(rect_tabi, ['Tabi socks'], bbox_style)
+        center=(508, 285), size=(120, 70), rotation=18, radius=20)
+    painter.draw_bounding_box_2d(
+        rect_tabi, bbox_style, label_top=['Tabi socks'])
 
-    # Lens bounding box
-    bbox_style.label_position = 'left'
+    # Draw the bounding box around the face
+    bbox_style.line_style.color = 'crimson'
+    bbox_style.text_style.color = 'crimson'
+    rect_face = viren2d.Rect(
+        center=(525, 120), size=(80, 100), rotation=10, radius=20)
+    painter.draw_bounding_box_2d(
+        rect_face, bbox_style, label_top=['Angry'], label_bottom=['Warrior'])
+
+
+    # Draw the bounding box containing the lens
     bbox_style.line_style.color = 'teal-green'
     bbox_style.text_style.color = 'black'
     rect_lens = viren2d.Rect(
         center=(150, 145), size=(310, 190), rotation=-5, radius=20)
-    painter.draw_bounding_box_2d(rect_lens, ['Camera lens'], bbox_style)
+    painter.draw_bounding_box_2d(
+        rect_lens, bbox_style, label_top=['IP camera'],
+        label_right=['Varifocal lens'], right_t2b=True)
 
-    # Trajectory of the katana:
+    # Draw the trajectory of the katana:
     traj_sword = [
         (646, 192), (642, 166), (634, 136), (620, 108), (610,  88), (588,  70),
         (566,  58), (546,  54), (522,  52), (492,  56), (462,  66), (434,  80),
@@ -56,19 +61,5 @@ def demo_tracking_by_detection():
         marker='5', size=30, filled=True, color=line_style.color,
         bg_border=3, bg_color='ivory!70')
     painter.draw_marker(traj_sword[0], marker_style)
-
-    # Arrow
-    arrow_style = viren2d.ArrowStyle(width=4, color='crimson', tip_length=0.3)
-    painter.draw_arrow((420, 60), (480, 100), arrow_style)
-
-    # Text box
-    text_style.line_spacing = 1.0
-    text_style.color = 'crimson'
-    line_style.width = 2
-    painter.draw_text_box(
-        ['Mood:', 'Mildly infuriated'], position=(420, 60),
-        anchor=viren2d.Anchor.BottomRight,
-        text_style=text_style, padding=(10, 5),
-        fill_color="white!80", line_style=line_style)
 
     return np.array(painter.canvas, copy=True)

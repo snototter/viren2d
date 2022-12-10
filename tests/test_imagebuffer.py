@@ -46,13 +46,13 @@ def test_buffer_conversion():
             assert not np.array_equal(data, res_copied)
 
             # If we have a grayscale, rgb, or rgba image, also
-            # test that to_rgb/a works as expected:
+            # test that to_channels works as expected:
             if channels in [1, 3, 4]:
-                as_rgb = buf_shared.to_rgb()
+                as_rgb = buf_shared.to_channels(3)
                 assert as_rgb.channels == 3
                 assert as_rgb.owns_data
 
-                as_rgba = buf_shared.to_rgba()
+                as_rgba = buf_shared.to_channels(4)
                 assert as_rgba.channels == 4
                 assert as_rgba.owns_data
 
@@ -169,9 +169,14 @@ def test_buffer_side_effects():
 
 
 def test_dtypes():
+    supported_types = [
+        np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+        np.int64, np.uint64, np.float32, np.float64]
+    not_supported_types = [
+        np.int8, np.float16, '?', bool]
+
     for channels in [1, 2, 3]:
-        for tp in [np.uint8, np.int16, np.uint16, np.int32, np.uint32,
-                   np.int64, np.uint64, np.float32, np.float64]:
+        for tp in supported_types:
             buf_np = np.ones((3, 5, channels), dtype=tp)
             buf_vi = viren2d.ImageBuffer(buf_np, copy=False)
             assert buf_vi.width == 5
@@ -182,14 +187,112 @@ def test_dtypes():
             # check format, shape, dtype
             # check values for equality
 
-    for tp in [np.int8, np.float16]:
+    for tp in not_supported_types:
         buf_np = np.ones((3, 5), dtype=tp)
         with pytest.raises(ValueError):
             viren2d.ImageBuffer(buf_np)
 
-    invalid = np.asfortranarray(np.ones((3, 5), dtype=np.uint8))
-    with pytest.raises(ValueError):
-        viren2d.ImageBuffer(invalid)
+
+def test_non_contiguous_inits():
+    # F-style & contiguous
+    f_style = np.asfortranarray(np.ones((17, 42), dtype=np.uint8))
+    assert f_style.flags.f_contiguous
+    assert viren2d.ImageBuffer(f_style).is_valid
+    # ... non-contiguous
+    non_cont = f_style[2:5, 7:11]
+    assert not non_cont.flags.f_contiguous
+    assert not non_cont.flags.c_contiguous
+    assert viren2d.ImageBuffer(non_cont).is_valid
+
+    # C-style & contiguous
+    c_style = np.ones((10, 9), dtype='f8')
+    assert c_style.flags.c_contiguous
+    assert viren2d.ImageBuffer(c_style).is_valid
+    # ... non-contiguous
+    non_cont = c_style[:, 3:5]
+    assert not non_cont.flags.c_contiguous
+    assert not non_cont.flags.f_contiguous
+    assert viren2d.ImageBuffer(non_cont).is_valid
+
+
+def test_buffer_from_views(capfd):
+    for dt in [np.uint8, np.int64, np.float32]:
+        rgb = (np.random.rand(30, 40, 3) * 255).astype(dt)
+
+        # Negative channel strides:
+        bgr = rgb[:, :, ::-1]
+        assert bgr.strides[2] < 0
+
+        buffer = viren2d.ImageBuffer(bgr)
+        # Check that there was a warning
+        # Currently, spdlog writes everything to stdout (default setting)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not row-major. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
+        # Check that the buffer was transferred to viren2d correctly
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(bgr, restored)
+
+        # Repeat, but disable the warning
+        buffer = viren2d.ImageBuffer(bgr, disable_warnings=True)
+        captured = capfd.readouterr()
+        assert captured.out == ''
+        assert captured.err == ''
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(bgr, restored)
+
+        # Repeat, but enforce a copy --> thus, there should also be no warning
+        buffer = viren2d.ImageBuffer(bgr, copy=True, disable_warnings=False)
+        captured = capfd.readouterr()
+        assert captured.out == ''
+        assert captured.err == ''
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(bgr, restored)
+
+        # Test negative row & column strides:
+        flipped = rgb[::-1, ::-1, :]
+        assert flipped.strides[0] < 0
+        assert flipped.strides[1] < 0
+        assert flipped.strides[2] > 0
+
+        buffer = viren2d.ImageBuffer(flipped)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not row-major. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(flipped, restored)
+
+        # Slicing
+        sliced = rgb[::2, ::-4, ::-1]
+        assert sliced.strides[0] > 0
+        assert sliced.strides[1] < 0
+        assert sliced.strides[2] < 0
+
+        buffer = viren2d.ImageBuffer(sliced)
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(sliced, restored)
+
+        # #TODO test x.transpose(), copy=False
+    #TODO test x.flags.writeable = False
+        # Transpose
+        trans = np.transpose(rgb)
+        buffer = viren2d.ImageBuffer(trans)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not row-major. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(trans, restored)
+
+        # Try sharing (which requires write-access) a read-only buffer
+        rgb.flags.writeable = False
+        assert not rgb.flags.writeable
+        buffer = viren2d.ImageBuffer(rgb)
+        captured = capfd.readouterr()
+        assert captured.out.endswith(
+            'Input python array is not writeable. The `viren2d.ImageBuffer` will be created as a copy, which ignores the input parameter `copy=False`.\n')
+        restored = np.array(buffer, copy=False)
+        assert np.allclose(rgb, restored)
+
 
 
 def test_pixelation():
@@ -220,3 +323,10 @@ def test_pixelation():
 # convert_rgb2gray
 # convert_hsv2rgb
 # convert_rgb2hsv
+
+#TODO test: color gradients (in separate test suite)
+#  * class bindings
+#  * mask & visualization bindings
+#TODO test: blend_constant
+#TODO test: blend_masked
+#TODO test: dim (incl. clipping)

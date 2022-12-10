@@ -212,18 +212,18 @@ TEST(ColorTest, AdvancedInitialization) {
 
 TEST(ColorTest, Webcodes) {
   // Test initialization via webcodes/hex codes
-  auto color = viren2d::ColorFromHexString("#000000", 0.1);
+  auto color = viren2d::Color::FromHexString("#000000", 0.1);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::Black, 0.1));
   EXPECT_EQ(color.ToHexString(), "#00000019");
 
-  color = viren2d::ColorFromHexString("#fFfFfF", 0.3);
+  color = viren2d::Color::FromHexString("#fFfFfF", 0.3);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::White, 0.3));
   EXPECT_EQ(color.ToHexString(), "#ffffff4c");
 
   // Invalid inputs
-  EXPECT_THROW(viren2d::ColorFromHexString("abcd"), std::invalid_argument);
-  EXPECT_THROW(viren2d::ColorFromHexString("#abc"), std::invalid_argument);
-  EXPECT_THROW(viren2d::ColorFromHexString("#abcdefghf"), std::invalid_argument);
+  EXPECT_THROW(viren2d::Color::FromHexString("abcd"), std::invalid_argument);
+  EXPECT_THROW(viren2d::Color::FromHexString("#abc"), std::invalid_argument);
+  EXPECT_THROW(viren2d::Color::FromHexString("#abcdefghf"), std::invalid_argument);
 
   // Sweep over each hex digit separately:
   for (size_t idx = 0; idx < 8; ++idx) {
@@ -238,19 +238,19 @@ TEST(ColorTest, Webcodes) {
   }
 
   // Hardcoded values:
-  color = viren2d::ColorFromHexString("#0f5A12");
+  color = viren2d::Color::FromHexString("#0f5A12");
   EXPECT_EQ(color, viren2d::RGBa(15, 90, 18));
 
-  color = viren2d::ColorFromHexString("#5500ba");
+  color = viren2d::Color::FromHexString("#5500ba");
   EXPECT_EQ(color, viren2d::RGBa(85, 0, 186));
 
-  color = viren2d::ColorFromHexString("#ea8435ff");
+  color = viren2d::Color::FromHexString("#ea8435ff");
   EXPECT_EQ(color, viren2d::RGBa(234, 132, 53));
 
-  color = viren2d::ColorFromHexString("#ea843500");
+  color = viren2d::Color::FromHexString("#ea843500");
   EXPECT_EQ(color, viren2d::RGBa(234, 132, 53, 0));
 
-  color = viren2d::ColorFromHexString("#ea843534");
+  color = viren2d::Color::FromHexString("#ea843534");
   EXPECT_TRUE(CheckColor(color, 234.0/255, 132.0/255, 53.0/255, 0.2039));
 
   color = viren2d::Color();

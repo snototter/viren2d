@@ -81,7 +81,7 @@ void RegisterOpticalFlowUtils(py::module &m) {
         Given a cyclic color map, this returns the false color representation,
         where the flow orientation defines the color map bin and the magnitude
         defines the corresponding color's saturation.
-        The default color map is the cyclic six-color map CET-C6 proposed by
+        The default color map is the cyclic six-color map *CET-C6* proposed by
         `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__.
 
         This assumes that flow is normalized such that the maximum magnitude
@@ -108,6 +108,11 @@ void RegisterOpticalFlowUtils(py::module &m) {
         Returns:
           A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
           type :class:`numpy.uint8`.
+        
+        |image-flow-vis|
+
+        For examples and code listings, refer to the
+        :ref:`RTD tutorial section on optical flow colorization<tutorial-optical-flow>`.
         )docstr",
         py::arg("flow"),
         py::arg("colormap") = ColorMap::Orientation6,

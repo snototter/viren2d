@@ -10,7 +10,7 @@ body[data-theme="dark"] #text-anchors img {
 }
 /*
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {*/
     html {
         background-color: #181a1b !important;
     }
@@ -2005,4 +2005,148 @@ body[data-theme="dark"] #text-anchors img {
     #text-anchors img {
         filter: invert(1) brightness(0.85) hue-rotate(-60deg);
     }
+/* // end of the @media selector
+}*/
+
+/* Fixed-size colored span to show a currently defined color setting. */
+.colorblock {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 1px solid rgb(56, 61, 63);
+    margin-right: .5em;
+    vertical-align: middle;
 }
+
+/* Definitions for axis colors (pinhole geometry). */
+.axis-color-x { background-color: #ef2126; }
+.axis-color-y { background-color: #30a04c; }
+.axis-color-z { background-color: #1670b7; }
+
+/* Definitions for object category names. */
+.bgcff7ed1 { background-color: #ff7ed1; }
+.bgcc85748 { background-color: #c85748; }
+.bgcd60000 { background-color: #d60000; }
+.bgce2afaf { background-color: #e2afaf; }
+.bgcff00cd { background-color: #ff00cd; }
+.bgce252ff { background-color: #e252ff; }
+.bgc2f5282 { background-color: #2f5282; }
+.bgc8eba00 { background-color: #8eba00; }
+.bgc93a14f { background-color: #93a14f; }
+.bgc645472 { background-color: #645472; }
+.bgc018700 { background-color: #018700; }
+.bgc790000 { background-color: #790000; }
+.bgc15e18c { background-color: #15e18c; }
+.bgc0087b1 { background-color: #0087b1; }
+.bgc919eb6 { background-color: #919eb6; }
+.bgc00e400 { background-color: #00e400; }
+.bgc6e70aa { background-color: #6e70aa; }
+.bgc6b004f { background-color: #6b004f; }
+.bgcff6989 { background-color: #ff6989; }
+.bgc00acc6 { background-color: #00acc6; }
+.bgcc89a69 { background-color: #c89a69; }
+.bgc0774d8 { background-color: #0774d8; }
+.bgc5949a3 { background-color: #5949a3; }
+.bgcba00fd { background-color: #ba00fd; }
+.bgcca0044 { background-color: #ca0044; }
+.bgc915280 { background-color: #915280; }
+.bgc8e7b01 { background-color: #8e7b01; }
+.bgc7e2a8e { background-color: #7e2a8e; }
+.bgc364424 { background-color: #364424; }
+.bgc729a7c { background-color: #729a7c; }
+.bgcc1a3c3 { background-color: #c1a3c3; }
+.bgcf2007b { background-color: #f2007b; }
+.bgca17569 { background-color: #a17569; }
+.bgc00bda3 { background-color: #00bda3; }
+.bgcbac389 { background-color: #bac389; }
+.bgc5901a3 { background-color: #5901a3; }
+.bgc528549 { background-color: #528549; }
+.bgca1c8c8 { background-color: #a1c8c8; }
+.bgcff7752 { background-color: #ff7752; }
+.bgc77563b { background-color: #77563b; }
+.bgc8c3bff { background-color: #8c3bff; }
+.bgc8956af { background-color: #8956af; }
+.bgc380000 { background-color: #380000; }
+.bgc2db152 { background-color: #2db152; }
+.bgcff3146 { background-color: #ff3146; }
+.bgc773416 { background-color: #773416; }
+.bgce6a500 { background-color: #e6a500; }
+.bgc828056 { background-color: #828056; }
+.bgc1ca1ff { background-color: #1ca1ff; }
+.bgc85c39a { background-color: #85c39a; }
+.bgcbf03b8 { background-color: #bf03b8; }
+.bgc8c3bff { background-color: #8c3bff; }
+.bgc8c3bff { background-color: #8c3bff; }
+.bgc03dae6 { background-color: #03dae6; }
+.bgc9e0174 { background-color: #9e0174; }
+.bgca32818 { background-color: #a32818; }
+.bgc006d2d { background-color: #006d2d; }
+.bgce49cff { background-color: #e49cff; }
+.bgceb4d00 { background-color: #eb4d00; }
+.bgc004b00 { background-color: #004b00; }
+.bgcd48580 { background-color: #d48580; }
+.bgc7ecaff { background-color: #7ecaff; }
+.bgc5e7b87 { background-color: #5e7b87; }
+.bgc5949a3 { background-color: #5949a3; }
+.bgc60383b { background-color: #60383b; }
+.bgc4d33ff { background-color: #4d33ff; }
+.bgc8287ff { background-color: #8287ff; }
+.bgcbcb6ff { background-color: #bcb6ff; }
+.bgc546744 { background-color: #546744; }
+.bgcc4668e { background-color: #c4668e; }
+.bgc6b9700 { background-color: #6b9700; }
+.bgc008069 { background-color: #008069; }
+.bgc9e4b00 { background-color: #9e4b00; }
+.bgc5e1123 { background-color: #5e1123; }
+.bgcaf6dff { background-color: #af6dff; }
+.bgc755900 { background-color: #755900; }
+.bgc0000dd { background-color: #0000dd; }
+.bgc573b00 { background-color: #573b00; }
+.bgc005659 { background-color: #005659; }
+.bgc596d00 { background-color: #596d00; }
+.bgca03a52 { background-color: #a03a52; }
+.bgcffa056 { background-color: #ffa056; }
+.bgc00acc6 { background-color: #00acc6; }
+.bgccc7407 { background-color: #cc7407; }
+.bgca57bb8 { background-color: #a57bb8; }
+
+/* Definitions for color names. */
+.bgc000000 { background-color: #000000; }
+.bgcffffff { background-color: #ffffff; }
+.bgc7f7f7f { background-color: #7f7f7f; }
+.bgcc6c6c6 { background-color: #c6c6c6; }
+.bgcff0000 { background-color: #ff0000; }
+.bgc00ff00 { background-color: #00ff00; }
+.bgc0000ff { background-color: #0000ff; }
+.bgc007fff { background-color: #007fff; }
+.bgccc7f33 { background-color: #cc7f33; }
+.bgc87540a { background-color: #87540a; }
+.bgced9121 { background-color: #ed9121; }
+.bgcb77233 { background-color: #b77233; }
+.bgc990000 { background-color: #990000; }
+.bgc00ffff { background-color: #00ffff; }
+.bgc218c21 { background-color: #218c21; }
+.bgcf7c423 { background-color: #f7c423; }
+.bgcffd600 { background-color: #ffd600; }
+.bgc4c0082 { background-color: #4c0082; }
+.bgcffffef { background-color: #ffffef; }
+.bgce5e5f9 { background-color: #e5e5f9; }
+.bgcadd8e5 { background-color: #add8e5; }
+.bgc33cc33 { background-color: #33cc33; }
+.bgc7f0000 { background-color: #7f0000; }
+.bgcff00ff { background-color: #ff00ff; }
+.bgc191970 { background-color: #191970; }
+.bgc00007f { background-color: #00007f; }
+.bgc7f7f00 { background-color: #7f7f00; }
+.bgcffa500 { background-color: #ffa500; }
+.bgcdb70d6 { background-color: #db70d6; }
+.bgca021ef { background-color: #a021ef; }
+.bgcff023d { background-color: #ff023d; }
+.bgcf97f72 { background-color: #f97f72; }
+.bgcbfbfbf { background-color: #bfbfbf; }
+.bgc44af8c { background-color: #44af8c; }
+.bgcf28400 { background-color: #f28400; }
+.bgc473d33 { background-color: #473d33; }
+.bgc006d5b { background-color: #006d5b; }
+.bgc30d6c6 { background-color: #30d6c6; }
+.bgcffff00 { background-color: #ffff00; }

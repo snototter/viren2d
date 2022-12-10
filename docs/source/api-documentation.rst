@@ -10,6 +10,7 @@ API Documentation
 
    apidoc/apidoc-basic-shapes
    apidoc/apidoc-color
+   apidoc/apidoc-colorgradients
    apidoc/apidoc-colormaps
    apidoc/apidoc-drawing
    apidoc/apidoc-imagebuffer
@@ -38,6 +39,16 @@ API Documentation
       viren2d.RGBa
 
 
+**Color Gradients:**
+
+   .. autosummary::
+      :nosignatures:
+
+      viren2d.ColorGradient
+      viren2d.LinearColorGradient
+      viren2d.RadialColorGradient
+
+
 **Color Maps:**
 
    .. autosummary::
@@ -46,6 +57,7 @@ API Documentation
       viren2d.ColorMap
       viren2d.colorize_labels
       viren2d.colorize_scaled
+      viren2d.colorize_scalars
       viren2d.get_colormap
       viren2d.set_custom_colormap
       viren2d.StreamColorizer
@@ -67,11 +79,12 @@ API Documentation
       :nosignatures:
 
       viren2d.ImageBuffer
+      viren2d.collage
+      viren2d.color_pop
       viren2d.convert_gray2rgb
       viren2d.convert_hsv2rgb
       viren2d.convert_rgb2gray
       viren2d.convert_rgb2hsv
-      viren2d.color_pop
       viren2d.load_image_uint8
       viren2d.save_image_uint8
       
@@ -93,7 +106,9 @@ API Documentation
       :nosignatures:
       
       viren2d.Vec2d
+      viren2d.Vec2i
       viren2d.Vec3d
+      viren2d.Vec3i
 
 
 **Positioning:**
@@ -113,6 +128,7 @@ API Documentation
       :nosignatures:
 
       viren2d.Ellipse
+      viren2d.Line2d
       viren2d.Rect
       viren2d.ellipse_from_endpoints
       viren2d.rect_from_cwh

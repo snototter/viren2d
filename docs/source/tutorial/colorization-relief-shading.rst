@@ -1,3 +1,5 @@
+.. include:: ../symbols.rst
+
 ~~~~~~~~~~~~~~
 Relief Shading
 ~~~~~~~~~~~~~~
@@ -6,11 +8,7 @@ Relief Shading
 :func:`~viren2d.relief_shading`. This technique can notably enhance the
 perception of shape induced by the shading:
 
-.. image:: ../images/relief-shading.png
-   :width: 600
-   :alt: Exemplary relief shading
-   :align: center
-
+|image-relief-shading|
 
 This example uses relief shading with different color maps to show
 the topographic structure of (a small part of) the lunar farside, which

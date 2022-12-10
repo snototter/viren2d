@@ -24,95 +24,123 @@ int randmod(int n) {
 
 void DemoBoundingBoxes2D() {
   PrintDemoHeader("Bounding Boxes in 2D");
+  for (const auto halign : {
+       HorizontalAlignment::Left, HorizontalAlignment::Center,
+       HorizontalAlignment::Right}) {
 
-  auto painter = CreatePainter();
-//  std::vector<LabelPosition> label_positions {LabelPosition::Top,
-//        LabelPosition::Bottom, LabelPosition::LeftB2T,
-//        LabelPosition::RightB2T};
+    auto painter = CreatePainter();
+    std::vector<std::string> lbl_top = {"This is the", "top edge"};
+    std::vector<std::string> lbl_bottom = {"This is the", "bottom edge"};
+//    std::vector<std::string> lbl_left = {"The left edge"};
+//    std::vector<std::string> lbl_right = {"The right edge"};
 
-  painter->SetCanvas(600, 600, Color::White);
+    painter->SetCanvas(800, 1600, Color::White);
+    painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!40"));
 
-  painter->DrawGrid({}, {}, 50, 50, LineStyle(1.0, "gray!60"));
+    BoundingBox2DStyle style(
+          LineStyle(3, "navy-blue"),
+          TextStyle(14, "xkcd", "midnight-blue", false, false, 1.2, halign),
+          "same!20", "orange!20", {12, 6}, true);
 
-  BoundingBox2DStyle style;
-  style.label_padding.SetX(10);
-  style.label_padding.SetY(5);
-  style.text_fill_color = Color::Same.WithAlpha(0.3);
-  style.clip_label = true;
-  style.text_style = TextStyle(10, "monospace");
+    // 1st row
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(50, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom);
 
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.text_style.halign = HorizontalAlignment::Left;
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(200, 50, 100, 220, 0.2), style, {}, {},
+          {"Left Bottom-to-Top"}, false);
 
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 50, 100, 80, 0.2),
-        {"fill B & T, clip ABCDEFG"}, style);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(350, 50, 100, 220, 0.2), style, {}, {},
+          {"Left Top-to-Bottom"}, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(500, 50, 100, 220, 0.2), style, {}, {},
+          {}, true, {"Right Top-to-Bottom"}, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(650, 50, 100, 220, 0.2), style, {}, {},
+          {}, true, {"Right Bottom-to-Top"}, false);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(800, 50, 100, 220, 0.2), style, {}, {},
+          {"Left Bottom-to-Top"}, false, {"Right Bottom-to-Top"}, false);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(950, 50, 100, 220, 0.2), style, {}, {},
+          {"Left Top-to-Bottom"}, true, {"Right Bottom-to-Top"}, false);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(1100, 50, 100, 220, 0.2), style, {}, {},
+          {"Left Bottom-to-Top"}, false, {"Right Top-to-Bottom"}, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(1250, 50, 100, 220, 0.2), style, lbl_top, lbl_bottom,
+          {"Left Top-to-Bottom"}, true, {"Right Bottom-to-Top"}, false);
+
+    // 2nd row, don't fill the text boxes:
+    style.text_fill_color = Color::Invalid;
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(50, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(200, 300, 100, 220, 0.2), style, {}, {},
+          {"Left Bottom-to-Top"}, false, {"Right Top-to-Bottom"}, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(350, 300, 100, 220, 0.2), style, {}, {},
+          {"Left Top-to-Bottom"}, true, {"Right Top-to-Bottom"}, true);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(500, 300, 100, 220, 0.2), style, {}, {},
+          {"Left Bottom-to-Top"}, false, {"Right Bottom-to-Top"}, false);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(650, 300, 100, 220, 0.2), style, {}, {},
+          {"Left Top-to-Bottom"}, true, {"Right Bottom-to-Top"}, false);
+
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(800, 300, 100, 220, 0.2), style, lbl_top, lbl_bottom,
+          {"Left Top-to-Bottom"}, true, {"Right Bottom-to-Top"}, false);
 
 
-  style.box_fill_color = Color::Same.WithAlpha(0.5);
-  style.text_fill_color = Color::Same.WithAlpha(0.2);
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = false;
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 150, 100, 80, 0.2),
-        {"fill B 0.5 & T 0.2, noclip"}, style);
+    // 3rd row
+    style.text_fill_color = Color::Red.WithAlpha(0.2);
+    style.box_fill_color = Color::Same.WithAlpha(0.2);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(50, 550, 100, 220, 0.2), style, lbl_top, {},
+          {}, true, {"Right Top-to-Bottom"}, true);
 
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(200, 550, 100, 220, 0.2), style, lbl_top, {},
+          {}, true, {"Right Bottom-to-Top"}, false);
 
-  style.box_fill_color = Color::Invalid;
-  style.text_fill_color = Color::Same.WithAlpha(0.3);
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = true;
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 250, 100, 80, 0.2),
-        {"fill T 0.3, clip label"}, style);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(350, 550, 100, 220, 0.2), style, lbl_top, {},
+          {"Left Bottom-to-Top"}, false, {}, true);
 
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(500, 550, 100, 220, 0.2), style, lbl_top, {},
+          {"Left Top-to-Bottom"}, true, {}, true);
 
-  style.box_fill_color = Color("crimson!50");
-  style.text_fill_color = Color::Invalid;
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = false;
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 350, 100, 80, 0.2),
-        {"fill B crimson!50, noclip", style.ToString()}, style);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(650, 550, 100, 220, 0.2), style, {}, lbl_bottom,
+          {}, true, {"Right Top-to-Bottom"}, true);
 
-  style.box_fill_color = Color::Invalid;
-  style.text_fill_color = Color::Invalid;
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  style.clip_label = true;
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(50, 450, 100, 80, 0),
-        {"no fill, but clip", style.ToString()}, style);
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(800, 550, 100, 220, 0.2), style, {}, lbl_bottom,
+          {}, true, {"Right Bottom-to-Top"}, false);
 
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(950, 550, 100, 220, 0.2), style, {}, lbl_bottom,
+          {"Left Top-to-Bottom"}, true, {}, true);
 
-  style.clip_label = true;
-  style.box_fill_color = Color::Same.WithAlpha(0.3);
-  style.text_fill_color = Color("crimson!60");
-  style.text_style = TextStyle(14, "Arial", "black", true);
-//  style.label_position = label_positions[randmod(label_positions.size())];
+    painter->DrawBoundingBox2D(
+          Rect::FromLTWH(1100, 550, 100, 220, 0.2), style, {}, lbl_bottom,
+          {"Left Bottom-to-Top"}, false, {}, true);
 
-  style.text_style.halign = HorizontalAlignment::Center;
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(200, 50, 100, 250, 0.4),
-        {"Centered", "label"}, style);
-
-
-  style.text_style.halign = HorizontalAlignment::Left;
-  style.text_fill_color = Color::Same.WithAlpha(0.3);
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(350, 50, 100, 250),
-        {"Left-aligned", "label"}, style);
-
-  style.clip_label = true;
-  style.box_fill_color = Color::Invalid;
-  style.text_fill_color = Color::Same.WithAlpha(0.5);
-  style.text_style.halign = HorizontalAlignment::Right;
-//  style.label_position = label_positions[randmod(label_positions.size())];
-  painter->DrawBoundingBox2D(
-        Rect::FromLTWH(475, 50, 100, 250),
-        {"Right-aligned", "label (clipped)"}, style);
-
-  ProcessDemoOutput(painter->GetCanvas(false), "demo-output-bbox2d.png");
+    ProcessDemoOutput(painter->GetCanvas(false), "demo-output-bbox2d.png");
+  }
 }
 
 

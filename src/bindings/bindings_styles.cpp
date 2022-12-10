@@ -70,8 +70,13 @@ LineStyle LineStyleFromTuple(const py::tuple &tpl) {
 
 
 void RegisterLineCap(pybind11::module &m) {
-  py::enum_<LineCap> cap(m, "LineCap",
-             "Enumeration specifying how to render the endpoints of a line/dash stroke.");
+  py::enum_<LineCap> cap(m, "LineCap", R"docstr(
+        Enumeration specifying how to render the endpoints of a line/dash stroke.
+
+        **Corresponding C++ API:** ``viren2d::LineCap``.
+
+        |image-cheat-sheet-line-cap|
+        )docstr");
   cap.value(
         "Butt",
         LineCap::Butt, R"docstr(
@@ -121,8 +126,13 @@ LineCap LineCapFromPyObject(const py::object &o) {
 
 
 void RegisterLineJoin(pybind11::module &m) {
-  py::enum_<LineJoin> join(m, "LineJoin",
-             "Enumeration specifying how to render the junction of two lines/segments.");
+  py::enum_<LineJoin> join(m, "LineJoin", R"docstr(
+        Enumeration specifying how to render the junction of two lines/segments.
+
+        **Corresponding C++ API:** ``viren2d::LineJoin``.
+        
+        |image-cheat-sheet-line-join|
+        )docstr");
 
   join.value(
         "Miter",
@@ -172,7 +182,13 @@ LineJoin LineJoinFromPyObject(const py::object &o) {
 
 void RegisterMarker(pybind11::module &m) {
   py::enum_<Marker> marker(
-        m, "Marker", "Enumeration specifying the marker shape.");
+        m, "Marker", R"docstr(
+        Enumeration specifying the marker shape.
+
+        **Corresponding C++ API:** ``viren2d::Marker``.
+
+        |image-cheat-sheet-markers|
+        )docstr");
 
   marker.value(
         "Point",
@@ -655,6 +671,8 @@ void RegisterLineStyle(pybind11::module &m) {
       >>> unit_dir = start.direction_vector(end).unit_vector()
       >>> start += line_style.cap_offset() * unit_dir
       >>> end -= line_style.cap_offset() * unit_dir
+
+      |image-cheat-sheet-lines|
       )docstr";
   py::class_<LineStyle>line_style(m, "LineStyle", doc.c_str());
 
@@ -930,6 +948,8 @@ void RegisterArrowStyle(pybind11::module &m) {
         >>>     tip_closed=True, double_headed=False,
         >>>     dash_pattern=[], dash_offset=0.0,
         >>>     cap='round', join='miter')
+      
+      |image-cheat-sheet-arrows|
       )docstr";
   py::class_<ArrowStyle, LineStyle> arrow_style(m, "ArrowStyle", doc.c_str());
 
@@ -1042,26 +1062,26 @@ void RegisterArrowStyle(pybind11::module &m) {
 
 
 //-------------------------------------------------  BoundingBox2DStyle
-LabelPosition LabelPositionFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    return LabelPositionFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<LabelPosition>(o)) {
-    return py::cast<LabelPosition>(o);
-  } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp
-        << "` to `viren2d.LabelPosition`!";
-    throw std::invalid_argument(str.str());
-  }
-}
+//LabelPosition LabelPositionFromPyObject(const py::object &o) {
+//  if (py::isinstance<py::str>(o)) {
+//    return LabelPositionFromString(py::cast<std::string>(o));
+//  } else if (py::isinstance<LabelPosition>(o)) {
+//    return py::cast<LabelPosition>(o);
+//  } else {
+//    const std::string tp = py::cast<std::string>(
+//        o.attr("__class__").attr("__name__"));
+//    std::ostringstream str;
+//    str << "Cannot cast type `" << tp
+//        << "` to `viren2d.LabelPosition`!";
+//    throw std::invalid_argument(str.str());
+//  }
+//}
 
 
 py::tuple BoundingBox2DStyleToTuple(const BoundingBox2DStyle &st) {
   return py::make_tuple(
         st.line_style, st.text_style, st.box_fill_color, st.text_fill_color,
-        st.label_position, st.label_padding, st.clip_label);
+        st.label_padding, st.clip_label);
 }
 
 
@@ -1073,13 +1093,11 @@ BoundingBox2DStyle CreateBoundingBox2DStyle(
     const TextStyle &text_style,
     const Color &bbox_fill_color,
     const Color &label_box_color,
-    const py::object &label_pos,
     const Vec2d &text_padding,
     bool clip_lbl) {
-  LabelPosition lpos = LabelPositionFromPyObject(label_pos);
   return BoundingBox2DStyle(
         line_style, text_style, bbox_fill_color, label_box_color,
-        lpos, text_padding, clip_lbl);
+        text_padding, clip_lbl);
 }
 
 
@@ -1114,15 +1132,11 @@ BoundingBox2DStyle BoundingBox2DStyleFromTuple(const py::tuple &tpl) {
   }
 
   if (tpl.size() > 4) {
-    bstyle.label_position = tpl[4].cast<LabelPosition>();
+    bstyle.label_padding = tpl[4].cast<Vec2d>();
   }
 
   if (tpl.size() > 5) {
-    bstyle.label_padding = tpl[5].cast<Vec2d>();
-  }
-
-  if (tpl.size() > 6) {
-    bstyle.clip_label = tpl[6].cast<bool>();
+    bstyle.clip_label = tpl[5].cast<bool>();
   }
 
   return bstyle;
@@ -1134,12 +1148,19 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       How a 2D bounding box should be drawn."
 
       Example:
-        >>> line_style = viren2d.LineStyle()
-        >>> text_style = viren2d.TextStyle()
+        >>> line_style = viren2d.LineStyle(
+        >>>   width=7, color='navy-blue',
+        >>>   dash_pattern=[], dash_offset=0.0,
+        >>>   cap='round', join='miter')
+        >>> text_style = viren2d.TextStyle(
+        >>>   family='monospace', size=18,
+        >>>   color='navy-blue', bold=True,
+        >>>   italic=False, line_spacing=1.1,
+        >>>   halign='left', valign='top')
         >>> box_style = viren2d.BoundingBox2DStyle(
-        >>>     line_style=line_style, text_style=text_style,
-        >>>     box_fill_color='same!20', text_fill_color='white!60',
-        >>>     label_position='top', clip_label=True)
+        >>>   line_style=line_style, text_style=text_style,
+        >>>   box_fill_color='same!20', text_fill_color='white!60',
+        >>>   clip_label=True)
       )docstr";
   py::class_<BoundingBox2DStyle> bbox_style(m, "BoundingBox2DStyle", doc.c_str());
 
@@ -1155,11 +1176,8 @@ void RegisterBoundingBox2DStyle(py::module &m) {
           fill the box.
         text_fill_color: Optional :class:`~viren2d.Color` to
           fill the background of the label.
-        label_position: A :class:`~viren2d.LabelPosition` specifying
-          where to place the label. In addition to the enumeration value,
-          this parameter can be set using its string representation.
         label_padding: Padding between the nearest bounding box
-          edges and the label as :class:`~viren2d.Vec`.
+          edges and the label as :class:`~viren2d.Vec2d`.
         clip_label: If ``True``, the label will be clipped if it
           exceeds the bounding box.
       )docstr";
@@ -1171,7 +1189,6 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         py::arg("text_style") = default_style.text_style,
         py::arg("box_fill_color") = default_style.box_fill_color,
         py::arg("text_fill_color") = default_style.text_fill_color,
-        py::arg("label_position") = default_style.label_position,
         py::arg("label_padding") = default_style.label_padding,
         py::arg("clip_label") = default_style.clip_label);
 
@@ -1239,24 +1256,6 @@ void RegisterBoundingBox2DStyle(py::module &m) {
         "text_fill_color",
         &BoundingBox2DStyle::text_fill_color,
         doc.c_str());
-
-
-  doc = R"docstr(
-      :class:`~viren2d.LabelPosition`: Where to place
-      the label within the box.
-
-      In addition to the enumeration values, you can use
-      the string representation to set this member:
-
-      >>> style.label_position = viren2d.LabelPosition.Left
-      >>> style.label_position = 'left'
-      )docstr";
-  bbox_style.def_property(
-        "label_position",
-        [](BoundingBox2DStyle &s) { return s.label_position; },
-        [](BoundingBox2DStyle &s, py::object o) {
-            s.label_position = LabelPositionFromPyObject(o);
-        }, doc.c_str());
 
 
   doc = R"docstr(

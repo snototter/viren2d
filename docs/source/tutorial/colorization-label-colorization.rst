@@ -1,3 +1,5 @@
+.. include:: ../symbols.rst
+
 ~~~~~~~~~~~~~~~~~~
 Label Colorization
 ~~~~~~~~~~~~~~~~~~
@@ -8,12 +10,7 @@ in numerically nearby labels being assigned to the same color. Instead,
 use :func:`~viren2d.colorize_labels` which will properly alternate between
 the colors of the chosen color map:
 
-
-.. image:: ../images/colorize-labels.png
-   :width: 500
-   :alt: Exemplary label colorization
-   :align: center
-
+|image-label-colorization|
 
 This visualization shows class- and instance-level annotations from
 a crop of the `Cityscapes (Zurich) training dataset <https://www.cityscapes-dataset.com/>`__.

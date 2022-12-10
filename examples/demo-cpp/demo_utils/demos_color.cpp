@@ -124,5 +124,62 @@ void DemoColorMaps() {
   //  ShowCanvas(painter->GetCanvas(false), "demo-output-colors.png");
   //  painter.reset();
   //}
+
+
+void DemoColorGradients() {
+  //TODO refactor demo - this is just a proof-of-concept
+  PrintDemoHeader("Color gradients");
+
+  LinearColorGradient gradient_linear({0, 0}, {600, 200});
+  gradient_linear.AddColorStop(0.1, "crimson");
+  gradient_linear.AddColorStop(0.3, "navy-blue");
+  gradient_linear.AddColorStop(0.5, "crimson");
+  gradient_linear.AddColorStop(0.7, "navy-blue");
+  gradient_linear.AddColorStop(0.9, "crimson");
+
+  auto grad1 = gradient_linear.Visualization(600, 200, 3);
+  auto painter = CreatePainter();
+  painter->SetCanvas(grad1.Height() * 2, grad1.Width(), "white");
+  painter->DrawImage(grad1, {0, 0});
+
+  const Rect clip_rect(
+    grad1.Width() / 2, grad1.Height() * 1.5, grad1.Width(),
+    grad1.Height() / 2, 10, 10);
+  painter->SetClipRegion(clip_rect);
+
+  LinearColorGradient gradient_linear2(
+        {0, 0}, {clip_rect.width, 0.0});
+  gradient_linear2.AddColorStop(0.0, "red");
+  gradient_linear2.AddColorStop(0.25, "green");
+  gradient_linear2.AddColorStop(0.5, "blue");
+  gradient_linear2.AddColorStop(0.75, "cyan");
+  gradient_linear2.AddColorStop(1.0, "purple");
+  painter->DrawGradient(gradient_linear2);
+  //painter->SetClipRegion({50.0, 50.0}, 100.0);
+
+  ProcessDemoOutput(
+      painter->GetCanvas(false),
+      "demo-output-color-gradients.png");
+
+  RadialColorGradient gradient_radial({50, 50}, 10, {50, 50}, 40);
+  gradient_radial.AddColorStop(0.0, "black!100");
+  gradient_radial.AddColorStop(0.8, "black!0");
+  ProcessDemoOutput(
+      gradient_radial.Visualization(600, 200, 4),
+      "demo-output-color-gradients2.png");
+
+////FIXME qad --> move to optical flow demo (create blending gradient; then merge flow vis & input image)
+//  LinearColorGradient weight_gradient({0, 0}, {600, 200});
+//  weight_gradient.AddIntensityStop(0.1, 1.0);
+//  weight_gradient.AddIntensityStop(0.5, 0.0);
+//  weight_gradient.AddIntensityStop(0.9, 1.0);
+//  auto weights = CreateColorGradientMask(weight_gradient, grad1.Width(), grad1.Height());
+//  ImageBuffer blue(grad1.Height(), grad1.Width(), grad1.Channels(), grad1.BufferType());
+//  blue.SetToPixel<uint8_t>(200, 0, 200);
+//  auto grad_overlay = grad1.Blend(blue, weights);
+//  ProcessDemoOutput(
+//        grad_overlay, "demo-output-color-gradients-overlay.png");
+}
+
 } // namespace demos
 } // namespace viren2d

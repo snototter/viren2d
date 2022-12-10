@@ -1,17 +1,22 @@
+.. include:: ../symbols.rst
+
 ---------------
 Defining Styles
 ---------------
 
+.. autosummary::
+   :nosignatures:
+
+   viren2d.ArrowStyle
+   viren2d.BoundingBox2DStyle
+   viren2d.LineStyle
+   viren2d.MarkerStyle
+   viren2d.TextStyle
+
+
 ~~~~~~~~~~~
 Arrow Style
 ~~~~~~~~~~~
-
-.. figure:: ../images/arrow-style-cheat-sheet.png
-   :width: 600
-   :alt: Style cheat sheet for arrows
-   :align: center
-
-   Cheat Sheet: :class:`~viren2d.ArrowStyle`
 
 .. autoclass:: viren2d.ArrowStyle
    :autosummary:
@@ -39,13 +44,6 @@ Bounding Box Style
 Line Style
 ~~~~~~~~~~
 
-.. figure:: ../images/line-style-cheat-sheet.png
-   :width: 400
-   :alt: Style cheat sheet for lines
-   :align: center
-
-   Cheat Sheet: :class:`~viren2d.LineStyle`
-
 .. autoclass:: viren2d.LineStyle
    :autosummary:
    :autosummary-nosignatures:
@@ -56,13 +54,7 @@ Line Style
 Marker Style
 ~~~~~~~~~~~~
 
-.. figure:: ../images/marker-cheat-sheet.png
-   :width: 600
-   :alt: Supported Marker Shapes
-   :align: center
-
-   Cheat Sheet: :class:`~viren2d.Marker`
-
+|image-cheat-sheet-markers|
 
 .. autoclass:: viren2d.MarkerStyle
    :autosummary:
@@ -74,12 +66,9 @@ Marker Style
 Text Style
 ~~~~~~~~~~
 
-.. figure:: ../images/text-anchors.png
-   :width: 440
-   :alt: Text positioning
-   :align: center
+**Cheat Sheet** for :class:`~viren2d.Anchor`:
 
-   Cheat Sheet: :class:`~viren2d.Anchor`
+   |image-cheat-sheet-anchors|
 
 .. autoclass:: viren2d.TextStyle
    :autosummary:

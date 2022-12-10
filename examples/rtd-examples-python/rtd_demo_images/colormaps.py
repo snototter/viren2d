@@ -1,6 +1,6 @@
 import numpy as np
 import viren2d
-from rtd_demo_images.constants import VIREN2D_DATA_PATH
+from rtd_demo_images.constants import VIREN2D_DATA_PATH, VIREN2D_COLORMAP_CATEGORIES
 
 
 def demo_relief_shading():
@@ -59,13 +59,13 @@ def demo_relief_shading():
         # Draw a marker that looks like element-wise matrix multiplication:
         pos_multiplier = (x, cheight - 5 - moon.width * scale / 6)
         painter.draw_marker(
-            pt=pos_multiplier,
+            position=pos_multiplier,
             marker_style=viren2d.MarkerStyle('.', size=23, color='ivory'))
         painter.draw_marker(
-            pt=pos_multiplier,
+            position=pos_multiplier,
             marker_style=viren2d.MarkerStyle('o', size=18, color='black', thickness=2))
         painter.draw_marker(
-            pt=pos_multiplier,
+            position=pos_multiplier,
             marker_style=viren2d.MarkerStyle('x', size=12, color='black', thickness=2))
 
         x += (column_width + 10)
@@ -152,3 +152,27 @@ def demo_colorize_labels():
     except ModuleNotFoundError:
         print('Optional depency PIL is not installed - skipping label colorization demo.')
         return None
+
+
+def render_colormap_gradients():
+    painter = viren2d.Painter()
+    row_height = 35
+
+    # Gradient image from 0..255
+    row = np.array([i for i in range(256)]).astype(np.uint8).flatten()
+    data = np.repeat(row.reshape((1,-1)), row_height, axis=0)
+
+    colormap_gradients = dict()
+    for cat in VIREN2D_COLORMAP_CATEGORIES:
+        for cmap in VIREN2D_COLORMAP_CATEGORIES[cat]:
+            painter.set_canvas_rgb(
+                width=data.shape[1] + 10, height=data.shape[0] + 10,
+                color="white!0")
+
+            vis = viren2d.colorize_scaled(data, colormap=cmap, low=0, high=255)
+
+            painter.draw_image(
+                vis, position=(5, 5), anchor='top-left', clip_factor=0.3)
+
+            colormap_gradients[cmap] = np.array(painter.canvas, copy=True)
+    return colormap_gradients

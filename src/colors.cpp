@@ -11,6 +11,7 @@
 #include <werkzeugkiste/strings/strings.h>
 #include <werkzeugkiste/geometry/utils.h>
 #include <werkzeugkiste/container/sort.h>
+#include <werkzeugkiste/container/math.h>
 
 #include <viren2d/colors.h>
 
@@ -31,6 +32,9 @@ namespace helpers {
 
 /// Saturation cast to [0, 1]. */
 double cast_01(double v) {
+  if ((v < 0.0) || (v > 1.0)) {
+    SPDLOG_WARN("Clipping value {:f} to [0, 1].", v);
+  }
   return saturation_cast<double>(v, 0.0, 1.0);
 }
 
@@ -44,6 +48,16 @@ double cast_RGB(double v) {
 /// Mapping COCO category names (+ some widely used aliases)
 /// to their object class IDs.
 /// This is used to implement `FromCategory`.
+///
+/// TODO: Whenever a new category name is added, a CSS style definition has
+///   to be added to our RTD CSS (see docs/_static). Python script to print
+///   these definitions:
+/*
+import viren2d
+for cn in viren2d.object_category_names():
+  h = viren2d.Color.from_object_category(cn).to_hex()[1:]
+  print(f'.bgc{h} {{ background-color: #{h}; }}')
+*/
 const std::map<std::string, std::size_t> kCategoryIDMapping {
   {"background", 0}, {"person", 1}, {"bicycle", 2}, {"car", 3}, {"motorcycle", 4},
   {"airplane", 5}, {"bus", 6}, {"train", 7}, {"truck", 8}, {"boat", 9},
@@ -189,14 +203,25 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Invalid;
   }
 
-  std::string s("Could not look up NamedColor corresponding to \"");
-  s += name;
-  s += "\"!";
-  throw std::invalid_argument(s);
+  std::string msg("Could not look up NamedColor corresponding to \"");
+  msg += name;
+  msg += "\"!";
+  SPDLOG_ERROR(msg);
+  throw std::invalid_argument(msg);
 }
 
 
 std::string NamedColorToString(const NamedColor &color) {
+  /// TODO: Whenever a new named color is added, a CSS style definition has
+  ///   to be added to our RTD CSS (see docs/_static). Python script to print
+  ///   these definitions:
+  /*
+import viren2d
+for cn in viren2d.color_names():
+    h = viren2d.Color(cn).to_hex()[1:]
+    print(f'.bgc{h} {{ background-color: #{h}; }}')
+  */
+  
   switch (color) {
     case NamedColor::Black: return "black";
     case NamedColor::White: return "white";
@@ -244,10 +269,11 @@ std::string NamedColorToString(const NamedColor &color) {
     case NamedColor::Invalid: return "invalid";
 
     default: {
-      std::ostringstream s;
-      s << "No string representation available for this NamedColor ("
-        << static_cast<unsigned short>(color) << ")";
-      throw std::runtime_error(s.str());
+      std::ostringstream msg;
+      msg << "No string representation available for this NamedColor ("
+          << static_cast<unsigned short>(color) << ")";
+      SPDLOG_ERROR(msg.str());
+      throw std::runtime_error(msg.str());
     }
   }
 }
@@ -404,10 +430,11 @@ Color::Color(const NamedColor color, double alpha) {
       break;
 
     default: {
-        std::string s("No color code available for named color \"");
-        s += NamedColorToString(color);
-        s += "\"!";
-        throw std::runtime_error(s);
+        std::string msg("No color code available for named color \"");
+        msg += NamedColorToString(color);
+        msg += "\"!";
+        SPDLOG_ERROR(msg);
+        throw std::invalid_argument(msg);
       }
   }
 }
@@ -415,7 +442,7 @@ Color::Color(const NamedColor color, double alpha) {
 
 Color::Color(const std::string &colorspec, double alpha) {
   if (colorspec.length() > 1 && colorspec[0] == '#') {
-    *this = ColorFromHexString(colorspec, alpha);
+    *this = Color::FromHexString(colorspec, alpha);
   } else {
     // Check if we need special handling later on
     const bool invert = colorspec.length() > 1 &&
@@ -438,20 +465,22 @@ Color::Color(const std::string &colorspec, double alpha) {
       // std::stoi will throw an invalid_argument if the input can't be parsed...
       this->alpha = std::stoi(aspec_) / 100.0;
       if (this->alpha < 0.0 || this->alpha > 1.0) {
-        std::string s("Alpha in \"");
-        s += colorspec;
-        s += "\" must be an integer within [0, 100].";
-        throw std::invalid_argument(s);
+        std::string msg("Alpha in \"");
+        msg += colorspec;
+        msg += "\" must be an integer within [0, 100].";
+        SPDLOG_ERROR(msg);
+        throw std::invalid_argument(msg);
       }
 
       // ... However, std::stoi will silently accept floating point
       // representations (simply return the part before the comma). We
       // explicitly require alpha in the string to be an integer:
       if (!std::all_of(aspec_.begin(), aspec_.end(), ::isdigit)) {
-        std::string s("Alpha in \"");
-        s += colorspec;
-        s += "\" must be an integer, but it contains non-digits.";
-        throw std::invalid_argument(s);
+        std::string msg("Alpha in \"");
+        msg += colorspec;
+        msg += "\" must be an integer, but it contains non-digits.";
+        SPDLOG_ERROR(msg);
+        throw std::invalid_argument(msg);
       }
     }
   }
@@ -473,10 +502,11 @@ Color::Color(std::initializer_list<double> values) {
       alpha = 1.0;
     }
   } else {
-    std::ostringstream s;
-    s << "Color c'tor requires 0, 3 or 4 elements in initializer_list, "
-      << "but got " << values.size() << ".";
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Color c'tor requires 0, 3 or 4 elements in initializer_list, "
+        << "but got " << values.size() << ".";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 }
 
@@ -505,6 +535,11 @@ Color Color::Inverse() const {
 Color Color::ToGray() const {
   const double luminance = helpers::CvtHelperRGB2Gray(red, green, blue);
   return Color(luminance, luminance, luminance, alpha);
+}
+
+
+double Color::GrayscaleIntensity() const {
+  return helpers::CvtHelperRGB2Gray(red, green, blue);
 }
 
 
@@ -613,16 +648,29 @@ Color::ToRGBa() const {
 }
 
 
+std::tuple<unsigned char, unsigned char, unsigned char>
+Color::ToRGB() const {
+  return std::make_tuple(static_cast<unsigned char>(red * 255),
+        static_cast<unsigned char>(green * 255),
+        static_cast<unsigned char>(blue * 255));
+}
+
+
 std::tuple<float, float, float> Color::ToHSV() const {
   return helpers::CvtHelperRGB2HSV(red, green, blue);
 }
 
 
-std::string Color::ToHexString() const {
-  if (!IsValid())
-    return std::string("#????????");
+std::string Color::ToHexString(bool with_alpha) const {
+  if (!IsValid()) {
+    if (with_alpha) {
+      return std::string("#????????");
+    } else {
+      return std::string("#??????");
+    }
+  }
 
-  std::string webcode("#00000000");
+  std::string webcode(with_alpha ? "#00000000" : "#000000");
 
   // Mapping from [0,15] to corresponding hex code character
   std::map<unsigned char, char> hex2char {
@@ -632,7 +680,7 @@ std::string Color::ToHexString() const {
     {14, 'e'}, {15, 'f'}
   };
 
-  // RGB is easier to work with
+  // RGB is easier to work with:
   auto RGBa = ToRGBa();
 
   // For now, tuple elements can't be accessed
@@ -658,11 +706,13 @@ std::string Color::ToHexString() const {
   webcode[6] = hex2char[rem];
 
   // Scale alpha to [0, 255]
-  auto a = static_cast<unsigned char>(alpha * 255);
-  div = static_cast<unsigned char>(a / 16);
-  rem = static_cast<unsigned char>(a % 16);
-  webcode[7] = hex2char[div];
-  webcode[8] = hex2char[rem];
+  if (with_alpha) {
+    auto a = static_cast<unsigned char>(alpha * 255);
+    div = static_cast<unsigned char>(a / 16);
+    rem = static_cast<unsigned char>(a % 16);
+    webcode[7] = hex2char[div];
+    webcode[8] = hex2char[rem];
+  }
 
   return webcode;
 }
@@ -725,6 +775,16 @@ Color &Color::operator-=(const Color &rhs) {
 
 
 Color Color::CoordinateAxisColor(char axis) {
+  /// TODO: Whenever these defaults are changed, the CSS style definition
+  ///   within our RTD CSS (see docs/_static) has to be adapted. Python script
+  ///   to print the style definitions:
+  /*
+import viren2d
+for ax in ['x', 'y', 'z']:
+    h = viren2d.axis_color(ax).to_hex(False)
+    print(f'.axis-color-{ax} {{ background-color: {h}; }}')
+  */
+
   switch (axis) {
     case 0:
     case 'x':
@@ -766,6 +826,56 @@ Color Color::FromObjectCategory(const std::string &category, ColorMap colormap) 
 }
 
 
+Color Color::FromHSV(
+  double hue, double saturation, double value, double alpha) {
+  float r, g, b;
+  std::tie(r, g, b) = helpers::CvtHelperHSV2RGB(hue, saturation, value);
+  return Color(r, g, b, alpha);
+}
+
+
+Color Color::FromHexString(const std::string &webcode, double alpha) {
+  SPDLOG_TRACE(
+        "Color::FromHexString(\"{:s}\", alpha={:.2f}).", webcode, alpha);
+
+  const size_t len = webcode.length();
+  if (len != 7 && len != 9) {
+    std::string msg(
+          "Input must have a leading '#' and either "
+          "6 or 8 hex digits, but was: \"");
+    msg += webcode;
+    msg += "\"!";
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
+  }
+
+  const std::string hex = wzks::Lower(webcode);
+  unsigned char rgb[3];
+  for (size_t idx = 0; idx < 3; ++idx) {
+    unsigned char upper = hex[idx * 2 + 1];
+    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
+
+    unsigned char lower = hex[idx * 2 + 2];
+    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
+
+    rgb[idx] = (upper << 4) | lower;
+  }
+
+  // Parse alpha code (overrules the optional function parameter if provided)
+  if (len == 9) {
+    unsigned char upper = hex[7];
+    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
+
+    unsigned char lower = hex[8];
+    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
+
+    alpha = static_cast<double>((upper << 4) | lower) / 255.0;
+  }
+
+  return Color(rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0, alpha);
+}
+
+
 std::vector<std::string> Color::ListObjectCategories() {
   std::vector<std::string> categories = wzkc::GetMapKeys(helpers::kCategoryIDMapping);
   // The default comparator results in ascending order:
@@ -801,57 +911,6 @@ Color operator+(Color lhs, const Color& rhs) {
 Color operator-(Color lhs, const Color& rhs) {
   lhs -= rhs;
   return lhs;
-}
-
-
-Color rgba(double r, double g, double b, double alpha) {
-  return Color(r, g, b, alpha);
-}
-
-
-Color RGBa(double R, double G, double B, double alpha) {
-  return Color(R/255.0, G/255.0, B/255.0, alpha);
-}
-
-
-Color ColorFromHexString(const std::string &webcode, double alpha) {
-  SPDLOG_TRACE(
-        "ColorFromHexString(\"{:s}\", alpha={:.2f}).", webcode, alpha);
-
-  const size_t len = webcode.length();
-  if (len != 7 && len != 9) {
-    std::string s(
-          "Input must have a leading '#' and either "
-          "6 or 8 hex digits, but was: \"");
-    s += webcode;
-    s += "\"!";
-    throw std::invalid_argument(s);
-  }
-
-  const std::string hex = wzks::Lower(webcode);
-  unsigned char rgb[3];
-  for (size_t idx = 0; idx < 3; ++idx) {
-    unsigned char upper = hex[idx * 2 + 1];
-    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
-
-    unsigned char lower = hex[idx * 2 + 2];
-    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
-
-    rgb[idx] = (upper << 4) | lower;
-  }
-
-  // Parse alpha code (overrules the optional function parameter if provided)
-  if (len == 9) {
-    unsigned char upper = hex[7];
-    upper = (upper <= '9') ? (upper - '0') : (upper - 'a' + 10);
-
-    unsigned char lower = hex[8];
-    lower = (lower <= '9') ? (lower - '0') : (lower - 'a' + 10);
-
-    alpha = static_cast<double>((upper << 4) | lower) / 255.0;
-  }
-
-  return Color(rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0, alpha);
 }
 
 
@@ -897,6 +956,64 @@ std::vector<Color> GetColorMapColors(ColorMap colormap) {
   for (std::size_t i = 0; i < map.second; ++i) {
     colors.push_back(
           RGBa(map.first[i].red, map.first[i].green, map.first[i].blue));
+  }
+
+  return colors;
+}
+
+
+std::vector<Color> ColorizeScalars(
+    const std::vector<double> &values, ColorMap colormap,
+    double limit_low, double limit_high, int bins) {
+  std::vector<Color> colors(values.size());
+
+  if (bins < 2) {
+    std::ostringstream msg;
+    msg << "Number of bins for `ColorizeValues` must be > 1, but got: "
+        << bins << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
+  }
+
+  const bool low_from_data = std::isinf(limit_low) || std::isnan(limit_low);
+  const bool high_from_data = std::isinf(limit_high) ||std::isnan(limit_high);
+  if (low_from_data || high_from_data) {
+    double min_val {0.0};
+    double max_val {0.0};
+    werkzeugkiste::container::MinMax(values, &min_val, &max_val);
+    if (low_from_data) {
+      limit_low = min_val;
+    }
+    if (high_from_data) {
+      limit_high = high_from_data;
+    }
+  }
+
+  if (limit_high <= limit_low) {
+    std::ostringstream msg;
+    msg << "Invalid colorization limits [" << std::fixed
+        << std::setprecision(2) << limit_low
+        << ", " << limit_high << "]!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
+  }
+
+  std::pair<const helpers::RGBColor *, std::size_t> map = helpers::GetColorMap(
+        colormap);
+  bins = std::min(bins, static_cast<int>(map.second));
+
+  const int map_bins = map.second - 1;
+  const double map_idx_factor = static_cast<double>(map_bins) / (bins - 1);
+  const double interval = (limit_high - limit_low) / bins;
+
+  for (std::size_t idx = 0; idx < values.size(); ++idx) {
+    const double value = std::max(
+          limit_low, std::min(limit_high, values[idx]));
+    const int bin = std::max(0, std::min(map_bins, static_cast<int>(
+              map_idx_factor * std::floor((value - limit_low) / interval))));
+    colors[idx] = RGBa(
+          map.first[bin].red, map.first[bin].green,
+          map.first[bin].blue, 1.0);
   }
 
   return colors;

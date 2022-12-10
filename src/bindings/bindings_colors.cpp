@@ -101,11 +101,15 @@ void RegisterColor(py::module &m) {
         >>> line_style.color = 'forest-green!40'  # alpha = 0.4
 
         **Corresponding C++ API:** ``viren2d::ListNamedColors``.
+
+        Currently, the following color names are available:
+
+        .. viren2d-color-names-table::
         )docstr");
 
 
   py::class_<Color> color(m, "Color", R"docstr(
-        A color in rgba format, *i.e.* :math:`r,g,b,a \in [0,1]`.
+        A color in *rgba* format, *i.e.* :math:`r,g,b,a \in [0,1]`.
 
         **Corresponding C++ API:** ``viren2d::Color``.
 
@@ -136,8 +140,16 @@ void RegisterColor(py::module &m) {
         handling, *e.g.* to skip filling.
         )docstr")
       .def(
+        py::init<>([](py::none) { return Color::Invalid; }), R"docstr(
+        Any ``None`` will be interpreted as an **invalid color**.
+
+        An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
+        :class:`~viren2d.Painter` methods to mark *special* color
+        handling, *e.g.* to skip filling.
+        )docstr")
+      .def(
         py::init<>(&ColorFromTuple), R"docstr(
-        Initializes the color from a **r,g,b** or **r,g,b,a** ``tuple``.
+        Initializes the color from a *r,g,b* or *r,g,b,a* ``tuple``.
 
         Each value must be a floating point number within ``[0, 1]``.
         The alpha value will be set to 1 if not provided.
@@ -148,7 +160,7 @@ void RegisterColor(py::module &m) {
         )docstr", py::arg("tpl"))
       .def(
         py::init<double, double, double, double>(), R"docstr(
-        Initializes the color from the given rgba components.
+        Initializes the color from the given *rgba* components.
 
         All values **will be clamped** to ``[0, 1]``.
         )docstr",
@@ -321,11 +333,23 @@ void RegisterColor(py::module &m) {
   color.def(
         "to_RGBa",
         &Color::ToRGBa, R"docstr(
-        Returns the corresponding ``(R, G, B, a)`` tuple.
+        Returns the corresponding :math:`(R, G, B, \alpha)` tuple.
 
-        R, G, B will be :math:`\in [0, 255]` and alpha :math:`a \in [0, 1]`.
+        The color components will be of type :class:`int`, with
+        :math:`R, G, B \in [0, 255]`, whereas :math:`\alpha \in [0, 1]` is
+        of type :class:`float`.
 
         **Corresponding C++ API:** ``viren2d::Color::ToRGBa``.
+        )docstr")
+      .def(
+        "to_RGB",
+        &Color::ToRGB, R"docstr(
+        Returns the corresponding :math:`(R, G, B)` tuple.
+
+        Each element :math:`R, G, B \in [0, 255]` will be of
+        type :class:`int`.
+
+        **Corresponding C++ API:** ``viren2d::Color::ToRGB``.
         )docstr")
       .def(
         "to_rgba",
@@ -341,17 +365,33 @@ void RegisterColor(py::module &m) {
         separately.
         )docstr")
       .def(
+        "to_rgb",
+        [](const Color& c) {
+          return py::make_tuple(c.red, c.green, c.blue);
+        }, R"docstr(
+        Returns the corresponding ``(r, g, b)`` tuple.
+
+        Each tuple element will be of type :class:`float`, with
+        :math:`r,g,b \in [0, 1]`.
+
+        **No corresponding C++ API**, access red, green, blue separately.
+        )docstr")
+      .def(
         "to_hex",
         &Color::ToHexString, R"docstr(
         Returns the hex code representation.
 
-        The web/hex code representation will contain 8 components,
-        *i.e.* it includes the alpha value. To compute the hexadecimal
-        representation, each component (*i.e.* **r,g,b,a**) is first scaled to
-        ``[0, 255]``.
+        If ``with_alpha`` is ``True``, the returned string representation will
+        contain 8 digits (+ 1 character for the leading ``#``), and 6 digits
+        otherwise. To compute the hexadecimal representation, each component,
+        *i.e.* *r,g,b* and optionally *a*, is first scaled to ``[0, 255]``.
 
         **Corresponding C++ API:** ``viren2d::Color::ToHexString``.
-        )docstr")
+
+        Args:
+          with_alpha: Boolean flag whether to include the alpha value or not.
+        )docstr",
+        py::arg("with_alpha") = false)
       .def(
         "to_hsv",
         &Color::ToHSV, R"docstr(
@@ -367,16 +407,24 @@ void RegisterColor(py::module &m) {
         &Color::ToGray, R"docstr(
         Returns the grayscale representation of this color.
 
-        The r,g,b components of the returned color will be set
-        to the luminance, :math:`L = 0.2989*R + 0.5870*G + 0.1141*B`.
-        Alpha will stay the same.
+        The :math:`r,g,b` components of the returned color will be set
+        to the luminance, :math:`l = 0.2989*r + 0.5870*g + 0.1141*b`,
+        and :math:`\alpha` will stay the same.
 
         **Corresponding C++ API:** ``viren2d::Color::ToGray``.
         )docstr")
       .def(
+        "intensity",
+        &Color::GrayscaleIntensity, R"docstr(
+        Returns the grayscale intensity as :math:`l = 0.2989*r + 0.5870*g + 0.1141*b`.
+
+        **Corresponding C++ API:** ``viren2d::Color::GrayscaleIntensity``.
+        )docstr")
+      .def(
         "with_alpha",
         &Color::WithAlpha, R"docstr(
-        Returns a color with the same *r,g,b* components, but the given ``alpha``.
+        Returns a color with the same :math:`r,g,b` components, but
+        the given :math:`\alpha`.
 
         **Corresponding C++ API:** ``viren2d::Color::WithAlpha``.
         )docstr",
@@ -387,7 +435,7 @@ void RegisterColor(py::module &m) {
         Returns the inverse/complementary color.
 
         Except for shades of gray, this returns
-        :math:`(1 - R, 1 - G, 1 - B, A)`. For gray values, it will either
+        :math:`(1 - r, 1 - g, 1 - b, a)`. For gray values, it will either
         return black or white. In any case, the returned alpha value will stay
         the same.
 
@@ -513,7 +561,8 @@ void RegisterColor(py::module &m) {
         )docstr")
       .def(
         "is_shade_of_gray", &Color::IsShadeOfGray, R"docstr(
-        Checks if the *r,g,b* values are almost equal, *i.e.* :math:`\pm \epsilon`.
+        Checks if the *r,g,b* values are almost equal, *i.e.* within
+        :math:`\pm \epsilon`.
 
         **Corresponding C++ API:** ``viren2d::Color::IsShadeOfGray``.
         )docstr",
@@ -534,8 +583,8 @@ void RegisterColor(py::module &m) {
         &FromObjectIDHelper, R"docstr(
         Returns a color for the (numeric) object ID.
 
-        Useful to consistently use the same color for the
-        same object or object class.
+        Allows coloring the same object instance consistently, *e.g.* when
+        tracking objects.
 
         **Corresponding C++ API:** ``viren2d::Color::FromObjectId``.
 
@@ -546,6 +595,8 @@ void RegisterColor(py::module &m) {
             :class:`~viren2d.ColorMap`. This parameter can be specified both
             via the enumeration value and the color map's string
             representation.
+
+        .. viren2d-color-by-id-defaults::
         )docstr",
         py::arg("id"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
@@ -556,8 +607,8 @@ void RegisterColor(py::module &m) {
         &FromObjectCategoryHelper, R"docstr(
         Returns a color for the given category name.
 
-        Useful to consistently use the same :class:`~viren2d.Color`
-        for the same object class, *e.g.* ``car`` or ``person``.
+        Allows coloring the same object class consistently, *e.g.* to
+        distinguish multiple classes, such as ``car`` or ``person``.
 
         **Corresponding C++ API:** ``viren2d::Color::FromObjectCategory``.
 
@@ -571,54 +622,86 @@ void RegisterColor(py::module &m) {
             :class:`~viren2d.ColorMap`. This parameter can be specified both
             via the enumeration value and the color map's string
             representation.
+
+        Currently, the following category names are available. The shown
+        colors are from the default color map:
+
+        .. viren2d-object-category-names::
         )docstr",
         py::arg("category"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
+  
+
+  color.def_static(
+        "from_hsv",
+        &Color::FromHSV, R"docstr(
+        Creates a :class:`~viren2d.Color` from its HSV representation.
+
+        Args:
+          h: Hue, :math:`h \in [0, 360]`.
+          s: Saturation, :math:`s \in [0, 1]`.
+          v: Value, :math:`v \in [0, 1]`.
+          alpha: Optional opacity of the color, :math:`\alpha \in [0, 1]`.
+
+        **Corresponding C++ API:** ``viren2d::ColorFromHSV``.
+        )docstr",
+        py::arg("h"),
+        py::arg("s"),
+        py::arg("v"),
+        py::arg("alpha") = 1.0);
 
 
   color.def_static(
         "object_category_names",
         &Color::ListObjectCategories, R"docstr(
         Returns a list of the category names which are explicitly
-        known :meth:`~viren2d.Color.from_object_category`.
+        known to :meth:`~viren2d.Color.from_object_category`.
 
-        Currently, this list contains all
-        `COCO <https://cocodataset.org>`__ classes (80+1, *i.e.*
-        ``background``), plus some additional aliases, *e.g.*
+        **Corresponding C++ API:** ``viren2d::Color::ListObjectCategories``.
+
+        This category list contains all (80+1)
+        `COCO <https://cocodataset.org>`__ classes (incl.
+        ``background``), plus additional aliases, *e.g.*
         ``human``\ :math:`\leftrightarrow`\ ``person``, or
         ``vehicle``\ :math:`\leftrightarrow`\ ``car``.
 
-        **Corresponding C++ API:** ``viren2d::Color::ListObjectCategories``.
+        Currently, the following category names are available. The shown
+        colors are from the default color map used in
+        :meth:`~viren2d.Color.from_object_category`:
+
+        .. viren2d-object-category-names::
         )docstr");
 
 
   // Also aliases for typing convenience
   m.def("color_from_object_id",
         &FromObjectIDHelper,
-        "Alias of :meth:`~viren2d.Color.from_object_id`.",
+        "Alias of :meth:`viren2d.Color.from_object_id`.",
         py::arg("id"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("color_from_object_category",
         &FromObjectCategoryHelper,
-        "Alias of :meth:`~viren2d.Color.from_object_category`.",
+        "Alias of :meth:`viren2d.Color.from_object_category`.",
         py::arg("category"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("object_category_names",
         &Color::ListObjectCategories,
-        "Alias of :meth:`~viren2d.Color.object_category_names`.");
+        "Alias of :meth:`viren2d.Color.object_category_names`.");
 
 
   m.def("axis_color",
         &CoordinateAxisColorFromPyObject, R"docstr(
-        Returns a color for the :math:`x`, :math:`y`, or :math:`z` axis.
+        Returns a default color for the :math:`x`, :math:`y`, or :math:`z` axis.
 
         Can be used, for example, to visualize the origin/orientation
         of the world coordinate system via differently colored
         arrows.
+
+        Current axis colors: |axis-colors-html|
 
         **Corresponding C++ API:** ``viren2d::Color::CoordinateAxisColor``.
 
@@ -651,11 +734,11 @@ void RegisterColor(py::module &m) {
         py::arg("green"),
         py::arg("blue"),
         py::arg("alpha") = 1.0);
-
+  
 
   m.def("fade_out_linear",
         &ColorFadeOutLinear, R"docstr(
-        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
@@ -663,14 +746,14 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutLinear``.
 
         Returns:
-          The input value, *i.e.* :math:`y = \text{value}`.
+          float: The input value, *i.e.* :math:`y = \text{value}`.
         )docstr",
         py::arg("value"));
 
 
   m.def("fade_out_quadratic",
         &ColorFadeOutQuadratic, R"docstr(
-        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
@@ -678,13 +761,13 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutQuadratic``.
 
         Returns:
-          The quadratic factor :math:`y = \text{value}^2`.
+          float: The quadratic factor :math:`y = \text{value}^2`.
         )docstr", py::arg("value"));
 
 
   m.def("fade_out_logarithmic",
         &ColorFadeOutLogarithmic, R"docstr(
-        Color transition function for :meth:`~viren2d.Painter.draw_trajectory`.
+        Color transition function for :meth:`viren2d.Painter.draw_trajectory`.
 
         Can be used to compute the color mixing weight for the
         color transition of fading trajectories.
@@ -692,7 +775,7 @@ void RegisterColor(py::module &m) {
         **Corresponding C++ API:** ``viren2d::ColorFadeOutLogarithmic``.
 
         Returns:
-          The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * \text{value} + 1)`.
+          float: The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * \text{value} + 1)`.
         )docstr", py::arg("value"));
 }
 

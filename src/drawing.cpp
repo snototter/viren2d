@@ -59,8 +59,34 @@ public:
   ImageBuffer GetCanvas(bool copy) const override;
 
 
+  bool SetClipRegion(const Rect &clip) override {
+    SPDLOG_DEBUG("SetClipRection: clip={:s}.", clip);
+    return helpers::SetClipRegion(
+          surface_, context_, clip);
+  }
+
+
+  bool SetClipRegion(const Vec2d &center, double radius) override {
+    SPDLOG_DEBUG("SetClipRection: c={:s}, r={:.2f}.", center, radius);
+    return helpers::SetClipRegion(
+          surface_, context_, center, radius);
+  }
+
+
+  bool ResetClipRegion() override {
+    SPDLOG_DEBUG("ResetClipRegion.");
+    return helpers::ResetClipRegion(surface_, context_);
+  }
+
+
+  bool DrawGradient(const ColorGradient &gradient) override {
+    SPDLOG_DEBUG("DrawGradient: {:s}.", gradient);
+    return helpers::DrawGradient(surface_, context_, gradient);
+  }
+
+
 protected:
-  void DrawArcImpl(
+  bool DrawArcImpl(
       const Vec2d &center, double radius,
       double angle1, double angle2, const LineStyle &line_style,
       bool include_center, const Color &fill_color) override {
@@ -70,37 +96,40 @@ protected:
           center, radius, angle1, angle2, line_style,
           include_center, fill_color);
 
-    helpers::DrawArc(
+    return helpers::DrawArc(
           surface_, context_, center, radius,
           angle1, angle2, line_style,
           include_center, fill_color);
   }
 
 
-  void DrawArrowImpl(
+  bool DrawArrowImpl(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) override {
     SPDLOG_DEBUG(
           "DrawArrow: p1={:s} --> p2={:s}, style={:s}.",
           from, to, arrow_style);
 
-    helpers::DrawArrow(surface_, context_, from, to, arrow_style);
+    return helpers::DrawArrow(surface_, context_, from, to, arrow_style);
   }
 
 
-  void DrawBoundingBox2DImpl(
-      const Rect &rect, const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style) override {
-    SPDLOG_DEBUG(
-          "DrawBoundingBox2D: {:s}, {:d} label lines, style={:s}.",
-          rect, label.size(), style);
-
-    helpers::DrawBoundingBox2D(
-          surface_, context_, rect, label, style);
+  bool DrawBoundingBox2DImpl(
+      const Rect &rect, const BoundingBox2DStyle &style,
+      const std::vector<std::string> &label_top,
+      const std::vector<std::string> &label_bottom,
+      const std::vector<std::string> &label_left,
+      bool left_top_to_bottom,
+      const std::vector<std::string> &label_right,
+      bool right_top_to_bottom) override {
+    SPDLOG_DEBUG("DrawBoundingBox2D: {:s}, style={:s}.", rect, style);
+    return helpers::DrawBoundingBox2D(
+          surface_, context_, rect, style, label_top, label_bottom,
+          label_left, left_top_to_bottom, label_right, right_top_to_bottom);
   }
 
 
-  void DrawCircleImpl(
+  bool DrawCircleImpl(
       const Vec2d &center, double radius,
       const LineStyle &line_style,
       const Color &fill_color) override {
@@ -108,25 +137,25 @@ protected:
           "DrawCircle: c={:s}, r={:.1f}, style={:s}, fill={:s}.",
           center, radius, line_style, fill_color);
 
-    helpers::DrawCircle(
+    return helpers::DrawCircle(
           surface_, context_, center, radius,
           line_style, fill_color);
   }
 
 
-  void DrawEllipseImpl(
+  bool DrawEllipseImpl(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
           "DrawEllipse: {:s}, style={:s}, fill={:s}.",
           ellipse, line_style, fill_color);
 
-    helpers::DrawEllipse(
+    return helpers::DrawEllipse(
           surface_, context_, ellipse, line_style, fill_color);
   }
 
 
-  void DrawGridImpl(
+  bool DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) override {
@@ -134,7 +163,7 @@ protected:
           "DrawGrid: cells={:.1f}x{:.1f}, tl={:s}, br={:s}, style={:s}.",
           spacing_x, spacing_y, top_left, bottom_right, line_style);
 
-    helpers::DrawGrid(
+    return helpers::DrawGrid(
           surface_, context_, top_left, bottom_right,
           spacing_x, spacing_y, line_style);
   }
@@ -151,7 +180,7 @@ protected:
 
 
 
-  void DrawImageImpl(
+  bool DrawImageImpl(
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
@@ -162,35 +191,32 @@ protected:
           image.ToString(), AnchorToString(anchor), position.ToString(),
           alpha, scale_x, scale_y, rotation, clip_factor, line_style.ToString());
 
-    helpers::DrawImage(
+    return helpers::DrawImage(
           surface_, context_, image, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
 
-  void DrawLineImpl(
+  bool DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) override {
     SPDLOG_DEBUG(
           "DrawLine: p1={:s}, p2={:s}, style={:s}.", from, to, line_style);
 
-    helpers::DrawLine(
+    return helpers::DrawLine(
           surface_, context_, from, to, line_style);
   }
 
 
-  void DrawMarkerImpl(
+  bool DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) override {
     SPDLOG_DEBUG("DrawMarker: pos={:s}, style={:s}.", pos, style);
 
-    helpers::DrawMarker(surface_, context_, pos, style);
-
-    //TODO(improvement): Marker should support different contour & fill colors
-    // --> makes it easier to highlight points!
+    return helpers::DrawMarker(surface_, context_, pos, style);
   }
 
 
-  void DrawMarkersImpl(
+  bool DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) override {
     SPDLOG_DEBUG(
@@ -205,18 +231,21 @@ protected:
     // b) unless we're drawing hundreds+ points at once,
     //    I doubt that the speedup would be noticable
     MarkerStyle s(style);
+    bool success = true;
     for (const auto &p : markers) {
       if (p.second.IsValid()) {
         s.color = p.second;
       } else {
         s.color = style.color;
       }
-      helpers::DrawMarker(surface_, context_, p.first, s);
+      const bool result = helpers::DrawMarker(surface_, context_, p.first, s);
+      success = success && result;
     }
+    return success;
   }
 
 
-  void DrawPolygonImpl(
+  bool DrawPolygonImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style,
       const Color &fill_color) override {
@@ -224,19 +253,19 @@ protected:
           "DrawPolygon: {:d} points, style={:s}, fill={:s}.",
           points.size(), line_style, fill_color);
 
-    helpers::DrawPolygon(
+    return helpers::DrawPolygon(
           surface_, context_, points, line_style, fill_color);
   }
 
 
-  void DrawRectImpl(
+  bool DrawRectImpl(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) override {
     SPDLOG_DEBUG(
           "DrawRect: {:s}, style={:s}, fill={:s}.",
           rect, line_style, fill_color);
 
-    helpers::DrawRect(
+    return helpers::DrawRect(
           surface_, context_, rect, line_style, fill_color);
   }
 
@@ -280,7 +309,7 @@ protected:
   }
 
 
-  void DrawTrajectoryImpl(
+  bool DrawTrajectoryImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &style,
       const Color &color_fade_out,
@@ -299,13 +328,13 @@ protected:
             points, smoothing_window)
         : points;
 
-    helpers::DrawTrajectory(
+    return helpers::DrawTrajectory(
           surface_, context_, smoothed, style, color_fade_out,
           oldest_position_first, mix_factor);
   }
 
 
-  void DrawTrajectoriesImpl(
+  bool DrawTrajectoriesImpl(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,
@@ -317,6 +346,7 @@ protected:
           oldest_position_first, smoothing_window);
 
     LineStyle s(style);
+    bool success = true;
     for (const auto &p : trajectories) {
       const std::vector<Vec2d> &smoothed =
           (smoothing_window > 0)
@@ -332,23 +362,30 @@ protected:
         s.color = style.color;
       }
 
-      helpers::DrawTrajectory(
+      const bool result = helpers::DrawTrajectory(
             surface_, context_, smoothed, s, color_fade_out,
             oldest_position_first, mix_factor);
+      // Avoid combining the flag update. This way, valid trajectories will
+      // still be drawn after we skipped an invalid one.
+      success = success && result;
     }
+    return success;
   }
 
 
-  bool DrawXYZAxesImpl(
+  std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxesImpl(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin, const Vec3d &lengths, const ArrowStyle &style,
       const Color &color_x, const Color &color_y,
       const Color &color_z) override {
     SPDLOG_DEBUG(
           "DrawXYZAxes: Axis lengths {:s}.", lengths);
-    return helpers::DrawXYZAxes(
+    Vec2d img_origin, img_x, img_y, img_z;
+    bool any_visible = helpers::DrawXYZAxes(
           surface_, context_, K, R, t, origin, lengths, style,
-          color_x, color_y, color_z, GetCanvasSize());
+          color_x, color_y, color_z, GetCanvasSize(), img_origin,
+          img_x, img_y, img_z);
+    return std::make_tuple(any_visible, img_origin, img_x, img_y, img_z);
   }
 
 
@@ -467,6 +504,19 @@ void PainterImpl::SetCanvas(int height, int width, const Color &color) {
         "SetCanvas: width={:d}, height={:d}, color={:s}).",
         width, height, color);
 
+  if ((0 > height) || (0 > width)) {
+    std::ostringstream msg;
+    msg << "Invalid canvas dimension (w=" << width << ", h=" << height << ")!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
+  }
+
+  if (!color.IsValid()) {
+    const std::string msg("Cannot initialize canvas with invalid color!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
+  }
+
   // Simplest solution is to create a new surface:
   if (context_) {
     cairo_destroy(context_);
@@ -509,6 +559,13 @@ void PainterImpl::SetCanvas(const std::string &image_filename) {
 
 void PainterImpl::SetCanvas(const ImageBuffer &image_buffer) {
   SPDLOG_DEBUG("SetCanvas: {:s}).", image_buffer.ToString());
+  if (!image_buffer.IsValid()) {
+    const std::string msg(
+          "Cannot initialize canvas from invalid ImageBuffer!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
+  }
+
   if (image_buffer.Channels() != 4) {
     SetCanvas(image_buffer.ToChannels(4));
   } else {
@@ -538,6 +595,9 @@ void PainterImpl::SetCanvas(const ImageBuffer &image_buffer) {
           "SetCanvas: Creating Cairo surface and context from image buffer.");
     surface_ = cairo_image_surface_create(
           CAIRO_FORMAT_ARGB32, image_buffer.Width(), image_buffer.Height());
+    //FIXME refactor - check stride/memory alignment before copying!
+    // make it reusable in DrawImage (create surface_t for image; add flag to
+    // "try" copying (if the memory alignment is suitable)
     std::memcpy(
           cairo_image_surface_get_data(surface_),
           image_buffer.ImmutableData(),
@@ -581,7 +641,7 @@ ImageBuffer PainterImpl::GetCanvas(bool copy) const {
   if (copy) {
     buffer.CreateCopiedBuffer(
           data, height, width, channels,
-          row_stride, channels, ImageBufferType::UInt8);
+          row_stride, channels, 1, ImageBufferType::UInt8);
   } else {
     buffer.CreateSharedBuffer(
           data, height, width, channels,
@@ -596,3 +656,37 @@ std::unique_ptr<Painter> CreatePainter() {
 }
 
 } // namespace viren2d
+
+
+/**
+  TODO Drawing poses
+
+draw_skeleton
+
+Potential ideas for default skeleton visualization:
+1) Draw stick figure (lines with round caps, optionally draw circles at joint locations)
+2) Draw lines as ellipses:
+
+import viren2d
+painter = viren2d.Painter(400, 300)
+line_style = viren2d.LineStyle(width=3, color='azure!80')
+fill_color = 'ivory!80'
+ellipse = viren2d.Ellipse(center=(100, 60), axes=(180, 7), rotation=40)
+painter.draw_ellipse(ellipse, line_style, fill_color)
+
+ellipse = viren2d.Ellipse(center=(100, 200), axes=(180, 3), rotation=40)
+painter.draw_ellipse(ellipse, line_style, fill_color)
+
+ellipse = viren2d.Ellipse(center=(100, 220), axes=(100, 7), rotation=40)
+line_style.width = 1
+painter.draw_ellipse(ellipse, line_style, 'azure')
+
+ellipse = viren2d.Ellipse(center=(100, 240), axes=(80, 7), rotation=40)
+painter.draw_ellipse(ellipse, viren2d.LineStyle.Invalid, 'azure')
+
+from vito import imvis
+import numpy as np
+imvis.imshow(np.array(painter.canvas))
+
+
+**/

@@ -49,18 +49,17 @@ set(INSTALL_DIR_CMAKE ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 # -----------------------------------------------------------------------------
 # Compiler options
 
+# Set default build type if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # Only std c++14, not gnu++14
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO(cmake-improvement) gcc vs msvc vs... currently assumes linux, check CMakeLists of werkzeugkiste or spdlog!
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
-
-# Set default build type if not specified
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
 
 
 # Compile library with -fPIC
@@ -82,7 +81,9 @@ configure_file(
 
 set(viren2d_PUBLIC_HEADER_FILES
     include/viren2d/colors.h
+    include/viren2d/colorgradients.h
     include/viren2d/colormaps.h
+    include/viren2d/collage.h
     include/viren2d/drawing.h
     include/viren2d/opticalflow.h
     include/viren2d/imagebuffer.h
@@ -107,7 +108,9 @@ set(viren2d_PRIVATE_HEADER_FILES
 set(viren2d_SOURCE_FILES
     src/primitives.cpp
     src/colors.cpp
+    src/colorgradients.cpp
     src/colormaps.cpp
+    src/collage.cpp
     src/drawing.cpp
     src/opticalflow.cpp
     src/imagebuffer.cpp
@@ -116,7 +119,7 @@ set(viren2d_SOURCE_FILES
     src/helpers/colormaps_helpers.cpp
     src/helpers/drawing_helpers_text.cpp
     src/helpers/drawing_helpers_image.cpp
-    src/helpers/drawing_helpers_surveillance.cpp
+    src/helpers/drawing_helpers_detection_tracking.cpp
     src/helpers/drawing_helpers_pinhole.cpp
     src/helpers/drawing_helpers_primitives.cpp)
 
@@ -266,6 +269,8 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/binding_helpers.h
         src/bindings/bindings_colors.cpp
         src/bindings/bindings_colormaps.cpp
+        src/bindings/bindings_colorgradients.cpp
+        src/bindings/bindings_collage.cpp
         src/bindings/bindings_imagebuffer.cpp
         src/bindings/bindings_opticalflow.cpp
         src/bindings/bindings_primitives.cpp
@@ -274,6 +279,8 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/bindings_painter.cpp
         src/bindings/bindings_vector.cpp
         src/bindings.cpp)
+        
+    setup_spdlog(${viren2d_TARGET_PYTHON_LIB})
 
     target_compile_definitions(${viren2d_TARGET_PYTHON_LIB} PRIVATE
         viren2d_VERSION_INFO=${viren2d_VERSION}

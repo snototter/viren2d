@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <iomanip>
-#include <sstream>
+#include <ostream>
 #include <cstdint>
 #include <cstring>
 #include <cmath>
@@ -94,35 +94,38 @@ ImageBuffer LoadOpticalFlow(const std::string &filename) {
   std::ifstream file(filename, std::ios::in | std::ios::binary);
 
   if (!file.is_open()) {
-    std::string s("Could not open optical flow file: \"");
-    s += filename;
-    s += "\"!";
-    throw std::logic_error(s);
+    std::string msg("Could not open optical flow file: \"");
+    msg += filename;
+    msg += "\"!";
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   helpers::FloTag tag, width, height;
 
   file.read(tag.buffer, 4);
   if (tag.fval != helpers::kFloMagicFloat) {
-    std::stringstream s;
-    s << "Invalid magic number " << std::fixed << std::setprecision(2)
-      << tag.fval << "/\"" << tag.buffer[0] << tag.buffer[1] << tag.buffer[2]
-      << tag.buffer[3] << "\" instead of " << std::fixed << std::setprecision(2)
-      << helpers::kFloMagicFloat << "/\"" << helpers::kFloMagicTag.buffer[0]
-      << helpers::kFloMagicTag.buffer[1] << helpers::kFloMagicTag.buffer[2]
-      << helpers::kFloMagicTag.buffer[3] << "\" in file \""
-      << filename << "\"";
-    throw std::logic_error(s.str());
+    std::ostringstream msg;
+    msg << "Invalid magic number " << std::fixed << std::setprecision(2)
+        << tag.fval << "/\"" << tag.buffer[0] << tag.buffer[1] << tag.buffer[2]
+        << tag.buffer[3] << "\" instead of " << std::fixed << std::setprecision(2)
+        << helpers::kFloMagicFloat << "/\"" << helpers::kFloMagicTag.buffer[0]
+        << helpers::kFloMagicTag.buffer[1] << helpers::kFloMagicTag.buffer[2]
+        << helpers::kFloMagicTag.buffer[3] << "\" in file \""
+        << filename << "\"";
+    SPDLOG_ERROR(msg.str());
+    throw std::logic_error(msg.str());
   }
 
   file.read(width.buffer, 4);
   file.read(height.buffer, 4);
 
   if (!file.good()) {
-    std::string s("Optical flow file is corrupt, could not read dimensions from \"");
-    s += filename;
-    s += "\"!";
-    throw std::logic_error(s);
+    std::string msg("Optical flow file is corrupt, could not read dimensions from \"");
+    msg += filename;
+    msg += "\"!";
+    SPDLOG_ERROR(msg);
+    throw std::logic_error(msg);
   }
 
   ImageBuffer flow(height.ival, width.ival, 2, ImageBufferType::Float);
@@ -139,7 +142,9 @@ ImageBuffer LoadOpticalFlow(const std::string &filename) {
 
 void SaveOpticalFlow(const std::string &filename, const ImageBuffer &flow) {
   if (filename.empty()) {
-    throw std::invalid_argument("File name must not be empty in `SaveOpticalFlow`!");
+    const std::string msg("File name must not be empty in `SaveOpticalFlow`!");
+    SPDLOG_ERROR(msg);
+    throw std::invalid_argument(msg);
   }
 
   const ImageBuffer &float_flow = (flow.BufferType() == ImageBufferType::Float)
@@ -214,16 +219,17 @@ ImageBuffer ColorizeFlowHelper(
   return dst;
 }
 
-
+//FIXME change stringstream to ostringstream!
 ImageBuffer ColorizeOpticalFlow(
     const ImageBuffer &flow, ColorMap colormap,
     double motion_normalizer, int output_channels) {
   if ((output_channels < 3) || (output_channels > 4)) {
-    std::stringstream s;
-    s << "Invalid input to `ColorizeOpticalFlow`: Number of output channels "
-         "must be 3 or 4, but got "
-      << output_channels << '!';
-    throw std::invalid_argument(s.str());
+    std::stringstream msg;
+    msg << "Invalid input to `ColorizeOpticalFlow`: Number of output channels "
+           "must be 3 or 4, but got "
+        << output_channels << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   switch (flow.BufferType()) {
@@ -237,12 +243,13 @@ ImageBuffer ColorizeOpticalFlow(
             flow, colormap, motion_normalizer, output_channels);
 
     default: {
-        std::string s(
+        std::string msg(
               "Invalid input to `ColorizeOpticalFlow`: Flow values must be of "
               "type `float` or `double`, but got ");
-        s += flow.ToString();
-        s += '!';
-        throw std::invalid_argument(s);
+        msg += flow.ToString();
+        msg += '!';
+        SPDLOG_ERROR(msg);
+        throw std::invalid_argument(msg);
       }
   }
 }
@@ -253,18 +260,20 @@ ImageBuffer OpticalFlowLegend(
     bool clip_circle, int output_channels) {
 
   if ((output_channels < 3) || (output_channels > 4)) {
-    std::stringstream s;
-    s << "Invalid input to `OpticalFlowColorWheel`: Number of output channels "
-         "must be 3 or 4, but got "
-      << output_channels << '!';
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Invalid input to `OpticalFlowColorWheel`: Number of output channels "
+           "must be 3 or 4, but got "
+        << output_channels << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   if (size < 2) {
-    std::stringstream s;
-    s << "Invalid input to `OpticalFlowColorWheel`: Size must be > 2, but got "
-      << size << '!';
-    throw std::invalid_argument(s.str());
+    std::stringstream msg;
+    msg << "Invalid input to `OpticalFlowColorWheel`: Size must be > 2, but got "
+        << size << '!';
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   const std::pair<const helpers::RGBColor *, std::size_t> map = helpers::GetColorMap(colormap);

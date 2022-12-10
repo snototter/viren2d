@@ -4,10 +4,13 @@
 #include <string>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 #include <viren2d/colors.h>
 #include <viren2d/colormaps.h>
 #include <viren2d/primitives.h>
+#include <viren2d/imagebuffer.h>
+#include <viren2d/positioning.h>
 
 
 #define STRINGIFY(x) #x
@@ -32,11 +35,16 @@ Color ColorFromTuple(const pybind11::tuple &tpl);
 pybind11::tuple ColorToTuple(const Color &obj);
 
 
-//-------------------------------------------------  Primitives (Ellipse)
+//-------------------------------------------------  Primitives
 void RegisterEllipse(pybind11::module &m);
-
-//-------------------------------------------------  Primitives (Rect)
 void RegisterRectangle(pybind11::module &m);
+void RegisterLine2d(pybind11::module &m);
+
+
+//------------------------------------------------- ImageBuffer
+void RegisterImageBuffer(pybind11::module &m);
+ImageBuffer CastToImageBufferUInt8C4(pybind11::array buf);
+
 
 //-------------------------------------------------  Styles (MarkerStyle & LineStyle)
 // Enums must be registered before using them in the
@@ -52,7 +60,8 @@ void RegisterLineStyle(pybind11::module &m);
 void RegisterArrowStyle(pybind11::module &m);
 
 //-------------------------------------------------  Styles (TextStyle)
-
+HorizontalAlignment HorizontalAlignmentFromPyObject(const pybind11::object &o);
+VerticalAlignment VerticalAlignmentFromPyObject(const pybind11::object &o);
 void RegisterAnchors(pybind11::module &m);
 void RegisterTextStyle(pybind11::module &m);
 
@@ -63,9 +72,17 @@ void RegisterBoundingBox2DStyle(pybind11::module &m);
 void RegisterVectors(pybind11::module &m);
 
 //-------------------------------------------------  Painter
+Anchor AnchorFromPyObject(const pybind11::object &o);
 std::string PathStringFromPyObject(const pybind11::object &path);
-void RegisterImageBuffer(pybind11::module &m);
 void RegisterPainter(pybind11::module &m);
+
+
+//------------------------------------------------- Collage
+void RegisterCollage(pybind11::module &m);
+
+
+//-------------------------------------------------  Color gradients
+void RegisterColorGradients(pybind11::module &m);
 
 //-------------------------------------------------  Colormaps
 void RegisterColormaps(pybind11::module &m);

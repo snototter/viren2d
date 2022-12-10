@@ -20,7 +20,7 @@
 
 
 //FIXME: should implement a ToDetailedString() for all styles (to be called whenever tests fail)
-//FIXME switch to coding/documentation style
+//FIXME change this header to the updated coding/documentation style
 
 namespace viren2d {
 //-------------------------------------------------  Line endpoints
@@ -559,7 +559,7 @@ struct BoundingBox2DStyle {
   /// color as the contour but with a different alpha").
   Color box_fill_color;
   Color text_fill_color;
-  LabelPosition label_position;
+//  LabelPosition label_position;
   Vec2d label_padding;
   bool clip_label;
 
@@ -570,7 +570,7 @@ struct BoundingBox2DStyle {
       const TextStyle &label_style,
       const Color &bounding_box_fill_color,
       const Color &label_box_color,
-      LabelPosition label_pos,
+//      LabelPosition label_pos,
       const Vec2d &text_padding,
       bool clip_lbl);
 

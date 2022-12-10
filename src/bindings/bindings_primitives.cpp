@@ -1,4 +1,4 @@
-#include <sstream>
+#include <ostream>
 #include <stdexcept>
 #include <cstdlib>
 
@@ -121,6 +121,11 @@ void RegisterEllipse(pybind11::module &m) {
       >>> painter.draw_ellipse((center, axes, ...), line_style=...)
 
       **Corresponding C++ API:** ``viren2d::Ellipse``.
+
+      |image-ellipse-examples|
+
+      The code listing to create this visualization is shown in the
+      :ref:`RTD tutorial section on ellipses<tutorial-draw-ellipses>`.
       )docstr";
   py::class_<Ellipse> ellipse(m, "Ellipse", doc.c_str());
 
@@ -317,7 +322,7 @@ void RegisterEllipse(pybind11::module &m) {
   // Add alias for typing convenience
   m.def("ellipse_from_endpoints",
         &Ellipse::FromEndpoints,
-        "Alias of :meth:`~viren2d.Ellipse.from_endpoints`.",
+        "Alias of :meth:`viren2d.Ellipse.from_endpoints`.",
         py::arg("pt1"), py::arg("pt2"), py::arg("width"),
         py::arg("angle_from") = 0.0,
         py::arg("angle_to") = 360.0,
@@ -423,6 +428,11 @@ void RegisterRectangle(py::module &m) {
         >>> rect = viren2d.Rect.rom_lrtb(left, right, top, bottom)
 
         **Corresponding C++ API:** ``viren2d::Rect``.
+
+        |image-rect-examples|
+
+        The code listing to create this visualization is shown in the
+        :ref:`RTD tutorial section on rectangles<tutorial-draw-rects>`.
         )docstr");
 
 
@@ -459,7 +469,6 @@ void RegisterRectangle(py::module &m) {
       "  radius: Corner radius as :class:`float`, see documentation\n"
       "    of the :attr:`radius` attribute.\n";
   rect.def(
-        //py::init<Vec2d, Vec2d, double, double>(), doc.c_str(),
         py::init<Vec2d, Vec2d, double, double>(),
         doc.c_str(),
         py::arg("center"),
@@ -626,7 +635,7 @@ void RegisterRectangle(py::module &m) {
   // Add aliases of the static initialization methods (for typing convenience)
   m.def("rect_from_cwh",
         &Rect::FromCWH,
-        "Alias of :meth:`~viren2d.Rect.from_cwh`.",
+        "Alias of :meth:`viren2d.Rect.from_cwh`.",
         py::arg("cx"),
         py::arg("cy"),
         py::arg("width"),
@@ -636,7 +645,7 @@ void RegisterRectangle(py::module &m) {
 
   m.def("rect_from_lrtb",
         &Rect::FromLRTB,
-        "Alias of :meth:`~viren2d.Rect.from_lrtb`.",
+        "Alias of :meth:`viren2d.Rect.from_lrtb`.",
         py::arg("left"),
         py::arg("right"),
         py::arg("top"),
@@ -645,7 +654,7 @@ void RegisterRectangle(py::module &m) {
 
   m.def("rect_from_ltwh",
         &Rect::FromLTWH,
-        "Alias of :meth:`~viren2d.Rect.from_ltwh`.",
+        "Alias of :meth:`viren2d.Rect.from_ltwh`.",
         py::arg("left"),
         py::arg("top"),
         py::arg("width"),
@@ -683,6 +692,312 @@ void RegisterRectangle(py::module &m) {
   // A Rect can be initialized from a given tuple/list.
   py::implicitly_convertible<py::tuple, Rect>();
   py::implicitly_convertible<py::list, Rect>();
+}
+
+
+//-------------------------------------------------  Line2d
+py::tuple Line2dToTuple(const Line2d &obj) {
+  return py::make_tuple(obj.From(), obj.To());
+}
+
+
+Line2d Line2dFromTupleOrList(const py::object &object) {
+  if (!py::isinstance<py::tuple>(object)
+      && !py::isinstance<py::list>(object)) {
+    std::string s("Cannot cast ");
+    s += py::cast<std::string>(object.attr("__class__").attr("__name__"));
+    s += " to viren2d.Line2d, expected either tuple or list.";
+    throw std::invalid_argument(s);
+  }
+
+  const py::tuple tpl = object.cast<py::tuple>();
+  if (tpl.size() != 2) {
+    std::ostringstream s;
+    s << "Cannot create a viren2d.Line2d from tuple/list with "
+      << tpl.size()
+      << " entries! Only (pt1, pt2) is supported.";
+    throw std::invalid_argument(s.str());
+  }
+
+  return Line2d(tpl[0].cast<Vec2d>(), tpl[1].cast<Vec2d>());
+}
+
+
+Line2d Line2dFromTuple(const py::tuple &tpl) {
+  return Line2dFromTupleOrList(tpl);
+}
+
+
+void RegisterLine2d(pybind11::module &m) {
+  py::class_<Line2d> line(m, "Line2d", R"docstr(
+        A line or line segment in 2D space.
+
+        TODO extend bindings, add implicit casts
+
+        **Corresponding C++ API:** ``viren2d::Line2d``.
+        )docstr");
+  
+  //FIXME implement bindings, implicit casts, etc.
+
+  // This docstring cannot(!!) be written as raw string.
+  // Otherwise, it messes up the sphinx parser.
+  std::string doc = "Creates a line from 2 points.\n\n"
+      "Args:\n"
+      "  pt1: Start point as :class:`~viren2d.Vec2d`.\n"
+      "  pt2: End point as :class:`~viren2d.Vec2d`.";
+  line.def(
+        py::init<Vec2d, Vec2d>(),
+        doc.c_str(),
+        py::arg("pt1"),
+        py::arg("pt2"));
+
+
+  line.def(
+        py::init<>(&Line2dFromTupleOrList), R"docstr(
+        Creates a line from a :class:`tuple` or :class:`list`.
+
+        This overloaded constructor is required to allow
+        implicit casting from a tuple/list holding
+        ``(pt1, pt2)``, where ``pt1`` & ``pt2`` are
+        the start and end points as :class:`~viren2d.Vec2d`.
+        )docstr",
+        py::arg("tpl"));
+
+  
+  line.def(
+        "__str__",
+        [](const Line2d &l) {
+          std::ostringstream s;
+          s << l;
+          return s.str();
+        })
+      .def(
+        "__repr__",
+        [](const Line2d &l) {
+          std::ostringstream s;
+          s << '<' << l << '>';
+          return s.str();
+        })
+      .def(
+        py::pickle(&Line2dToTuple, &Line2dFromTuple),
+        ":class:`~viren2d.Line2d` instances can be pickled.");
+
+
+  line.def(
+        "is_valid",
+        &Line2d::IsValid, R"docstr(
+        Returns ``True`` if the line is valid, *i.e.* :math:`\text{length} > 0`.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::IsValid``.
+        )docstr");
+
+
+  line.def(
+        "point_at_offset",
+        &Line2d::PointAtOffset, R"docstr(
+        Returns the interpolated point on the line/segment.
+
+        Computes :math:`\text{pt}_1 + \text{offset} * (\text{pt}_2 - \text{pt}_1)`.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::PointAtOffset``.
+        )docstr",
+        py::arg("offset"));
+  
+
+  line.def(
+        "reversed",
+        &Line2d::Reversed, R"docstr(
+        Returns a line with flipped start/end points.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::Reversed``.
+        )docstr");
+
+
+  line.def(
+        "left_to_right",
+        &Line2d::LeftToRight, R"docstr(
+        Returns a line where :attr:`~viren2d.Line2d.pt1` is left of
+        :attr:`~viren2d.Line2d.pt2`.
+
+        If this line is vertical, the points will be sorted such that
+        :attr:`~viren2d.Line2d.pt1` is above :attr:`~viren2d.Line2d.pt2`.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::LeftToRight``.
+        )docstr");
+  
+
+  line.def(
+        "direction",
+        &Line2d::Direction, R"docstr(
+        Returns the **non-normalized** direction vector from the start point
+        to the end point.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::Direction``.
+        )docstr")
+      .def(
+        "unit_direction",
+        &Line2d::UnitDirection, R"docstr(
+        Returns the unit direction vector from the start point to the end point.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::UnitDirection``.
+        )docstr");
+
+
+  line.def_property(
+        "pt1",
+        &Line2d::From,
+        &Line2d::SetFrom,
+        R"docstr(
+        :class:`~viren2d.Vec2d`: Starting point.
+
+          **Corresponding C++ API:** ``viren2d::Line2d::From`` and ``viren2d::Line2d::SetFrom``.
+        )docstr")
+      .def_property(
+        "pt2",
+        &Line2d::To,
+        &Line2d::SetTo, R"docstr(
+        :class:`~viren2d.Vec2d`: End point.
+
+          **Corresponding C++ API:** ``viren2d::Line2d::To`` and ``viren2d::Line2d::SetTo``.
+        )docstr")
+      .def_property_readonly(
+        "mid_point",
+        &Line2d::MidPoint, R"docstr(
+        :class:`~viren2d.Vec2d`: Mid point between :attr:`~viren2d.Line2d.pt1`
+          and :attr:`~viren2d.Line2d.pt2`.
+
+          This property simply provides convenience access to the mid point.
+          Alternatively, use :meth:`~viren2d.Line2d.point_at_offset` for an
+          adjustable offset along the line/segment.
+
+          **Corresponding C++ API:** ``viren2d::Line2d::MidPoint``.
+        )docstr")
+      .def_property_readonly(
+        "length",
+        &Line2d::Length, R"docstr(
+        float: Length of the segment between :attr:`~viren2d.Line2d.pt1`
+          and :attr:`~viren2d.Line2d.pt2`.
+
+          **Corresponding C++ API:** ``viren2d::Line2d::Length``.
+        )docstr");
+
+  line.def(
+        "homogeneous",
+        &Line2d::HomogeneousForm, R"docstr(
+        Returns the representation of this line in :math:`\mathbb{P}^2`.
+        
+        For more details on lines in projective space, refer to
+        `Bob Fisher's CVonline <http://homepages.inf.ed.ac.uk/rbf/CVonline/LOCAL_COPIES/BEARDSLEY/node2.html>`__,
+        or
+        `Stan Birchfield's lecture notes <http://robotics.stanford.edu/~birch/projective/node4.html>`__.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::HomogeneousForm``.
+
+        Returns:
+          The :class:`~viren2d.Vec3d` as the result of
+          :math:`\text{pt1} \times \text{pt2}`.
+        )docstr");
+
+
+  line.def(
+        "closest_point_on_line",
+        &Line2d::ClosestPointOnLine, R"docstr(
+        Returns the closest point on the **line**.
+        
+        This computes the projection of the given point onto this line.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::ClosestPointOnLine``.
+        )docstr",
+        py::arg("pt"))
+      .def(
+        "closest_point_on_segment",
+        &Line2d::ClosestPointOnSegment, R"docstr(
+        Returns the closest point on the **segment**.
+        
+        This computes the projection of the given point onto this segment.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::ClosestPointOnSegment``.
+        )docstr",
+        py::arg("pt"));
+
+
+  line.def(
+        "angle_rad",
+        &Line2d::AngleRad, R"docstr(
+        Returns the angle :math:`\alpha \in [0, \pi]` between this line and the
+        given directional vector.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::AngleRad``.
+        )docstr",
+        py::arg("vec"))
+      .def(
+        "angle_deg",
+        &Line2d::AngleDeg, R"docstr(
+        Returns the angle :math:`\alpha \in [0, 180]` between this line and the
+        given directional vector.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::AngleDeg``.
+        )docstr",
+        py::arg("vec"));
+
+
+  line.def(
+        "is_collinear",
+        &Line2d::IsCollinear, R"docstr(
+        Returns ``True`` if the two lines are collinear.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::IsCollinear``.
+        )docstr",
+        py::arg("line"));
+
+  // TODO add bindings for:
+  // DistancePointToLine / DistancePointToSegment
+  // IsPointLeftOfLine
+  // IntersectionLineLine / IntersectionLineLineSegment / IntersectionLineSegmentLineSegment
+  // IntersectionLineCircle / IntersectionLineSegmentCircle
+  
+  line.def(
+        "clip_line_by_rectangle",
+        &Line2d::ClipLineByRectangle, R"docstr(
+        Clips this **line** against the given **axis-aligned rectangle**.
+
+        **Corresponding C++ API:** ``viren2d::Line2d::ClipLineByRectangle``.
+        
+        Args:
+          top_left: Position of the rectangle's *top-left* corner as
+            :class:`~viren2d.Vec2d`.
+          size: Dimension of the rectangle as :class:`~viren2d.Vec2d`.
+
+        Returns:
+          The clipped :class:`~viren2d.Line2d`. If the line did not intersect
+          the rectangle, the result will be invalid. Check this
+          via :meth:`~viren2d.Line2d.is_valid`.
+        )docstr",
+        py::arg("top_left"),
+        py::arg("size"))
+      .def(
+        "clip_segment_by_rectangle",
+        &Line2d::ClipLineSegmentByRectangle, R"docstr(
+        Clips this **segment** against the given **axis-aligned rectangle**.
+        
+        **Corresponding C++ API:** ``viren2d::Line2d::ClipLineSegmentByRectangle``.
+
+        Args:
+          top_left: Position of the rectangle's *top-left* corner as
+            :class:`~viren2d.Vec2d`.
+          size: Dimension of the rectangle as :class:`~viren2d.Vec2d`.
+
+        Returns:
+          The clipped :class:`~viren2d.Line2d`. If the segment did not intersect
+          the rectangle, the result will be invalid. Check this
+          via :meth:`~viren2d.Line2d.is_valid`.
+        )docstr",
+        py::arg("top_left"),
+        py::arg("size"));
+
+  // A 2d line can be initialized from a given tuple/list.
+  py::implicitly_convertible<py::tuple, Line2d>();
+  py::implicitly_convertible<py::list, Line2d>();
 }
 
 } // namespace bindings

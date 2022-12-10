@@ -5,8 +5,9 @@ Overview & Basics
 -----------------
 
 **How to draw "stuff"?**
-   Simply :ref:`initialize a canvas<tutorial-painter-usage>` and use
-   the ``draw_...`` methods provided by the :class:`~viren2d.Painter`.
+   The :class:`~viren2d.Painter` class supports drawing onto existing images
+   or a plain canvas. After :ref:`setting up the canvas<tutorial-painter-usage>`,
+   use the ``Painter.draw_...`` methods.
 
 
 **Which "stuff" can be drawn?**
@@ -20,11 +21,11 @@ Overview & Basics
    data, gradient or flow fields, *etc.*
 
    Additionally, the :class:`~viren2d.ImageBuffer` provides some basic image
-   processing functionalities, *e.g.* to :meth:`~viren2d.ImageBuffer.blend`
-   images, :meth:`~viren2d.ImageBuffer.pixelate` regions, or perform
-   some general color space conversions. Note, however, that these
-   functionalities are only provided for user convenience and are not optimized
-   towards high-speed, *i.e.* ``viren2d`` does not use
+   processing functionalities, *e.g.* to blend/overlay images,
+   :meth:`~viren2d.ImageBuffer.pixelate` regions, some general color space
+   conversions, *etc.* Note, however, that these functionalities are only
+   provided for user convenience and are not optimized towards high-speed,
+   *i.e.* ``viren2d`` does not use
    `OpenMP <https://www.openmp.org/>`__,
    `oneTBB <https://github.com/oneapi-src/oneTBB>`__,
    `AVX <https://en.wikipedia.org/wiki/Advanced_Vector_Extensions>`__,

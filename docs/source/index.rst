@@ -13,7 +13,7 @@ Visualize Computer Vision Results Neatly in 2D
    ``viren2d`` has not yet reached a stable `v1.0` release.
    
    A stable, mostly feature-complete version might be released in
-   late 2022/early 2023 (this is only a hobby project).
+   early 2023 (this is only a hobby project).
    I **do not recommend** using this toolbox before ``v1.0``.
    Until then, the API may and will change anytime, many features
    are still not properly tested, python bindings & documentation
@@ -64,9 +64,9 @@ to be swiftly integrated into both **C++ and Python** environments.
    
    * |checked| Drawing Arcs
    * |checked| Drawing Arrows
-   * |unchecked| Drawing Bounding Boxes (2D) - WIP (implemented, but not fully tested/documented)
+   * |checked| Drawing Bounding Boxes (2D)
    * |checked| Drawing Circles
-   * |unchecked| Drawing Coordinate System Axes - WIP (implemented, but not fully tested/documented)
+   * |unchecked| Drawing Coordinate System Axes - WIP (implemented, but not tested/documented)
    * |checked| Drawing Ellipses
    * |checked| Drawing Lines
    * |checked| Drawing Markers
@@ -75,11 +75,11 @@ to be swiftly integrated into both **C++ and Python** environments.
    * |checked| Drawing Text (single-/multi-line)
    * |checked| Drawing Text Boxes (single-/multi-line)
    * |checked| Drawing Trajectories
-   * |unchecked| Image Overlay - WIP (implemented, but not fully tested/documented)
+   * |unchecked| Image Overlay - WIP (implemented, but not tested/documented)
    * |checked| Label Image Colorization
    * |checked| Optical Flow Colorization
-   * |unchecked| Pixelation - WIP (implemented, but not fully tested/documented)
-   * |unchecked| Relief Shading - WIP (implemented, but not fully tested/documented)
+   * |checked| Pixelation
+   * |unchecked| Relief Shading - WIP (implemented, but not tested)
    * |checked| Scaled Colorization (Pseudo/False Colors)
 
 **Which features will be added in the future?**

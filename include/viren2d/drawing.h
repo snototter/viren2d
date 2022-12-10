@@ -4,29 +4,34 @@
 #include <functional>
 #include <memory>
 #include <string>
-//#include <tuple>
 #include <utility>
 #include <vector>
+#include <tuple>
 
 #include <Eigen/Core>
-
 
 #include <viren2d/primitives.h>
 #include <viren2d/imagebuffer.h>
 #include <viren2d/colors.h>
+#include <viren2d/colorgradients.h>
 #include <viren2d/styles.h>
 
 
 namespace viren2d {
 
+/// Alias for a 3x3 double precision matrix.
+/// Since my typical viren2d use cases involve either NumPy or OpenCV,
+/// I choose the non-default Eigen::RowMajor layout.
 using Matrix3x3d = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>;
+
+/// Alias for a 3x4 double precision matrix.
 using Matrix3x4d = Eigen::Matrix<double, 3, 4, Eigen::RowMajor>;
 
 
 /// The Painter provides functionality to draw on a canvas.
 class Painter {
 public:
-  // The basic interface is trivially con-/destructable, assignable & movable.
+  // The interface is trivially con-/destructable, assignable & movable.
   virtual ~Painter() {}
   Painter() = default;
   Painter(const Painter &other) = default;
@@ -96,13 +101,13 @@ public:
   ///    include_center:  If ``true`` (default), the center point
   ///       will be included when drawing the outline and filling.
   ///    fill_color: If you provide a valid color, the arc will be filled.
-  void DrawArc(
+  bool DrawArc(
       const Vec2d &center, double radius,
       double angle1, double angle2,
       const LineStyle &line_style = LineStyle(),
       bool include_center = true,
       const Color &fill_color = Color::Invalid) {
-    DrawArcImpl(
+    return DrawArcImpl(
           center, radius, angle1, angle2, line_style,
           include_center, fill_color);
   }
@@ -114,23 +119,38 @@ public:
   ///   pt1: Start of the arrow shaft.
   ///   pt2: End of the arrow shaft (the *pointy* end).
   ///   arrow_style: How to draw the arrow.
-  void DrawArrow(
+  bool DrawArrow(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style = ArrowStyle()) {
-    DrawArrowImpl(from, to, arrow_style);
+    return DrawArrowImpl(from, to, arrow_style);
   }
 
 
   /// Draws a single 2D bounding box.
   ///
   /// Args:
-  ///   rect: The box geometry.
-  ///   label: The (potentially multi-line) label.
+  ///   rect: Where to place the bounding box.
   ///   box_style: How to draw this bounding box.
-  void DrawBoundingBox2D(
-      const Rect &box, const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style = BoundingBox2DStyle()) {
-    DrawBoundingBox2DImpl(box, label, style);
+  ///   label_top: Label text to display at the top of the bounding box.
+  ///   label_bottom: Label text to display at the bottom edge.
+  ///   label_left: Label text to display along the left edge.
+  ///   left_t2b: If ``true``, the label text will be oriented from
+  ///     top-to-bottom.
+  ///   label_right: Label text to display along the right edge.
+  ///   right_t2b: If ``true``, the label text will be oriented from
+  ///     top-to-bottom.
+  bool DrawBoundingBox2D(
+      const Rect &box,
+      const BoundingBox2DStyle &style = BoundingBox2DStyle(),
+      const std::vector<std::string> &label_top = {},
+      const std::vector<std::string> &label_bottom = {},
+      const std::vector<std::string> &label_left = {},
+      bool left_top_to_bottom = false,
+      const std::vector<std::string> &label_right = {},
+      bool right_top_to_bottom = true) {
+    return DrawBoundingBox2DImpl(
+          box, style, label_top, label_bottom, label_left, left_top_to_bottom,
+          label_right, right_top_to_bottom);
   }
 
 
@@ -141,11 +161,11 @@ public:
   ///   radius: Radius of the circle in pixels.
   ///   line_style: How to draw the circle's outline.
   ///   fill_color: If provided, the circle will be filled.
-  void DrawCircle(
+  bool DrawCircle(
       const Vec2d &center, double radius,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawCircleImpl(center, radius, line_style, fill_color);
+    return DrawCircleImpl(center, radius, line_style, fill_color);
   }
 
 
@@ -155,21 +175,25 @@ public:
   ///   ellipse: The ellipse to be drawn.
   ///   line_style: How to draw the ellipse's outline.
   ///   fill_color: If provided, the ellipse will be filled.
-  void DrawEllipse(
+  bool DrawEllipse(
       const Ellipse &ellipse,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawEllipseImpl(ellipse, line_style, fill_color);
+    return DrawEllipseImpl(ellipse, line_style, fill_color);
   }
+
+
+  //TODO
+  virtual bool DrawGradient(const ColorGradient &gradient) = 0;
 
 
   /// Draws a grid between top_left and bottom_right.
   /// If both points are the same, the grid will span the whole canvas.
-  void DrawGrid(
+  bool DrawGrid(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style = LineStyle()) {
-    DrawGridImpl(
+    return DrawGridImpl(
           top_left, bottom_right,
           spacing_x, spacing_y,
           line_style);
@@ -205,7 +229,7 @@ public:
   ///     If :math:`\text{clip} > 0.5`, the clip region will be an ellipse,
   ///     where major/minor axis length equal the width/height of the image.
   ///   line_style: If provided, the contour/border of the image will be drawn.
-  void DrawImage(
+  bool DrawImage(
       const ImageBuffer &image,
       const Vec2d &position,
       Anchor anchor = Anchor::TopLeft,
@@ -213,7 +237,7 @@ public:
       double scale_x = 1.0, double scale_y = 1.0,
       double rotation = 0.0, double clip_factor = 0.0,
       const LineStyle &line_style = LineStyle::Invalid) {
-    DrawImageImpl(
+    return DrawImageImpl(
           image, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
@@ -225,10 +249,10 @@ public:
   ///   from: Start position.
   ///   to: End position.
   ///     line_style: How to draw the line.
-  void DrawLine(
+  bool DrawLine(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style = LineStyle()) {
-    DrawLineImpl(from, to, line_style);
+    return DrawLineImpl(from, to, line_style);
   }
 
 
@@ -237,10 +261,10 @@ public:
   /// Args:
   ///   pos: Position of the marker.
   ///   marker_style: How to draw the marker.
-  void DrawMarker(
+  bool DrawMarker(
       const Vec2d &position,
       const MarkerStyle &style = MarkerStyle()) {
-    DrawMarkerImpl(position, style);
+    return DrawMarkerImpl(position, style);
   }
 
 
@@ -251,10 +275,10 @@ public:
   ///     If a marker's color is invalid, it will be drawn using
   ///     ``style``'s color specification instead.
   ///   marker_style: How to draw the markers (except for the color).
-  void DrawMarkers(
+  bool DrawMarkers(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style = MarkerStyle()) {
-    DrawMarkersImpl(markers, style);
+    return DrawMarkersImpl(markers, style);
   }
 
 
@@ -266,11 +290,11 @@ public:
   ///     If you pass `LineStyle::Invalid`, the contour will not be
   ///     drawn - then, you must provide a valid ``fill_color``.
   ///   fill_color: If you provide a valid color, the polygon will be filled.
-  void DrawPolygon(
+  bool DrawPolygon(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawPolygonImpl(points, line_style, fill_color);
+    return DrawPolygonImpl(points, line_style, fill_color);
   }
 
 
@@ -286,11 +310,11 @@ public:
   ///     a valid ``fill_color``.
   ///   fill_color: If you provide a valid :class:`~viren2d.Color`,
   ///     the rectangle will be filled.
-  void DrawRect(
+  bool DrawRect(
       const Rect &rect,
       const LineStyle &line_style = LineStyle(),
       const Color &fill_color = Color::Invalid) {
-    DrawRectImpl(rect, line_style, fill_color);
+    return DrawRectImpl(rect, line_style, fill_color);
   }
 
 
@@ -363,14 +387,14 @@ public:
   ///
   ///   To avoid this behavior, the trajectory needs to be drawn with
   ///   a single color, *i.e.* pass `Color::Invalid` as ``color_fade_out``.
-  void DrawTrajectory(
+  bool DrawTrajectory(
       const std::vector<Vec2d> &points,
       const LineStyle &style = LineStyle(),
       const Color &color_fade_out = Color::White.WithAlpha(0.4),
       bool oldest_position_first = false,
       int smoothing_window = 0,
       const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
-    DrawTrajectoryImpl(
+    return DrawTrajectoryImpl(
           points, style, color_fade_out, oldest_position_first,
           smoothing_window, mix_factor);
   }
@@ -379,14 +403,14 @@ public:
   /// Draws multiple (similarly styled) trajectories.
   /// If a trajectory's color is Color::Invalid or Color::Same, the
   /// style's color will be used instead.
-  void DrawTrajectories(
+  bool DrawTrajectories(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style = LineStyle(),
       const Color &color_fade_out = Color::White.WithAlpha(0.4),
       bool oldest_position_first = false,
       int smoothing_window = 0,
       const std::function<double(double)> &mix_factor = ColorFadeOutQuadratic) {
-    DrawTrajectoriesImpl(
+    return DrawTrajectoriesImpl(
           trajectories, style, color_fade_out, oldest_position_first,
           smoothing_window, mix_factor);
   }
@@ -414,9 +438,14 @@ public:
   ///   color_z: Color of the *z* axis arrow. Default bluish.
   ///
   /// Returns:
-  ///   True if at least one point (axis arrow tip or the origin) is
-  ///   visible within the camera's field-of-view
-  bool DrawXYZAxes(
+  ///   A ``tuple(visible, origin, tip_x, tip_y, tip_z)``, where ``visible``
+  ///   is ``true`` if drawing completed successfully and at least one
+  ///   point (axis arrow tip or the origin) is visible within the camera's
+  ///   field-of-view. Drawing errors (such as caused by invalid inputs) will
+  ///   be indicated by log messages.
+  ///   The other result variables hold the image coordinates of the
+  ///   ``origin``, as well as the tips (*i.e.* end points) of the arrows.
+  std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxes(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin = Vec3d::All(0.0),
       const Vec3d &axes_lengths = Vec3d::All(1e3),
@@ -429,9 +458,55 @@ public:
   }
 
 
+  /// Establishes a rectangular clip region for the current canvas.
+  ///
+  /// Afterwards, any drawing operations outside the clip region are
+  /// effectively masked out. Note that this does not change the canvas
+  /// transformation, *i.e.* coordinates for subsequent drawing operations
+  /// need to be provided in the global/previous canvas coordinate frame.
+  /// Also note that the clip region will be reset automatically whenever
+  /// a new canvas is set.
+  /// To reset the clip region, @see `ResetClipRegion`
+  ///
+  /// Args:
+  ///   clip: Rectangular clipping region (optionally rotated & with rounded
+  ///     corners).
+  ///
+  /// Returns:
+  ///   ``True`` if the given clip region is valid, ``false`` otherwise which
+  ///    will be indicated by log messages.
+  virtual bool SetClipRegion(const Rect &clip) = 0;
+
+
+  /// Establishes a circular clip region for the current canvas.
+  ///
+  /// Afterwards, any drawing operations outside the clip region are
+  /// effectively masked out. Note that this does not change the canvas
+  /// transformation, *i.e.* coordinates for subsequent drawing operations
+  /// need to be provided in the global/previous canvas coordinate frame.
+  /// Also note that the clip region will be reset automatically whenever
+  /// a new canvas is set.
+  ///
+  /// Args:
+  ///   center: Center of the circle.
+  ///   radius: Radius of the circle.
+  ///
+  /// Returns:
+  ///   ``True`` if the given circle is valid, ``false`` otherwise which
+  ///    will be indicated by log messages.
+  virtual bool SetClipRegion(const Vec2d &center, double radius) = 0;
+
+
+  /// Resets the latest clip region.
+  ///
+  /// Note that a separate ``ResetClipRegion`` call is needed for each
+  /// previous (successful) `SetClipRegion` invocation.
+  virtual bool ResetClipRegion() = 0;
+
+
 protected:
   /// Internal helper to enable default values in public interface.
-  virtual void DrawArcImpl(
+  virtual bool DrawArcImpl(
       const Vec2d &center, double radius,
       double angle1, double angle2,
       const LineStyle &line_style,
@@ -439,33 +514,37 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawArrowImpl(
+  virtual bool DrawArrowImpl(
       const Vec2d &from, const Vec2d &to,
       const ArrowStyle &arrow_style) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawBoundingBox2DImpl(
-      const Rect &box,
-      const std::vector<std::string> &label,
-      const BoundingBox2DStyle &style) = 0;
+  virtual bool DrawBoundingBox2DImpl(
+      const Rect &box, const BoundingBox2DStyle &style,
+      const std::vector<std::string> &label_top,
+      const std::vector<std::string> &label_bottom,
+      const std::vector<std::string> &label_left,
+      bool left_top_to_bottom,
+      const std::vector<std::string> &label_right,
+      bool right_top_to_bottom) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawCircleImpl(
+  virtual bool DrawCircleImpl(
       const Vec2d &center, double radius,
       const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawEllipseImpl(
+  virtual bool DrawEllipseImpl(
       const Ellipse &ellipse, const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawGridImpl(
+  virtual bool DrawGridImpl(
       const Vec2d &top_left, const Vec2d &bottom_right,
       double spacing_x, double spacing_y,
       const LineStyle &line_style) = 0;
@@ -478,7 +557,7 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawImageImpl(
+  virtual bool DrawImageImpl(
       const ImageBuffer &image,
       const Vec2d &position, Anchor anchor,
       double alpha, double scale_x, double scale_y,
@@ -486,31 +565,31 @@ protected:
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawLineImpl(
+  virtual bool DrawLineImpl(
       const Vec2d &from, const Vec2d &to,
       const LineStyle &line_style) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawMarkerImpl(
+  virtual bool DrawMarkerImpl(
       const Vec2d &pos, const MarkerStyle &style) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawMarkersImpl(
+  virtual bool DrawMarkersImpl(
       const std::vector<std::pair<Vec2d, Color>> &markers,
       const MarkerStyle &style) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawPolygonImpl(
+  virtual bool DrawPolygonImpl(
       const std::vector<Vec2d> &points,
       const LineStyle &line_style,
       const Color &fill_color) = 0;
 
 
   /// Internal helper to enable default values in public interface.
-  virtual void DrawRectImpl(
+  virtual bool DrawRectImpl(
       const Rect &rect, const LineStyle &line_style,
       const Color &fill_color) = 0;
 
@@ -534,7 +613,7 @@ protected:
 
 
   /// Internal helper to allow default values in public interface.
-  virtual void DrawTrajectoryImpl(
+  virtual bool DrawTrajectoryImpl(
       const std::vector<Vec2d> &points, const LineStyle &style,
       const Color &color_fade_out, bool oldest_position_first,
       int smoothing_window,
@@ -542,7 +621,7 @@ protected:
 
 
   /// Internal helper to allow default values in public interface.
-  virtual void DrawTrajectoriesImpl(
+  virtual bool DrawTrajectoriesImpl(
       const std::vector<std::pair<std::vector<Vec2d>, Color>> &trajectories,
       const LineStyle &style, const Color &color_fade_out,
       bool oldest_position_first, int smoothing_window,
@@ -550,7 +629,7 @@ protected:
 
 
   /// Internal helper to allow default values in public interface.
-  virtual bool DrawXYZAxesImpl(
+  virtual std::tuple<bool, Vec2d, Vec2d, Vec2d, Vec2d> DrawXYZAxesImpl(
       const Matrix3x3d &K, const Matrix3x3d &R, const Vec3d &t,
       const Vec3d &origin, const Vec3d &axes_lengths, const ArrowStyle &style,
       const Color &color_x, const Color &color_y, const Color &color_z) = 0;
@@ -559,6 +638,8 @@ protected:
 
 /// Creates a Painter object for drawing.
 std::unique_ptr<Painter> CreatePainter();
+//TODO How should we handle SVG vs image painters? CreateRasterizedPainter vs CreateVectorizedPainter ? or ImagePainter/SVGPainter?
+
 
 } // namespace viren2d
 

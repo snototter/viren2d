@@ -48,6 +48,7 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
 
   viren2d::bindings::RegisterEllipse(m);
   viren2d::bindings::RegisterRectangle(m);
+  viren2d::bindings::RegisterLine2d(m);
 
   //------------------------------------------------- Drawing - Styles
   viren2d::bindings::RegisterLineCap(m);
@@ -69,8 +70,15 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   //------------------------------------------------- Drawing - Painter
   viren2d::bindings::RegisterPainter(m);
 
+  //------------------------------------------------- Visualization - Collage
+  // Requires painter & ImageBuffer to be defined previously
+  viren2d::bindings::RegisterCollage(m);
+
   //------------------------------------------------- Visualization - Colormaps
   viren2d::bindings::RegisterColormaps(m);
+
+  //------------------------------------------------- Visualization - Color gradients
+  viren2d::bindings::RegisterColorGradients(m);
 
   //------------------------------------------------- Visualization - Optical Flow
   viren2d::bindings::RegisterOpticalFlowUtils(m);

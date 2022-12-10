@@ -7,6 +7,7 @@
 #include <viren2d/styles.h>
 
 #include <bindings/binding_helpers.h>
+#include <helpers/logging.h>
 
 //TODO(doc) add corresponding c++ api to docstr
 
@@ -31,10 +32,11 @@ TextStyle TextStyleFromTuple(const py::tuple &tpl) {
   }
 
   if (tpl.size() > 8) {
-    std::ostringstream s;
-    s << "Cannot create `viren2d.TextStyle` from tuple with "
-      << tpl.size() << " entries!";
-    throw std::invalid_argument(s.str());
+    std::ostringstream msg;
+    msg << "Cannot create `viren2d.TextStyle` from tuple with "
+        << tpl.size() << " entries!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 
   TextStyle style;
@@ -157,6 +159,8 @@ void RegisterAnchors(py::module &m) {
             Placement options with respect to a reference point.
 
             **Corresponding C++ API:** ``viren2d::Anchor``.
+
+            |image-cheat-sheet-anchors|
             )docstr");
   anchor.value(
         "Center",
@@ -302,10 +306,11 @@ HorizontalAlignment HorizontalAlignmentFromPyObject(const py::object &o) {
   } else {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp
+    std::ostringstream msg;
+    msg << "Cannot cast type `" << tp
         << "` to `viren2d.HorizontalAlignment`!";
-    throw std::invalid_argument(str.str());
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 }
 
@@ -319,10 +324,11 @@ VerticalAlignment VerticalAlignmentFromPyObject(const py::object &o) {
   } else {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp
+    std::ostringstream msg;
+    msg << "Cannot cast type `" << tp
         << "` to `viren2d.VerticalAlignment`!";
-    throw std::invalid_argument(str.str());
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
   }
 }
 
@@ -403,7 +409,7 @@ void RegisterTextStyle(py::module &m) {
       .def(
         "__repr__",
         [](const TextStyle &st) {
-          return "<TextStyle" + st.ToString() + ">";
+          return "<" + st.ToString() + ">";
         })
       .def(
         "__str__",
