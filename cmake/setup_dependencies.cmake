@@ -29,6 +29,7 @@ function(setup_werkzeugkiste viren2d_TARGET_CPP_LIB)
     target_link_libraries(${viren2d_TARGET_CPP_LIB}
         PRIVATE
             werkzeugkiste::strings
+            werkzeugkiste::timing
         PUBLIC
             werkzeugkiste::geometry)
 endfunction()

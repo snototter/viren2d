@@ -7,6 +7,7 @@
 #include <viren2d/collage.h>
 
 #include <helpers/logging.h>
+#include <werkzeugkiste/timing/tictoc.h>
 
 namespace py = pybind11;
 
@@ -119,6 +120,7 @@ ImageBuffer CollageWrapper(
     const Vec2i &spacing,
     const Vec2i &margin,
     double clip_factor) {
+  werkzeugkiste::timing::tic("conversion");
   Anchor anchor = AnchorFromPyObject(py_anchor);
 
   std::vector<std::vector<ImageBuffer>> images;
@@ -138,9 +140,13 @@ ImageBuffer CollageWrapper(
     throw std::invalid_argument(msg);
   }
 
-  return Collage(
+  werkzeugkiste::timing::toc_ms("conversion");
+  werkzeugkiste::timing::tic("collage");
+  auto res = Collage(
       images, image_size, anchor, fill_color, output_channels,
       spacing, margin, clip_factor);
+  werkzeugkiste::timing::toc_ms("collage");
+  return res;
 }
 
 
