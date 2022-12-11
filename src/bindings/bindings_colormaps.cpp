@@ -1089,12 +1089,10 @@ void RegisterColormaps(pybind11::module &m) {
         &Peaks, R"docstr(
         Computes the `peaks` example data.
 
-        Computes exemplary data from translated and scaled Gaussian
-        distributions, known from
-        `MATLAB <https://www.mathworks.com/help/matlab/ref/peaks.html>`__.
-        In particular, it returns:
+        Returns exemplary data for visualization from translated and scaled
+        Gaussian distributions, known from
+        `MATLAB <https://www.mathworks.com/help/matlab/ref/peaks.html>`__:
         :math:`\operatorname{peaks}(x,y) = 3 \left(1 - x\right)^2 e^{-x^2 - (y+1)^2} - 10 \left( \frac{x}{5} - x^3 - y^5 \right) e^{-x^2 - y^2} - \frac{1}{3} e^{-(x+1)^2 - y^2}`.
-
 
         **Corresponding C++ API:** ``viren2d::Peaks``.
 
