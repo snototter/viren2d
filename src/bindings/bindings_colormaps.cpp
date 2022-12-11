@@ -39,6 +39,17 @@ std::string ColorMapCodeExampleCategorical(ColorMap cmap) {
 }
 
 
+std::string ColorMapCodeExampleOrientation(ColorMap cmap) {
+  std::ostringstream code_block;
+  code_block << "\n\n    Example:\n"
+    << "      >>> import viren2d\n"
+    << "      >>> vis = viren2d.optical_flow_legend(size=200,\n"
+    << "      >>>     colormap='" << ColorMapToString(cmap)
+    << "', output_channels=4, clip_circle=True)\n";
+  return code_block.str();
+}
+
+
 void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap", R"docstr(
             Enumeration of available color maps.
@@ -90,6 +101,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Categories10",
         ColorMap::Categories10, docstr.c_str());
 
+
   docstr = R"docstr(
     Color map with 12 distinct colors, suitable for categorical data. Based
     on `ColorBrewer2's <https://colorbrewer2.org>`__ *12-class paired* map.
@@ -102,6 +114,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
   cm.value(
         "Categories12",
         ColorMap::Categories12, docstr.c_str());
+
 
   docstr = R"docstr(
     Color map with 20 distinct colors, suitable for categorical data. Based
@@ -117,98 +130,118 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Categories20, docstr.c_str());
 
 
-  //TODO continue adding code examples
+  docstr = R"docstr(
+    Perceptually uniform sequential color map suitable for viewers with
+    color vision deficiency (CVD). Published by
+    `Nuñez, Anderton and Renslow <https://doi.org/10.1371/journal.pone.0199239>`__.
+
+    .. image:: ../images/colormap-gradient-cividis.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Cividis);
   cm.value(
         "Cividis",
-        ColorMap::Cividis, R"docstr(
-        Perceptually uniform sequential color map suitable for viewers with
-        color vision deficiency (CVD). Published by
-        `Nuñez, Anderton and Renslow <https://doi.org/10.1371/journal.pone.0199239>`__.
+        ColorMap::Cividis, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-cividis.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Blue shades from dark to light. This is the *CET-L06* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-cold.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Cold);
+  cm.value(
         "Cold",
-        ColorMap::Cold, R"docstr(
-        Blue shades from dark to light. This is the *CET-L06* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+        ColorMap::Cold, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-cold.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Perceptually uniform diverging color map for protanopic/deuteranopic
+    viewers. This is the *CET-CBD1* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-cvd-diverging.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::ColorBlindDiverging);
+  cm.value(
         "ColorBlindDiverging",
-        ColorMap::ColorBlindDiverging, R"docstr(
-        Perceptually uniform diverging color map for protanopic/deuteranopic
-        viewers. This is the *CET-CBD1* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+        ColorMap::ColorBlindDiverging, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-cvd-diverging.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Perceptually uniform sequential color map for protanopic/deuteranopic
+    viewers. This is the *CET-CBL1* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-cvd-sequential.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::ColorBlindSequential);
+  cm.value(
         "ColorBlindSequential",
-        ColorMap::ColorBlindSequential, R"docstr(
-        Perceptually uniform sequential color map for protanopic/deuteranopic
-        viewers. This is the *CET-CBL1* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+        ColorMap::ColorBlindSequential, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-cvd-sequential.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Perceptually uniform sequential color map with maximal chroma, suitable
+    for Protanopic/Deuteranopic viewers. This is the *CET-CBL2* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-cvd-sequential-vivid.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::ColorBlindSequentialVivid);
+  cm.value(
         "ColorBlindSequentialVivid",
-        ColorMap::ColorBlindSequentialVivid, R"docstr(
-        Perceptually uniform sequential color map with maximal chroma, suitable
-        for Protanopic/Deuteranopic viewers. This is the *CET-CBL2* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+        ColorMap::ColorBlindSequentialVivid, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-cvd-sequential-vivid.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Cyclic blue-white-yellow-black color map for four orientations/phase
+    angles, suitable for Protanopic/Deuteranopic viewers.
+    This is the *CET-CBC1* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-cvd-orientation.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleOrientation(ColorMap::ColorBlindOrientation);
+  cm.value(
         "ColorBlindOrientation",
-        ColorMap::ColorBlindOrientation, R"docstr(
-        Cyclic blue-white-yellow-black color map for four orientations/phase
-        angles, suitable for Protanopic/Deuteranopic viewers.
-        This is the *CET-CBC1* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+        ColorMap::ColorBlindOrientation, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-cvd-orientation.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+           Sequential color map from black to light copper. This color map has
+           kinks in the lightness curve, which can lead to a perceived banding of
+           the data in those value ranges. Based on
+           `matplotlib's <https://matplotlib.org>`__ *copper* map.
+
+           .. image:: ../images/colormap-gradient-copper.png
+              :width: 266
+              :alt: Color map gradient
+              :align: center
+           )docstr" + ColorMapCodeExampleScaled(ColorMap::Copper);
+  cm.value(
         "Copper",
-        ColorMap::Copper, R"docstr(
-        Sequential color map from black to light copper. This color map has
-        kinks in the lightness curve, which can lead to a perceived banding of
-        the data in those value ranges. Based on
-        `matplotlib's <https://matplotlib.org>`__ *copper* map.
+        ColorMap::Copper, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-copper.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+  //TODO code example for custom color maps
+  cm.value(
         "Custom1",
         ColorMap::Custom1, R"docstr(
         Placeholder to support using your own color map, see
@@ -225,151 +258,187 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Custom3, R"docstr(
         Placeholder to support using your own color map, see
         :func:`~viren2d.set_custom_colormap`.
-        )docstr")
-      .value(
+        )docstr");
+
+
+  docstr = R"docstr(
+    High contrast color map for depth & disparity images.
+    Based on `disparity` for MATLAB
+    `by Oliver Woodford <https://github.com/ojwoodford/sc>`__, who released
+    it under the `BSD 3-Clause license <https://opensource.org/licenses/BSD-3-Clause>`__.
+
+    .. image:: ../images/colormap-gradient-disparity.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr"; // TODO code example color bar?
+  cm.value(
         "Disparity",
-        ColorMap::Disparity, R"docstr(
-        High contrast color map for depth & disparity images.
-        Based on `disparity` for MATLAB
-        `by Oliver Woodford <https://github.com/ojwoodford/sc>`__, who released
-        it under the `BSD 3-Clause license <https://opensource.org/licenses/BSD-3-Clause>`__.
+        ColorMap::Disparity, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-disparity.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    A blue-green-brown color map to visualize topography data. Based on
+    `matplotlib's <https://matplotlib.org>`__ *gist_earth* map.
+
+    .. image:: ../images/colormap-gradient-earth.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr"; // TODO code example color bar?
+  cm.value(
         "Earth",
-        ColorMap::Earth, R"docstr(
-        A blue-green-brown color map to visualize topography data. Based on
-        `matplotlib's <https://matplotlib.org>`__ *gist_earth* map.
+        ColorMap::Earth, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-earth.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Color map for categorical data, best suited for **light backgrounds**,
+    *i.e.* light colors are omitted. This color map is adapted from the
+    `colorcet Python package <https://github.com/holoviz/colorcet>`__
+    and was initially created using
+    `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
+
+    .. image:: ../images/colormap-gradient-glasbey-dark.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleCategorical(ColorMap::GlasbeyDark);
+  cm.value(
         "GlasbeyDark",
-        ColorMap::GlasbeyDark, R"docstr(
-        Color map for categorical data, best suited for **light backgrounds**,
-        *i.e.* light colors are omitted. This color map is adapted from the
-        `colorcet Python package <https://github.com/holoviz/colorcet>`__
-        and was initially created using
-        `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
+        ColorMap::GlasbeyDark, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-glasbey-dark.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Color map for categorical data, best suited for **dark backgrounds**,
+    *i.e.* dark colors are omitted. This color map is adapted from the
+    `colorcet Python package <https://github.com/holoviz/colorcet>`__
+    and was initially created using
+    `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
+
+    .. image:: ../images/colormap-gradient-glasbey-light.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleCategorical(ColorMap::GlasbeyLight);
+  cm.value(
         "GlasbeyLight",
-        ColorMap::GlasbeyLight, R"docstr(
-        Color map for categorical data, best suited for **dark backgrounds**,
-        *i.e.* dark colors are omitted. This color map is adapted from the
-        `colorcet Python package <https://github.com/holoviz/colorcet>`__
-        and was initially created using
-        `Glasbey's method <https://doi.org/10.1002/col.20327>`__.
+        ColorMap::GlasbeyLight, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-glasbey-light.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Black-blue-green-orange-yellow perceptually uniform sequential color
+    map. Similar to MATLAB's `parula`, but with a smoother path and more
+    uniform slope upwards in CIELAB space. This is the *CET-L20* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-gouldian.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Gouldian);
+  cm.value(
         "Gouldian",
-        ColorMap::Gouldian, R"docstr(
-        Black-blue-green-orange-yellow perceptually uniform sequential color
-        map. Similar to MATLAB's `parula`, but with a smoother path and more
-        uniform slope upwards in CIELAB space. This is the *CET-L20* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+        ColorMap::Gouldian, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-gouldian.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Standard grayscale range from black-to-white, *a.k.a.*
+    *white-hot*.
+
+    .. image:: ../images/colormap-gradient-gray.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Gray);
+  cm.value(
         "Gray",
-        ColorMap::Gray, R"docstr(
-        Standard grayscale range from black-to-white.
+        ColorMap::Gray, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-gray.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Black-purple-red-yellow-white, perceptually uniform sequential color
+    map. Similar to `Inferno` but starts from black and ends white.
+    Based on `hell` from `Agama <https://github.com/GalacticDynamics-Oxford/Agama>`__.
+
+    .. image:: ../images/colormap-gradient-hell.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Hell);
+  cm.value(
         "Hell",
-        ColorMap::Hell, R"docstr(
-        Black-purple-red-yellow-white, perceptually uniform sequential color
-        map. Similar to `Inferno` but starts from black and ends white.
-        Based on `hell` from `Agama <https://github.com/GalacticDynamics-Oxford/Agama>`__.
+        ColorMap::Hell, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-hell.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Black-red-yellow-white perceptually uniform sequential color map.
+    This is the *CET-L03* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-hot.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Hot);
+  cm.value(
         "Hot",
-        ColorMap::Hot, R"docstr(
-        Black-red-yellow-white perceptually uniform sequential color map.
-        This is the *CET-L03* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+        ColorMap::Hot, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-hot.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Cyclic color map obtained by varying the hue. Cycles through
+    red-yellow-green-cyan-blue-magenta-red.
+
+    .. image:: ../images/colormap-gradient-hsv.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleOrientation(ColorMap::HSV);
+  cm.value(
         "HSV",
-        ColorMap::HSV, R"docstr(
-        Cyclic color map obtained by varying the hue. Cycles through
-        red-yellow-green-cyan-blue-magenta-red.
+        ColorMap::HSV, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-hsv.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Bluish-to-reddish, perceptually uniform sequential color map with monotonically
+    increasing luminance. Proposed by
+    `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__
+    and integrated into `matplotlib >= 1.15 <https://matplotlib.org/>`__.
+
+    .. image:: ../images/colormap-gradient-inferno.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Inferno);
+  cm.value(
         "Inferno",
-        ColorMap::Inferno, R"docstr(
-        Bluish-to-reddish, perceptually uniform sequential color map with monotonically
-        increasing luminance. Proposed by
-        `Stéfan van der Walt and Nathaniel Smith <https://bids.github.io/colormap/>`__
-        and integrated into `matplotlib >= 1.15 <https://matplotlib.org/>`__.
+        ColorMap::Inferno, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-inferno.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    The classic rainbow color map, based on
+    `MATLAB's <https://www.mathworks.com/help/matlab/ref/jet.html>`__
+    *jet* map.
+
+    Note that this color map has several known limitations (*e.g.* reversed
+    lightness gradients at yellow and red affect the viewer's perceptual
+    ordering). Refer to the excellent article by
+    `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__ for more
+    details about these issues.
+
+    .. image:: ../images/colormap-gradient-jet.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Jet);
+  cm.value(
         "Jet",
-        ColorMap::Jet, R"docstr(
-        The classic rainbow color map, based on
-        `MATLAB's <https://www.mathworks.com/help/matlab/ref/jet.html>`__
-        *jet* map.
+        ColorMap::Jet, docstr.c_str());
 
-        Note that this color map has several known limitations (*e.g.* reversed
-        lightness gradients at yellow and red affect the viewer's perceptual
-        ordering). Refer to the excellent article by
-        `Peter Kovesi <https://doi.org/10.48550/arXiv.1509.03700>`__ for more
-        details about these issues.
-
-        .. image:: ../images/colormap-gradient-jet.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+  // TODO continue adding code examples
+  cm.value(
         "Ocean",
         ColorMap::Ocean, R"docstr(
         A green-blue color map to visualize water depths. Based on
@@ -639,7 +708,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
       .value(
         "Yarg",
         ColorMap::Yarg, R"docstr(
-        Inverted grayscale range from white-to-black.
+        Inverted grayscale range from white-to-black, *a.k.a.*
+        *black-hot*.
 
         .. image:: ../images/colormap-gradient-yarg.png
            :width: 266
