@@ -12,71 +12,113 @@ namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
+std::string ColorMapCodeExampleScaled(ColorMap cmap) {
+  std::ostringstream code_block;
+  code_block << "\n\n    Example:\n"
+    << "      >>> import numpy as np\n"
+    << "      >>> import viren2d\n"
+    << "      >>> data = np.random.rand(10, 20)\n"
+    << "      >>> vis = viren2d.colorize_scaled(\n"
+    << "      >>>     data, colormap='" << ColorMapToString(cmap)
+    << "', low=0, high=1,\n"
+    << "      >>>     bins=256, output_channels=3)\n";
+  return code_block.str();
+}
+
+
+std::string ColorMapCodeExampleCategorical(ColorMap cmap) {
+  std::ostringstream code_block;
+  code_block << "\n\n    Example:\n"
+    << "      >>> import numpy as np\n"
+    << "      >>> import viren2d\n"
+    << "      >>> data = np.random.randint(0, 20000, (10, 20))\n"
+    << "      >>> vis = viren2d.colorize_labels(\n"
+    << "      >>>     data, colormap='" << ColorMapToString(cmap)
+    << "', output_channels=3)\n";
+  return code_block.str();
+}
+
+
 void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap", R"docstr(
             Enumeration of available color maps.
 
             **Corresponding C++ API:** ``viren2d::ColorMap``.
             )docstr");
+
+  std::string docstr = R"docstr(
+    Sequential red-to-yellow color map. This color map is not perceptually
+    uniform. Based on `matplotlib's <https://matplotlib.org>`__ *autumn*
+    map.
+
+    .. image:: ../images/colormap-gradient-autumn.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Autumn);
   cm.value(
         "Autumn",
-        ColorMap::Autumn, R"docstr(
-        Sequential red-to-yellow color map. This color map is not perceptually
-        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *autumn*
-        map.
+        ColorMap::Autumn, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-autumn.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Black-red-yellow-white, perceptually uniform sequential color map
+    inspired by black-body radiation. This color map definition has
+    been taken from
+    `Kenneth Moreland's website <https://www.kennethmoreland.com/color-advice/#black-body>`__.
+
+    .. image:: ../images/colormap-gradient-black-body.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::BlackBody);
+  cm.value(
         "BlackBody",
-        ColorMap::BlackBody, R"docstr(
-        Black-red-yellow-white, perceptually uniform sequential color map
-        inspired by black-body radiation. This color map definition has
-        been taken from
-        `Kenneth Moreland's website <https://www.kennethmoreland.com/color-advice/>`__.
+        ColorMap::BlackBody, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-black-body.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  docstr = R"docstr(
+    Color map with 10 distinct colors, suitable for categorical data. Based
+    on `matplotlib's <https://matplotlib.org>`__ *tab10* map.
+
+    .. image:: ../images/colormap-gradient-categories-10.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleCategorical(ColorMap::Categories10);
+  cm.value(
         "Categories10",
-        ColorMap::Categories10, R"docstr(
-        Color map with 10 distinct colors, suitable for categorical data. Based
-        on `matplotlib's <https://matplotlib.org>`__ *tab10* map.
+        ColorMap::Categories10, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-categories-10.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+  docstr = R"docstr(
+    Color map with 12 distinct colors, suitable for categorical data. Based
+    on `ColorBrewer2's <https://colorbrewer2.org>`__ *12-class paired* map.
+
+    .. image:: ../images/colormap-gradient-categories-12.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleCategorical(ColorMap::Categories12);
+  cm.value(
         "Categories12",
-        ColorMap::Categories12, R"docstr(
-        Color map with 12 distinct colors, suitable for categorical data. Based
-        on `ColorBrewer2's <https://colorbrewer2.org>`__ *12-class paired* map.
+        ColorMap::Categories12, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-categories-12.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+  docstr = R"docstr(
+    Color map with 20 distinct colors, suitable for categorical data. Based
+    on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
+
+    .. image:: ../images/colormap-gradient-categories-20.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleCategorical(ColorMap::Categories20);
+  cm.value(
         "Categories20",
-        ColorMap::Categories20, R"docstr(
-        Color map with 20 distinct colors, suitable for categorical data. Based
-        on `matplotlib's <https://matplotlib.org>`__ *tab20* map.
+        ColorMap::Categories20, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-categories-20.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
+
+  //TODO continue adding code examples
+  cm.value(
         "Cividis",
         ColorMap::Cividis, R"docstr(
         Perceptually uniform sequential color map suitable for viewers with
@@ -92,7 +134,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Cold",
         ColorMap::Cold, R"docstr(
         Blue shades from dark to light. This is the *CET-L06* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-cold.png
@@ -105,7 +147,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::ColorBlindDiverging, R"docstr(
         Perceptually uniform diverging color map for protanopic/deuteranopic
         viewers. This is the *CET-CBD1* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-cvd-diverging.png
@@ -118,7 +160,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::ColorBlindSequential, R"docstr(
         Perceptually uniform sequential color map for protanopic/deuteranopic
         viewers. This is the *CET-CBL1* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-cvd-sequential.png
@@ -131,7 +173,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::ColorBlindSequentialVivid, R"docstr(
         Perceptually uniform sequential color map with maximal chroma, suitable
         for Protanopic/Deuteranopic viewers. This is the *CET-CBL2* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-cvd-sequential-vivid.png
@@ -145,7 +187,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Cyclic blue-white-yellow-black color map for four orientations/phase
         angles, suitable for Protanopic/Deuteranopic viewers.
         This is the *CET-CBC1* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-cvd-orientation.png
@@ -242,7 +284,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         Black-blue-green-orange-yellow perceptually uniform sequential color
         map. Similar to MATLAB's `parula`, but with a smoother path and more
         uniform slope upwards in CIELAB space. This is the *CET-L20* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-gouldian.png
@@ -277,7 +319,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Hot, R"docstr(
         Black-red-yellow-white perceptually uniform sequential color map.
         This is the *CET-L03* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-hot.png
@@ -350,12 +392,12 @@ void RegisterColorMapEnum(pybind11::module &m) {
            :alt: Color map gradient
            :align: center
         )docstr")
-      .value(
+      .value( // TODO code example could use the color wheel visualization!
         "Orientation4",
         ColorMap::Orientation4, R"docstr(
         Cyclic magenta-yellow-green-blue color map for four orientations/phase
         angles to be visualized. This is the *CET-C2* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-orientation-4.png
@@ -368,7 +410,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Orientation6, R"docstr(
         Six-color cyclic map with primaries and secondaries matched in
         lightness. This is the *CET-C6* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-orientation-6.png
@@ -380,7 +422,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         "Rainbow",
         ColorMap::Rainbow, R"docstr(
         The "least worse" rainbow color map, *i.e.* *CET-R2*, by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-rainbow.png
@@ -393,7 +435,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Relief, R"docstr(
         Green-brownish-bluish perceptually uniform sequential color map for
         relief shading. This is the *CET-L11* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-relief.png
@@ -406,7 +448,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::ReliefLowContrast, R"docstr(
         Low contrast (isoluminant), blue-green-orange perceptually uniform
         sequential color map for relief shading. This is the *CET-I2* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-relief-low-contrast.png
@@ -476,7 +518,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Temperature, R"docstr(
         Diverging blue-white-red color map.
         This is the *CET-D01A* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-temperature.png
@@ -489,7 +531,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::TemperatureDark, R"docstr(
         Diverging blue-black-red color map.
         This is the *CET-D04* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-temperature-dark.png
@@ -574,7 +616,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
         ColorMap::Water, R"docstr(
         Perceptually uniform sequential color map for water depth.
         This is the *CET-L12* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
         under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
         .. image:: ../images/colormap-gradient-water.png

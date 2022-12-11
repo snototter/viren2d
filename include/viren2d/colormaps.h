@@ -44,32 +44,32 @@ enum class ColorMap : unsigned char
   Cividis,
 
   /// Blue shades from dark to light. This is the CET-L06 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Cold,
 
   /// Perceptually uniform diverging color map for Protanopic/Deuteranopic
   /// viewers. This is the CET-CBD1 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   ColorBlindDiverging,
 
   /// Cyclic blue-white-yellow-black color map for four orientations/phase
   /// angles, suitable for Protanopic/Deuteranopic viewers.
   /// This is the CET-CBC1 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   ColorBlindOrientation,
 
   /// Perceptually uniform sequential color map, suitable for
   /// Protanopic/Deuteranopic viewers. This is the CET-CBL1 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   ColorBlindSequential,
 
   /// Perceptually uniform sequential color map with maximal chroma, suitable
   /// for Protanopic/Deuteranopic viewers. This is the CET-CBL2 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   ColorBlindSequentialVivid,
 
@@ -118,7 +118,7 @@ enum class ColorMap : unsigned char
   /// Black-blue-green-orange-yellow perceptually uniform sequential color
   /// map. Similar to MATLAB's `parula`, but with a smoother path and more
   /// uniform slope upwards in CIELAB space. This is the CET-L20 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Gouldian,
 
@@ -132,7 +132,7 @@ enum class ColorMap : unsigned char
 
   /// Black-red-yellow-white perceptually uniform sequential color map.
   /// This is the CET-L03 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Hot,
 
@@ -164,30 +164,30 @@ enum class ColorMap : unsigned char
 
   /// Cyclic magenta-yellow-green-blue color map for four orientations/phase
   /// angles to be visualized. This is the CET-C2 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Orientation4,
 
   /// Six-color cyclic map with primaries and secondaries matched in
   /// lightness. This is the CET-C6 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Orientation6,
 
   /// The "least worse" rainbow color map, i.e. CET-R2, by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Rainbow,
 
   /// Green-brownish-bluish perceptually uniform sequential color map for
   /// relief shading. This is the CET-L11 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Relief,
 
   /// Low contrast (isoluminant), blue-green-orange perceptually uniform
   /// sequential color map for relief shading. This is the CET-I2 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   ReliefLowContrast,
 
@@ -215,13 +215,13 @@ enum class ColorMap : unsigned char
 
   /// Diverging blue-white-red color map.
   /// This is the CET-D01A color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Temperature,
 
   /// Diverging blue-black-red color map.
   /// This is the CET-D04 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   TemperatureDark,
 
@@ -256,7 +256,7 @@ enum class ColorMap : unsigned char
 
   /// Perceptually uniform sequential color map for water depth.
   /// This is the CET-L12 color map by
-  /// `Peter Kovesi <https://colorcet.com/index.html>`__, which was released
+  /// `Peter Kovesi <https://colorcet.com/index.html>`__, who released
   /// under the CC-BY 4.0 license.
   Water,
 

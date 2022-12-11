@@ -228,13 +228,16 @@ ColorMap ColorMapFromString(const std::string &cm) {
   } else if (lower.compare("blackbody") == 0) {
     return ColorMap::BlackBody;
   } else if ((lower.compare("categories10") == 0)
-             || (lower.compare("cat10") == 0)) {
+             || (lower.compare("cat10") == 0)
+             || (lower.compare("category10") == 0)) {
     return ColorMap::Categories10;
   } else if ((lower.compare("categories12") == 0)
-             || (lower.compare("cat12") == 0)) {
+             || (lower.compare("cat12") == 0)
+             || (lower.compare("category12") == 0)) {
     return ColorMap::Categories12;
   } else if ((lower.compare("categories20") == 0)
-             || (lower.compare("cat20") == 0)) {
+             || (lower.compare("cat20") == 0)
+             || (lower.compare("category20") == 0)) {
     return ColorMap::Categories20;
   } else if (lower.compare("cividis") == 0) {
     return ColorMap::Cividis;
@@ -271,7 +274,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
   } else if (lower.compare("gouldian") == 0) {
     return ColorMap::Gouldian;
   } else if ((lower.compare("gray") == 0)
-             || (lower.compare("grey") == 0)) {
+             || (lower.compare("grey") == 0)
+             || (lower.compare("whitehot") == 0)) {
     return ColorMap::Gray;
   } else if (lower.compare("hell") == 0) {
     return ColorMap::Hell;
@@ -316,7 +320,9 @@ ColorMap ColorMapFromString(const std::string &cm) {
     return ColorMap::TemperatureDark;
   } else if (lower.compare("terrain") == 0) {
     return ColorMap::Terrain;
-  } else if (lower.compare("thermal") == 0) {
+  } else if ((lower.compare("thermal") == 0)
+             || (lower.compare("iron") == 0)
+             || (lower.compare("ironbow") == 0)) {
     return ColorMap::Thermal;
   } else if (lower.compare("turbo") == 0) {
     return ColorMap::Turbo;
@@ -335,7 +341,8 @@ ColorMap ColorMapFromString(const std::string &cm) {
              || (lower.compare("-gray") == 0)
              || (lower.compare("!gray") == 0)
              || (lower.compare("-grey") == 0)
-             || (lower.compare("!grey") == 0)) {
+             || (lower.compare("!grey") == 0)
+             || (lower.compare("blackhot") == 0)) {
     return ColorMap::Yarg;
   }
 
