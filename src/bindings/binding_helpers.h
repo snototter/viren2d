@@ -2,6 +2,7 @@
 #define __VIREN2D_BINDING_HELPERS_H__
 
 #include <string>
+#include <cstddef>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -21,6 +22,11 @@ namespace viren2d {
 /// Utilities to simplify the module definition.
 namespace bindings {
 //-------------------------------------------------  Common (Binding utils)
+
+
+std::string LoadCodeExample(
+    const std::string &snippet_name, std::size_t indentation = 2,
+    const std::string &prefix = ">>> ");
 
 /**
  * Returns the fully qualified type name string: "module"."name",

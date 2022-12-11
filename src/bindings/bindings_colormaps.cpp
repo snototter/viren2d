@@ -963,8 +963,7 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("colors"));
 
 
-  m.def("colorize_scaled",
-        &ColorizationScaledHelper, R"docstr(
+  std::string docstr = R"docstr(
         Colorizes 2D data array using a colormap.
 
         **Corresponding C++ API:** ``viren2d::ColorizeScaled``.
@@ -991,13 +990,16 @@ void RegisterColormaps(pybind11::module &m) {
           type :class:`numpy.uint8`.
 
         Example:
-          >>> data = viren2d.peaks(400, 400)
-          >>> vis = viren2d.colorize_scaled(
-          >>>     data, colormap='gouldian', low=-8, high=8,
-          >>>     bins=256, output_channels=3)
-        
-        |image-colorized-peaks|
-        )docstr",
+        )docstr" + LoadCodeExample("scaled-colorization.inc")
+      + "\n|image-colorized-peaks|";
+//          >>> data = viren2d.peaks(400, 400)
+//          >>> vis = viren2d.colorize_scaled(
+//          >>>     data, colormap='gouldian', low=-8, high=8,
+//          >>>     bins=256, output_channels=3)
+
+//        |image-colorized-peaks|
+  m.def("colorize_scaled",
+        &ColorizationScaledHelper, docstr.c_str(),
         py::arg("data"),
         py::arg("colormap") = ColorMap::Gouldian,
         py::arg("low") = std::numeric_limits<double>::infinity(),
@@ -1088,9 +1090,11 @@ void RegisterColormaps(pybind11::module &m) {
         Computes the `peaks` example data.
 
         Computes exemplary data from translated and scaled Gaussian
-        distributions, known from MATLAB's `peaks`. For details on
-        the formal definition, refer to the
-        `MATLAB documentation <https://www.mathworks.com/help/matlab/ref/peaks.html>`__.
+        distributions, known from
+        `MATLAB <https://www.mathworks.com/help/matlab/ref/peaks.html>`__.
+        In particular, it returns:
+        :math:`\operatorname{peaks}(x,y) = 3 \left(1 - x\right)^2 e^{-x^2 - (y+1)^2} - 10 \left( \frac{x}{5} - x^3 - y^5 \right) e^{-x^2 - y^2} - \frac{1}{3} e^{-(x+1)^2 - y^2}`.
+
 
         **Corresponding C++ API:** ``viren2d::Peaks``.
 

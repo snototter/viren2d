@@ -1,8 +1,39 @@
 #include <pybind11/pybind11.h>
+#include <sstream>
 
 #include <viren2d/viren2d.h>
 
 #include <bindings/binding_helpers.h>
+#include <werkzeugkiste/files/filesys.h>
+#include <werkzeugkiste/files/fileio.h>
+
+namespace viren2d {
+namespace bindings {
+std::string LoadCodeExample(
+    const std::string &snippet_name, std::size_t indentation,
+    const std::string &prefix) {
+  const std::string file = werkzeugkiste::files::FullFile(
+        {werkzeugkiste::files::DirName(__FILE__), "..", "examples",
+        "rtd-examples-python", "docstr-snippets", snippet_name});
+  if (werkzeugkiste::files::Exists(file)) {
+    std::ostringstream code_block;
+    for (const auto &line : werkzeugkiste::files::ReadAsciiFile(file.c_str())) {
+      for (std::size_t cnt = 0; cnt < indentation; ++cnt) {
+        code_block << ' ';
+      }
+      if (!prefix.empty()) {
+        code_block << prefix;
+      }
+      code_block << line; //TODO strip, then add new line manually?
+    }
+    return code_block.str();
+  } else {
+    return std::string();
+  }
+}
+
+} // namespace bindings
+} // namespace viren2d
 
 
 //------------------------------------------------- Module definition
