@@ -964,40 +964,34 @@ void RegisterColormaps(pybind11::module &m) {
 
 
   std::string docstr = R"docstr(
-        Colorizes 2D data array using a colormap.
+Colorizes 2D data array using a colormap.
 
-        **Corresponding C++ API:** ``viren2d::ColorizeScaled``.
+**Corresponding C++ API:** ``viren2d::ColorizeScaled``.
 
-        Args:
-          data: A single channel :class:`~viren2d.ImageBuffer` or
-            :class:`numpy.ndarray` holding the data for colorization.
-          colormap: The :class:`~viren2d.ColorMap` to be used for
-            colorization. In addition to the enumeration value, its
-            string representation can be used for convenience.
-          low: Lower limit of the input values as :class:`float`. If either
-            ``low`` or ``high`` are ``inf`` or ``nan``, **both limits** will
-            be computed from the input ``data``.
-          high: Upper limit of the input values as :class:`float`.
-          output_channels: Number of output channels as :class:`int`.
-            Must be either 3 or 4. The optional 4th channel will be
-            considered an alpha channel and set to 255.
-          bins: Number of discretization bins as :class:`int`.
-            Must be :math:`\geq 2`. This parameter will be ignored if the
-            selected color map has less than ``bins`` colors.
+Args:
+  data: A single channel :class:`~viren2d.ImageBuffer` or
+    :class:`numpy.ndarray` holding the data for colorization.
+  colormap: The :class:`~viren2d.ColorMap` to be used for
+    colorization. In addition to the enumeration value, its
+    string representation can be used for convenience.
+  low: Lower limit of the input values as :class:`float`. If either
+    ``low`` or ``high`` are ``inf`` or ``nan``, **both limits** will
+    be computed from the input ``data``.
+  high: Upper limit of the input values as :class:`float`.
+  output_channels: Number of output channels as :class:`int`.
+    Must be either 3 or 4. The optional 4th channel will be
+    considered an alpha channel and set to 255.
+  bins: Number of discretization bins as :class:`int`.
+    Must be :math:`\geq 2`. This parameter will be ignored if the
+    selected color map has less than ``bins`` colors.
 
-        Returns:
-          A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
-          type :class:`numpy.uint8`.
+Returns:
+  A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
+  type :class:`numpy.uint8`.
 
-        Example:
-        )docstr" + LoadCodeExample("scaled-colorization.inc")
-      + "\n|image-colorized-peaks|";
-//          >>> data = viren2d.peaks(400, 400)
-//          >>> vis = viren2d.colorize_scaled(
-//          >>>     data, colormap='gouldian', low=-8, high=8,
-//          >>>     bins=256, output_channels=3)
+)docstr" + DocstringCodeExample("colorization-scaled")
++ "\n\n|image-colorized-peaks|";
 
-//        |image-colorized-peaks|
   m.def("colorize_scaled",
         &ColorizationScaledHelper, docstr.c_str(),
         py::arg("data"),
@@ -1008,36 +1002,30 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("bins") = 256);
 
 
+  docstr = R"docstr(
+Colorizes a label image.
+
+**Corresponding C++ API:** ``viren2d::ColorizeLabels``.
+
+Args:
+  labels: A single channel :class:`~viren2d.ImageBuffer` or
+    :class:`numpy.ndarray` holding the labels as integral data type.
+  colormap: The :class:`~viren2d.ColorMap` to be used for
+    colorization. In addition to the enumeration value, its
+    string representation can be used for convenience.
+  output_channels: Number of output channels as :class:`int`.
+    Must be either 3 or 4. The optional 4th channel will be
+    considered an alpha channel and set to 255.
+
+Returns:
+  A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
+  type :class:`numpy.uint8`.
+
+)docstr" + DocstringCodeExample("colorization-categorical")
++ "\n\n|image-label-colorization|";
+
   m.def("colorize_labels",
-        &ColorizationLabelsHelper, R"docstr(
-        Colorizes a label image.
-
-        **Corresponding C++ API:** ``viren2d::ColorizeLabels``.
-
-        Args:
-          labels: A single channel :class:`~viren2d.ImageBuffer` or
-            :class:`numpy.ndarray` holding the labels as integral data type.
-          colormap: The :class:`~viren2d.ColorMap` to be used for
-            colorization. In addition to the enumeration value, its
-            string representation can be used for convenience.
-          output_channels: Number of output channels as :class:`int`.
-            Must be either 3 or 4. The optional 4th channel will be
-            considered an alpha channel and set to 255.
-
-        Returns:
-          A 3- or 4-channel :class:`~viren2d.ImageBuffer` of
-          type :class:`numpy.uint8`.
-
-        Example:
-          >>> import numpy as np
-          >>> labels = np.array(
-          >>>     [[1, 2, 3], [4, 5, 6], [20000, 20001, 20003]],
-          >>>     dtype=np.int32)
-          >>> vis = viren2d.colorize_labels(
-          >>>     labels, colormap='category-20', output_channels=3)
-        
-        |image-label-colorization|
-        )docstr",
+        &ColorizationLabelsHelper, docstr.c_str(),
         py::arg("labels"),
         py::arg("colormap") = ColorMap::GlasbeyDark,
         py::arg("output_channels") = 3);

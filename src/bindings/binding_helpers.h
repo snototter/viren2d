@@ -24,9 +24,11 @@ namespace bindings {
 //-------------------------------------------------  Common (Binding utils)
 
 
-std::string LoadCodeExample(
-    const std::string &snippet_name, std::size_t indentation = 2,
-    const std::string &prefix = ">>> ");
+std::string DocstringCodeExample(
+    const std::string &snippet_name,
+    const std::string &block_prefix = "Example:\n",
+    std::size_t line_indentation = 2,
+    const std::string &line_prefix = ">>> ");
 
 /**
  * Returns the fully qualified type name string: "module"."name",
