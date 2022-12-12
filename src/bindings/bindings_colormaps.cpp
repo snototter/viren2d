@@ -17,10 +17,10 @@ std::string ColorMapCodeExampleScaled(ColorMap cmap) {
   code_block << "\n\n    Example:\n"
     << "      >>> import numpy as np\n"
     << "      >>> import viren2d\n"
-    << "      >>> data = np.random.rand(10, 20)\n"
+    << "      >>> data = np.vstack(25 * (np.arange(0, 256),))\n"
     << "      >>> vis = viren2d.colorize_scaled(\n"
     << "      >>>     data, colormap='" << ColorMapToString(cmap)
-    << "', low=0, high=1,\n"
+    << "', low=0, high=255,\n"
     << "      >>>     bins=256, output_channels=3)\n";
   return code_block.str();
 }
@@ -50,12 +50,30 @@ std::string ColorMapCodeExampleOrientation(ColorMap cmap) {
 }
 
 
+std::string ColorMapCodeExampleCustom(ColorMap cmap) {
+  std::ostringstream code_block;
+  code_block << "\n\n    Example:\n"
+    << "      >>> import numpy as np\n"
+    << "      >>> import viren2d\n"
+    << "      >>> data = np.vstack(25 * (np.arange(0, 256),))\n"
+    << "      >>> viren2d.set_custom_colormap(\n"
+    << "      >>>     '" << ColorMapToString(cmap) << "',\n"
+    << "      >>>     ['navy-blue', 'azure', 'blue', 'light-blue'])\n"
+    << "      >>> vis = viren2d.colorize_scaled(\n"
+    << "      >>>     data, colormap='" << ColorMapToString(cmap)
+    << "', low=0, high=255,\n"
+    << "      >>>     bins=256, output_channels=3)\n";
+  return code_block.str();
+}
+
+
 void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap", R"docstr(
             Enumeration of available color maps.
 
             **Corresponding C++ API:** ``viren2d::ColorMap``.
             )docstr");
+
 
   std::string docstr = R"docstr(
     Sequential red-to-yellow color map. This color map is not perceptually
@@ -67,9 +85,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Autumn);
-  cm.value(
-        "Autumn",
-        ColorMap::Autumn, docstr.c_str());
+  cm.value("Autumn", ColorMap::Autumn, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -83,9 +99,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::BlackBody);
-  cm.value(
-        "BlackBody",
-        ColorMap::BlackBody, docstr.c_str());
+  cm.value("BlackBody", ColorMap::BlackBody, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -97,9 +111,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleCategorical(ColorMap::Categories10);
-  cm.value(
-        "Categories10",
-        ColorMap::Categories10, docstr.c_str());
+  cm.value("Categories10", ColorMap::Categories10, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -111,9 +123,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleCategorical(ColorMap::Categories12);
-  cm.value(
-        "Categories12",
-        ColorMap::Categories12, docstr.c_str());
+  cm.value("Categories12", ColorMap::Categories12, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -125,9 +135,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleCategorical(ColorMap::Categories20);
-  cm.value(
-        "Categories20",
-        ColorMap::Categories20, docstr.c_str());
+  cm.value("Categories20", ColorMap::Categories20, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -140,9 +148,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Cividis);
-  cm.value(
-        "Cividis",
-        ColorMap::Cividis, docstr.c_str());
+  cm.value("Cividis", ColorMap::Cividis, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -155,9 +161,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Cold);
-  cm.value(
-        "Cold",
-        ColorMap::Cold, docstr.c_str());
+  cm.value("Cold", ColorMap::Cold, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -172,8 +176,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::ColorBlindDiverging);
   cm.value(
-        "ColorBlindDiverging",
-        ColorMap::ColorBlindDiverging, docstr.c_str());
+        "ColorBlindDiverging", ColorMap::ColorBlindDiverging, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -188,8 +191,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::ColorBlindSequential);
   cm.value(
-        "ColorBlindSequential",
-        ColorMap::ColorBlindSequential, docstr.c_str());
+        "ColorBlindSequential", ColorMap::ColorBlindSequential,
+        docstr.c_str());
 
 
   docstr = R"docstr(
@@ -204,8 +207,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::ColorBlindSequentialVivid);
   cm.value(
-        "ColorBlindSequentialVivid",
-        ColorMap::ColorBlindSequentialVivid, docstr.c_str());
+        "ColorBlindSequentialVivid", ColorMap::ColorBlindSequentialVivid,
+        docstr.c_str());
 
 
   docstr = R"docstr(
@@ -221,44 +224,43 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :align: center
     )docstr" + ColorMapCodeExampleOrientation(ColorMap::ColorBlindOrientation);
   cm.value(
-        "ColorBlindOrientation",
-        ColorMap::ColorBlindOrientation, docstr.c_str());
+        "ColorBlindOrientation", ColorMap::ColorBlindOrientation,
+        docstr.c_str());
 
 
   docstr = R"docstr(
-           Sequential color map from black to light copper. This color map has
-           kinks in the lightness curve, which can lead to a perceived banding of
-           the data in those value ranges. Based on
-           `matplotlib's <https://matplotlib.org>`__ *copper* map.
+    Sequential color map from black to light copper. This color map has
+    kinks in the lightness curve, which can lead to a perceived banding of
+    the data in those value ranges. Based on
+    `matplotlib's <https://matplotlib.org>`__ *copper* map.
 
-           .. image:: ../images/colormap-gradient-copper.png
-              :width: 266
-              :alt: Color map gradient
-              :align: center
-           )docstr" + ColorMapCodeExampleScaled(ColorMap::Copper);
-  cm.value(
-        "Copper",
-        ColorMap::Copper, docstr.c_str());
+    .. image:: ../images/colormap-gradient-copper.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Copper);
+  cm.value("Copper", ColorMap::Copper, docstr.c_str());
 
-  //TODO code example for custom color maps
-  cm.value(
-        "Custom1",
-        ColorMap::Custom1, R"docstr(
-        Placeholder to support using your own color map, see
-        :func:`~viren2d.set_custom_colormap`.
-        )docstr")
-      .value(
-        "Custom2",
-        ColorMap::Custom2, R"docstr(
-        Placeholder to support using your own color map, see
-        :func:`~viren2d.set_custom_colormap`.
-        )docstr")
-      .value(
-        "Custom3",
-        ColorMap::Custom3, R"docstr(
-        Placeholder to support using your own color map, see
-        :func:`~viren2d.set_custom_colormap`.
-        )docstr");
+
+  docstr = R"docstr(
+    Placeholder to support using your own color map, see
+    :func:`~viren2d.set_custom_colormap`.
+    )docstr" + ColorMapCodeExampleCustom(ColorMap::Custom1);
+  cm.value("Custom1", ColorMap::Custom1, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Placeholder to support using your own color map, see
+    :func:`~viren2d.set_custom_colormap`.
+    )docstr" + ColorMapCodeExampleCustom(ColorMap::Custom2);
+  cm.value("Custom2", ColorMap::Custom2, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Placeholder to support using your own color map, see
+    :func:`~viren2d.set_custom_colormap`.
+    )docstr" + ColorMapCodeExampleCustom(ColorMap::Custom3);
+  cm.value("Custom3", ColorMap::Custom3, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -271,10 +273,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :width: 266
        :alt: Color map gradient
        :align: center
-    )docstr"; // TODO code example color bar?
-  cm.value(
-        "Disparity",
-        ColorMap::Disparity, docstr.c_str());
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Disparity);
+  cm.value("Disparity", ColorMap::Disparity, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -285,10 +285,8 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :width: 266
        :alt: Color map gradient
        :align: center
-    )docstr"; // TODO code example color bar?
-  cm.value(
-        "Earth",
-        ColorMap::Earth, docstr.c_str());
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Earth);
+  cm.value("Earth", ColorMap::Earth, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -303,9 +301,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleCategorical(ColorMap::GlasbeyDark);
-  cm.value(
-        "GlasbeyDark",
-        ColorMap::GlasbeyDark, docstr.c_str());
+  cm.value("GlasbeyDark", ColorMap::GlasbeyDark, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -320,9 +316,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleCategorical(ColorMap::GlasbeyLight);
-  cm.value(
-        "GlasbeyLight",
-        ColorMap::GlasbeyLight, docstr.c_str());
+  cm.value("GlasbeyLight", ColorMap::GlasbeyLight, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -337,9 +331,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Gouldian);
-  cm.value(
-        "Gouldian",
-        ColorMap::Gouldian, docstr.c_str());
+  cm.value("Gouldian", ColorMap::Gouldian, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -351,9 +343,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Gray);
-  cm.value(
-        "Gray",
-        ColorMap::Gray, docstr.c_str());
+  cm.value("Gray", ColorMap::Gray, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -366,9 +356,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Hell);
-  cm.value(
-        "Hell",
-        ColorMap::Hell, docstr.c_str());
+  cm.value("Hell", ColorMap::Hell, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -382,9 +370,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Hot);
-  cm.value(
-        "Hot",
-        ColorMap::Hot, docstr.c_str());
+  cm.value("Hot", ColorMap::Hot, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -396,9 +382,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleOrientation(ColorMap::HSV);
-  cm.value(
-        "HSV",
-        ColorMap::HSV, docstr.c_str());
+  cm.value("HSV", ColorMap::HSV, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -412,9 +396,7 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Inferno);
-  cm.value(
-        "Inferno",
-        ColorMap::Inferno, docstr.c_str());
+  cm.value("Inferno", ColorMap::Inferno, docstr.c_str());
 
 
   docstr = R"docstr(
@@ -433,289 +415,309 @@ void RegisterColorMapEnum(pybind11::module &m) {
        :alt: Color map gradient
        :align: center
     )docstr" + ColorMapCodeExampleScaled(ColorMap::Jet);
+  cm.value("Jet", ColorMap::Jet, docstr.c_str());
+
+  docstr = R"docstr(
+    A green-blue color map to visualize water depths. Based on
+    `matplotlib's <https://matplotlib.org>`__ *ocean* map.
+
+    .. image:: ../images/colormap-gradient-ocean.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Ocean);
+  cm.value("Ocean", ColorMap::Ocean, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Cyclic HSV-like color map with reduced colors. Suitable to visualize
+    optical flow fields. Based on the color map used by the
+    `Middlebury Optical Flow benchmark <https://vision.middlebury.edu/flow/>`__.
+
+    .. image:: ../images/colormap-gradient-optical-flow.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleOrientation(ColorMap::OpticalFlow);
+  cm.value("OpticalFlow", ColorMap::OpticalFlow, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Cyclic magenta-yellow-green-blue color map for four orientations/phase
+    angles to be visualized. This is the *CET-C2* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-orientation-4.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleOrientation(ColorMap::Orientation4);
+  cm.value("Orientation4", ColorMap::Orientation4, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Six-color cyclic map with primaries and secondaries matched in
+    lightness. This is the *CET-C6* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-orientation-6.png
+        :width: 266
+        :alt: Color map gradient
+        :align: center
+    )docstr" + ColorMapCodeExampleOrientation(ColorMap::Orientation6);
+  cm.value("Orientation6", ColorMap::Orientation6, docstr.c_str());
+
+
+  docstr = R"docstr(
+    The "least worse" rainbow color map, *i.e.* *CET-R2*, by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-rainbow.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Rainbow);
+  cm.value("Rainbow", ColorMap::Rainbow, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Green-brownish-bluish perceptually uniform sequential color map for
+    relief shading. This is the *CET-L11* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-relief.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Relief);
+  cm.value("Relief", ColorMap::Relief, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Low contrast (isoluminant), blue-green-orange perceptually uniform
+    sequential color map for relief shading. This is the *CET-I2* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-relief-low-contrast.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::ReliefLowContrast);
   cm.value(
-        "Jet",
-        ColorMap::Jet, docstr.c_str());
+        "ReliefLowContrast", ColorMap::ReliefLowContrast, docstr.c_str());
 
-  // TODO continue adding code examples
-  cm.value(
-        "Ocean",
-        ColorMap::Ocean, R"docstr(
-        A green-blue color map to visualize water depths. Based on
-        `matplotlib's <https://matplotlib.org>`__ *ocean* map.
 
-        .. image:: ../images/colormap-gradient-ocean.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "OpticalFlow",
-        ColorMap::OpticalFlow, R"docstr(
-        Cyclic HSV-like color map with reduced colors. Suitable to visualize
-        optical flow fields. Based on the color map used by the
-        `Middlebury Optical Flow benchmark <https://vision.middlebury.edu/flow/>`__.
+  docstr = R"docstr(
+    Diverging blue-white-red map with vivid colors. Based on
+    `matplotlib's <https://matplotlib.org>`__ *seismic* map.
 
-        .. image:: ../images/colormap-gradient-optical-flow.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value( // TODO code example could use the color wheel visualization!
-        "Orientation4",
-        ColorMap::Orientation4, R"docstr(
-        Cyclic magenta-yellow-green-blue color map for four orientations/phase
-        angles to be visualized. This is the *CET-C2* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+    .. image:: ../images/colormap-gradient-seismic.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Seismic);
+  cm.value("Seismic", ColorMap::Seismic, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-orientation-4.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Orientation6",
-        ColorMap::Orientation6, R"docstr(
-        Six-color cyclic map with primaries and secondaries matched in
-        lightness. This is the *CET-C6* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
-        .. image:: ../images/colormap-gradient-orientation-6.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Rainbow",
-        ColorMap::Rainbow, R"docstr(
-        The "least worse" rainbow color map, *i.e.* *CET-R2*, by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+  docstr = R"docstr(
+    Color map covering the spectral colors from ultra-violett to infrared.
+    Based on `matplotlib's <https://matplotlib.org>`__ *NIPY Spectral* map.
 
-        .. image:: ../images/colormap-gradient-rainbow.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Relief",
-        ColorMap::Relief, R"docstr(
-        Green-brownish-bluish perceptually uniform sequential color map for
-        relief shading. This is the *CET-L11* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+    .. image:: ../images/colormap-gradient-spectral.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Spectral);
+  cm.value("Spectral", ColorMap::Spectral, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-relief.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "ReliefLowContrast",
-        ColorMap::ReliefLowContrast, R"docstr(
-        Low contrast (isoluminant), blue-green-orange perceptually uniform
-        sequential color map for relief shading. This is the *CET-I2* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
-        .. image:: ../images/colormap-gradient-relief-low-contrast.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Seismic",
-        ColorMap::Seismic, R"docstr(
-        Diverging blue-white-red map with vivid colors. Based on
-        `matplotlib's <https://matplotlib.org>`__ *seismic* map.
+  docstr = R"docstr(
+    Diverging redish-yellow-bluish map. Based on
+    `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
 
-        .. image:: ../images/colormap-gradient-seismic.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Spectral",
-        ColorMap::Spectral, R"docstr(
-        Color map covering the spectral colors from ultra-violett to infrared.
-        Based on `matplotlib's <https://matplotlib.org>`__ *NIPY Spectral* map.
+    .. image:: ../images/colormap-gradient-spectral-diverging.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::SpectralDiverging);
+  cm.value("SpectralDiverging", ColorMap::SpectralDiverging, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-spectral.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "SpectralDiverging",
-        ColorMap::SpectralDiverging, R"docstr(
-        Diverging redish-yellow-bluish map. Based on
-        `matplotlib's <https://matplotlib.org>`__ *Spectral* map.
 
-        .. image:: ../images/colormap-gradient-spectral-diverging.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Spring",
-        ColorMap::Spring, R"docstr(
-        Sequential pink-to-yellow color map. This color map is not perceptually
-        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *spring*
-        map.
 
-        .. image:: ../images/colormap-gradient-spring.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Summer",
-        ColorMap::Summer, R"docstr(
-        Sequential green-to-yellow color map. This color map is not perceptually
-        uniform. Based on `matplotlib's <https://matplotlib.org>`__ *summer*
-        map.
+  docstr = R"docstr(
+    Sequential pink-to-yellow color map. This color map is not perceptually
+    uniform. Based on `matplotlib's <https://matplotlib.org>`__ *spring*
+    map.
 
-        .. image:: ../images/colormap-gradient-summer.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Temperature",
-        ColorMap::Temperature, R"docstr(
-        Diverging blue-white-red color map.
-        This is the *CET-D01A* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+    .. image:: ../images/colormap-gradient-spring.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Spring);
+  cm.value("Spring", ColorMap::Spring, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-temperature.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "TemperatureDark",
-        ColorMap::TemperatureDark, R"docstr(
-        Diverging blue-black-red color map.
-        This is the *CET-D04* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
-        .. image:: ../images/colormap-gradient-temperature-dark.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Terrain",
-        ColorMap::Terrain, R"docstr(
-        A blue-green-yellowish-brownish color map to visualize topography
-        data. Based on `matplotlib's <https://matplotlib.org>`__ *terrain* map.
+  docstr = R"docstr(
+    Sequential green-to-yellow color map. This color map is not perceptually
+    uniform. Based on `matplotlib's <https://matplotlib.org>`__ *summer*
+    map.
 
-        .. image:: ../images/colormap-gradient-terrain.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Thermal",
-        ColorMap::Thermal, R"docstr(
-        Black-purple-red-yellow-white sequential color map for
-        thermographic images, also known as *iron* or *ironbow*.
+    .. image:: ../images/colormap-gradient-summer.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Summer);
+  cm.value("Summer", ColorMap::Summer, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-thermal.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Turbo",
-        ColorMap::Turbo, R"docstr(
-        A rainbow color map similar to the well-known MATLAB `jet`, but following
-        a smoother path through the CIELAB color space. Published by
-        `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
-        under the `Apache-2.0 license <https://www.apache.org/licenses/LICENSE-2.0>`__.
-        `Turbo` is often used for depth and disparity values.
 
-        .. image:: ../images/colormap-gradient-turbo.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Twilight",
-        ColorMap::Twilight, R"docstr(
-        Cyclic white-blue-black-red-white map with perceptually uniform lightness
-        and color contrast over the whole range. Based on
-        `matplotlib's <https://matplotlib.org>`__ *twilight* map.
+  docstr = R"docstr(
+    Diverging blue-white-red color map.
+    This is the *CET-D01A* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
-        .. image:: ../images/colormap-gradient-twilight.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "TwilightShifted",
-        ColorMap::TwilightShifted, R"docstr(
-        Cyclic black-blue-white-red-black map with perceptually uniform lightness
-        and color contrast over the whole range. Based on
-        `matplotlib's <https://matplotlib.org>`__ *twilight_shifted* map.
+    .. image:: ../images/colormap-gradient-temperature.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Temperature);
+  cm.value("Temperature", ColorMap::Temperature, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-twilight-shifted.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Viridis",
-        ColorMap::Viridis, R"docstr(
-        Perceptually uniform sequential color map. Proposed by
-        `Stéfan van der Walt and Nathaniel Smith, based on a design by Eric Firing <https://bids.github.io/colormap/>`__,
-        now the default color map of `matplotlib <https://matplotlib.org/>`__.
 
-        .. image:: ../images/colormap-gradient-viridis.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Water",
-        ColorMap::Water, R"docstr(
-        Perceptually uniform sequential color map for water depth.
-        This is the *CET-L12* color map by
-        `Peter Kovesi <https://colorcet.com/index.html>`__, who released
-        under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+  docstr = R"docstr(
+    Diverging blue-black-red color map.
+    This is the *CET-D04* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 
-        .. image:: ../images/colormap-gradient-water.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Winter",
-        ColorMap::Winter, R"docstr(
-        Sequential blue-to-light-green color map. This color map is not
-        perceptually uniform. Based on
-        `matplotlib's <https://matplotlib.org>`__ *winter* map.
+    .. image:: ../images/colormap-gradient-temperature-dark.png
+        :width: 266
+        :alt: Color map gradient
+        :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::TemperatureDark);
+  cm.value("TemperatureDark", ColorMap::TemperatureDark, docstr.c_str());
 
-        .. image:: ../images/colormap-gradient-winter.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr")
-      .value(
-        "Yarg",
-        ColorMap::Yarg, R"docstr(
-        Inverted grayscale range from white-to-black, *a.k.a.*
-        *black-hot*.
 
-        .. image:: ../images/colormap-gradient-yarg.png
-           :width: 266
-           :alt: Color map gradient
-           :align: center
-        )docstr");
+  docstr = R"docstr(
+    A blue-green-yellowish-brownish color map to visualize topography
+    data. Based on `matplotlib's <https://matplotlib.org>`__ *terrain* map.
+
+    .. image:: ../images/colormap-gradient-terrain.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Terrain);
+  cm.value("Terrain", ColorMap::Terrain, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Black-purple-red-yellow-white sequential color map for
+    thermographic images, also known as *iron* or *ironbow*.
+
+    .. image:: ../images/colormap-gradient-thermal.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Thermal);
+  cm.value("Thermal", ColorMap::Thermal, docstr.c_str());
+
+
+  docstr = R"docstr(
+    A rainbow color map similar to the well-known MATLAB `jet`, but following
+    a smoother path through the CIELAB color space. Published by
+    `Google (Anton Mikhailov) <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`__
+    under the `Apache-2.0 license <https://www.apache.org/licenses/LICENSE-2.0>`__.
+    `Turbo` is often used for depth and disparity values.
+
+    .. image:: ../images/colormap-gradient-turbo.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Turbo);
+  cm.value("Turbo", ColorMap::Turbo, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Cyclic white-blue-black-red-white map with perceptually uniform lightness
+    and color contrast over the whole range. Based on
+    `matplotlib's <https://matplotlib.org>`__ *twilight* map.
+
+    .. image:: ../images/colormap-gradient-twilight.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleOrientation(ColorMap::Twilight);
+  cm.value("Twilight", ColorMap::Twilight, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Cyclic black-blue-white-red-black map with perceptually uniform lightness
+    and color contrast over the whole range. Based on
+    `matplotlib's <https://matplotlib.org>`__ *twilight_shifted* map.
+
+    .. image:: ../images/colormap-gradient-twilight-shifted.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleOrientation(ColorMap::TwilightShifted);
+  cm.value("TwilightShifted", ColorMap::TwilightShifted, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Perceptually uniform sequential color map. Proposed by
+    `Stéfan van der Walt and Nathaniel Smith, based on a design by Eric Firing <https://bids.github.io/colormap/>`__,
+    now the default color map of `matplotlib <https://matplotlib.org/>`__.
+
+    .. image:: ../images/colormap-gradient-viridis.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Viridis);
+  cm.value("Viridis", ColorMap::Viridis, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Perceptually uniform sequential color map for water depth.
+    This is the *CET-L12* color map by
+    `Peter Kovesi <https://colorcet.com/index.html>`__, who released
+    under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/legalcode>`__.
+
+    .. image:: ../images/colormap-gradient-water.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Water);
+  cm.value("Water", ColorMap::Water, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Sequential blue-to-light-green color map. This color map is not
+    perceptually uniform. Based on
+    `matplotlib's <https://matplotlib.org>`__ *winter* map.
+
+    .. image:: ../images/colormap-gradient-winter.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr";
+  cm.value("Winter", ColorMap::Winter, docstr.c_str());
+
+
+  docstr = R"docstr(
+    Inverted grayscale range from white-to-black, *a.k.a.*
+    *black-hot*.
+
+    .. image:: ../images/colormap-gradient-yarg.png
+       :width: 266
+       :alt: Color map gradient
+       :align: center
+    )docstr" + ColorMapCodeExampleScaled(ColorMap::Yarg);
+  cm.value("Yarg", ColorMap::Yarg, docstr.c_str());
 
 
   cm.def(
@@ -1040,6 +1042,7 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("colormap"));
 
 
+  //TODO refactor example code snippet
   m.def("set_custom_colormap",
         &SetCustomColorMapHelper, R"docstr(
         Registers a customized color map.
@@ -1143,48 +1146,45 @@ Returns:
         py::arg("output_channels") = 3);
 
 
+  docstr = R"docstr(
+Multiplicative relief shading.
+
+Combines a false color representation with the relief data via
+element-wise multiplication. This can enhance the shape perception
+significantly due to the shading.
+
+Note that the :class:`~viren2d.ColorMap` should be selected with care
+to avoid interfering with the perception of features induced by the
+shading. Particularly well suited color maps have only low (or even no)
+variation in lightness values, *e.g.* :attr:`ColorMap.Relief` or
+:attr:`ColorMap.ReliefLowContrast`.
+
+**Corresponding C++ API:** ``viren2d::ReliefShading``.
+
+Args:
+  relief: A single channel :class:`~viren2d.ImageBuffer` or
+    :class:`numpy.ndarray` holding the topographic data. If the data
+    is an integer type, it will be divided by 255 and converted
+    to single precision floating point before multiplication.
+
+  colorized: An :class:`~viren2d.ImageBuffer` or
+    :class:`numpy.ndarray` of type :class:`numpy.uint8` holding the
+    color image to be shaded.
+
+Returns:
+  An :class:`~viren2d.ImageBuffer` of type :class:`numpy.uint8` which
+  has the same number of channels as ``colorized``.
+
+)docstr" + DocstringCodeExample("relief-shading")
+      + "\n\n|image-relief-shading|";
   m.def("relief_shading",
-        &ReliefShading, R"docstr(
-        Multiplicative relief shading.
-
-        Combines a false color representation with the relief data via
-        element-wise multiplication. This can enhance the shape perception
-        significantly due to the shading.
-
-        Note that the :class:`~viren2d.ColorMap` should be selected with care
-        to avoid interfering with the perception of features induced by the
-        shading. Particularly well suited color maps have only low (or even no)
-        variation in lightness values, *e.g.* :attr:`ColorMap.Relief` or
-        :attr:`ColorMap.ReliefLowContrast`.
-
-        **Corresponding C++ API:** ``viren2d::ReliefShading``.
-
-        Args:
-          relief: A single channel :class:`~viren2d.ImageBuffer` or
-            :class:`numpy.ndarray` holding the topographic data. If the data
-            is an integer type, it will be divided by 255 and converted
-            to single precision floating point before multiplication.
-
-          colorized: An :class:`~viren2d.ImageBuffer` or
-            :class:`numpy.ndarray` of type :class:`numpy.uint8` holding the
-            color image to be shaded.
-
-        Returns:
-          An :class:`~viren2d.ImageBuffer` of type :class:`numpy.uint8` which
-          has the same number of channels as ``colorized``.
-
-        Example:
-          >>> moon = viren2d.load_image_uint8('examples/data/lunar-farside.jpg')
-          >>> vis = viren2d.colorize_scaled(
-          >>>     data=moon, colormap='relief-low-contrast', low=0, high=255)
-          >>> shaded = viren2d.relief_shading(relief=moon, colorized=vis)
-        
-        |image-relief-shading|
-        )docstr",
+        &ReliefShading,
+        docstr.c_str(),
         py::arg("relief"),
         py::arg("colorized"));
 
 
+  //TODO add code example
   m.def("peaks",
         &Peaks, R"docstr(
         Computes the `peaks` example data.
@@ -1204,39 +1204,35 @@ Returns:
         py::arg("width") = 600);
 
 
+  docstr = R"docstr(
+Returns corresponding color map colors for a list of scalar values.
+
+Performs scaled colorization similar to :func:`~viren2d.colorize_scaled`,
+but operates on a list of scalars (instead of a :class:`numpy.ndarray`)
+and returns a list of :class:`~viren2d.Color` objects.
+
+**Corresponding C++ API:** ``viren2d::ColorizeScalars``.
+
+Args:
+  values: The input list of scalar values.
+  colormap: The :class:`~viren2d.ColorMap` to be used for
+    colorization. In addition to the enumeration value, its
+    string representation can be used for convenience.
+  low: Lower limit of the input data as :class:`float`. If :math:`\infty`
+    or *NaN*, it will be computed from the input data.
+  high: Upper limit of the input data as :class:`float`. If :math:`\infty`
+    or *NaN*, it will be computed from the input data.
+  bins: Number of discretization bins as :class:`int`.
+    Must be :math:`\geq 2`. This parameter will be ignored if the
+    selected color map has less than ``bins`` colors.
+
+Returns:
+  A :class:`list` of :class:`~viren2d.Color` objects.
+
+)docstr" + DocstringCodeExample("colorization-scalars");
   m.def("colorize_scalars",
-        &ColorizeScalarsHelper, R"docstr(
-        Returns corresponding color map colors for a list of scalar values.
-
-        Performs scaled colorization similar to :func:`~viren2d.colorize_scaled`,
-        but operates on a list of scalars (instead of a :class:`numpy.ndarray`)
-        and returns a list of :class:`~viren2d.Color` objects.
-
-        **Corresponding C++ API:** ``viren2d::ColorizeScalars``.
-
-        Args:
-          values: The input list of scalar values.
-          colormap: The :class:`~viren2d.ColorMap` to be used for
-            colorization. In addition to the enumeration value, its
-            string representation can be used for convenience.
-          low: Lower limit of the input data as :class:`float`. If :math:`\infty`
-            or *NaN*, it will be computed from the input data.
-          high: Upper limit of the input data as :class:`float`. If :math:`\infty`
-            or *NaN*, it will be computed from the input data.
-          bins: Number of discretization bins as :class:`int`.
-            Must be :math:`\geq 2`. This parameter will be ignored if the
-            selected color map has less than ``bins`` colors.
-
-        Returns:
-          A :class:`list` of :class:`~viren2d.Color` objects.
-
-        Example:
-          >>> values = [10, -5, 3, 177, 12345]
-          >>> colors = viren2d.colorize_scalars(
-          >>>     values=values, colormap='seismic',
-          >>>     low=float("inf"), high=float("inf"),
-          >>>     bins=256)
-        )docstr",
+        &ColorizeScalarsHelper,
+        docstr.c_str(),
         py::arg("values"),
         py::arg("colormap") = ColorMap::Gouldian,
         py::arg("low") = std::numeric_limits<double>::infinity(),

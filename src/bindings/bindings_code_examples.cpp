@@ -14,14 +14,24 @@ namespace viren2d {
 namespace bindings {
 namespace examples {
 std::vector<std::string> CodeExample(const std::string &snippet_name) {
-  if (snippet_name.compare("colorization-scaled") == 0) {
+  if (snippet_name.compare("colorization-categorical") == 0) {
+    const char *code =
+    #include <bindings/docstr-snippets/colorization-categorical.inc>
+    ;
+    return werkzeugkiste::strings::Split(code, '\n');
+  } else if (snippet_name.compare("colorization-scaled") == 0) {
     const char *code =
     #include <bindings/docstr-snippets/colorization-scaled.inc>
     ;
     return werkzeugkiste::strings::Split(code, '\n');
-  } else if (snippet_name.compare("colorization-categorical") == 0) {
+  } else if (snippet_name.compare("colorization-scalars") == 0) {
     const char *code =
-    #include <bindings/docstr-snippets/colorization-categorical.inc>
+    #include <bindings/docstr-snippets/colorization-scalars.inc>
+    ;
+    return werkzeugkiste::strings::Split(code, '\n');
+  } else if (snippet_name.compare("relief-shading") == 0) {
+    const char *code =
+    #include <bindings/docstr-snippets/relief-shading.inc>
     ;
     return werkzeugkiste::strings::Split(code, '\n');
   } else {
