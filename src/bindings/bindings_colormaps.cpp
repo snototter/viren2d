@@ -1097,7 +1097,8 @@ Returns:
 + "\n\n|image-colorized-peaks|";
 
   m.def("colorize_scaled",
-        &ColorizationScaledHelper, docstr.c_str(),
+        &ColorizationScaledHelper,
+        docstr.c_str(),
         py::arg("data"),
         py::arg("colormap") = ColorMap::Gouldian,
         py::arg("low") = std::numeric_limits<double>::infinity(),
@@ -1129,7 +1130,8 @@ Returns:
 + "\n\n|image-label-colorization|";
 
   m.def("colorize_labels",
-        &ColorizationLabelsHelper, docstr.c_str(),
+        &ColorizationLabelsHelper,
+        docstr.c_str(),
         py::arg("labels"),
         py::arg("colormap") = ColorMap::GlasbeyDark,
         py::arg("output_channels") = 3);
