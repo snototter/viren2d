@@ -1042,43 +1042,32 @@ void RegisterColormaps(pybind11::module &m) {
         py::arg("colormap"));
 
 
-  //TODO refactor example code snippet
+  std::string docstr = R"docstr(
+Registers a customized color map.
+
+Allows library users to register their own color maps for the
+enumeration values :attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`,
+and :attr:`ColorMap.Custom3`.
+
+**Corresponding C++ API:** ``viren2d::SetCustomColorMap``.
+
+Args:
+  id: The :class:`~viren2d.ColorMap` enumeration value under which to
+    register the color map. Also accepts the corresponding string
+    representation.
+  colors: The color map as :class:`list` of :class:`~viren2d.Color`.
+    Note that a :class:`~viren2d.Color` is defined by
+    :math:`r,g,b \in [0,1]`.
+
+)docstr" + DocstringCodeExample("colorization-custom");
   m.def("set_custom_colormap",
-        &SetCustomColorMapHelper, R"docstr(
-        Registers a customized color map.
-
-        Allows library users to register their own color maps for the
-        enumeration values :attr:`ColorMap.Custom1`, :attr:`ColorMap.Custom2`,
-        and :attr:`ColorMap.Custom3`.
-
-        **Corresponding C++ API:** ``viren2d::SetCustomColorMap``.
-
-        Args:
-          id: The :class:`~viren2d.ColorMap` enumeration value under which to
-            register the color map. Also accepts the corresponding string
-            representation.
-          colors: The color map as :class:`list` of :class:`~viren2d.Color`.
-            Note that a :class:`~viren2d.Color` is defined by
-            :math:`r,g,b \in [0,1]`.
-
-        Example:
-          >>> # Exemplary categorical data for visualization
-          >>> import numpy as np
-          >>> labels = np.array(
-          >>>     [[0, 1, 2], [-3, -4, -6], [20000, 20001, 20003]],
-          >>>     dtype=np.int32)
-          >>> # Register a custom color map. This is a usage example and by
-          >>> # no means a useful color map!
-          >>> viren2d.set_custom_colormap(
-          >>>     'custom1', ['#800000', (0.94, 0.13, 0.15), 'rose-red'])
-          >>> # Apply the custom map for label colorization:
-          >>> vis = viren2d.colorize_labels(labels=labels, colormap='custom1')
-        )docstr",
+        &SetCustomColorMapHelper,
+        docstr.c_str(),
         py::arg("id"),
         py::arg("colors"));
 
 
-  std::string docstr = R"docstr(
+  docstr = R"docstr(
 Colorizes 2D data array using a colormap.
 
 **Corresponding C++ API:** ``viren2d::ColorizeScaled``.
@@ -1184,22 +1173,24 @@ Returns:
         py::arg("colorized"));
 
 
-  //TODO add code example
+  docstr = R"docstr(
+Computes the `peaks` example data.
+
+Returns exemplary data for visualization from translated and scaled
+Gaussian distributions, known from
+`MATLAB <https://www.mathworks.com/help/matlab/ref/peaks.html>`__:
+:math:`\operatorname{peaks}(x,y) = 3 \left(1 - x\right)^2 e^{-x^2 - (y+1)^2} - 10 \left( \frac{x}{5} - x^3 - y^5 \right) e^{-x^2 - y^2} - \frac{1}{3} e^{-(x+1)^2 - y^2}`.
+
+**Corresponding C++ API:** ``viren2d::Peaks``.
+
+Returns:
+  A ``width`` by ``height`` single-channel :class:`~viren2d.ImageBuffer`
+  of type :class:`numpy.float64`.
+
+)docstr" + DocstringCodeExample("colorization-scaled");
   m.def("peaks",
-        &Peaks, R"docstr(
-        Computes the `peaks` example data.
-
-        Returns exemplary data for visualization from translated and scaled
-        Gaussian distributions, known from
-        `MATLAB <https://www.mathworks.com/help/matlab/ref/peaks.html>`__:
-        :math:`\operatorname{peaks}(x,y) = 3 \left(1 - x\right)^2 e^{-x^2 - (y+1)^2} - 10 \left( \frac{x}{5} - x^3 - y^5 \right) e^{-x^2 - y^2} - \frac{1}{3} e^{-(x+1)^2 - y^2}`.
-
-        **Corresponding C++ API:** ``viren2d::Peaks``.
-
-        Returns:
-          A ``width`` by ``height`` single-channel :class:`~viren2d.ImageBuffer`
-          of type :class:`numpy.float64`.
-        )docstr",
+        &Peaks,
+        docstr.c_str(),
         py::arg("height") = 600,
         py::arg("width") = 600);
 

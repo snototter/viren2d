@@ -19,14 +19,19 @@ std::vector<std::string> CodeExample(const std::string &snippet_name) {
     #include <bindings/docstr-snippets/colorization-categorical.inc>
     ;
     return werkzeugkiste::strings::Split(code, '\n');
-  } else if (snippet_name.compare("colorization-scaled") == 0) {
+  } else if (snippet_name.compare("colorization-custom") == 0) {
     const char *code =
-    #include <bindings/docstr-snippets/colorization-scaled.inc>
+    #include <bindings/docstr-snippets/colorization-custom.inc>
     ;
     return werkzeugkiste::strings::Split(code, '\n');
   } else if (snippet_name.compare("colorization-scalars") == 0) {
     const char *code =
     #include <bindings/docstr-snippets/colorization-scalars.inc>
+    ;
+    return werkzeugkiste::strings::Split(code, '\n');
+  } else if (snippet_name.compare("colorization-scaled") == 0) {
+    const char *code =
+    #include <bindings/docstr-snippets/colorization-scaled.inc>
     ;
     return werkzeugkiste::strings::Split(code, '\n');
   } else if (snippet_name.compare("relief-shading") == 0) {
