@@ -132,6 +132,8 @@ NamedColor NamedColorFromString(const std::string &name) {
     return NamedColor::Green;
   } else if (cname.compare("blue") == 0) {
     return NamedColor::Blue;
+  } else if (cname.compare("amaranth") == 0) {
+    return NamedColor::Amaranth;
   } else if (cname.compare("azure") == 0) {
     return NamedColor::Azure;
   } else if (cname.compare("bronze") == 0) {
@@ -232,6 +234,7 @@ for cn in viren2d.color_names():
     case NamedColor::Green: return "green";
     case NamedColor::Blue: return "blue";
 
+    case NamedColor::Amaranth: return "amaranth";
     case NamedColor::Azure: return "azure";
     case NamedColor::Bronze: return "bronze";
     case NamedColor::Brown: return "brown";
@@ -323,6 +326,9 @@ Color::Color(const NamedColor color, double alpha) {
 
     case NamedColor::Blue:
       blue = 1.0; red = green = 0.0; break;
+
+    case NamedColor::Amaranth:
+      red = 0.90; green = 0.17; blue = 0.31; break;
 
     case NamedColor::Azure:
       red = 0.0; green = 0.5; blue = 1.0; break;
