@@ -18,7 +18,8 @@ function(setup_werkzeugkiste viren2d_TARGET_CPP_LIB)
         FetchContent_Declare(
             werkzeugkiste
             GIT_REPOSITORY https://github.com/snototter/werkzeugkiste.git
-            GIT_TAG main)
+            GIT_TAG refactor-cmake-init)
+#            GIT_TAG main)
         FetchContent_MakeAvailable(werkzeugkiste)
         message(STATUS "[viren2d] Using werkzeugkiste v${werkzeugkiste_VERSION} via FetchContent.")
     endif()

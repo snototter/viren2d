@@ -20,8 +20,8 @@ void DemoArrows() {
                                    viren2d::LineJoin::Round);
 
   auto size = painter->GetCanvasSize();
-  viren2d::Vec2d center(size.x() / 2.0, size.y() / 2.0);
-  const double radius = std::min(size.x(), size.y()) / 2.0 - 50;
+  viren2d::Vec2d center(size.X() / 2.0, size.Y() / 2.0);
+  const double radius = std::min(size.X(), size.Y()) / 2.0 - 50;
 
   for (int angle = 0; angle < 360; angle += 15) {
     const double angle_rad = angle * M_PI / 180.0;
@@ -35,15 +35,15 @@ void DemoArrows() {
                      viren2d::ArrowStyle(4, "forest-green", 0.15, 30, true, true));
 
   // Open solid arrow (top-right)
-  painter->DrawArrow({size.x() - 50.0, 50.0}, {size.x() - 200.0, 50.0},
+  painter->DrawArrow({size.X() - 50.0, 50.0}, {size.X() - 200.0, 50.0},
                      viren2d::ArrowStyle(4, "crimson!80", 0.15, 30, false, true));
 
   // Closed dashed arrow
-  painter->DrawArrow({50, size.y() - 50.0}, {200, size.y() - 50.0},
+  painter->DrawArrow({50, size.Y() - 50.0}, {200, size.Y() - 50.0},
                      viren2d::ArrowStyle(4, "forest-green", 0.15, 30, true, true, {15, 10}));
 
   // Open dashed arrow (bottom-right)
-  painter->DrawArrow({size.x() - 50.0, size.y() - 50.0}, {size.x() - 200.0, size.y() - 50.0},
+  painter->DrawArrow({size.X() - 50.0, size.Y() - 50.0}, {size.X() - 200.0, size.Y() - 50.0},
                      viren2d::ArrowStyle(4, "crimson!60", 0.15, 30, false, true,
                                          {15, 10}));
 

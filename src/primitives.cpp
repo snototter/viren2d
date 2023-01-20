@@ -36,9 +36,10 @@ Ellipse::Ellipse(const Vec2d &center, const Vec2d &size,
         double rotation_angle,
         double draw_angle1, double draw_angle2,
         bool center_included)
-  : cx(center.x()), cy(center.y()),
-    major_axis(size.x()),
-    minor_axis(size.y()),
+  : cx(center.X()),
+    cy(center.Y()),
+    major_axis(size.Width()),
+    minor_axis(size.Height()),
     rotation(rotation_angle),
     angle_from(draw_angle1),
     angle_to(draw_angle2),
@@ -98,15 +99,15 @@ Ellipse &Ellipse::operator-=(double offset) {
 
 
 Ellipse &Ellipse::operator+=(const Vec2d &offset) {
-  cx += offset.x();
-  cy += offset.y();
+  cx += offset.X();
+  cy += offset.Y();
   return *this;
 }
 
 
 Ellipse &Ellipse::operator-=(const Vec2d &offset) {
-  cx -= offset.x();
-  cy -= offset.y();
+  cx -= offset.X();
+  cy -= offset.Y();
   return *this;
 }
 
@@ -114,7 +115,7 @@ Ellipse &Ellipse::operator-=(const Vec2d &offset) {
 bool Ellipse::IsValid() const {
   return (major_axis > 0.0) && (minor_axis > 0.0)
       && (major_axis >= minor_axis)
-      && !wgu::eps_equal(angle_from, angle_to);
+      && !wgu::IsClose(angle_from, angle_to);
 }
 
 
@@ -125,7 +126,7 @@ std::string Ellipse::ToString() const {
     << ", mn=" << minor_axis << "; rot=" << rotation
     << ", a1=" << angle_from << "°, a2=" << angle_to << "°";
 
-  if (!wgu::eps_zero(angle_from) || !wgu::eps_equal(angle_to, 360.0)) {
+  if (!wgu::IsEpsZero(angle_from) || !wgu::IsClose(angle_to, 360.0)) {
     s << ", " << (include_center ? "w/" : "w/o") << " center";
   }
 
@@ -151,13 +152,13 @@ Ellipse Ellipse::FromEndpoints(
 
 
 bool operator==(const Ellipse& lhs, const Ellipse& rhs) {
-  return wgu::eps_equal(lhs.cx, rhs.cx)
-      && wgu::eps_equal(lhs.cy, rhs.cy)
-      && wgu::eps_equal(lhs.major_axis, rhs.major_axis)
-      && wgu::eps_equal(lhs.minor_axis, rhs.minor_axis)
-      && wgu::eps_equal(lhs.rotation, rhs.rotation)
-      && wgu::eps_equal(lhs.angle_from, rhs.angle_from)
-      && wgu::eps_equal(lhs.angle_to, rhs.angle_to)
+  return wgu::IsClose(lhs.cx, rhs.cx)
+      && wgu::IsClose(lhs.cy, rhs.cy)
+      && wgu::IsClose(lhs.major_axis, rhs.major_axis)
+      && wgu::IsClose(lhs.minor_axis, rhs.minor_axis)
+      && wgu::IsClose(lhs.rotation, rhs.rotation)
+      && wgu::IsClose(lhs.angle_from, rhs.angle_from)
+      && wgu::IsClose(lhs.angle_to, rhs.angle_to)
       && (lhs.include_center == rhs.include_center);
 }
 
@@ -211,15 +212,15 @@ Rect &Rect::operator-=(double offset) {
 
 
 Rect &Rect::operator+=(const Vec2d &offset) {
-  cx += offset.x();
-  cy += offset.y();
+  cx += offset.X();
+  cy += offset.Y();
   return *this;
 }
 
 
 Rect &Rect::operator-=(const Vec2d &offset) {
-  cx -= offset.x();
-  cy -= offset.y();
+  cx -= offset.X();
+  cy -= offset.Y();
   return *this;
 }
 
@@ -315,12 +316,12 @@ Rect Rect::FromCWH(double cx, double cy, double width, double height,
 
 
 bool operator==(const Rect& lhs, const Rect& rhs) {
-  return wgu::eps_equal(lhs.cx, rhs.cx)
-      && wgu::eps_equal(lhs.cy, rhs.cy)
-      && wgu::eps_equal(lhs.width, rhs.width)
-      && wgu::eps_equal(lhs.height, rhs.height)
-      && wgu::eps_equal(lhs.rotation, rhs.rotation)
-      && wgu::eps_equal(lhs.radius, rhs.radius);
+  return wgu::IsClose(lhs.cx, rhs.cx)
+      && wgu::IsClose(lhs.cy, rhs.cy)
+      && wgu::IsClose(lhs.width, rhs.width)
+      && wgu::IsClose(lhs.height, rhs.height)
+      && wgu::IsClose(lhs.rotation, rhs.rotation)
+      && wgu::IsClose(lhs.radius, rhs.radius);
 }
 
 bool operator!=(const Rect& lhs, const Rect& rhs) {

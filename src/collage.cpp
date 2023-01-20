@@ -24,11 +24,11 @@ inline Vec2d ComputeImageAnchor(
       break;
 
     case HorizontalAlignment::Center:
-      pos.x() += cell_width / 2.0;
+      pos.X() += cell_width / 2.0;
       break;
 
     case HorizontalAlignment::Right:
-      pos.x() += cell_width;
+      pos.X() += cell_width;
       break;
   }
 
@@ -37,11 +37,11 @@ inline Vec2d ComputeImageAnchor(
       break;
 
     case VerticalAlignment::Center:
-      pos.y() += cell_height / 2.0;
+      pos.Y() += cell_height / 2.0;
       break;
 
     case VerticalAlignment::Bottom:
-      pos.y() += cell_height;
+      pos.Y() += cell_height;
       break;
   }
 
@@ -61,14 +61,14 @@ inline std::tuple<Vec2i, Vec2d> ComputeImageSize(
   double scale_x = 1.0;
   double scale_y = 1.0;
 
-  if (requested_size.width() > 0) {
+  if (requested_size.Width() > 0) {
     // A fixed width has been requested.
-    dst_width = requested_size.width();
+    dst_width = requested_size.Width();
     scale_x = dst_width / static_cast<double>(img.Width());
 
-    if (requested_size.height() > 0) {
+    if (requested_size.Height() > 0) {
       // Height is also fixed.
-      dst_height = requested_size.height();
+      dst_height = requested_size.Height();
       scale_y = dst_height / static_cast<double>(img.Height());
     } else {
       // Compute output height using the same scaling factor.
@@ -78,8 +78,8 @@ inline std::tuple<Vec2i, Vec2d> ComputeImageSize(
   } else {
     // We only need to adjust the output size if a fixed height has been
     // requested. Otherwise, we just keep the default variable settings.
-    if (requested_size.height() > 0) {
-      dst_height = requested_size.height();
+    if (requested_size.Height() > 0) {
+      dst_height = requested_size.Height();
       scale_y = dst_height / static_cast<double>(img.Height());
 
       // Compute output width using the same scaling factor.
@@ -128,7 +128,7 @@ ImageBuffer Collage(
     int column_width = 0;
     for (std::size_t col = 0; col < images[row].size(); ++col) {
       if ((col > 0) && images[row][col].IsValid()) {
-        column_width += spacing.x();
+        column_width += spacing.X();
       }
 
       Vec2i size;
@@ -138,19 +138,19 @@ ImageBuffer Collage(
 
       image_scales.push_back(scale);
 
-      column_width += size.width();
+      column_width += size.Width();
 
       // Adjust row and column height
-      if (size.height() > max_img_height) {
-        max_img_height = size.height();
+      if (size.Height() > max_img_height) {
+        max_img_height = size.Height();
       }
 
       if (col < column_widths.size()) {
-        if (size.width() > column_widths[col]) {
-          column_widths[col] = size.width();
+        if (size.Width() > column_widths[col]) {
+          column_widths[col] = size.Width();
         }
       } else {
-        column_widths.push_back(size.width());
+        column_widths.push_back(size.Width());
       }
     }
 
@@ -168,7 +168,7 @@ ImageBuffer Collage(
   for (std::size_t row = 0; row < images.size(); ++row) {
     // The left-most cell at each row starts margin.x pixels from the
     // left border.
-    top_left.x() = margin.x();
+    top_left.X() = margin.X();
     for (std::size_t col = 0; col < images[row].size(); ++col) {
       anchor_points.push_back(helpers::ComputeImageAnchor(
           top_left, column_widths[col], row_heights[row],
@@ -178,13 +178,13 @@ ImageBuffer Collage(
       // If a column is empty, we ignore it. Thus, we need to skip the
       // spacing (or we'd end up with twice the spacing between columns).
       if (column_widths[col] > 0) {
-        top_left.x() += column_widths[col] + spacing.width();
+        top_left.X() += (column_widths[col] + spacing.Width());
       }
     }
 
     // If a row is completely empty, we also ignore it.
     if (row_heights[row] > 0) {
-      top_left.y() += row_heights[row] + spacing.height();
+      top_left.Y() += (row_heights[row] + spacing.Height());
     }
   }
 
@@ -192,7 +192,7 @@ ImageBuffer Collage(
   int canvas_width = 0;
   for (std::size_t col = 0; col < column_widths.size(); ++col) {
     if ((col > 0) && (column_widths[col] > 0)) {
-      canvas_width += spacing.width();
+      canvas_width += spacing.Width();
     }
     canvas_width += column_widths[col];
   }
@@ -201,7 +201,7 @@ ImageBuffer Collage(
   int canvas_height = 0;
   for (std::size_t row = 0; row < row_heights.size(); ++row) {
     if ((row > 0) && (row_heights[row] > 0)) {
-      canvas_height += spacing.height();
+      canvas_height += spacing.Height();
     }
     canvas_height += row_heights[row];
   }
@@ -216,8 +216,8 @@ ImageBuffer Collage(
   }
 
   // Reuse the painter to draw the images.
-  canvas_height += 2 * margin.height();
-  canvas_width += 2 * margin.width();
+  canvas_height += 2 * margin.Height();
+  canvas_width += 2 * margin.Width();
   auto painter = CreatePainter();
   painter->SetCanvas(canvas_height, canvas_width, fill_color);
 
@@ -227,7 +227,7 @@ ImageBuffer Collage(
       if (images[row][col].IsValid()) {
         painter->DrawImage(
               images[row][col], anchor_points[idx_flat], cell_alignment, 1.0,
-              image_scales[idx_flat].x(), image_scales[idx_flat].y(), 0.0,
+              image_scales[idx_flat].X(), image_scales[idx_flat].Y(), 0.0,
               clip_factor, LineStyle::Invalid);
       }
       ++idx_flat;
