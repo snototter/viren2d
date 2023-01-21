@@ -4,6 +4,9 @@
 
 #include <bindings/binding_helpers.h>
 
+#include <bindings/werkzeugkiste-bindings/vector.h>
+#include <bindings/werkzeugkiste-bindings/lines.h>
+
 
 //------------------------------------------------- Module definition
 PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
@@ -44,11 +47,16 @@ PYBIND11_MODULE(viren2d_PYMODULE_NAME, m) {
   viren2d::bindings::RegisterColor(m);
 
   //------------------------------------------------- Primitives
-  viren2d::bindings::RegisterVectors(m);
+  // Bind
+  werkzeugkiste::bindings::RegisterVector<double, 2>(m);
+  werkzeugkiste::bindings::RegisterVector<double, 3>(m);
+  werkzeugkiste::bindings::RegisterVector<int32_t, 2>(m);
+  werkzeugkiste::bindings::RegisterVector<int32_t, 3>(m);
+
+  werkzeugkiste::bindings::RegisterLine2d(m);
 
   viren2d::bindings::RegisterEllipse(m);
   viren2d::bindings::RegisterRectangle(m);
-  viren2d::bindings::RegisterLine2d(m);
 
   //------------------------------------------------- Drawing - Styles
   viren2d::bindings::RegisterLineCap(m);
