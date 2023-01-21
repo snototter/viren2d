@@ -269,6 +269,482 @@ pybind11::buffer_info VecInfo(werkzeugkiste::geometry::Vec<Tp, Dim> &vec) {
 }
 
 
+template<class V>
+inline void RegisterVectorAdditionSubtraction(
+    pybind11::class_<V> &vec,
+    std::string_view module_name) {
+  using value_type = typename V::value_type;
+  using V_int32 = werkzeugkiste::geometry::Vec<value_type, V::ndim>;
+
+  const std::string fqn_type = std::string(module_name) + "." + V::TypeName();
+  const std::string fqn_int32 = std::string(module_name) + "." + V_int32::TypeName();
+
+  //---------------------------------------------------------------------------
+  // Addition "V + X"
+
+  std::ostringstream doc;
+  doc << "Element-wise addition: :class:`~" << fqn_type
+      << "` + :class:`int`.";
+  vec.def(
+      "__add__",
+      [](const V &self, int32_t rhs) -> V {
+        // 32-bit integers can safely be cast into double precision types:
+        return self + static_cast<value_type>(rhs);
+      },
+      doc.str().c_str(),
+      pybind11::arg("scalar"));
+
+
+  std::ostringstream().swap(doc);
+  doc << "Element-wise addition: :class:`int` + :class:`~" << fqn_type << "`.";
+  vec.def(
+      "__radd__",
+      [](const V &self, int32_t lhs) -> V {
+        // 32-bit integers can safely be cast into double precision types:
+        return self + static_cast<value_type>(lhs);
+      },
+      doc.str().c_str(),
+      pybind11::arg("lhs"));
+
+
+  // Vector + Vector (of the same type)
+  std::ostringstream().swap(doc);
+  doc << "Element-wise addition: :class:`~" << fqn_type
+      << "` + :class:`" << fqn_type << "`.";
+  vec.def(
+      "__add__",
+      [](const V &self, const V &rhs) -> V {
+        return self + rhs;
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  if constexpr (std::is_floating_point_v<value_type>) {
+    // Allow implicit upcasting of int32 vectors
+    std::ostringstream().swap(doc);
+    doc << "Element-wise addition: :class:`~" << fqn_type
+        << "` + :class:`" << fqn_int32 << "`.";
+    vec.def(
+        "__add__",
+        [](const V &self, const V_int32 &rhs) -> V {
+          V dbl = rhs.ToDouble();
+          dbl += self;
+          return dbl;
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise addition: :class:`~" << fqn_int32
+        << "` + :class:`" << fqn_type << "`.";
+    vec.def(
+        "__radd__",
+        [](const V &self, const V_int32 &lhs) -> V {
+          V dbl = lhs.ToDouble();
+          dbl += self;
+          return dbl;
+        },
+        doc.str().c_str(),
+        pybind11::arg("lhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise addition: :class:`~" << fqn_type
+        << "` + :class:`float`.";
+    vec.def(
+        "__add__",
+        [](const V &self, double rhs) -> V {
+          return self + rhs;
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise addition: :class:`float` + :class:`~"
+        << fqn_type << "`.";
+    vec.def(
+        "__radd__",
+        [](const V &self, double lhs) -> V {
+          return self + lhs;
+        },
+        doc.str().c_str(),
+        pybind11::arg("lhs"));
+  }
+
+
+  //---------------------------------------------------------------------------
+  // Addition "V += X"
+
+  std::ostringstream().swap(doc);
+  doc << "In-place element-wise addition: :class:`~" << fqn_type
+      << "` += :class:`int`.";
+  vec.def(
+      "__iadd__",
+      [](V &self, int32_t rhs) -> V& {
+        // 32-bit integers can safely be cast into double precision types:
+        return self.AddScalar(static_cast<value_type>(rhs));
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  // Vector += Vector (of the same type)
+  std::ostringstream().swap(doc);
+  doc << "In-place element-wise addition: :class:`~" << fqn_type
+      << "` += :class:`" << fqn_type << "`.";
+  vec.def(
+      "__iadd__",
+      [](V &self, const V &rhs) -> V& {
+        return self.AddVector(rhs);
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  if constexpr (std::is_floating_point_v<value_type>) {
+    // Allow implicit upcasting of int32 vectors
+    std::ostringstream().swap(doc);
+    doc << "In-place element-wise addition: :class:`~" << fqn_type
+        << "` += :class:`" << fqn_int32 << "`.";
+    vec.def(
+        "__iadd__",
+        [](V &self, const V_int32 &rhs) -> V& {
+          return self.AddVector(rhs.ToDouble());
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "In-place element-wise addition: :class:`~" << fqn_type
+        << "` += :class:`float`.";
+    vec.def(
+        "__iadd__",
+        [](V &self, double rhs) -> V& {
+          return self.AddScalar(rhs);
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+  }
+
+
+  //---------------------------------------------------------------------------
+  // Subtraction "V - X"
+
+  std::ostringstream().swap(doc);
+  doc << "Element-wise subtraction: :class:`~" << fqn_type
+      << "` - :class:`int`.";
+  vec.def(
+      "__sub__",
+      [](const V &self, int32_t rhs) -> V {
+        // 32-bit integers can safely be cast into double precision types:
+        return self - static_cast<value_type>(rhs);
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  std::ostringstream().swap(doc);
+  doc << "Element-wise subtraction: :class:`int` - :class:`~" << fqn_type << "`.";
+  vec.def(
+      "__rsub__",
+      [](const V &self, int32_t lhs) -> V {
+        // 32-bit integers can safely be cast into double precision types:
+        return V::All(static_cast<value_type>(lhs)) - self;
+      },
+      doc.str().c_str(),
+      pybind11::arg("lhs"));
+
+
+  // Vector - Vector (of the same type)
+  std::ostringstream().swap(doc);
+  doc << "Element-wise subtraction: :class:`~" << fqn_type
+      << "` - :class:`" << fqn_type << "`.";
+  vec.def(
+      "__sub__",
+      [](const V &self, const V &rhs) -> V {
+        return self - rhs;
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  if constexpr (std::is_floating_point_v<value_type>) {
+    // Allow implicit upcasting of int32 vectors
+    std::ostringstream().swap(doc);
+    doc << "Element-wise subtraction: :class:`~" << fqn_type
+        << "` - :class:`" << fqn_int32 << "`.";
+    vec.def(
+        "__sub__",
+        [](const V &self, const V_int32 &rhs) -> V {
+          V dbl = rhs.ToDouble().Negate();
+          dbl += self;
+          return dbl;
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise subtraction: :class:`~" << fqn_int32
+        << "` - :class:`" << fqn_type << "`.";
+    vec.def(
+        "__rsub__",
+        [](const V &self, const V_int32 &lhs) -> V {
+          return lhs.ToDouble() - self;
+        },
+        doc.str().c_str(),
+        pybind11::arg("lhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise subtraction: :class:`~" << fqn_type
+        << "` - :class:`float`.";
+    vec.def(
+        "__sub__",
+        [](const V &self, double rhs) -> V {
+          return self - rhs;
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise subtraction: :class:`float` - :class:`~"
+        << fqn_type << "`.";
+    vec.def(
+        "__rsub__",
+        [](const V &self, double lhs) -> V {
+          return V::All(lhs) - self;
+        },
+        doc.str().c_str(),
+        pybind11::arg("lhs"));
+  }
+
+//TODO check if bogus warnings still need to be suppressed (switched to explicit lambda)
+//#ifdef __clang__
+//// Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
+//#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+//#endif  // __clang__
+//  std::ostringstream().swap(doc);
+//  doc << "Operator ``-= vec``.\n\nSubtracts the other :class:`~"
+//      << module_name << '.' << VC_double::TypeName()
+//      << "` values from this vector.";
+//  vec_cls.def(pybind11::self -= pybind11::self, doc.str().c_str(), pybind11::arg("other"));
+//#ifdef __clang__
+//#pragma GCC diagnostic pop
+//#endif  // __clang__
+}
+
+
+template<class V>
+inline void RegisterVectorMultiplication(
+    pybind11::class_<V> &vec,
+    std::string_view module_name) {
+  using value_type = typename V::value_type;
+  using V_int32 = werkzeugkiste::geometry::Vec<value_type, V::ndim>;
+
+  const std::string fqn_type = std::string(module_name) + "." + V::TypeName();
+  const std::string fqn_int32 = std::string(module_name) + "." + V_int32::TypeName();
+
+
+  //---------------------------------------------------------------------------
+  // "V * X"
+
+  std::ostringstream doc;
+  doc << "Element-wise multiplication: :class:`~" << fqn_type
+      << "` * :class:`int`.";
+  vec.def(
+      "__mul__",
+      [](const V &self, int32_t rhs) -> V {
+        // 32-bit integers can safely be cast into double precision types:
+        return self * static_cast<value_type>(rhs);
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  std::ostringstream().swap(doc);
+  doc << "Element-wise multiplication: :class:`int` * :class:`~" << fqn_type << "`.";
+  vec.def(
+      "__rmul__",
+      [](const V &self, int32_t lhs) -> V {
+        // 32-bit integers can safely be cast into double precision types:
+        return self * static_cast<value_type>(lhs);
+      },
+      doc.str().c_str(),
+      pybind11::arg("lhs"));
+
+
+  // Vector * Vector (of the same type)
+  std::ostringstream().swap(doc);
+  doc << "Element-wise multiplication: :class:`~" << fqn_type
+      << "` * :class:`" << fqn_type << "`.";
+  vec.def(
+      "__mul__",
+      [](const V &self, const V &rhs) -> V {
+        return self * rhs;
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  if constexpr (std::is_floating_point_v<value_type>) {
+    // Allow implicit upcasting of int32 vectors
+    std::ostringstream().swap(doc);
+    doc << "Element-wise multiplication: :class:`~" << fqn_type
+        << "` * :class:`" << fqn_int32 << "`.";
+    vec.def(
+        "__mul__",
+        [](const V &self, const V_int32 &rhs) -> V {
+          V dbl = rhs.ToDouble();
+          dbl *= self;
+          return dbl;
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise multiplication: :class:`~" << fqn_int32
+        << "` * :class:`" << fqn_type << "`.";
+    vec.def(
+        "__rmul__",
+        [](const V &self, const V_int32 &lhs) -> V {
+          V dbl = lhs.ToDouble();
+          dbl *= self;
+          return dbl;
+        },
+        doc.str().c_str(),
+        pybind11::arg("lhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise multiplication: :class:`~" << fqn_type
+        << "` * :class:`float`.";
+    vec.def(
+        "__mul__",
+        [](const V &self, double rhs) -> V {
+          return self * rhs;
+        },
+        doc.str().c_str(),
+        pybind11::arg("rhs"));
+
+
+    std::ostringstream().swap(doc);
+    doc << "Element-wise multiplication: :class:`float` * :class:`~"
+        << fqn_type << "`.";
+    vec.def(
+        "__rmul__",
+        [](const V &self, double lhs) -> V {
+          return self * lhs;
+        },
+        doc.str().c_str(),
+        pybind11::arg("lhs"));
+  }
+
+  //TODO imul not needed
+}
+
+
+template<class V>
+inline void RegisterVectorDivision(
+    pybind11::class_<V> &vec,
+    std::string_view module_name) {
+  using value_type = typename V::value_type;
+  using V_int32 = werkzeugkiste::geometry::Vec<value_type, V::ndim>;
+  using V_double = werkzeugkiste::geometry::Vec<double, V::ndim>;
+
+  const std::string fqn_type = std::string(module_name) + "." + V::TypeName();
+  const std::string fqn_int32 = std::string(module_name) + "." + V_int32::TypeName();
+  const std::string fqn_double = std::string(module_name) + "." + V_double::TypeName();
+
+  //---------------------------------------------------------------------------
+  // "V / X"
+
+  std::string prefix{};
+  if constexpr (std::is_integral_v<value_type>) {
+    prefix = "Element-wise division, which returns a **double-precision**"
+                        " :class:`~" + fqn_double + "` as\nthe result of:";
+  } else {
+    prefix = "Element-wise division: ";
+  }
+  std::ostringstream doc;
+  doc << prefix << ":class:`~" << fqn_type << "` / :class:`int`.";
+  vec.def(
+      "__truediv__",
+      [](const V &self, int32_t rhs) -> V_double {
+        // 32-bit integers can safely be cast into double precision types:
+        V_double dbl = self.ToDouble();
+        dbl /= static_cast<double>(rhs);
+        return dbl;
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  std::ostringstream().swap(doc);
+  doc << prefix << ":class:`~" << fqn_type << "` / :class:`float`.";
+  vec.def(
+      "__truediv__",
+      [](const V &self, double rhs) -> V_double {
+        V_double dbl = self.ToDouble();
+        dbl /= rhs;
+        return dbl;
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+  std::ostringstream().swap(doc);
+  doc << prefix << ":class:`~" << fqn_type << "` / :class:`~"
+      << fqn_type << "`.";
+  vec.def(
+      "__truediv__",
+      [](const V &self, const V &rhs) -> V_double {
+        V_double dbl = self.ToDouble();
+        dbl /= rhs.ToDouble();
+        return dbl;
+      },
+      doc.str().c_str(),
+      pybind11::arg("rhs"));
+
+
+  //-----------------------------------------------------------
+  // Inverse (scalar / vector)
+  //TODO add to pytests
+  std::ostringstream().swap(doc);
+  doc << prefix << ":class:`int` / :class:`~" << fqn_type << "`.";
+  vec.def(
+      "__rtruediv__",
+      [](const V &self, int32_t lhs) -> V_double {
+        // 32-bit integers can safely be cast into double precision types:
+        V_double all = V_double::All(static_cast<double>(lhs));
+        all /= self.ToDouble();
+        return all;
+      },
+      doc.str().c_str(),
+      pybind11::arg("lhs"));
+
+  std::ostringstream().swap(doc);
+  doc << prefix << ":class:`float` / :class:`~" << fqn_type << "`.";
+  vec.def(
+      "__rtruediv__",
+      [](const V &self, double lhs) -> V_double {
+        V_double all = V_double::All(lhs);
+        all /= self.ToDouble();
+        return all;
+      },
+      doc.str().c_str(),
+      pybind11::arg("lhs"));
+
+  // TODO idiv not needed
+}
+
+
 template<typename Tp, std::size_t Dim>
 void RegisterVector(pybind11::module &m) {
   static_assert(
@@ -318,6 +794,7 @@ void RegisterVector(pybind11::module &m) {
         doc.str().c_str(),
         pybind11::arg("value"));
 
+
   std::ostringstream().swap(doc);
   doc << "Creates a copy of the given ``" << VC::TypeName() << "``.";
   vec_cls.def(
@@ -354,8 +831,60 @@ void RegisterVector(pybind11::module &m) {
             return VecFromArray<Tp, Dim>(arr, module_name);
           }),
         doc.str().c_str(),
-        pybind11::arg("arr"))
-      .def_buffer(&VecInfo<Tp, Dim>);
+        pybind11::arg("arr"));
+
+
+  // Support the Python buffer protocol:
+  vec_cls.def_buffer(&VecInfo<Tp, Dim>);
+
+
+  // For convenience, also provide the dtype
+  vec_cls.def_property_readonly(
+        "dtype",
+        [](const VC & /* self */) {
+            return pybind11::dtype(
+                  pybind11::format_descriptor<Tp>::format());
+        },
+        ":class:`numpy.dtype`: Underlying data type (read-only).");
+
+
+  // ---------------------------------------
+  // Explicit type conversion
+  std::ostringstream().swap(doc);
+  if constexpr(std::is_integral_v<Tp>) {
+    doc << "Returns a copy of this vector as :class:`~"
+        << module_name << '.' << VC_int32::TypeName()
+        << "`\n\n**Corresponding C++ API:** ``" << module_name << "::"
+        << VC::TypeName() << "::ToInteger``.";
+  } else {
+    doc << "Returns a :class:`~" << module_name << '.' << VC_int32::TypeName()
+        << "` as the result\nof **explicitly casting/clipping** the values."
+           "\n\n**Corresponding C++ API:** ``" << module_name << "::"
+        << VC::TypeName() << "::ToInteger``.";
+  }
+  vec_cls.def(
+        "as_int",
+        &VC::ToInteger,
+        doc.str().c_str());
+
+
+  std::ostringstream().swap(doc);
+  if constexpr(std::is_integral_v<Tp>) {
+    doc << "Returns a :class:`~" << module_name << '.' << VC_int32::TypeName()
+        << "` as the result\nof **explicitly casting** the values."
+           "\n\n**Corresponding C++ API:** ``" << module_name << "::"
+        << VC::TypeName() << "::ToDouble``.";
+  } else {
+    doc << "Returns a copy of this vector as :class:`~"
+        << module_name << '.' << VC_double::TypeName()
+        << "`\n\n**Corresponding C++ API:** ``" << module_name << "::"
+        << VC::TypeName() << "::ToDouble``.";
+  }
+  vec_cls.def(
+        "as_float",
+        &VC::ToDouble,
+        doc.str().c_str());
+
 
 //TODO follow best practices: https://stackoverflow.com/a/2626364/400948
   vec_cls.def(
@@ -391,11 +920,6 @@ void RegisterVector(pybind11::module &m) {
         [](const VC &self) -> Tp { return self.Y(); },
         [](VC &self, Tp value) -> void { self.SetY(value); },
         doc.str().c_str());
-//    vec_cls.def_property(
-//          "y",
-//          static_cast<const Tp &(VC::*)() const>(&VC::Y),
-//          &VC::SetY,
-//          doc.str().c_str());
   }
 
 
@@ -511,69 +1035,22 @@ void RegisterVector(pybind11::module &m) {
 
 
   std::ostringstream().swap(doc);
-  doc << "Operator ``vec + vec``.\n\nReturns a :class:`~"
-      << module_name << '.' << VC_double::TypeName()
-      << "` which is the result of adding the two vectors.";
-  vec_cls.def(pybind11::self + pybind11::self, doc.str().c_str());
-
-
-  std::ostringstream().swap(doc);
-  doc << "Operator ``+= vec``.\n\nAdds the other :class:`~"
-      << module_name << '.' << VC_double::TypeName()
-      << "` values to this vector.";
-  vec_cls.def(pybind11::self += pybind11::self, doc.str().c_str(), pybind11::arg("other"));
-
-
-  std::ostringstream().swap(doc);
-  doc << "Operator ``vec - vec``.\n\nReturns a :class:`~"
-      << module_name << '.' << VC_double::TypeName()
-      << "` which is the result of\n"
-      << "subtracting the right-hand side vector from the left-hand side vector.";
-  vec_cls.def(pybind11::self - pybind11::self, doc.str().c_str());
-
-
-  std::ostringstream().swap(doc);
   doc << "Returns a :class:`~" << module_name << '.' << VC_double::TypeName()
       << "`, where all values are negated.";
   vec_cls.def(-pybind11::self, doc.str().c_str());
 
 
-#ifdef __clang__
-// Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
-#endif  // __clang__
   std::ostringstream().swap(doc);
-  doc << "Operator ``-= vec``.\n\nSubtracts the other :class:`~"
-      << module_name << '.' << VC_double::TypeName()
-      << "` values from this vector.";
-  vec_cls.def(pybind11::self -= pybind11::self, doc.str().c_str(), pybind11::arg("other"));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif  // __clang__
+  doc << "Returns a :class:`~" << module_name << '.' << VC_double::TypeName()
+      << "`, where all values\nare replaced by their absolute counterparts.";
+  vec_cls.def(
+      "__abs__",
+      &VC::Absolute,
+      doc.str().c_str());
 
-
-  //FIXME!!!!!!!!! FIXME FIXME FIXME
-  //overload explicitly to support implicit type casting of the scalar values
-//  vec_cls.def(pybind11::self * float(),
-//        "Operator ``vec * float``.\n\n"
-//        "Returns a vector where all coordinates are multiplied by\n"
-//        "the :class:`float` scalar.", pybind11::arg("scalar"))
-//      .def(pybind11::self *= float(),
-//        "Operator ``*= float``.\n\n"
-//        "Scales all coordinates by the :class:`float` scalar.",
-//        pybind11::arg("scalar"))
-//      .def(float() * pybind11::self,
-//        "Operator ``float * vec``.\n\n"
-//        "Returns a vector where all coordinates are multiplied by\n"
-//        "the :class:`float` scalar.", pybind11::arg("scalar"))
-//      .def(pybind11::self / float(),
-//        "Operator ``vec / float``.\n\n"
-//        "Returns a vector where all coordinates are divided by\n"
-//        "the :class:`float` scalar.", pybind11::arg("scalar"))
-//      .def(pybind11::self /= float(),
-//         "Operator ``vec /= float``.\n\n"
-//         "Divides all coordinates by the :class:`float` scalar.");
+  RegisterVectorAdditionSubtraction(vec_cls, module_name);
+  RegisterVectorMultiplication(vec_cls, module_name);
+  RegisterVectorDivision(vec_cls, module_name);
 
 
   // Specific for 2-dim vectors

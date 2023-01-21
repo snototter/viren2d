@@ -5,7 +5,7 @@
 #include <bindings/binding_helpers.h>
 
 #include <bindings/werkzeugkiste-bindings/vector.h>
-#include <bindings/werkzeugkiste-bindings/lines.h>
+#include <bindings/werkzeugkiste-bindings/line2d.h>
 
 
 //------------------------------------------------- Module definition

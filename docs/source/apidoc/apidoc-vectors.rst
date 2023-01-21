@@ -21,7 +21,11 @@ Vector 2D
 
 .. autoclass:: viren2d.Vec2i
 
-   .. note::
+   .. warning::
+      TODO With the latest werkzeugkiste changes, there are differences
+      between the integral and floating point vectors!
+
+      **Deprecated doc:**
       The only difference between :class:`~viren2d.Vec2d` and
       :class:`~viren2d.Vec2i` is that the latter holds elements of type
       :class:`int`.

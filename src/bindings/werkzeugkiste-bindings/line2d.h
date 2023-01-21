@@ -128,7 +128,7 @@ inline void RegisterLine2d(pybind11::module &m) {
           return s.str();
         })
       .def(
-        "__repr__", //TODO
+        "__repr__",
         [](const L &l) {
           std::ostringstream s;
           s << '<' << l << '>';
@@ -170,7 +170,7 @@ inline void RegisterLine2d(pybind11::module &m) {
 
 
   std::ostringstream().swap(doc);
-  doc << "Returns a line with flipped start/end points.\n\n"
+  doc << "Returns a line/segment with flipped start/end points.\n\n"
          "**Corresponding C++ API:** ``" << module_name
       << "::Line2d::Reversed``.";
   line.def(
@@ -180,7 +180,7 @@ inline void RegisterLine2d(pybind11::module &m) {
 
 
   std::ostringstream().swap(doc);
-  doc << "Returns a line where :attr:`~" << module_name
+  doc << "Returns a line/segment where :attr:`~" << module_name
       << ".Line2d.pt1` is left of\n:attr:`~"
       << module_name << ".Line2d.pt2`.\n\n"
          "If this line is vertical, the points will be sorted such that\n"
@@ -323,7 +323,7 @@ inline void RegisterLine2d(pybind11::module &m) {
 
 
   std::ostringstream().swap(doc);
-  doc << "Returns the closest point on the line, i.e. the projection of the\n"
+  doc << "Returns the closest point on the **line**, i.e. the projection of the\n"
          "given point onto this **line**.\n\n"
          "**Corresponding C++ API:** ``" << module_name
       << "::Line2d::ClosestPointOnLine``.";
