@@ -1038,40 +1038,49 @@ void RegisterVector(pybind11::module &m) {
           }),
         doc.str().c_str());
 
-  /*
-   * /// Epsilon equality check for floating point numbers, similar
-/// to Python's math.isclose(), see PEP 485, https://peps.python.org/pep-0485/
-///
-/// Modulo special case handling, this function returns:
-///   (|x-y| <= rel_tol * |x|)
-///   or (|x-y| <= rel_tol * |y|)
-///   or (|x-y| <= abs_tol)*/
-//FUCK
+
   if constexpr (std::is_integral_v<Tp>) {
-    vec_cls.def(pybind11::self == pybind11::self, "Checks for equality.");
-    vec_cls.def(pybind11::self != pybind11::self, "Checks for inequality.");
+    vec_cls.def(
+        "__eq__",
+        [](const VC &a, const VC &b) -> bool { return a == b; },
+        "Checks for equality.",
+        pybind11::arg("other"));
+
+    vec_cls.def(
+        "__ne__",
+        [](const VC &a, const VC &b) -> bool { return a != b; },
+        "Checks for inequality.",
+        pybind11::arg("other"));
   } else {
     std::ostringstream().swap(doc);
     doc << "Returns ``True`` if the two vectors are *approximately equal*.\n\n"
-           "Uses a combined test with both relative and absolute tolerance\n"
-           "similar to :meth:`math.isclose`.\n"
-           "Modulo handling of special cases (NaN, infinity), two vectors\n"
+           "Uses a combined test with both relative and absolute tolerance.\n"
+           "Modulo special cases (NaN, infinity), two vectors\n"
            ":math:`x = (x_i)_{i=1}^" << Dim
-        << "` and :math:`y` are *approximately equal* if for all "
-           "values\n"
-           ":math:`|x_i - y_i| \\leq \\text{reltol} * \\max(|x_i|, |y_i|) "
-           "\\text{or} |x_i - y_i| \\leq \\text{abstol}`,\n where "
-           ":math:`\\text{reltol} = 1e-9` and :math:`\\text{reltol} = 1e-12`."
+        << "` and :math:`y = (y_i)_{i=1}^" << Dim
+        <<  "` are considered\n*approximately equal* if for all their values\n\n"
+           ":math:`|x_i - y_i| \\leq \\epsilon_{\\text{rel}} * \\max(|x_i|, |y_i|) "
+           "\\quad\\text{or}\\quad |x_i - y_i| \\leq \\epsilon_{\\text{abs}}`,\n\nwhere "
+           ":math:`\\epsilon_{\\text{rel}} = 1e-9` and "
+           ":math:`\\epsilon_{\\text{abs}} = 1e-12`."
            "\n\n**Corresponding C++ API:** ``" << module_name << "::"
-        << VC::TypeName() << "::IsClose``";
-    vec_cls.def(pybind11::self == pybind11::self, doc.str().c_str());
+        << VC::TypeName() << "::operator==`` and ``::IsClose``";
+    vec_cls.def(
+        "__eq__",
+        [](const VC &a, const VC &b) -> bool {
+          return a.IsClose(b, 1e-9, 1e-12);
+        },
+        doc.str().c_str(),
+        pybind11::arg("other"));
 
     doc << "Returns ``True`` if the two vectors differ *sufficiently*.\n\n"
            "As this operator computes ``!(vec1 == vec2)``, refer to\n"
-           ":meth:`~" << module_name << '.' << VC::TypeName() << ".__eq__` for details."
-        << "**Corresponding C++ API:** ``" << module_name << "::"
-        << VC::TypeName() << "::IsClose``";
-    vec_cls.def(pybind11::self != pybind11::self, "Checks for inequality.");
+           ":meth:`~" << module_name << '.' << VC::TypeName() << ".__eq__` for details.";
+    vec_cls.def(
+        "__ne__",
+        [](const VC &a, const VC &b) -> bool { return a != b; },
+        doc.str().c_str(),
+        pybind11::arg("other"));
   }
 
 

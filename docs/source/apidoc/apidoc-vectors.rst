@@ -11,13 +11,13 @@ Points/Vectors
    :nosignatures:
 
    viren2d.Vec2i
-   viren2d.Vec2d
    viren2d.Vec3i
+   viren2d.Vec2d
    viren2d.Vec3d
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Vec2i - A 2D, integral vector
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
+Integral 2D: Vec2i
+~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.Vec2i
    :autosummary:
@@ -25,41 +25,29 @@ Vec2i - A 2D, integral vector
    :members:
 
 
-.. warning::
-   TODO With the latest werkzeugkiste changes, there are differences
-   between the integral and floating point vectors!
+~~~~~~~~~~~~~~~~~~
+Integral 3D: Vec3i
+~~~~~~~~~~~~~~~~~~
 
-   **Deprecated doc:**
-   The only difference between :class:`~viren2d.Vec2d` and
-   :class:`~viren2d.Vec2i` is that the latter holds elements of type
-   :class:`int`.
-   It is only a template specialization for integral types and thus,
-   provides exactly the same attributes and methods as its
-   double-precision counterpart.
-   
+.. autoclass:: viren2d.Vec3i
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Vec2i - A 2D, integral vector
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~~~~~~~
+Floating point 2D: Vec2d
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.Vec2d
    :autosummary:
    :autosummary-nosignatures:
    :members:
 
-~~~~~~~~~
-Vector 3D
-~~~~~~~~~
 
-.. autoclass:: viren2d.Vec3i
-
-   .. note::
-      The only difference between :class:`~viren2d.Vec3d` and
-      :class:`~viren2d.Vec3i` is that the latter holds elements of type
-      :class:`int`.
-      It is only a template specialization for integral types and thus,
-      provides exactly the same attributes and methods as its
-      double-precision counterpart.
+~~~~~~~~~~~~~~~~~~~~~~~~
+Floating point 3D: Vec3d
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.Vec3d
    :autosummary:
