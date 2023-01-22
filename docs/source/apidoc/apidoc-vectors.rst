@@ -15,23 +15,32 @@ Points/Vectors
    viren2d.Vec3i
    viren2d.Vec3d
 
-~~~~~~~~~
-Vector 2D
-~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Vec2i - A 2D, integral vector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.Vec2i
+   :autosummary:
+   :autosummary-nosignatures:
+   :members:
 
-   .. warning::
-      TODO With the latest werkzeugkiste changes, there are differences
-      between the integral and floating point vectors!
 
-      **Deprecated doc:**
-      The only difference between :class:`~viren2d.Vec2d` and
-      :class:`~viren2d.Vec2i` is that the latter holds elements of type
-      :class:`int`.
-      It is only a template specialization for integral types and thus,
-      provides exactly the same attributes and methods as its
-      double-precision counterpart.
+.. warning::
+   TODO With the latest werkzeugkiste changes, there are differences
+   between the integral and floating point vectors!
+
+   **Deprecated doc:**
+   The only difference between :class:`~viren2d.Vec2d` and
+   :class:`~viren2d.Vec2i` is that the latter holds elements of type
+   :class:`int`.
+   It is only a template specialization for integral types and thus,
+   provides exactly the same attributes and methods as its
+   double-precision counterpart.
+   
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Vec2i - A 2D, integral vector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.Vec2d
    :autosummary:

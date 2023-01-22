@@ -284,7 +284,7 @@ inline void RegisterVectorAdditionSubtraction(
 
   std::ostringstream doc;
   doc << "Element-wise addition: :class:`~" << fqn_type
-      << "` + :class:`int`.";
+      << "` = :class:`~" << fqn_type << "` + :class:`int`.";
   vec.def(
       "__add__",
       [](const V &self, int32_t rhs) -> V {
@@ -296,7 +296,8 @@ inline void RegisterVectorAdditionSubtraction(
 
 
   std::ostringstream().swap(doc);
-  doc << "Element-wise addition: :class:`int` + :class:`~" << fqn_type << "`.";
+  doc << "Element-wise addition: :class:`~" << fqn_type
+      << "` = :class:`int` + :class:`~" << fqn_type << "`.";
   vec.def(
       "__radd__",
       [](const V &self, int32_t lhs) -> V {
@@ -310,7 +311,7 @@ inline void RegisterVectorAdditionSubtraction(
   // Vector + Vector (of the same type)
   std::ostringstream().swap(doc);
   doc << "Element-wise addition: :class:`~" << fqn_type
-      << "` + :class:`" << fqn_type << "`.";
+      << "` = :class:`~" << fqn_type << "` + :class:`~" << fqn_type << "`.";
   vec.def(
       "__add__",
       [](const V &self, const V &rhs) -> V {
@@ -324,7 +325,8 @@ inline void RegisterVectorAdditionSubtraction(
     // Allow implicit upcasting of int32 vectors
     std::ostringstream().swap(doc);
     doc << "Element-wise addition: :class:`~" << fqn_type
-        << "` + :class:`" << fqn_int32 << "`.";
+        << "` = :class:`~" << fqn_type
+        << "` + :class:`~" << fqn_int32 << "`.";
     vec.def(
         "__add__",
         [](const V &self, const V_int32 &rhs) -> V {
@@ -337,8 +339,9 @@ inline void RegisterVectorAdditionSubtraction(
 
 
     std::ostringstream().swap(doc);
-    doc << "Element-wise addition: :class:`~" << fqn_int32
-        << "` + :class:`" << fqn_type << "`.";
+    doc << "Element-wise addition: :class:`~" << fqn_type
+        << "` = :class:`~" << fqn_int32
+        << "` + :class:`~" << fqn_type << "`.";
     vec.def(
         "__radd__",
         [](const V &self, const V_int32 &lhs) -> V {
@@ -352,7 +355,7 @@ inline void RegisterVectorAdditionSubtraction(
 
     std::ostringstream().swap(doc);
     doc << "Element-wise addition: :class:`~" << fqn_type
-        << "` + :class:`float`.";
+        << "` = :class:`~" << fqn_type << "` + :class:`float`.";
     vec.def(
         "__add__",
         [](const V &self, double rhs) -> V {
@@ -363,8 +366,8 @@ inline void RegisterVectorAdditionSubtraction(
 
 
     std::ostringstream().swap(doc);
-    doc << "Element-wise addition: :class:`float` + :class:`~"
-        << fqn_type << "`.";
+    doc << "Element-wise addition: :class:`~" << fqn_type
+        << "` = :class:`float` + :class:`~" << fqn_type << "`.";
     vec.def(
         "__radd__",
         [](const V &self, double lhs) -> V {
@@ -394,7 +397,7 @@ inline void RegisterVectorAdditionSubtraction(
   // Vector += Vector (of the same type)
   std::ostringstream().swap(doc);
   doc << "In-place element-wise addition: :class:`~" << fqn_type
-      << "` += :class:`" << fqn_type << "`.";
+      << "` += :class:`~" << fqn_type << "`.";
   vec.def(
       "__iadd__",
       [](V &self, const V &rhs) -> V& {
@@ -408,7 +411,7 @@ inline void RegisterVectorAdditionSubtraction(
     // Allow implicit upcasting of int32 vectors
     std::ostringstream().swap(doc);
     doc << "In-place element-wise addition: :class:`~" << fqn_type
-        << "` += :class:`" << fqn_int32 << "`.";
+        << "` += :class:`~" << fqn_int32 << "`.";
     vec.def(
         "__iadd__",
         [](V &self, const V_int32 &rhs) -> V& {
@@ -436,7 +439,7 @@ inline void RegisterVectorAdditionSubtraction(
 
   std::ostringstream().swap(doc);
   doc << "Element-wise subtraction: :class:`~" << fqn_type
-      << "` - :class:`int`.";
+      << "` = :class:`~" << fqn_type << "` - :class:`int`.";
   vec.def(
       "__sub__",
       [](const V &self, int32_t rhs) -> V {
@@ -448,7 +451,8 @@ inline void RegisterVectorAdditionSubtraction(
 
 
   std::ostringstream().swap(doc);
-  doc << "Element-wise subtraction: :class:`int` - :class:`~" << fqn_type << "`.";
+  doc << "Element-wise subtraction: :class:`~" << fqn_type
+      << "` = :class:`int` - :class:`~" << fqn_type << "`.";
   vec.def(
       "__rsub__",
       [](const V &self, int32_t lhs) -> V {
@@ -462,7 +466,8 @@ inline void RegisterVectorAdditionSubtraction(
   // Vector - Vector (of the same type)
   std::ostringstream().swap(doc);
   doc << "Element-wise subtraction: :class:`~" << fqn_type
-      << "` - :class:`" << fqn_type << "`.";
+      << "` = :class:`~" << fqn_type
+      << "` - :class:`~" << fqn_type << "`.";
   vec.def(
       "__sub__",
       [](const V &self, const V &rhs) -> V {
@@ -476,7 +481,8 @@ inline void RegisterVectorAdditionSubtraction(
     // Allow implicit upcasting of int32 vectors
     std::ostringstream().swap(doc);
     doc << "Element-wise subtraction: :class:`~" << fqn_type
-        << "` - :class:`" << fqn_int32 << "`.";
+        << "` = :class:`~" << fqn_type
+        << "` - :class:`~" << fqn_int32 << "`.";
     vec.def(
         "__sub__",
         [](const V &self, const V_int32 &rhs) -> V {
@@ -489,8 +495,9 @@ inline void RegisterVectorAdditionSubtraction(
 
 
     std::ostringstream().swap(doc);
-    doc << "Element-wise subtraction: :class:`~" << fqn_int32
-        << "` - :class:`" << fqn_type << "`.";
+    doc << "Element-wise subtraction: :class:`~" << fqn_type
+        << "` = :class:`~" << fqn_int32
+        << "` - :class:`~" << fqn_type << "`.";
     vec.def(
         "__rsub__",
         [](const V &self, const V_int32 &lhs) -> V {
@@ -502,6 +509,7 @@ inline void RegisterVectorAdditionSubtraction(
 
     std::ostringstream().swap(doc);
     doc << "Element-wise subtraction: :class:`~" << fqn_type
+        << "` = :class:`~" << fqn_type
         << "` - :class:`float`.";
     vec.def(
         "__sub__",
@@ -513,7 +521,8 @@ inline void RegisterVectorAdditionSubtraction(
 
 
     std::ostringstream().swap(doc);
-    doc << "Element-wise subtraction: :class:`float` - :class:`~"
+    doc << "Element-wise subtraction: :class:`~" << fqn_type
+        << "` = :class:`float` - :class:`~"
         << fqn_type << "`.";
     vec.def(
         "__rsub__",
@@ -524,7 +533,7 @@ inline void RegisterVectorAdditionSubtraction(
         pybind11::arg("lhs"));
   }
 
-//TODO check if bogus warnings still need to be suppressed (switched to explicit lambda)
+//TODO check if flaky warnings still need to be suppressed (switched to explicit lambda)
 //#ifdef __clang__
 //// Clang gives false warnings: https://bugs.llvm.org/show_bug.cgi?id=43124
 //#pragma GCC diagnostic push
@@ -552,12 +561,10 @@ inline void RegisterVectorMultiplication(
   const std::string fqn_int32 = std::string(module_name) + "." + V_int32::TypeName();
 
 
-  //---------------------------------------------------------------------------
-  // "V * X"
-
+  // Vec * int
   std::ostringstream doc;
   doc << "Element-wise multiplication: :class:`~" << fqn_type
-      << "` * :class:`int`.";
+      << "` = :class:`~" << fqn_type << "` * :class:`int`.";
   vec.def(
       "__mul__",
       [](const V &self, int32_t rhs) -> V {
@@ -568,8 +575,10 @@ inline void RegisterVectorMultiplication(
       pybind11::arg("rhs"));
 
 
+  // int * Vec
   std::ostringstream().swap(doc);
-  doc << "Element-wise multiplication: :class:`int` * :class:`~" << fqn_type << "`.";
+  doc << "Element-wise multiplication: :class:`~" << fqn_type
+      << "` = :class:`int` * :class:`~" << fqn_type << "`.";
   vec.def(
       "__rmul__",
       [](const V &self, int32_t lhs) -> V {
@@ -583,7 +592,7 @@ inline void RegisterVectorMultiplication(
   // Vector * Vector (of the same type)
   std::ostringstream().swap(doc);
   doc << "Element-wise multiplication: :class:`~" << fqn_type
-      << "` * :class:`" << fqn_type << "`.";
+      << "` = :class:`~" << fqn_type << "` * :class:`~" << fqn_type << "`.";
   vec.def(
       "__mul__",
       [](const V &self, const V &rhs) -> V {
@@ -597,7 +606,8 @@ inline void RegisterVectorMultiplication(
     // Allow implicit upcasting of int32 vectors
     std::ostringstream().swap(doc);
     doc << "Element-wise multiplication: :class:`~" << fqn_type
-        << "` * :class:`" << fqn_int32 << "`.";
+        << "` = :class:`~" << fqn_type
+        << "` * :class:`~" << fqn_int32 << "`.";
     vec.def(
         "__mul__",
         [](const V &self, const V_int32 &rhs) -> V {
@@ -610,8 +620,9 @@ inline void RegisterVectorMultiplication(
 
 
     std::ostringstream().swap(doc);
-    doc << "Element-wise multiplication: :class:`~" << fqn_int32
-        << "` * :class:`" << fqn_type << "`.";
+    doc << "Element-wise multiplication: :class:`~" << fqn_type
+        << "` = :class:`~" << fqn_int32
+        << "` * :class:`~" << fqn_type << "`.";
     vec.def(
         "__rmul__",
         [](const V &self, const V_int32 &lhs) -> V {
@@ -625,7 +636,7 @@ inline void RegisterVectorMultiplication(
 
     std::ostringstream().swap(doc);
     doc << "Element-wise multiplication: :class:`~" << fqn_type
-        << "` * :class:`float`.";
+        << "` = :class:`~" << fqn_type << "` * :class:`float`.";
     vec.def(
         "__mul__",
         [](const V &self, double rhs) -> V {
@@ -636,7 +647,8 @@ inline void RegisterVectorMultiplication(
 
 
     std::ostringstream().swap(doc);
-    doc << "Element-wise multiplication: :class:`float` * :class:`~"
+    doc << "Element-wise multiplication: :class:`~" << fqn_type
+        << "` = :class:`float` * :class:`~"
         << fqn_type << "`.";
     vec.def(
         "__rmul__",
@@ -647,7 +659,7 @@ inline void RegisterVectorMultiplication(
         pybind11::arg("lhs"));
   }
 
-  //TODO imul not needed
+  // Overloading `__imul__` is not needed
 }
 
 
@@ -663,15 +675,12 @@ inline void RegisterVectorDivision(
   const std::string fqn_int32 = std::string(module_name) + "." + V_int32::TypeName();
   const std::string fqn_double = std::string(module_name) + "." + V_double::TypeName();
 
-  //---------------------------------------------------------------------------
-  // "V / X"
-
   std::string prefix{};
   if constexpr (std::is_integral_v<value_type>) {
-    prefix = "Element-wise division, which returns a **double-precision**"
-                        " :class:`~" + fqn_double + "` as\nthe result of:";
+    prefix = "Element-wise division with **implicit type conversion**. Returns\n"
+       "a **double-precision** :class:`~" + fqn_double + "` = ";
   } else {
-    prefix = "Element-wise division: ";
+    prefix = "Element-wise division: :class:`~" + fqn_double + "` = ";
   }
   std::ostringstream doc;
   doc << prefix << ":class:`~" << fqn_type << "` / :class:`int`.";
@@ -741,7 +750,7 @@ inline void RegisterVectorDivision(
       doc.str().c_str(),
       pybind11::arg("lhs"));
 
-  // TODO idiv not needed
+  // Overloading `__idiv__` is not needed
 }
 
 
@@ -762,7 +771,7 @@ void RegisterVector(pybind11::module &m) {
   doc << "A " << Dim
       << "D vector of " << PythonVecTypeName<Tp>(true)
       << " coordinates.\n\n**Corresponding C++ API:** ``"
-      << module_name << "::Line2d``.";
+      << module_name << "::" << VC::TypeName() << "``.";
 
   pybind11::class_<VC> vec_cls(
         m, VC::TypeName().c_str(), pybind11::buffer_protocol(), doc.str().c_str());
@@ -1029,9 +1038,41 @@ void RegisterVector(pybind11::module &m) {
           }),
         doc.str().c_str());
 
+  /*
+   * /// Epsilon equality check for floating point numbers, similar
+/// to Python's math.isclose(), see PEP 485, https://peps.python.org/pep-0485/
+///
+/// Modulo special case handling, this function returns:
+///   (|x-y| <= rel_tol * |x|)
+///   or (|x-y| <= rel_tol * |y|)
+///   or (|x-y| <= abs_tol)*/
+//FUCK
+  if constexpr (std::is_integral_v<Tp>) {
+    vec_cls.def(pybind11::self == pybind11::self, "Checks for equality.");
+    vec_cls.def(pybind11::self != pybind11::self, "Checks for inequality.");
+  } else {
+    std::ostringstream().swap(doc);
+    doc << "Returns ``True`` if the two vectors are *approximately equal*.\n\n"
+           "Uses a combined test with both relative and absolute tolerance\n"
+           "similar to :meth:`math.isclose`.\n"
+           "Modulo handling of special cases (NaN, infinity), two vectors\n"
+           ":math:`x = (x_i)_{i=1}^" << Dim
+        << "` and :math:`y` are *approximately equal* if for all "
+           "values\n"
+           ":math:`|x_i - y_i| \\leq \\text{reltol} * \\max(|x_i|, |y_i|) "
+           "\\text{or} |x_i - y_i| \\leq \\text{abstol}`,\n where "
+           ":math:`\\text{reltol} = 1e-9` and :math:`\\text{reltol} = 1e-12`."
+           "\n\n**Corresponding C++ API:** ``" << module_name << "::"
+        << VC::TypeName() << "::IsClose``";
+    vec_cls.def(pybind11::self == pybind11::self, doc.str().c_str());
 
-  vec_cls.def(pybind11::self == pybind11::self, "Checks for equality.")
-      .def(pybind11::self != pybind11::self, "Checks for inequality.");
+    doc << "Returns ``True`` if the two vectors differ *sufficiently*.\n\n"
+           "As this operator computes ``!(vec1 == vec2)``, refer to\n"
+           ":meth:`~" << module_name << '.' << VC::TypeName() << ".__eq__` for details."
+        << "**Corresponding C++ API:** ``" << module_name << "::"
+        << VC::TypeName() << "::IsClose``";
+    vec_cls.def(pybind11::self != pybind11::self, "Checks for inequality.");
+  }
 
 
   std::ostringstream().swap(doc);
@@ -1068,7 +1109,7 @@ void RegisterVector(pybind11::module &m) {
            "  the first dimension, (*i.e.* :attr:`x`).\n\n"
            "  Can be useful if you want to use this 2D vector to\n"
            "  represent a 2D *size*. This property is only available\n"
-           "  for :class:`~viren2d.Vec2d` instances.";
+           "  for 2-dimensional vectors.";
     vec_cls.def_property(
           "width",
           [](const VC &self) -> Tp { return self.Width(); },
@@ -1082,7 +1123,7 @@ void RegisterVector(pybind11::module &m) {
            "  the second dimension, (*i.e.* :attr:`y`).\n\n"
            "  Can be useful if you want to use this 2D vector to\n"
            "  represent a 2D *size*. This property is only available\n"
-           "  for :class:`~viren2d.Vec2d` instances.";
+           "  for 2-dimensional vectors.";
     vec_cls.def_property(
           "height",
           [](const VC &self) -> Tp { return self.Height(); },
