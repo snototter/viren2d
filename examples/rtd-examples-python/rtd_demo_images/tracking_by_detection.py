@@ -1,4 +1,3 @@
-from turtle import bgcolor
 import numpy as np
 import viren2d
 from rtd_demo_images.constants import VIREN2D_DATA_PATH

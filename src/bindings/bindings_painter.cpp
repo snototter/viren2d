@@ -96,7 +96,7 @@ public:
 
   py::tuple GetCanvasSize() {
     auto sz = painter_->GetCanvasSize();
-    return py::make_tuple(sz.x(), sz.y());
+    return py::make_tuple(sz.Width(), sz.Height());
   }
 
 
@@ -303,7 +303,7 @@ public:
 
     if (painter_->IsValid()) {
       auto size = painter_->GetCanvasSize();
-      s << size.width() << 'x' << size.height();
+      s << size.Width() << 'x' << size.Height();
     } else {
       s << "canvas not initialized";
     }

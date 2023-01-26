@@ -42,7 +42,7 @@ void SingleLineText::Align(
   // https://www.cairographics.org/samples/text_align_center/
 
   // Adjust horizontal alignment.
-  double x = anchor_position.x();
+  double x = anchor_position.X();
   if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
     x -= (width / 2.0 + bearing_x);
   } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
@@ -52,7 +52,7 @@ void SingleLineText::Align(
   }
 
   // Adjust vertical alignment.
-  double y = anchor_position.y();
+  double y = anchor_position.Y();
   if (IsFlagSet(anchor, VerticalAlignment::Center)) {
     y -= (height / 2.0 + bearing_y);
   } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
@@ -69,7 +69,7 @@ void SingleLineText::PlaceText(cairo_t *context) const {
   // Shift to the pixel center, and move to the origin of the
   // first glyph. Then, let Cairo render the text:
   const auto position = reference_point + 0.5;
-  cairo_move_to(context, position.x(), position.y());
+  cairo_move_to(context, position.X(), position.Y());
   cairo_show_text(context, text);
 }
 
@@ -124,20 +124,20 @@ void MultiLineText::Align(
 
   // Adjust left corner
   if (IsFlagSet(anchor, HorizontalAlignment::Center)) {
-    top_left.SetX(anchor_point.x() - Width() / 2.0);
+    top_left.SetX(anchor_point.X() - Width() / 2.0);
   } else if (IsFlagSet(anchor, HorizontalAlignment::Right)) {
-    top_left.SetX(anchor_point.x() - Width());
+    top_left.SetX(anchor_point.X() - Width());
   } else {  // Left-aligned
-    top_left.SetX(anchor_point.x());
+    top_left.SetX(anchor_point.X());
   }
 
   // Adjust top corner
   if (IsFlagSet(anchor, VerticalAlignment::Center)) {
-    top_left.SetY(anchor_point.y() - Height() / 2.0);
+    top_left.SetY(anchor_point.Y() - Height() / 2.0);
   } else if (IsFlagSet(anchor, VerticalAlignment::Top)) {
-    top_left.SetY(anchor_point.y());
+    top_left.SetY(anchor_point.Y());
   } else {  // Bottom-aligned
-    top_left.SetY(anchor_point.y() - Height());
+    top_left.SetY(anchor_point.Y() - Height());
   }
 
   // Compute the horizontal anchor coordinate
@@ -146,15 +146,15 @@ void MultiLineText::Align(
   double x = 0.0;
   switch(style.halign) {
     case HorizontalAlignment::Left:
-      x = top_left.x() + padding.x();
+      x = top_left.X() + padding.X();
       break;
 
     case HorizontalAlignment::Center:
-      x = top_left.x() + Width() / 2.0;
+      x = top_left.X() + Width() / 2.0;
       break;
 
     case HorizontalAlignment::Right:
-      x = top_left.x() + Width() - padding.x();
+      x = top_left.X() + Width() - padding.X();
       break;
   }
 
@@ -162,15 +162,15 @@ void MultiLineText::Align(
   double y = 0.0;
   switch(style.valign) {
     case VerticalAlignment::Top:
-      y = top_left.y() + padding.y();
+      y = top_left.Y() + padding.Y();
       break;
 
     case VerticalAlignment::Bottom:
-      y = top_left.y() + Height() - padding.y() - height;
+      y = top_left.Y() + Height() - padding.Y() - height;
       break;
 
     case VerticalAlignment::Center:
-      y = top_left.y() + (Height() / 2.0) - (height / 2.0);
+      y = top_left.Y() + (Height() / 2.0) - (height / 2.0);
       break;
   }
 
@@ -188,8 +188,8 @@ Rect MultiLineText::BoundingBox(double corner_radius) const {
   double w = Width();
   double h = Height();
   return Rect(
-        top_left.x() + w / 2.0,
-        top_left.y() + h / 2.0,
+        top_left.X() + w / 2.0,
+        top_left.Y() + h / 2.0,
         w, h, 0.0, corner_radius);
 }
 
@@ -202,16 +202,16 @@ void MultiLineText::PlaceText(cairo_t *context) const {
 
 
 double MultiLineText::Width() const {
-  return (fixed_size.width() > 0.0)
-      ? fixed_size.width()
-      : (width + 2 * padding.x());
+  return (fixed_size.Width() > 0.0)
+      ? fixed_size.Width()
+      : (width + 2 * padding.X());
 }
 
 
 double MultiLineText::Height() const {
-  return (fixed_size.height() > 0.0)
-      ? fixed_size.height()
-      : (height + 2 * padding.y());
+  return (fixed_size.Height() > 0.0)
+      ? fixed_size.Height()
+      : (height + 2 * padding.Y());
 }
 
 
@@ -250,8 +250,8 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
 
   // Shift the context to the desired anchor point
   // and rotate.
-  cairo_translate(context, anchor_position.x(), anchor_position.y());
-  cairo_rotate(context, wgu::deg2rad(rotation));
+  cairo_translate(context, anchor_position.X(), anchor_position.Y());
+  cairo_rotate(context, wgu::Deg2Rad(rotation));
   const Vec2d transformed_anchor_position{0, 0};
 
   // Query the rendered text extents and use them to adjust
@@ -306,8 +306,8 @@ Rect DrawText(cairo_surface_t *surface, cairo_t *context,
   // context, we need to adjust its bounding box:
   Rect bounding_box = mlt.BoundingBox();
   bounding_box.rotation = rotation;
-  bounding_box.cx = anchor_position.x();
-  bounding_box.cy = anchor_position.y();
+  bounding_box.cx = anchor_position.X();
+  bounding_box.cy = anchor_position.Y();
   return bounding_box;
 }
 } // namespace helpers

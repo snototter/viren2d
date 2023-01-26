@@ -52,9 +52,9 @@ bool DrawXYZAxes(
   // if(is_origin_in_front) {
 
   const Matrix3x4d P = wgu::ProjectionMatrixFromKRt(K, R, t);
-  Vec3d tip_x = origin + Vec3d(lengths.x(), 0.0, 0.0);
-  Vec3d tip_y = origin + Vec3d(0.0, lengths.y(), 0.0);
-  Vec3d tip_z = origin + Vec3d(0.0, 0.0, lengths.z());
+  Vec3d tip_x = origin + Vec3d(lengths.X(), 0.0, 0.0);
+  Vec3d tip_y = origin + Vec3d(0.0, lengths.Y(), 0.0);
+  Vec3d tip_z = origin + Vec3d(0.0, 0.0, lengths.Z());
 
   const bool is_origin_in_front = image_plane.IsPointInFrontOfPlane(origin);
   if (is_origin_in_front) {

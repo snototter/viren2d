@@ -16,7 +16,7 @@ bool DrawImageHelper(
     double rotation, double clip_factor,
     LineStyle line_style) {
   cairo_save(context);
-  cairo_translate(context, position.x(), position.y());
+  cairo_translate(context, position.X(), position.Y());
   cairo_rotate(context, rotation * 3.14159 / 180.0);
   cairo_scale(context, scale_x, scale_y);
 
@@ -70,8 +70,8 @@ bool DrawImageHelper(
     cairo_save(context);
     cairo_translate(
           context,
-          pattern_offset.x() + img_u8_c4.Width() / 2.0,
-          pattern_offset.y() + img_u8_c4.Height() / 2.0);
+          pattern_offset.X() + img_u8_c4.Width() / 2.0,
+          pattern_offset.Y() + img_u8_c4.Height() / 2.0);
     cairo_scale(context, clip_scale_x, clip_scale_y);
     cairo_arc(context, 0.0, 0.0, 1.0, 0.0, 2 * M_PI);
     cairo_restore(context);
@@ -88,8 +88,8 @@ bool DrawImageHelper(
     cairo_save(context);
     cairo_translate(
           context,
-          pattern_offset.x() + img_u8_c4.Width() / 2.0,
-          pattern_offset.y() + img_u8_c4.Height() / 2.0);
+          pattern_offset.X() + img_u8_c4.Width() / 2.0,
+          pattern_offset.Y() + img_u8_c4.Height() / 2.0);
     helpers::PathHelperRoundedRect(
           context,
           Rect({0.0, 0.0}, Vec2d(img_u8_c4.Size()),0.0, clip_factor));
@@ -105,7 +105,7 @@ bool DrawImageHelper(
   } else {
     if (need_contour) {
       cairo_rectangle(
-            context, pattern_offset.x(), pattern_offset.y(),
+            context, pattern_offset.X(), pattern_offset.Y(),
             img_u8_c4.Width(), img_u8_c4.Height());
       image_contour = cairo_copy_path(context);
     }
@@ -124,7 +124,7 @@ bool DrawImageHelper(
         img_u8_c4.Height(),
         img_u8_c4.RowStride());
   cairo_set_source_surface(
-        context, imsurf, pattern_offset.x(), pattern_offset.y());
+        context, imsurf, pattern_offset.X(), pattern_offset.Y());
   cairo_paint_with_alpha(context, alpha);
   cairo_surface_destroy(imsurf);
 

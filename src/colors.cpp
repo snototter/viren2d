@@ -575,9 +575,9 @@ bool Color::IsSpecialInvalid() const {
 
 bool Color::IsSpecialSame() const {
   // Check color components but not alpha.
-  return wzkg::eps_equal(red, Same.red)
-      && wzkg::eps_equal(green, Same.green)
-      && wzkg::eps_equal(blue, Same.blue);
+  return wzkg::IsClose(red, Same.red)
+      && wzkg::IsClose(green, Same.green)
+      && wzkg::IsClose(blue, Same.blue);
 }
 
 
@@ -891,10 +891,10 @@ std::vector<std::string> Color::ListObjectCategories() {
 
 
 bool operator==(const Color& lhs, const Color& rhs) {
-  return wzkg::eps_equal(lhs.red, rhs.red)
-      && wzkg::eps_equal(lhs.green, rhs.green)
-      && wzkg::eps_equal(lhs.blue, rhs.blue)
-      && wzkg::eps_equal(lhs.alpha, rhs.alpha);
+  return wzkg::IsClose(lhs.red, rhs.red)
+      && wzkg::IsClose(lhs.green, rhs.green)
+      && wzkg::IsClose(lhs.blue, rhs.blue)
+      && wzkg::IsClose(lhs.alpha, rhs.alpha);
 }
 
 

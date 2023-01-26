@@ -33,7 +33,7 @@ the installation instructions accordingly.
       software repository is stuck at CMake version *3.10*.
 
       From Ubuntu 20.04 on, everything works out-of-the-box. Note, however,
-      I only tested on the LTS versions.
+      that tests are only run on the LTS versions.
 
 
 ------------
@@ -44,7 +44,7 @@ Most internal dependencies are automatically set up by the library's
 CMake-based build pipeline. Nevertheless, the basic build environment, Cairo
 and Eigen3 must be set up manually:
 
-* A C++ compiler supporting at least ``C++14``.
+* A C++ compiler supporting at least ``C++17``.
 * `CMake \>= 3.15 <https://cmake.org/>`__ and a
   `compatible build tool <https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html>`__,
   like `Make <https://www.gnu.org/software/make/>`__, `Ninja <https://ninja-build.org/>`__,
@@ -93,9 +93,9 @@ and Eigen3 must be set up manually:
   * The only runtime dependency is `NumPy \>= 1.7.0 <https://numpy.org/>`_.
 
 
-------
-Python
-------
+------------
+Python Setup
+------------
 
 If all requirements are installed, the simplest way to install ``viren2d`` is
 to use the default package manager, ``pip``, which supports installation
@@ -112,6 +112,11 @@ directly from the github repository:
       :caption: Install ``viren2d``.
 
       python -m pip install git+https://github.com/snototter/viren2d.git
+
+
+-----------
+Python Demo
+-----------
 
 To verify the installation, you can optionally run the following copy-pastable
 example. Note that this additionally requires `Pillow <https://pillow.readthedocs.io/en/stable/>`__ package, which can be installed via:
@@ -132,15 +137,14 @@ example. Note that this additionally requires `Pillow <https://pillow.readthedoc
 
      The resulting visualization.
 
----
-C++
----
+
+---------
+C++ Setup
+---------
 
 The recommended way of integrating ``viren2d`` in your application is via
 `CMake's FetchContent module <https://cmake.org/cmake/help/latest/module/FetchContent.html>`__,
-as shown below. For the corresponding demo application, refer to the
-`C++ hello world example <https://github.com/snototter/viren2d/tree/main/examples/hello-world-cpp>`__.
-
+as shown below:
 
   .. literalinclude:: ../../examples/hello-world-cpp/CMakeLists.txt
      :language: cmake
@@ -148,15 +152,18 @@ as shown below. For the corresponding demo application, refer to the
      :lines: 7-23
      :caption: Exemplary ``CMakeLists.txt`` to integrate ``viren2d`` via CMake's FetchContent module. 
 
-  .. note::
-     The `FetchContent_MakeAvailable <https://cmake.org/cmake/help/latest/module/FetchContent.html#command:fetchcontent_makeavailable>`__
-     module requires CMake>=3.14.
 
-Since this is a standalone demo, only the C++ source file and the example's
+--------
+C++ Demo
+--------
+
+For the corresponding demo application, refer to the
+`C++ hello world example <https://github.com/snototter/viren2d/tree/main/examples/hello-world-cpp>`__.
+To build this standalone demo, only the C++ source file and the example's
 ``CMakeLists.txt`` are needed. *FetchContent* will download and set up all
 dependencies as needed.
 For example, if these two files are placed in a ``hello-world-example``
-folder, a typical CMake build would look like:
+folder, a classical CMake build would look like:
 
   .. code-block:: console
 

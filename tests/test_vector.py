@@ -30,17 +30,26 @@ def vector_test_helper(vec, zero):
 
     assert (vec + zero) == vec
 
-    vec *= 2
-    assert vec == vec2
+    # Multiplying with an integer must yield the same vector type
+    other = vec.copy()
+    other *= 2
+    assert other == vec2
+    assert other.dtype == vec.dtype
 
-    vec /= 2
-    assert vec == vec2 / 2
 
-    vec2 = vec
-    assert vec == vec2
-    assert vec2 == cp
+    # Division will always yield a floating point vector
+    other = vec / 2
+    assert other.dtype == np.float64
+    result = other / 1.2
+    assert 2.4 * result == other * 2
+    assert result.dtype == np.float64
 
-    vec3 = vec + vec2 + cp
+    other /= 2
+    assert other == vec / 4
+    assert other.dtype == np.float64
+
+
+    vec3 = vec + vec + cp
     assert vec3 == 3 * vec
     assert (vec3 - vec) == (2 * vec)
 
@@ -49,6 +58,13 @@ def vector_test_helper(vec, zero):
     assert vec == cp
     for i in range(vec.ndim):
         assert neg[i] == pytest.approx(-vec[i])
+    
+    # Absolute
+    abs_vec = abs(vec)
+    abs_neg = abs(neg)
+    assert abs_vec == abs_neg
+    for i in range(vec.ndim):
+        assert abs_vec[i] >= 0
    
     # Distance/Length & dot product:
     dot1 = vec.dot(vec)
@@ -61,17 +77,25 @@ def vector_test_helper(vec, zero):
     assert math.sqrt(dot1) == pytest.approx(length)
     assert dot1 == pytest.approx(vec.length_squared())
 
-    dist = vec.distance(zero)
+    dist = vec.distance_l2(zero)
     assert dist == pytest.approx(length)
 
+    dist = vec.distance_l1(zero)
+    assert dist == pytest.approx(sum(abs(vec)))
+
     vec2 = 4.0 * vec
-    dist = vec.distance(vec2)
+    dist = vec.distance_l2(vec2)
     assert 3 * length == pytest.approx(dist)
 
+    diff = vec2 - vec
+    assert vec.distance_l1(vec2) == pytest.approx(sum(abs(diff)))
 
+    # Directions
     assert vec2.direction_vector(vec) == -vec.direction_vector(vec2)
     assert vec2.direction_vector(vec) != vec3.direction_vector(vec)
     assert vec2.direction_vector(vec).unit_vector() == vec3.direction_vector(vec).unit_vector()
+    assert vec2.direction_vector(vec).unit_vector().length() == pytest.approx(1)
+    assert vec3.direction_vector(vec).unit_vector().length() == pytest.approx(1)
     assert vec2.direction_vector(vec).unit_vector() == -vec.direction_vector(vec3).unit_vector()
 
     # Cross product (only for 3d)
@@ -164,6 +188,19 @@ def test_vectors():
     with pytest.raises(TypeError):
         viren2d.Vec3d(x=3, y=4, z=7, w=99)
 
+    # Division can yield inf/nan
+    v = viren2d.Vec3d(0, -1e10, 3)
+    result = 1 / v
+    assert math.isinf(result[0])
+    assert not math.isinf(result[1])
+    assert result[1] == pytest.approx(-1e-10)
+    assert result[2] == pytest.approx(1/3)
+
+    result = 0 / v
+    assert math.isnan(result[0])
+    assert result[1] == pytest.approx(0)
+    assert result[2] == pytest.approx(0)
+
     
 def test_pickling():
     vecs = [viren2d.Vec2d(99, -45),
@@ -194,6 +231,7 @@ def test_vector_conversion():
         vec = viren2d.Vec2d(x)
         assert vec.x == pytest.approx(1.0)
         assert vec.y == pytest.approx(2.0)
+        assert vec.dtype == np.float64
         
         y = np.array([[3], [4]], dtype=tp)
         vec = viren2d.Vec2d(y)
@@ -203,6 +241,7 @@ def test_vector_conversion():
         vec = viren2d.Vec2i(x)
         assert vec.x == 1
         assert vec.y == 2
+        assert vec.dtype == np.int32
 
         vec = viren2d.Vec2i(y)
         assert vec.x == 3

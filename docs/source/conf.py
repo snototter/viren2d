@@ -446,3 +446,4 @@ def setup(app):
     app.add_directive("viren2d-object-category-names", Viren2dColorObjectCategoriesTable)
     app.add_directive("viren2d-color-by-id-defaults", Viren2dColorObjectIDsTable)
     app.add_directive("viren2d-color-map-table", Viren2dColorMapsTable)
+

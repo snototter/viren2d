@@ -29,7 +29,7 @@ void DemoText() {
     auto padding = Vec2d::All(idx_family * 3);
 
     std::ostringstream s;
-    s << "Padding: " << static_cast<int>(padding.x());
+    s << "Padding: " << static_cast<int>(padding.X());
     Vec2d pos = {100.0 + idx_family * 200.0, 10.0};
     painter->DrawTextBox({families[idx_family], s.str()},
                          pos, Anchor::Top,

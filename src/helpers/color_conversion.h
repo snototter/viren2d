@@ -37,8 +37,8 @@ inline std::tuple<float, float, float> CvtHelperRGB2HSV(
   const float delta = max_val_idx.first - min_val;
 
   float hue, sat;
-  if (wkg::eps_zero(max_val_idx.first)
-      || wkg::eps_zero(delta)) {
+  if (wkg::IsEpsZero(max_val_idx.first)
+      || wkg::IsEpsZero(delta)) {
     sat = 0.0f;
     hue = 0.0f;
   } else {

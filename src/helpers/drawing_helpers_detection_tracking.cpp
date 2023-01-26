@@ -68,22 +68,22 @@ AlignedLabel PrepareAlignedLabel(
 
     case LabelPosition::LeftB2T:
       valign = VerticalAlignment::Top;
-      rotation = wgu::deg2rad(-90.0);
+      rotation = wgu::Deg2Rad(-90.0);
       break;
 
     case LabelPosition::LeftT2B:
       valign = VerticalAlignment::Bottom;
-      rotation = wgu::deg2rad(+90.0);
+      rotation = wgu::Deg2Rad(+90.0);
       break;
 
     case LabelPosition::RightB2T:
       valign = VerticalAlignment::Bottom;
-      rotation = wgu::deg2rad(-90.0);
+      rotation = wgu::Deg2Rad(-90.0);
       break;
 
     case LabelPosition::RightT2B:
       valign = VerticalAlignment::Top;
-      rotation = wgu::deg2rad(+90.0);
+      rotation = wgu::Deg2Rad(+90.0);
       break;
   }
 
@@ -314,7 +314,7 @@ bool DrawBoundingBox2D(
   // a (0, 0)-centered, axis-aligned rectangle
   cairo_save(context);
   cairo_translate(context, bounding_box.cx, bounding_box.cy);
-  cairo_rotate(context, wgu::deg2rad(bounding_box.rotation));
+  cairo_rotate(context, wgu::Deg2Rad(bounding_box.rotation));
   bounding_box.cx = 0.0;
   bounding_box.cy = 0.0;
 
@@ -454,8 +454,8 @@ bool DrawTrajectory(
     // so that we can apply the color gradient.
     for (std::size_t idx = 1; idx < points.size(); ++idx) {
       cairo_pattern_t *pattern = cairo_pattern_create_linear(
-          points[idx-1].x(), points[idx-1].y(),
-          points[idx].x(), points[idx].y());
+          points[idx-1].X(), points[idx-1].Y(),
+          points[idx].X(), points[idx].Y());
       // See ApplyColor() on why we have to use bgra:
       cairo_pattern_add_color_stop_rgba(pattern, 0.0,
           color_from.blue, color_from.green,
@@ -463,7 +463,7 @@ bool DrawTrajectory(
 
       // The stop color of the current segment's color gradient
       // depends on how far we are along the trajectory:
-      processed_length += points[idx-1].Distance(points[idx]);
+      processed_length += points[idx-1].DistanceEuclidean(points[idx]);
       proportion_color_head = mix_factor(processed_length / total_length);
       color_to = oldest_position_first
           ? color_fade_out.Mix(style.color, proportion_color_head)
@@ -474,8 +474,8 @@ bool DrawTrajectory(
             color_to.red, color_to.alpha);
 
       // Draw the current line segment with this linear color gradient:
-      cairo_move_to(context, points[idx-1].x(), points[idx-1].y());
-      cairo_line_to(context, points[idx].x(), points[idx].y());
+      cairo_move_to(context, points[idx-1].X(), points[idx-1].Y());
+      cairo_line_to(context, points[idx].X(), points[idx].Y());
       cairo_set_source(context, pattern);
       cairo_stroke(context);
       cairo_pattern_destroy(pattern);
@@ -484,9 +484,9 @@ bool DrawTrajectory(
   } else {
     // The whole trajectory should be drawn with the same
     // color. Thus, we can create a single path:
-    cairo_move_to(context, points[0].x(), points[0].y());
+    cairo_move_to(context, points[0].X(), points[0].Y());
     for (std::size_t idx = 1; idx < points.size(); ++idx) {
-      cairo_line_to(context, points[idx].x(), points[idx].y());
+      cairo_line_to(context, points[idx].X(), points[idx].Y());
     }
     cairo_stroke(context);
   }
