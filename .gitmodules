@@ -6,3 +6,6 @@
 	path = libs/stb
 	url = https://github.com/nothings/stb.git
 
+[submodule "libs/pyzeugkiste"]
+	path = libs/pyzeugkiste
+	url = https://github.com/snototter/pyzeugkiste.git

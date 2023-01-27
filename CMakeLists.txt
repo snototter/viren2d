@@ -54,6 +54,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+#TODO change to definition for target only!
 set(CMAKE_CXX_STANDARD 17)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # Only std c++17, not gnu++17
@@ -267,8 +268,6 @@ if(viren2d_BUILD_PYTHON)
 
     pybind11_add_module(${viren2d_TARGET_PYTHON_LIB}
         src/bindings/binding_helpers.h
-        src/bindings/werkzeugkiste-bindings/vector.h
-        src/bindings/werkzeugkiste-bindings/line2d.h
         src/bindings/bindings_colors.cpp
         src/bindings/bindings_colormaps.cpp
         src/bindings/bindings_colorgradients.cpp
@@ -280,7 +279,10 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/bindings_text.cpp
         src/bindings/bindings_painter.cpp
         src/bindings/bindings_code_examples.cpp
-        src/bindings.cpp)
+        src/bindings.cpp
+        libs/pyzeugkiste/include/werkzeugkiste-bindings/vector_bindings.h
+        libs/pyzeugkiste/include/werkzeugkiste-bindings/line2d_bindings.h
+    )
         
     setup_spdlog(${viren2d_TARGET_PYTHON_LIB})
 
@@ -289,7 +291,9 @@ if(viren2d_BUILD_PYTHON)
         viren2d_PYMODULE_NAME=${PROJECT_NAME})
 
     target_include_directories(${viren2d_TARGET_PYTHON_LIB} PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src")
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libs/pyzeugkiste/include"
+    )
 
     set_target_properties(${viren2d_TARGET_PYTHON_LIB} PROPERTIES
         OUTPUT_NAME ${PROJECT_NAME})
