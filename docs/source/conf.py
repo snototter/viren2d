@@ -21,7 +21,6 @@ project = 'viren2d'
 copyright = '2022, snototter'
 author = 'snototter'
 
-from multiprocessing import dummy
 import viren2d
 version = viren2d.__version__
 release = version
