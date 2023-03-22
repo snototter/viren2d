@@ -113,14 +113,12 @@ viren2d.collage([('a',), [1, 2]])
 ImageBuffer CollageWrapper(
     const py::object py_images,
     const Vec2i &image_size,
-    const py::object py_anchor,
+    Anchor anchor,
     const Color &fill_color,
     int output_channels,
     const Vec2i &spacing,
     const Vec2i &margin,
     double clip_factor) {
-  Anchor anchor = AnchorFromPyObject(py_anchor);
-
   std::vector<std::vector<ImageBuffer>> images;
   if (py::isinstance<py::list>(py_images)) {
     images = helpers::ExtractImageBufferRows<py::list>(

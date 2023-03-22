@@ -68,8 +68,6 @@ void RegisterLineStyle(pybind11::module &m);
 void RegisterArrowStyle(pybind11::module &m);
 
 //-------------------------------------------------  Styles (TextStyle)
-HorizontalAlignment HorizontalAlignmentFromPyObject(const pybind11::object &o); // TODO make implicitly convertible
-VerticalAlignment VerticalAlignmentFromPyObject(const pybind11::object &o); // TODO make implicitly convertible
 void RegisterAnchors(pybind11::module &m);
 void RegisterTextStyle(pybind11::module &m);
 
@@ -80,14 +78,11 @@ void RegisterBoundingBox2DStyle(pybind11::module &m);
 void RegisterVectors(pybind11::module &m);
 
 //-------------------------------------------------  Painter
-Anchor AnchorFromPyObject(const pybind11::object &o);  // TODO make implicitly convertible
 std::string PathStringFromPyObject(const pybind11::object &path);
 void RegisterPainter(pybind11::module &m);
 
-
 //------------------------------------------------- Collage
 void RegisterCollage(pybind11::module &m);
-
 
 //-------------------------------------------------  Color gradients
 void RegisterColorGradients(pybind11::module &m);
@@ -95,7 +90,6 @@ void RegisterColorGradients(pybind11::module &m);
 //-------------------------------------------------  Colormaps
 void RegisterColormaps(pybind11::module &m);
 void RegisterColorMapEnum(pybind11::module &m);
-// ColorMap ColorMapFromPyObject(const pybind11::object &o); // TODO remove (is now implicitly convertible)
 
 //-------------------------------------------------  Optical Flow
 void RegisterOpticalFlowUtils(pybind11::module &m);

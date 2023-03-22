@@ -8,7 +8,6 @@
 #include <bindings/binding_helpers.h>
 namespace py = pybind11;
 
-//TODO(doc) add corresponding c++ api to docstr
 
 namespace viren2d {
 namespace bindings {
@@ -69,9 +68,32 @@ LineStyle LineStyleFromTuple(const py::tuple &tpl) {
 }
 
 
+LineCap LineCapFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    return LineCapFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<LineCap>(o)) {
+    return py::cast<LineCap>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.LineCap`!";
+    throw std::invalid_argument(str.str());
+  }
+}
+
+
 void RegisterLineCap(pybind11::module &m) {
   py::enum_<LineCap> cap(m, "LineCap", R"docstr(
         Enumeration specifying how to render the endpoints of a line/dash stroke.
+
+        Explicit instantiation:
+          >>> cap = viren2d.LineCap.Round
+
+        Implicit conversion:
+          >>> style = viren2d.LineStyle()
+          >>> style.cap = 'round'
 
         |image-cheat-sheet-line-cap|
 
@@ -106,20 +128,26 @@ void RegisterLineCap(pybind11::module &m) {
             s << "<LineCap." << LineCapToString(c) << '>';
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
+
+  cap.def(py::init<>(&LineCapFromPyObject),
+        "Custom constructor to support implicit conversion from a :class:`str`.",
+        py::arg("obj"));
+
+  py::implicitly_convertible<py::str, LineCap>();
 }
 
 
-LineCap LineCapFromPyObject(const py::object &o) {
+LineJoin LineJoinFromPyObject(const py::object &o) {
   if (py::isinstance<py::str>(o)) {
-    return LineCapFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<LineCap>(o)) {
-    return py::cast<LineCap>(o);
+    return LineJoinFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<LineJoin>(o)) {
+    return py::cast<LineJoin>(o);
   } else {
     const std::string tp = py::cast<std::string>(
         o.attr("__class__").attr("__name__"));
     std::ostringstream str;
     str << "Cannot cast type `" << tp
-        << "` to `viren2d.LineCap`!";
+        << "` to `viren2d.LineJoin`!";
     throw std::invalid_argument(str.str());
   }
 }
@@ -128,6 +156,13 @@ LineCap LineCapFromPyObject(const py::object &o) {
 void RegisterLineJoin(pybind11::module &m) {
   py::enum_<LineJoin> join(m, "LineJoin", R"docstr(
         Enumeration specifying how to render the junction of two lines/segments.
+
+        Explicit instantiation:
+          >>> join = viren2d.LineJoin.Round
+
+        Implicit conversion:
+          >>> style = viren2d.LineStyle()
+          >>> style.join = 'round'
 
         |image-cheat-sheet-line-join|
         
@@ -161,22 +196,12 @@ void RegisterLineJoin(pybind11::module &m) {
             s << "<LineJoin." << LineJoinToString(j) << '>';
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
-}
+  
+  join.def(py::init<>(&LineJoinFromPyObject),
+        "Custom constructor to support implicit conversion from a :class:`str`.",
+        py::arg("obj"));
 
-
-LineJoin LineJoinFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    return LineJoinFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<LineJoin>(o)) {
-    return py::cast<LineJoin>(o);
-  } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp
-        << "` to `viren2d.LineJoin`!";
-    throw std::invalid_argument(str.str());
-  }
+  py::implicitly_convertible<py::str, LineJoin>();
 }
 
 
@@ -434,23 +459,6 @@ MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
 }
 
 
-/// Convenience construction of a marker style,
-/// which accepts marker/cap/join definitions as
-/// either enum or char/string representation.
-MarkerStyle CreateMarkerStyle(
-    Marker marker, double size, double thickness, const Color &color,
-    bool fill, double background_border, const Color &background_color,
-    const py::object &cap, const py::object &join) {
-  // TODO make line cap implicitly convertible
-  LineCap c = LineCapFromPyObject(cap);
-  // TODO make line join implicitly convertible
-  LineJoin j = LineJoinFromPyObject(join);
-  return MarkerStyle(
-        marker, size, thickness, color, fill, background_border, background_color,
-        c, j);
-}
-
-
 void RegisterMarkerStyle(pybind11::module &m) {
   std::string doc = R"docstr(
       How a marker/keypoint should be drawn.
@@ -495,7 +503,9 @@ void RegisterMarkerStyle(pybind11::module &m) {
           This parameter can also be set via the corresponding
           string representation, *e.g.* ``'miter'``.
       )docstr";
-  style.def(py::init<>(&CreateMarkerStyle),
+  style.def(py::init<
+              Marker, double, double, const Color &,
+              bool, double, const Color &, LineCap, LineJoin>(),
             doc.c_str(),
             py::arg("marker") = default_style.marker,
             py::arg("size") = default_style.size,
@@ -609,12 +619,10 @@ void RegisterMarkerStyle(pybind11::module &m) {
           see :attr:`bg_border`.
         )docstr");
 
-  style.def_property(
+  style.def_readwrite(
         "cap",
-        [](MarkerStyle &s) { return s.cap; },
-        [](MarkerStyle &s, py::object o) {
-            s.cap = LineCapFromPyObject(o);
-        }, R"docstr(
+        &MarkerStyle::cap,
+        R"docstr(
         :class:`~viren2d.LineCap`: How to render the endpoints of the marker's
           contour.
 
@@ -632,24 +640,10 @@ void RegisterMarkerStyle(pybind11::module &m) {
         "the corresponding string representation to set this member:\n\n"
         ">>> style.join = viren2d.LineJoin.Miter\n"
         ">>> style.join = 'miter'\n";
-  style.def_property("join",
-        [](MarkerStyle &s) { return s.join; },
-        [](MarkerStyle &s, py::object o) {
-            s.join = LineJoinFromPyObject(o);
-        }, doc.c_str());
-}
-
-
-/// Convenience construction of a line style,
-/// which accepts cap/join definitions as
-/// either enum or string representation.
-LineStyle CreateLineStyle(
-    double width, const Color &color,
-    const std::vector<double> &dash_pattern, double dash_offset,
-    const py::object &cap, const py::object &join) {
-  LineCap c = LineCapFromPyObject(cap);
-  LineJoin j = LineJoinFromPyObject(join);
-  return LineStyle(width, color, dash_pattern, dash_offset, c, j);
+  style.def_readwrite(
+        "join",
+        &MarkerStyle::join,
+        doc.c_str());
 }
 
 
@@ -740,7 +734,9 @@ void RegisterLineStyle(pybind11::module &m) {
       "    string representation, *e.g.* ``'miter'``.\n";
   LineStyle default_style;
   line_style.def(
-        py::init<>(&CreateLineStyle),
+        py::init<
+          double, const Color &, const std::vector<double> &,
+          double, LineCap, LineJoin>(),
         doc.c_str(),
         py::arg("width") = default_style.width,
         py::arg("color") = default_style.color,
@@ -861,11 +857,10 @@ void RegisterLineStyle(pybind11::module &m) {
         >>> style.cap = viren2d.LineCap.Round
         >>> style.cap = 'round'
       )docstr";
-  line_style.def_property("cap",
-        [](LineStyle &s) { return s.cap; },
-        [](LineStyle &s, py::object o) {
-            s.cap = LineCapFromPyObject(o);
-        }, doc.c_str());
+  line_style.def_readwrite(
+        "cap",
+        &LineStyle::cap,
+        doc.c_str());
 
 
   doc = R"docstr(
@@ -878,11 +873,10 @@ void RegisterLineStyle(pybind11::module &m) {
         >>> style.join = viren2d.LineJoin.Miter
         >>> style.cap = 'miter'
       )docstr";
-  line_style.def_property("join",
-        [](LineStyle &s) { return s.join; },
-        [](LineStyle &s, py::object o) {
-            s.join = LineJoinFromPyObject(o);
-        }, doc.c_str());
+  line_style.def_readwrite(
+        "join",
+        &LineStyle::join,
+        doc.c_str());
 
 
   doc = R"docstr(
@@ -959,21 +953,6 @@ viren2d::ArrowStyle ArrowStyleFromTuple(const py::tuple &tpl) {
 }
 
 
-/// Convenience construction of an arrow style,
-/// which accepts cap/join definitions as
-/// either enum or string representation.
-ArrowStyle CreateArrowStyle(
-    double width, const Color &color, double tip_len, double angle,
-    bool fill, bool two_heads, const std::vector<double> &dash_pattern,
-    double dash_offset, const py::object &cap, const py::object &join) {
-  LineCap c = LineCapFromPyObject(cap);
-  LineJoin j = LineJoinFromPyObject(join);
-  return ArrowStyle(
-        width, color, tip_len, angle, fill, two_heads,
-        dash_pattern, dash_offset, c, j);
-}
-
-
 void RegisterArrowStyle(pybind11::module &m) {
   std::string doc = R"docstr(
       How an arrow should be drawn.
@@ -1023,7 +1002,10 @@ void RegisterArrowStyle(pybind11::module &m) {
         )docstr";
   ArrowStyle default_style;
   arrow_style.def(
-        py::init<>(&CreateArrowStyle),
+        py::init<
+          double, const Color &, double, double,
+          bool, bool, const std::vector<double> &,
+          double, LineCap, LineJoin>(),
         doc.c_str(),
         py::arg("width") = default_style.width,
         py::arg("color") = default_style.color,
@@ -1122,22 +1104,6 @@ py::tuple BoundingBox2DStyleToTuple(const BoundingBox2DStyle &st) {
 }
 
 
-/// Convenience construction of an arrow style,
-/// which accepts cap/join definitions as
-/// either enum or string representation.
-BoundingBox2DStyle CreateBoundingBox2DStyle(
-    const LineStyle &line_style,
-    const TextStyle &text_style,
-    const Color &bbox_fill_color,
-    const Color &label_box_color,
-    const Vec2d &text_padding,
-    bool clip_lbl) {
-  return BoundingBox2DStyle(
-        line_style, text_style, bbox_fill_color, label_box_color,
-        text_padding, clip_lbl);
-}
-
-
 BoundingBox2DStyle BoundingBox2DStyleFromTuple(const py::tuple &tpl) {
   // Convert empty tuple to pre-defined default style
   if (tpl.empty()) {
@@ -1220,7 +1186,9 @@ void RegisterBoundingBox2DStyle(py::module &m) {
       )docstr";
   BoundingBox2DStyle default_style;
   bbox_style.def(
-        py::init<>(&CreateBoundingBox2DStyle),
+        py::init<
+          const LineStyle &, const TextStyle &, const Color &,
+          const Color &, const Vec2d &, bool>(),
         doc.c_str(),
         py::arg("line_style") = default_style.line_style,
         py::arg("text_style") = default_style.text_style,

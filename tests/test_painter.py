@@ -478,6 +478,24 @@ def test_draw_text():
     assert res.is_valid()
 
 
+def test_textbox_anchors():
+    p = viren2d.Painter(height=300, width=400)
+    assert p.is_valid()
+
+    anchors = viren2d.Anchor.list_all()
+    assert all([isinstance(a, viren2d.Anchor) for a in anchors])
+
+    anchors += [str(a) for a in anchors]
+
+    text_style = viren2d.TextStyle()
+    assert text_style.is_valid()
+
+    for anchor in anchors:
+        res = p.draw_text(
+                ['test'], (50, 100), anchor, text_style, (77, 3), 13)
+        assert res.is_valid()
+
+
 def test_draw_text_box():
     # Try drawing on uninitialized canvas
     p = viren2d.Painter()
