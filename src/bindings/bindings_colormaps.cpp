@@ -67,9 +67,32 @@ std::string ColorMapCodeExampleCustom(ColorMap cmap) {
 }
 
 
+ColorMap ColorMapFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    return ColorMapFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<ColorMap>(o)) {
+    return py::cast<ColorMap>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast type `" << tp << "` to `viren2d.ColorMap`!";
+    throw std::invalid_argument(str.str());
+  }
+}
+
+
 void RegisterColorMapEnum(pybind11::module &m) {
   py::enum_<ColorMap> cm(m, "ColorMap", R"docstr(
             Enumeration of available color maps.
+
+            All available color maps can be listed via :meth:`~viren2d.ColorMap.list_all`.
+
+            Explicit instantiation:
+              >>> cmap = viren2d.ColorMap.Gouldian
+
+            Implicit conversion:
+              >>> viren2d.colorize_scaled(data=data, colormap='gouldian')
 
             **Corresponding C++ API:** ``viren2d::ColorMap``.
             )docstr");
@@ -729,13 +752,24 @@ void RegisterColorMapEnum(pybind11::module &m) {
   cm.def(
         "__repr__", [](ColorMap c) -> py::str {
             std::ostringstream s;
-            s << "<ColorMap \"" << ColorMapToString(c) << "\">";
+            s << "viren2d.ColorMap('" << ColorMapToString(c) << "')";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
+  
 
+  docstr = R"docstr(
+      Custom constructor to support implicit conversion from a :class:`str`.
 
-  std::string doc = R"docstr(
-      Returns all :class:`~viren2d.ColorMap` values.
+      >>> # Explicit instantiation:
+      >>> cmap = viren2d.ColorMap.Gouldian
+      >>> # Implicit conversion:
+      >>> viren2d.colorize_scaled(data=data, colormap='gouldian')
+      )docstr";
+  cm.def(py::init<>(&ColorMapFromPyObject),
+        docstr.c_str(), py::arg("obj"));
+
+  docstr = R"docstr(
+      Returns all predefined :class:`~viren2d.ColorMap` values.
 
       Convenience utility to easily iterate all enumeration
       values. This list **will not** include the customizable
@@ -743,23 +777,10 @@ void RegisterColorMapEnum(pybind11::module &m) {
 
       **Corresponding C++ API:** ``viren2d::ListColorMaps``.
       )docstr";
-  cm.def_static("list_all", &ListColorMaps, doc.c_str());
-
-}
+  cm.def_static("list_all", &ListColorMaps, docstr.c_str());
 
 
-ColorMap ColorMapFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    return ColorMapFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<ColorMap>(o)) {
-    return py::cast<ColorMap>(o);
-  } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp << "` to `viren2d.ColorMap`!";
-    throw std::invalid_argument(str.str());
-  }
+  py::implicitly_convertible<py::str, ColorMap>();
 }
 
 
@@ -777,50 +798,11 @@ StreamColorizer::LimitsMode LimitsModeFromPyObject(const py::object &o) {
 }
 
 
-ImageBuffer ColorizationScaledHelper(
-    const ImageBuffer &data, const py::object &colormap,
-    double limit_low, double limit_high, int output_channels,
-    int bins) {
-  ColorMap cmap = ColorMapFromPyObject(colormap);
-  return ColorizeScaled(data, cmap, limit_low, limit_high, output_channels, bins);
-}
-
-
-ImageBuffer ColorizationLabelsHelper(
-    const ImageBuffer &labels, const py::object &colormap,
-    int output_channels) {
-  ColorMap cmap = ColorMapFromPyObject(colormap);
-  return ColorizeLabels(labels, cmap, output_channels);
-}
-
-
 StreamColorizer CreateStreamColorizer(
-    const py::object &colormap, const py::object &limits_mode, int bins,
+    ColorMap colormap, const py::object &limits_mode, int bins,
     int output_channels, double low, double high) {
-  ColorMap cm = ColorMapFromPyObject(colormap);
   StreamColorizer::LimitsMode lm = LimitsModeFromPyObject(limits_mode);
-  return StreamColorizer(cm, lm, bins, output_channels, low, high);
-}
-
-
-void SetCustomColorMapHelper(
-    const py::object &colormap, const std::vector<Color> &colors) {
-  ColorMap cm = ColorMapFromPyObject(colormap);
-  SetCustomColorMap(cm, colors);
-}
-
-
-std::vector<Color> GetColorMapColorsHelper(const py::object &colormap) {
-  ColorMap cm = ColorMapFromPyObject(colormap);
-  return GetColorMapColors(cm);
-}
-
-
-std::vector<Color> ColorizeScalarsHelper(
-    const std::vector<double> &values, const py::object &colormap,
-    double limit_low, double limit_high, int bins) {
-  ColorMap cm = ColorMapFromPyObject(colormap);
-  return ColorizeScalars(values, cm, limit_low, limit_high, bins);
+  return StreamColorizer(colormap, lm, bins, output_channels, low, high);
 }
 
 
@@ -1013,8 +995,8 @@ void RegisterColormaps(pybind11::module &m) {
       .def_property(
         "colormap",
         &StreamColorizer::GetColorMap,
-        [](StreamColorizer &c, const py::object &o) {
-          c.SetColorMap(ColorMapFromPyObject(o));
+        [](StreamColorizer &c, ColorMap cmap) {
+          c.SetColorMap(cmap);
         }, R"docstr(
         :class:`~viren2d.ColorMap`: The selected color map.
 
@@ -1026,7 +1008,7 @@ void RegisterColormaps(pybind11::module &m) {
 
 
   m.def("get_colormap",
-        &GetColorMapColorsHelper, R"docstr(
+        &GetColorMapColors, R"docstr(
         Returns the :class:`list` of :class:`~viren2d.Color` for the
         specified color map.
 
@@ -1061,7 +1043,7 @@ Args:
 
 )docstr" + DocstringCodeExample("colorization-custom");
   m.def("set_custom_colormap",
-        &SetCustomColorMapHelper,
+        &SetCustomColorMap,
         docstr.c_str(),
         py::arg("id"),
         py::arg("colors"));
@@ -1097,7 +1079,7 @@ Returns:
 + "\n\n|image-colorized-peaks|";
 
   m.def("colorize_scaled",
-        &ColorizationScaledHelper,
+        &ColorizeScaled,
         docstr.c_str(),
         py::arg("data"),
         py::arg("colormap") = ColorMap::Gouldian,
@@ -1130,7 +1112,7 @@ Returns:
 + "\n\n|image-label-colorization|";
 
   m.def("colorize_labels",
-        &ColorizationLabelsHelper,
+        &ColorizeLabels,
         docstr.c_str(),
         py::arg("labels"),
         py::arg("colormap") = ColorMap::GlasbeyDark,
@@ -1224,7 +1206,7 @@ Returns:
 
 )docstr" + DocstringCodeExample("colorization-scalars");
   m.def("colorize_scalars",
-        &ColorizeScalarsHelper,
+        &ColorizeScalars,
         docstr.c_str(),
         py::arg("values"),
         py::arg("colormap") = ColorMap::Gouldian,

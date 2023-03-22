@@ -22,6 +22,7 @@ def check_color(color, r, g, b, a):
 def test_color_init():
     c = viren2d.Color()
     assert not c.is_valid()
+    assert eval(repr(c)) == c
 
     c = viren2d.RGBa(255, 0, 255)
     assert c.is_valid()
@@ -63,24 +64,49 @@ def test_color_init():
     assert color == c2
 
 
+def test_special_colors():
+    # Special values used by the Painter.
+    # Invalid (e.g. to skip drawing the outline/contour)
+    c = viren2d.Color()
+    assert not c.is_valid()
+    assert eval(repr(c)) == c
+
+    c = viren2d.Color.Invalid
+    assert not c.is_valid()
+    assert eval(repr(c)) == c
+
+    # Same (e.g. to fill a shape in the same color as its contour)
+    c = viren2d.Color.Same
+    assert not c.is_valid()
+    assert eval(repr(c)) == c
+
+    c = viren2d.Color.Same.with_alpha(0.4)
+    assert not c.is_valid()
+    assert eval(repr(c)) == c
+
+
 def test_saturation_casts():
     # Automatic saturation casts in c'tors
     c = viren2d.Color(255.0, 1000.0, 73000.0, 200.0)
     assert c.is_valid()
     assert c == viren2d.Color.White
+    assert eval(repr(c)) == c
 
     c = viren2d.Color(-1.0, -0.001, 0.5, 0.99)
     assert c.is_valid()
     assert c == viren2d.Color(0, 0, 0.5, 0.99)
+    assert eval(repr(c)) == c
 
     # ... should also work from the convenience functions:
     c = viren2d.RGBa(300.0, -1.0, 1234.0, -3.0)
     assert c.is_valid()
     assert c == "magenta!0"
+    assert eval(repr(c)) == c
 
     c = viren2d.RGBa(-3.0, 1000.0, -0.0001, 0.3)
     assert c.is_valid()
     assert c == "green!30"
+    assert eval(repr(c)) == c
 
 
 def test_shades_of_gray():
@@ -107,11 +133,13 @@ def test_webcodes():
     assert color == "black!10"
     assert color.to_hex(True) == "#00000019"
     assert color.to_hex(False) == "#000000"
+    assert eval(repr(color)) == color
 
     color = viren2d.Color("#fFfFfF", 0.3)
     assert color == 'white!30'
     assert color.to_hex(True) == "#ffffff4c"
     assert color.to_hex(False) == "#ffffff"
+    assert eval(repr(color)) == color
 
     # Invalid inputs
     with pytest.raises(ValueError):
@@ -124,6 +152,7 @@ def test_webcodes():
     # Hardcoded values:
     color = viren2d.Color("#0f5A12")
     assert color == viren2d.RGBa(15, 90, 18)
+    assert eval(repr(color)) == color
 
     color = viren2d.Color("#5500ba")
     assert color == viren2d.RGBa(85, 0, 186)

@@ -64,16 +64,25 @@ def test_painter_basics():
 
 
 def is_valid_line(line_style):
+    if line_style is None:
+        return False
     return line_style.is_valid()
 
 
+def is_valid_color(color):
+    if color is None:
+        return False
+    return color.is_valid()
+
+
 def is_valid_line_or_fill(line_style, fill_color):
-    return line_style.is_valid() or fill_color.is_valid()
+    return is_valid_line(line_style) or is_valid_color(fill_color)
 
 
 def color_configurations():
     colors = list()
     colors.append(viren2d.Color())
+    colors.append(None)
     colors.append(viren2d.rgba(0.3, 0.1, 0.2))
     colors.append(viren2d.Color('blue!40'))
     return colors
@@ -85,6 +94,7 @@ def line_style_configurations():
     style = viren2d.LineStyle()
     styles.append(style.copy())
     styles.append(viren2d.LineStyle.Invalid)
+    styles.append(None)
     for lw in [-2, 0, 0.1, 1, 6]:
         style.width = lw
         for color in color_configurations():

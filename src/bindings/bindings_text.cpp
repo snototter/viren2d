@@ -229,6 +229,7 @@ void RegisterAnchors(py::module &m) {
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
 
+  // TODO make implicitly convertible (like Marker, ColorMap)
 
   std::string doc = R"docstr(
       Returns all :class:`~viren2d.Anchor` values.

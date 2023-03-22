@@ -43,10 +43,10 @@ def test_flow_colorization():
 
 
 def test_flow_legend():
-    cmaps = ['orientation-4', 'orientation-6', 'optical-flow', 'hsv']
+    cmaps = ['orientation-4', 'orientation-6', 'optical-flow', viren2d.ColorMap.HSV]
     for cmap in cmaps:
         for draw_circ in [True, False]:
-            for ls in [viren2d.LineStyle.Invalid, viren2d.LineStyle(2, 'blue')]:
+            for ls in [viren2d.LineStyle.Invalid, None, viren2d.LineStyle(2, 'blue')]:
                 # 3 channel output --> clip_circle will be ignored
                 vis3 = viren2d.optical_flow_legend(
                     size=300, colormap=cmap, line_style=ls,

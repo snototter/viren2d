@@ -73,9 +73,9 @@ void RegisterLineCap(pybind11::module &m) {
   py::enum_<LineCap> cap(m, "LineCap", R"docstr(
         Enumeration specifying how to render the endpoints of a line/dash stroke.
 
-        **Corresponding C++ API:** ``viren2d::LineCap``.
-
         |image-cheat-sheet-line-cap|
+
+        **Corresponding C++ API:** ``viren2d::LineCap``.
         )docstr");
   cap.value(
         "Butt",
@@ -129,9 +129,9 @@ void RegisterLineJoin(pybind11::module &m) {
   py::enum_<LineJoin> join(m, "LineJoin", R"docstr(
         Enumeration specifying how to render the junction of two lines/segments.
 
-        **Corresponding C++ API:** ``viren2d::LineJoin``.
-        
         |image-cheat-sheet-line-join|
+        
+        **Corresponding C++ API:** ``viren2d::LineJoin``.
         )docstr");
 
   join.value(
@@ -180,14 +180,40 @@ LineJoin LineJoinFromPyObject(const py::object &o) {
 }
 
 
+Marker MarkerFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    const auto str = py::cast<std::string>(o);
+    return MarkerFromChar(str[0]);
+  } else if (py::isinstance<Marker>(o)) {
+    return py::cast<Marker>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream str;
+    str << "Cannot cast type `" << tp
+        << "` to `viren2d.Marker`!";
+    throw std::invalid_argument(str.str());
+  }
+}
+
 void RegisterMarker(pybind11::module &m) {
   py::enum_<Marker> marker(
         m, "Marker", R"docstr(
         Enumeration specifying the marker shape.
 
-        **Corresponding C++ API:** ``viren2d::Marker``.
+        Explicit instantiation:
+          >>> marker = viren2d.Marker.Star
+
+        Implicit conversion:
+          >>> style = viren2d.MarkerStyle()
+          >>> style.marker = '*'
+
+        All supported marker shapes are shown below and can also be listed
+        via :meth:`~viren2d.Marker.list_all`.
 
         |image-cheat-sheet-markers|
+
+        **Corresponding C++ API:** ``viren2d::Marker``.
         )docstr");
 
   marker.value(
@@ -325,13 +351,25 @@ void RegisterMarker(pybind11::module &m) {
 
   marker.def(
         "__repr__", [](Marker m) -> py::str {
-            std::string s("<Marker '");
+            std::string s("viren2d.Marker('");
             s += MarkerToChar(m);
-            s += "'>";
+            s += "')";
             return py::str(s);
         }, py::name("__repr__"), py::is_method(m));
 
-  std::string doc = R"docstr(
+  std::string docstr = R"docstr(
+      Custom constructor to support implicit conversion from a :class:`str`.
+
+        >>> # Explicit instantiation:
+        >>> marker = viren2d.Marker.Star
+        >>> # Implicit conversion:
+        >>> style = viren2d.MarkerStyle()
+        >>> style.marker = '*'
+      )docstr";
+  marker.def(py::init<>(&MarkerFromPyObject),
+        docstr.c_str(), py::arg("obj"));
+
+  docstr = R"docstr(
       Returns all :class:`~viren2d.Marker` values.
 
       Convenience utility to easily iterate all enumeration
@@ -339,24 +377,9 @@ void RegisterMarker(pybind11::module &m) {
 
       **Corresponding C++ API:** ``viren2d::ListMarkers``.
       )docstr";
-  marker.def_static("list_all", &ListMarkers, doc.c_str());
-}
+  marker.def_static("list_all", &ListMarkers, docstr.c_str());
 
-
-Marker MarkerFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    const auto str = py::cast<std::string>(o);
-    return MarkerFromChar(str[0]);
-  } else if (py::isinstance<Marker>(o)) {
-    return py::cast<Marker>(o);
-  } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream str;
-    str << "Cannot cast type `" << tp
-        << "` to `viren2d.Marker`!";
-    throw std::invalid_argument(str.str());
-  }
+  py::implicitly_convertible<py::str, Marker>();
 }
 
 
@@ -415,14 +438,15 @@ MarkerStyle MarkerStyleFromTuple(py::tuple tpl) {
 /// which accepts marker/cap/join definitions as
 /// either enum or char/string representation.
 MarkerStyle CreateMarkerStyle(
-    const py::object &marker, double size, double thickness, const Color &color,
+    Marker marker, double size, double thickness, const Color &color,
     bool fill, double background_border, const Color &background_color,
     const py::object &cap, const py::object &join) {
-  Marker m = MarkerFromPyObject(marker);
+  // TODO make line cap implicitly convertible
   LineCap c = LineCapFromPyObject(cap);
+  // TODO make line join implicitly convertible
   LineJoin j = LineJoinFromPyObject(join);
   return MarkerStyle(
-        m, size, thickness, color, fill, background_border, background_color,
+        marker, size, thickness, color, fill, background_border, background_color,
         c, j);
 }
 
@@ -547,11 +571,7 @@ void RegisterMarkerStyle(pybind11::module &m) {
         >>> style.marker = viren2d.Marker.Cross
         >>> style.marker = 'x'
       )docstr";
-  style.def_property("marker",
-        [](MarkerStyle &s) { return s.marker; },
-        [](MarkerStyle &s, py::object o) {
-            s.marker = MarkerFromPyObject(o);
-        }, doc.c_str());
+  style.def_readwrite("marker", &MarkerStyle::marker, doc.c_str());
 
   doc = "float: Thickness of the marker's contour. May be ignored if the shape\n"
         "is fillable and you set :attr:`filled`, *i.e.* filling takes\n"
@@ -637,13 +657,15 @@ void RegisterLineStyle(pybind11::module &m) {
   std::string doc = R"docstr(
       How a line/contour should be drawn.
 
-      Set the line :attr:`width` to an *odd* value to avoid
-      anti-aliasing effects.
-
       Note that several ``draw_xxx`` methods of the
       :class:`~viren2d.Painter` also accept the special member
       :attr:`LineStyle.Invalid`, which indicates that a shape should
       only be filled, but it's contour should not be drawn.
+      Alternatively, ``None`` will also be implicitly converted to
+      :attr:`LineStyle.Invalid` wherever a LineStyle object is expected.
+
+      Set the line :attr:`width` to an *odd* value to avoid
+      anti-aliasing effects.
 
       Example:
         >>> style = viren2d.LineStyle(
@@ -696,28 +718,26 @@ void RegisterLineStyle(pybind11::module &m) {
   line_style.def("detailed_str", &LineStyle::ToDetailedString,
                  "Returns a verbose string representation to facilitate debugging.");
 
-
-  doc = R"docstr(
-      Creates a customized line style.
-
-      Args:
-        width: Width in pixels as :class:`float`.
-        color: Line color as :class:`~viren2d.Color`.
-        dash_pattern: Dash pattern defined as :class:`list[float]`
-          of on/off strokes, refer to the class
-          member :attr:`dash_pattern` for details.
-        dash_offset: Optional offset into the pattern, at which
-          the dash stroke begins (as :class:`float`). Refer to
-          the class member :attr:`dash_offset` for details.
-        cap: A :class:`~viren2d.LineCap` enum, specifying
-          how to render the line endpoints. This parameter
-          can also be set using the corresponding string
-          representation, *e.g.* ``'round'``.
-        join: A :class:`~viren2d.LineJoin` enum, specifying
-          how to render the junctions of multi-segment lines.
-          This parameter can also be set using the corresponding
-          string representation, *e.g.* ``'miter'``.
-      )docstr";
+  // docstr of an overloaded method cannot be written as a raw string, or the
+  // sphinx parser will not be able to render it properly!
+  doc = "Creates a customized line style.\n\n"
+      "Args:\n"
+      "  width: Width in pixels as :class:`float`.\n"
+      "  color: Line color as :class:`~viren2d.Color`.\n"
+      "  dash_pattern: Dash pattern defined as :class:`list[float]`\n"
+      "    of on/off strokes, refer to the class\n"
+      "    member :attr:`dash_pattern` for details.\n"
+      "  dash_offset: Optional offset into the pattern, at which\n"
+      "    the dash stroke begins (as :class:`float`). Refer to\n"
+      "    the class member :attr:`dash_offset` for details.\n"
+      "  cap: A :class:`~viren2d.LineCap` enum, specifying\n"
+      "    how to render the line endpoints. This parameter\n"
+      "    can also be set using the corresponding string\n"
+      "    representation, *e.g.* ``'round'``.\n"
+      "  join: A :class:`~viren2d.LineJoin` enum, specifying\n"
+      "    how to render the junctions of multi-segment lines.\n"
+      "    This parameter can also be set using the corresponding\n"
+      "    string representation, *e.g.* ``'miter'``.\n";
   LineStyle default_style;
   line_style.def(
         py::init<>(&CreateLineStyle),
@@ -728,6 +748,21 @@ void RegisterLineStyle(pybind11::module &m) {
         py::arg("dash_offset") = default_style.dash_offset,
         py::arg("cap") = default_style.cap,
         py::arg("join") = default_style.join);
+  
+
+  // Implicit conversion from None can be supported:
+  // https://github.com/pybind/pybind11/pull/3059
+  doc = R"docstr(
+      Overloaded constructor to implicitly convert ``None`` to :attr:`viren2d.LineStyle.Invalid`.
+
+      Several drawing methods of the :class:`~viren2d.Painter` support
+      skipping the contour and only filling a shape. For example:
+
+        >>> painter.draw_rect(rect, line_style=None, fill_color='blue!40')
+      )docstr";
+  line_style.def(
+        py::init([](py::none const &) { return LineStyle::Invalid; }),
+        doc.c_str(), py::arg("none"));
 
 
   line_style.def(
@@ -861,6 +896,8 @@ void RegisterLineStyle(pybind11::module &m) {
     )docstr";
   line_style.def_readwrite("color", &LineStyle::color,
            doc.c_str());
+  
+  py::implicitly_convertible<py::none, LineStyle>();
 }
 
 

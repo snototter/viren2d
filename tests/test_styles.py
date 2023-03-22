@@ -62,6 +62,10 @@ def marker_style_configurations():
 
 
 def test_line_style():
+    # To support implicit conversion from None, an overloaded c'tor was needed:
+    style = viren2d.LineStyle(None)
+    assert not style.is_valid()
+
     # Default initialization should yield a valid style
     style = viren2d.LineStyle()
     assert style.is_valid()
@@ -99,7 +103,6 @@ def test_line_style():
 
     style2.dash_offset = 3
     assert style2 != style
-
 
 
 def test_arrow_style():
@@ -242,6 +245,12 @@ def test_line_arrow_operators():
     assert arrow_style1 != arrow_style2
     arrow_style2.dash_pattern = []
     assert arrow_style1 == arrow_style2
+
+
+def test_marker_repr():
+    for cm in viren2d.Marker.list_all():
+        assert isinstance(cm, viren2d.Marker)
+        assert eval(repr(cm)) == cm
 
 
 def test_marker_style():
