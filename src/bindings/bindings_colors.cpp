@@ -427,6 +427,9 @@ void RegisterColor(py::module &m) {
         the given :math:`\alpha`.
 
         **Corresponding C++ API:** ``viren2d::Color::WithAlpha``.
+
+        Args:
+          alpha: Opacity as :class:`float` :math:`\in [0, 1]`.
         )docstr",
         py::arg("alpha"))
       .def(
