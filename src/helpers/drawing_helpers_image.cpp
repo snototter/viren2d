@@ -4,6 +4,7 @@
 
 // Non-STL external
 #include <helpers/drawing_helpers.h>
+#include <helpers/logging.h>
 
 namespace viren2d {
 namespace helpers {
@@ -15,6 +16,15 @@ bool DrawImageHelper(
     double alpha, double scale_x, double scale_y,
     double rotation, double clip_factor,
     LineStyle line_style) {
+  const int stride = cairo_format_stride_for_width(
+      CAIRO_FORMAT_ARGB32, img_u8_c4.Width());
+  if (stride != img_u8_c4.RowStride()) {
+    SPDLOG_ERROR(
+        "ImageBuffer stride {} does not match optimal cairo stride {}!",
+        img_u8_c4.RowStride(), stride);
+    return false;
+  }
+
   cairo_save(context);
   cairo_translate(context, position.X(), position.Y());
   cairo_rotate(context, rotation * 3.14159 / 180.0);
@@ -111,8 +121,6 @@ bool DrawImageHelper(
     }
   }
 
-  // FIXME check image memory alignment (see to-do in DrawImage & drawing.cpp)
-
   // Paint the image onto the (already clipped) canvas.
   // Removing the const-ness is not a problem, because the cairo image
   // surface is only used to copy the data onto the canvas. There will be
@@ -158,7 +166,6 @@ bool DrawImage(
     return false;
   }
 
-  //FIXME check stride!!
   if ((image.BufferType() == ImageBufferType::UInt8)
       && (image.Channels() == 4)) {
     return DrawImageHelper(
