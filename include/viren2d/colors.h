@@ -32,6 +32,7 @@ enum class NamedColor : unsigned short {
   Green,
   Blue,
 
+  Amaranth,
   Azure,
   Bronze,
   Brown,

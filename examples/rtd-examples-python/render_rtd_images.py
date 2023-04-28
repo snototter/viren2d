@@ -29,10 +29,10 @@ def render_rtd_demos(show_images: bool, save_images: bool):
     # _process_result(
     #     img, show_images, 'Arrows', save_images, 'arrows.png')
 
-    # # Color names
-    # img = demo_color_names()
-    # _process_result(
-    #     img, show_images, 'Color Names', save_images, 'color-names.png')
+    # Color names
+    img = demo_color_names()
+    _process_result(
+        img, show_images, 'Color Names', save_images, 'color-names.png')
 
     # # Line cap
     # img = demo_line_cap()

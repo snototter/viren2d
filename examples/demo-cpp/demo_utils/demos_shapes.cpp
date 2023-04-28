@@ -242,14 +242,17 @@ void DemoMarkers() {
   marker_style.size = 19;
   marker_style.thickness = 1;
 
-  painter->DrawText({"Marker code:"}, {5.0, pos.y()},
-                    Anchor::TopLeft, text_style);
+  painter->DrawText(
+      {"Marker code:"}, {5.0, pos.Y()},
+      Anchor::TopLeft, text_style);
 
-  painter->DrawText({"Not filled:"}, {5.0, 50.0},
-                    Anchor::Left, text_style);
+  painter->DrawText(
+      {"Not filled:"}, {5.0, 50.0},
+      Anchor::Left, text_style);
 
-  painter->DrawText({"Filled:"}, {5.0, 85.0},
-                    Anchor::Left, text_style);
+  painter->DrawText(
+      {"Filled:"}, {5.0, 85.0},
+      Anchor::Left, text_style);
 
   text_style.size = 16;
   text_style.family = "monospace";
@@ -259,7 +262,7 @@ void DemoMarkers() {
     s << m;
     painter->DrawText({s.str()}, pos, Anchor::Top, text_style);
 
-    Vec2d mpos{pos.x(), 45.0};
+    Vec2d mpos{pos.X(), 45.0};
     marker_style.filled = false;
     marker_style.marker = m;
     if (!marker_style.IsFilled()) {
@@ -268,11 +271,11 @@ void DemoMarkers() {
 
     marker_style.filled = true;
     if (marker_style.IsFilled()) {
-      mpos = {pos.x(), 80.0};
+      mpos = {pos.X(), 80.0};
       painter->DrawMarker(mpos, marker_style);
     }
 
-    pos.x() += 32;
+    pos.X() += 32;
   }
 
   ProcessDemoOutput(painter->GetCanvas(false), "demo-output-markers.png");

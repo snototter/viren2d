@@ -77,19 +77,6 @@ Color CoordinateAxisColorFromPyObject(const py::object &o) {
 }
 
 
-Color FromObjectIDHelper(std::size_t id, const py::object &colormap) {
-  ColorMap cm = ColorMapFromPyObject(colormap);
-  return Color::FromObjectID(id, cm);
-}
-
-
-Color FromObjectCategoryHelper(
-    const std::string &category, const py::object &colormap) {
-  ColorMap cm = ColorMapFromPyObject(colormap);
-  return Color::FromObjectCategory(category, cm);
-}
-
-
 void RegisterColor(py::module &m) {
   m.def("color_names", &ListNamedColors, R"docstr(
         Returns a list of the predefined color names.
@@ -137,11 +124,14 @@ void RegisterColor(py::module &m) {
 
         An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
         :class:`~viren2d.Painter` methods to mark *special* color
-        handling, *e.g.* to skip filling.
+        handling, *e.g.* to skip filling of a shape.
+
+        This constructor additionally allows the implicit conversion of
+        ``None`` to an invalid color.
         )docstr")
       .def(
         py::init<>([](py::none) { return Color::Invalid; }), R"docstr(
-        Any ``None`` will be interpreted as an **invalid color**.
+        A ``None`` will be interpreted as an **invalid color**.
 
         An invalid color, *i.e.* ``r,g,b < 0``, can be used in several
         :class:`~viren2d.Painter` methods to mark *special* color
@@ -209,10 +199,27 @@ void RegisterColor(py::module &m) {
         )docstr")
       .def(
         "__repr__",
-        [](const Color &c) { return "<Color" + c.ToUInt8String(false) + '>'; })
+        [](const Color &c) {
+          std::ostringstream s;
+          s << "viren2d.Color";
+          if (c.IsValid()) {
+            s << "(red=" << c.red << ", green=" << c.green
+              << ", blue=" << c.blue << ", alpha=" << c.alpha << ')';
+          } else {
+            if (c.IsSpecialSame()) {
+              s << ".Same";
+              if (c.alpha < 1.0) {
+                s << ".with_alpha(" << c.alpha << ')';
+              }
+            } else {
+              s << ".Invalid";
+            }
+          }
+          return s.str();
+        })
       .def(
         "__str__",
-        [](const Color &c) { return c.ToUInt8String(false); })
+        [](const Color &c) {return c.ToUInt8String(false); })
       .def(
         py::pickle(&ColorToTuple, &ColorFromTuple),
         ":class:`~viren2d.Color` instances can be pickled.");
@@ -427,6 +434,9 @@ void RegisterColor(py::module &m) {
         the given :math:`\alpha`.
 
         **Corresponding C++ API:** ``viren2d::Color::WithAlpha``.
+
+        Args:
+          alpha: Opacity as :class:`float` :math:`\in [0, 1]`.
         )docstr",
         py::arg("alpha"))
       .def(
@@ -580,7 +590,7 @@ void RegisterColor(py::module &m) {
   // Static initialization methods
   color.def_static(
         "from_object_id",
-        &FromObjectIDHelper, R"docstr(
+        &Color::FromObjectID, R"docstr(
         Returns a color for the (numeric) object ID.
 
         Allows coloring the same object instance consistently, *e.g.* when
@@ -604,7 +614,7 @@ void RegisterColor(py::module &m) {
 
   color.def_static(
         "from_object_category",
-        &FromObjectCategoryHelper, R"docstr(
+        &Color::FromObjectCategory, R"docstr(
         Returns a color for the given category name.
 
         Allows coloring the same object class consistently, *e.g.* to
@@ -675,14 +685,14 @@ void RegisterColor(py::module &m) {
 
   // Also aliases for typing convenience
   m.def("color_from_object_id",
-        &FromObjectIDHelper,
+        &Color::FromObjectID,
         "Alias of :meth:`viren2d.Color.from_object_id`.",
         py::arg("id"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
 
 
   m.def("color_from_object_category",
-        &FromObjectCategoryHelper,
+        &Color::FromObjectCategory,
         "Alias of :meth:`viren2d.Color.from_object_category`.",
         py::arg("category"),
         py::arg("colormap") = ColorMap::GlasbeyDark);
@@ -777,6 +787,8 @@ void RegisterColor(py::module &m) {
         Returns:
           float: The logarithmic factor :math:`y=\operatorname{log}_{10}(0.9 * \text{value} + 1)`.
         )docstr", py::arg("value"));
+
+  py::implicitly_convertible<py::none, Color>();
 }
 
 } // namespace bindings

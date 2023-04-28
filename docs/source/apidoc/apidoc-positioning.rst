@@ -18,6 +18,7 @@ Anchor
 ~~~~~~
 
 .. autoclass:: viren2d.Anchor
+   :members: list_all
 
 ~~~~~~~~~~~~~~~~~~~~
 Horizontal Alignment

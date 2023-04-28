@@ -47,20 +47,27 @@ def test_colormap_usage():
             data=data, colormap='gouldian', low=-6, high=6, bins=1,
             output_channels=5)
 
-    # Different data types:
+    # Different data types & implicit conversion (str -> colormap):
     data = viren2d.peaks(width=800)
-    for dt in [np.uint8, np.int32, np.float32]:
-        data_np = np.array(data, copy=False).astype(dt)
+    for cmap in [viren2d.ColorMap.Gouldian, 'cividis']:
+        for dt in [np.uint8, np.int32, np.float32]:
+            data_np = np.array(data, copy=False).astype(dt)
 
-        img = viren2d.colorize_scaled(
-            data=data_np,
-            colormap='cividis', low=-10, high=20, bins=8,
-            output_channels=4)
+            img = viren2d.colorize_scaled(
+                data=data_np,
+                colormap=cmap, low=-10, high=20, bins=8,
+                output_channels=4)
 
-        assert img.width == 800
-        assert img.height == 600
-        assert img.dtype == np.uint8
-        assert img.channels == 4
+            assert img.width == 800
+            assert img.height == 600
+            assert img.dtype == np.uint8
+            assert img.channels == 4
+
+
+def test_colormap_repr():
+    for cm in viren2d.ColorMap.list_all():
+        assert isinstance(cm, viren2d.ColorMap)
+        assert eval(repr(cm)) == cm
 
 
 def test_custom_colormaps():

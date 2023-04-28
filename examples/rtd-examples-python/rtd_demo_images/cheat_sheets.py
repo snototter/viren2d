@@ -173,8 +173,7 @@ def cheat_sheet_arrowstyle():
    # Style specifications:
     text_style = viren2d.TextStyle(
         family='xkcd', size=18, color='#c0bab1',
-        halign=viren2d.HorizontalAlignment.Center,
-        line_spacing=1.1)
+        halign='center', line_spacing=1.1)
     y_txt = 110  # Same vertical anchor for all text
 
     arrow_style = viren2d.ArrowStyle(

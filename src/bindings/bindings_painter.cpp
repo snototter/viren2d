@@ -17,21 +17,6 @@ namespace py = pybind11;
 
 namespace viren2d {
 namespace bindings {
-Anchor AnchorFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    return AnchorFromString(py::cast<std::string>(o));
-  } else if (py::isinstance<Anchor>(o)) {
-    return py::cast<Anchor>(o);
-  } else {
-    std::string s("Cannot cast type `");
-    s += py::cast<std::string>(
-          o.attr("__class__").attr("__name__"));
-    s += "` to `viren2d.Anchor`!";
-    throw std::invalid_argument(s);
-  }
-}
-
-
 ImageBuffer ImageBufferU8C4FromPyObject(py::object o) {
   if (py::isinstance<ImageBuffer>(o)) {
     return py::cast<ImageBuffer>(o).ToUInt8(4);
@@ -96,7 +81,7 @@ public:
 
   py::tuple GetCanvasSize() {
     auto sz = painter_->GetCanvasSize();
-    return py::make_tuple(sz.x(), sz.y());
+    return py::make_tuple(sz.Width(), sz.Height());
   }
 
 
@@ -189,12 +174,11 @@ public:
 
   bool DrawImage(
       const py::object &image, const Vec2d &position,
-      const py::object &anchor, double alpha, double scale_x, double scale_y,
+      Anchor anchor, double alpha, double scale_x, double scale_y,
       double rotation, double clip_factor, const LineStyle &line_style) {
     const ImageBuffer img_u8c4 = ImageBufferU8C4FromPyObject(image);
-    Anchor a = AnchorFromPyObject(anchor);
     return painter_->DrawImage(
-          img_u8c4, position, a, alpha,
+          img_u8c4, position, anchor, alpha,
           scale_x, scale_y, rotation, clip_factor, line_style);
   }
 
@@ -234,10 +218,9 @@ public:
 
   Rect DrawText(
       const std::vector<std::string> &text,
-      const Vec2d &position, const py::object &pyanchor,
+      const Vec2d &position, Anchor &anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation) {
-    Anchor anchor = AnchorFromPyObject(pyanchor);
     return painter_->DrawText(
           text, position, anchor,
           text_style, padding, rotation);
@@ -246,12 +229,11 @@ public:
 
   Rect DrawTextBox(
       const std::vector<std::string> &text,
-      const Vec2d &position, const py::object &pyanchor,
+      const Vec2d &position, Anchor anchor,
       const TextStyle &text_style, const Vec2d &padding,
       double rotation, const LineStyle &box_line_style,
       const Color &box_fill_color, double box_corner_radius,
       const Vec2d &fixed_box_size) {
-    Anchor anchor = AnchorFromPyObject(pyanchor);
     return painter_->DrawTextBox(
           text, position, anchor, text_style,
           padding, rotation, box_line_style, box_fill_color,
@@ -303,7 +285,7 @@ public:
 
     if (painter_->IsValid()) {
       auto size = painter_->GetCanvasSize();
-      s << size.width() << 'x' << size.height();
+      s << size.Width() << 'x' << size.Height();
     } else {
       s << "canvas not initialized";
     }

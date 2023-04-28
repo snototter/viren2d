@@ -28,6 +28,7 @@ for additional notes, exemplary code and visualizations of all available
 color maps.
 
 .. autoclass:: viren2d.ColorMap
+   :members: list_all
 
 
 ~~~~~~~~~~~~~~~~~

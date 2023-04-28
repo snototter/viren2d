@@ -164,7 +164,8 @@ double LineJoinOffset(
     double miter_limit) {
   // For a diagram of how to compute the miter length, see
   //   https://github.com/freedesktop/cairo/blob/9bb1cbf7249d12dd69c8aca3825711645da20bcb/src/cairo-path-stroke.c#L432
-  const double miter_length = line_width / std::max(1e-6, std::sin(wkg::deg2rad(interior_angle / 2.0)));
+  const double miter_length = line_width / std::max(
+        1e-6, std::sin(wkg::Deg2Rad(interior_angle / 2.0)));
   if (((miter_length / line_width) > miter_limit)  // Cairo would switch to BEVEL
       || (join == LineJoin::Round)
       || (join == LineJoin::Bevel)) {
@@ -368,8 +369,8 @@ MarkerStyle::MarkerStyle(Marker type, double marker_size, double thickness_marke
 
 bool MarkerStyle::Equals(const MarkerStyle &other) const {
   return (marker == other.marker)
-      && wkg::eps_equal(size, other.size)
-      && wkg::eps_equal(thickness, other.thickness)
+      && wkg::IsClose(size, other.size)
+      && wkg::IsClose(thickness, other.thickness)
       && (color == other.color)
       && (filled == other.filled)
       && (background_border == other.background_border)
@@ -532,7 +533,7 @@ std::string LineStyle::ToDetailedString() const {
 
 
 bool LineStyle::Equals(const LineStyle &other) const {
-  if (!wkg::eps_equal(width, other.width)) {
+  if (!wkg::IsClose(width, other.width)) {
     return false;
   }
 
@@ -545,12 +546,12 @@ bool LineStyle::Equals(const LineStyle &other) const {
   }
 
   for (size_t i = 0; i < other.dash_pattern.size(); ++i) {
-    if (!wkg::eps_equal(dash_pattern[i], other.dash_pattern[i])) {
+    if (!wkg::IsClose(dash_pattern[i], other.dash_pattern[i])) {
       return false;
     }
   }
 
-  if (!wkg::eps_equal(dash_offset, other.dash_offset)) {
+  if (!wkg::IsClose(dash_offset, other.dash_offset)) {
     return false;
   }
 
@@ -657,11 +658,12 @@ double ArrowStyle::TipLengthForShaft(double shaft_length) const {
 }
 
 
-double ArrowStyle::TipLengthForShaft(const viren2d::Vec2d &from, const viren2d::Vec2d &to) const {
+double ArrowStyle::TipLengthForShaft(
+    const viren2d::Vec2d &from, const viren2d::Vec2d &to) const {
   if (tip_length > 1.0) {
     return tip_length;
   } else {
-    return TipLengthForShaft(from.Distance(to));
+    return TipLengthForShaft(from.DistanceEuclidean(to));
   }
 }
 
@@ -674,10 +676,10 @@ double ArrowStyle::TipOffset(double miter_limit) const {
 
 
 bool ArrowStyle::Equals(const ArrowStyle &other) const {
-  if (!wkg::eps_equal(tip_length, other.tip_length))
+  if (!wkg::IsClose(tip_length, other.tip_length))
     return false;
 
-  if (!wkg::eps_equal(tip_angle, other.tip_angle))
+  if (!wkg::IsClose(tip_angle, other.tip_angle))
     return false;
 
   if (tip_closed != other.tip_closed)
@@ -739,7 +741,7 @@ bool TextStyle::Equals(const TextStyle &other) const {
       && (color == other.color)
       && (bold == other.bold)
       && (italic == other.italic)
-      && wkg::eps_equal(line_spacing, other.line_spacing);
+      && wkg::IsClose(line_spacing, other.line_spacing);
 }
 
 

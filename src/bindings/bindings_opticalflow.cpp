@@ -11,24 +11,6 @@ namespace py = pybind11;
 namespace viren2d {
 namespace bindings {
 
-ImageBuffer OpticalFlowColorizationHelper(
-    const ImageBuffer &flow, const py::object &colormap,
-    double motion_normalizer, int output_channels) {
-  ColorMap cmap = ColorMapFromPyObject(colormap);
-  return ColorizeOpticalFlow(
-        flow, cmap, motion_normalizer, output_channels);
-}
-
-
-ImageBuffer OpticalFlowLegendHelper(
-    int size, const py::object &colormap, LineStyle line_style,
-    bool draw_circle, bool clip_circle, int output_channels) {
-  ColorMap cmap = ColorMapFromPyObject(colormap);
-  return OpticalFlowLegend(
-        size, cmap, line_style, draw_circle, clip_circle, output_channels);
-}
-
-
 ImageBuffer LoadOpticalFlowHelper(const py::object &path) {
   return LoadOpticalFlow(PathStringFromPyObject(path));
 }
@@ -75,7 +57,7 @@ void RegisterOpticalFlowUtils(py::module &m) {
 
 
   m.def("colorize_optical_flow",
-        &OpticalFlowColorizationHelper, R"docstr(
+        &ColorizeOpticalFlow, R"docstr(
         Colorizes a two-band optical flow field.
 
         Given a cyclic color map, this returns the false color representation,
@@ -121,7 +103,7 @@ void RegisterOpticalFlowUtils(py::module &m) {
 
 
   m.def("optical_flow_legend",
-        &OpticalFlowLegendHelper, R"docstr(
+        &OpticalFlowLegend, R"docstr(
         Returns the color wheel visualization.
 
         **Corresponding C++ API:** ``viren2d::OpticalFlowLegend``.

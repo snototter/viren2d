@@ -2,6 +2,7 @@
 #define __VIREN2D_BINDING_HELPERS_H__
 
 #include <string>
+#include <cstddef>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -21,6 +22,13 @@ namespace viren2d {
 /// Utilities to simplify the module definition.
 namespace bindings {
 //-------------------------------------------------  Common (Binding utils)
+
+
+std::string DocstringCodeExample(
+    const std::string &snippet_name,
+    const std::string &block_prefix = "Example:\n",
+    std::size_t line_indentation = 2,
+    const std::string &line_prefix = ">>> ");
 
 /**
  * Returns the fully qualified type name string: "module"."name",
@@ -60,8 +68,6 @@ void RegisterLineStyle(pybind11::module &m);
 void RegisterArrowStyle(pybind11::module &m);
 
 //-------------------------------------------------  Styles (TextStyle)
-HorizontalAlignment HorizontalAlignmentFromPyObject(const pybind11::object &o);
-VerticalAlignment VerticalAlignmentFromPyObject(const pybind11::object &o);
 void RegisterAnchors(pybind11::module &m);
 void RegisterTextStyle(pybind11::module &m);
 
@@ -72,14 +78,11 @@ void RegisterBoundingBox2DStyle(pybind11::module &m);
 void RegisterVectors(pybind11::module &m);
 
 //-------------------------------------------------  Painter
-Anchor AnchorFromPyObject(const pybind11::object &o);
 std::string PathStringFromPyObject(const pybind11::object &path);
 void RegisterPainter(pybind11::module &m);
 
-
 //------------------------------------------------- Collage
 void RegisterCollage(pybind11::module &m);
-
 
 //-------------------------------------------------  Color gradients
 void RegisterColorGradients(pybind11::module &m);
@@ -87,7 +90,6 @@ void RegisterColorGradients(pybind11::module &m);
 //-------------------------------------------------  Colormaps
 void RegisterColormaps(pybind11::module &m);
 void RegisterColorMapEnum(pybind11::module &m);
-ColorMap ColorMapFromPyObject(const pybind11::object &o);
 
 //-------------------------------------------------  Optical Flow
 void RegisterOpticalFlowUtils(pybind11::module &m);

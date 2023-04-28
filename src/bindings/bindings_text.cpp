@@ -74,6 +74,57 @@ TextStyle TextStyleFromTuple(const py::tuple &tpl) {
 }
 
 
+Anchor AnchorFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    return AnchorFromString(py::cast<std::string>(o));
+  } else if (py::isinstance<Anchor>(o)) {
+    return py::cast<Anchor>(o);
+  } else {
+    std::string s("Cannot cast type `");
+    s += py::cast<std::string>(
+          o.attr("__class__").attr("__name__"));
+    s += "` to `viren2d.Anchor`!";
+    throw std::invalid_argument(s);
+  }
+}
+
+
+HorizontalAlignment HorizontalAlignmentFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    const auto str = py::cast<std::string>(o);
+    return HorizontalAlignmentFromString(str);
+  } else if (py::isinstance<HorizontalAlignment>(o)) {
+    return py::cast<HorizontalAlignment>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream msg;
+    msg << "Cannot cast type `" << tp
+        << "` to `viren2d.HorizontalAlignment`!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
+  }
+}
+
+
+VerticalAlignment VerticalAlignmentFromPyObject(const py::object &o) {
+  if (py::isinstance<py::str>(o)) {
+    const auto str = py::cast<std::string>(o);
+    return VerticalAlignmentFromString(str);
+  } else if (py::isinstance<VerticalAlignment>(o)) {
+    return py::cast<VerticalAlignment>(o);
+  } else {
+    const std::string tp = py::cast<std::string>(
+        o.attr("__class__").attr("__name__"));
+    std::ostringstream msg;
+    msg << "Cannot cast type `" << tp
+        << "` to `viren2d.VerticalAlignment`!";
+    SPDLOG_ERROR(msg.str());
+    throw std::invalid_argument(msg.str());
+  }
+}
+
+
 void RegisterAnchors(py::module &m) {
   py::enum_<HorizontalAlignment> halign(m, "HorizontalAlignment", R"docstr(
             Enumeration for horizontal alignment.
@@ -110,9 +161,19 @@ void RegisterAnchors(py::module &m) {
   halign.def(
         "__repr__", [](HorizontalAlignment a) -> py::str {
             std::ostringstream s;
-            s << "'" << HorizontalAlignmentToString(a) << "'";
+            s << "viren2d.HorizontalAlignment('"
+              << HorizontalAlignmentToString(a) << "')";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
+  
+  std::string docstr = R"docstr(
+      Custom constructor to support implicit conversion from a :class:`str`.
+      )docstr";
+  halign.def(py::init<>(&HorizontalAlignmentFromPyObject),
+        docstr.c_str(), py::arg("obj"));
+  
+  py::implicitly_convertible<py::str, HorizontalAlignment>();
+
 
 
   py::enum_<VerticalAlignment> valign(m, "VerticalAlignment", R"docstr(
@@ -150,17 +211,35 @@ void RegisterAnchors(py::module &m) {
   valign.def(
         "__repr__", [](VerticalAlignment a) -> py::str {
             std::ostringstream s;
-            s << "'" << VerticalAlignmentToString(a) << "'";
+            s << "viren2d.VerticalAlignment('"
+              << VerticalAlignmentToString(a) << "')";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
+  
+  docstr = R"docstr(
+      Custom constructor to support implicit conversion from a :class:`str`.
+      )docstr";
+  valign.def(py::init<>(&VerticalAlignmentFromPyObject),
+        docstr.c_str(), py::arg("obj"));
+  
+  py::implicitly_convertible<py::str, VerticalAlignment>();
 
 
   py::enum_<Anchor> anchor(m, "Anchor", R"docstr(
             Placement options with respect to a reference point.
 
-            **Corresponding C++ API:** ``viren2d::Anchor``.
+            Explicit instantiation:
+              >>> anchor = viren2d.Anchor.TopLeft
 
+            Implicit conversion:
+              >>> painter.draw_text(..., anchor='center')
+
+            All supported anchors are shown below and can also be listed
+            via :meth:`~viren2d.Anchor.list_all`.
+            
             |image-cheat-sheet-anchors|
+
+            **Corresponding C++ API:** ``viren2d::Anchor``.
             )docstr");
   anchor.value(
         "Center",
@@ -225,12 +304,24 @@ void RegisterAnchors(py::module &m) {
   anchor.def(
         "__repr__", [](Anchor a) -> py::str {
             std::ostringstream s;
-            s << "'" << AnchorToString(a) << "'";
+            s << "viren2d.Anchor('" << AnchorToString(a) << "')";
             return py::str(s.str());
         }, py::name("__repr__"), py::is_method(m));
 
+  docstr = R"docstr(
+      Custom constructor to support implicit conversion from a :class:`str`.
 
-  std::string doc = R"docstr(
+        >>> # Explicit instantiation:
+        >>> anchor = viren2d.Anchor.TopLeft
+        >>> # Implicit conversion:
+        >>> painter.draw_text(..., anchor='center')
+      )docstr";
+  anchor.def(py::init<>(&AnchorFromPyObject),
+        docstr.c_str(), py::arg("obj"));
+  
+  py::implicitly_convertible<py::str, Anchor>();
+
+  docstr = R"docstr(
       Returns all :class:`~viren2d.Anchor` values.
 
       Convenience utility to easily iterate all enumeration
@@ -238,7 +329,8 @@ void RegisterAnchors(py::module &m) {
 
       **Corresponding C++ API:** ``viren2d::ListAnchors``.
       )docstr";
-  anchor.def_static("list_all", &ListAnchors, doc.c_str());
+  anchor.def_static("list_all", &ListAnchors, docstr.c_str());
+  
 
 
   py::enum_<LabelPosition> bblp(
@@ -281,55 +373,21 @@ void RegisterAnchors(py::module &m) {
         Along the **right edge** of the bounding box, from **bottom
         to top**.
         )docstr");
+  // TODO implicitly convertible
 
   bblp.def(
       "__str__", [](LabelPosition lp) -> py::str {
           return py::str(LabelPositionToString(lp));
       }, py::name("__str__"), py::is_method(m));
 
+  // TODO eval(repr(...))
   bblp.def(
       "__repr__", [](LabelPosition lp) -> py::str {
           std::ostringstream s;
-          s << "<LabelPosition."
-            << LabelPositionToString(lp) << '>';
+          s << "viren2d.LabelPosition('"
+            << LabelPositionToString(lp) << "')";
           return py::str(s.str());
       }, py::name("__repr__"), py::is_method(m));
-}
-
-
-HorizontalAlignment HorizontalAlignmentFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    const auto str = py::cast<std::string>(o);
-    return HorizontalAlignmentFromString(str);
-  } else if (py::isinstance<HorizontalAlignment>(o)) {
-    return py::cast<HorizontalAlignment>(o);
-  } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream msg;
-    msg << "Cannot cast type `" << tp
-        << "` to `viren2d.HorizontalAlignment`!";
-    SPDLOG_ERROR(msg.str());
-    throw std::invalid_argument(msg.str());
-  }
-}
-
-
-VerticalAlignment VerticalAlignmentFromPyObject(const py::object &o) {
-  if (py::isinstance<py::str>(o)) {
-    const auto str = py::cast<std::string>(o);
-    return VerticalAlignmentFromString(str);
-  } else if (py::isinstance<VerticalAlignment>(o)) {
-    return py::cast<VerticalAlignment>(o);
-  } else {
-    const std::string tp = py::cast<std::string>(
-        o.attr("__class__").attr("__name__"));
-    std::ostringstream msg;
-    msg << "Cannot cast type `" << tp
-        << "` to `viren2d.VerticalAlignment`!";
-    SPDLOG_ERROR(msg.str());
-    throw std::invalid_argument(msg.str());
-  }
 }
 
 
@@ -339,12 +397,11 @@ VerticalAlignment VerticalAlignmentFromPyObject(const py::object &o) {
 TextStyle CreateTextStyle(
     unsigned int font_size, const std::string &font_family,
     const Color &font_color, bool font_bold, bool font_italic,
-    double spacing, const py::object &halign, const py::object &valign) {
-  HorizontalAlignment horz_align = HorizontalAlignmentFromPyObject(halign);
+    double spacing, HorizontalAlignment halign, const py::object &valign) {
   VerticalAlignment vert_align = VerticalAlignmentFromPyObject(valign);
   return TextStyle(
         font_size, font_family, font_color,
-        font_bold, font_italic, spacing, horz_align, vert_align);
+        font_bold, font_italic, spacing, halign, vert_align);
 }
 
 
@@ -399,6 +456,7 @@ void RegisterTextStyle(py::module &m) {
         py::arg("halign") = default_style.halign,
         py::arg("valign") = default_style.valign);
 
+  // TODO eval(repr(...))
   text_style.def(
         "copy",
         [](const TextStyle &st) { return TextStyle(st); }, R"docstr(
@@ -484,12 +542,10 @@ void RegisterTextStyle(py::module &m) {
         )docstr");
 
 
-  text_style.def_property(
+  text_style.def_readwrite(
         "halign",
-        [](const TextStyle &s) { return s.halign; },
-        [](TextStyle &s, py::object o) {
-            s.halign = HorizontalAlignmentFromPyObject(o);
-        }, R"docstr(
+        &TextStyle::halign,
+        R"docstr(
         :class:`~viren2d.HorizontalAlignment`:  Horizontal alignment of
           multi-line text.
 
@@ -504,12 +560,10 @@ void RegisterTextStyle(py::module &m) {
         )docstr");
 
 
-  text_style.def_property(
+  text_style.def_readwrite(
         "valign",
-        [](const TextStyle &s) { return s.valign; },
-        [](TextStyle &s, py::object o) {
-            s.valign = VerticalAlignmentFromPyObject(o);
-        }, R"docstr(
+        &TextStyle::valign,
+        R"docstr(
         :class:`~viren2d.VerticalAlignment`:  Vertical alignment of
           multi-line text. Will only affect the output of **fixed-size**
           text boxes, see :meth:`~viren2d.Painter.draw_text_box`.

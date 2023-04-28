@@ -54,9 +54,10 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_STANDARD 14)  # We use std::exchange
+#TODO change to definition for target only!
+set(CMAKE_CXX_STANDARD 17)  # We use std::exchange
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)  # Only std c++14, not gnu++14
+set(CMAKE_CXX_EXTENSIONS OFF)  # Only std c++17, not gnu++17
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") # TODO(cmake-improvement) gcc vs msvc vs... currently assumes linux, check CMakeLists of werkzeugkiste or spdlog!
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -277,8 +278,11 @@ if(viren2d_BUILD_PYTHON)
         src/bindings/bindings_styles.cpp
         src/bindings/bindings_text.cpp
         src/bindings/bindings_painter.cpp
-        src/bindings/bindings_vector.cpp
-        src/bindings.cpp)
+        src/bindings/bindings_code_examples.cpp
+        src/bindings.cpp
+        libs/pyzeugkiste/include/werkzeugkiste-bindings/vector_bindings.h
+        libs/pyzeugkiste/include/werkzeugkiste-bindings/line2d_bindings.h
+    )
         
     setup_spdlog(${viren2d_TARGET_PYTHON_LIB})
 
@@ -287,7 +291,9 @@ if(viren2d_BUILD_PYTHON)
         viren2d_PYMODULE_NAME=${PROJECT_NAME})
 
     target_include_directories(${viren2d_TARGET_PYTHON_LIB} PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src")
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libs/pyzeugkiste/include"
+    )
 
     set_target_properties(${viren2d_TARGET_PYTHON_LIB} PROPERTIES
         OUTPUT_NAME ${PROJECT_NAME})

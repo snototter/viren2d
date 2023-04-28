@@ -28,3 +28,4 @@ Marker Shapes
 ~~~~~~~~~~~~~
 
 .. autoclass:: viren2d.Marker
+   :members: list_all

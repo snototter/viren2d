@@ -166,7 +166,7 @@ def render_colormap_gradients():
     for cat in VIREN2D_COLORMAP_CATEGORIES:
         for cmap in VIREN2D_COLORMAP_CATEGORIES[cat]:
             painter.set_canvas_rgb(
-                width=data.shape[1] + 10, height=data.shape[0] + 10,
+                width=data.shape[1] + 10, height=data.shape[0] + 20,
                 color="white!0")
 
             vis = viren2d.colorize_scaled(data, colormap=cmap, low=0, high=255)
@@ -176,3 +176,4 @@ def render_colormap_gradients():
 
             colormap_gradients[cmap] = np.array(painter.canvas, copy=True)
     return colormap_gradients
+

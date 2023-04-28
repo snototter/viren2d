@@ -199,8 +199,8 @@ struct Rect {
   /// Creates a custom rectangle.
   Rect(const Vec2d &center, const Vec2d &size,
        double rot = 0.0, double corner_radius = 0.0)
-    : cx(center.x()), cy(center.y()),
-      width(size.width()), height(size.height()),
+    : cx(center.X()), cy(center.Y()),
+      width(size.Width()), height(size.Height()),
       rotation(rot), radius(corner_radius)
   {}
 

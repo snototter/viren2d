@@ -913,7 +913,7 @@ ImageBuffer Orientation(const ImageBuffer &src, float invalid) {
     for (int col = 0; col < cols; ++col) {
       _Tp u = *src_ptr++;
       _Tp v = *src_ptr++;
-      if (wkg::eps_zero(u) && wkg::eps_zero(v)) {
+      if (wkg::IsEpsZero(u) && wkg::IsEpsZero(v)) {
         *dst_ptr++ = static_cast<_Tp>(invalid);
       } else {
         *dst_ptr++ = std::atan2(v, u);
