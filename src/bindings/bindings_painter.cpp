@@ -562,7 +562,7 @@ void RegisterPainter(py::module &m) {
           >>> # We only need a shared view on the canvas...
           >>> img_buf = p.get_canvas(copy=False)
           >>> # ... because the following performs a deep copy:
-          >>> img_np = img_buf.to_channels(3)
+          >>> img_np = np.array(img_buf.to_channels(3))
 
         .. tip::
             If you can ensure that the painter is not destroyed while
