@@ -1148,7 +1148,7 @@ BoundingBox2DStyle BoundingBox2DStyleFromTuple(const py::tuple &tpl) {
 
 void RegisterBoundingBox2DStyle(py::module &m) {
   std::string doc = R"docstr(
-      How a 2D bounding box should be drawn."
+      How a 2D bounding box should be drawn.
 
       Example:
         >>> line_style = viren2d.LineStyle(
