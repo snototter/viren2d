@@ -220,7 +220,7 @@ class Viren2dColorNamesTable(Directive):
             rows.append(row)
 
             # First column, the name + link to online color lookup
-            hex = color.to_hex(False)  # hex code without alpha
+            hex = color.to_hex(with_alpha=False)
             url = f'https://www.google.com/search?q=%23{hex[1:]}'
 
             entry = nodes.entry()
@@ -294,7 +294,7 @@ class Viren2dColorObjectCategoriesTable(Directive):
             # Place a fixed-sized span of the corresponding color before the
             # category name
             color = viren2d.Color.from_object_category(cnames[idx])
-            hex = color.to_hex(False)  # hex code without alpha
+            hex = color.to_hex(with_alpha=False)
             color_block = nodes.inline(classes=['colorblock', f'bgc{hex[1:]}'])
 
             entry = nodes.entry()
@@ -346,7 +346,7 @@ class Viren2dColorObjectIDsTable(Directive):
             # Place a fixed-sized span of the corresponding color before the
             # category name
             color = viren2d.Color.from_object_id(idx)
-            hex = color.to_hex()[:-2]  # hex code without alpha
+            hex = color.to_hex(with_alpha=False)
             color_block = nodes.inline(classes=['colorblock', f'bgc{hex[1:]}'])
 
             entry = nodes.entry()
