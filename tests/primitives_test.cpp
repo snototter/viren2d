@@ -40,8 +40,8 @@ TEST(PrimitivesTest, Rectangle) {
           EXPECT_DOUBLE_EQ(rect.HalfWidth(), width / 2.0);
           EXPECT_DOUBLE_EQ(rect.HalfHeight(), height / 2.0);
 
-          EXPECT_TRUE(wgu::eps_zero(rect.rotation));
-          EXPECT_TRUE(wgu::eps_zero(rect.radius));
+          EXPECT_TRUE(wgu::IsEpsZero(rect.rotation));
+          EXPECT_TRUE(wgu::IsEpsZero(rect.radius));
 
           rect.width = 1;
           rect.height = 2;
@@ -140,9 +140,9 @@ TEST(PrimitivesTest, Ellipse) {
           viren2d::Ellipse ellipse(cx, cy, major, minor);
           EXPECT_EQ(ellipse.IsValid(), (major > 0) && (minor > 0) && (major >= minor));
 
-          EXPECT_TRUE(wgu::eps_zero(ellipse.rotation));
-          EXPECT_TRUE(wgu::eps_zero(ellipse.angle_from));
-          EXPECT_TRUE(wgu::eps_equal(ellipse.angle_to, 360.0));
+          EXPECT_TRUE(wgu::IsEpsZero(ellipse.rotation));
+          EXPECT_TRUE(wgu::IsEpsZero(ellipse.angle_from));
+          EXPECT_TRUE(wgu::IsEpsEqual(ellipse.angle_to, 360.0));
 
           ellipse.major_axis = 100;
           ellipse.minor_axis = 80;

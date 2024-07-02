@@ -13,9 +13,9 @@ namespace wgu = werkzeugkiste::geometry;
 ::testing::AssertionResult CheckColor(const viren2d::Color &color,
                                       double red, double green,
                                       double blue, double alpha) {
-  if (wgu::eps_equal(color.red, red)
-      && wgu::eps_equal(color.green, green)
-      && wgu::eps_equal(color.blue, blue)
+  if (wgu::IsEpsEqual(color.red, red)
+      && wgu::IsEpsEqual(color.green, green)
+      && wgu::IsEpsEqual(color.blue, blue)
       && (std::fabs(color.alpha - alpha) < 0.001)) {
     return ::testing::AssertionSuccess();
   } else {
