@@ -15,7 +15,7 @@ template <typename _Tp>
     for (int col = 0; col < buf.Width(); ++col) {
       if ((buf.BufferType() == viren2d::ImageBufferType::Float)
           || (buf.BufferType() == viren2d::ImageBufferType::Double)) {
-        if (!wgu::eps_equal(buf.AtChecked<_Tp>(row, col, channel), value)) {
+        if (!wgu::IsEpsEqual(buf.AtChecked<_Tp>(row, col, channel), value)) {
           return ::testing::AssertionFailure()
               << "`CheckChannelConstant` (float/double): " << buf.ToString()
               << ", channel=" << channel << ", value=" << value
@@ -91,7 +91,7 @@ template<typename _Tp>
     for (int col = 0; col < buf1.Width(); ++col) {
       if ((buf1.BufferType() == viren2d::ImageBufferType::Float)
           || (buf1.BufferType() == viren2d::ImageBufferType::Double)) {
-        if (!wgu::eps_equal(
+        if (!wgu::IsEpsEqual(
               buf1.AtChecked<_Tp>(row, col, ch1),
               buf2.AtChecked<_Tp>(row, col, ch2))) {
           return ::testing::AssertionFailure()
