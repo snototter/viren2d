@@ -423,9 +423,9 @@ void RegisterRectangle(py::module &m) {
         from the ``L,T,W,H`` and ``L,R,T,B`` representations:
 
         >>> # If top-left and dimensions are given:
-        >>> rect = viren2d.Rect.rom_ltwh(left, top, width, height)
+        >>> rect = viren2d.Rect.from_ltwh(left, top, width, height)
         >>> # If top-left and bottom-right corners are given:
-        >>> rect = viren2d.Rect.rom_lrtb(left, right, top, bottom)
+        >>> rect = viren2d.Rect.from_lrtb(left, right, top, bottom)
 
         **Corresponding C++ API:** ``viren2d::Rect``.
 
