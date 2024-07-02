@@ -70,6 +70,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ###############################################################################
 # C++ library
 ###############################################################################
+include(FetchContent)
 
 # Auto-generate the version.h file
 configure_file(
@@ -263,8 +264,16 @@ endif()
 ###############################################################################
 
 if(viren2d_BUILD_PYTHON)
-    # pybind11 provides add_module which is basically a wrapper of CMake's add_library
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/pybind11)
+    # If built outside scikit-build-core (i.e. during development), pybind11 may not
+    # be available.
+    find_package(pybind11 CONFIG QUIET)
+    if(NOT pybind11_FOUND)
+        FetchContent_Declare(
+            pybind11
+            GIT_REPOSITORY https://github.com/pybind/pybind11.git
+            GIT_TAG master)
+        FetchContent_MakeAvailable(pybind11)
+    endif()
 
     pybind11_add_module(${viren2d_TARGET_PYTHON_LIB}
         src/bindings/binding_helpers.h
@@ -311,8 +320,6 @@ if(viren2d_BUILD_TESTS)
     # Prevent gtest from adding itself to the install target
     set(INSTALL_GTEST OFF)
     set(BUILD_GMOCK OFF)
-
-    include(FetchContent)
     
     FetchContent_Declare(
         googletest

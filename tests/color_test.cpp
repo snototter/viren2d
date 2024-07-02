@@ -13,9 +13,9 @@ namespace wgu = werkzeugkiste::geometry;
 ::testing::AssertionResult CheckColor(const viren2d::Color &color,
                                       double red, double green,
                                       double blue, double alpha) {
-  if (wgu::eps_equal(color.red, red)
-      && wgu::eps_equal(color.green, green)
-      && wgu::eps_equal(color.blue, blue)
+  if (wgu::IsEpsEqual(color.red, red)
+      && wgu::IsEpsEqual(color.green, green)
+      && wgu::IsEpsEqual(color.blue, blue)
       && (std::fabs(color.alpha - alpha) < 0.001)) {
     return ::testing::AssertionSuccess();
   } else {
@@ -214,11 +214,13 @@ TEST(ColorTest, Webcodes) {
   // Test initialization via webcodes/hex codes
   auto color = viren2d::Color::FromHexString("#000000", 0.1);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::Black, 0.1));
-  EXPECT_EQ(color.ToHexString(), "#00000019");
+  EXPECT_EQ(color.ToHexString(true), "#00000019");
+  EXPECT_EQ(color.ToHexString(false), "#000000");
 
   color = viren2d::Color::FromHexString("#fFfFfF", 0.3);
   EXPECT_EQ(color, viren2d::Color(viren2d::NamedColor::White, 0.3));
-  EXPECT_EQ(color.ToHexString(), "#ffffff4c");
+  EXPECT_EQ(color.ToHexString(true), "#ffffff4c");
+  EXPECT_EQ(color.ToHexString(false), "#ffffff");
 
   // Invalid inputs
   EXPECT_THROW(viren2d::Color::FromHexString("abcd"), std::invalid_argument);
@@ -232,7 +234,7 @@ TEST(ColorTest, Webcodes) {
       webcode[idx+1] = (digit < 10) ? ('0' + digit)
                                   : ('A' + digit - 10);
       color = viren2d::Color(webcode);
-      EXPECT_EQ(werkzeugkiste::strings::Upper(color.ToHexString()),
+      EXPECT_EQ(werkzeugkiste::strings::Upper(color.ToHexString(true)),
                 webcode);
     }
   }
@@ -255,7 +257,8 @@ TEST(ColorTest, Webcodes) {
 
   color = viren2d::Color();
   EXPECT_FALSE(color.IsValid());
-  EXPECT_EQ(color.ToHexString(), "#????????");
+  EXPECT_EQ(color.ToHexString(true), "#????????");
+  EXPECT_EQ(color.ToHexString(false), "#??????");
 }
 
 
