@@ -97,9 +97,11 @@ def test_custom_colormaps():
 
 
 def test_label_colorization():
+    # Invalid input 2**31 can no longer be tested, as it causes an overflow
+    # (since NumPy 2) instead of being squashed into the int32 range.
     data = np.array(
         [[       -10,        -1,     0,   1,  10],
-         [2**31 - 10, 2**31 - 1, 2**31, 257, 266],
+         [2**31 - 10, 2**31 - 1, 2**31 - 2, 257, 266],
          [135, 1234567 % 256, 1234567, 391, 25479]], dtype=np.int32)
     # Use a colormap with 256 bins:
     vis = viren2d.colorize_labels(

@@ -6,7 +6,10 @@ import pathlib
 
 def test_flow_colorization():
     data_path = pathlib.Path(__file__).parent.parent.resolve() / 'examples' / 'data'
-    with pytest.raises(RuntimeError):
+    # Need to check for decoding error, as the JPEG header contains non-UTF-8
+    # bytes. Thus, pybind11 fails to decode the underlying std::runtime_error to
+    # a python string and instead raises a UnicodeDecodeError.
+    with pytest.raises((RuntimeError, UnicodeDecodeError)):
         viren2d.load_optical_flow(str(data_path / 'lunar-farside.jpg'))
 
     flow = viren2d.load_optical_flow(str(data_path / 'sintel-alley2.flo'))
