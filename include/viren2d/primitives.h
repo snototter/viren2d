@@ -315,4 +315,27 @@ bool operator!=(const Rect& lhs, const Rect& rhs);
 
 } // namespace viren2d
 
+// Include fmt formatter specializations for ImageBufferType and ImageBuffer,
+// if logging is enabled. Since fmt v9, the implicit operator<< fallback is
+// no longer used by default.
+#ifdef viren2d_ENABLE_LOGGING
+#include <fmt/format.h>
+
+// Macro to automatically register fmt::formatters for types that implement ToString()
+#define VIREN2D_REGISTER_FMT_FORMATTER(Type) \
+template <> \
+struct fmt::formatter<Type> { \
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) { \
+        return ctx.begin(); \
+    } \
+    template <typename FormatContext> \
+    auto format(const Type& obj, FormatContext& ctx) const -> decltype(ctx.out()) { \
+        return fmt::format_to(ctx.out(), "{}", obj.ToString()); \
+    } \
+};
+
+VIREN2D_REGISTER_FMT_FORMATTER(viren2d::Ellipse)
+VIREN2D_REGISTER_FMT_FORMATTER(viren2d::Rect)
+#endif // viren2d_ENABLE_LOGGING
+
 #endif // __VIREN2D_PRIMITIVES_H__

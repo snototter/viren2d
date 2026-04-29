@@ -767,4 +767,24 @@ void SaveImageUInt8(const std::string &image_filename, const ImageBuffer &image)
 
 } // namespace viren2d
 
+// Include fmt formatter specializations for ImageBufferType and ImageBuffer,
+// if logging is enabled. Since fmt v9, the implicit operator<< fallback is
+// no longer used by default.
+#ifdef viren2d_ENABLE_LOGGING
+#include <fmt/format.h>
+
+template <>
+struct fmt::formatter<viren2d::ImageBufferType> {
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+        return ctx.begin();
+    }
+    template <typename FormatContext>
+    auto format(const viren2d::ImageBufferType& t, FormatContext& ctx) const -> decltype(ctx.out()) {
+        return fmt::format_to(ctx.out(), "{}", viren2d::ImageBufferTypeToString(t));
+    }
+};
+
+VIREN2D_REGISTER_FMT_FORMATTER(viren2d::ImageBuffer)
+#endif // viren2d_ENABLE_LOGGING
+
 #endif // __VIREN2D_IMAGEBUFFER_H__
