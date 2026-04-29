@@ -551,8 +551,8 @@ def test_draw_trajectory():
     # Create dummy trajectory (which may partially be
     # outside the image boundaries)
     num_points = 100
-    x = 600 * np.random.rand(num_points, 1) - 100
-    y = 500 * np.random.rand(num_points, 1) - 100
+    x = 600 * np.random.rand(num_points) - 100
+    y = 500 * np.random.rand(num_points) - 100
     pts = [(x[i], y[i]) for i in range(num_points)]
 
     line_style = viren2d.LineStyle()
@@ -606,8 +606,8 @@ def test_draw_trajectories():
     num_points = 50
     trajectories = list()
     for color in ['blue', 'same', 'same!40', 'invalid']:
-        x = 600 * np.random.rand(num_points, 1)
-        y = 500 * np.random.rand(num_points, 1)
+        x = 600 * np.random.rand(num_points)
+        y = 500 * np.random.rand(num_points)
         pts = [(x[i], y[i]) for i in range(num_points)]
         trajectories.append((pts, color))
 
@@ -702,7 +702,7 @@ def test_pinhole_xyz_axes():
     
     # Try implicit conversion for Fortran-style arrays
     assert p.draw_xyz_axes(
-        K=np.asfarray(K), R=np.asfarray(R), t=np.asfarray(t))
+        K=np.asfortranarray(K), R=np.asfortranarray(R), t=np.asfortranarray(t))
 
     # Specify all parameters:
     assert p.draw_xyz_axes(

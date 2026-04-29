@@ -14,8 +14,9 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ["3.7", "3.8"]
-#TODO , "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.12", "3.14"]
+# Check status of python versions:
+# https://devguide.python.org/versions/
 
     steps:
     - name: Setup OS build environment
